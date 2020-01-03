@@ -99,7 +99,7 @@ public class BaseResult implements Serializable {
         }
 
         char[] cs = str.toCharArray();
-        StringBuffer sBuilder = new StringBuffer();
+        StringBuilder sBuilder = new StringBuilder(str.length());
 
         for (int i = 0; i < cs.length; ++i) {
             int c = cs[i] & 0xFFFF;
@@ -131,7 +131,7 @@ public class BaseResult implements Serializable {
             return null;
         }
 
-        StringBuffer sBuilder = new StringBuffer();
+        StringBuilder sBuilder = new StringBuilder(str.length());
         char[] cs = str.toCharArray();
 
         for (int i = 0; i < cs.length; ++i) {
