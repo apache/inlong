@@ -81,7 +81,7 @@ public class Webapi implements Action {
             if ((TStringUtils.isNotEmpty(strCallbackFun))
                     && (strCallbackFun.length() <= TBaseConstants.META_MAX_CALLBACK_STRING_LENGTH)
                     && (strCallbackFun.matches(TBaseConstants.META_TMP_CALLBACK_STRING_VALUE))) {
-                strCallbackFun = String.valueOf(strCallbackFun).trim();
+                strCallbackFun = strCallbackFun.trim();
             }
             if (type == null) {
                 throw new Exception("Please take with type parameter!");
