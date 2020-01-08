@@ -55,7 +55,7 @@ public class RequestContext extends MappedContext {
 
     private static String normalizePath(String path) {
         if (path.startsWith("/")) {
-            path = path.substring(1, path.length());
+            path = path.substring(1);
         }
         if (path.indexOf(".") > -1) {
             path = path.substring(0, path.indexOf("."));
