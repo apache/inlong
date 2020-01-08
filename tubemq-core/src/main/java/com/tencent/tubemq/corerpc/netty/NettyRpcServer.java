@@ -76,7 +76,7 @@ public class NettyRpcServer implements ServiceRpcServer {
     private static AtomicLong lastParseTime = new AtomicLong(0);
     private final ConcurrentHashMap<Integer, Protocol> protocols =
             new ConcurrentHashMap<Integer, Protocol>();
-    private ServerBootstrap bootstrap ;
+    private ServerBootstrap bootstrap;
     private NioServerSocketChannelFactory channelFactory = null;
     private AtomicBoolean started = new AtomicBoolean(false);
     private int protocolType = RpcProtocol.RPC_PROTOCOL_TCP;
