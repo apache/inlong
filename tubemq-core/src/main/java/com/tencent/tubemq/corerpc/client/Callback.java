@@ -25,7 +25,7 @@ package com.tencent.tubemq.corerpc.client;
 /**
  * Interface for receiving asynchronous callbacks. For each request with an
  * asynchronous callback, either {@link #handleResult(Object)} or
- * {@link #handleError(Exception)} will be invoked.
+ * {@link #handleError(Throwable)} will be invoked.
  */
 public interface Callback<T> {
     /**
