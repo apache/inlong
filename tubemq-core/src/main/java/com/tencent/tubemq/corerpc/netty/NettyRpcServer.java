@@ -80,7 +80,7 @@ public class NettyRpcServer implements ServiceRpcServer {
     private NioServerSocketChannelFactory channelFactory = null;
     private AtomicBoolean started = new AtomicBoolean(false);
     private int protocolType = RpcProtocol.RPC_PROTOCOL_TCP;
-    private boolean isOverTLS ;
+    private boolean isOverTLS;
     private String keyStorePath = "";
     private String keyStorePassword = "";
     private boolean needTwoWayAuthentic = false;
