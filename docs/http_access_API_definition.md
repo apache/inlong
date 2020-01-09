@@ -625,9 +625,9 @@ Set default flow control rule. It is effective for all consumer group. It worth 
 The flow control info is described in JSON format, for example: 
 
 ```json
-[{"type":0,"rule":[{"start":"08:00","end":"17:59","dltInM":1024,"limitInM":20,"freqInMs":1000},{"start":"18:00","end":"22:00","dltInM":1024,"limitInM":20,"freqInMs":5000}]},{"type":2,"rule":[{"start":"18:00","end":"23:59","dltStInM":20480,"dltEdInMM":2048}]},{"type":1,"rule":[{"zeroCnt":3,"freqInMs":300},{"zeroCnt":8,"freqInMs":1000}]},{"type":3,"rule":[{"normFreqInMs":0,"filterFreqInMs":100,"minDataFilterFreqInMs":400}]}
+[{"type":0,"rule":[{"start":"08:00","end":"17:59","dltInM":1024,"limitInM":20,"freqInMs":1000},{"start":"18:00","end":"22:00","dltInM":1024,"limitInM":20,"freqInMs":5000}]},{"type":2,"rule":[{"start":"18:00","end":"23:59","dltStInM":20480,"dltEdInMM":2048}]},{"type":1,"rule":[{"zeroCnt":3,"freqInMs":300},{"zeroCnt":8,"freqInMs":1000}]},{"type":3,"rule":[{"normFreqInMs":0,"filterFreqInMs":100,"minDataFilterFreqInMs":400}]}]
 ```
-The `type` has four values [0, 1, 2, 3]. 0: flow contorl, 1: frequency control, 2: delay to SSD storage control, 3: filter consumer frequency control,<br>
+The `type` has four values [0, 1, 2, 3]. 0: flow control, 1: frequency control, 2: delay to SSD storage control, 3: filter consumer frequency control,<br>
  `[start, end]` is an inclusive range of time, `dltInM` is the consuming delta in MB, `dltStInM` is consuming data delta when enabling SSD to storage <br>
 `dltEdInM` is consuming data delta when terminating SSD to storage, `limitInM` is the flow control each minute, `freqInMs` is the interval for sending request
 after exceeding the flow or freq limit, `zeroCnt` is the count of how many times occurs zero data, `normFreqInMs` is the interval of sequential pulling,<br>
