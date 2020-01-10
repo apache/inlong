@@ -288,7 +288,7 @@ public class WebParameterUtils {
     public static void reqAuthorizenCheck(TMaster master,
                                           BrokerConfManage brokerConfManage,
                                           String reqToken) throws Exception {
-        if (brokerConfManage.isPrimaryNodeActived()) {
+        if (brokerConfManage.isPrimaryNodeActive()) {
             throw new Exception(
                     "Illegal visit: designatedPrimary happened...please check if the other member is down");
         }

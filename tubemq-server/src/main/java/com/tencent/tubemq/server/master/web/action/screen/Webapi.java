@@ -94,7 +94,7 @@ public class Webapi implements Action {
                 strBuffer = processQueryOperate(req, method);
                 succProcess = true;
             } else if ("op_modify".equals(type)) {  // modify
-                if (brokerConfManage.isPrimaryNodeActived()) {
+                if (brokerConfManage.isPrimaryNodeActive()) {
                     throw new Exception(
                             "DesignatedPrimary happened...please check if the other member is down");
                 }

@@ -144,8 +144,8 @@ public class BrokerConfManage implements Server {
         return mBdbStoreManagerService.isMaster();
     }
 
-    public boolean isPrimaryNodeActived() {
-        return mBdbStoreManagerService.isPrimaryNodeActived();
+    public boolean isPrimaryNodeActive() {
+        return mBdbStoreManagerService.isPrimaryNodeActive();
     }
 
     /**
@@ -155,7 +155,7 @@ public class BrokerConfManage implements Server {
      */
     public void transferMaster() throws Exception {
         if (mBdbStoreManagerService.isMaster()
-                && !mBdbStoreManagerService.isPrimaryNodeActived()) {
+                && !mBdbStoreManagerService.isPrimaryNodeActive()) {
             mBdbStoreManagerService.transferMaster();
         }
     }
