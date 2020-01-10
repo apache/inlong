@@ -251,7 +251,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             return null;
         }
         if (replicationGroup != null) {
-            clusterGroupVO.setPrimaryNodeActived(isPrimaryNodeActived());
+            clusterGroupVO.setPrimaryNodeActived(isPrimaryNodeActive());
             int count = 0;
             boolean hasMaster = false;
             List<ClusterNodeVO> clusterNodeVOList = new ArrayList<ClusterNodeVO>();
@@ -283,7 +283,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             }
             clusterGroupVO.setNodeData(clusterNodeVOList);
             if (hasMaster) {
-                if (isPrimaryNodeActived()) {
+                if (isPrimaryNodeActive()) {
                     clusterGroupVO.setGroupStatus("Running-ReadOnly");
                 } else {
                     clusterGroupVO.setGroupStatus("Running-ReadWrite");
@@ -887,7 +887,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         if ((activeNodes >= majoritySize) && isMasterActive) {
             masterGroupStatus.setMasterGroupStatus(true, true, true);
             connectNodeFailCount = 0;
-            if (isPrimaryNodeActived()) {
+            if (isPrimaryNodeActive()) {
                 repEnv.setRepMutableConfig(repEnv.getRepMutableConfig().setDesignatedPrimary(false));
             }
         }
@@ -896,7 +896,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             if (connectNodeFailCount > 1000) {
                 connectNodeFailCount = 3;
             }
-            if (!isPrimaryNodeActived()) {
+            if (!isPrimaryNodeActive()) {
                 logger.error("[BDB Error] DesignatedPrimary happened...please check if the other member is down");
                 repEnv.setRepMutableConfig(repEnv.getRepMutableConfig().setDesignatedPrimary(true));
             }
@@ -910,7 +910,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
      * @return
      */
     @Override
-    public boolean isPrimaryNodeActived() {
+    public boolean isPrimaryNodeActive() {
         if (repEnv == null) {
             return false;
         }
@@ -929,7 +929,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             throw new Exception("The BDB store StoreService is reboot now!");
         }
         if (isMaster()) {
-            if (!isPrimaryNodeActived()) {
+            if (!isPrimaryNodeActive()) {
                 if ((replicas4Transfer != null) && (!replicas4Transfer.isEmpty())) {
                     logger.info("start transferMaster to replicas: " + replicas4Transfer);
                     if ((replicas4Transfer != null) && (!replicas4Transfer.isEmpty())) {

@@ -71,7 +71,7 @@ public interface BdbStoreService {
 
     MasterGroupStatus getMasterGroupStatus(boolean isFromHeartbeat);
 
-    boolean isPrimaryNodeActived();
+    boolean isPrimaryNodeActive();
 
     void transferMaster() throws Exception;
 

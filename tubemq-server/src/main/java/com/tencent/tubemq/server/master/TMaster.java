@@ -1885,7 +1885,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             logger.info(strBuffer.append("[Rebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
                     .append(", isPrimaryNodeActived=")
-                    .append(defaultBdbStoreService.isPrimaryNodeActived()).toString());
+                    .append(defaultBdbStoreService.isPrimaryNodeActive()).toString());
         } else {
             logger.info(strBuffer.append("[Rebalance Start] ").append(rebalanceId)
                     .append(", BDB service is null isMaster= false, isPrimaryNodeActived=false").toString());
@@ -2032,7 +2032,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             logger.info(strBuffer.append("[ResetRebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
                     .append(", isPrimaryNodeActived=")
-                    .append(defaultBdbStoreService.isPrimaryNodeActived()).toString());
+                    .append(defaultBdbStoreService.isPrimaryNodeActive()).toString());
         } else {
             logger.info(strBuffer.append("[ResetRebalance Start] ").append(rebalanceId)
                     .append(", BDB service is null isMaster= false, isPrimaryNodeActived=false").toString());
