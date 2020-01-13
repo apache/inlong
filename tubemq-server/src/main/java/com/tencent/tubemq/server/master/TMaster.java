@@ -140,7 +140,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final BrokerConfManage defaultBrokerConfManage;             //broker config manager
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
-    private AtomicLong idGenerater = new AtomicLong(0);     //id generator
+    private AtomicLong idGenerator = new AtomicLong(0);     //id generator
     private volatile boolean stopped = false;                   //stop flag
     private Thread balancerChore;                               //balance chore
     private Thread resetBalancerChore;                          //reset balance chore
@@ -1880,7 +1880,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private void balance() {
         // #lizard forgives
         final StringBuilder strBuffer = new StringBuilder(512);
-        long rebalanceId = idGenerater.incrementAndGet();
+        long rebalanceId = idGenerator.incrementAndGet();
         if (defaultBdbStoreService != null) {
             logger.info(strBuffer.append("[Rebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
@@ -2027,7 +2027,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // #lizard forgives
         //consumer need reset offset
         final StringBuilder strBuffer = new StringBuilder(512);
-        long rebalanceId = idGenerater.incrementAndGet();
+        long rebalanceId = idGenerator.incrementAndGet();
         if (defaultBdbStoreService != null) {
             logger.info(strBuffer.append("[ResetRebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
