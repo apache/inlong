@@ -51,25 +51,25 @@ public class RowLock {
         this.name = lockName;
     }
 
-    public Integer getLock(Integer lockid, byte[] row, boolean waitForLock) throws IOException {
-        return getLock(lockid, new HashedBytes(row), waitForLock);
+    public Integer getLock(Integer lockId, byte[] row, boolean waitForLock) throws IOException {
+        return getLock(lockId, new HashedBytes(row), waitForLock);
     }
 
-    protected Integer getLock(Integer lockid,
+    protected Integer getLock(Integer lockId,
                               HashedBytes row,
                               boolean waitForLock) throws IOException {
         Integer lid;
-        if (lockid == null) {
+        if (lockId == null) {
             lid = internalObtainRowLock(row, waitForLock);
         } else {
-            HashedBytes rowFromLock = lockIds.get(lockid);
+            HashedBytes rowFromLock = lockIds.get(lockId);
             if (!row.equals(rowFromLock)) {
                 throw new IOException(new StringBuilder(512)
-                        .append("Invalid row lock: LockId: ").append(lockid)
+                        .append("Invalid row lock: LockId: ").append(lockId)
                         .append(" holds the lock for row: ").append(rowFromLock)
                         .append(" but wanted lock for row: ").append(row).toString());
             }
-            lid = lockid;
+            lid = lockId;
         }
         return lid;
     }

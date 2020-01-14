@@ -81,7 +81,7 @@ public class JVMClusterUtil {
      * address.
      */
     public static void startup(final List<MasterThread> masters,
-                               final List<BrokerThread> regionservers) throws IOException {
+                               final List<BrokerThread> regionServers) throws IOException {
 
         if (masters == null || masters.isEmpty()) {
             return;
@@ -91,8 +91,8 @@ public class JVMClusterUtil {
             t.start();
         }
 
-        if (regionservers != null) {
-            for (JVMClusterUtil.BrokerThread t : regionservers) {
+        if (regionServers != null) {
+            for (JVMClusterUtil.BrokerThread t : regionServers) {
                 t.start();
             }
         }
