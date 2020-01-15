@@ -178,7 +178,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
             } else {
                 try {
                     final TopicProcessor topicProcessor =
-                            baseConsumer.consumeSubInfo.getTopicProcesser(taskContext.getPartition().getTopic());
+                            baseConsumer.consumeSubInfo.getTopicProcessor(taskContext.getPartition().getTopic());
                     if ((topicProcessor == null) || (topicProcessor.getMessageListener() == null)) {
                         isConsumed = false;
                         throw new TubeClientException(sBuilder
