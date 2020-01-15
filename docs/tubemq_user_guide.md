@@ -1,4 +1,4 @@
-# TubeMQ User Guide
+# Apache TubeMQ User Guide
 ## Prerequisites
 
 - Java 1.7 or 1.8(Java 9 and above haven't been verified yet)
