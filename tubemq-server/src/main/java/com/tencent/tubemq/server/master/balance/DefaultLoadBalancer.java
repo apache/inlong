@@ -247,7 +247,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet,
             Map<String, Map<String, Map<String, Partition>>> oldClusterState,
-            Map<String, RebProcessInfo> rejGroupClientINfoMap) {
+            Map<String, RebProcessInfo> rejGroupClientInfoMap) {
         // according to group
         for (String group : groupSet) {
             ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(group);
@@ -257,7 +257,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             // filter consumer which don't need to handle
             List<ConsumerInfo> consumerList = new ArrayList<ConsumerInfo>();
             List<ConsumerInfo> consumerList1 = consumerBandInfo.getConsumerInfoList();
-            RebProcessInfo rebProcessInfo = rejGroupClientINfoMap.get(group);
+            RebProcessInfo rebProcessInfo = rejGroupClientInfoMap.get(group);
             if (rebProcessInfo != null) {
                 for (ConsumerInfo consumerInfo : consumerList1) {
                     if (rebProcessInfo.needProcessList.contains(consumerInfo.getConsumerId())
