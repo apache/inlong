@@ -1,12 +1,16 @@
-# TubeMQ
+Apache TubeMQ
+==============================================
+[![Build Status](https://travis-ci.org/apache/incubator-tubemq.svg?branch=master)](https://travis-ci.org/apache/incubator-tubemq)
 
-[README in Chinese](README.cn.md)
+Apache TubeMQ (incubating) is a trillion-records-scale distributed messaging queue (MQ) system, focuses on data transmission and storage under massive data. Compared to many open source MQ projects, TubeMQ has unique advantages in terms of stability, performance, and low cost.
 
-TubeMQ is a distributed messaging queue (MQ) system developed by Tencent Big Data since 2013. It focuses on high-performance storage and transmission of massive data in big data scenarios.
 
-After nearly seven years of massive data precipitation, TubeMQ has certain advantages in production practice (stability + performance) and low cost compared to many open source MQ projects. Recently we open source related code and design for TubeMQ project. You can find more information and documentations under /docs. More information and documentation (in English) will get uploaded soon.
+License
+-------
+© Contributors Licensed under an [Apache-2.0](LICENSE) license.
 
-## Documentation
-- [User Guide](./docs/tubemq_user_guide.md)
 
-For more questions, please contact us: gosonzhang@tencent.com, junpingdu@tencent.com
+Build and Deploy
+-------
+- [See user guide](./docs/tubemq_user_guide.md)
+
