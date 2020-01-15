@@ -262,7 +262,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         if ((messageListener == null) && (!this.isPullConsume)) {
             throw new IllegalArgumentException("Parameter error: null messageListener");
         }
-        TopicProcessor topicProcessor = this.consumeSubInfo.getTopicProcesser(topic);
+        TopicProcessor topicProcessor = this.consumeSubInfo.getTopicProcessor(topic);
         if (topicProcessor == null) {
             final TopicProcessor oldProcessor =
                     this.consumeSubInfo.putIfAbsentTopicProcessor(topic,
@@ -993,7 +993,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         builder.setReadStatus(getGroupInitReadStatus());
         TopicProcessor topicProcessor =
-                this.consumeSubInfo.getTopicProcesser(partition.getTopic());
+                this.consumeSubInfo.getTopicProcessor(partition.getTopic());
         if (topicProcessor != null && topicProcessor.getFilterConds() != null) {
             builder.addAllFilterCondStr(topicProcessor.getFilterConds());
         }
@@ -1246,7 +1246,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     // Calculate the message size and do some flow control
                     boolean needFilter = false;
                     Set<String> topicFilterSet = null;
-                    TopicProcessor topicProcessor = consumeSubInfo.getTopicProcesser(topic);
+                    TopicProcessor topicProcessor = consumeSubInfo.getTopicProcessor(topic);
                     if (topicProcessor != null) {
                         topicFilterSet = topicProcessor.getFilterConds();
                         if (topicFilterSet != null && !topicFilterSet.isEmpty()) {

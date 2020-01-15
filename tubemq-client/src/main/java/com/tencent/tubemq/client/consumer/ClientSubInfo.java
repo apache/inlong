@@ -61,7 +61,7 @@ public class ClientSubInfo {
         return this.subscribedTopics.contains(topic);
     }
 
-    public TopicProcessor getTopicProcesser(String topic) {
+    public TopicProcessor getTopicProcessor(String topic) {
         return this.topicCondRegistry.get(topic);
     }
 
