@@ -52,10 +52,10 @@ public class BdbStoreSamplePrint extends AbstractSamplePrint {
             if ((e instanceof IOException)) {
                 // IOException log limit
                 final long now = System.currentTimeMillis();
-                final long difftime = now - lastLogTime.get();
+                final long diffTime = now - lastLogTime.get();
                 final long curPrintCnt = totalPrintCount.incrementAndGet();
                 if (curPrintCnt < maxTotalCount) {
-                    if (difftime < sampleDetailDur && curPrintCnt < maxDetailCount) {
+                    if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                         logger.error(sBuilder.append("[BDB Error] Connect to node:[")
                                 .append(hostName).append(",").append(nodeName)
                                 .append("] IOException error").toString(), e);
@@ -66,8 +66,8 @@ public class BdbStoreSamplePrint extends AbstractSamplePrint {
                     }
                     sBuilder.delete(0, sBuilder.length());
                 }
-                if (difftime > sampleResetDur) {
-                    if (this.lastLogTime.compareAndSet(now - difftime, now)) {
+                if (diffTime > sampleResetDur) {
+                    if (this.lastLogTime.compareAndSet(now - diffTime, now)) {
                         totalPrintCount.set(0);
                     }
                 }

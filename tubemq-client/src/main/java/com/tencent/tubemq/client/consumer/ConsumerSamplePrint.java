@@ -44,11 +44,11 @@ public class ConsumerSamplePrint extends AbstractSamplePrint {
         }
         if (e instanceof IOException || e instanceof Exception) {
             final long now = System.currentTimeMillis();
-            final long difftime = now - lastLogTime.get();
+            final long diffTime = now - lastLogTime.get();
             final long curPrintCnt = totalPrintCount.incrementAndGet();
 
             if (curPrintCnt < maxTotalCount) {
-                if (difftime < sampleDetailDur && curPrintCnt < maxDetailCount) {
+                if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                     logger.error("[heartbeat failed] heartbeat to broker error 1: ", e);
                 } else {
                     logger.error(sBuilder
@@ -57,8 +57,8 @@ public class ConsumerSamplePrint extends AbstractSamplePrint {
                     sBuilder.delete(0, sBuilder.length());
                 }
             }
-            if (difftime > sampleResetDur) {
-                if (this.lastLogTime.compareAndSet(now - difftime, now)) {
+            if (diffTime > sampleResetDur) {
+                if (this.lastLogTime.compareAndSet(now - diffTime, now)) {
                     totalPrintCount.set(0);
                 }
             }
