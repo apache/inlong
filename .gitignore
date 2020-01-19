@@ -8,4 +8,4 @@ target/
 !.gitignore
 !.gitkeep
 !.travis.yml
-tube-server/test/
+tubemq-server/src/test/
