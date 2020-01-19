@@ -504,7 +504,7 @@ public class TStringUtils {
         if (strs.length == 0) {
             return "";
         }
-        StringBuffer sbuf = new StringBuffer();
+        StringBuilder sbuf = new StringBuilder();
         sbuf.append(strs[0]);
         for (int idx = 1; idx < strs.length; idx++) {
             sbuf.append(",");
