@@ -44,10 +44,10 @@ public class DiskSamplePrint extends AbstractSamplePrint {
         if (e != null) {
             if ((e instanceof IOException)) {
                 final long now = System.currentTimeMillis();
-                final long difftime = now - lastLogTime.get();
+                final long diffTime = now - lastLogTime.get();
                 final long curPrintCnt = totalPrintCount.incrementAndGet();
                 if (curPrintCnt < maxTotalCount) {
-                    if (difftime < sampleDetailDur && curPrintCnt < maxDetailCount) {
+                    if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                         logger.error("[File Store] Append message in file failed ", e);
                     } else {
                         logger.error(sBuilder
@@ -56,8 +56,8 @@ public class DiskSamplePrint extends AbstractSamplePrint {
                         sBuilder.delete(0, sBuilder.length());
                     }
                 }
-                if (difftime > sampleResetDur) {
-                    if (this.lastLogTime.compareAndSet(now - difftime, now)) {
+                if (diffTime > sampleResetDur) {
+                    if (this.lastLogTime.compareAndSet(now - diffTime, now)) {
                         totalPrintCount.set(0);
                     }
                 }
@@ -80,10 +80,10 @@ public class DiskSamplePrint extends AbstractSamplePrint {
         if (e != null) {
             if ((e instanceof IOException)) {
                 final long now = System.currentTimeMillis();
-                final long difftime = now - lastLogTime.get();
+                final long diffTime = now - lastLogTime.get();
                 final long curPrintCnt = totalPrintCount.incrementAndGet();
                 if (curPrintCnt < maxTotalCount) {
-                    if (difftime < sampleDetailDur && curPrintCnt < maxDetailCount) {
+                    if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                         logger.warn(sBuilder
                             .append("[File Store] Get message failure for IOException, storeKey=")
                             .append(storeKey).append(", partitionId=").append(partitionId).toString(), e);
@@ -95,8 +95,8 @@ public class DiskSamplePrint extends AbstractSamplePrint {
                     }
                     sBuilder.delete(0, sBuilder.length());
                 }
-                if (difftime > sampleResetDur) {
-                    if (this.lastLogTime.compareAndSet(now - difftime, now)) {
+                if (diffTime > sampleResetDur) {
+                    if (this.lastLogTime.compareAndSet(now - diffTime, now)) {
                         totalPrintCount.set(0);
                     }
                 }

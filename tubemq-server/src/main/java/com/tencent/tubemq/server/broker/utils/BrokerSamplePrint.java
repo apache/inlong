@@ -44,10 +44,10 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
         if (e != null) {
             if ((e instanceof IOException)) {
                 final long now = System.currentTimeMillis();
-                final long difftime = now - lastLogTime.get();
+                final long diffTime = now - lastLogTime.get();
                 final long curPrintCnt = totalPrintCount.incrementAndGet();
                 if (curPrintCnt < maxTotalCount) {
-                    if (difftime < sampleDetailDur && curPrintCnt < maxDetailCount) {
+                    if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                         logger.error("[heartbeat failed] heartbeat to master exception 1 is ", e);
                     } else {
                         logger.error(sBuilder
@@ -56,8 +56,8 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
                         sBuilder.delete(0, sBuilder.length());
                     }
                 }
-                if (difftime > sampleResetDur) {
-                    if (this.lastLogTime.compareAndSet(now - difftime, now)) {
+                if (diffTime > sampleResetDur) {
+                    if (this.lastLogTime.compareAndSet(now - diffTime, now)) {
                         totalPrintCount.set(0);
                     }
                 }
