@@ -190,7 +190,7 @@
                             <licenseFamilyName>Apache License 2.0</licenseFamilyName>
                             <notes/>
                             <patterns>
-                                <pattern>Tencent is pleased to support the open source community by making TubeMQ available.</pattern>
+                                <pattern>Licensed to the Apache Software Foundation (ASF) under one </pattern>
                             </patterns>
                         </license>
                     </licenses>
