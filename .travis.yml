@@ -35,4 +35,4 @@ install:
   - pushd protobuf-2.5.0 && ./configure --prefix=/usr && make && sudo make install && popd
 
 script:
-  - mvn -B -V -e verify apache-rat:check
+  - mvn -B -V -e verify
