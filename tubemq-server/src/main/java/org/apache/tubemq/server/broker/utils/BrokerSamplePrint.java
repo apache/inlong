@@ -18,8 +18,8 @@
 package org.apache.tubemq.server.broker.utils;
 
 import java.io.IOException;
-import org.slf4j.Logger;
 import org.apache.tubemq.corebase.utils.AbstractSamplePrint;
+import org.slf4j.Logger;
 
 /***
  * Compressed print broker's statistics.
