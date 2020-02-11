@@ -200,15 +200,22 @@
                         </licenseFamily>
                     </licenseFamilies>
                     <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
                         <exclude>**/.*/**</exclude>
                         <exclude>**/*.log</exclude>
                         <exclude>**/README.md</exclude>
+                        <!-- Github -->
+                        <exclude>**/.github/**</exclude>
                         <!-- Intellij IDEA -->
                         <exclude>**/*.iml</exclude>
                         <exclude>**/.idea/**</exclude>
                         <!-- Generated content -->
+                        <exclude>**/logs/**</exclude>
                         <exclude>**/out/**</exclude>
                         <exclude>**/target/**</exclude>
+                        <!-- Binaries -->
+                        <exclude>**/tubemq-core/src/test/resource/**</exclude>
                         <!-- Document -->
                         <exclude>**/docs/**</exclude>
                         <!-- Front-end -->
