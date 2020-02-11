@@ -76,9 +76,9 @@ function start_server() {
 	
 	echo "Starting TubeMQ broker..."
     
-   	echo "$JAVA $BROKER_ARGS  com.tencent.tubemq.server.tools.BrokerStartup $config_files"
+   	echo "$JAVA $BROKER_ARGS  org.apache.tubemq.server.tools.BrokerStartup $config_files"
     sleep 1
-    nohup $JAVA $BROKER_ARGS  com.tencent.tubemq.server.tools.BrokerStartup $config_files 2>&1 >>$LOG_FILE &
+    nohup $JAVA $BROKER_ARGS  org.apache.tubemq.server.tools.BrokerStartup $config_files 2>&1 >>$LOG_FILE &
     echo $! > $PID_FILE
     chmod 755 $PID_FILE
 }

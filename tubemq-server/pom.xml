@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>tubemq</artifactId>
-        <groupId>com.tencent.tubemq</groupId>
+        <groupId>org.apache.tubemq</groupId>
         <version>0.3.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>tubemq-server</artifactId>
@@ -105,15 +105,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.tencent.tubemq</groupId>
+            <groupId>org.apache.tubemq</groupId>
             <artifactId>tubemq-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tencent.tubemq</groupId>
+            <groupId>org.apache.tubemq</groupId>
             <artifactId>tubemq-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tencent.tubemq</groupId>
+            <groupId>org.apache.tubemq</groupId>
             <artifactId>tubemq-example</artifactId>
         </dependency>
         <dependency>

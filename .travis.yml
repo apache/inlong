@@ -23,7 +23,7 @@ jdk:
   - openjdk8
 
 before_cache:
-  - rm -rf $HOME/.m2/repository/com/tencent/tubemq/
+  - rm -rf $HOME/.m2/repository/org/apache/tubemq/
 
 cache:
   directories:

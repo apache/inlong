@@ -20,7 +20,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.tencent.tubemq</groupId>
+    <groupId>org.apache.tubemq</groupId>
     <artifactId>tubemq</artifactId>
     <inceptionYear>2013</inceptionYear>
     <version>0.3.0-incubating-SNAPSHOT</version>
@@ -231,17 +231,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.tencent.tubemq</groupId>
+                <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-core</artifactId>
                 <version>${tubemq-core-version}</version>
             </dependency>
             <dependency>
-                <groupId>com.tencent.tubemq</groupId>
+                <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-client</artifactId>
                 <version>${tubemq-client-version}</version>
             </dependency>
             <dependency>
-                <groupId>com.tencent.tubemq</groupId>
+                <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-example</artifactId>
                 <version>${tubemq-example-version}</version>
             </dependency>

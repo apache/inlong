@@ -76,9 +76,9 @@ function start_server() {
     
 	echo "Starting Master server..."
     
-   	echo "$JAVA $MASTER_ARGS  com.tencent.tubemq.server.tools.MasterStartup $config_files"
+   	echo "$JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files"
     sleep 1
-    nohup $JAVA $MASTER_ARGS  com.tencent.tubemq.server.tools.MasterStartup $config_files 2>&1 >>$LOG_FILE &
+    nohup $JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files 2>&1 >>$LOG_FILE &
     echo $! > $PID_FILE
     chmod 755 $PID_FILE
 }

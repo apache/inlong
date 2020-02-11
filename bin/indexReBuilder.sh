@@ -49,7 +49,7 @@ chown -R $AS_USER $LOG_DIR
 
 echo "Starting index file(s) repair..."
 
-nohup $JAVA $TOOL_REPAIR_ARGS  com.tencent.tubemq.server.tools.StoreRepairAdmin $1 $2 2>&1 >>$LOG_FILE  &
+nohup $JAVA $TOOL_REPAIR_ARGS  org.apache.tubemq.server.tools.StoreRepairAdmin $1 $2 2>&1 >>$LOG_FILE  &
 
 
 
