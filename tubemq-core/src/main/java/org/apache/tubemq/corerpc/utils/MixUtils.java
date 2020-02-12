@@ -25,6 +25,13 @@ import org.apache.tubemq.corerpc.exception.RemoteException;
 
 public class MixUtils {
 
+    public static String replaceClassNamePrefix(String className, boolean toOldVersion) {
+        if (toOldVersion) {
+            return className.replace("org.apache.tubemq.", "com.tencent.tubemq.");
+        } else {
+            return className.replace("com.tencent.tubemq.", "org.apache.tubemq.");
+        }
+    }
 
     public static Throwable unwrapException(String exceptionMsg) {
         // Perform string to exception conversion processing

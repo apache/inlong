@@ -39,6 +39,7 @@ import org.apache.tubemq.corerpc.client.ClientFactory;
 import org.apache.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.tubemq.corerpc.exception.ClientClosedException;
 import org.apache.tubemq.corerpc.exception.NetworkException;
+import org.apache.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.tubemq.corerpc.utils.MixUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandler;
@@ -330,11 +331,14 @@ public class NettyClient implements Client {
                                 // instead, it returns a null response object.
                                 throw new NetworkException("Not found RpcException data!");
                             }
+                            String exceptionName = exceptionResponse.getExceptionName();
+                            if (rpcResponse.getProtocolVer() == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
+                                exceptionName = MixUtils.replaceClassNamePrefix(exceptionName, false);
+                            }
                             responseWrapper =
                                     new ResponseWrapper(connHeader.getFlag(), dataPack.getSerialNo(),
                                             rpcResponse.getServiceType(), rpcResponse.getProtocolVer(),
-                                            exceptionResponse.getExceptionName(),
-                                            exceptionResponse.getStackTrace());
+                                            exceptionName, exceptionResponse.getStackTrace());
                         }
                         if (!responseWrapper.isSuccess()) {
                             Throwable remote =
@@ -348,7 +352,7 @@ public class NettyClient implements Client {
                         callback.handleResult(responseWrapper);
                     } catch (Throwable ee) {
                         responseWrapper =
-                                new ResponseWrapper(-2, dataPack.getSerialNo(), -2, -2, ee);
+                                new ResponseWrapper(-2, dataPack.getSerialNo(), -2, -2, -2, ee);
                         if (ee instanceof EOFException) {
                             NettyClient.this.close();
                         }

@@ -30,6 +30,7 @@ import org.apache.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.tubemq.corerpc.exception.ServiceStoppingException;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.corerpc.server.RequestContext;
+import org.apache.tubemq.corerpc.utils.MixUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,8 @@ public class RpcProtocol implements Protocol {
 
     public static final int RPC_PROTOCOL_TCP = 10;
     public static final int RPC_PROTOCOL_TLS = 11;
-    public static final int RPC_PROTOCOL_VERSION = 1;
+    public static final int RPC_PROTOCOL_VERSION_OLD_1 = 1; // for com.tencent.tubemq
+    public static final int RPC_PROTOCOL_VERSION = 2; // for org.apache.tubemq
 
     private static final Logger logger =
             LoggerFactory.getLogger(RpcProtocol.class);
@@ -119,7 +121,7 @@ public class RpcProtocol implements Protocol {
         }
         if (ServiceStatusHolder.isServiceStopped()) {
             context.write(new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,
-                    requestWrapper.getSerialNo(), requestWrapper.getServiceType(),
+                    requestWrapper.getSerialNo(), requestWrapper.getServiceType(), requestWrapper.getProtocolVersion(),
                     RPC_PROTOCOL_VERSION, new ServiceStoppingException("service is stopping...")));
         }
         Method method = null;
@@ -158,6 +160,9 @@ public class RpcProtocol implements Protocol {
             } else {
                 errorClass = e2.getClass().getName();
                 errorInfo = e2.getMessage();
+            }
+            if (requestWrapper.getProtocolVersion() == RPC_PROTOCOL_VERSION_OLD_1) {
+                errorClass = MixUtils.replaceClassNamePrefix(errorClass, true);
             }
             responseWrapper =
                     new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,

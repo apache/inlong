@@ -19,6 +19,10 @@ package org.apache.tubemq.corerpc;
 
 import java.io.Serializable;
 import org.apache.tubemq.corerpc.exception.StandbyException;
+import org.apache.tubemq.corerpc.protocol.RpcProtocol;
+import org.apache.tubemq.corerpc.utils.MixUtils;
+
+
 
 
 public class ResponseWrapper implements Serializable {
@@ -37,11 +41,11 @@ public class ResponseWrapper implements Serializable {
 
 
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int serverVersion,
+                           int serviceType, int locVersion,
                            int methodId, Object responseData) {
         this.serialNo = serialNo;
         this.serviceType = serviceType;
-        this.protocolVersion = serverVersion;
+        this.protocolVersion = locVersion;
         this.flagId = flagId;
         this.methodId = methodId;
         this.responseData = responseData;
@@ -49,12 +53,12 @@ public class ResponseWrapper implements Serializable {
     }
 
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int serverVersion,
-                           Throwable exception) {
+                           int serviceType, int rmtVersion,
+                           int locVersion, Throwable exception) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
-        this.protocolVersion = serverVersion;
+        this.protocolVersion = locVersion;
         String errorClass = null;
         String error = null;
         if (exception.getCause() != null
@@ -64,6 +68,9 @@ public class ResponseWrapper implements Serializable {
         } else {
             errorClass = exception.getClass().getName();
             error = exception.getMessage();
+        }
+        if (rmtVersion == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
+            errorClass = MixUtils.replaceClassNamePrefix(errorClass, true);
         }
         this.errMsg = errorClass;
         this.stackTrace = error;
@@ -76,12 +83,12 @@ public class ResponseWrapper implements Serializable {
     }
 
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int serverVersion,
+                           int serviceType, int locVersion,
                            String errorMsg, String stackTrace) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
-        this.protocolVersion = serverVersion;
+        this.protocolVersion = locVersion;
         this.errMsg = errorMsg;
         this.stackTrace = stackTrace;
         if (this.errMsg == null) {

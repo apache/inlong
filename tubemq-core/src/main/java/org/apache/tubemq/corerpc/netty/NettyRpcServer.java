@@ -42,6 +42,7 @@ import org.apache.tubemq.corerpc.protocol.ProtocolFactory;
 import org.apache.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.tubemq.corerpc.server.RequestContext;
 import org.apache.tubemq.corerpc.server.ServiceRpcServer;
+import org.apache.tubemq.corerpc.utils.MixUtils;
 import org.apache.tubemq.corerpc.utils.TSSLEngineUtil;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -274,6 +275,7 @@ public class NettyRpcServer implements ServiceRpcServer {
             RPCProtos.RpcConnHeader connHeader;
             RPCProtos.RequestHeader requestHeader;
             RPCProtos.RequestBody rpcRequestBody;
+            int rmtVersion = RpcProtocol.RPC_PROTOCOL_VERSION;
             Channel channel = ctx.getChannel();
             if (channel == null) {
                 return;
@@ -287,6 +289,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                 ByteBufferInputStream dis = new ByteBufferInputStream(req);
                 connHeader = RPCProtos.RpcConnHeader.parseDelimitedFrom(dis);
                 requestHeader = RPCProtos.RequestHeader.parseDelimitedFrom(dis);
+                rmtVersion = requestHeader.getProtocolVer();
                 rpcRequestBody = RPCProtos.RequestBody.parseDelimitedFrom(dis);
             } catch (Throwable e1) {
                 if (!(e1 instanceof ServerNotReadyException)) {
@@ -313,7 +316,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                     }
                 }
                 List<ByteBuffer> res =
-                        prepareResponse(null, RPCProtos.ResponseHeader.Status.FATAL,
+                        prepareResponse(null, rmtVersion, RPCProtos.ResponseHeader.Status.FATAL,
                                 e1.getClass().getName(), new StringBuilder(512)
                                         .append("IPC server unable to read call parameters:")
                                         .append(e1.getMessage()).toString());
@@ -337,7 +340,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                 protocols.get(this.protocolType).handleRequest(context, rmtaddrIp);
             } catch (Throwable ee) {
                 List<ByteBuffer> res =
-                        prepareResponse(null, RPCProtos.ResponseHeader.Status.FATAL,
+                        prepareResponse(null, rmtVersion, RPCProtos.ResponseHeader.Status.FATAL,
                                 ee.getClass().getName(), new StringBuilder(512)
                                         .append("IPC server handle request error :")
                                         .append(ee.getMessage()).toString());
@@ -358,11 +361,14 @@ public class NettyRpcServer implements ServiceRpcServer {
          * @param error
          * @return
          */
-        protected List<ByteBuffer> prepareResponse(Object value,
+        protected List<ByteBuffer> prepareResponse(Object value, int rmtVersion,
                                                    RPCProtos.ResponseHeader.Status status,
                                                    String errorClass, String error) {
             ByteBufferOutputStream buf = new ByteBufferOutputStream();
             DataOutputStream out = new DataOutputStream(buf);
+            if (rmtVersion == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
+                errorClass = MixUtils.replaceClassNamePrefix(errorClass, true);
+            }
             try {
                 RPCProtos.RpcConnHeader.Builder connBuilder =
                         RPCProtos.RpcConnHeader.newBuilder();
