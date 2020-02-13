@@ -217,27 +217,27 @@ Now we can use the topic to send messages.
 Now we can run the example to test our cluster. First let's run the produce data demo. Please don't
 forget replace `YOUR_SERVER_IP` with your server ip.
 ```bash
-java -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties  -Djava.net.preferIPv4Stack=true -cp  /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: com.tencent.tubemq.example.MessageProducerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo 10000000
+java -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties  -Djava.net.preferIPv4Stack=true -cp  /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageProducerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo 10000000
 ```
 From the log, we can see the message is sent out.
 ```bash
-[2019-09-11 16:09:08,287] INFO Send demo 1000 message, keyCount is 268 (com.tencent.tubemq.example.MessageProducerExample)
-[2019-09-11 16:09:08,505] INFO Send demo 2000 message, keyCount is 501 (com.tencent.tubemq.example.MessageProducerExample)
-[2019-09-11 16:09:08,958] INFO Send demo 3000 message, keyCount is 755 (com.tencent.tubemq.example.MessageProducerExample)
-[2019-09-11 16:09:09,085] INFO Send demo 4000 message, keyCount is 1001 (com.tencent.tubemq.example.MessageProducerExample)
+[2019-09-11 16:09:08,287] INFO Send demo 1000 message, keyCount is 268 (org.apache.tubemq.example.MessageProducerExample)
+[2019-09-11 16:09:08,505] INFO Send demo 2000 message, keyCount is 501 (org.apache.tubemq.example.MessageProducerExample)
+[2019-09-11 16:09:08,958] INFO Send demo 3000 message, keyCount is 755 (org.apache.tubemq.example.MessageProducerExample)
+[2019-09-11 16:09:09,085] INFO Send demo 4000 message, keyCount is 1001 (org.apache.tubemq.example.MessageProducerExample)
 ```
 
 Then we run the consume data demo. Also replace the server ip
 ```bash
-java -Xmx512m -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties -Djava.net.preferIPv4Stack=true -cp /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: com.tencent.tubemq.example.MessageConsumerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo demoGroup 3 1 1
+java -Xmx512m -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties -Djava.net.preferIPv4Stack=true -cp /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageConsumerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo demoGroup 3 1 1
 ```
 From the log, we can see the message received by the consumer.
 
 ```bash
-[2019-09-11 16:09:29,720] INFO Receive messages:2500 (com.tencent.tubemq.example.MsgRecvStats)
-[2019-09-11 16:09:30,059] INFO Receive messages:5000 (com.tencent.tubemq.example.MsgRecvStats)
-[2019-09-11 16:09:34,493] INFO Receive messages:10000 (com.tencent.tubemq.example.MsgRecvStats)
-[2019-09-11 16:09:34,783] INFO Receive messages:12500 (com.tencent.tubemq.example.MsgRecvStats)
+[2019-09-11 16:09:29,720] INFO Receive messages:2500 (org.apache.tubemq.example.MsgRecvStats)
+[2019-09-11 16:09:30,059] INFO Receive messages:5000 (org.apache.tubemq.example.MsgRecvStats)
+[2019-09-11 16:09:34,493] INFO Receive messages:10000 (org.apache.tubemq.example.MsgRecvStats)
+[2019-09-11 16:09:34,783] INFO Receive messages:12500 (org.apache.tubemq.example.MsgRecvStats)
 ```
 
 ---

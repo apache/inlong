@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-option java_package = "com.tencent.tubemq.corebase.protobuf.generated";
+option java_package = "org.apache.tubemq.corebase.protobuf.generated";
 option java_outer_classname = "ClientMaster";
 option java_generate_equals_and_hash = true;
 option java_generic_services = true;

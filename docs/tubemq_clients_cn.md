@@ -60,13 +60,13 @@ Message类是TubeMQ里传递的消息对象类，业务设置的data会从生产
 
 #### **a) 环境准备：**
 
-TubeMQ开源包com.tencent.tube.example里提供了生产和消费的具体代码示例，这里我们通过一个实际的例子来介绍如何填参和调用对应接口。首先我们搭建一个带3个Master节点的TubeMQ集群，3个Master地址及端口分别为test_1.domain.com，test_2.domain.com，test_3.domain.com，端口均为8080，在该集群里我们建立了若干个Broker，并且针对Broker我们创建了3个topic：topic_1，topic_2，topic_3等Topic配置；然后我们启动对应的Broker等待Consumer和Producer的创建。
+TubeMQ开源包org.apache.tube.example里提供了生产和消费的具体代码示例，这里我们通过一个实际的例子来介绍如何填参和调用对应接口。首先我们搭建一个带3个Master节点的TubeMQ集群，3个Master地址及端口分别为test_1.domain.com，test_2.domain.com，test_3.domain.com，端口均为8080，在该集群里我们建立了若干个Broker，并且针对Broker我们创建了3个topic：topic_1，topic_2，topic_3等Topic配置；然后我们启动对应的Broker等待Consumer和Producer的创建。
 
  
 
 #### **b) 创建Consumer：**
 
-见包com.tencent.tubemq.example.MessageConsumerExample类文件，Consumer是一个包含网络交互协调的客户端对象，需要做初始化并且长期驻留内存重复使用的模型，它不适合单次拉起消费的场景。如下图示，我们定义了MessageConsumerExample封装类，在该类中定义了进行网络交互的会话工厂MessageSessionFactory类，以及用来做Push消费的PushMessageConsumer类：
+见包org.apache.tubemq.example.MessageConsumerExample类文件，Consumer是一个包含网络交互协调的客户端对象，需要做初始化并且长期驻留内存重复使用的模型，它不适合单次拉起消费的场景。如下图示，我们定义了MessageConsumerExample封装类，在该类中定义了进行网络交互的会话工厂MessageSessionFactory类，以及用来做Push消费的PushMessageConsumer类：
 
 - ###### **i.初始化MessageConsumerExample类：**
 
@@ -163,7 +163,7 @@ public class DefaultMessageListener implements MessageListener {
 
 #### **c) 创建Producer：**
 
-现网环境中业务的数据都是通过代理层来做接收汇聚，包装了比较多的异常处理，大部分的业务都没有也不会接触到TubeSDK的Producer类，考虑到业务自己搭建集群使用TubeMQ进行使用的场景，这里提供对应的使用demo，见包com.tencent.tubemq.example.MessageProducerExample类文件供参考，**需要注意**的是，业务除非使用数据平台的TubeMQ集群做MQ服务，否则仍要按照现网的接入流程使用代理层来进行数据生产：
+现网环境中业务的数据都是通过代理层来做接收汇聚，包装了比较多的异常处理，大部分的业务都没有也不会接触到TubeSDK的Producer类，考虑到业务自己搭建集群使用TubeMQ进行使用的场景，这里提供对应的使用demo，见包org.apache.tubemq.example.MessageProducerExample类文件供参考，**需要注意**的是，业务除非使用数据平台的TubeMQ集群做MQ服务，否则仍要按照现网的接入流程使用代理层来进行数据生产：
 
 - **i. 初始化MessageProducerExample类：**
 

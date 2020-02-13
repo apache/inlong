@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>tubemq</artifactId>
-        <groupId>com.tencent.tubemq</groupId>
+        <groupId>org.apache.tubemq</groupId>
         <version>0.3.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>tubemq-core</artifactId>

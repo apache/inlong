@@ -38,6 +38,6 @@ if [ -z "$BASE_DIR" ] ; then
   #echo "TubeMQ master is at $BASE_DIR"
 fi
 source $BASE_DIR/bin/env.sh
-nohup $JAVA $TOOLS_ARGS  com.tencent.tubemq.server.tools.BdbGroupAdmin $1 $2 $3 2>&1 &
+nohup $JAVA $TOOLS_ARGS  org.apache.tubemq.server.tools.BdbGroupAdmin $1 $2 $3 2>&1 &
 
 
