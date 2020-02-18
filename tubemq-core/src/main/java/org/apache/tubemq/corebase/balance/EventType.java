@@ -18,101 +18,52 @@
 package org.apache.tubemq.corebase.balance;
 
 public enum EventType {
-    CONNECT() {
-        @Override
-        public int getValue() {
-            return 1;
-        }
+    /**
+     * Connect to broker.
+     * */
+    CONNECT(1, "Connect to some broker after Disconnecting from some other broker."),
+    /**
+     * DisConnect from broker.
+     * */
+    DISCONNECT(2, "Disconnect from some broker."),
+    /**
+     * Report state.
+     * */
+    REPORT(3, "Report current status."),
+    /**
+     * Update producer published topic information.
+     * */
+    REFRESH(4, "Update whole producer published topic info"),
+    /**
+     * Stop re-balance thread.
+     * */
+    STOPREBALANCE(5, "Stop rebalance thread"),
+    /**
+     * Connect to some broker only.
+     * */
+    ONLY_CONNECT(10, "Only connect to some broker"),
+    /**
+     * Disconnect from broker and finish.
+     * */
+    ONLY_DISCONNECT(20, "Disconnect from some broker,then finish."),
+    /**
+     * Unknown operation.
+     * */
+    UNKNOWN(-1, "Unknown operation type");
 
-        @Override
-        public String getDesc() {
-            return "Connect to some broker after Disconnecting from some other broker.";
-        }
-    },
+    private int value;
+    private String description;
 
-    ONLY_CONNECT() {
-        @Override
-        public int getValue() {
-            return 10;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Only connect to some broker";
-        }
-    },
-
-    DISCONNECT() {
-        @Override
-        public int getValue() {
-            return 2;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Disconnect from some broker.";
-        }
-    },
-
-    ONLY_DISCONNECT() {
-        @Override
-        public int getValue() {
-            return 20;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Disconnect from some broker,then finish.";
-        }
-
-    },
-
-    REPORT() {
-        @Override
-        public int getValue() {
-            return 3;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Report current status.";
-        }
-    },
-    REFRESH() {
-        @Override
-        public int getValue() {
-            return 4;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Update whole producer published topic info";
-        }
-    },
-    STOPREBALANCE() {
-        @Override
-        public int getValue() {
-            return 5;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Stop rebalance thread";
-        }
-    },
-
-    UNKNOWN() {
-        @Override
-        public int getValue() {
-            return -1;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Unknown operation type";
-        }
-    };
-
+    EventType(int value, String description) {
+        this.value = value;
+        this.description = description;
+    }
+    public  int getValue() {
+        return value;
+    }
+    public String getDesc() {
+        return description;
+    }
     public static EventType valueOf(int value) {
         for (EventType type : EventType.values()) {
             if (type.getValue() == value) {
@@ -121,9 +72,5 @@ public enum EventType {
         }
         return UNKNOWN;
     }
-
-    public abstract int getValue();
-
-    public abstract String getDesc();
 
 }

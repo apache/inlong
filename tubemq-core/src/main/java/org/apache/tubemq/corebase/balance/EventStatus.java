@@ -18,67 +18,36 @@
 package org.apache.tubemq.corebase.balance;
 
 public enum EventStatus {
-    DONE() {
-        @Override
-        public int getValue() {
-            return 2;
-        }
+    /**
+     * To be processed state.
+     * */
+    TODO(0, "To be processed"),
+    /**
+     * On processing state.
+     * */
+    PROCESSING(1, "Being processed"),
+    /**
+     * Processed state.
+     * */
+    DONE(2, "Process Done"),
 
-        @Override
-        public String getDesc() {
-            return "Process Done";
-        }
-    },
-
-    FAILED() {
-        @Override
-        public int getValue() {
-            return -2;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Process failed";
-        }
-    },
-
-    PROCESSING() {
-        @Override
-        public int getValue() {
-            return 1;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Being processed";
-        }
-    },
+    /**
+     * Unknown state.
+     * */
+    UNKNOWN(-1, "Unknown event status"),
+    /**
+     * Failed state.
+     * */
+    FAILED(-2, "Process failed");
 
 
-    TODO() {
-        @Override
-        public int getValue() {
-            return 0;
-        }
+    private int value;
+    private String description;
 
-        @Override
-        public String getDesc() {
-            return "To be processed";
-        }
-    },
-
-    UNKNOWN() {
-        @Override
-        public int getValue() {
-            return -1;
-        }
-
-        @Override
-        public String getDesc() {
-            return "Unknown event status";
-        }
-    };
-
+    EventStatus(int value, String description) {
+        this.value = value;
+        this.description = description;
+    }
     public static EventStatus valueOf(int value) {
         for (EventStatus status : EventStatus.values()) {
             if (status.getValue() == value) {
@@ -89,9 +58,12 @@ public enum EventStatus {
         return UNKNOWN;
     }
 
-    public abstract int getValue();
-
-    public abstract String getDesc();
+    public int getValue() {
+        return value;
+    }
+    public String getDesc(){
+        return description;
+    }
 
 }
 
