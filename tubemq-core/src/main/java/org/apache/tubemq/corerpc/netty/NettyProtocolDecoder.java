@@ -120,7 +120,7 @@ public class NettyProtocolDecoder extends FrameDecoder {
 
     private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
                                           int allowSize, Channel channel) throws UnknownProtocolException {
-        if (inParamValue > allowSize) {
+        if (inParamValue < 0 || inParamValue > allowSize) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {
                 AtomicLong count = errSizeAddrMap.get(rmtaddrIp);
