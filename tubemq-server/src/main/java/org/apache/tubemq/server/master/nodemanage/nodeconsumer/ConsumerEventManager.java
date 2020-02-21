@@ -134,9 +134,7 @@ public class ConsumerEventManager {
                 }
             }
         }
-        if (event == null) {
-            logger.info("[Event Removed] event is null");
-        } else {
+        if (event != null) {
             StringBuilder sBuilder = new StringBuilder(512);
             sBuilder.append("[Event Removed] ");
             logger.info(event.toStrBuilder(sBuilder).toString());
