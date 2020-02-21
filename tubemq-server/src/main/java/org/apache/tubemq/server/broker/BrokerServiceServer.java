@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.corebase.Message;
@@ -111,7 +112,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private final ConsumerTimeoutListener consumerListener =
             new ConsumerTimeoutListener();
     // status of broker service.
-    private boolean started = false;
+    private AtomicBoolean started = new AtomicBoolean(false);
 
 
     public BrokerServiceServer(final TubeBroker tubeBroker,
@@ -206,7 +207,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             tubeBroker.getRpcServiceFactory().publishService(BrokerReadService.class,
                     this, tubeConfig.getTlsPort(), rpcTLSReadConfig);
         }
-        this.started = true;
+        this.started.set(true);
     }
 
     /***
@@ -214,10 +215,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public void stop() {
-        if (!started) {
+        if (!started.compareAndSet(true, false)) {
             return;
         }
-        this.started = false;
         heartbeatManager.stop();
         putCounterGroup.close(-1);
         getCounterGroup.close(-1);
@@ -281,7 +281,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setCurrDataDlt(-1);
         builder.setMinLimitTime(0);
         StringBuilder strBuffer = new StringBuilder(512);
-        if (ServiceStatusHolder.isReadServiceStop()) {
+        if (!this.started.get()
+                || ServiceStatusHolder.isReadServiceStop()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
             builder.setErrMsg("Read StoreService temporary unavilable!");
             return builder.build();
@@ -506,6 +507,13 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                                             int msgCount, final Set<String> filterCondSet,
                                             final StringBuilder sb) throws Exception {
         MessageStore dataStore = null;
+        if (!this.started.get()
+                || ServiceStatusHolder.isReadServiceStop()) {
+            sb.append("{\"result\":false,\"errCode\":")
+                    .append(TErrCodeConstants.SERVICE_UNAVILABLE)
+                    .append(",\"errMsg\":\"Read StoreService temporary unavilable!\"}");
+            return sb;
+        }
         try {
             if (partitionId == -1) {
                 final Collection<MessageStore> msgStores =
@@ -591,7 +599,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final StringBuilder strBuffer = new StringBuilder(512);
         SendMessageResponseB2P.Builder builder = SendMessageResponseB2P.newBuilder();
         builder.setSuccess(false);
-        if (ServiceStatusHolder.isWriteServiceStop()) {
+        if (!this.started.get()
+                || ServiceStatusHolder.isWriteServiceStop()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
             builder.setErrMsg("Write StoreService temporary unavilable!");
             return builder.build();
@@ -723,6 +732,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
         CertifiedResult certResult = serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
+        if (!this.started.get()) {
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
+            builder.setErrMsg("StoreService temporary unavilable!");
+            return builder.build();
+        }
         if (!certResult.result) {
             builder.setErrCode(certResult.errCode);
             builder.setErrMsg(certResult.errInfo);
@@ -984,6 +998,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final HeartBeatResponseB2C.Builder builder = HeartBeatResponseB2C.newBuilder();
         final StringBuilder strBuffer = new StringBuilder(512);
         builder.setSuccess(false);
+        if (!this.started.get()) {
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
+            builder.setErrMsg("StoreService temporary unavilable!");
+            return builder.build();
+        }
         CertifiedResult certResult =
                 serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
         if (!certResult.result) {
@@ -1107,6 +1126,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         StringBuilder strBuffer = new StringBuilder(512);
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
+        if (!this.started.get()) {
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
+            builder.setErrMsg("StoreService temporary unavilable!");
+            return builder.build();
+        }
         ParamCheckResult paramCheckResult =
                 PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
         if (!paramCheckResult.result) {
