@@ -371,7 +371,6 @@ public class MsgMemStore implements Closeable {
 
     @Override
     public void close() {
-        this.clear();
         ((DirectBuffer) this.cacheDataSegment).cleaner().clean();
         ((DirectBuffer) this.cachedIndexSegment).cleaner().clean();
     }
