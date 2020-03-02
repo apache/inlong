@@ -33,17 +33,18 @@ import org.slf4j.LoggerFactory;
  * Segment file. Topic contains multi FileSegments. Each FileSegment contains data file and index file.
  * It is mini particle of topic expire policy. It will be marked deleted when expired.
  */
-public class FileSegment implements Segment, Comparable<FileSegment> {
+public class FileSegment implements Segment {
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegment.class);
     private final long start;
     private final File file;
-    private final FileChannel channel;
+    private RandomAccessFile randFile;
+    private FileChannel channel;
     private final AtomicLong cachedSize;
     private final AtomicLong flushedSize;
     private final SegmentType segmentType;
     private boolean mutable;
-    private AtomicLong useRef = new AtomicLong(0);
+    private long expiredTime = 0;
     private AtomicBoolean expired = new AtomicBoolean(false);
     private AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -65,13 +66,15 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
     private FileSegment(final long start, final File file,
                         final boolean mutable, SegmentType type,
                         final long checkOffset) throws IOException {
+        super();
         this.segmentType = type;
         this.start = start;
         this.file = file;
         this.mutable = mutable;
         this.cachedSize = new AtomicLong(0);
         this.flushedSize = new AtomicLong(0);
-        this.channel = new RandomAccessFile(this.file, "rw").getChannel();
+        this.randFile = new RandomAccessFile(this.file, "rw");
+        this.channel = this.randFile.getChannel();
         if (mutable) {
             final long startMs = System.currentTimeMillis();
             long remaining = checkOffset == Long.MAX_VALUE ? -1 : (checkOffset - this.start);
@@ -116,29 +119,49 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
                 }
             }
         }
-        this.useRef.incrementAndGet();
     }
 
     @Override
-    public int close() throws IOException {
-        if (this.closed.get()) {
-            return 0;
-        }
-        if (useRef.decrementAndGet() > 0) {
-            return 1;
-        }
+    public void close() {
         if (this.closed.compareAndSet(false, true)) {
-            if (this.mutable) {
-                this.flush(true);
-            }
             try {
-                channel.close();
-            } catch (IOException e2) {
-                //
+                if (this.channel.isOpen()) {
+                    if (this.mutable) {
+                        flush(true);
+                    }
+                    this.channel.close();
+                }
+                this.randFile.close();
+            } catch (Throwable ee) {
+                logger.error(new StringBuilder(512).append("[File Store] Close ")
+                        .append(this.file.getAbsoluteFile().toString())
+                        .append("'s ").append(segmentType).append(" file failure").toString(), ee);
             }
-            return 0;
         }
-        return 0;
+    }
+
+    @Override
+    public void deleteFile() {
+        this.closed.set(true);
+        try {
+            if (this.channel.isOpen()) {
+                if (this.mutable) {
+                    flush(true);
+                }
+                this.channel.close();
+            }
+            this.randFile.close();
+        } catch (Throwable e1) {
+            logger.error("[File Store] failure to close channel ", e1);
+        }
+        try {
+            logger.info(new StringBuilder(512)
+                    .append("[File Store] delete file ")
+                    .append(file.getAbsoluteFile()).toString());
+            this.file.delete();
+        } catch (Throwable ee) {
+            logger.error("[File Store] failure to delete file ", ee);
+        }
     }
 
     /***
@@ -191,6 +214,11 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
     }
 
     @Override
+    public boolean needDelete() {
+        return (expired.get() && (System.currentTimeMillis() - expiredTime > 120000));
+    }
+
+    @Override
     public boolean isClosed() {
         return closed.get();
     }
@@ -204,56 +232,12 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
                 && offset <= this.start + this.getCachedSize() - 1);
     }
 
-    @Override
-    public FileChannel getFileChannel() {
-        return this.channel;
-    }
-
-    /***
-     * Get the read view of this FileSegment.
-     *
-     * @return
-     */
-    @Override
-    public RecordView getViewRef() {
-        return getViewRef(this.start, 0, getCachedSize());
-    }
-
-    /***
-     * Get the read view of this FileSegment by params.
-     *
-     * @param start
-     * @param offset
-     * @param limit
-     * @return
-     */
-    @Override
-    public RecordView getViewRef(final long start, final long offset, final long limit) {
-        if (isClosed() || isExpired()) {
-            if (isClosed()) {
-                throw new UnsupportedOperationException("Segment is Closed!");
-            } else {
-                throw new UnsupportedOperationException("Segment is not visited!");
-            }
-        }
-        useRef.incrementAndGet();
-        return new FileReadView(this, start, offset, Math.min(getCachedSize(), limit) - offset);
-    }
-
     /***
      * Release reference to this FileSegment. File's channel will be closed when the reference decreased to 0.
      */
     @Override
     public void relViewRef() {
-        if (useRef.decrementAndGet() == 0) {
-            if (this.closed.compareAndSet(false, true)) {
-                try {
-                    channel.close();
-                } catch (IOException e1) {
-                    //
-                }
-            }
-        }
+
     }
 
     @Override
@@ -307,8 +291,18 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
     }
 
     @Override
-    public int compareTo(FileSegment o) {
-        return this.start > o.start ? 1 : this.start < o.start ? -1 : 0;
+    public void read(final ByteBuffer bf, final long reqOffset) throws IOException {
+        if (this.isExpired()) {
+            //Todo: conduct file closed and expired cases.
+        }
+        int size = 0;
+        while (bf.hasRemaining()) {
+            final int l = this.channel.read(bf, reqOffset - start + size);
+            if (l < 0) {
+                break;
+            }
+            size += l;
+        }
     }
 
     /***
@@ -323,10 +317,15 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
         if (expired.get()) {
             return -1;
         }
+        if (closed.get()) {
+            return 0;
+        }
         if (!mutable) {
             // 最后一个segment不能主动设置过期
             if (checkTimestamp - file.lastModified() > maxValidTimeMs) {
-                expired.set(true);
+                if (expired.compareAndSet(false, true)) {
+                    expiredTime = System.currentTimeMillis();
+                }
                 return 1;
             }
         }
@@ -458,22 +457,6 @@ public class FileSegment implements Segment, Comparable<FileSegment> {
         this.flushedSize.set(validBytes);
         this.channel.position(validBytes);
         return new RecoverResult(totalBytes - validBytes, false);
-    }
-
-    @Override
-    public boolean equals(Segment other) {
-        if (this == other) {
-            return true;
-        }
-        if (other instanceof FileSegment) {
-            FileSegment otherFileSeg = (FileSegment) other;
-            if ((this.file.equals(otherFileSeg.file))
-                    && (this.start == otherFileSeg.start)
-                    && (this.segmentType == otherFileSeg.segmentType)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static class RecoverResult {

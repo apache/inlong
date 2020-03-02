@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -33,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.msgstore.disk.FileSegment;
 import org.apache.tubemq.server.broker.msgstore.disk.FileSegmentList;
-import org.apache.tubemq.server.broker.msgstore.disk.RecordView;
 import org.apache.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.tubemq.server.broker.msgstore.disk.SegmentList;
 import org.apache.tubemq.server.broker.msgstore.disk.SegmentType;
@@ -213,8 +214,66 @@ public class StoreRepairAdmin {
                         .append("[Data Repair]  Topic data path is not a directory, path is ")
                         .append(storePath).toString());
             }
-            segments = new FileSegmentList(topicDir,
-                    SegmentType.DATA, false, -1, Long.MAX_VALUE, sBuilder);
+            loaderSegments();
+        }
+
+        private void loaderSegments() throws IOException {
+            final List<Segment> accum = new ArrayList<Segment>();
+            String fileSuffix = DataStoreUtils.DATA_FILE_SUFFIX;
+            final File[] ls = topicDir.listFiles();
+            if (ls != null) {
+                for (final File file : ls) {
+                    if (file == null) {
+                        continue;
+                    }
+                    if (file.isFile() && file.toString().endsWith(fileSuffix)) {
+                        if (!file.canRead()) {
+                            throw new IOException(new StringBuilder(512)
+                                    .append("Could not read DATA file ").append(file).toString());
+                        }
+                        final String filename = file.getName();
+                        final long start =
+                                Long.parseLong(filename.substring(0, filename.length() - fileSuffix.length()));
+                        accum.add(new FileSegment(start, file, false, SegmentType.DATA));
+                    }
+                }
+            }
+            if (accum.size() > 0) {
+                // compare segment's start value, and sort order
+                Collections.sort(accum, new Comparator<Segment>() {
+                    @Override
+                    public int compare(final Segment o1, final Segment o2) {
+                        if (o1.getStart() == o2.getStart()) {
+                            return 0;
+                        } else if (o1.getStart() > o2.getStart()) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    }
+                });
+                validateSegments("DATA", accum);
+            }
+            segments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
+            logger.info(new StringBuilder(512)
+                    .append("[Data Repair] Loaded DATA ")
+                    .append(accum.size()).append(" segments from ")
+                    .append(topicDir.getAbsolutePath()).toString());
+        }
+
+        public void validateSegments(final String segTypeStr, final List<Segment> segments) {
+            // valid segments continuous
+            for (int i = 0; i < segments.size() - 1; i++) {
+                final Segment curr = segments.get(i);
+                final Segment next = segments.get(i + 1);
+                if (curr.getStart() + curr.getCachedSize() != next.getStart()) {
+                    throw new IllegalStateException(new StringBuilder(512)
+                            .append("The following ").append(segTypeStr)
+                            .append(" segments don't validate: ")
+                            .append(curr.getFile().getAbsolutePath()).append(", ")
+                            .append(next.getFile().getAbsolutePath()).toString());
+                }
+            }
         }
 
         @Override
@@ -258,8 +317,8 @@ public class StoreRepairAdmin {
         }
 
         private void createIndexFiles() {
-            final List<Segment> segments = this.segments.getView();
-            if (segments == null || segments.isEmpty()) {
+            final Segment[] segments = this.segments.getView();
+            if (segments.length == 0) {
                 return;
             }
             long gQueueOffset = -1;
@@ -267,20 +326,15 @@ public class StoreRepairAdmin {
             final ByteBuffer dataBuffer = ByteBuffer.allocate(ONE_M_BYTES);
             final ByteBuffer indexBuffer =
                     ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
-            for (int index = 0; index < segments.size(); index++) {
-                Segment curSegment = segments.get(index);
+            for (Segment curSegment : segments) {
                 if (curSegment == null) {
                     continue;
                 }
-                RecordView recordView = null;
                 try {
                     long curOffset = 0L;
-                    recordView =
-                            curSegment.getViewRef(curSegment.getStart(),
-                                    0, curSegment.getCachedSize());
                     while (curOffset < curSegment.getCachedSize()) {
                         dataBuffer.clear();
-                        recordView.read(dataBuffer, curOffset);
+                        curSegment.read(dataBuffer, curOffset);
                         dataBuffer.flip();
                         int dataStart = 0;
                         int dataRealLimit = dataBuffer.limit();
@@ -342,8 +396,8 @@ public class StoreRepairAdmin {
                 } catch (Throwable ee) {
                     logger.error("Create Index file error ", ee);
                 } finally {
-                    if (recordView != null) {
-                        recordView.getSegment().relViewRef();
+                    if (curSegment != null) {
+                        curSegment.relViewRef();
                     }
                 }
             }
