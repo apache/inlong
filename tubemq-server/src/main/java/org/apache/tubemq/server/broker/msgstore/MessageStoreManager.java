@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -491,7 +490,6 @@ public class MessageStoreManager implements StoreService {
      */
     private void loadMessageStores(final BrokerConfig tubeConfig)
             throws IOException, InterruptedException {
-        int totalCnt = 0;
         StringBuilder sBuilder = new StringBuilder(512);
         logger.info(sBuilder.append("[Store Manager] Begin to load message stores from path ")
                 .append(tubeConfig.getPrimaryPath()).toString());
@@ -499,8 +497,6 @@ public class MessageStoreManager implements StoreService {
         final long start = System.currentTimeMillis();
         final AtomicInteger errCnt = new AtomicInteger(0);
         final AtomicInteger finishCnt = new AtomicInteger(0);
-        ExecutorService executor =
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         List<Callable<MessageStore>> tasks = new ArrayList<Callable<MessageStore>>();
         for (final File dir : this.getLogDirSet(tubeConfig)) {
             if (dir == null) {
@@ -539,37 +535,51 @@ public class MessageStoreManager implements StoreService {
                 tasks.add(new Callable<MessageStore>() {
                     @Override
                     public MessageStore call() throws Exception {
+                        MessageStore msgStore = null;
                         try {
-                            return new MessageStore(messageStoreManager,
+                            msgStore = new MessageStore(messageStoreManager,
                                     topicMetadata, storeId, tubeConfig, maxMsgTransferSize);
+                            ConcurrentHashMap<Integer, MessageStore> map =
+                                    dataStores.get(msgStore.getTopic());
+                            if (map == null) {
+                                map = new ConcurrentHashMap<Integer, MessageStore>();
+                                ConcurrentHashMap<Integer, MessageStore> oldmap =
+                                        dataStores.putIfAbsent(msgStore.getTopic(), map);
+                                if (oldmap != null) {
+                                    map = oldmap;
+                                }
+                            }
+                            MessageStore oldMsgStore = map.putIfAbsent(msgStore.getStoreId(), msgStore);
+                            if (oldMsgStore != null) {
+                                try {
+                                    msgStore.close();
+                                    logger.info(new StringBuilder(512)
+                                            .append("[Store Manager] Close duplicated messageStore ")
+                                            .append(msgStore.getStoreKey()).toString());
+                                } catch (Throwable e2) {
+                                    //
+                                    logger.info("[Store Manager] Close duplicated messageStore failure", e2);
+                                }
+                            }
                         } catch (Throwable e2) {
                             errCnt.incrementAndGet();
                             logger.error(new StringBuilder(512).append("[Store Manager] Loaded ")
                                     .append(subDir.getAbsolutePath())
                                     .append("message store failure:").toString(), e2);
-                            return null;
                         } finally {
                             finishCnt.incrementAndGet();
                         }
+                        return null;
                     }
                 });
-                totalCnt++;
             }
         }
-        if (totalCnt > 0) {
-            this.loadStoresInParallel(executor, tasks);
-            tasks.clear();
-            if (errCnt.get() > 0) {
-                throw new RuntimeException(
-                        "[Store Manager] failure to load message stores, please check load logger and fix first!");
-            }
+        this.loadStoresInParallel(tasks);
+        tasks.clear();
+        if (errCnt.get() > 0) {
+            throw new RuntimeException(
+                    "[Store Manager] failure to load message stores, please check load logger and fix first!");
         }
-        try {
-            Thread.sleep(200);
-        } catch (Throwable e) {
-            //
-        }
-        executor.shutdownNow();
         logger.info(sBuilder.append("[Store Manager] End to load message stores in ")
                 .append((System.currentTimeMillis() - start) / 1000).append(" secs").toString());
     }
@@ -577,12 +587,12 @@ public class MessageStoreManager implements StoreService {
     /***
      * Load stores in parallel.
      *
-     * @param executor
      * @param tasks
      * @throws InterruptedException
      */
-    private void loadStoresInParallel(ExecutorService executor,
-                                      List<Callable<MessageStore>> tasks) throws InterruptedException {
+    private void loadStoresInParallel(List<Callable<MessageStore>> tasks) throws InterruptedException {
+        ExecutorService executor =
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         CompletionService<MessageStore> completionService =
                 new ExecutorCompletionService<MessageStore>(executor);
         for (Callable<MessageStore> task : tasks) {
@@ -590,36 +600,12 @@ public class MessageStoreManager implements StoreService {
         }
         for (int i = 0; i < tasks.size(); i++) {
             try {
-                MessageStore messageStore = completionService.take().get();
-                if (messageStore == null) {
-                    continue;
-                }
-                ConcurrentHashMap<Integer, MessageStore> map =
-                        this.dataStores.get(messageStore.getTopic());
-                if (map == null) {
-                    map = new ConcurrentHashMap<Integer, MessageStore>();
-                    ConcurrentHashMap<Integer, MessageStore> oldmap =
-                            this.dataStores.putIfAbsent(messageStore.getTopic(), map);
-                    if (oldmap != null) {
-                        map = oldmap;
-                    }
-                }
-                MessageStore oldMsgStore = map.putIfAbsent(messageStore.getStoreId(), messageStore);
-                if (oldMsgStore != null) {
-                    try {
-                        logger.info(new StringBuilder(512)
-                                .append("[Store Manager] Close duplicated messageStore ")
-                                .append(messageStore.getStoreKey()).toString());
-                        messageStore.close();
-                    } catch (Throwable e2) {
-                        //
-                        logger.info("[Store Manager] Close duplicated messageStore failure", e2);
-                    }
-                }
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                completionService.take().get();
+            } catch (Throwable e) {
+                //
             }
         }
+        executor.shutdown();
     }
 
     private void delTopicFiles(String filepath) throws IOException {
