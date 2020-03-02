@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -73,9 +75,9 @@ public class MsgFileStore implements Closeable {
     // message storage
     private final MessageStore messageStore;
     // data file segment list
-    private final SegmentList dataSegments;
+    private SegmentList dataSegments;
     // index file segment list
-    private final SegmentList indexSegments;
+    private SegmentList indexSegments;
     // close status
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -97,12 +99,8 @@ public class MsgFileStore implements Closeable {
         sBuilder.delete(0, sBuilder.length());
         FileUtil.checkDir(this.dataDir);
         FileUtil.checkDir(this.indexDir);
-        this.dataSegments =
-                new FileSegmentList(this.dataDir,
-                        SegmentType.DATA, true, offsetIfCreate, Long.MAX_VALUE, sBuilder);
-        this.indexSegments =
-                new FileSegmentList(this.indexDir,
-                        SegmentType.INDEX, true, offsetIfCreate, Long.MAX_VALUE, sBuilder);
+        loadSegments(SegmentType.DATA, offsetIfCreate, sBuilder);
+        loadSegments(SegmentType.INDEX, offsetIfCreate, sBuilder);
         this.lastFlushTime.set(System.currentTimeMillis());
     }
 
@@ -243,7 +241,7 @@ public class MsgFileStore implements Closeable {
         int dataRealLimit = 0;
         int curIndexOffset = 0;
         int readedOffset = 0;
-        RecordView recordView = null;
+        Segment recordSeg = null;
         int curIndexPartitionId = 0;
         long curIndexDataOffset = 0L;
         int curIndexDataSize = 0;
@@ -259,8 +257,6 @@ public class MsgFileStore implements Closeable {
                 ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
                 new ArrayList<ClientBroker.TransferedMessage>();
-        int maxSegmentSize =
-                tubeConfig.getMaxSegmentSize() + DataStoreUtils.MAX_READ_BUFFER_ADJUST;
         // read data file by index.
         for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
              curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
@@ -294,16 +290,19 @@ public class MsgFileStore implements Closeable {
             }
             try {
                 // get data from data file by index one by one.
-                if (recordView == null
-                        || !((curIndexDataOffset >= recordView.getStartOffset())
-                        && (maxDataLimitOffset <= recordView.getStartOffset() + recordView.getCommitSize()))) {
-                    if (recordView != null) {
-                        dataSegments.relRecordView(recordView);
-                        recordView = null;
+                if (recordSeg == null
+                        || !((curIndexDataOffset >= recordSeg.getStart())
+                        && (maxDataLimitOffset <= recordSeg.getStart() + recordSeg.getCommitSize()))) {
+                    if (recordSeg != null) {
+                        recordSeg.relViewRef();
+                        recordSeg = null;
                     }
-                    recordView = dataSegments.getRecordView(curIndexDataOffset, maxSegmentSize);
-                    if (recordView == null) {
+                    recordSeg = dataSegments.getRecordSeg(curIndexDataOffset);
+                    if (recordSeg == null) {
                         continue;
+                    }
+                    if (this.closed.get()) {
+                        throw new Exception("Read Service has closed!");
                     }
                 }
                 if (dataBuffer.capacity() < curIndexDataSize) {
@@ -311,7 +310,7 @@ public class MsgFileStore implements Closeable {
                 }
                 dataBuffer.clear();
                 dataBuffer.limit(curIndexDataSize);
-                recordView.read(dataBuffer, curIndexDataOffset - recordView.getStartOffset());
+                recordSeg.read(dataBuffer, curIndexDataOffset);
                 dataBuffer.flip();
                 dataRealLimit = dataBuffer.limit();
                 if (dataRealLimit < curIndexDataSize) {
@@ -350,8 +349,8 @@ public class MsgFileStore implements Closeable {
             }
         }
         // release resource
-        if (recordView != null) {
-            dataSegments.relRecordView(recordView);
+        if (recordSeg != null) {
+            recordSeg.relViewRef();
         }
         if (retCode != 0) {
             if (!transferedMessageList.isEmpty()) {
@@ -496,8 +495,117 @@ public class MsgFileStore implements Closeable {
                 segment.getStart(), segment.getStart() + segment.getCachedSize());
     }
 
-    public RecordView indexSlice(final long offset, final int maxSize) throws IOException {
-        return indexSegments.getRecordView(offset, maxSize);
+    public Segment indexSlice(final long offset, final int maxSize) throws IOException {
+        return indexSegments.getRecordSeg(offset);
+    }
+
+    private void loadSegments(final SegmentType segType, long offsetIfCreate,
+                              StringBuilder sBuilder) throws IOException {
+        String segTypeStr = "Data";
+        File   segListDir = this.dataDir;
+        String fileSuffix = DataStoreUtils.DATA_FILE_SUFFIX;
+        if (segType == SegmentType.INDEX) {
+            segTypeStr = "Index";
+            segListDir = this.indexDir;
+            fileSuffix = DataStoreUtils.INDEX_FILE_SUFFIX;
+        }
+        logger.info(sBuilder.append("[File Store] begin Load ")
+                .append(segTypeStr).append(" segments ")
+                .append(segListDir.getAbsolutePath()).toString());
+        sBuilder.delete(0, sBuilder.length());
+        final List<Segment> accum = new ArrayList<Segment>();
+        final File[] ls = segListDir.listFiles();
+        if (ls != null) {
+            for (final File file : ls) {
+                if (file == null) {
+                    continue;
+                }
+                if (file.isFile() && file.toString().endsWith(fileSuffix)) {
+                    if (!file.canRead()) {
+                        throw new IOException(new StringBuilder(512)
+                                .append("Could not read ").append(segTypeStr)
+                                .append(" file ").append(file).toString());
+                    }
+                    final String filename = file.getName();
+                    final long start =
+                            Long.parseLong(filename.substring(0, filename.length() - fileSuffix.length()));
+                    accum.add(new FileSegment(start, file, false, segType));
+                }
+            }
+        }
+        if (accum.size() == 0) {
+            final File newFile =
+                    new File(segListDir,
+                            DataStoreUtils.nameFromOffset(offsetIfCreate, fileSuffix));
+            logger.info(sBuilder.append("[File Store] Created ").append(segTypeStr)
+                    .append(" segment ").append(newFile.getAbsolutePath()).toString());
+            sBuilder.delete(0, sBuilder.length());
+            accum.add(new FileSegment(offsetIfCreate, newFile, segType));
+        } else {
+            // The list of segments is required to be arranged continuously from low to high
+            Collections.sort(accum, new Comparator<Segment>() {
+                @Override
+                public int compare(final Segment o1, final Segment o2) {
+                    if (o1.getStart() == o2.getStart()) {
+                        return 0;
+                    } else if (o1.getStart() > o2.getStart()) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+            });
+            validateSegments(segTypeStr, accum);
+            Segment last = accum.get(accum.size() - 1);
+            if ((last.getCachedSize() > 0)
+                    && (System.currentTimeMillis() - last.getFile().lastModified()
+                    >= DataStoreUtils.MAX_FILE_NO_WRITE_DURATION)) {
+                // If the last segment is not written for a long time, it will be aged at startup
+                final long newOffset = last.getCommitLast();
+                final File newFile =
+                        new File(segListDir,
+                                DataStoreUtils.nameFromOffset(newOffset, fileSuffix));
+                logger.info(sBuilder.append("[File Store] Created time roll").append(segTypeStr)
+                        .append(" segment ").append(newFile.getAbsolutePath()).toString());
+                sBuilder.delete(0, sBuilder.length());
+                accum.add(new FileSegment(newOffset, newFile, segType));
+            } else {
+                last = accum.remove(accum.size() - 1);
+                last.close();
+                logger.info(sBuilder
+                        .append("[File Store] Loading the last ").append(segTypeStr)
+                        .append(" segment in mutable mode and running recover on ")
+                        .append(last.getFile().getAbsolutePath()).toString());
+                sBuilder.delete(0, sBuilder.length());
+                final FileSegment mutable =
+                        new FileSegment(last.getStart(), last.getFile(), segType, Long.MAX_VALUE);
+                accum.add(mutable);
+            }
+        }
+        if (segType == SegmentType.DATA) {
+            this.dataSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
+        } else {
+            this.indexSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
+        }
+        logger.info(sBuilder.append("[File Store] Loaded ")
+                .append(segTypeStr).append(" ").append(accum.size()).append(" segments from ")
+                .append(segListDir.getAbsolutePath()).toString());
+        sBuilder.delete(0, sBuilder.length());
+    }
+
+    private void validateSegments(final String segTypeStr, final List<Segment> segments) {
+        //　valid segments, continuous
+        for (int i = 0; i < segments.size() - 1; i++) {
+            final Segment curr = segments.get(i);
+            final Segment next = segments.get(i + 1);
+            if (curr.getStart() + curr.getCachedSize() != next.getStart()) {
+                throw new IllegalStateException(new StringBuilder(512)
+                        .append("The following ").append(segTypeStr)
+                        .append(" segments don't validate: ")
+                        .append(curr.getFile().getAbsolutePath()).append(", ")
+                        .append(next.getFile().getAbsolutePath()).toString());
+            }
+        }
     }
 
 }

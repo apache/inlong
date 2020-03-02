@@ -18,7 +18,6 @@
 package org.apache.tubemq.server.broker.msgstore.disk;
 
 import java.io.IOException;
-import java.util.List;
 
 /***
  * Segment list.
@@ -31,7 +30,7 @@ public interface SegmentList {
 
     Segment findSegment(final long offset);
 
-    List<Segment> getView();
+    Segment[] getView();
 
     long getSizeInBytes();
 
@@ -51,9 +50,6 @@ public interface SegmentList {
 
     void delete(final Segment segment);
 
-    RecordView getRecordView(final long offset, final int maxSize) throws IOException;
-
-    void relRecordView(RecordView recordView);
-
+    Segment getRecordSeg(final long offset) throws IOException;
 
 }
