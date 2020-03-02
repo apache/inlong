@@ -48,11 +48,7 @@ public class FileSegmentTest {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                fileSegment.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fileSegment.close();
         }
     }
 
@@ -74,20 +70,15 @@ public class FileSegmentTest {
             long offset = fileSegment.append(buf);
             int limit = 1000;
             // get view of fileSegment.
-            RecordView recordView = fileSegment.getViewRef(start, offset, limit);
             ByteBuffer readBuffer = ByteBuffer.allocate(limit);
-            recordView.read(readBuffer);
+            fileSegment.read(readBuffer, 0);
             byte[] readBytes = readBuffer.array();
             String readData = new String(readBytes);
             readData.substring(0, data.length());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                fileSegment.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fileSegment.close();
         }
     }
 }

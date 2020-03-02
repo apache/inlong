@@ -31,7 +31,6 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.server.broker.msgstore.disk.FileSegment;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
-import org.apache.tubemq.server.broker.msgstore.disk.RecordView;
 import org.apache.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.tubemq.server.broker.msgstore.disk.SegmentType;
 import org.apache.tubemq.server.broker.stats.CountItem;
@@ -47,7 +46,7 @@ public class MsgSSDSegment implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MsgSSDSegment.class);
     private final Segment dataSegment;
     private final ConcurrentHashMap<String, SSDVisitInfo> visitMap =
-            new ConcurrentHashMap<String, SSDVisitInfo>();
+        new ConcurrentHashMap<String, SSDVisitInfo>();
     private final String topic;
     private final String storeKey;
     private AtomicLong lastReadTime = new AtomicLong(System.currentTimeMillis());
@@ -103,22 +102,21 @@ public class MsgSSDSegment implements Closeable {
         final long curDataMinOffset = getDataMinOffset();
         HashMap<String, CountItem> countMap = new HashMap<String, CountItem>();
         ByteBuffer dataBuffer =
-                ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
+            ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
-                new ArrayList<ClientBroker.TransferedMessage>();
-        RecordView dataSet = this.dataSegment.getViewRef();
-        if (dataSet == null) {
+            new ArrayList<ClientBroker.TransferedMessage>();
+        if (this.dataSegment == null) {
             logger.error(strBuffer.append("[SSD Store] Found SSD fileRecordView is null! storeKey=")
-                    .append(this.storeKey).toString());
+                .append(this.storeKey).toString());
             strBuffer.delete(0, strBuffer.length());
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR_MSGSET_NULL,
-                    reqOffset, 0, "SSD fileRecordView is null!");
+                reqOffset, 0, "SSD fileRecordView is null!");
         }
         SSDVisitInfo ssdVisitInfo = visitMap.get(partStr);
         if (ssdVisitInfo == null) {
             SSDVisitInfo ssdVisitInfo1 = new SSDVisitInfo(partStr, lastRDOffset);
             ssdVisitInfo =
-                    visitMap.putIfAbsent(partStr, ssdVisitInfo1);
+                visitMap.putIfAbsent(partStr, ssdVisitInfo1);
             if (ssdVisitInfo == null) {
                 ssdVisitInfo = ssdVisitInfo1;
             }
@@ -136,20 +134,20 @@ public class MsgSSDSegment implements Closeable {
             recvTimeInMillsec = indexBuffer.getLong();
             maxDataLimitOffset = curIndexDataOffset + curIndexDataSize;
             if (curIndexDataOffset < 0
-                    || curIndexPartitionId < 0
-                    || curIndexDataSize <= 0
-                    || curIndexDataSize > DataStoreUtils.STORE_MAX_MESSAGE_STORE_LEN) {
+                || curIndexPartitionId < 0
+                || curIndexDataSize <= 0
+                || curIndexDataSize > DataStoreUtils.STORE_MAX_MESSAGE_STORE_LEN) {
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
             if (curIndexDataOffset < curDataMinOffset
-                    || curIndexDataOffset >= curDataMaxOffset) {
+                || curIndexDataOffset >= curDataMaxOffset) {
                 lastRdDataOffset = curIndexDataOffset;
                 break;
             }
             if (curIndexPartitionId != partitionId
-                    || maxDataLimitOffset > curDataMaxOffset
-                    || (isFilterConsume && !filterKeys.contains(curIndexKeyCode))) {
+                || maxDataLimitOffset > curDataMaxOffset
+                || (isFilterConsume && !filterKeys.contains(curIndexKeyCode))) {
                 lastRdDataOffset = maxDataLimitOffset;
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
@@ -160,7 +158,7 @@ public class MsgSSDSegment implements Closeable {
                 }
                 dataBuffer.clear();
                 dataBuffer.limit(curIndexDataSize);
-                dataSet.read(dataBuffer, curIndexDataOffset - dataSet.getStartOffset());
+                dataSegment.read(dataBuffer, curIndexDataOffset);
                 dataBuffer.flip();
                 dataRealLimit = dataBuffer.limit();
                 if (dataRealLimit < curIndexDataSize) {
@@ -171,13 +169,13 @@ public class MsgSSDSegment implements Closeable {
             } catch (Throwable e2) {
                 strBuffer.delete(0, strBuffer.length());
                 logger.warn(strBuffer
-                        .append("[SSD Store] Get message from file failure,storeKey=")
-                        .append(this.storeKey).append(", partitionId=")
-                        .append(partitionId).toString(), e2);
+                    .append("[SSD Store] Get message from file failure,storeKey=")
+                    .append(this.storeKey).append(", partitionId=")
+                    .append(partitionId).toString(), e2);
                 retCode = TErrCodeConstants.INTERNAL_SERVER_ERROR;
                 strBuffer.delete(0, strBuffer.length());
                 errInfo = strBuffer.append("Get message from file failure : ")
-                        .append(e2.getCause()).toString();
+                    .append(e2.getCause()).toString();
                 strBuffer.delete(0, strBuffer.length());
                 result = false;
                 break;
@@ -185,8 +183,8 @@ public class MsgSSDSegment implements Closeable {
             lastRdDataOffset = maxDataLimitOffset;
             readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
             ClientBroker.TransferedMessage transferedMessage =
-                    DataStoreUtils.getTransferMsg(dataBuffer,
-                            curIndexDataSize, countMap, statisKeyBase, strBuffer);
+                DataStoreUtils.getTransferMsg(dataBuffer,
+                    curIndexDataSize, countMap, statisKeyBase, strBuffer);
             if (transferedMessage == null) {
                 continue;
             }
@@ -208,8 +206,8 @@ public class MsgSSDSegment implements Closeable {
             lastRdDataOffset = lastRDOffset;
         }
         return new GetMessageResult(result, retCode, errInfo,
-                reqOffset, readedOffset, lastRdDataOffset,
-                totalSize, countMap, transferedMessageList, true);
+            reqOffset, readedOffset, lastRdDataOffset,
+            totalSize, countMap, transferedMessageList, true);
     }
 
     public void setInUse() {
@@ -235,8 +233,8 @@ public class MsgSSDSegment implements Closeable {
             }
         } catch (Throwable e1) {
             logger.error(new StringBuilder(512).append("[SSD Store] Close ")
-                    .append(this.dataSegment.getFile().getAbsolutePath())
-                    .append("'s file failure").toString(), e1);
+                .append(this.dataSegment.getFile().getAbsolutePath())
+                .append("'s file failure").toString(), e1);
         }
     }
 
@@ -299,8 +297,8 @@ public class MsgSSDSegment implements Closeable {
     public boolean isSegmentValid() {
         long curTime = System.currentTimeMillis();
         return !(this.curStatus.get() > 1
-                || (this.curStatus.get() > 0
-                && curTime - this.lastReadTime.get() >= 15 * 1000));
+            || (this.curStatus.get() > 0
+            && curTime - this.lastReadTime.get() >= 15 * 1000));
     }
 
     public int getCurStatus() {
@@ -310,8 +308,8 @@ public class MsgSSDSegment implements Closeable {
     public boolean setAndGetSegmentExpired() {
         long curTime = System.currentTimeMillis();
         if (this.curStatus.get() > 0
-                && this.visitMap.isEmpty()
-                && (curTime - this.lastReadTime.get() >= 15 * 1000)) {
+            && this.visitMap.isEmpty()
+            && (curTime - this.lastReadTime.get() >= 15 * 1000)) {
             if (this.curStatus.get() == 1) {
                 this.curStatus.set(2);
                 this.expiredWait.set(curTime);

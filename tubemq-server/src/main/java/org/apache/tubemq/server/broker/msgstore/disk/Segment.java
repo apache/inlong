@@ -20,14 +20,13 @@ package org.apache.tubemq.server.broker.msgstore.disk;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 /***
  * Storage segment, usually implemented in file format.
  */
 public interface Segment {
 
-    int close() throws IOException;
+    void close();
 
     long append(final ByteBuffer buf) throws IOException;
 
@@ -37,6 +36,8 @@ public interface Segment {
 
     boolean isClosed();
 
+    boolean needDelete();
+
     long getStart();
 
     long getLast();
@@ -44,6 +45,8 @@ public interface Segment {
     long getCommitLast();
 
     File getFile();
+
+    void deleteFile();
 
     long getCachedSize();
 
@@ -53,18 +56,12 @@ public interface Segment {
 
     boolean contains(final long offset);
 
-    FileChannel getFileChannel();
-
     boolean isMutable();
 
     void setMutable(boolean mutable);
 
-    RecordView getViewRef(final long start, final long offset, final long limit);
-
-    RecordView getViewRef();
-
     void relViewRef();
 
-    boolean equals(Segment other);
+    void read(final ByteBuffer bf, final long offset) throws IOException;
 
 }

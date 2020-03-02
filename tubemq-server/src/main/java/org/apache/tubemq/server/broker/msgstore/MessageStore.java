@@ -40,7 +40,7 @@ import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStatisInfo;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStore;
-import org.apache.tubemq.server.broker.msgstore.disk.RecordView;
+import org.apache.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStatisInfo;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStore;
@@ -247,7 +247,7 @@ public class MessageStore implements Closeable {
         maxIndexReadLength = consumerNodeInfo.isFilterConsume()
                 ? fileMaxFilterIndexReadSize.get() : fileMaxIndexReadSize.get();
         final ByteBuffer indexBuffer = ByteBuffer.allocate(maxIndexReadLength);
-        final RecordView indexRecordView =
+        Segment indexRecordView =
                 this.msgFileStore.indexSlice(reqNewOffset, maxIndexReadLength);
         if (indexRecordView == null) {
             if (reqNewOffset < this.msgFileStore.getIndexMinOffset()) {
@@ -258,9 +258,9 @@ public class MessageStore implements Closeable {
                         reqNewOffset, 0, "current offset is exceed max offset!");
             }
         }
-        indexRecordView.read(indexBuffer);
+        indexRecordView.read(indexBuffer, reqNewOffset);
         indexBuffer.flip();
-        indexRecordView.getSegment().relViewRef();
+        indexRecordView.relViewRef();
         //　judge whether read from ssd or disk.
         if (consumerNodeInfo.processFromSsdFile()) {
             return msgStoreMgr.getSsdMesssage(storeKey, consumerNodeInfo.getPartStr(),

@@ -20,7 +20,6 @@ package org.apache.tubemq.server.broker.msgstore.disk;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,16 +41,16 @@ public class FileSegmentListTest {
                             DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             file.createNewFile();
             // create FileSegmentList.
-            fileSegmentList = new FileSegmentList(dir, SegmentType.DATA,
-                    true, 0L, Long.MAX_VALUE, new StringBuilder());
+            fileSegmentList = new FileSegmentList();
+            fileSegmentList.append(new FileSegment(0, file, SegmentType.DATA));
             Segment fileSegment = fileSegmentList.last();
             String data = "abc";
             // append data to last FileSegment.
             fileSegment.append(ByteBuffer.wrap(data.getBytes()));
             fileSegment.flush(true);
             // get view
-            List<Segment> segmentList = fileSegmentList.getView();
-            Assert.assertTrue(segmentList.size() == 1);
+            Segment[] segmentList = fileSegmentList.getView();
+            Assert.assertTrue(segmentList.length == 1);
             file.delete();
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,16 +78,15 @@ public class FileSegmentListTest {
                             DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             file.createNewFile();
             // create FileSegmentList.
-            fileSegmentList = new FileSegmentList(dir, SegmentType.DATA,
-                    true, 0L, Long.MAX_VALUE, new StringBuilder());
+            fileSegmentList = new FileSegmentList();
             Segment fileSegment = new FileSegment(100L, file, true, SegmentType.DATA);
             String data = "abc";
             // append data to last FileSegment.
             fileSegment.append(ByteBuffer.wrap(data.getBytes()));
             fileSegment.flush(true);
             fileSegmentList.append(fileSegment);
-            List<Segment> segmentList = fileSegmentList.getView();
-            Assert.assertTrue(segmentList.size() == 2);
+            Segment[] segmentList = fileSegmentList.getView();
+            Assert.assertTrue(segmentList.length == 1);
             file.delete();
         } catch (IOException e) {
             e.printStackTrace();
