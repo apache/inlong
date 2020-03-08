@@ -362,7 +362,7 @@ public class WebParameterUtils {
         try {
             if (timeUnit.endsWith("s")) {
                 validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
-            } else if (timeUnit.equals("m")) {
+            } else if (timeUnit.endsWith("m")) {
                 validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (timeUnit.endsWith("h")) {
                 validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
