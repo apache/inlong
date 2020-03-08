@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.master.TMaster;
@@ -297,6 +298,94 @@ public class WebParameterUtils {
                         TServerConstants.CFG_MODAUTHTOKEN_MAX_LENGTH, true, "");
         if (!inPutConfModAuthToken.equals(master.getMasterConfig().getConfModAuthToken())) {
             throw new Exception("Illegal visit: not authorized to process authorization info!");
+        }
+    }
+
+    /**
+     * Decode the deletePolicy parameter value from an object value
+     * the value must like {method},{digital}[s|m|h]
+     *
+     * @param paramName    the parameter name
+     * @param paramValue   the parameter value which is an object for parsing
+     * @param required     a boolean value represent whether the parameter is must required
+     * @param defaultValue a default value returned if failed to parse value from the given object
+     * @return the decoded string of parameter
+     * @throws Exception if failed to parse the object
+     */
+    public static String validDeletePolicyParameter(String paramName, Object paramValue,
+                                                    boolean required, String defaultValue) throws Exception {
+        int paramMaxLen = TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH;
+        String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
+        if (TStringUtils.isBlank(tmpParamValue)) {
+            return defaultValue;
+        }
+        String inDelPolicy = null;
+        try {
+            inDelPolicy = URLDecoder.decode(tmpParamValue, TBaseConstants.META_DEFAULT_CHARSET_NAME);
+        } catch (UnsupportedEncodingException e) {
+            throw new Exception(new StringBuilder(512).append("Decode ")
+                    .append(paramName).append("error, exception is ")
+                    .append(e.toString()).toString());
+        }
+        if (inDelPolicy.length() > paramMaxLen) {
+            throw new Exception(new StringBuilder(512)
+                    .append("the max length of ").append(paramName)
+                    .append(" parameter is ").append(paramMaxLen)
+                    .append(" characters").toString());
+        }
+        String[] tmpStrs = inDelPolicy.split(",");
+        if (tmpStrs.length != 2) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Illegal value: must include one and only one comma character,")
+                    .append(" the format of ").append(paramName)
+                    .append(" must like {method},{digital}[m|s|h]").toString());
+        }
+        if (TStringUtils.isBlank(tmpStrs[0])) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Illegal value: method's value must not be blank!")
+                    .append(" the format of ").append(paramName)
+                    .append(" must like {method},{digital}[s|m|h]").toString());
+        }
+        if (!"delete".equalsIgnoreCase(tmpStrs[0].trim())) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Illegal value: only support delete method now!").toString());
+        }
+        String validValStr = tmpStrs[1];
+        String timeUnit = validValStr.substring(validValStr.length() - 1).toLowerCase();
+        if (Character.isLetter(timeUnit.charAt(0))) {
+            if (!allowedDelUnits.contains(timeUnit)) {
+                throw new Exception(new StringBuilder(512)
+                        .append("Illegal value: only support [s|m|h] unit!").toString());
+            }
+        }
+        long validDuration = 0;
+        try {
+            if (timeUnit.endsWith("s")) {
+                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+            } else if (timeUnit.equals("m")) {
+                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+            } else if (timeUnit.endsWith("h")) {
+                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+            } else {
+                validDuration = Long.valueOf(validValStr) * 3600000;
+            }
+        } catch (Throwable e) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Illegal value: the value of valid duration must digits!").toString());
+        }
+        if (validDuration <= 0 || validDuration > DataStoreUtils.MAX_FILE_VALID_DURATION) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Illegal value: the value of valid duration must")
+                    .append(" be greater than 0 and  less than or equal to ")
+                    .append(DataStoreUtils.MAX_FILE_VALID_DURATION).append(" seconds!").toString());
+        }
+        if (Character.isLetter(timeUnit.charAt(0))) {
+            return new StringBuilder(512).append("delete,")
+                    .append(validValStr.substring(0, validValStr.length() - 1))
+                    .append(timeUnit).toString();
+        } else {
+            return new StringBuilder(512).append("delete,")
+                    .append(validValStr).append("h").toString();
         }
     }
 
