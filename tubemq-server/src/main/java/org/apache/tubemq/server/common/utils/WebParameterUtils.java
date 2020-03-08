@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,8 @@ import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInf
 
 
 public class WebParameterUtils {
+
+    private static final List<String> allowedDelUnits = Arrays.asList("s", "m", "h");
 
     /**
      * Parse the parameter value from an object value to a long value
