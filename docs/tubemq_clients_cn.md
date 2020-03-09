@@ -150,6 +150,11 @@ public class DefaultMessageListener implements MessageV2Listener {
         }
     }
 
+    public void receiveMessages(final List<Message> messages) throws InterruptedException 
+    {
+        // deprecated  
+    }
+
     public Executor getExecutor() {
         return null;
     }

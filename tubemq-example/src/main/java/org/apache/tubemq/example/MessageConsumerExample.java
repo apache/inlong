@@ -149,15 +149,15 @@ public final class MessageConsumerExample {
         }
 
         @Override
-        public void receiveMessages(List<Message> messages) {
-            //
-        }
-
-        @Override
         public void receiveMessages(PeerInfo peerInfo, List<Message> messages) {
             if (messages != null && !messages.isEmpty()) {
                 msgRecvStats.addMsgCount(this.topic, messages.size());
             }
+        }
+
+        @Override
+        public void receiveMessages(List<Message> messages) {
+            // deprecated
         }
 
         @Override
