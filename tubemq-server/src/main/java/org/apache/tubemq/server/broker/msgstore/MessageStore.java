@@ -580,7 +580,7 @@ public class MessageStore implements Closeable {
             } else if (validValStr.endsWith("h")) {
                 return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                return DataStoreUtils.MAX_FILE_VALID_DURATION;
+                return Long.valueOf(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             return DataStoreUtils.MAX_FILE_VALID_DURATION;
