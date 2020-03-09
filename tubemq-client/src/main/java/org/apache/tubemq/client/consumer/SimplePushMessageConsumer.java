@@ -17,16 +17,15 @@
 
 package org.apache.tubemq.client.consumer;
 
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.InnerSessionFactory;
-import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,7 +218,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                 listener.getExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
-                        receiveMessages(request.getMessageList(), topicProcessor);
+                        receiveMessages(request, topicProcessor);
                     }
                 });
             } catch (final RejectedExecutionException e) {
@@ -230,16 +229,23 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                 throw e;
             }
         } else {
-            this.receiveMessages(request.getMessageList(), topicProcessor);
+            this.receiveMessages(request, topicProcessor);
         }
         return true;
     }
 
-    private void receiveMessages(final List<Message> messageList,
+    private void receiveMessages(final FetchContext request,
                                  final TopicProcessor topicProcessor) {
-        if (messageList != null) {
+        if (request != null && request.getMessageList() != null) {
+            MessageListener msgListener = topicProcessor.getMessageListener();
             try {
-                topicProcessor.getMessageListener().receiveMessages(messageList);
+                if (msgListener instanceof MessageV2Listener) {
+                    MessageV2Listener msgV2Listener = (MessageV2Listener) msgListener;
+                    msgV2Listener.receiveMessages(new PeerInfo(request.getPartition(),
+                                    request.getCurrOffset()), request.getMessageList());
+                } else {
+                    msgListener.receiveMessages(request.getMessageList());
+                }
             } catch (InterruptedException e) {
                 logger.info(
                         "Call listener to process received messages throw Interrupted Exception!");

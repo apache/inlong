@@ -19,8 +19,10 @@ package org.apache.tubemq.client.consumer;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.cluster.Partition;
 
 
 public class ConsumerResult {
@@ -28,8 +30,7 @@ public class ConsumerResult {
     private int errCode = TBaseConstants.META_VALUE_UNDEFINED;
     private String errMsg = "";
     private String topicName = "";
-    private String partitionKey = "";
-    private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
     private List<Message> messageList = new ArrayList<Message>();
 
@@ -45,27 +46,20 @@ public class ConsumerResult {
         this.errCode = taskContext.getErrCode();
         this.errMsg = taskContext.getErrMsg();
         this.topicName = taskContext.getPartition().getTopic();
-        this.partitionKey = taskContext.getPartition().getPartitionKey();
+        peerInfo.setMsgSourceInfo(taskContext.getPartition(), taskContext.getCurrOffset());
         if (this.success) {
-            this.currOffset = taskContext.getCurrOffset();
             this.messageList = taskContext.getMessageList();
             this.confirmContext = taskContext.getConfirmContext();
         }
     }
 
-    public ConsumerResult(boolean success, String errMsg, String topicName, String partitionKey) {
-        this.success = success;
+    public ConsumerResult(boolean isSuccess, int errCode, String errMsg,
+                          String topicName, Partition partition, long currOffset) {
+        this.success = isSuccess;
+        this.errCode = errCode;
         this.errMsg = errMsg;
-        this.partitionKey = partitionKey;
         this.topicName = topicName;
-    }
-
-    public void setConfirmProcessResult(boolean success, String errMsg, long currOffset) {
-        this.success = success;
-        this.errMsg = errMsg;
-        if (currOffset >= 0) {
-            this.currOffset = currOffset;
-        }
+        this.peerInfo.setMsgSourceInfo(partition, currOffset);
     }
 
     public boolean isSuccess() {
@@ -80,8 +74,12 @@ public class ConsumerResult {
         return topicName;
     }
 
+    public PeerInfo getPeerInfo() {
+        return peerInfo;
+    }
+
     public String getPartitionKey() {
-        return this.partitionKey;
+        return peerInfo.getPartitionKey();
     }
 
     public String getErrMsg() {
@@ -93,7 +91,7 @@ public class ConsumerResult {
     }
 
     public long getCurrOffset() {
-        return currOffset;
+        return peerInfo.getCurrOffset();
     }
 
     public final List<Message> getMessageList() {
