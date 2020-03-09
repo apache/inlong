@@ -23,7 +23,7 @@
     <parent>
         <artifactId>tubemq</artifactId>
         <groupId>org.apache.tubemq</groupId>
-        <version>0.3.0-incubating-SNAPSHOT</version>
+        <version>0.5.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>tubemq-server</artifactId>
     <name>tubemq-server</name>
