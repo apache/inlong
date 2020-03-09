@@ -23,6 +23,7 @@ import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.InnerSessionFactory;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
@@ -151,41 +152,42 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                 .append(TokenConstants.ATTR_SEP).append(strConfirmContextItems[2].trim()).toString();
         sBuilder.delete(0, sBuilder.length());
         String topicName = strConfirmContextItems[1].trim();
-        ConsumerResult result = new ConsumerResult(true, "Ok", topicName, keyId);
         long timeStamp = Long.valueOf(strConfirmContextItems[3]);
         if (!baseConsumer.rmtDataCache.isPartitionInUse(keyId, timeStamp)) {
-            throw new TubeClientException("The confirmContext's value invalid!");
+            return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
+                    "The confirmContext's value invalid!");
+        }
+        Partition curPartition =
+                baseConsumer.rmtDataCache.getPartitonByKey(keyId);
+        if (curPartition == null) {
+            return new ConsumerResult(TErrCodeConstants.NOT_FOUND, sBuilder
+                    .append("Not found the partition by confirmContext:")
+                    .append(confirmContext).toString());
         }
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
                     timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
+            return new ConsumerResult(true, TErrCodeConstants.SUCCESS,
+                    "OK!", topicName, curPartition, currOffset);
         } else {
             try {
-                Partition curPartiton =
-                        baseConsumer.rmtDataCache.getPartitonByKey(keyId);
-                if (curPartiton != null) {
-                    ClientBroker.CommitOffsetResponseB2C commitResponse =
-                            baseConsumer.getBrokerService(curPartiton.getBroker())
-                                    .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartiton, isConsumed),
-                                            AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
-                    if (commitResponse == null) {
-                        result.setConfirmProcessResult(false, sBuilder.append("Confirm ")
-                                .append(confirmContext).append("'s offset failed!").toString(), currOffset);
-                        sBuilder.delete(0, sBuilder.length());
-                    } else {
-                        if (commitResponse.hasCurrOffset()) {
-                            if (commitResponse.getCurrOffset() >= 0) {
-                                currOffset = commitResponse.getCurrOffset();
-                            }
-                        }
-                        result.setConfirmProcessResult(commitResponse.getSuccess(),
-                                commitResponse.getErrMsg(), currOffset);
-                    }
+                ClientBroker.CommitOffsetResponseB2C commitResponse =
+                        baseConsumer.getBrokerService(curPartition.getBroker())
+                                .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
+                                        AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
+                if (commitResponse == null) {
+                    return new ConsumerResult(TErrCodeConstants.BAD_REQUEST, sBuilder
+                            .append("Confirm ").append(confirmContext)
+                            .append("'s offset failed!").toString());
                 } else {
-                    result.setConfirmProcessResult(false, sBuilder
-                            .append("Not found the partition by confirmContext:")
-                            .append(confirmContext).toString(), currOffset);
-                    sBuilder.delete(0, sBuilder.length());
+                    if (commitResponse.hasCurrOffset()) {
+                        if (commitResponse.getCurrOffset() >= 0) {
+                            currOffset = commitResponse.getCurrOffset();
+                        }
+                    }
+                    return new ConsumerResult(commitResponse.getSuccess(),
+                            commitResponse.getErrCode(), commitResponse.getErrMsg(),
+                            topicName, curPartition, currOffset);
                 }
             } catch (Throwable e) {
                 sBuilder.delete(0, sBuilder.length());
@@ -196,6 +198,5 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                         timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
             }
         }
-        return result;
     }
 }

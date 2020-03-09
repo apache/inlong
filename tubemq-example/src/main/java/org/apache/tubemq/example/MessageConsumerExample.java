@@ -26,8 +26,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.client.config.ConsumerConfig;
-import org.apache.tubemq.client.consumer.MessageListener;
+import org.apache.tubemq.client.consumer.MessageV2Listener;
 import org.apache.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
@@ -133,13 +134,13 @@ public final class MessageConsumerExample {
 
     public void subscribe(Map<String, TreeSet<String>> topicTidsMap) throws TubeClientException {
         for (Map.Entry<String, TreeSet<String>> entry : topicTidsMap.entrySet()) {
-            MessageListener messageListener = new DefaultMessageListener(entry.getKey());
+            MessageV2Listener messageListener = new DefaultMessageListener(entry.getKey());
             messageConsumer.subscribe(entry.getKey(), entry.getValue(), messageListener);
         }
         messageConsumer.completeSubscribe();
     }
 
-    public static class DefaultMessageListener implements MessageListener {
+    public static class DefaultMessageListener implements MessageV2Listener {
 
         private String topic;
 
@@ -149,6 +150,11 @@ public final class MessageConsumerExample {
 
         @Override
         public void receiveMessages(List<Message> messages) {
+            //
+        }
+
+        @Override
+        public void receiveMessages(PeerInfo peerInfo, List<Message> messages) {
             if (messages != null && !messages.isEmpty()) {
                 msgRecvStats.addMsgCount(this.topic, messages.size());
             }

@@ -135,7 +135,7 @@ public void subscribe(final Map<String, TreeSet<String>> topicTidsMap)
 到此，对集群里对应topic的订阅就已完成，系统运行开始后，回调函数里数据将不断的通过回调函数推送到业务层进行处理：
 
 ```java
-public class DefaultMessageListener implements MessageListener {
+public class DefaultMessageListener implements MessageV2Listener {
 
     private String topic;
 
@@ -143,7 +143,7 @@ public class DefaultMessageListener implements MessageListener {
         this.topic = topic;
     }
 
-    public void receiveMessages(final List<Message> messages) throws InterruptedException 
+    public void receiveMessages(PeerInfo peerInfo, final List<Message> messages) throws InterruptedException 
     {
         if (messages != null && !messages.isEmpty()) {
             msgRecvStats.addMsgCount(this.topic, messages.size());
