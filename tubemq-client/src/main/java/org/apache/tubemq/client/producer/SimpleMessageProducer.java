@@ -184,7 +184,7 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     @Override
-    public synchronized void shutdown() throws Throwable {
+    public void shutdown() throws Throwable {
         logger.info("[ShutDown] begin shutdown producer...");
         if (this.isShutDown.get()) {
             return;

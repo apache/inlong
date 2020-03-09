@@ -51,7 +51,7 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
     }
 
     @Override
-    public synchronized void shutdown() throws TubeClientException {
+    public void shutdown() throws TubeClientException {
         if (referenceCounter.decrementAndGet() > 0) {
             return;
         }
