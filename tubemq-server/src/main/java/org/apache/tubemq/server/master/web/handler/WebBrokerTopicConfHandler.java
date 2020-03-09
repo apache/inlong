@@ -146,10 +146,8 @@ public class WebBrokerTopicConfHandler {
                                 TServerConstants.CFG_DELETEWHEN_MAX_LENGTH,
                                 false, oldEntity.getDftDeleteWhen());
                 String deletePolicy =
-                        WebParameterUtils.validDecodeStringParameter("deletePolicy",
-                                req.getParameter("deletePolicy"),
-                                TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH,
-                                false, oldEntity.getDftDeletePolicy());
+                        WebParameterUtils.validDeletePolicyParameter("deletePolicy",
+                                req.getParameter("deletePolicy"), false, oldEntity.getDftDeletePolicy());
                 int numPartitions =
                         WebParameterUtils.validIntDataParameter("numPartitions",
                                 req.getParameter("numPartitions"),
@@ -292,10 +290,8 @@ public class WebBrokerTopicConfHandler {
                                     TServerConstants.CFG_DELETEWHEN_MAX_LENGTH,
                                     false, brokerConfEntity.getDftDeleteWhen());
                     final String deletePolicy =
-                            WebParameterUtils.validDecodeStringParameter("deletePolicy",
-                                    jsonObject.get("deletePolicy"),
-                                    TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH,
-                                    false, brokerConfEntity.getDftDeletePolicy());
+                            WebParameterUtils.validDeletePolicyParameter("deletePolicy",
+                                    jsonObject.get("deletePolicy"), false, brokerConfEntity.getDftDeletePolicy());
                     final int numPartitions =
                             WebParameterUtils.validIntDataParameter("numPartitions",
                                     jsonObject.get("numPartitions"),
@@ -465,9 +461,8 @@ public class WebBrokerTopicConfHandler {
                             req.getParameter("deleteWhen"),
                             TServerConstants.CFG_DELETEWHEN_MAX_LENGTH, false, null));
             webTopicEntity
-                    .setDeletePolicy(WebParameterUtils.validDecodeStringParameter("deletePolicy",
-                            req.getParameter("deletePolicy"),
-                            TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH, false, null));
+                .setDeletePolicy(WebParameterUtils.validDeletePolicyParameter("deletePolicy",
+                    req.getParameter("deletePolicy"), false, null));
             webTopicEntity
                     .setUnflushInterval(WebParameterUtils.validIntDataParameter("unflushInterval",
                             req.getParameter("unflushInterval"),
@@ -1195,8 +1190,8 @@ public class WebBrokerTopicConfHandler {
                     WebParameterUtils.validDecodeStringParameter("deleteWhen", req.getParameter("deleteWhen"),
                             TServerConstants.CFG_DELETEWHEN_MAX_LENGTH, false, null);
             String deletePolicy =
-                    WebParameterUtils.validDecodeStringParameter("deletePolicy", req.getParameter("deletePolicy"),
-                            TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH, false, null);
+                    WebParameterUtils.validDeletePolicyParameter("deletePolicy",
+                            req.getParameter("deletePolicy"), false, null);
             int numPartitions =
                     WebParameterUtils.validIntDataParameter("numPartitions",
                             req.getParameter("numPartitions"), false, TBaseConstants.META_VALUE_UNDEFINED, 1);
