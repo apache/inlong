@@ -520,7 +520,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         //final String hostName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getGroupName(), strBuffer);
+        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -727,7 +727,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getGroupName(), strBuffer);
+        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -906,7 +906,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getGroupName(), strBuffer);
+        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
