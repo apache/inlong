@@ -283,8 +283,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         StringBuilder strBuffer = new StringBuilder(512);
         if (!this.started.get()
                 || ServiceStatusHolder.isReadServiceStop()) {
-            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
-            builder.setErrMsg("Read StoreService temporary unavilable!");
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
+            builder.setErrMsg("Read StoreService temporary unavailable!");
             return builder.build();
         }
         // check request's parameters
@@ -510,8 +510,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         if (!this.started.get()
                 || ServiceStatusHolder.isReadServiceStop()) {
             sb.append("{\"result\":false,\"errCode\":")
-                    .append(TErrCodeConstants.SERVICE_UNAVILABLE)
-                    .append(",\"errMsg\":\"Read StoreService temporary unavilable!\"}");
+                    .append(TErrCodeConstants.SERVICE_UNAVAILABLE)
+                    .append(",\"errMsg\":\"Read StoreService temporary unavailable!\"}");
             return sb;
         }
         try {
@@ -601,8 +601,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setSuccess(false);
         if (!this.started.get()
                 || ServiceStatusHolder.isWriteServiceStop()) {
-            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
-            builder.setErrMsg("Write StoreService temporary unavilable!");
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
+            builder.setErrMsg("Write StoreService temporary unavailable unavailable!");
             return builder.build();
         }
         CertifiedResult certResult =
@@ -733,8 +733,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setCurrOffset(-1);
         CertifiedResult certResult = serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
         if (!this.started.get()) {
-            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
-            builder.setErrMsg("StoreService temporary unavilable!");
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
+            builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
         if (!certResult.result) {
@@ -999,8 +999,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final StringBuilder strBuffer = new StringBuilder(512);
         builder.setSuccess(false);
         if (!this.started.get()) {
-            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
-            builder.setErrMsg("StoreService temporary unavilable!");
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
+            builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
         CertifiedResult certResult =
@@ -1127,8 +1127,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
         if (!this.started.get()) {
-            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVILABLE);
-            builder.setErrMsg("StoreService temporary unavilable!");
+            builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
+            builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
         ParamCheckResult paramCheckResult =

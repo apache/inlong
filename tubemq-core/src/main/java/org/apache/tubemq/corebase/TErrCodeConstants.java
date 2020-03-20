@@ -37,7 +37,7 @@ public class TErrCodeConstants {
     public static final int CONSUME_CONTENT_FORBIDDEN = 455;
 
     public static final int INTERNAL_SERVER_ERROR = 500;
-    public static final int SERVICE_UNAVILABLE = 503;
+    public static final int SERVICE_UNAVAILABLE = 503;
     public static final int INTERNAL_SERVER_ERROR_MSGSET_NULL = 510;
 
 }
