@@ -188,7 +188,7 @@ public class ProducerManager {
                 new ProducerHeartbeatTask().run();
                 logger.info(sBuilder
                         .append("[Publish begin 1] already get meta info, topic: ")
-                        .append(topic).append(", wast time ")
+                        .append(topic).append(", waste time ")
                         .append(System.currentTimeMillis() - curTime).append(" Ms").toString());
                 sBuilder.delete(0, sBuilder.length());
             }
@@ -241,7 +241,7 @@ public class ProducerManager {
                 new ProducerHeartbeatTask().run();
                 logger.info(sBuilder
                         .append("[Publish begin 2] already get meta info, topicSet: ")
-                        .append(topicSet).append(", wast time ")
+                        .append(topicSet).append(", waste time ")
                         .append(System.currentTimeMillis() - curTime).append(" Ms").toString());
                 sBuilder.delete(0, sBuilder.length());
             }
