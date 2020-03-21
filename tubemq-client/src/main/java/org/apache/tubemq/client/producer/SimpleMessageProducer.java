@@ -212,7 +212,7 @@ public class SimpleMessageProducer implements MessageProducer {
             rpcServiceFactory.resetRmtAddrErrCount(partition.getBroker().getBrokerAddr());
             this.brokerRcvQltyStats.addReceiveStatistic(brokerId, response.getSuccess());
             if (!response.getSuccess()
-                && response.getErrCode() == TErrCodeConstants.SERVICE_UNAVILABLE) {
+                && response.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
                 rpcServiceFactory.addUnavailableBroker(brokerId);
             }
             return this.buildMsgSentResult(message, partition, response);
@@ -252,7 +252,7 @@ public class SimpleMessageProducer implements MessageProducer {
                             brokerRcvQltyStats.addReceiveStatistic(brokerId,
                                     responseB2P.getSuccess());
                             if (!responseB2P.getSuccess()
-                                && responseB2P.getErrCode() == TErrCodeConstants.SERVICE_UNAVILABLE) {
+                                && responseB2P.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
                                 rpcServiceFactory.addUnavailableBroker(brokerId);
                             }
                             cb.onMessageSent(rt);

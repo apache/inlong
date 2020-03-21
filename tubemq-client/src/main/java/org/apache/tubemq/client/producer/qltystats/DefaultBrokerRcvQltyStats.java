@@ -142,7 +142,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
         }
         long curTime = System.currentTimeMillis();
         Set<Integer> allowedBrokerIds = new HashSet<Integer>();
-        ConcurrentHashMap<Integer, Long> unAvailableBrokerMap = rpcServiceFactory.getUnavilableBrokerMap();
+        ConcurrentHashMap<Integer, Long> unAvailableBrokerMap = rpcServiceFactory.getUnavailableBrokerMap();
         for (Map.Entry<Integer, List<Partition>> oldBrokerPartEntry : brokerPartList.entrySet()) {
             Long lastAddTime = unAvailableBrokerMap.get(oldBrokerPartEntry.getKey());
             if ((lastAddTime != null)
@@ -258,9 +258,9 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                         .append(rpcServiceFactory.getForbiddenAddrMap().toString()).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
-            if (!rpcServiceFactory.getUnavilableBrokerMap().isEmpty()) {
+            if (!rpcServiceFactory.getUnavailableBrokerMap().isEmpty()) {
                 logger.info(sBuilder.append("[status check]: current service unavailable brokerMap is ")
-                    .append(rpcServiceFactory.getUnavilableBrokerMap().toString()).toString());
+                    .append(rpcServiceFactory.getUnavailableBrokerMap().toString()).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
         }

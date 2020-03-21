@@ -1304,7 +1304,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 }
                 case TErrCodeConstants.NOT_FOUND:
                 case TErrCodeConstants.FORBIDDEN:
-                case TErrCodeConstants.SERVICE_UNAVILABLE:
+                case TErrCodeConstants.SERVICE_UNAVAILABLE:
                 case TErrCodeConstants.MOVED:
                 default:{
                     // Slow down the request based on the limitation configuration when meet these errors
@@ -1314,7 +1314,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                             limitDlt = 2000;
                             break;
                         }
-                        case TErrCodeConstants.SERVICE_UNAVILABLE: {
+                        case TErrCodeConstants.SERVICE_UNAVAILABLE: {
                             limitDlt = 300;
                             break;
                         }

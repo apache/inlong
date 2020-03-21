@@ -64,7 +64,7 @@ public class RpcServiceFactory {
     private final ConcurrentHashMap<String, Long> updateTime =
             new ConcurrentHashMap<String, Long>();
     // Temporary invalid broker map
-    private final ConcurrentHashMap<Integer, Long> brokerUnavilableMap =
+    private final ConcurrentHashMap<Integer, Long> brokerUnavailableMap =
         new ConcurrentHashMap<Integer, Long>();
     private long unAvailableFbdDurationMs =
         RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
@@ -155,8 +155,8 @@ public class RpcServiceFactory {
      *
      * @return
      */
-    public ConcurrentHashMap<Integer, Long> getUnavilableBrokerMap() {
-        return brokerUnavilableMap;
+    public ConcurrentHashMap<Integer, Long> getUnavailableBrokerMap() {
+        return brokerUnavailableMap;
     }
 
 
@@ -289,13 +289,13 @@ public class RpcServiceFactory {
     }
 
     public void addUnavailableBroker(int brokerId) {
-        brokerUnavilableMap.put(brokerId, System.currentTimeMillis());
+        brokerUnavailableMap.put(brokerId, System.currentTimeMillis());
     }
 
     public void rmvExpiredUnavailableBrokers() {
         long curTime = System.currentTimeMillis();
         Set<Integer> expiredBrokers = new HashSet<Integer>();
-        for (Map.Entry<Integer, Long> entry : brokerUnavilableMap.entrySet()) {
+        for (Map.Entry<Integer, Long> entry : brokerUnavailableMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -305,12 +305,12 @@ public class RpcServiceFactory {
         }
         if (!expiredBrokers.isEmpty()) {
             for (Integer brokerId : expiredBrokers) {
-                Long lastAddTime = brokerUnavilableMap.get(brokerId);
+                Long lastAddTime = brokerUnavailableMap.get(brokerId);
                 if (lastAddTime == null) {
                     continue;
                 }
                 if (curTime - lastAddTime > unAvailableFbdDurationMs) {
-                    brokerUnavilableMap.remove(brokerId, lastAddTime);
+                    brokerUnavailableMap.remove(brokerId, lastAddTime);
                 }
             }
         }
