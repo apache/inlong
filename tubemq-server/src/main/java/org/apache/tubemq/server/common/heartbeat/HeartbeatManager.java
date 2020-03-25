@@ -166,8 +166,7 @@ public class HeartbeatManager {
      * @return the timeout info for the registered node
      */
     public TimeoutInfo regBrokerNode(final String nodeId) {
-        return this.brokerRegMap.put(nodeId,
-                new TimeoutInfo(System.currentTimeMillis() + this.brokerTimeoutDlt));
+        return this.brokerRegMap.put(nodeId, new TimeoutInfo(this.brokerTimeoutDlt));
     }
 
     /**
@@ -177,8 +176,7 @@ public class HeartbeatManager {
      * @return the timeout info of the registered node
      */
     public TimeoutInfo regProducerNode(final String nodeId) {
-        return this.producerRegMap.put(nodeId,
-                new TimeoutInfo(System.currentTimeMillis() + this.producerTimeoutDlt));
+        return this.producerRegMap.put(nodeId, new TimeoutInfo(this.producerTimeoutDlt));
     }
 
     /**
@@ -188,8 +186,7 @@ public class HeartbeatManager {
      * @return the timeout info of the registered node
      */
     public TimeoutInfo regConsumerNode(final String nodeId) {
-        return this.consumerRegMap.put(nodeId,
-                new TimeoutInfo(System.currentTimeMillis() + this.consumerTimeoutDlt));
+        return this.consumerRegMap.put(nodeId, new TimeoutInfo(this.consumerTimeoutDlt));
     }
 
     /**
@@ -204,8 +201,7 @@ public class HeartbeatManager {
                                        final String consumerId,
                                        final String partStr) {
         return this.consumerRegMap.put(nodeId,
-                new TimeoutInfo(consumerId, partStr,
-                        System.currentTimeMillis() + this.consumerTimeoutDlt));
+                new TimeoutInfo(consumerId, partStr, this.consumerTimeoutDlt));
     }
 
     /**
