@@ -41,8 +41,8 @@ public class TimeoutInfo {
         return timeoutTime;
     }
 
-    public void setTimeoutTime(long timeoutTime) {
-        this.timeoutTime = timeoutTime;
+    public void updTimeoutTime(long timeoutDelta) {
+        this.timeoutTime = timeoutDelta + System.currentTimeMillis();
     }
 
     public String getSecondKey() {

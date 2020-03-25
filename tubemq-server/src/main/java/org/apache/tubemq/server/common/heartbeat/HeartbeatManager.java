@@ -247,7 +247,7 @@ public class HeartbeatManager {
                     .append("Invalid node id:").append(nodeId)
                     .append(", you have to append node first!").toString());
         }
-        timeoutInfo.setTimeoutTime(System.currentTimeMillis() + this.brokerTimeoutDlt);
+        timeoutInfo.updTimeoutTime(this.brokerTimeoutDlt);
     }
 
     /**
@@ -263,7 +263,7 @@ public class HeartbeatManager {
                     .append("Invalid node id:").append(nodeId)
                     .append(", you have to append node first!").toString());
         }
-        timeoutInfo.setTimeoutTime(System.currentTimeMillis() + this.producerTimeoutDlt);
+        timeoutInfo.updTimeoutTime(this.producerTimeoutDlt);
     }
 
     /**
@@ -279,7 +279,7 @@ public class HeartbeatManager {
                     .append("Invalid node id:").append(nodeId)
                     .append(", you have to append node first!").toString());
         }
-        timeoutInfo.setTimeoutTime(System.currentTimeMillis() + this.consumerTimeoutDlt);
+        timeoutInfo.updTimeoutTime(this.consumerTimeoutDlt);
     }
 
     /**
