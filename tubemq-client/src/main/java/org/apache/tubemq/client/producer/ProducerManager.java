@@ -524,11 +524,11 @@ public class ProducerManager {
                     if (System.currentTimeMillis() - lastEmptyBrokerPrintTIme > 60000) {
                         if (isRegister) {
                             logger.warn(sBuilder
-                                    .append("[Register Update] Found empty brokerList, chaneged checksum is ")
+                                    .append("[Register Update] Found empty brokerList, changed checksum is ")
                                     .append(brokerInfoCheckSum).toString());
                         } else {
                             logger.warn(sBuilder
-                                    .append("[Heartbeat Update] Found empty brokerList chaneged checksum is ")
+                                    .append("[Heartbeat Update] Found empty brokerList, changed checksum is ")
                                     .append(brokerInfoCheckSum).toString());
                         }
                         sBuilder.delete(0, sBuilder.length());

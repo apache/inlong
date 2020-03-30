@@ -602,7 +602,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         if (!this.started.get()
                 || ServiceStatusHolder.isWriteServiceStop()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
-            builder.setErrMsg("Write StoreService temporary unavailable unavailable!");
+            builder.setErrMsg("Write StoreService temporary unavailable!");
             return builder.build();
         }
         CertifiedResult certResult =
