@@ -50,7 +50,7 @@ public class BrokerStatsItemSet {
         return receiveNum.get();
     }
 
-    public long getrecSucNum() {
+    public long getRecSucNum() {
         return recSucNum.get();
     }
 
