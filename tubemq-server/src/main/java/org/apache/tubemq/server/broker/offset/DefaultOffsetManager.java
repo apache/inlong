@@ -270,13 +270,13 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      * @param topic
      * @param partitionId
      * @param reSetOffset
-     * @param modifyer
+     * @param modifier
      * @return
      */
     @Override
     public long resetOffset(final MessageStore store, final String group,
                             final String topic, int partitionId,
-                            long reSetOffset, final String modifyer) {
+                            long reSetOffset, final String modifier) {
         long oldOffset = -1;
         if (store != null) {
             long firstOffset = store.getIndexMinOffset();
@@ -289,8 +289,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
             oldOffset = regInfo.getAndSetOffset(reSetOffset);
             logger.info(new StringBuilder(512)
-                    .append("[Offset Manager] Manual update offset by modifyer=")
-                    .append(modifyer).append(",reset offset=").append(reSetOffset)
+                    .append("[Offset Manager] Manual update offset by modifier=")
+                    .append(modifier).append(",reset offset=").append(reSetOffset)
                     .append(",old offset=").append(oldOffset)
                     .append(",updated offset=").append(regInfo.getOffset())
                     .append(",group=").append(group).append(",topic=").append(topic)

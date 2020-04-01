@@ -47,7 +47,7 @@ public interface OffsetService {
                       int partitionId, boolean isConsumed);
 
     long resetOffset(final MessageStore store, final String group, final String topic,
-                     int partitionId, long reSetOffset, final String modifyer);
+                     int partitionId, long reSetOffset, final String modifier);
 
     long getTmpOffset(final String group, final String topic, int partitionId);
 
