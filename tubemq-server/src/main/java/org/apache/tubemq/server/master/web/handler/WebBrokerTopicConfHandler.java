@@ -233,7 +233,7 @@ public class WebBrokerTopicConfHandler {
             Date createDate =
                     WebParameterUtils.validDateParameter("createDate", req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            List<Map<String, Object>> topicJsonArray =
+            List<Map<String, String>> topicJsonArray =
                     WebParameterUtils.checkAndGetJsonArray("topicJsonSet",
                             req.getParameter("topicJsonSet"), TBaseConstants.META_VALUE_UNDEFINED, true);
             if ((topicJsonArray == null) || (topicJsonArray.isEmpty())) {
@@ -244,7 +244,7 @@ public class WebBrokerTopicConfHandler {
             List<BdbTopicAuthControlEntity> bathTopicAuthInfos = new ArrayList<BdbTopicAuthControlEntity>();
             List<BdbTopicConfEntity> bathAddBdbTopicEntitys = new ArrayList<BdbTopicConfEntity>();
             for (int count = 0; count < topicJsonArray.size(); count++) {
-                Map<String, Object> jsonObject = topicJsonArray.get(count);
+                Map<String, String> jsonObject = topicJsonArray.get(count);
                 try {
                     int brokerId =
                             WebParameterUtils.validIntDataParameter("brokerId",
