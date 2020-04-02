@@ -161,7 +161,7 @@ public class WebAdminGroupCtrlHandler {
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            List<Map<String, Object>> filterJsonArray =
+            List<Map<String, String>> filterJsonArray =
                     WebParameterUtils.checkAndGetJsonArray("filterCondJsonSet",
                             req.getParameter("filterCondJsonSet"),
                             TBaseConstants.META_VALUE_UNDEFINED, true);
@@ -172,7 +172,7 @@ public class WebAdminGroupCtrlHandler {
             HashMap<String, BdbGroupFilterCondEntity> inGroupFilterCondEntityMap =
                     new HashMap<String, BdbGroupFilterCondEntity>();
             for (int j = 0; j < filterJsonArray.size(); j++) {
-                Map<String, Object> groupObject = filterJsonArray.get(j);
+                Map<String, String> groupObject = filterJsonArray.get(j);
                 try {
                     String groupName =
                         WebParameterUtils.validGroupParameter("groupName",
@@ -361,7 +361,7 @@ public class WebAdminGroupCtrlHandler {
                             req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            List<Map<String, Object>> jsonArray =
+            List<Map<String, String>> jsonArray =
                     WebParameterUtils.checkAndGetJsonArray("filterCondJsonSet",
                             req.getParameter("filterCondJsonSet"),
                             TBaseConstants.META_VALUE_UNDEFINED, true);
@@ -371,7 +371,7 @@ public class WebAdminGroupCtrlHandler {
             Set<String> bathRecords = new HashSet<String>();
             List<BdbGroupFilterCondEntity> modifyFilterCondEntitys = new ArrayList<>();
             for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, Object> groupObject = jsonArray.get(j);
+                Map<String, String> groupObject = jsonArray.get(j);
                 try {
                     String groupName =
                         WebParameterUtils.validGroupParameter("groupName",
@@ -771,7 +771,7 @@ public class WebAdminGroupCtrlHandler {
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            List<Map<String, Object>> jsonArray =
+            List<Map<String, String>> jsonArray =
                     WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
                             req.getParameter("groupNameJsonSet"),
                             TBaseConstants.META_VALUE_UNDEFINED, true);
@@ -782,7 +782,7 @@ public class WebAdminGroupCtrlHandler {
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
                     new HashMap<String, BdbConsumerGroupEntity>();
             for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, Object> groupObject = jsonArray.get(j);
+                Map<String, String> groupObject = jsonArray.get(j);
                 try {
                     String groupName =
                         WebParameterUtils.validGroupParameter("groupName",
@@ -1039,7 +1039,7 @@ public class WebAdminGroupCtrlHandler {
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            List<Map<String, Object>> jsonArray =
+            List<Map<String, String>> jsonArray =
                     WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
                             req.getParameter("groupNameJsonSet"),
                             TBaseConstants.META_VALUE_UNDEFINED, true);
@@ -1049,7 +1049,7 @@ public class WebAdminGroupCtrlHandler {
             Set<String> confgiuredTopicSet = brokerConfManage.getTotalConfiguredTopicNames();
             HashMap<String, BdbBlackGroupEntity> inBlackGroupEntityMap = new HashMap<>();
             for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, Object> groupObject = jsonArray.get(j);
+                Map<String, String> groupObject = jsonArray.get(j);
                 try {
                     String groupName =
                         WebParameterUtils.validGroupParameter("groupName",
@@ -1286,7 +1286,7 @@ public class WebAdminGroupCtrlHandler {
                     WebParameterUtils.validIntDataParameter("allowedBClientRate",
                             req.getParameter("allowedBClientRate"),
                             false, 0, 0);
-            List<Map<String, Object>> groupNameJsonArray =
+            List<Map<String, String>> groupNameJsonArray =
                     WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
                             req.getParameter("groupNameJsonSet"),
                             TBaseConstants.META_VALUE_UNDEFINED, true);
@@ -1296,7 +1296,7 @@ public class WebAdminGroupCtrlHandler {
             HashMap<String, BdbConsumeGroupSettingEntity> inOffsetRstGroupEntityMap =
                     new HashMap<String, BdbConsumeGroupSettingEntity>();
             for (int j = 0; j < groupNameJsonArray.size(); j++) {
-                Map<String, Object> groupObject = groupNameJsonArray.get(j);
+                Map<String, String> groupObject = groupNameJsonArray.get(j);
                 try {
                     String groupName =
                         WebParameterUtils.validGroupParameter("groupName",

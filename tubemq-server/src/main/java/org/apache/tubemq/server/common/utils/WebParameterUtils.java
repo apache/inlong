@@ -17,8 +17,8 @@
 
 package org.apache.tubemq.server.common.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -56,7 +56,7 @@ public class WebParameterUtils {
      * @return a long value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static long validLongDataParameter(String paramName, Object paramValue,
+    public static long validLongDataParameter(String paramName, String paramValue,
                                               boolean required, long defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -79,7 +79,7 @@ public class WebParameterUtils {
      * @return a int value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static int validIntDataParameter(String paramName, Object paramValue,
+    public static int validIntDataParameter(String paramName, String paramValue,
                                             boolean required, int defaultValue,
                                             int minValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
@@ -110,7 +110,7 @@ public class WebParameterUtils {
      * @return a boolean value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static boolean validBooleanDataParameter(String paramName, Object paramValue,
+    public static boolean validBooleanDataParameter(String paramName, String paramValue,
                                                     boolean required, boolean defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -129,7 +129,7 @@ public class WebParameterUtils {
      * @return a Date value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static Date validDateParameter(String paramName, Object paramValue, int paramMaxLen,
+    public static Date validDateParameter(String paramName, String paramValue, int paramMaxLen,
                                           boolean required, Date defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -161,7 +161,7 @@ public class WebParameterUtils {
      * @return a string value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validStringParameter(String paramName, Object paramValue, int paramMaxLen,
+    public static String validStringParameter(String paramName, String paramValue, int paramMaxLen,
                                               boolean required, String defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -193,7 +193,7 @@ public class WebParameterUtils {
      * @return a string value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validGroupParameter(String paramName, Object paramValue, int paramMaxLen,
+    public static String validGroupParameter(String paramName, String paramValue, int paramMaxLen,
                                              boolean required, String defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -225,7 +225,7 @@ public class WebParameterUtils {
      * @return a ip string of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validAddressParameter(String paramName, Object paramValue, int paramMaxLen,
+    public static String validAddressParameter(String paramName, String paramValue, int paramMaxLen,
                                                boolean required, String defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -256,7 +256,7 @@ public class WebParameterUtils {
      * @return the decoded string of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validDecodeStringParameter(String paramName, Object paramValue, int paramMaxLen,
+    public static String validDecodeStringParameter(String paramName, String paramValue, int paramMaxLen,
                                                     boolean required, String defaultValue) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
@@ -315,7 +315,7 @@ public class WebParameterUtils {
      * @return the decoded string of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validDeletePolicyParameter(String paramName, Object paramValue,
+    public static String validDeletePolicyParameter(String paramName, String paramValue,
                                                     boolean required, String defaultValue) throws Exception {
         int paramMaxLen = TServerConstants.CFG_DELETEPOLICY_MAX_LENGTH;
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
@@ -429,9 +429,9 @@ public class WebParameterUtils {
                 }
                 if (!filterCond.matches(TBaseConstants.META_TMP_FILTER_VALUE)) {
                     sb.delete(0, sb.length());
-                    throw new Exception(sb.append("Illegal value: the value of ").append(filterCond)
-                            .append(" in filterCond parameter must only contain characters,numbers,and underscores")
-                            .toString());
+                    throw new Exception(sb.append("Illegal value: the value of ")
+                        .append(filterCond).append(" in filterCond parameter ")
+                        .append("must only contain characters,numbers,and underscores").toString());
                 }
                 filterConds.add(filterCond);
             }
@@ -484,9 +484,9 @@ public class WebParameterUtils {
                 }
                 if (!filterCond.matches(TBaseConstants.META_TMP_FILTER_VALUE)) {
                     sb.delete(0, sb.length());
-                    throw new Exception(sb.append("Illegal value: the value of ").append(filterCond)
-                            .append(" in filterCond parameter must only contain characters,numbers,and underscores")
-                            .toString());
+                    throw new Exception(sb.append("Illegal value: the value of ")
+                        .append(filterCond).append(" in filterCond parameter must ")
+                        .append("only contain characters,numbers,and underscores").toString());
                 }
                 if (transCondItem) {
                     filterCondSet.add(sb.append(TokenConstants.ARRAY_SEP)
@@ -498,9 +498,9 @@ public class WebParameterUtils {
             }
             if (checkTotalCnt) {
                 if (filterCondSet.size() > TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT) {
-                    throw new Exception(sb
-                            .append("Illegal value: the count of filterCond's value over max allowed count(")
-                            .append(TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT).append(")!").toString());
+                    throw new Exception(sb.append("Illegal value: the count of filterCond's ")
+                        .append("value over max allowed count(")
+                        .append(TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT).append(")!").toString());
                 }
             }
         }
@@ -525,7 +525,7 @@ public class WebParameterUtils {
         String[] strGroupNames = inputGroupName.split(TokenConstants.ARRAY_SEP);
         if (strGroupNames.length > TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT) {
             throw new Exception(sb.append("Illegal value: groupName's bath count over max count ")
-                    .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
+                .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strGroupNames.length; i++) {
             if (TStringUtils.isBlank(strGroupNames[i])) {
@@ -536,7 +536,7 @@ public class WebParameterUtils {
                 if (resTokens != null && !resTokens.isEmpty()) {
                     if (resTokens.contains(groupName)) {
                         throw new Exception(sb.append("Illegal value: in groupName parameter, '")
-                                .append(groupName).append("' is a system reserved token!").toString());
+                            .append(groupName).append("' is a system reserved token!").toString());
                     }
                 }
             }
@@ -547,8 +547,7 @@ public class WebParameterUtils {
                         .append(" characters").toString());
             }
             if (!groupName.matches(TBaseConstants.META_TMP_GROUP_VALUE)) {
-                throw new Exception(sb.append("Illegal value: the value of ")
-                    .append(groupName)
+                throw new Exception(sb.append("Illegal value: the value of ").append(groupName)
                     .append("in groupName parameter must begin with a letter, can only contain ")
                     .append("characters,numbers,hyphen,and underscores").toString());
             }
@@ -595,10 +594,8 @@ public class WebParameterUtils {
             }
             if (!topicName.matches(TBaseConstants.META_TMP_STRING_VALUE)) {
                 throw new Exception(sb.append("Illegal value: the value of ")
-                        .append(topicName)
-                        .append("in topicName parameter must begin with a letter, can only contain characters," +
-                                "numbers,and underscores")
-                        .toString());
+                    .append(topicName).append(" in topicName parameter must begin with a letter,")
+                    .append(" can only contain characters,numbers,and underscores").toString());
             }
             if (checkRange) {
                 if (!checkedTopicList.contains(topicName)) {
@@ -736,10 +733,10 @@ public class WebParameterUtils {
      * @return a list of linked hash map represent the json array
      * @throws Exception
      */
-    public static List<Map<String, Object>> checkAndGetJsonArray(String paramName,
-                                                                           Object paramValue,
-                                                                           int paramMaxLen,
-                                                                           boolean required) throws Exception {
+    public static List<Map<String, String>> checkAndGetJsonArray(String paramName,
+                                                                 String paramValue,
+                                                                 int paramMaxLen,
+                                                                 boolean required) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue) && !required) {
             return null;
@@ -770,7 +767,7 @@ public class WebParameterUtils {
                         .append(" characters").toString());
             }
         }
-        return JSON.parseObject(decTmpParamVal, new TypeReference<List<Map<String, Object>>>() {});
+        return new Gson().fromJson(decTmpParamVal, new TypeToken<List<Map<String, String>>>(){}.getType());
     }
 
     /**
@@ -882,7 +879,7 @@ public class WebParameterUtils {
         return sdf.format(date);
     }
 
-    private static String checkParamCommonRequires(final String paramName, final Object paramValue,
+    private static String checkParamCommonRequires(final String paramName, final String paramValue,
                                                    boolean required) throws Exception {
         String temParamValue = null;
         if (paramValue == null) {
@@ -891,7 +888,7 @@ public class WebParameterUtils {
                         .append(paramName).append(" parameter").toString());
             }
         } else {
-            temParamValue = escDoubleQuotes(String.valueOf(paramValue).trim());
+            temParamValue = escDoubleQuotes(paramValue.trim());
             if (TStringUtils.isBlank(temParamValue)) {
                 if (required) {
                     throw new Exception(new StringBuilder(512)
