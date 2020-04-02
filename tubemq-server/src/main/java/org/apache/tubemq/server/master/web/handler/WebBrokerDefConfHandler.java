@@ -322,7 +322,7 @@ public class WebBrokerDefConfHandler {
             Date createDate =
                     WebParameterUtils.validDateParameter("createDate", req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            List<Map<String, Object>> brokerJsonArray =
+            List<Map<String, String>> brokerJsonArray =
                     WebParameterUtils.checkAndGetJsonArray("brokerJsonSet",
                             req.getParameter("brokerJsonSet"), TBaseConstants.META_VALUE_UNDEFINED, true);
             if ((brokerJsonArray == null) || (brokerJsonArray.isEmpty())) {
@@ -332,7 +332,7 @@ public class WebBrokerDefConfHandler {
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
                     brokerConfManage.getBrokerConfStoreMap();
             for (int count = 0; count < brokerJsonArray.size(); count++) {
-                Map<String, Object> jsonObject = brokerJsonArray.get(count);
+                Map<String, String> jsonObject = brokerJsonArray.get(count);
                 try {
                     String brokerIp =
                             WebParameterUtils.validAddressParameter("brokerIp", jsonObject.get("brokerIp"),

@@ -17,8 +17,9 @@
 
 package org.apache.tubemq.server.master.web.handler;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class WebAdminTopicAuthHandler {
 
     private static final Logger logger =
             LoggerFactory.getLogger(WebAdminTopicAuthHandler.class);
+    private final JsonParser jsonParser = new JsonParser();
     private TMaster master;
     private BrokerConfManage brokerConfManage;
 
@@ -114,7 +116,7 @@ public class WebAdminTopicAuthHandler {
             Date createDate =
                     WebParameterUtils.validDateParameter("createDate", req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            List<Map<String, Object>> topicJsonArray =
+            List<Map<String, String>> topicJsonArray =
                     WebParameterUtils.checkAndGetJsonArray("topicJsonSet",
                             req.getParameter("topicJsonSet"), TBaseConstants.META_VALUE_UNDEFINED, true);
             if ((topicJsonArray == null) || (topicJsonArray.isEmpty())) {
@@ -126,7 +128,7 @@ public class WebAdminTopicAuthHandler {
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
                     new HashMap<String, BdbConsumerGroupEntity>();
             for (int count = 0; count < topicJsonArray.size(); count++) {
-                Map<String, Object> jsonObject = topicJsonArray.get(count);
+                Map<String, String> jsonObject = topicJsonArray.get(count);
                 try {
                     String topicName =
                             WebParameterUtils.validStringParameter("topicName", jsonObject.get("topicName"),
@@ -350,13 +352,13 @@ public class WebAdminTopicAuthHandler {
             final String topicName,
             final String operator,
             final Date createDate,
-            final Map<String, Object> jsonObject,
+            final Map<String, String> jsonObject,
             HashMap<String, BdbConsumerGroupEntity> groupAuthEntityMap,
             final StringBuilder sBuilder) throws Exception {
         String strAuthConsumGroup = (String) jsonObject.get("authConsumeGroup");
         if ((strAuthConsumGroup != null) && (!TStringUtils.isBlank(strAuthConsumGroup))) {
             List<Map<String, String>> authConsumeGroupSet =
-                    JSON.parseObject(strAuthConsumGroup, new TypeReference<List<Map<String, String>>>() {});
+                new Gson().fromJson(strAuthConsumGroup, new TypeToken<List<Map<String, String>>>(){}.getType());
             if ((authConsumeGroupSet != null)
                     && (!authConsumeGroupSet.isEmpty())) {
                 for (int j = 0; j < authConsumeGroupSet.size(); j++) {
