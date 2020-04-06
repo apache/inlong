@@ -89,9 +89,9 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validBooleanDataParameter("needSSDProc",
                             req.getParameter("needSSDProc"),
                             false, false);
-            Set<String> bathGroupName = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<String>();
             if (opType == 1) {
-                bathGroupName.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
+                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 // get groupname info if rule is set to consume group
                 boolean checkResToken = opType > 1;
@@ -99,7 +99,7 @@ public class WebAdminFlowRuleHandler {
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
-                bathGroupName =
+                batchGroupNames =
                         WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                                 true, checkResToken, resTokenSet, strBuffer);
             }
@@ -107,7 +107,7 @@ public class WebAdminFlowRuleHandler {
             int ruleCnt =
                     checkAndGetFlowRules(req.getParameter("flowCtrlInfo"), opType, strBuffer);
             // add flow control to bdb
-            for (String groupName : bathGroupName) {
+            for (String groupName : batchGroupNames) {
                 if (groupName.equals(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
                     brokerConfManage.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(strBuffer.toString(),
@@ -152,20 +152,20 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validDateParameter("createDate",
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> bathGroupName = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<String>();
             if (opType == 1) {
-                bathGroupName.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
+                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
                 Set<String> resTokenSet = new HashSet<String>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
-                bathGroupName =
+                batchGroupNames =
                         WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                                 true, checkResToken, resTokenSet, strBuffer);
             }
-            brokerConfManage.confDeleteBdbGroupFlowCtrl(bathGroupName);
+            brokerConfManage.confDeleteBdbGroupFlowCtrl(batchGroupNames);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -198,17 +198,17 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validDateParameter("createDate",
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> bathGroupName = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<String>();
             // check optype
             if (opType == 1) {
-                bathGroupName.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
+                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
                 Set<String> resTokenSet = new HashSet<String>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
-                bathGroupName =
+                batchGroupNames =
                         WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                                 true, checkResToken, resTokenSet, strBuffer);
             }
@@ -216,7 +216,7 @@ public class WebAdminFlowRuleHandler {
                     checkAndGetFlowRules(req.getParameter("flowCtrlInfo"), opType, strBuffer);
             String newFlowCtrlInfo = strBuffer.toString();
             strBuffer.delete(0, strBuffer.length());
-            for (String groupName : bathGroupName) {
+            for (String groupName : batchGroupNames) {
                 // check if record changed
                 BdbGroupFlowCtrlEntity oldEntity =
                         brokerConfManage.getBdbGroupFlowCtrl(groupName);
@@ -307,16 +307,16 @@ public class WebAdminFlowRuleHandler {
                     .setQryPriorityId(WebParameterUtils.validIntDataParameter("qryPriorityId",
                             req.getParameter("qryPriorityId"),
                             false, TBaseConstants.META_VALUE_UNDEFINED, 0));
-            Set<String> bathGroupName = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<String>();
             if (opType == 1) {
-                bathGroupName.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
+                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
                 Set<String> resTokenSet = new HashSet<String>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
-                bathGroupName =
+                batchGroupNames =
                         WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                                 false, checkResToken, resTokenSet, strBuffer);
             }
@@ -326,9 +326,9 @@ public class WebAdminFlowRuleHandler {
             List<BdbGroupFlowCtrlEntity> webGroupFlowCtrlEntities =
                     brokerConfManage.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
             for (BdbGroupFlowCtrlEntity entity : webGroupFlowCtrlEntities) {
-                if (!bathGroupName.isEmpty()) {
+                if (!batchGroupNames.isEmpty()) {
                     boolean found = false;
-                    for (String tmpGroupName : bathGroupName) {
+                    for (String tmpGroupName : batchGroupNames) {
                         if (entity.getGroupName().equals(tmpGroupName)) {
                             found = true;
                             break;

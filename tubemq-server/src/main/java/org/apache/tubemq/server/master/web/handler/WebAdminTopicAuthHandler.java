@@ -81,10 +81,10 @@ public class WebAdminTopicAuthHandler {
                             false, false);
             Set<String> configuredTopicSet =
                     brokerConfManage.getTotalConfiguredTopicNames();
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, true, configuredTopicSet, sBuilder);
-            for (String topicName : bathOpTopicNames) {
+            for (String topicName : batchOpTopicNames) {
                 brokerConfManage.confSetBdbTopicAuthControl(
                         new BdbTopicAuthControlEntity(topicName,
                                 isEnable, createUser, createDate));
@@ -105,7 +105,7 @@ public class WebAdminTopicAuthHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddTopicAuthControl(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -203,10 +203,10 @@ public class WebAdminTopicAuthHandler {
                             req.getParameter("createUser"),
                             TBaseConstants.META_MAX_USERNAME_LENGTH,
                             true, "");
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, sBuilder);
-            for (String tmpTopicName : bathOpTopicNames) {
+            for (String tmpTopicName : batchOpTopicNames) {
                 BdbGroupFilterCondEntity webFilterCondEntity =
                         new BdbGroupFilterCondEntity();
                 webFilterCondEntity.setTopicName(tmpTopicName);
