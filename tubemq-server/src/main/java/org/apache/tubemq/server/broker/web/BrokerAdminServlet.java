@@ -282,7 +282,7 @@ public class BrokerAdminServlet extends HttpServlet {
      */
     private StringBuilder adminGetMemStoreStatisInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
-        Set<String> bathTopicNames = new HashSet<String>();
+        Set<String> batchTopicNames = new HashSet<String>();
         String inputTopicName = req.getParameter("topicName");
         if (TStringUtils.isNotBlank(inputTopicName)) {
             inputTopicName = String.valueOf(inputTopicName).trim();
@@ -308,7 +308,7 @@ public class BrokerAdminServlet extends HttpServlet {
                             .append(" can only contain characters,numbers,and underscores!\"}");
                     return sBuilder;
                 }
-                bathTopicNames.add(topicName);
+                batchTopicNames.add(topicName);
             }
         }
         boolean requireRefresh =
@@ -320,7 +320,7 @@ public class BrokerAdminServlet extends HttpServlet {
         int recordId = 0, index = 0;
         for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey())
-                    || (!bathTopicNames.isEmpty() && !bathTopicNames.contains(entry.getKey()))) {
+                    || (!batchTopicNames.isEmpty() && !batchTopicNames.contains(entry.getKey()))) {
                 continue;
             }
             String topicName = entry.getKey();
