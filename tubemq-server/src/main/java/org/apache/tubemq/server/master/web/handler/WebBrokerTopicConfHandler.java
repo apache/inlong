@@ -90,27 +90,27 @@ public class WebBrokerTopicConfHandler {
                     WebParameterUtils.validDateParameter("modifyDate", req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, createDate);
             // topic names
-            Set<String> bathAddTopicNames =
+            Set<String> batchAddTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, strBuffer);
             // broker IDs
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet =
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), brokerConfManage, true,
                             strBuffer);
-            List<BdbTopicConfEntity> bathAddBdbTopicEntitys = new ArrayList<BdbTopicConfEntity>();
-            List<BdbTopicAuthControlEntity> bathAddBdbTopicAuthControls = new ArrayList<BdbTopicAuthControlEntity>();
+            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            List<BdbTopicAuthControlEntity> batchAddBdbTopicAuthControls = new ArrayList<BdbTopicAuthControlEntity>();
             // for each topic
-            for (String topicName : bathAddTopicNames) {
+            for (String topicName : batchAddTopicNames) {
                 BdbTopicAuthControlEntity tmpTopicAuthControl =
                         brokerConfManage.getBdbEnableAuthControlByTopicName(topicName);
                 if (tmpTopicAuthControl == null) {
-                    bathAddBdbTopicAuthControls
+                    batchAddBdbTopicAuthControls
                             .add(new BdbTopicAuthControlEntity(topicName,
                                     false, createUser, createDate));
                 }
             }
             // for each broker
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitySet) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntitySet) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -120,7 +120,7 @@ public class WebBrokerTopicConfHandler {
                 ConcurrentHashMap<String, BdbTopicConfEntity> brokerTopicEntityMap =
                         brokerConfManage.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
                 if (brokerTopicEntityMap != null) {
-                    for (String itemTopicName : bathAddTopicNames) {
+                    for (String itemTopicName : batchAddTopicNames) {
                         BdbTopicConfEntity tmpTopicConfEntity = brokerTopicEntityMap.get(itemTopicName);
                         if (tmpTopicConfEntity != null) {
                             if (tmpTopicConfEntity.isValidTopicStatus()) {
@@ -136,7 +136,6 @@ public class WebBrokerTopicConfHandler {
                     }
                 }
                 final int defNumTopicStores = oldEntity.getNumTopicStores();
-                final int defunFlushDataHold = oldEntity.getDftUnFlushDataHold();  /* TODO: not used, could remove? */
                 final int defmemCacheMsgCntInK = oldEntity.getDftMemCacheMsgCntInK();
                 final int defmemCacheMsgSizeInMB = oldEntity.getDftMemCacheMsgSizeInMB();
                 final int defmemCacheFlushIntvl = oldEntity.getDftMemCacheFlushIntvl();
@@ -197,15 +196,15 @@ public class WebBrokerTopicConfHandler {
                         .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
                         .append(TokenConstants.EQ).append(memCacheFlushIntvl).toString();
                 strBuffer.delete(0, strBuffer.length());
-                for (String itemTopicName : bathAddTopicNames) {
-                    bathAddBdbTopicEntitys.add(new BdbTopicConfEntity(oldEntity.getBrokerId(),
+                for (String itemTopicName : batchAddTopicNames) {
+                    batchAddBdbTopicEntities.add(new BdbTopicConfEntity(oldEntity.getBrokerId(),
                             oldEntity.getBrokerIp(), oldEntity.getBrokerPort(), itemTopicName,
                             numPartitions, unflushThreshold, unflushInterval, deleteWhen,
                             deletePolicy, acceptPublish, acceptSubscribe, numTopicStores,
                             attributes, createUser, createDate, modifyUser, modifyDate));
                 }
             }
-            inAddTopicConfigInfo(bathAddBdbTopicEntitys, bathAddBdbTopicAuthControls);
+            inAddTopicConfigInfo(batchAddBdbTopicEntities, batchAddBdbTopicAuthControls);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -222,7 +221,7 @@ public class WebBrokerTopicConfHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddTopicEntityInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddTopicEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -239,10 +238,10 @@ public class WebBrokerTopicConfHandler {
             if ((topicJsonArray == null) || (topicJsonArray.isEmpty())) {
                 throw new Exception("Null value of topicJsonSet, please set the value first!");
             }
-            Set<String> bathAddTopicNames = new HashSet<String>();
-            Set<String> bathAddItemKeys = new HashSet<String>();
-            List<BdbTopicAuthControlEntity> bathTopicAuthInfos = new ArrayList<BdbTopicAuthControlEntity>();
-            List<BdbTopicConfEntity> bathAddBdbTopicEntitys = new ArrayList<BdbTopicConfEntity>();
+            Set<String> batchAddTopicNames = new HashSet<String>();
+            Set<String> batchAddItemKeys = new HashSet<String>();
+            List<BdbTopicAuthControlEntity> batchTopicAuthInfos = new ArrayList<BdbTopicAuthControlEntity>();
+            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
             for (int count = 0; count < topicJsonArray.size(); count++) {
                 Map<String, String> jsonObject = topicJsonArray.get(count);
                 try {
@@ -261,7 +260,7 @@ public class WebBrokerTopicConfHandler {
                                     TBaseConstants.META_MAX_TOPICNAME_LENGTH, true, "");
                     String inputKey = strBuffer.append(brokerId).append("-").append(topicName).toString();
                     strBuffer.delete(0, strBuffer.length());
-                    if (bathAddItemKeys.contains(inputKey)) {
+                    if (batchAddItemKeys.contains(inputKey)) {
                         continue;
                     }
                     if (WebParameterUtils.checkBrokerInProcessing(brokerId, brokerConfManage, strBuffer)) {
@@ -354,22 +353,22 @@ public class WebBrokerTopicConfHandler {
                                     .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
                                     .append(TokenConstants.EQ).append(memCacheFlushIntvl).toString();
                     strBuffer.delete(0, strBuffer.length());
-                    bathAddItemKeys.add(inputKey);
-                    bathAddBdbTopicEntitys.add(new BdbTopicConfEntity(brokerConfEntity.getBrokerId(),
+                    batchAddItemKeys.add(inputKey);
+                    batchAddBdbTopicEntities.add(new BdbTopicConfEntity(brokerConfEntity.getBrokerId(),
                             brokerConfEntity.getBrokerIp(), brokerConfEntity.getBrokerPort(),
                             topicName, numPartitions, unflushThreshold, unflushInterval,
                             deleteWhen, deletePolicy, acceptPublish, acceptSubscribe,
                             numTopicStores, attributes, itemCreateUser, itemCreateDate,
                             itemCreateUser, itemCreateDate));
-                    if (!bathAddTopicNames.contains(topicName)) {
+                    if (!batchAddTopicNames.contains(topicName)) {
                         BdbTopicAuthControlEntity tmpTopicAuthControl =
                                 brokerConfManage.getBdbEnableAuthControlByTopicName(topicName);
                         if (tmpTopicAuthControl == null) {
-                            bathTopicAuthInfos.add(
+                            batchTopicAuthInfos.add(
                                     new BdbTopicAuthControlEntity(topicName, false, createUser, createDate));
                         }
                     }
-                    bathAddTopicNames.add(topicName);
+                    batchAddTopicNames.add(topicName);
                 } catch (Exception ee) {
                     strBuffer.delete(0, strBuffer.length());
                     throw new Exception(strBuffer.append("Process data exception, data is :")
@@ -377,7 +376,7 @@ public class WebBrokerTopicConfHandler {
                             .append(ee.getMessage()).toString());
                 }
             }
-            inAddTopicConfigInfo(bathAddBdbTopicEntitys, bathTopicAuthInfos);
+            inAddTopicConfigInfo(batchAddBdbTopicEntities, batchTopicAuthInfos);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -390,15 +389,15 @@ public class WebBrokerTopicConfHandler {
     /**
      * Private method to add topic config info
      *
-     * @param bathAddBdbTopicEntitys
-     * @param bathTopicAuthInfos
+     * @param batchAddBdbTopicEntities
+     * @param batchTopicAuthInfos
      * @throws Exception
      */
-    private void inAddTopicConfigInfo(List<BdbTopicConfEntity> bathAddBdbTopicEntitys,
-                                      List<BdbTopicAuthControlEntity> bathTopicAuthInfos) throws Exception {
+    private void inAddTopicConfigInfo(List<BdbTopicConfEntity> batchAddBdbTopicEntities,
+                                      List<BdbTopicAuthControlEntity> batchTopicAuthInfos) throws Exception {
         boolean inserted = false;
         try {
-            for (BdbTopicConfEntity itemBdbTopicEntity : bathAddBdbTopicEntitys) {  // for each topic
+            for (BdbTopicConfEntity itemBdbTopicEntity : batchAddBdbTopicEntities) {  // for each topic
                 BdbBrokerConfEntity brokerConfEntity =
                         brokerConfManage.getBrokerDefaultConfigStoreInfo(itemBdbTopicEntity.getBrokerId());
                 // if broker conf is not set, or the broker is busy with processing events,
@@ -408,11 +407,10 @@ public class WebBrokerTopicConfHandler {
                         null)) {
                     continue;
                 }
-                // TODO: could move into "if (result)" clause?
-                BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        brokerConfManage.getBrokerRunSyncStatusInfo(itemBdbTopicEntity.getBrokerId());
                 boolean result = brokerConfManage.confAddTopicConfig(itemBdbTopicEntity);
                 if (result) {  // if it succeeds in adding topic config
+                    BrokerSyncStatusInfo brokerSyncStatusInfo =
+                            brokerConfManage.getBrokerRunSyncStatusInfo(itemBdbTopicEntity.getBrokerId());
                     // set Fast start = false
                     if (brokerSyncStatusInfo != null) {
                         brokerSyncStatusInfo.setFastStart(false);
@@ -430,7 +428,7 @@ public class WebBrokerTopicConfHandler {
             // update topic authorization control
             if (inserted) {
                 for (BdbTopicAuthControlEntity topicAuthControlEntity
-                        : bathTopicAuthInfos) {
+                        : batchTopicAuthInfos) {
                     BdbTopicAuthControlEntity tmpTopicAuthControl =
                             brokerConfManage.getBdbEnableAuthControlByTopicName(topicAuthControlEntity.getTopicName());
                     if (tmpTopicAuthControl == null) {
@@ -440,7 +438,6 @@ public class WebBrokerTopicConfHandler {
             }
         } catch (Exception ee) {
             logger.warn("Fun.inAddTopicConfigInfo throw exception", ee);
-            //
         }
     }
 
@@ -503,17 +500,17 @@ public class WebBrokerTopicConfHandler {
                     .setMemCacheFlushIntvl(WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                             req.getParameter("memCacheFlushIntvl"),
                             false, TBaseConstants.META_VALUE_UNDEFINED, 4000));
-            Set<Integer> bathBrokerIds =
+            Set<Integer> batchBrokerIds =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), false);
-            if (bathBrokerIds.size() == 1) {
-                for (Integer brokerId : bathBrokerIds) {
+            if (batchBrokerIds.size() == 1) {
+                for (Integer brokerId : batchBrokerIds) {
                     webTopicEntity.setBrokerId(brokerId);
                 }
             }
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"), false, false, null, strBuffer);
-            if (bathOpTopicNames.size() == 1) {
-                for (String topicName : bathOpTopicNames) {
+            if (batchOpTopicNames.size() == 1) {
+                for (String topicName : batchOpTopicNames) {
                     webTopicEntity.setTopicName(topicName);
                 }
             }
@@ -525,7 +522,7 @@ public class WebBrokerTopicConfHandler {
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
             int totalCount = 0;
             for (Map.Entry<String, List<BdbTopicConfEntity>> entry : queryResultMap.entrySet()) {
-                if ((!bathOpTopicNames.isEmpty()) && (!bathOpTopicNames.contains(entry.getKey()))) {
+                if ((!batchOpTopicNames.isEmpty()) && (!batchOpTopicNames.contains(entry.getKey()))) {
                     continue;
                 }
                 if (totalCount++ > 0) {
@@ -540,7 +537,7 @@ public class WebBrokerTopicConfHandler {
                 strBuffer.append("{\"topicName\":\"").append(entry.getKey()).append("\",\"topicInfo\":[");
                 int count = 0;
                 for (BdbTopicConfEntity entity : entry.getValue()) {
-                    if ((!bathBrokerIds.isEmpty()) && (!bathBrokerIds.contains(entity.getBrokerId()))) {
+                    if ((!batchBrokerIds.isEmpty()) && (!batchBrokerIds.contains(entity.getBrokerId()))) {
                         continue;
                     }
                     if (count++ > 0) {
@@ -707,8 +704,7 @@ public class WebBrokerTopicConfHandler {
      * @throws Exception
      */
     // #lizard forgives
-    // TODO: shoud be private?
-    public StringBuilder innModifyTopicStatusEntityInfo(HttpServletRequest req,
+    private StringBuilder innModifyTopicStatusEntityInfo(HttpServletRequest req,
                                                         int topicStatusId) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
@@ -720,19 +716,19 @@ public class WebBrokerTopicConfHandler {
                     WebParameterUtils.validStringParameter("modifyUser",
                             req.getParameter("modifyUser"),
                             TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
-            Set<String> bathRmvTopicNames =
+            Set<String> batchRmvTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, strBuffer);
-            Set<BdbBrokerConfEntity> bathInputTopicEntitySet =
+            Set<BdbBrokerConfEntity> batchInputTopicEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
             Set<Integer> changedBrokerSet = new HashSet<Integer>();
-            Set<BdbTopicConfEntity> bathRmvBdbTopicEntitySet =
+            Set<BdbTopicConfEntity> batchRmvBdbTopicEntitySet =
                     new HashSet<BdbTopicConfEntity>();
 
             // For the broker to perform, check its status
             // and check the config of the topic to see if the action could be performed
-            for (BdbBrokerConfEntity brokerConfEntity : bathInputTopicEntitySet) {
+            for (BdbBrokerConfEntity brokerConfEntity : batchInputTopicEntitySet) {
                 if (brokerConfEntity == null) {  // skip brokers whose config is not set
                     continue;
                 }
@@ -752,7 +748,7 @@ public class WebBrokerTopicConfHandler {
                             .append(brokerConfEntity.getBrokerId())
                             .append(", please confirm the configure first!").toString());
                 }
-                for (String itemTopicName : bathRmvTopicNames) {  // for each topic to remove
+                for (String itemTopicName : batchRmvTopicNames) {  // for each topic to remove
                     BdbTopicConfEntity bdbTopicConfEntity =
                             brokerTopicEntityMap.get(itemTopicName);
                     if (bdbTopicConfEntity == null) {  // topic entity does not exist on the broker
@@ -783,13 +779,13 @@ public class WebBrokerTopicConfHandler {
                             brokerConfEntity.getBrokerIp(),
                             brokerConfEntity.getBrokerPort(),
                             itemTopicName);
-                    bathRmvBdbTopicEntitySet.add(queryEntity);
+                    batchRmvBdbTopicEntitySet.add(queryEntity);
                 }
             }
 
             // Perform the action and check again
             try {
-                for (BdbTopicConfEntity itemTopicEntity : bathRmvBdbTopicEntitySet) {
+                for (BdbTopicConfEntity itemTopicEntity : batchRmvBdbTopicEntitySet) {
                     BdbBrokerConfEntity brokerConfEntity =
                             brokerConfManage.getBrokerDefaultConfigStoreInfo(itemTopicEntity.getBrokerId());
                     if (brokerConfEntity == null) {  // skip those brokers whose config is not set
@@ -865,13 +861,13 @@ public class WebBrokerTopicConfHandler {
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser", req.getParameter("modifyUser"),
                             TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
-            Set<String> bathRmvTopicNames =
+            Set<String> batchRmvTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"), true, false, null, strBuffer);
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet =
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), brokerConfManage, true,
                             strBuffer);
-            List<BdbTopicConfEntity> bathRmvBdbTopicEntitys = new ArrayList<BdbTopicConfEntity>();
-            for (BdbBrokerConfEntity brokerConfEntity : bathBrokerEntitySet) {
+            List<BdbTopicConfEntity> batchRmvBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            for (BdbBrokerConfEntity brokerConfEntity : batchBrokerEntitySet) {
                 if (brokerConfEntity == null) {
                     continue;
                 }
@@ -889,7 +885,7 @@ public class WebBrokerTopicConfHandler {
                             .append(brokerConfEntity.getBrokerId())
                             .append(", please confirm the configure first!").toString());
                 }
-                for (String itemTopicName : bathRmvTopicNames) {
+                for (String itemTopicName : batchRmvTopicNames) {
                     BdbTopicConfEntity bdbTopicConfEntity = brokerTopicEntityMap.get(itemTopicName);
                     if (bdbTopicConfEntity == null) {
                         throw new Exception(strBuffer.append("Not found the topic ").append(itemTopicName)
@@ -913,12 +909,12 @@ public class WebBrokerTopicConfHandler {
                     BdbTopicConfEntity queryEntity = new BdbTopicConfEntity();
                     queryEntity.setBrokerAndTopicInfo(brokerConfEntity.getBrokerId(),
                             brokerConfEntity.getBrokerIp(), brokerConfEntity.getBrokerPort(), itemTopicName);
-                    bathRmvBdbTopicEntitys.add(queryEntity);
+                    batchRmvBdbTopicEntities.add(queryEntity);
                 }
             }
             try {
                 Set<Integer> changedBrokerSet = new HashSet<Integer>();
-                for (BdbTopicConfEntity itemTopicEntity : bathRmvBdbTopicEntitys) {
+                for (BdbTopicConfEntity itemTopicEntity : batchRmvBdbTopicEntities) {
                     BdbBrokerConfEntity brokerConfEntity =
                             brokerConfManage.getBrokerDefaultConfigStoreInfo(itemTopicEntity.getBrokerId());
                     if (brokerConfEntity == null) {
@@ -1029,13 +1025,13 @@ public class WebBrokerTopicConfHandler {
         BdbTopicConfEntity webTopicEntity = new BdbTopicConfEntity();
         try {
             boolean hasCond = false;
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             false, false, null, strBuffer);
-            if (!bathOpTopicNames.isEmpty()) {
+            if (!batchOpTopicNames.isEmpty()) {
                 hasCond = true;
-                if (bathOpTopicNames.size() == 1) {
-                    for (String topicName : bathOpTopicNames) {
+                if (batchOpTopicNames.size() == 1) {
+                    for (String topicName : batchOpTopicNames) {
                         webTopicEntity.setTopicName(topicName);
                     }
                 }
@@ -1180,10 +1176,10 @@ public class WebBrokerTopicConfHandler {
             Date modifyDate =
                     WebParameterUtils.validDateParameter("modifyDate", req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> bathModTopicNames =
+            Set<String> batchModTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, strBuffer);
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet =
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
             String deleteWhen =
@@ -1215,8 +1211,8 @@ public class WebBrokerTopicConfHandler {
                     WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                             req.getParameter("memCacheFlushIntvl"), false, TBaseConstants.META_VALUE_UNDEFINED, 4000);
             int unFlushDataHold = unflushThreshold;
-            List<BdbTopicConfEntity> bathModBdbTopicEntitys = new ArrayList<BdbTopicConfEntity>();
-            for (BdbBrokerConfEntity tgtEntity : bathBrokerEntitySet) {
+            List<BdbTopicConfEntity> batchModBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            for (BdbBrokerConfEntity tgtEntity : batchBrokerEntitySet) {
                 if (tgtEntity == null) {
                     continue;
                 }
@@ -1230,7 +1226,7 @@ public class WebBrokerTopicConfHandler {
                             .append(tgtEntity.getBrokerId()).append(", please confirm the configure first!")
                             .toString());
                 }
-                for (String itemTopicName : bathModTopicNames) {
+                for (String itemTopicName : batchModTopicNames) {
                     BdbTopicConfEntity oldEntity = brokerTopicEntityMap.get(itemTopicName);
                     if (oldEntity == null) {
                         throw new Exception(strBuffer.append("Not found the topic ")
@@ -1337,14 +1333,14 @@ public class WebBrokerTopicConfHandler {
                     if (!foundChange) {
                         continue;
                     }
-                    bathModBdbTopicEntitys.add(newEntity);
+                    batchModBdbTopicEntities.add(newEntity);
                 }
             }
-            if (bathModBdbTopicEntitys.isEmpty()) {
+            if (batchModBdbTopicEntities.isEmpty()) {
                 throw new Exception("Not found data changed, please confirm the topic configure!");
             }
             try {
-                for (BdbTopicConfEntity itemTopicEntity : bathModBdbTopicEntitys) {
+                for (BdbTopicConfEntity itemTopicEntity : batchModBdbTopicEntities) {
                     BdbBrokerConfEntity brokerConfEntity =
                             brokerConfManage.getBrokerDefaultConfigStoreInfo(itemTopicEntity.getBrokerId());
                     if (brokerConfEntity == null) {

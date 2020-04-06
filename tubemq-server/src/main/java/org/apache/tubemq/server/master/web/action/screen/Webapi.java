@@ -192,7 +192,7 @@ public class Webapi implements Action {
         if ("admin_add_broker_configure".equals(method)) {
             strBuffer = webBrokerDefConfHandler.adminAddBrokerDefConfEntityInfo(req);
         } else if ("admin_bath_add_broker_configure".equals(method)) {
-            strBuffer = webBrokerDefConfHandler.adminBathAddBrokerDefConfEntityInfo(req);
+            strBuffer = webBrokerDefConfHandler.adminBatchAddBrokerDefConfEntityInfo(req);
         } else if ("admin_online_broker_configure".equals(method)) {
             strBuffer = webBrokerDefConfHandler.adminOnlineBrokerConf(req);
         } else if ("admin_update_broker_configure".equals(method)) {
@@ -210,7 +210,7 @@ public class Webapi implements Action {
         } else if ("admin_add_new_topic_record".equals(method)) {
             strBuffer = webTopicConfHandler.adminAddTopicEntityInfo(req);
         } else if ("admin_bath_add_new_topic_record".equals(method)) {
-            strBuffer = webTopicConfHandler.adminBathAddTopicEntityInfo(req);
+            strBuffer = webTopicConfHandler.adminBatchAddTopicEntityInfo(req);
         } else if ("admin_modify_topic_info".equals(method)) {
             strBuffer = webTopicConfHandler.adminModifyTopicEntityInfo(req);
         } else if ("admin_delete_topic_info".equals(method)) {
@@ -238,7 +238,7 @@ public class Webapi implements Action {
         } else if ("admin_add_black_consumergroup_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminAddBlackGroupInfo(req);
         } else if ("admin_bath_add_black_consumergroup_info".equals(method)) {
-            strBuffer = webGroupCtrlHandler.adminBathAddBlackGroupInfo(req);
+            strBuffer = webGroupCtrlHandler.adminBatchAddBlackGroupInfo(req);
         } else if ("admin_delete_black_consumergroup_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminDeleteBlackGroupInfo(req);
         } else if ("admin_add_authorized_consumergroup_info".equals(method)) {
@@ -246,23 +246,23 @@ public class Webapi implements Action {
         } else if ("admin_delete_allowed_consumer_group_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminDeleteConsumerGroupInfo(req);
         } else if ("admin_bath_add_topic_authorize_control".equals(method)) {
-            strBuffer = webTopicAuthHandler.adminBathAddTopicAuthControl(req);
+            strBuffer = webTopicAuthHandler.adminBatchAddTopicAuthControl(req);
         } else if ("admin_bath_add_authorized_consumergroup_info".equals(method)) {
-            strBuffer = webGroupCtrlHandler.adminBathAddConsumerGroupInfo(req);
+            strBuffer = webGroupCtrlHandler.adminBatchAddConsumerGroupInfo(req);
         } else if ("admin_add_group_filtercond_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminAddGroupFilterCondInfo(req);
         } else if ("admin_bath_add_group_filtercond_info".equals(method)) {
-            strBuffer = webGroupCtrlHandler.adminBathAddGroupFilterCondInfo(req);
+            strBuffer = webGroupCtrlHandler.adminBatchAddGroupFilterCondInfo(req);
         } else if ("admin_mod_group_filtercond_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminModGroupFilterCondInfo(req);
         } else if ("admin_bath_mod_group_filtercond_info".equals(method)) {
-            strBuffer = webGroupCtrlHandler.adminBathModGroupFilterCondInfo(req);
+            strBuffer = webGroupCtrlHandler.adminBatchModGroupFilterCondInfo(req);
         } else if ("admin_del_group_filtercond_info".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminDeleteGroupFilterCondInfo(req);
         } else if ("admin_add_consume_group_setting".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminAddConsumeGroupSettingInfo(req);
         } else if ("admin_bath_add_consume_group_setting".equals(method)) {
-            strBuffer = webGroupCtrlHandler.adminBathAddConsumeGroupSetting(req);
+            strBuffer = webGroupCtrlHandler.adminBatchAddConsumeGroupSetting(req);
         } else if ("admin_upd_consume_group_setting".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminUpdConsumeGroupSetting(req);
         } else if ("admin_del_consume_group_setting".equals(method)) {

@@ -512,7 +512,7 @@ public class WebParameterUtils {
                                                  boolean checkResToken,
                                                  Set<String> resTokens,
                                                  final StringBuilder sb) throws Exception {
-        Set<String> bathOpGroupNames = new HashSet<String>();
+        Set<String> batchOpGroupNames = new HashSet<String>();
         if (TStringUtils.isNotBlank(inputGroupName)) {
             inputGroupName = escDoubleQuotes(inputGroupName.trim());
         }
@@ -520,11 +520,11 @@ public class WebParameterUtils {
             if (checkEmpty) {
                 throw new Exception("Illegal value: required groupName parameter");
             }
-            return bathOpGroupNames;
+            return batchOpGroupNames;
         }
         String[] strGroupNames = inputGroupName.split(TokenConstants.ARRAY_SEP);
         if (strGroupNames.length > TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT) {
-            throw new Exception(sb.append("Illegal value: groupName's bath count over max count ")
+            throw new Exception(sb.append("Illegal value: groupName's batch count over max count ")
                 .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strGroupNames.length; i++) {
@@ -551,14 +551,14 @@ public class WebParameterUtils {
                     .append("in groupName parameter must begin with a letter, can only contain ")
                     .append("characters,numbers,hyphen,and underscores").toString());
             }
-            bathOpGroupNames.add(groupName);
+            batchOpGroupNames.add(groupName);
         }
-        if (bathOpGroupNames.isEmpty()) {
+        if (batchOpGroupNames.isEmpty()) {
             if (checkEmpty) {
                 throw new Exception("Illegal value: Null value of groupName parameter");
             }
         }
-        return bathOpGroupNames;
+        return batchOpGroupNames;
     }
 
     public static Set<String> getBatchTopicNames(String inputTopicName,
@@ -566,7 +566,7 @@ public class WebParameterUtils {
                                                  boolean checkRange,
                                                  Set<String> checkedTopicList,
                                                  final StringBuilder sb) throws Exception {
-        Set<String> bathOpTopicNames = new HashSet<String>();
+        Set<String> batchOpTopicNames = new HashSet<String>();
         if (TStringUtils.isNotBlank(inputTopicName)) {
             inputTopicName = escDoubleQuotes(inputTopicName.trim());
         }
@@ -574,11 +574,11 @@ public class WebParameterUtils {
             if (checkEmpty) {
                 throw new Exception("Illegal value: required topicName parameter");
             }
-            return bathOpTopicNames;
+            return batchOpTopicNames;
         }
         String[] strTopicNames = inputTopicName.split(TokenConstants.ARRAY_SEP);
         if (strTopicNames.length > TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT) {
-            throw new Exception(sb.append("Illegal value: topicName's bath count over max count ")
+            throw new Exception(sb.append("Illegal value: topicName's batch count over max count ")
                     .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strTopicNames.length; i++) {
@@ -603,19 +603,19 @@ public class WebParameterUtils {
                             .append(") not configure in master's topic configure, please configure first!").toString());
                 }
             }
-            bathOpTopicNames.add(topicName);
+            batchOpTopicNames.add(topicName);
         }
-        if (bathOpTopicNames.isEmpty()) {
+        if (batchOpTopicNames.isEmpty()) {
             if (checkEmpty) {
                 throw new Exception("Illegal value: Null value of topicName parameter");
             }
         }
-        return bathOpTopicNames;
+        return batchOpTopicNames;
     }
 
     public static Set<String> getBatchBrokerIpSet(String inStrBrokerIps,
                                                   boolean checkEmpty) throws Exception {
-        Set<String> bathBrokerIps = new HashSet<String>();
+        Set<String> batchBrokerIps = new HashSet<String>();
         if (TStringUtils.isNotBlank(inStrBrokerIps)) {
             inStrBrokerIps = escDoubleQuotes(inStrBrokerIps.trim());
         }
@@ -623,7 +623,7 @@ public class WebParameterUtils {
             if (checkEmpty) {
                 throw new Exception("Illegal value: required brokerIp parameter");
             }
-            return bathBrokerIps;
+            return batchBrokerIps;
         }
         String[] strBrokerIps = inStrBrokerIps.split(TokenConstants.ARRAY_SEP);
         for (int i = 0; i < strBrokerIps.length; i++) {
@@ -633,22 +633,22 @@ public class WebParameterUtils {
             String brokerIp =
                     validAddressParameter("brokerIp", strBrokerIps[i],
                             TBaseConstants.META_MAX_BROKER_IP_LENGTH, true, "");
-            if (bathBrokerIps.contains(brokerIp)) {
+            if (batchBrokerIps.contains(brokerIp)) {
                 continue;
             }
-            bathBrokerIps.add(brokerIp);
+            batchBrokerIps.add(brokerIp);
         }
-        if (bathBrokerIps.isEmpty()) {
+        if (batchBrokerIps.isEmpty()) {
             if (checkEmpty) {
                 throw new Exception("Illegal value: Null value of brokerIp parameter");
             }
         }
-        return bathBrokerIps;
+        return batchBrokerIps;
     }
 
     public static Set<Integer> getBatchBrokerIdSet(String inStrBrokerIds,
                                                    boolean checkEmpty) throws Exception {
-        Set<Integer> bathBrokerIdSet = new HashSet<Integer>();
+        Set<Integer> batchBrokerIdSet = new HashSet<Integer>();
         if (TStringUtils.isNotBlank(inStrBrokerIds)) {
             inStrBrokerIds = escDoubleQuotes(inStrBrokerIds.trim());
         }
@@ -656,12 +656,12 @@ public class WebParameterUtils {
             if (checkEmpty) {
                 throw new Exception("Illegal value: required brokerId parameter");
             }
-            return bathBrokerIdSet;
+            return batchBrokerIdSet;
         }
         String[] strBrokerIds = inStrBrokerIds.split(TokenConstants.ARRAY_SEP);
         if (strBrokerIds.length > TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT) {
             throw new Exception(new StringBuilder(512)
-                    .append("Illegal value: bath numbers of brokerId's value over max count ")
+                    .append("Illegal value: batch numbers of brokerId's value over max count ")
                     .append(TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strBrokerIds.length; i++) {
@@ -670,21 +670,21 @@ public class WebParameterUtils {
             }
             int brokerId =
                     validIntDataParameter("brokerId", strBrokerIds[i], true, 0, 1);
-            bathBrokerIdSet.add(brokerId);
+            batchBrokerIdSet.add(brokerId);
         }
-        if (bathBrokerIdSet.isEmpty()) {
+        if (batchBrokerIdSet.isEmpty()) {
             if (checkEmpty) {
                 throw new Exception("Illegal value: Null value of brokerId parameter");
             }
         }
-        return bathBrokerIdSet;
+        return batchBrokerIdSet;
     }
 
     public static Set<BdbBrokerConfEntity> getBatchBrokerIdSet(String inStrBrokerIds,
                                                                BrokerConfManage webMaster,
                                                                boolean checkEmpty,
                                                                final StringBuilder sb) throws Exception {
-        Set<BdbBrokerConfEntity> bathBrokerIdSet = new HashSet<BdbBrokerConfEntity>();
+        Set<BdbBrokerConfEntity> batchBrokerIdSet = new HashSet<BdbBrokerConfEntity>();
         if (TStringUtils.isNotBlank(inStrBrokerIds)) {
             inStrBrokerIds = escDoubleQuotes(inStrBrokerIds.trim());
         }
@@ -692,12 +692,12 @@ public class WebParameterUtils {
             if (checkEmpty) {
                 throw new Exception("Illegal value: required brokerId parameter");
             }
-            return bathBrokerIdSet;
+            return batchBrokerIdSet;
         }
         String[] strBrokerIds = inStrBrokerIds.split(TokenConstants.ARRAY_SEP);
         if (strBrokerIds.length > TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT) {
             throw new Exception(sb
-                    .append("Illegal value: bath numbers of brokerId's value over max count ")
+                    .append("Illegal value: batch numbers of brokerId's value over max count ")
                     .append(TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strBrokerIds.length; i++) {
@@ -713,14 +713,14 @@ public class WebParameterUtils {
                         .append("Illegal value: not found broker default configure record by brokerId=")
                         .append(brokerId).toString());
             }
-            bathBrokerIdSet.add(brokerConfEntity);
+            batchBrokerIdSet.add(brokerConfEntity);
         }
-        if (bathBrokerIdSet.isEmpty()) {
+        if (batchBrokerIdSet.isEmpty()) {
             if (checkEmpty) {
                 throw new Exception("Illegal value: Null value of brokerId parameter");
             }
         }
-        return bathBrokerIdSet;
+        return batchBrokerIdSet;
     }
 
     /**

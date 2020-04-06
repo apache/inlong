@@ -310,7 +310,7 @@ public class WebBrokerDefConfHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddBrokerDefConfEntityInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddBrokerDefConfEntityInfo(HttpServletRequest req) throws Exception {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
         try {
@@ -502,7 +502,7 @@ public class WebBrokerDefConfHandler {
                             req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            Set<BdbBrokerConfEntity> bathBrokerEntitys =
+            Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
             int manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE;
@@ -510,7 +510,7 @@ public class WebBrokerDefConfHandler {
                     master.getBrokerHolder().getBrokerInfoMap();
             Set<BdbBrokerConfEntity> newBrokerEntitySet =
                     new HashSet<BdbBrokerConfEntity>();
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -590,7 +590,7 @@ public class WebBrokerDefConfHandler {
                     && (TStringUtils.isBlank(strIsAcceptSubscribe))) {
                 throw new Exception("Required isAcceptPublish or isAcceptSubscribe parameter");
             }
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
                     req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
@@ -601,7 +601,7 @@ public class WebBrokerDefConfHandler {
             // If yes, check if the current status complies with the change.
             // If it complies, record the change.
             Set<BdbBrokerConfEntity> newBrokerEntitySet = new HashSet<BdbBrokerConfEntity>();
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitySet) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntitySet) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -749,11 +749,11 @@ public class WebBrokerDefConfHandler {
                             req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            Set<Integer> bathBrokerIds = new HashSet<Integer>();
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
+            Set<Integer> batchBrokerIds = new HashSet<Integer>();
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
                     req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
-            for (BdbBrokerConfEntity entity : bathBrokerEntitySet) {
-                bathBrokerIds.add(entity.getBrokerId());
+            for (BdbBrokerConfEntity entity : batchBrokerEntitySet) {
+                batchBrokerIds.add(entity.getBrokerId());
             }
             String relReason =
                     WebParameterUtils.validStringParameter("relReason",
@@ -761,7 +761,7 @@ public class WebBrokerDefConfHandler {
                             TBaseConstants.META_MAX_OPREASON_LENGTH,
                             false, "API call to release auto-forbidden brokers");
             BrokerInfoHolder brokerInfoHolder = master.getBrokerHolder();
-            brokerInfoHolder.relAutoForbiddenBrokerInfo(bathBrokerIds, relReason);
+            brokerInfoHolder.relAutoForbiddenBrokerInfo(batchBrokerIds, relReason);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -789,12 +789,12 @@ public class WebBrokerDefConfHandler {
                     req.getParameter("modifyUser"), TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
             Date modifyDate = WebParameterUtils.validDateParameter("modifyDate",
                     req.getParameter("modifyDate"), TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<BdbBrokerConfEntity> bathBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
+            Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
                     req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
             Set<BdbBrokerConfEntity> modifyBdbEntitySet = new HashSet<BdbBrokerConfEntity>();
 
             // Check the entities one by one, to see if there are changes.
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitySet) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntitySet) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -956,10 +956,10 @@ public class WebBrokerDefConfHandler {
                             req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            Set<BdbBrokerConfEntity> bathBrokerEntitys =
+            Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -973,7 +973,7 @@ public class WebBrokerDefConfHandler {
                     throw new Exception(strBuffer.toString());
                 }
             }
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (!WebParameterUtils.checkBrokerInOnlineStatus(oldEntity) || WebParameterUtils
                     .checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, null)) {
                     continue;
@@ -1020,12 +1020,12 @@ public class WebBrokerDefConfHandler {
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
             int manageStatus = TStatusConstants.STATUS_MANAGE_OFFLINE;
-            Set<BdbBrokerConfEntity> bathBrokerEntitys =
+            Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
             Set<BdbBrokerConfEntity> newBrokerEntitys =
                     new HashSet<BdbBrokerConfEntity>();
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -1106,10 +1106,10 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.validBooleanDataParameter("isReservedData",
                             req.getParameter("isReservedData"),
                             false, false);
-            Set<BdbBrokerConfEntity> bathBrokerEntitys =
+            Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManage, true, strBuffer);
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
                 }
@@ -1148,7 +1148,7 @@ public class WebBrokerDefConfHandler {
                     throw new Exception(strBuffer.toString());
                 }
             }
-            for (BdbBrokerConfEntity oldEntity : bathBrokerEntitys) {
+            for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null
                         || WebParameterUtils.checkBrokerInOnlineStatus(oldEntity)
                         || WebParameterUtils.checkBrokerInOfflining(oldEntity.getBrokerId(),
@@ -1215,9 +1215,9 @@ public class WebBrokerDefConfHandler {
             boolean withDetail =
                 WebParameterUtils.validBooleanDataParameter("withDetail",
                     req.getParameter("withDetail"), false, false);
-            Set<String> bathBrokerIps =
+            Set<String> batchBrokerIps =
                 WebParameterUtils.getBatchBrokerIpSet(req.getParameter("brokerIp"), false);
-            Set<Integer> bathBrokerIds =
+            Set<Integer> batchBrokerIds =
                 WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), false);
             boolean onlyAbnormal =
                     WebParameterUtils.validBooleanDataParameter("onlyAbnormal",
@@ -1238,8 +1238,8 @@ public class WebBrokerDefConfHandler {
                 brokerInfoHolder.getAutoForbiddenBrokerMapInfo();
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
             for (BdbBrokerConfEntity entity : brokerConfEntityList) {
-                if (((!bathBrokerIds.isEmpty()) && (!bathBrokerIds.contains(entity.getBrokerId())))
-                    || ((!bathBrokerIps.isEmpty()) && (!bathBrokerIps.contains(entity.getBrokerIp())))) {
+                if (((!batchBrokerIds.isEmpty()) && (!batchBrokerIds.contains(entity.getBrokerId())))
+                    || ((!batchBrokerIps.isEmpty()) && (!batchBrokerIps.contains(entity.getBrokerIp())))) {
                     continue;
                 }
                 BrokerInfoHolder.BrokerAbnInfo brokerAbnInfo =
@@ -1444,16 +1444,16 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.validIntDataParameter("brokerTLSPort",
                             req.getParameter("brokerTLSPort"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
             Boolean isInclude = null;
-            Set<String> bathTopicNames =
+            Set<String> batchTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"), false, false, null, strBuffer);
-            if (!bathTopicNames.isEmpty()) {
+            if (!batchTopicNames.isEmpty()) {
                 isInclude =
                         WebParameterUtils.validBooleanDataParameter("isInclude",
                                 req.getParameter("isInclude"), false, true);
             }
-            Set<Integer> bathBrokerIds = WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), false);
-            if (bathBrokerIds.size() == 1) {
-                for (Integer brokerId : bathBrokerIds) {
+            Set<Integer> batchBrokerIds = WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), false);
+            if (batchBrokerIds.size() == 1) {
+                for (Integer brokerId : batchBrokerIds) {
                     brokerConfEntity.setBrokerId(brokerId);
                 }
             }
@@ -1469,7 +1469,7 @@ public class WebBrokerDefConfHandler {
                 int recordMemCacheMsgSizeInMB = entity.getDftMemCacheMsgSizeInMB();
                 int recordMemCacheFlushIntvl = entity.getDftMemCacheFlushIntvl();
                 int recordTLSPort = entity.getBrokerTLSPort();
-                if (((!bathBrokerIds.isEmpty()) && (!bathBrokerIds.contains(entity.getBrokerId())))
+                if (((!batchBrokerIds.isEmpty()) && (!batchBrokerIds.contains(entity.getBrokerId())))
                         || ((numTopicStores >= 0) && (numTopicStores != recordNumTopicStores))
                         || ((memCacheMsgCntInK >= 0) && (memCacheMsgCntInK != recordMemCacheMsgCntInK))
                         || ((memCacheMsgSizeInMB >= 0) && (memCacheMsgSizeInMB != recordMemCacheMsgSizeInMB))
@@ -1479,7 +1479,7 @@ public class WebBrokerDefConfHandler {
                 }
                 ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntityMap =
                         brokerConfManage.getBrokerTopicConfEntitySet(entity.getBrokerId());
-                if (!isValidRecord(bathTopicNames, topicStatusId, isInclude, bdbTopicConfEntityMap)) {
+                if (!isValidRecord(batchTopicNames, topicStatusId, isInclude, bdbTopicConfEntityMap)) {
                     continue;
                 }
                 if (count++ > 0) {
@@ -1526,16 +1526,16 @@ public class WebBrokerDefConfHandler {
     /**
      * Check if the record is valid
      *
-     * @param bathTopicNames
+     * @param batchTopicNames
      * @param topicStatusId
      * @param isInclude
      * @param bdbTopicConfEntityMap
      * @return
      */
-    private boolean isValidRecord(final Set<String> bathTopicNames, int topicStatusId, Boolean isInclude,
+    private boolean isValidRecord(final Set<String> batchTopicNames, int topicStatusId, Boolean isInclude,
                                   ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntityMap) {
         // 首先检查指定了topic并且要求进行topic区分,并且broker有topic记录时,按照业务指定的topic区分要求进行过滤
-        if (!bathTopicNames.isEmpty() && isInclude != null) {
+        if (!batchTopicNames.isEmpty() && isInclude != null) {
             if ((bdbTopicConfEntityMap == null) || (bdbTopicConfEntityMap.isEmpty())) {
                 if (isInclude) {
                     return false;
@@ -1544,7 +1544,7 @@ public class WebBrokerDefConfHandler {
                 boolean filterInclude = false;
                 Set<String> curTopics = bdbTopicConfEntityMap.keySet();
                 if (isInclude) {
-                    for (String inTopic : bathTopicNames) {
+                    for (String inTopic : batchTopicNames) {
                         if (curTopics.contains(inTopic)) {
                             filterInclude = true;
                             break;
@@ -1552,7 +1552,7 @@ public class WebBrokerDefConfHandler {
                     }
                 } else {
                     filterInclude = true;
-                    for (String inTopic : bathTopicNames) {
+                    for (String inTopic : batchTopicNames) {
                         if (curTopics.contains(inTopic)) {
                             filterInclude = false;
                             break;

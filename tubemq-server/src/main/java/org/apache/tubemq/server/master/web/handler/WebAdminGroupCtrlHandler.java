@@ -146,7 +146,7 @@ public class WebAdminGroupCtrlHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -346,7 +346,7 @@ public class WebAdminGroupCtrlHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -368,8 +368,8 @@ public class WebAdminGroupCtrlHandler {
             if ((jsonArray == null) || (jsonArray.isEmpty())) {
                 throw new Exception("Null value of filterCondJsonSet, please set the value first!");
             }
-            Set<String> bathRecords = new HashSet<String>();
-            List<BdbGroupFilterCondEntity> modifyFilterCondEntitys = new ArrayList<>();
+            Set<String> batchRecords = new HashSet<String>();
+            List<BdbGroupFilterCondEntity> modifyFilterCondEntities = new ArrayList<>();
             for (int j = 0; j < jsonArray.size(); j++) {
                 Map<String, String> groupObject = jsonArray.get(j);
                 try {
@@ -395,7 +395,7 @@ public class WebAdminGroupCtrlHandler {
                     String recordKey = sBuilder.append(groupName)
                             .append("-").append(topicName).toString();
                     sBuilder.delete(0, sBuilder.length());
-                    if (bathRecords.contains(recordKey)) {
+                    if (batchRecords.contains(recordKey)) {
                         continue;
                     }
                     boolean foundChange = false;
@@ -428,8 +428,8 @@ public class WebAdminGroupCtrlHandler {
                     if (!foundChange) {
                         continue;
                     }
-                    bathRecords.add(recordKey);
-                    modifyFilterCondEntitys.add(newFilterCondEntity);
+                    batchRecords.add(recordKey);
+                    modifyFilterCondEntities.add(newFilterCondEntity);
                 } catch (Exception ee) {
                     sBuilder.delete(0, sBuilder.length());
                     throw new Exception(sBuilder.append("Process data exception, data is :")
@@ -438,7 +438,7 @@ public class WebAdminGroupCtrlHandler {
                             .append(ee.getMessage()).toString());
                 }
             }
-            for (BdbGroupFilterCondEntity tmpFilterCondEntity : modifyFilterCondEntitys) {
+            for (BdbGroupFilterCondEntity tmpFilterCondEntity : modifyFilterCondEntities) {
                 try {
                     brokerConfManage.confModGroupFilterCondConfig(tmpFilterCondEntity);
                 } catch (Throwable ee) {
@@ -466,14 +466,14 @@ public class WebAdminGroupCtrlHandler {
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
                     req.getParameter("confModAuthToken"));
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, sBuilder);
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             false, false, null, sBuilder);
-            if (bathOpGroupNames.isEmpty()) {
-                for (String tmpTopicName : bathOpTopicNames) {
+            if (batchOpGroupNames.isEmpty()) {
+                for (String tmpTopicName : batchOpTopicNames) {
                     BdbGroupFilterCondEntity webFilterCondEntity =
                             new BdbGroupFilterCondEntity();
                     webFilterCondEntity.setTopicName(tmpTopicName);
@@ -485,8 +485,8 @@ public class WebAdminGroupCtrlHandler {
                     }
                 }
             } else {
-                for (String tmpTopicName : bathOpTopicNames) {
-                    for (String tmpGroupName : bathOpGroupNames) {
+                for (String tmpTopicName : batchOpTopicNames) {
+                    for (String tmpGroupName : batchOpGroupNames) {
                         BdbGroupFilterCondEntity webFilterCondEntity =
                                 new BdbGroupFilterCondEntity();
                         webFilterCondEntity.setTopicName(tmpTopicName);
@@ -540,7 +540,7 @@ public class WebAdminGroupCtrlHandler {
                     WebParameterUtils.validIntDataParameter("reJoinWait",
                             req.getParameter("reJoinWait"),
                             false, 0, 0);
-            Set<String> bathOpConsumerIds = new HashSet<String>();
+            Set<String> batchOpConsumerIds = new HashSet<String>();
             String inputConsumerId = req.getParameter("consumerId");
             if (TStringUtils.isNotBlank(inputConsumerId)) {
                 inputConsumerId = String.valueOf(inputConsumerId).trim();
@@ -563,12 +563,12 @@ public class WebAdminGroupCtrlHandler {
                                 .append("in consumerId parameter must begin with a letter, " +
                                         "can only contain characters,numbers,dot,scores,and underscores").toString());
                     }
-                    if (!bathOpConsumerIds.contains(consumerId)) {
-                        bathOpConsumerIds.add(consumerId);
+                    if (!batchOpConsumerIds.contains(consumerId)) {
+                        batchOpConsumerIds.add(consumerId);
                     }
                 }
             }
-            if (bathOpConsumerIds.isEmpty()) {
+            if (batchOpConsumerIds.isEmpty()) {
                 throw new Exception("Null value of required consumerId parameter");
             }
             ConsumerInfoHolder consumerInfoHolder =
@@ -580,7 +580,7 @@ public class WebAdminGroupCtrlHandler {
                         .append(groupName).append(") not online! \"}");
             } else {
                 Map<String, NodeRebInfo> nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
-                for (String consumerId : bathOpConsumerIds) {
+                for (String consumerId : batchOpConsumerIds) {
                     if (nodeRebInfoMap.containsKey(consumerId)) {
                         return sBuilder
                                 .append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Duplicated set for consumerId(")
@@ -590,11 +590,11 @@ public class WebAdminGroupCtrlHandler {
                 }
                 logger.info(sBuilder.append("[Re-balance] Add rebalance consumer: group=")
                         .append(groupName).append(", consumerIds=")
-                        .append(bathOpConsumerIds.toString())
+                        .append(batchOpConsumerIds.toString())
                         .append(", reJoinWait=").append(reJoinWait)
                         .append(", creater=").append(modifyUser).toString());
                 sBuilder.delete(0, sBuilder.length());
-                consumerInfoHolder.addRebConsumerInfo(groupName, bathOpConsumerIds, reJoinWait);
+                consumerInfoHolder.addRebConsumerInfo(groupName, batchOpConsumerIds, reJoinWait);
                 sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
             }
         } catch (Exception e) {
@@ -715,13 +715,13 @@ public class WebAdminGroupCtrlHandler {
                             false, new Date());
             Set<String> configuredTopicSet =
                     brokerConfManage.getTotalConfiguredTopicNames();
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, true, configuredTopicSet, sBuilder);
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            for (String tmpTopicName : bathOpTopicNames) {
+            for (String tmpTopicName : batchOpTopicNames) {
                 BdbTopicAuthControlEntity topicAuthControlEntity =
                         brokerConfManage.getBdbEnableAuthControlByTopicName(tmpTopicName);
                 if (topicAuthControlEntity == null) {
@@ -733,7 +733,7 @@ public class WebAdminGroupCtrlHandler {
                         //
                     }
                 }
-                for (String tmpGroupName : bathOpGroupNames) {
+                for (String tmpGroupName : batchOpGroupNames) {
                     BdbConsumerGroupEntity webConsumerGroupEntity =
                             new BdbConsumerGroupEntity(tmpTopicName,
                                     tmpGroupName, createUser, createDate);
@@ -756,7 +756,7 @@ public class WebAdminGroupCtrlHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -920,14 +920,14 @@ public class WebAdminGroupCtrlHandler {
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
                     req.getParameter("confModAuthToken"));
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, false, null, sBuilder);
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             false, false, null, sBuilder);
-            if (bathOpGroupNames.isEmpty()) {
-                for (String tmpTopicName : bathOpTopicNames) {
+            if (batchOpGroupNames.isEmpty()) {
+                for (String tmpTopicName : batchOpTopicNames) {
                     BdbGroupFilterCondEntity webFilterCondEntity =
                             new BdbGroupFilterCondEntity();
                     webFilterCondEntity.setTopicName(tmpTopicName);
@@ -943,8 +943,8 @@ public class WebAdminGroupCtrlHandler {
                     brokerConfManage.confDelBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
                 }
             } else {
-                for (String tmpTopicName : bathOpTopicNames) {
-                    for (String tmpGroupName : bathOpGroupNames) {
+                for (String tmpTopicName : batchOpTopicNames) {
+                    for (String tmpGroupName : batchOpGroupNames) {
                         BdbGroupFilterCondEntity webFilterCondEntity =
                                 new BdbGroupFilterCondEntity();
                         webFilterCondEntity.setTopicName(tmpTopicName);
@@ -994,14 +994,14 @@ public class WebAdminGroupCtrlHandler {
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, true, brokerConfManage.getTotalConfiguredTopicNames(), sBuilder);
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            for (String tmpGroupName : bathOpGroupNames) {
-                for (String tmpTopicName : bathOpTopicNames) {
+            for (String tmpGroupName : batchOpGroupNames) {
+                for (String tmpTopicName : batchOpTopicNames) {
                     BdbBlackGroupEntity webBlackGroupEntity =
                             new BdbBlackGroupEntity(tmpTopicName,
                                     tmpGroupName, createUser, createDate);
@@ -1024,7 +1024,7 @@ public class WebAdminGroupCtrlHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddBlackGroupInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -1175,22 +1175,22 @@ public class WebAdminGroupCtrlHandler {
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
                     req.getParameter("confModAuthToken"));
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            Set<String> bathOpTopicNames =
+            Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             false, false, null, sBuilder);
-            if (bathOpTopicNames.isEmpty()) {
-                for (String tmpGroupName : bathOpGroupNames) {
+            if (batchOpTopicNames.isEmpty()) {
+                for (String tmpGroupName : batchOpGroupNames) {
                     BdbBlackGroupEntity webBlackGroupEntity =
                             new BdbBlackGroupEntity();
                     webBlackGroupEntity.setBlackGroupName(tmpGroupName);
                     brokerConfManage.confDeleteBdbBlackConsumerGroupSet(webBlackGroupEntity);
                 }
             } else {
-                for (String tmpGroupName : bathOpGroupNames) {
-                    for (String tmpTopicName : bathOpTopicNames) {
+                for (String tmpGroupName : batchOpGroupNames) {
+                    for (String tmpTopicName : batchOpTopicNames) {
                         BdbBlackGroupEntity webBlackGroupEntity =
                                 new BdbBlackGroupEntity();
                         webBlackGroupEntity.setBlackGroupName(tmpGroupName);
@@ -1238,10 +1238,10 @@ public class WebAdminGroupCtrlHandler {
                     WebParameterUtils.validIntDataParameter("allowedBClientRate",
                             req.getParameter("allowedBClientRate"),
                             false, 0, 0);
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            for (String tmpGroupName : bathOpGroupNames) {
+            for (String tmpGroupName : batchOpGroupNames) {
                 BdbConsumeGroupSettingEntity webConsumeGroupSettingEntity =
                         new BdbConsumeGroupSettingEntity(tmpGroupName,
                                 enableBind, allowedBClientRate, "", createUser, createDate);
@@ -1263,7 +1263,7 @@ public class WebAdminGroupCtrlHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminBathAddConsumeGroupSetting(HttpServletRequest req) throws Exception {
+    public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
@@ -1441,10 +1441,10 @@ public class WebAdminGroupCtrlHandler {
                     && allowedBClientRate == -2) {
                 throw new Exception("Not require update content in request parameter!");
             }
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            for (String tmpGroupName : bathOpGroupNames) {
+            for (String tmpGroupName : batchOpGroupNames) {
                 try {
                     boolean isChanged = false;
                     BdbConsumeGroupSettingEntity oldEntity =
@@ -1494,10 +1494,10 @@ public class WebAdminGroupCtrlHandler {
         try {
             WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
                     req.getParameter("confModAuthToken"));
-            Set<String> bathOpGroupNames =
+            Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                             true, false, null, sBuilder);
-            brokerConfManage.confDeleteBdbConsumeGroupSetting(bathOpGroupNames, sBuilder);
+            brokerConfManage.confDeleteBdbConsumeGroupSetting(batchOpGroupNames, sBuilder);
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             sBuilder.delete(0, sBuilder.length());
