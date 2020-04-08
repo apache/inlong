@@ -100,6 +100,8 @@ public class MasterInfo {
             }
             this.addrMap4Failover.put(entry.getKey(), entry.getValue());
         }
+        this.nodeHostPortList = new ArrayList<String>(addrMap4Failover.size());
+        this.nodeHostPortList.addAll(addrMap4Failover.keySet());
         this.firstNodeAddr = firstNodeAddr;
         this.masterClusterStr = masterClusterStr;
     }
