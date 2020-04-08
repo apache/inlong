@@ -139,8 +139,8 @@ public class SimpleMessageProducer implements MessageProducer {
             newTopicSet.add(topicItem.trim());
         }
         long curTime = System.currentTimeMillis();
-        for (String topicNam : newTopicSet) {
-            publishTopicMap.putIfAbsent(topicNam, curTime);
+        for (String topicName : newTopicSet) {
+            publishTopicMap.putIfAbsent(topicName, curTime);
         }
         return this.producerManager.publish(newTopicSet);
     }

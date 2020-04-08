@@ -473,14 +473,14 @@ public class ProducerManager {
     }
 
     private void updateTopicPartitions(List<TopicInfo> topicInfoList) {
-        Map<String, Map<Integer, List<Partition>>> paritionListMap =
+        Map<String, Map<Integer, List<Partition>>> partitionListMap =
                 new ConcurrentHashMap<String, Map<Integer, List<Partition>>>();
         for (TopicInfo topicInfo : topicInfoList) {
             Map<Integer, List<Partition>> brokerPartList =
-                    paritionListMap.get(topicInfo.getTopic());
+                    partitionListMap.get(topicInfo.getTopic());
             if (brokerPartList == null) {
                 brokerPartList = new ConcurrentHashMap<Integer, List<Partition>>();
-                paritionListMap.put(topicInfo.getTopic(), brokerPartList);
+                partitionListMap.put(topicInfo.getTopic(), brokerPartList);
             }
             for (int j = 0; j < topicInfo.getTopicStoreNum(); j++) {
                 int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
@@ -496,7 +496,7 @@ public class ProducerManager {
                 }
             }
         }
-        topicPartitionMap = paritionListMap;
+        topicPartitionMap = partitionListMap;
     }
 
     private synchronized String generateProducerID() throws Exception {
