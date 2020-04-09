@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 
 /**
@@ -120,15 +119,14 @@ public class Message implements Serializable {
         if (TStringUtils.isNotBlank(msgTime)) {
             String tmpMsgTime = msgTime.trim();
             if (tmpMsgTime.length() != 12) {
-                throw new IllegalStateException("Illegal parameter: msgTime's value "
+                throw new IllegalArgumentException("Illegal parameter: msgTime's value "
                         + "must 'yyyyMMddHHmm' format and length must equal 12!");
             }
-            Date tmpDate;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             try {
-                tmpDate = sdf.parse(tmpMsgTime);
+                sdf.parse(tmpMsgTime);
             } catch (ParseException e) {
-                throw new IllegalStateException("Illegal parameter: parse msgTime value"
+                throw new IllegalArgumentException("Illegal parameter: parse msgTime value"
                         + " failure , msgType's value must 'yyyyMMddHHmm' format!");
             }
             this.msgTime = tmpMsgTime;
@@ -201,7 +199,7 @@ public class Message implements Serializable {
      */
     public String getAttrValue(final String keyVal) {
         if (TStringUtils.isBlank(keyVal)) {
-            throw new IllegalStateException("keyVal's value is blank!");
+            throw new IllegalArgumentException("keyVal's value is blank!");
         }
         if (TStringUtils.isBlank(this.attribute)) {
             return null;
@@ -226,16 +224,16 @@ public class Message implements Serializable {
      */
     public void setAttrKeyVal(final String keyVal, final String valueVal) {
         if (TStringUtils.isBlank(keyVal)) {
-            throw new IllegalStateException("keyVal's value is blank!");
+            throw new IllegalArgumentException("keyVal's value is blank!");
         }
         if (TStringUtils.isBlank(valueVal)) {
-            throw new IllegalStateException("valueVal's value is blank!");
+            throw new IllegalArgumentException("valueVal's value is blank!");
         }
         if (keyVal.contains(TokenConstants.TOKEN_MSG_TYPE)
                 || keyVal.contains(TokenConstants.TOKEN_MSG_TIME)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TYPE)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)) {
-            throw new IllegalStateException(new StringBuilder(512).append("System Headers(")
+            throw new IllegalArgumentException(new StringBuilder(512).append("System Headers(")
                     .append(TokenConstants.TOKEN_MSG_TYPE).append(",")
                     .append(TokenConstants.TOKEN_MSG_TIME)
                     .append(") are reserved tokens, can't include in keyVal or valueVal!").toString());
@@ -244,7 +242,7 @@ public class Message implements Serializable {
                 || keyVal.contains(TokenConstants.EQ))
                 || (valueVal.contains(TokenConstants.ARRAY_SEP)
                 || valueVal.contains(TokenConstants.EQ))) {
-            throw new IllegalStateException(new StringBuilder(512).append("(")
+            throw new IllegalArgumentException(new StringBuilder(512).append("(")
                     .append(TokenConstants.ARRAY_SEP).append(",")
                     .append(TokenConstants.EQ).append(
                             ") are reserved tokens, can't include in keyVal or valueVal!").toString());
@@ -339,10 +337,9 @@ public class Message implements Serializable {
                     } else if (strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME)) {
                         String[] strItems = strAttrItem.split(TokenConstants.EQ);
                         if (strItems.length > 1) {
-                            Date tmpDate;
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
                             try {
-                                tmpDate = sdf.parse(strItems[1]);
+                                sdf.parse(strItems[1]);
                                 this.msgTime = strItems[1];
                             } catch (ParseException e) {
                                 this.msgTime = "";
