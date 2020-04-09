@@ -167,7 +167,7 @@ public class ProducerManager {
      * @param topic topic name
      * @throws TubeClientException
      */
-    public synchronized void publish(final String topic) throws TubeClientException {
+    public void publish(final String topic) throws TubeClientException {
         checkServiceStatus();
         StringBuilder sBuilder = new StringBuilder(512);
         try {
@@ -212,7 +212,7 @@ public class ProducerManager {
      * @return a set of successful published topic names
      * @throws TubeClientException
      */
-    public synchronized Set<String> publish(Set<String> topicSet) throws TubeClientException {
+    public Set<String> publish(Set<String> topicSet) throws TubeClientException {
         checkServiceStatus();
         StringBuilder sBuilder = new StringBuilder(512);
         Set<String> failTopicSet = new HashSet<String>();
@@ -341,7 +341,7 @@ public class ProducerManager {
      *
      * @param topicSet
      */
-    public synchronized void removeTopic(Set<String> topicSet) {
+    public void removeTopic(Set<String> topicSet) {
         for (String topic : topicSet) {
             if (topic == null) {
                 continue;
@@ -499,7 +499,7 @@ public class ProducerManager {
         topicPartitionMap = partitionListMap;
     }
 
-    private synchronized String generateProducerID() throws Exception {
+    private String generateProducerID() throws Exception {
         String pidName = ManagementFactory.getRuntimeMXBean().getName();
         if (pidName != null && pidName.contains("@")) {
             pidName = pidName.split("@")[0];
