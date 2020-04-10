@@ -55,10 +55,8 @@ public class RoundRobinPartitionRouter implements PartitionRouter {
         for (int i = 0; i < partSize; i++) {
             roundPartition =
                     partitions.get((currRouterCount.incrementAndGet() & Integer.MAX_VALUE) % partSize);
-            if (roundPartition != null) {
-                if (roundPartition.getDelayTimeStamp() < System.currentTimeMillis()) {
-                    return roundPartition;
-                }
+            if (roundPartition != null && roundPartition.getDelayTimeStamp() < System.currentTimeMillis()) {
+                return roundPartition;
             }
         }
         return partitions.get((steppedCounter.incrementAndGet() & Integer.MAX_VALUE) % partSize);
