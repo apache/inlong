@@ -69,6 +69,8 @@ public class RmtDataCache implements Closeable {
             new ConcurrentHashMap<String, ConcurrentLinkedQueue<Partition>>();
     private final ConcurrentHashMap<BrokerInfo/* broker */, ConcurrentLinkedQueue<Partition>> brokerPartitionConMap =
             new ConcurrentHashMap<BrokerInfo, ConcurrentLinkedQueue<Partition>>();
+    private final ConcurrentHashMap<String/* partitionKey */, Integer> partRegisterBookMap =
+            new ConcurrentHashMap<String/* partitionKey */, Integer>();
     private AtomicBoolean isClosed = new AtomicBoolean(false);
     private CountDownLatch dataProcessSync = new CountDownLatch(0);
 
@@ -295,6 +297,24 @@ public class RmtDataCache implements Closeable {
         Map<Partition, Long> tmpPartOffsetMap = new HashMap<Partition, Long>();
         tmpPartOffsetMap.put(partition, currOffset);
         addPartitionsInfo(tmpPartOffsetMap);
+    }
+
+    /**
+     * book a partition for register event.
+     *
+     * @param partitionKey  partition key
+     *
+     *  @return Whether to register for the first time
+     */
+    public boolean bookPartition(String partitionKey) {
+        Integer isReged = partRegisterBookMap.get(partitionKey);
+        if (isReged == null) {
+            isReged = partRegisterBookMap.putIfAbsent(partitionKey, 1);
+            if (isReged == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void errReqRelease(String partitionKey, long usedToken, boolean isLastPackConsumed) {
