@@ -85,8 +85,8 @@ public class ProducerManager {
     private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<Integer, BrokerInfo>();
     private long brokerInfoCheckSum = -1L;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
-    private long lastEmptyBrokerPrintTIme = 0;
-    private long lastEmptyTopicPrintTIme = 0;
+    private long lastEmptyBrokerPrintTime = 0;
+    private long lastEmptyTopicPrintTime = 0;
     private int heartbeatRetryTimes = 0;
     private AtomicBoolean isStartHeart = new AtomicBoolean(false);
     private AtomicInteger heartBeatStatus = new AtomicInteger(-1);
@@ -521,7 +521,7 @@ public class ProducerManager {
                 brokerInfoCheckSum = pkgCheckSum;
                 lastBrokerUpdatedTime = System.currentTimeMillis();
                 if (pkgBrokerInfos.isEmpty()) {
-                    if (System.currentTimeMillis() - lastEmptyBrokerPrintTIme > 60000) {
+                    if (System.currentTimeMillis() - lastEmptyBrokerPrintTime > 60000) {
                         if (isRegister) {
                             logger.warn(sBuilder
                                     .append("[Register Update] Found empty brokerList, changed checksum is ")
@@ -532,12 +532,12 @@ public class ProducerManager {
                                     .append(brokerInfoCheckSum).toString());
                         }
                         sBuilder.delete(0, sBuilder.length());
-                        lastEmptyBrokerPrintTIme = System.currentTimeMillis();
+                        lastEmptyBrokerPrintTime = System.currentTimeMillis();
                     }
                 } else {
                     if (!isRegister) {
                         logger.info(sBuilder
-                                .append("[Heartbeat Update] Found brokerList chaneged checksum is ")
+                                .append("[Heartbeat Update] Found brokerList changed checksum is ")
                                 .append(brokerInfoCheckSum).toString());
                         sBuilder.delete(0, sBuilder.length());
                     }
@@ -650,11 +650,10 @@ public class ProducerManager {
                             response.getBrokerCheckSum(), sBuilder);
                 }
                 if (response.getTopicInfosList() != null) {
-                    if (response.getTopicInfosList().isEmpty()) {
-                        if (System.currentTimeMillis() - lastEmptyTopicPrintTIme > 60000) {
-                            logger.warn("[Heartbeat Update] found empty topicList update!");
-                            lastEmptyTopicPrintTIme = System.currentTimeMillis();
-                        }
+                    if (response.getTopicInfosList().isEmpty() &&
+                            System.currentTimeMillis() - lastEmptyTopicPrintTime > 60000) {
+                        logger.warn("[Heartbeat Update] found empty topicList update!");
+                        lastEmptyTopicPrintTime = System.currentTimeMillis();
                     }
                     updateTopicPartitions(DataConverterUtil
                             .convertTopicInfo(brokersMap, response.getTopicInfosList()));
