@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.client.factory;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.config.TubeClientConfig;
 import org.apache.tubemq.client.config.TubeClientConfigUtils;
@@ -37,26 +37,24 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
     private static final Logger logger =
             LoggerFactory.getLogger(TubeSingleSessionFactory.class);
     private static final NettyClientFactory clientFactory = new NettyClientFactory();
-    private static final AtomicLong referenceCounter = new AtomicLong(0);
+    private static final AtomicBoolean isStarted = new AtomicBoolean(false);
     private static TubeBaseSessionFactory baseSessionFactory;
 
 
     public TubeSingleSessionFactory(final TubeClientConfig tubeClientConfig) throws TubeClientException {
-        if (referenceCounter.incrementAndGet() == 1) {
+        if (isStarted.compareAndSet(false, true)) {
             RpcConfig config = TubeClientConfigUtils.getRpcConfigByClientConfig(tubeClientConfig, true);
             clientFactory.configure(config);
-            referenceCounter.incrementAndGet();
             baseSessionFactory = new TubeBaseSessionFactory(clientFactory, tubeClientConfig);
         }
     }
 
     @Override
     public void shutdown() throws TubeClientException {
-        if (referenceCounter.decrementAndGet() > 0) {
-            return;
+        if (isStarted.compareAndSet(true, false)) {
+            baseSessionFactory.shutdown();
+            clientFactory.shutdown();
         }
-        baseSessionFactory.shutdown();
-        clientFactory.shutdown();
     }
 
     @Override
