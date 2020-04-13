@@ -991,7 +991,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setPartitionId(partition.getPartitionId());
         builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
-        builder.setReadStatus(getGroupInitReadStatus());
+        builder.setReadStatus(getGroupInitReadStatus(rmtDataCache.bookPartition(partition.getPartitionKey())));
         TopicProcessor topicProcessor =
                 this.consumeSubInfo.getTopicProcessor(partition.getTopic());
         if (topicProcessor != null && topicProcessor.getFilterConds() != null) {
@@ -1041,7 +1041,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 ClientBroker.HeartBeatRequestC2B.newBuilder();
         builder.setClientId(consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
-        builder.setReadStatus(getGroupInitReadStatus());
+        builder.setReadStatus(getGroupInitReadStatus(false));
         builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         builder.addAllPartitionInfo(partitionList);
@@ -1177,18 +1177,18 @@ public class BaseMessageConsumer implements MessageConsumer {
         }
     }
 
-    private int getGroupInitReadStatus() {
+    private int getGroupInitReadStatus(boolean isFistReg) {
         int readStatus = TBaseConstants.CONSUME_MODEL_READ_NORMAL;
         switch (consumerConfig.getConsumeModel()) {
             case 0: {
-                if (this.isFirst.get()) {
+                if (isFistReg) {
                     readStatus = TBaseConstants.CONSUME_MODEL_READ_FROM_MAX;
                     logger.info("[Consume From Max Offset]" + consumerId);
                 }
                 break;
             }
             case 1: {
-                if (this.isFirst.get()) {
+                if (isFistReg) {
                     readStatus = TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS;
                     logger.info("[Consume From Max Offset Always]" + consumerId);
                 }
