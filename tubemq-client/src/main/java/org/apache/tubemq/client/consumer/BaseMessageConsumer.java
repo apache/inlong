@@ -269,12 +269,12 @@ public class BaseMessageConsumer implements MessageConsumer {
                             new TopicProcessor(messageListener, filterConds));
             if (oldProcessor != null) {
                 throw new TubeClientException(new StringBuilder(256).append("Topic=")
-                        .append(topic).append(" has been subscribered").toString());
+                        .append(topic).append(" has been subscribed").toString());
             }
             return this;
         } else {
             throw new TubeClientException(new StringBuilder(256).append("Topic=")
-                    .append(topic).append(" has been subscribered").toString());
+                    .append(topic).append(" has been subscribed").toString());
         }
     }
 
@@ -331,7 +331,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     }
                     if (!consumeSubInfo.isSubscribedTopicContain(partitionKeyItems[1].trim())) {
                         throw new TubeClientException(new StringBuilder(256)
-                                .append("Parameter error: not included in subcribed topic list: ")
+                                .append("Parameter error: not included in subscribed topic list: ")
                                 .append("partOffsetMap's key is ")
                                 .append(entry.getKey()).append(", subscribed topics are ")
                                 .append(consumeSubInfo.getSubscribedTopics().toString()).toString());
@@ -529,7 +529,7 @@ public class BaseMessageConsumer implements MessageConsumer {
      * @return consumer id
      * @throws Exception
      */
-    private synchronized String generateConsumerID() throws Exception {
+    private String generateConsumerID() throws Exception {
         String pidName = ManagementFactory.getRuntimeMXBean().getName();
         if (pidName != null && pidName.contains("@")) {
             pidName = pidName.split("@")[0];
@@ -711,7 +711,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         return rmtDataCache.pushSelect();
     }
 
-    protected void pushReqReleasePartiton(String partitionKey,
+    protected void pushReqReleasePartition(String partitionKey,
                                           long usedTime,
                                           boolean isLastPackConsumed) {
         rmtDataCache.errReqRelease(partitionKey, usedTime, isLastPackConsumed);

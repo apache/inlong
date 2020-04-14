@@ -186,7 +186,7 @@ public class MessageFetchManager {
                     if (isShutdown()) {
                         MessageFetchManager.this.pushConsumer
                                 .getBaseConsumer()
-                                .pushReqReleasePartiton(partition.getPartitionKey(), usedToken, isLastConsumed);
+                                .pushReqReleasePartition(partition.getPartitionKey(), usedToken, isLastConsumed);
                         partSelectResult = null;
                         break;
                     }
@@ -198,7 +198,7 @@ public class MessageFetchManager {
                                             .getBaseConsumer().flushLastRequest(partition);
                         }
                         MessageFetchManager.this.pushConsumer
-                                .getBaseConsumer().pushReqReleasePartiton(partition.getPartitionKey(),
+                                .getBaseConsumer().pushReqReleasePartition(partition.getPartitionKey(),
                                 usedToken, result);
                         partSelectResult = null;
                         continue;
@@ -207,7 +207,7 @@ public class MessageFetchManager {
                     if (partSelectResult != null) {
                         MessageFetchManager.this.pushConsumer
                                 .getBaseConsumer()
-                                .pushReqReleasePartiton(partSelectResult.getPartition().getPartitionKey(),
+                                .pushReqReleasePartition(partSelectResult.getPartition().getPartitionKey(),
                                         partSelectResult.getUsedToken(), false);
                     }
                     sBuilder.delete(0, sBuilder.length());

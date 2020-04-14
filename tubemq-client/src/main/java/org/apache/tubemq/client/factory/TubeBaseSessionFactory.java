@@ -91,7 +91,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
             throw new TubeClientException("null configuration");
         }
         MasterInfo masterInfo = tubeClientConfig.getMasterInfo();
-        if ((masterInfo == null) || masterInfo.getAddrMap4failover().isEmpty()) {
+        if ((masterInfo == null) || masterInfo.getAddrMap4Failover().isEmpty()) {
             throw new TubeClientException("Blank MasterInfo content in ClientConfig");
         }
     }

@@ -131,7 +131,7 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
             while (client == null || !client.isReady()) {
                 String nodeKey =
                         addressList.get((retryCounter.getAndIncrement() & Integer.MAX_VALUE) % masterNodeCnt);
-                NodeAddrInfo nodeAddrInfo = masterInfo.getAddrMap4failover().get(nodeKey);
+                NodeAddrInfo nodeAddrInfo = masterInfo.getAddrMap4Failover().get(nodeKey);
                 try {
                     client = clientFactory.getClient(nodeAddrInfo, conf);
                 } catch (Throwable e) {
