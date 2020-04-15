@@ -45,7 +45,6 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
         if (referenceCounter.incrementAndGet() == 1) {
             RpcConfig config = TubeClientConfigUtils.getRpcConfigByClientConfig(tubeClientConfig, true);
             clientFactory.configure(config);
-            referenceCounter.incrementAndGet();
             baseSessionFactory = new TubeBaseSessionFactory(clientFactory, tubeClientConfig);
         }
     }
