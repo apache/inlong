@@ -106,7 +106,7 @@ public class MasterInfo {
         this.masterClusterStr = masterClusterStr;
     }
 
-    public Map<String, NodeAddrInfo> getAddrMap4failover() {
+    public Map<String, NodeAddrInfo> getAddrMap4Failover() {
         return addrMap4Failover;
     }
 

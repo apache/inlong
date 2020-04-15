@@ -122,7 +122,7 @@ public class ProducerManager {
                 tubeClientConfig.getNettyWriteBufferHighWaterMark());
         rpcConfig.put(RpcConstants.NETTY_WRITE_LOW_MARK,
                 tubeClientConfig.getNettyWriteBufferLowWaterMark());
-        rpcConfig.put(RpcConstants.WORKER_COUNT, tubeClientConfig.getRpcConnProcesserCnt());
+        rpcConfig.put(RpcConstants.WORKER_COUNT, tubeClientConfig.getRpcConnProcessorCnt());
         rpcConfig.put(RpcConstants.WORKER_THREAD_NAME, "tube_netty_worker-");
         rpcConfig.put(RpcConstants.CALLBACK_WORKER_COUNT,
                 tubeClientConfig.getRpcRspCallBackThreadCnt());

@@ -33,9 +33,9 @@ public class TubeClientConfig {
     // Rpc read time out.
     private long rpcReadTimeoutMs = RpcConstants.CFG_RPC_READ_TIMEOUT_DEFAULT_MS;
     // Rpc connection processor number.
-    private int rpcConnProcesserCnt = RpcConstants.CFG_DEFAULT_CLIENT_WORKER_COUNT;
+    private int rpcConnProcessorCnt = RpcConstants.CFG_DEFAULT_CLIENT_WORKER_COUNT;
     // Netty memory size.
-    private int rpcNnettyWorkMemorySize = RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE;
+    private int rpcNettyWorkMemorySize = RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE;
     // The size of the thread pool, which handles the call back response.
     private int rpcRspCallBackThreadCnt = RpcConstants.CFG_DEFAULT_RSP_CALLBACK_WORKER_COUNT;
     // High watermark of the netty write buffer.
@@ -154,15 +154,15 @@ public class TubeClientConfig {
         this.heartbeatPeriodMs = heartbeatPeriodMs;
     }
 
-    public int getRpcConnProcesserCnt() {
-        return this.rpcConnProcesserCnt;
+    public int getRpcConnProcessorCnt() {
+        return this.rpcConnProcessorCnt;
     }
 
-    public void setRpcConnProcesserCnt(int rpcConnProcesserCnt) {
-        if (rpcConnProcesserCnt <= 0) {
-            this.rpcConnProcesserCnt = RpcConstants.CFG_DEFAULT_CLIENT_WORKER_COUNT;
+    public void setRpcConnProcessorCnt(int rpcConnProcessorCnt) {
+        if (rpcConnProcessorCnt <= 0) {
+            this.rpcConnProcessorCnt = RpcConstants.CFG_DEFAULT_CLIENT_WORKER_COUNT;
         } else {
-            this.rpcConnProcesserCnt = rpcConnProcesserCnt;
+            this.rpcConnProcessorCnt = rpcConnProcessorCnt;
         }
     }
 
@@ -175,19 +175,19 @@ public class TubeClientConfig {
     }
 
     public int getRpcNettyWorkMemorySize() {
-        return rpcNnettyWorkMemorySize;
+        return rpcNettyWorkMemorySize;
     }
 
     /**
      * Set the netty work memory size. Please notice that the value must be larger than 0.
      *
-     * @param rpcNnettyWorkMemorySize netty work memory size.
+     * @param rpcNettyWorkMemorySize netty work memory size.
      */
-    public void setRpcNettyWorkMemorySize(int rpcNnettyWorkMemorySize) {
-        if (rpcNnettyWorkMemorySize <= 0) {
-            this.rpcNnettyWorkMemorySize = RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE;
+    public void setRpcNettyWorkMemorySize(int rpcNettyWorkMemorySize) {
+        if (rpcNettyWorkMemorySize <= 0) {
+            this.rpcNettyWorkMemorySize = RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE;
         } else {
-            this.rpcNnettyWorkMemorySize = rpcNnettyWorkMemorySize;
+            this.rpcNettyWorkMemorySize = rpcNettyWorkMemorySize;
         }
     }
 
@@ -461,10 +461,10 @@ public class TubeClientConfig {
         if (rpcReadTimeoutMs != that.rpcReadTimeoutMs) {
             return false;
         }
-        if (rpcConnProcesserCnt != that.rpcConnProcesserCnt) {
+        if (rpcConnProcessorCnt != that.rpcConnProcessorCnt) {
             return false;
         }
-        if (rpcNnettyWorkMemorySize != that.rpcNnettyWorkMemorySize) {
+        if (rpcNettyWorkMemorySize != that.rpcNettyWorkMemorySize) {
             return false;
         }
         if (rpcRspCallBackThreadCnt != that.rpcRspCallBackThreadCnt) {
@@ -546,15 +546,15 @@ public class TubeClientConfig {
         int num = 0;
         StringBuilder sBuilder = new StringBuilder(512);
         sBuilder.append("{\"masterInfo\":[");
-        for (String item : this.masterInfo.getAddrMap4failover().keySet()) {
+        for (String item : this.masterInfo.getAddrMap4Failover().keySet()) {
             if (num++ > 0) {
                 sBuilder.append(",");
             }
             sBuilder.append("\"").append(item).append("\"");
         }
         return sBuilder.append("],\"rpcReadTimeoutMs\":").append(this.rpcReadTimeoutMs)
-            .append(",\"rpcConnProcesserCnt\":").append(this.rpcConnProcesserCnt)
-            .append(",\"rpcNnettyWorkMemorySize\":").append(this.rpcNnettyWorkMemorySize)
+            .append(",\"rpcConnProcessorCnt\":").append(this.rpcConnProcessorCnt)
+            .append(",\"rpcNettyWorkMemorySize\":").append(this.rpcNettyWorkMemorySize)
             .append(",\"rpcRspCallBackThreadCnt\":").append(this.rpcRspCallBackThreadCnt)
             .append(",\"nettyWriteBufferHighWaterMark\":").append(this.nettyWriteBufferHighWaterMark)
             .append(",\"nettyWriteBufferLowWaterMark\":").append(this.nettyWriteBufferLowWaterMark)
