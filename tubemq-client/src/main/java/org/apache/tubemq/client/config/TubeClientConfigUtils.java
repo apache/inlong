@@ -46,7 +46,7 @@ public class TubeClientConfigUtils {
                 tubeClientConfig.getNettyWriteBufferHighWaterMark());
         config.put(RpcConstants.NETTY_WRITE_LOW_MARK,
                 tubeClientConfig.getNettyWriteBufferLowWaterMark());
-        config.put(RpcConstants.WORKER_COUNT, tubeClientConfig.getRpcConnProcesserCnt());
+        config.put(RpcConstants.WORKER_COUNT, tubeClientConfig.getRpcConnProcessorCnt());
         if (isSingleSession) {
             config.put(RpcConstants.WORKER_THREAD_NAME, "tube_single_netty_worker-");
         } else {

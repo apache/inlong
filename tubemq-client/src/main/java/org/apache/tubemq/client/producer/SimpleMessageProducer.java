@@ -87,7 +87,7 @@ public class SimpleMessageProducer implements MessageProducer {
         this.rpcConfig.put(RpcConstants.NETTY_WRITE_LOW_MARK,
             tubeClientConfig.getNettyWriteBufferLowWaterMark());
         this.rpcConfig.put(RpcConstants.WORKER_COUNT,
-            tubeClientConfig.getRpcConnProcesserCnt());
+            tubeClientConfig.getRpcConnProcessorCnt());
         this.rpcConfig.put(RpcConstants.WORKER_THREAD_NAME,
             "tube_producer_netty_worker-");
         this.rpcConfig.put(RpcConstants.WORKER_MEM_SIZE,

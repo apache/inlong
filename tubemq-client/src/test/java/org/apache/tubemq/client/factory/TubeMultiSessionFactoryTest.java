@@ -35,7 +35,7 @@ public class TubeMultiSessionFactoryTest {
     @Test
     public void testTubeMultiSessionFactory() throws Exception {
         TubeClientConfig config = mock(TubeClientConfig.class);
-        when(config.getRpcConnProcesserCnt()).thenReturn(1);
+        when(config.getRpcConnProcessorCnt()).thenReturn(1);
         when(config.getRpcRspCallBackThreadCnt()).thenReturn(1);
         when(config.getMasterInfo()).thenReturn(new MasterInfo("192.168.1.1:18080"));
 
