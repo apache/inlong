@@ -95,14 +95,14 @@ public class TubeClientConfig {
 
     public TubeClientConfig(final String localHostIP, final String masterAddrInfo) throws Exception {
         if (TStringUtils.isBlank(localHostIP)) {
-            throw new Exception("Illegal parameter: localHostIP is blank!");
+            throw new IllegalArgumentException("Illegal parameter: localHostIP is blank!");
         }
         // Not allow to set local host ip to 127.0.0.1.
         if ("127.0.0.1".equals(localHostIP)) {
-            throw new Exception("Illegal parameter: localHostIP can't set to 127.0.0.1");
+            throw new IllegalArgumentException("Illegal parameter: localHostIP can't set to 127.0.0.1");
         }
         if (TStringUtils.isBlank(masterAddrInfo)) {
-            throw new Exception("Illegal parameter: masterAddrInfo is Blank!");
+            throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is Blank!");
         }
         this.masterInfo = new MasterInfo(masterAddrInfo);
         AddressUtils.validLocalIp(localHostIP.trim());
@@ -110,13 +110,13 @@ public class TubeClientConfig {
 
     public TubeClientConfig(final String localHostIP, final MasterInfo masterInfo) throws Exception {
         if (TStringUtils.isBlank(localHostIP)) {
-            throw new Exception("Illegal parameter: localHostIP is blank!");
+            throw new IllegalArgumentException("Illegal parameter: localHostIP is blank!");
         }
         if ("127.0.0.1".equals(localHostIP)) {
-            throw new Exception("Illegal parameter: localHostIP can't set to 127.0.0.1");
+            throw new IllegalArgumentException("Illegal parameter: localHostIP can't set to 127.0.0.1");
         }
         if (masterInfo == null) {
-            throw new Exception("Illegal parameter: masterAddrInfo is null!");
+            throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is null!");
         }
         this.masterInfo = masterInfo.clone();
         AddressUtils.validLocalIp(localHostIP.trim());
@@ -364,13 +364,13 @@ public class TubeClientConfig {
 
     public void setAuthenticInfo(boolean needAuthentic,
                                  String usrName,
-                                 String usrPassWord) throws Exception {
+                                 String usrPassWord) {
         if (needAuthentic) {
             if (TStringUtils.isBlank(usrName)) {
-                throw new Exception("Illegal parameter: usrName is Blank!");
+                throw new IllegalArgumentException("Illegal parameter: usrName is Blank!");
             }
             if (TStringUtils.isBlank(usrPassWord)) {
-                throw new Exception("Illegal parameter: usrPassWord is Blank!");
+                throw new IllegalArgumentException("Illegal parameter: usrPassWord is Blank!");
             }
         }
         this.enableUserAuthentic = needAuthentic;
@@ -383,14 +383,14 @@ public class TubeClientConfig {
         }
     }
 
-    public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) throws Exception {
+    public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) {
         // public void setTLSEnableInfo(String trustStorePath, String trustStorePassword,
         // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws Exception {
         if (TStringUtils.isBlank(trustStorePath)) {
-            throw new Exception("Illegal parameter: trustStorePath is Blank!");
+            throw new IllegalArgumentException("Illegal parameter: trustStorePath is Blank!");
         }
         if (TStringUtils.isBlank(trustStorePassword)) {
-            throw new Exception("Illegal parameter: trustStorePassword is Blank!");
+            throw new IllegalArgumentException("Illegal parameter: trustStorePassword is Blank!");
         }
         this.tlsConfig.setTlsEnable(true);
         this.tlsConfig.setTlsTrustStorePath(trustStorePath);

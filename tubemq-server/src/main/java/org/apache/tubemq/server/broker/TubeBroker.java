@@ -242,7 +242,7 @@ public class TubeBroker implements Stoppable, Runnable {
                             FlowCtrlRuleHandler flowCtrlRuleHandler =
                                 metadataManage.getFlowCtrlRuleHandler();
                             long flowCheckId = flowCtrlRuleHandler.getFlowCtrlId();
-                            long ssdTrnasLateId = flowCtrlRuleHandler.getSsdTranslateId();
+                            long ssdTranslateId = flowCtrlRuleHandler.getSsdTranslateId();
                             int qryPriorityId = flowCtrlRuleHandler.getQryPriorityId();
                             ServiceStatusHolder
                                 .setReadWriteServiceStatus(response.getStopRead(),
@@ -252,19 +252,19 @@ public class TubeBroker implements Stoppable, Runnable {
                                     ? response.getQryPriorityId() : qryPriorityId;
                                 if (response.getFlowCheckId() != flowCheckId) {
                                     flowCheckId = response.getFlowCheckId();
-                                    ssdTrnasLateId = response.getSsdStoreId();
+                                    ssdTranslateId = response.getSsdStoreId();
                                     try {
                                         flowCtrlRuleHandler
-                                            .updateDefFlowCtrlInfo(ssdTrnasLateId,
+                                            .updateDefFlowCtrlInfo(ssdTranslateId,
                                                 qryPriorityId, flowCheckId, response.getFlowControlInfo());
                                     } catch (Exception e1) {
                                         logger.warn(
                                             "[HeartBeat response] found parse flowCtrl rules failure", e1);
                                     }
                                 }
-                                if (response.getSsdStoreId() != ssdTrnasLateId) {
-                                    ssdTrnasLateId = response.getSsdStoreId();
-                                    flowCtrlRuleHandler.setSsdTranslateId(ssdTrnasLateId);
+                                if (response.getSsdStoreId() != ssdTranslateId) {
+                                    ssdTranslateId = response.getSsdStoreId();
+                                    flowCtrlRuleHandler.setSsdTranslateId(ssdTranslateId);
                                 }
                                 if (qryPriorityId != flowCtrlRuleHandler.getQryPriorityId()) {
                                     flowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
@@ -281,7 +281,7 @@ public class TubeBroker implements Stoppable, Runnable {
                                     .append(",configCheckSumId=").append(response.getConfCheckSumId())
                                     .append(",hasFlowCtrl=").append(response.hasFlowCheckId())
                                     .append(",curFlowCtrlId=").append(flowCheckId)
-                                    .append(",curSsdTrnasLateId=").append(ssdTrnasLateId)
+                                    .append(",curSsdTranslateId=").append(ssdTranslateId)
                                     .append(",curQryPriorityId=").append(qryPriorityId)
                                     .append(",brokerDefaultConfInfo=")
                                     .append(response.getBrokerDefaultConfInfo())
@@ -456,7 +456,7 @@ public class TubeBroker implements Stoppable, Runnable {
                     .append(",enableConsumeAuthorize=")
                     .append(serverAuthHandler.isEnableConsumeAuthorize())
                     .append(",curFlowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-                    .append(",curSsdTransLateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
+                    .append(",curSsdTranslateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
                     .append(",curQryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
                     .append(",brokerDefaultConfInfo=").append(response.getBrokerDefaultConfInfo())
                     .append(",brokerTopicSetConfList=")

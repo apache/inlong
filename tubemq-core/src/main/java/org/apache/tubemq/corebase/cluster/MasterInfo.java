@@ -37,35 +37,35 @@ public class MasterInfo {
     /**
      * masterAddrInfo: "ip1:port,ip2:port"
      */
-    public MasterInfo(final String masterAddrInfo) throws Exception {
+    public MasterInfo(final String masterAddrInfo) {
         if (TStringUtils.isBlank(masterAddrInfo)) {
-            throw new Exception("Illegal parameter: masterAddrInfo is Blank!");
+            throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is Blank!");
         }
         if (!masterAddrInfo.contains(TokenConstants.ATTR_SEP)) {
-            throw new Exception(
+            throw new IllegalArgumentException(
                     "Illegal parameter: masterAddrInfo's value must like \"ip1:port,ip2:port\"!");
         }
         String[] hostAndPortArray =
                 masterAddrInfo.split(TokenConstants.ARRAY_SEP);
         for (String addr : hostAndPortArray) {
             if (TStringUtils.isBlank(addr)) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                         "Illegal parameter: masterAddrInfo's value must "
                                 + "like \"ip1:port,ip2:port\" and ip:port not Blank!");
             }
             String[] hostPortItem = addr.split(TokenConstants.ATTR_SEP);
             if (hostPortItem.length != 2) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                         "Illegal parameter: masterAddrInfo's value must like \"ip1:port,ip2:port\"!");
             }
             String hostName = hostPortItem[0].trim();
             if (TStringUtils.isBlank(hostName)) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                         "Illegal parameter: masterAddrInfo's value must "
                                 + "like \"ip1:port,ip2:port\" and ip's value not Blank!");
             }
             if (TStringUtils.isBlank(hostPortItem[1])) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                         "Illegal parameter: masterAddrInfo's value must"
                                 + " like \"ip1:port,ip2:port\" and port's value not Blank!");
             }
