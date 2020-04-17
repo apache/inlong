@@ -534,9 +534,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
-        String requredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
+        String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         boolean isReqConsumeBand = (request.hasRequireBound() && request.getRequireBound());
-        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand, reqTopicSet, requredParts,
+        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand, reqTopicSet, requiredParts,
                 strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
@@ -547,7 +547,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         Map<String, TreeSet<String>> reqTopicConditions =
                 DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         String sessionKey = request.hasSessionKey() ? request.getSessionKey() : "";
-        long tarskTime = request.hasSessionTime()
+        long sessionTime = request.hasSessionTime()
                 ? request.getSessionTime() : System.currentTimeMillis();
         int sourceCount = request.hasTotalCount()
                 ? request.getTotalCount() : -1;
@@ -559,7 +559,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
                         reqTopicSet, reqTopicConditions, isReqConsumeBand,
-                        sessionKey, tarskTime, sourceCount, requredPartMap);
+                        sessionKey, sessionTime, sourceCount, requredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defaultBrokerConfManage, topicPSInfoManager, strBuffer);
@@ -812,7 +812,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 consumerHolder.setAllocated(groupName);
                 consumerEventManager.removeFirst(clientId);
             } catch (Throwable e) {
-                logger.warn("Unkown exception for remove first event:", e);
+                logger.warn("Unknown exception for remove first event:", e);
             }
         }
         //
@@ -1009,9 +1009,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         boolean needFastStart = false;
         final long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
-        final long reqSsdTransId = request.hasSsdStoreId()
+        final long reqSsdTranslateId = request.hasSsdStoreId()
                 ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
-        final int reqQureyPriorityId = request.hasQryPriorityId()
+        final int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
                 this.defaultBrokerConfManage.getBrokerRunSyncManageMap();
@@ -1050,8 +1050,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             .append(",isTlsEnable=").append(brokerInfo.isEnableTLS())
             .append(",TLSport=").append(brokerInfo.getTlsPort())
             .append(",FlowCtrlId=").append(reFlowCtrlId)
-            .append(",ssdTransId=").append(reqSsdTransId)
-            .append(",qureyPriorityId=").append(reqQureyPriorityId)
+            .append(",ssdTranslateId=").append(reqSsdTranslateId)
+            .append(",qryPriorityId=").append(qryPriorityId)
             .append(",checksumId=").append(request.getConfCheckSumId()).toString());
         strBuffer.delete(0, strBuffer.length());
         if (request.getCurBrokerConfId() > 0) {
@@ -1225,9 +1225,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 request.getReadStatusRpt(), request.getWriteStatusRpt());
         long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
-        long reqSsdTransId = request.hasSsdStoreId()
+        long reqSsdTranslateId = request.hasSsdStoreId()
                 ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
-        int reqQureyPriorityId = request.hasQryPriorityId()
+        int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         if (request.getTakeConfInfo()) {
             strBuffer.append("[Broker Report] heartbeat report: brokerId=")
@@ -1238,8 +1238,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",checksumId=").append(request.getConfCheckSumId())
                 .append(",hasFlowCheckId=").append(request.hasFlowCheckId())
                 .append(",reFlowCtrlId=").append(reFlowCtrlId)
-                .append(",reqSsdTransId=").append(reqSsdTransId)
-                .append(",reqQureyPriorityId=").append(reqQureyPriorityId)
+                .append(",reqSsdTranslateId=").append(reqSsdTranslateId)
+                .append(",qryPriorityId=").append(qryPriorityId)
                 .append(",brokerOnline=").append(request.getBrokerOnline())
                 .append(",default broker configure is ").append(request.getBrokerDefaultConfInfo())
                 .append(",broker topic configure is ").append(request.getBrokerTopicSetConfInfoList())
@@ -1295,7 +1295,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",set flowCtrlId=").append(builder.getFlowCheckId())
                 .append(",stopWrite=").append(builder.getStopWrite())
                 .append(",stopRead=").append(builder.getStopRead())
-                .append(",ssdTransId=").append(builder.getSsdStoreId())
+                .append(",ssdTranslateId=").append(builder.getSsdStoreId())
                 .append(",qryPriorityId=").append(builder.getQryPriorityId())
                 .append(",checksumId=").append(brokerSyncStatusInfo.getLastPushBrokerCheckSumId())
                 .append(",default configure is ")
@@ -1750,10 +1750,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 numTopicStores = Integer.parseInt(brokerDefaultConfInfoArr[7]);
             }
         }
-        int unFlushDataHoldHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
+        int unFlushDataHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
         if (brokerDefaultConfInfoArr.length > 8) {
             if (!TStringUtils.isBlank(brokerDefaultConfInfoArr[8])) {
-                unFlushDataHoldHold = Integer.parseInt(brokerDefaultConfInfoArr[8]);
+                unFlushDataHold = Integer.parseInt(brokerDefaultConfInfoArr[8]);
             }
         }
         ConcurrentHashMap<String/* topic */, TopicInfo> newTopicInfoMap =
@@ -1884,11 +1884,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (defaultBdbStoreService != null) {
             logger.info(strBuffer.append("[Rebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
-                    .append(", isPrimaryNodeActived=")
+                    .append(", isPrimaryNodeActive=")
                     .append(defaultBdbStoreService.isPrimaryNodeActive()).toString());
         } else {
             logger.info(strBuffer.append("[Rebalance Start] ").append(rebalanceId)
-                    .append(", BDB service is null isMaster= false, isPrimaryNodeActived=false").toString());
+                    .append(", BDB service is null isMaster= false, isPrimaryNodeActive=false").toString());
         }
         strBuffer.delete(0, strBuffer.length());
         Map<String, Map<String, List<Partition>>> finalSubInfoMap = null;
@@ -2031,11 +2031,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (defaultBdbStoreService != null) {
             logger.info(strBuffer.append("[ResetRebalance Start] ").append(rebalanceId)
                     .append(", isMaster=").append(defaultBdbStoreService.isMaster())
-                    .append(", isPrimaryNodeActived=")
+                    .append(", isPrimaryNodeActive=")
                     .append(defaultBdbStoreService.isPrimaryNodeActive()).toString());
         } else {
             logger.info(strBuffer.append("[ResetRebalance Start] ").append(rebalanceId)
-                    .append(", BDB service is null isMaster= false, isPrimaryNodeActived=false").toString());
+                    .append(", BDB service is null isMaster= false, isPrimaryNodeActive=false").toString());
         }
         strBuffer.delete(0, strBuffer.length());
         Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap = null;
