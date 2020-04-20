@@ -20,14 +20,10 @@ package org.apache.tubemq.corerpc.benchemark;
 import java.util.concurrent.Executors;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class RpcService4BenchmarkServer {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(RpcService4BenchmarkServer.class);
     private final RpcServiceFactory rpcServiceFactory =
             new RpcServiceFactory();
     private SimpleService simpleService;

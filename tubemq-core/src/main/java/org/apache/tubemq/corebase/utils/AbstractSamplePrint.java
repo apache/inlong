@@ -18,12 +18,10 @@
 package org.apache.tubemq.corebase.utils;
 
 import java.util.concurrent.atomic.AtomicLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractSamplePrint {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSamplePrint.class);
+
     protected final StringBuilder sBuilder = new StringBuilder(512);
     protected AtomicLong lastLogTime = new AtomicLong(0);
     protected AtomicLong totalPrintCount = new AtomicLong(0);

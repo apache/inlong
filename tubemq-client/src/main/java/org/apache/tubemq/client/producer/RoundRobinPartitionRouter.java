@@ -23,14 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.cluster.Partition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class RoundRobinPartitionRouter implements PartitionRouter {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(RoundRobinPartitionRouter.class);
     private final AtomicInteger steppedCounter = new AtomicInteger(0);
     private final ConcurrentHashMap<String/* topic */, AtomicInteger> partitionRouterMap =
             new ConcurrentHashMap<String, AtomicInteger>();

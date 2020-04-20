@@ -35,14 +35,10 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntit
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class WebAdminTopicAuthHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(WebAdminTopicAuthHandler.class);
     private final JsonParser jsonParser = new JsonParser();
     private TMaster master;
     private BrokerConfManage brokerConfManage;
