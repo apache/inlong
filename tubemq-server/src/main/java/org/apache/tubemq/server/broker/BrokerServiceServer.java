@@ -352,7 +352,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(e.getMessage());
             return builder.build();
         }
-        Integer topicStatusId = this.metadataManage.getCosedTopicStatusId(topicName);
+        Integer topicStatusId = this.metadataManage.getClosedTopicStatusId(topicName);
         if ((topicStatusId != null)
                 && (topicStatusId > TStatusConstants.STATUS_TOPIC_SOFT_DELETE)) {
             strBuffer.append("[Partition Closed] Partition has been closed, for topic=")
