@@ -83,7 +83,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     private static final String BDB_TOPIC_CONFIG_STORE_NAME = "bdbTopicConfig";
     private static final String BDB_BROKER_CONFIG_STORE_NAME = "bdbBrokerConfig";
     private static final String BDB_CONSUMER_GROUP_STORE_NAME = "bdbConsumerGroup";
-    private static final String BDB_TOPIC_AUTHCONTROL_STORE_NAME = "bdbTopicAuthControl";
+    private static final String BDB_TOPIC_AUTH_CONTROL_STORE_NAME = "bdbTopicAuthControl";
     private static final String BDB_BLACK_GROUP_STORE_NAME = "bdbBlackGroup";
     private static final String BDB_GROUP_FILTER_COND_STORE_NAME = "bdbGroupFilterCond";
     private static final String BDB_GROUP_FLOW_CONTROL_STORE_NAME = "bdbGroupFlowCtrlCfg";
@@ -152,11 +152,10 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     private PrimaryIndex<String/* recordKey */, BdbConsumeGroupSettingEntity> consumeGroupSettingIndex;
     private ConcurrentHashMap<String/* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap =
             new ConcurrentHashMap<String, BdbConsumeGroupSettingEntity>();
-    // service status, started or stopped
+    // service status
     private AtomicBoolean isStarted = new AtomicBoolean(false);
-    private AtomicBoolean isStopped = new AtomicBoolean(false);
     // master role flag
-    private boolean isMaster;
+    private volatile boolean isMaster;
     // master node list
     private ConcurrentHashMap<String/* nodeName */, MasterNodeInfo> masterNodeInfoMap =
             new ConcurrentHashMap<String, MasterNodeInfo>();
@@ -170,12 +169,10 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         this.nodeHost = masterConfig.getHostName();
         this.bdbConfig = masterConfig.getBdbConfig();
         Set<InetSocketAddress> helpers = new HashSet<InetSocketAddress>();
-        InetSocketAddress helper1 = new InetSocketAddress(this.nodeHost, 9005);
-        InetSocketAddress helper2 = new InetSocketAddress(this.nodeHost, 9006);
-        InetSocketAddress helper3 = new InetSocketAddress(this.nodeHost, 9007);
-        helpers.add(helper1);
-        helpers.add(helper2);
-        helpers.add(helper3);
+        for (int i = 1; i <= 3; i++) {
+            InetSocketAddress helper = new InetSocketAddress(this.nodeHost, bdbConfig.getBdbNodePort() + i);
+            helpers.add(helper);
+        }
         this.replicationGroupAdmin =
                 new ReplicationGroupAdmin(this.bdbConfig.getBdbRepGroupName(), helpers);
     }
@@ -306,10 +303,9 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             }
             executorService = Executors.newSingleThreadExecutor();
             initEnvConfig();
-            repEnv = getEnvironment(envHome);
+            repEnv = getEnvironment();
             initMetaStore();
             repEnv.setStateChangeListener(listener);
-            isStopped.set(false);
         } catch (Throwable ee) {
             logger.error("[BDB Error] start StoreManagerService failure, error", ee);
             return;
@@ -320,7 +316,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     @Override
     public void stop() throws Exception {
         // #lizard forgives
-        if (!isStopped.compareAndSet(false, true)) {
+        if (!isStarted.compareAndSet(true, false)) {
             return;
         }
         logger.info("[BDB Status] Stopping StoreManagerService...");
@@ -962,7 +958,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         consumerGroupIndex =
                 consumerGroupStore.getPrimaryIndex(String.class, BdbConsumerGroupEntity.class);
         topicAuthControlStore =
-                new EntityStore(repEnv, BDB_TOPIC_AUTHCONTROL_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, BDB_TOPIC_AUTH_CONTROL_STORE_NAME, storeConfig);
         topicAuthControlIndex =
                 topicAuthControlStore.getPrimaryIndex(String.class, BdbTopicAuthControlEntity.class);
         blackGroupStore =
@@ -1038,7 +1034,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
      * @return the newly created replicated environment handle
      * @throws InterruptedException if the operation was interrupted
      */
-    private ReplicatedEnvironment getEnvironment(File envHome) throws InterruptedException {
+    private ReplicatedEnvironment getEnvironment() throws InterruptedException {
         DatabaseException exception = null;
 
         //In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
@@ -1096,8 +1092,8 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                     logger.warn("[BDB Error] Found Null data while loading from brokerConfIndex!");
                     continue;
                 }
-                BdbBrokerConfEntity tmpbdbEntity = brokerConfigMap.get(bdbEntity.getBrokerId());
-                if (tmpbdbEntity == null) {
+                BdbBrokerConfEntity tmpBdbEntity = brokerConfigMap.get(bdbEntity.getBrokerId());
+                if (tmpBdbEntity == null) {
                     brokerConfigMap.put(bdbEntity.getBrokerId(), bdbEntity);
                     if (tMaster != null && tMaster.getMasterTopicManage() != null) {
                         tMaster.getMasterTopicManage().updateBrokerMaps(bdbEntity);
@@ -1341,8 +1337,8 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                     continue;
                 }
                 String topicName = bdbEntity.getTopicName();
-                BdbTopicAuthControlEntity tmpbdbEntity = topicAuthControlMap.get(topicName);
-                if (tmpbdbEntity == null) {
+                BdbTopicAuthControlEntity tmpBdbEntity = topicAuthControlMap.get(topicName);
+                if (tmpBdbEntity == null) {
                     topicAuthControlMap.put(topicName, bdbEntity);
                 }
                 count++;
