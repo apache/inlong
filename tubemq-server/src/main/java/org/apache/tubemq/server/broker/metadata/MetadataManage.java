@@ -67,7 +67,7 @@ public interface MetadataManage {
 
     Map<String, TopicMetadata> getRemovedTopicConfigMap();
 
-    Integer getCosedTopicStatusId(final String topic);
+    Integer getClosedTopicStatusId(final String topic);
 
     boolean isClosedTopic(final String topic);
 
