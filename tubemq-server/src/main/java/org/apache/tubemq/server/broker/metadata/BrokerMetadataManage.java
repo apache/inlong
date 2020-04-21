@@ -153,7 +153,7 @@ public class BrokerMetadataManage implements MetadataManage {
     }
 
     @Override
-    public Integer getCosedTopicStatusId(final String topic) {
+    public Integer getClosedTopicStatusId(final String topic) {
         return this.closedTopicMap.get(topic);
     }
 
