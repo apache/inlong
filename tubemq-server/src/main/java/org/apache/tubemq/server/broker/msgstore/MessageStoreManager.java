@@ -47,7 +47,7 @@ import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.TubeBroker;
 import org.apache.tubemq.server.broker.exception.StartupException;
-import org.apache.tubemq.server.broker.metadata.MetadataManage;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.tubemq.server.broker.msgstore.ssd.MsgSSDStoreManager;
@@ -66,7 +66,7 @@ public class MessageStoreManager implements StoreService {
     private final BrokerConfig tubeConfig;
     private final TubeBroker tubeBroker;
     // metadata manager, get metadata from master.
-    private final MetadataManage metadataManage;
+    private final MetadataManager metadataManager;
     // storeId to store on each topic.
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
@@ -92,13 +92,13 @@ public class MessageStoreManager implements StoreService {
         super();
         this.tubeConfig = tubeConfig;
         this.tubeBroker = tubeBroker;
-        this.metadataManage = this.tubeBroker.getMetadataManage();
+        this.metadataManager = this.tubeBroker.getMetadataManager();
         this.isRemovingTopic.set(false);
         this.maxMsgTransferSize =
                 tubeConfig.getTransferSize() > DataStoreUtils.MAX_MSG_TRANSFER_SIZE
                         ? DataStoreUtils.MAX_MSG_TRANSFER_SIZE : tubeConfig.getTransferSize();
         this.msgSsdStoreManager = new MsgSSDStoreManager(this, this.tubeConfig);
-        this.metadataManage.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
+        this.metadataManager.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
                 Map<String, TopicMetadata> oldTopicConfigMap
@@ -206,7 +206,7 @@ public class MessageStoreManager implements StoreService {
             List<String> removedTopics =
                     new ArrayList<String>();
             Map<String, TopicMetadata> removedTopicMap =
-                    this.metadataManage.getRemovedTopicConfigMap();
+                    this.metadataManager.getRemovedTopicConfigMap();
             if (removedTopicMap.isEmpty()) {
                 return removedTopics;
             }
@@ -301,10 +301,10 @@ public class MessageStoreManager implements StoreService {
                 ? partition : partition % TBaseConstants.META_STORE_INS_BASE;
         final String dataStoreToken = sBuilder.append("tube_store_manager_").append(topic).toString();
         sBuilder.delete(0, sBuilder.length());
-        if (realPartition < 0 || realPartition >= this.metadataManage.getNumPartitions(topic)) {
+        if (realPartition < 0 || realPartition >= this.metadataManager.getNumPartitions(topic)) {
             throw new IllegalArgumentException(sBuilder.append("Wrong partition value ")
                     .append(partition).append(",valid partitions in (0,")
-                    .append(this.metadataManage.getNumPartitions(topic) - 1)
+                    .append(this.metadataManager.getNumPartitions(topic) - 1)
                     .append(")").toString());
         }
         ConcurrentHashMap<Integer, MessageStore> dataMap = dataStores.get(topic);
@@ -322,7 +322,7 @@ public class MessageStoreManager implements StoreService {
                 messageStore = dataMap.get(storeId);
                 if (messageStore == null) {
                     TopicMetadata topicMetadata =
-                            metadataManage.getTopicMetadata(topic);
+                            metadataManager.getTopicMetadata(topic);
                     MessageStore tmpMessageStore =
                             new MessageStore(this, topicMetadata, storeId,
                                     tubeConfig, 0, maxMsgTransferSize);
@@ -440,8 +440,8 @@ public class MessageStoreManager implements StoreService {
         return messageStore.getSourceSegment(offset, rate);
     }
 
-    public MetadataManage getMetadataManage() {
-        return tubeBroker.getMetadataManage();
+    public MetadataManager getMetadataManager() {
+        return tubeBroker.getMetadataManager();
     }
 
     public int getMaxMsgTransferSize() {
@@ -456,8 +456,8 @@ public class MessageStoreManager implements StoreService {
         TopicMetadata topicMetadata = null;
         final Set<String> paths = new HashSet<String>();
         paths.add(tubeConfig.getPrimaryPath());
-        for (final String topic : metadataManage.getTopics()) {
-            topicMetadata = metadataManage.getTopicMetadata(topic);
+        for (final String topic : metadataManager.getTopics()) {
+            topicMetadata = metadataManager.getTopicMetadata(topic);
             if (topicMetadata != null
                     && TStringUtils.isNotBlank(topicMetadata.getDataPath())) {
                 paths.add(topicMetadata.getDataPath());
@@ -522,7 +522,7 @@ public class MessageStoreManager implements StoreService {
                     continue;
                 }
                 final String topic = name.substring(0, index);
-                final TopicMetadata topicMetadata = metadataManage.getTopicMetadata(topic);
+                final TopicMetadata topicMetadata = metadataManager.getTopicMetadata(topic);
                 if (topicMetadata == null) {
                     logger.warn(sBuilder
                             .append("[Store Manager] No valid topic config for topic data directories:")

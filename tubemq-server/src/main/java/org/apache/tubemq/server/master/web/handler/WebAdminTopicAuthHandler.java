@@ -34,18 +34,17 @@ import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
-
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
 public class WebAdminTopicAuthHandler {
 
     private final JsonParser jsonParser = new JsonParser();
     private TMaster master;
-    private BrokerConfManage brokerConfManage;
+    private BrokerConfManager brokerConfManager;
 
     public WebAdminTopicAuthHandler(TMaster master) {
         this.master = master;
-        this.brokerConfManage = this.master.getMasterTopicManage();
+        this.brokerConfManager = this.master.getMasterTopicManager();
     }
 
     /**
@@ -59,7 +58,7 @@ public class WebAdminTopicAuthHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -76,12 +75,12 @@ public class WebAdminTopicAuthHandler {
                             req.getParameter("isEnable"),
                             false, false);
             Set<String> configuredTopicSet =
-                    brokerConfManage.getTotalConfiguredTopicNames();
+                    brokerConfManager.getTotalConfiguredTopicNames();
             Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
                             true, true, configuredTopicSet, sBuilder);
             for (String topicName : batchOpTopicNames) {
-                brokerConfManage.confSetBdbTopicAuthControl(
+                brokerConfManager.confSetBdbTopicAuthControl(
                         new BdbTopicAuthControlEntity(topicName,
                                 isEnable, createUser, createDate));
             }
@@ -104,7 +103,7 @@ public class WebAdminTopicAuthHandler {
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String operator =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -118,7 +117,7 @@ public class WebAdminTopicAuthHandler {
             if ((topicJsonArray == null) || (topicJsonArray.isEmpty())) {
                 throw new Exception("Null value of topicJsonSet, please set the value first!");
             }
-            Set<String> configuredTopicSet = brokerConfManage.getTotalConfiguredTopicNames();
+            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbTopicAuthControlEntity> inTopicAuthConfEntityMap =
                     new HashMap<String, BdbTopicAuthControlEntity>();
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
@@ -168,10 +167,10 @@ public class WebAdminTopicAuthHandler {
                 throw new Exception("Not found record in topicJsonSet parameter");
             }
             for (BdbTopicAuthControlEntity tmpTopicEntity : inTopicAuthConfEntityMap.values()) {
-                brokerConfManage.confSetBdbTopicAuthControl(tmpTopicEntity);
+                brokerConfManager.confSetBdbTopicAuthControl(tmpTopicEntity);
             }
             for (BdbConsumerGroupEntity tmpGroupEntity : inGroupAuthConfEntityMap.values()) {
-                brokerConfManage.confAddAllowedConsumerGroup(tmpGroupEntity);
+                brokerConfManager.confAddAllowedConsumerGroup(tmpGroupEntity);
             }
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
@@ -192,7 +191,7 @@ public class WebAdminTopicAuthHandler {
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -207,25 +206,25 @@ public class WebAdminTopicAuthHandler {
                         new BdbGroupFilterCondEntity();
                 webFilterCondEntity.setTopicName(tmpTopicName);
                 List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                        brokerConfManage.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
+                        brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
                 if (!webFilterCondEntities.isEmpty()) {
                     webFilterCondEntity.setCreateUser(createUser);
-                    brokerConfManage.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
+                    brokerConfManager.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
                 }
                 BdbConsumerGroupEntity webConsumerGroupEntity =
                         new BdbConsumerGroupEntity();
                 webConsumerGroupEntity.setGroupTopicName(tmpTopicName);
                 List<BdbConsumerGroupEntity> webConsumerGroupEntities =
-                        brokerConfManage.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
+                        brokerConfManager.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
                 if (!webConsumerGroupEntities.isEmpty()) {
                     webConsumerGroupEntity.setRecordCreateUser(createUser);
-                    brokerConfManage.confDelBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
+                    brokerConfManager.confDelBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
                 }
                 BdbTopicAuthControlEntity webTopicAuthControlEntity =
                         new BdbTopicAuthControlEntity();
                 webTopicAuthControlEntity.setTopicName(tmpTopicName);
                 webTopicAuthControlEntity.setCreateUser(createUser);
-                brokerConfManage.confDeleteBdbTopicAuthControl(webTopicAuthControlEntity);
+                brokerConfManager.confDeleteBdbTopicAuthControl(webTopicAuthControlEntity);
             }
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
@@ -259,7 +258,7 @@ public class WebAdminTopicAuthHandler {
                             TBaseConstants.META_MAX_USERNAME_LENGTH,
                             false, null));
             List<BdbTopicAuthControlEntity> resultEntities =
-                    brokerConfManage.confGetBdbTopicAuthCtrlEntityList(queryEntity);
+                    brokerConfManager.confGetBdbTopicAuthCtrlEntityList(queryEntity);
             SimpleDateFormat formatter =
                     new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
             int i = 0;
@@ -278,7 +277,7 @@ public class WebAdminTopicAuthHandler {
                         new BdbConsumerGroupEntity();
                 webConsumerGroupEntity.setGroupTopicName(entity.getTopicName());
                 List<BdbConsumerGroupEntity> webConsumerGroupEntities =
-                        brokerConfManage.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
+                        brokerConfManager.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
                 int j = 0;
                 if (!webConsumerGroupEntities.isEmpty()) {
                     for (BdbConsumerGroupEntity itemEntity : webConsumerGroupEntities) {
@@ -301,7 +300,7 @@ public class WebAdminTopicAuthHandler {
                         new BdbGroupFilterCondEntity();
                 webFilterCondEntity.setTopicName(entity.getTopicName());
                 List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                        brokerConfManage.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
+                        brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
                 int y = 0;
                 for (BdbGroupFilterCondEntity condEntity : webFilterCondEntities) {
                     if (y++ > 0) {

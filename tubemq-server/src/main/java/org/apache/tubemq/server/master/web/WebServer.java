@@ -24,7 +24,7 @@ import org.apache.tubemq.server.master.web.action.layout.Default;
 import org.apache.tubemq.server.master.web.action.screen.Master;
 import org.apache.tubemq.server.master.web.action.screen.Tubeweb;
 import org.apache.tubemq.server.master.web.action.screen.Webapi;
-import org.apache.tubemq.server.master.web.action.screen.cluster.ClusterManage;
+import org.apache.tubemq.server.master.web.action.screen.cluster.ClusterManager;
 import org.apache.tubemq.server.master.web.action.screen.config.BrokerDetail;
 import org.apache.tubemq.server.master.web.action.screen.config.BrokerList;
 import org.apache.tubemq.server.master.web.action.screen.config.TopicDetail;
@@ -92,7 +92,7 @@ public class WebServer implements Server {
         config.registerAction(new BrokerDetail(this.master));
         config.registerAction(new TopicDetail(this.master));
         config.registerAction(new TopicList(this.master));
-        config.registerAction(new ClusterManage(this.master));
+        config.registerAction(new ClusterManager(this.master));
         config.registerAction(new BrokerList(this.master));
         config.registerAction(new Master(this.master));
         config.registerAction(new Webapi(this.master));

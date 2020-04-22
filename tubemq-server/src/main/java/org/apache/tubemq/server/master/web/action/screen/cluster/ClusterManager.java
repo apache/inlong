@@ -23,27 +23,27 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.web.common.ClusterQueryResult;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.simplemvc.Action;
 import org.apache.tubemq.server.master.web.simplemvc.RequestContext;
 
 
-public class ClusterManage implements Action {
+public class ClusterManager implements Action {
 
     private TMaster master;
 
-    public ClusterManage(TMaster master) {
+    public ClusterManager(TMaster master) {
         this.master = master;
     }
 
     @Override
     public void execute(RequestContext context) {
         HttpServletRequest req = context.getReq();
-        BrokerConfManage brokerConfManage = this.master.getMasterTopicManage();
+        BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
         List<ClusterGroupVO> clusterGroupVOList = new ArrayList<ClusterGroupVO>();
-        ClusterGroupVO clusterGroupVO = brokerConfManage.getGroupAddressStrInfo();
+        ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
         if (clusterGroupVO != null) {
             clusterGroupVOList.add(clusterGroupVO);
         }

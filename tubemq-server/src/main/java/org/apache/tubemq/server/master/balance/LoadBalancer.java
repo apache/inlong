@@ -22,7 +22,7 @@ import java.util.Map;
 import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
@@ -36,7 +36,7 @@ public interface LoadBalancer {
             BrokerInfoHolder brokerHolder,
             TopicPSInfoManager topicPSInfoManager,
             List<String> groups,
-            BrokerConfManage brokerConfManage,
+            BrokerConfManager brokerConfManager,
             int defAllowBClientRate,
             final StringBuilder sBuilder);
 
@@ -46,13 +46,13 @@ public interface LoadBalancer {
             TopicPSInfoManager topicPSInfoManager,
             List<String> groups,
             OffsetStorage zkOffsetStorage,
-            BrokerConfManage defaultBrokerConfManage,
+            BrokerConfManager defaultBrokerConfManager,
             final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
                                                         TopicPSInfoManager topicPSInfoManager,
                                                         List<String> groups,
-                                                        BrokerConfManage brokerConfManage,
+                                                        BrokerConfManager brokerConfManager,
                                                         int defAllowBClientRate,
                                                         final StringBuilder sBuilder);
 
@@ -60,7 +60,7 @@ public interface LoadBalancer {
                                                                     TopicPSInfoManager topicPSInfoManager,
                                                                     List<String> groups,
                                                                     OffsetStorage zkOffsetStorage,
-                                                                    BrokerConfManage defaultBrokerConfManage,
+                                                                    BrokerConfManager defaultBrokerConfManager,
                                                                     final StringBuilder sBuilder);
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,

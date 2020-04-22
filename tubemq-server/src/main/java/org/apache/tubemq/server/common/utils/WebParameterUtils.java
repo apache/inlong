@@ -38,7 +38,7 @@ import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 
 
@@ -285,14 +285,14 @@ public class WebParameterUtils {
      * Proceed authorization
      *
      * @param master           the service master
-     * @param brokerConfManage the broker configuration manager
+     * @param brokerConfManager the broker configuration manager
      * @param reqToken         the token for checking
      * @throws Exception if authorization failed
      */
     public static void reqAuthorizenCheck(TMaster master,
-                                          BrokerConfManage brokerConfManage,
+                                          BrokerConfManager brokerConfManager,
                                           String reqToken) throws Exception {
-        if (brokerConfManage.isPrimaryNodeActive()) {
+        if (brokerConfManager.isPrimaryNodeActive()) {
             throw new Exception(
                     "Illegal visit: designatedPrimary happened...please check if the other member is down");
         }
@@ -681,7 +681,7 @@ public class WebParameterUtils {
     }
 
     public static Set<BdbBrokerConfEntity> getBatchBrokerIdSet(String inStrBrokerIds,
-                                                               BrokerConfManage webMaster,
+                                                               BrokerConfManager webMaster,
                                                                boolean checkEmpty,
                                                                final StringBuilder sb) throws Exception {
         Set<BdbBrokerConfEntity> batchBrokerIdSet = new HashSet<BdbBrokerConfEntity>();
@@ -795,7 +795,7 @@ public class WebParameterUtils {
      * @throws Exception
      */
     public static boolean checkBrokerInProcessing(int brokerId,
-                                                  BrokerConfManage webMaster,
+                                                  BrokerConfManager webMaster,
                                                   StringBuilder sBuilder) throws Exception {
         BrokerSyncStatusInfo brokerSyncStatusInfo =
                 webMaster.getBrokerRunSyncStatusInfo(brokerId);
@@ -817,7 +817,7 @@ public class WebParameterUtils {
     }
 
     public static boolean checkBrokerUnLoad(int brokerId,
-                                            BrokerConfManage webMaster,
+                                            BrokerConfManager webMaster,
                                             StringBuilder sBuilder) throws Exception {
         BrokerSyncStatusInfo brokerSyncStatusInfo =
                 webMaster.getBrokerRunSyncStatusInfo(brokerId);
@@ -840,7 +840,7 @@ public class WebParameterUtils {
 
     public static boolean checkBrokerInOfflining(int brokerId,
                                                  int manageStatus,
-                                                 BrokerConfManage webMaster,
+                                                 BrokerConfManager webMaster,
                                                  StringBuilder sBuilder) throws Exception {
         BrokerSyncStatusInfo brokerSyncStatusInfo =
                 webMaster.getBrokerRunSyncStatusInfo(brokerId);

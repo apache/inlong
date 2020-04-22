@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class SimpleVisitTokenManage extends AbstractDaemonService {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleVisitTokenManage.class);
+public class SimpleVisitTokenManager extends AbstractDaemonService {
+    private static final Logger logger = LoggerFactory.getLogger(SimpleVisitTokenManager.class);
 
     private final MasterConfig masterConfig;
     private final AtomicLong validVisitAuthorized = new AtomicLong(0);
@@ -34,7 +34,7 @@ public class SimpleVisitTokenManage extends AbstractDaemonService {
     private String brokerVisitTokens = "";
     private StringBuilder strBuilder = new StringBuilder(256);
 
-    public SimpleVisitTokenManage(final MasterConfig masterConfig) {
+    public SimpleVisitTokenManager(final MasterConfig masterConfig) {
         super("[VisitToken Manager]", (masterConfig.getVisitTokenValidPeriodMs() * 4) / 5);
         this.masterConfig = masterConfig;
         freshVisitAuthorized.set(System.currentTimeMillis());

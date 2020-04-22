@@ -29,18 +29,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
 
 public class MasterStatusCheckFilter implements Filter {
 
     private TMaster master;
-    private BrokerConfManage brokerConfManage;
+    private BrokerConfManager brokerConfManager;
 
     public MasterStatusCheckFilter(TMaster master) {
         this.master = master;
-        this.brokerConfManage =
-                this.master.getMasterTopicManage();
+        this.brokerConfManager =
+                this.master.getMasterTopicManager();
     }
 
     @Override
@@ -53,9 +53,9 @@ public class MasterStatusCheckFilter implements Filter {
                          FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        if (!brokerConfManage.isSelfMaster()) {
+        if (!brokerConfManager.isSelfMaster()) {
             InetSocketAddress masterAddr =
-                    brokerConfManage.getMasterAddress();
+                    brokerConfManager.getMasterAddress();
             if (masterAddr == null) {
                 throw new IOException("Not found the master node address!");
             }

@@ -35,7 +35,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.tubemq.server.master.web.simplemvc.Action;
@@ -58,9 +58,9 @@ public class Master implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Sever is stopping...");
             }
-            BrokerConfManage brokerConfManage =
-                    this.master.getMasterTopicManage();
-            if (!brokerConfManage.isSelfMaster()) {
+            BrokerConfManager brokerConfManager =
+                    this.master.getMasterTopicManager();
+            if (!brokerConfManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
             String type = req.getParameter("type");
@@ -239,7 +239,7 @@ public class Master implements Action {
                 TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
                 List<TopicInfo> topicInfoList = topicPSInfoManager.getBrokerPubInfoList(broker);
                 ConcurrentHashMap<String, BdbTopicConfEntity> topicConfigMap =
-                        master.getMasterTopicManage().getBrokerTopicConfEntitySet(broker.getBrokerId());
+                        master.getMasterTopicManager().getBrokerTopicConfEntitySet(broker.getBrokerId());
                 if (topicConfigMap == null) {
                     for (TopicInfo info : topicInfoList) {
                         sBuilder = info.toStrBuilderString(sBuilder);

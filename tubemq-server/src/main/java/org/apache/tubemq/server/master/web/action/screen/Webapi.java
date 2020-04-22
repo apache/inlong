@@ -35,7 +35,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
@@ -71,8 +71,8 @@ public class Webapi implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Server is stopping...");
             }
-            BrokerConfManage brokerConfManage = this.master.getMasterTopicManage();
-            if (!brokerConfManage.isSelfMaster()) {
+            BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
+            if (!brokerConfManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
             String type = req.getParameter("type");
@@ -94,7 +94,7 @@ public class Webapi implements Action {
                 strBuffer = processQueryOperate(req, method);
                 succProcess = true;
             } else if ("op_modify".equals(type)) {  // modify
-                if (brokerConfManage.isPrimaryNodeActive()) {
+                if (brokerConfManager.isPrimaryNodeActive()) {
                     throw new Exception(
                             "DesignatedPrimary happened...please check if the other member is down");
                 }
@@ -136,7 +136,7 @@ public class Webapi implements Action {
         WebAdminGroupCtrlHandler webGroupCtrlHandler = new WebAdminGroupCtrlHandler(master);
         WebAdminTopicAuthHandler webTopicAuthHandler = new WebAdminTopicAuthHandler(master);
         WebAdminFlowRuleHandler webFlowRuleHandler = new WebAdminFlowRuleHandler(master);
-        BrokerConfManage brokerConfManage = this.master.getMasterTopicManage();
+        BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
         if ("admin_query_sub_info".equals(method)) {
             strBuffer = getSubscribeInfo(req);
         } else if ("admin_query_consume_group_detail".equals(method)) {
@@ -164,7 +164,7 @@ public class Webapi implements Action {
         } else if ("admin_query_consume_group_setting".equals(method)) {
             strBuffer = webGroupCtrlHandler.adminQueryConsumeGroupSetting(req);
         } else if ("admin_query_master_group_info".equals(method)) {
-            strBuffer = getGroupAddressStrInfo(brokerConfManage);
+            strBuffer = getGroupAddressStrInfo(brokerConfManager);
         } else {
             strBuffer.append("{\"result\":false,\"errCode\":400," +
                     "\"errMsg\":\"Unsupported method for the topic info operation\"}");
@@ -188,7 +188,7 @@ public class Webapi implements Action {
         WebAdminGroupCtrlHandler webGroupCtrlHandler = new WebAdminGroupCtrlHandler(master);
         WebAdminTopicAuthHandler webTopicAuthHandler = new WebAdminTopicAuthHandler(master);
         WebAdminFlowRuleHandler webFlowRuleHandler = new WebAdminFlowRuleHandler(master);
-        BrokerConfManage brokerConfManage = this.master.getMasterTopicManage();
+        BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
         if ("admin_add_broker_configure".equals(method)) {
             strBuffer = webBrokerDefConfHandler.adminAddBrokerDefConfEntityInfo(req);
         } else if ("admin_bath_add_broker_configure".equals(method)) {
@@ -271,8 +271,8 @@ public class Webapi implements Action {
             strBuffer = webGroupCtrlHandler.adminRebalanceGroupAllocateInfo(req);
         } else if ("admin_transfer_current_master".equals(method)) {
             try {
-                WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage, req.getParameter("confModAuthToken"));
-                brokerConfManage.transferMaster();
+                WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
+                brokerConfManager.transferMaster();
                 strBuffer.append("{\"result\":true,\"errCode\":0," +
                         "\"errMsg\":\"TransferMaster method called, please wait 20 seconds!\"}");
             } catch (Exception e2) {
@@ -289,12 +289,12 @@ public class Webapi implements Action {
     /**
      * Get master group info
      *
-     * @param brokerConfManage
+     * @param brokerConfManager
      * @return
      */
-    public StringBuilder getGroupAddressStrInfo(BrokerConfManage brokerConfManage) {
+    public StringBuilder getGroupAddressStrInfo(BrokerConfManager brokerConfManager) {
         StringBuilder strBuffer = new StringBuilder(512);
-        ClusterGroupVO clusterGroupVO = brokerConfManage.getGroupAddressStrInfo();
+        ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
             strBuffer.append("{\"result\":false,\"errCode\":500,\"errMsg\":\"GetBrokerGroup info error\",\"data\":[]}");
         } else {

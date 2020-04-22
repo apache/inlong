@@ -32,17 +32,17 @@ import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
 public class WebAdminFlowRuleHandler {
 
     private TMaster master;
-    private BrokerConfManage brokerConfManage;
+    private BrokerConfManager brokerConfManager;
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
 
     public WebAdminFlowRuleHandler(TMaster master) {
         this.master = master;
-        this.brokerConfManage = this.master.getMasterTopicManage();
+        this.brokerConfManager = this.master.getMasterTopicManager();
     }
 
     /**
@@ -59,7 +59,7 @@ public class WebAdminFlowRuleHandler {
         try {
             // check if allow modify
             WebParameterUtils.reqAuthorizenCheck(master,
-                    brokerConfManage, req.getParameter("confModAuthToken"));
+                    brokerConfManager, req.getParameter("confModAuthToken"));
             // get createUser info
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -104,12 +104,12 @@ public class WebAdminFlowRuleHandler {
             // add flow control to bdb
             for (String groupName : batchGroupNames) {
                 if (groupName.equals(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
-                    brokerConfManage.confAddBdbGroupFlowCtrl(
+                    brokerConfManager.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(strBuffer.toString(),
                                     statusId, ruleCnt, qryPriorityId, "",
                                     curNeedSSDProc, createUser, createDate));
                 } else {
-                    brokerConfManage.confAddBdbGroupFlowCtrl(
+                    brokerConfManager.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(groupName,
                                     strBuffer.toString(), statusId, ruleCnt, qryPriorityId, "",
                                     curNeedSSDProc, createUser, createDate));
@@ -138,7 +138,7 @@ public class WebAdminFlowRuleHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master,
-                    brokerConfManage, req.getParameter("confModAuthToken"));
+                    brokerConfManager, req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
                             req.getParameter("createUser"),
@@ -160,7 +160,7 @@ public class WebAdminFlowRuleHandler {
                         WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
                                 true, checkResToken, resTokenSet, strBuffer);
             }
-            brokerConfManage.confDeleteBdbGroupFlowCtrl(batchGroupNames);
+            brokerConfManager.confDeleteBdbGroupFlowCtrl(batchGroupNames);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -184,7 +184,7 @@ public class WebAdminFlowRuleHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             WebParameterUtils.reqAuthorizenCheck(master,
-                    brokerConfManage, req.getParameter("confModAuthToken"));
+                    brokerConfManager, req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("createUser",
                             req.getParameter("createUser"),
@@ -214,7 +214,7 @@ public class WebAdminFlowRuleHandler {
             for (String groupName : batchGroupNames) {
                 // check if record changed
                 BdbGroupFlowCtrlEntity oldEntity =
-                        brokerConfManage.getBdbGroupFlowCtrl(groupName);
+                        brokerConfManager.getBdbGroupFlowCtrl(groupName);
                 if (oldEntity != null) {
                     boolean foundChange = false;
                     BdbGroupFlowCtrlEntity newGroupFlowCtrlEntity =
@@ -261,7 +261,7 @@ public class WebAdminFlowRuleHandler {
                     // update record if found change
                     if (foundChange) {
                         try {
-                            brokerConfManage.confUpdateBdbGroupFlowCtrl(newGroupFlowCtrlEntity);
+                            brokerConfManager.confUpdateBdbGroupFlowCtrl(newGroupFlowCtrlEntity);
                         } catch (Throwable ee) {
                             //
                         }
@@ -319,7 +319,7 @@ public class WebAdminFlowRuleHandler {
             int countI = 0;
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
             List<BdbGroupFlowCtrlEntity> webGroupFlowCtrlEntities =
-                    brokerConfManage.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
+                    brokerConfManager.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
             for (BdbGroupFlowCtrlEntity entity : webGroupFlowCtrlEntities) {
                 if (!batchGroupNames.isEmpty()) {
                     boolean found = false;

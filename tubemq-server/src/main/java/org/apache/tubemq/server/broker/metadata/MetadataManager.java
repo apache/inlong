@@ -26,7 +26,7 @@ import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
 /***
  * Metadata's management interface.
  */
-public interface MetadataManage {
+public interface MetadataManager {
     void close(long waitTimeMs);
 
     void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
