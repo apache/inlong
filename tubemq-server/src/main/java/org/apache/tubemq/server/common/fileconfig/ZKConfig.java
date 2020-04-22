@@ -18,11 +18,9 @@
 package org.apache.tubemq.server.common.fileconfig;
 
 import org.apache.tubemq.server.common.TServerConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKConfig {
-    private static final Logger logger = LoggerFactory.getLogger(ZKConfig.class);
+
     private String zkServerAddr = "localhost:2181";
     private String zkNodeRoot = "/tubemq";
     private int zkSessionTimeoutMs = 180000;
