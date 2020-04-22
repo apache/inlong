@@ -28,14 +28,12 @@ import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.tubemq.corebase.policies.SSDCtrlResult;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.common.TServerConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /***
  * Consumer node info, which broker contains.
  */
 public class ConsumerNodeInfo {
-    private static final Logger logger = LoggerFactory.getLogger(ConsumerNodeInfo.class);
+
     // partition string format
     private final String partStr;
     private final MessageStoreManager storeManager;

@@ -33,14 +33,9 @@ import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class WebAdminFlowRuleHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(WebAdminFlowRuleHandler.class);
     private TMaster master;
     private BrokerConfManager brokerConfManager;
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);

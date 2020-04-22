@@ -28,14 +28,10 @@ import org.apache.tubemq.client.producer.MessageProducer;
 import org.apache.tubemq.corebase.Shutdownable;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.netty.NettyClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class TubeMultiSessionFactory implements MessageSessionFactory {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(TubeMultiSessionFactory.class);
     private final NettyClientFactory clientFactory = new NettyClientFactory();
     private final TubeBaseSessionFactory baseSessionFactory;
     private final AtomicBoolean isShutDown = new AtomicBoolean(false);

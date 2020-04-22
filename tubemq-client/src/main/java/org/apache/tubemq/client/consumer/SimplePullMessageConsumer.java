@@ -29,14 +29,12 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of PullMessageConsumer
  */
 public class SimplePullMessageConsumer implements PullMessageConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(SimplePullMessageConsumer.class);
+
     private final BaseMessageConsumer baseConsumer;
 
     public SimplePullMessageConsumer(final InnerSessionFactory messageSessionFactory,

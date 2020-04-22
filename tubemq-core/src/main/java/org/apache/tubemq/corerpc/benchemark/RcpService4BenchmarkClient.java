@@ -25,14 +25,9 @@ import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
 import org.apache.tubemq.corerpc.netty.NettyClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class RcpService4BenchmarkClient {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(RcpService4BenchmarkClient.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final String targetHost;
