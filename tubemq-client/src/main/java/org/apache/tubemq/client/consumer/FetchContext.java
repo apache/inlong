@@ -23,11 +23,9 @@ import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.cluster.Partition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FetchContext {
-    private static final Logger logger = LoggerFactory.getLogger(FetchContext.class);
+
     private Partition partition;
     private long usedToken;
     private boolean lastConsumed = false;

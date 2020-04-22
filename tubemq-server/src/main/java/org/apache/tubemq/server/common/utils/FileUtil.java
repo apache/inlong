@@ -19,13 +19,8 @@ package org.apache.tubemq.server.common.utils;
 
 import java.io.File;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class FileUtil {
-    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
-
 
     public static boolean fullyDelete(File dir) throws IOException {
         if (!fullyDeleteContents(dir)) {

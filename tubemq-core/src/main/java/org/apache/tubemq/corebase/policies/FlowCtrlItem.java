@@ -18,13 +18,10 @@
 package org.apache.tubemq.corebase.policies;
 
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class FlowCtrlItem {
-    private static final Logger logger =
-            LoggerFactory.getLogger(FlowCtrlItem.class);
+
     private int type = 0;   // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency control
     private int startTime = TBaseConstants.META_VALUE_UNDEFINED;
     private int endTime = TBaseConstants.META_VALUE_UNDEFINED;
