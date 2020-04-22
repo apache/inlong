@@ -162,7 +162,7 @@ public class DataStoreUtils {
                 }
             }
         }
-        String messageTIme = "";
+        String messageTime = "";
         if (TStringUtils.isNotBlank(attribute)) {
             if (attribute.contains(TokenConstants.TOKEN_MSG_TIME)) {
 
@@ -172,7 +172,7 @@ public class DataStoreUtils {
                         if (strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME)) {
                             String[] strItems = strAttrItem.split(TokenConstants.EQ);
                             if (strItems.length > 1) {
-                                messageTIme = strItems[1];
+                                messageTime = strItems[1];
                             }
                         }
                     }
@@ -180,7 +180,7 @@ public class DataStoreUtils {
             }
         }
         String baseKey = sBuilder.append(statisKeyBase)
-                .append("#").append(messageTIme).toString();
+                .append("#").append(messageTime).toString();
         sBuilder.delete(0, sBuilder.length());
         CountItem getCount = countMap.get(baseKey);
         if (getCount == null) {

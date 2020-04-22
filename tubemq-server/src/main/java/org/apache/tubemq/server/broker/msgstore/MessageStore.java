@@ -263,7 +263,7 @@ public class MessageStore implements Closeable {
         indexRecordView.relViewRef();
         //　judge whether read from ssd or disk.
         if (consumerNodeInfo.processFromSsdFile()) {
-            return msgStoreMgr.getSsdMesssage(storeKey, consumerNodeInfo.getPartStr(),
+            return msgStoreMgr.getSsdMessage(storeKey, consumerNodeInfo.getPartStr(),
                     consumerNodeInfo.getStartSsdDataOffset(),
                     consumerNodeInfo.getLastDataRdOffset(),
                     partitionId, reqNewOffset, indexBuffer,
