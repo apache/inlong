@@ -30,11 +30,11 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
-import org.apache.tubemq.server.broker.metadata.MetadataManage;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.slf4j.Logger;
@@ -178,7 +178,7 @@ public class PBParameterUtils {
 
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
                                                           final MasterConfig masterConfig,
-                                                          final BrokerConfManage defaultBrokerConfManage,
+                                                          final BrokerConfManager defaultBrokerConfManager,
                                                           final TopicPSInfoManager topicPSInfoManager,
                                                           final StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
@@ -200,7 +200,7 @@ public class PBParameterUtils {
             return retResult;
         }
         BdbConsumeGroupSettingEntity offsetResetGroupEntity =
-                defaultBrokerConfManage.getBdbConsumeGroupSetting(inConsumerInfo.getGroup());
+                defaultBrokerConfManager.getBdbConsumeGroupSetting(inConsumerInfo.getGroup());
         if (masterConfig.isStartOffsetResetCheck()) {
             if ((offsetResetGroupEntity == null)
                     || (offsetResetGroupEntity.getEnableBind() != 1)) {
@@ -222,7 +222,7 @@ public class PBParameterUtils {
             if (lastDate == null
                     || (lastDate.before(currentDate)
                     && (int) ((lastDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 8)) > 1)) {
-                defaultBrokerConfManage.confUpdBdbConsumeGroupLastUsedTime(inConsumerInfo.getGroup());
+                defaultBrokerConfManager.confUpdBdbConsumeGroupLastUsedTime(inConsumerInfo.getGroup());
             }
         }
         int allowRate = (offsetResetGroupEntity != null
@@ -438,12 +438,12 @@ public class PBParameterUtils {
      * Check the topic name.
      *
      * @param topicName      the topic name to check
-     * @param metadataManage the metadata manager which contains topic information
+     * @param metadataManager the metadata manager which contains topic information
      * @param strBuffer      the string buffer used to construct the check result
      * @return the check result
      */
     public static ParamCheckResult checkConsumeTopicName(final String topicName,
-                                                         final MetadataManage metadataManage,
+                                                         final MetadataManager metadataManager,
                                                          final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(topicName)) {
@@ -453,7 +453,7 @@ public class PBParameterUtils {
             return retResult;
         }
         String tmpValue = topicName.trim();
-        if (metadataManage.getTopicMetadata(tmpValue) == null) {
+        if (metadataManager.getTopicMetadata(tmpValue) == null) {
             retResult.setCheckResult(false,
                     TErrCodeConstants.FORBIDDEN,
                     strBuffer.append("Topic ").append(tmpValue)
@@ -469,13 +469,13 @@ public class PBParameterUtils {
      *
      * @param topicName      the topic name to be checked.
      * @param partitionId    the partition ID where the topic locates
-     * @param metadataManage the metadata manager which contains topic information
+     * @param metadataManager the metadata manager which contains topic information
      * @param strBuffer      the string buffer used to construct the check result
      * @return the check result
      */
     public static ParamCheckResult checkExistTopicNameInfo(final String topicName,
                                                            final int partitionId,
-                                                           final MetadataManage metadataManage,
+                                                           final MetadataManager metadataManager,
                                                            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(topicName)) {
@@ -485,7 +485,7 @@ public class PBParameterUtils {
             return retResult;
         }
         String tmpValue = topicName.trim();
-        TopicMetadata topicMetadata = metadataManage.getTopicMetadata(tmpValue);
+        TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tmpValue);
         if (topicMetadata == null) {
             retResult.setCheckResult(false,
                     TErrCodeConstants.FORBIDDEN,
@@ -493,7 +493,7 @@ public class PBParameterUtils {
                             .append(" not existed, please check your configure").toString());
             return retResult;
         }
-        if (metadataManage.isClosedTopic(tmpValue)) {
+        if (metadataManager.isClosedTopic(tmpValue)) {
             retResult.setCheckResult(false,
                     TErrCodeConstants.FORBIDDEN,
                     strBuffer.append("Topic ").append(tmpValue).append(" has been closed").toString());

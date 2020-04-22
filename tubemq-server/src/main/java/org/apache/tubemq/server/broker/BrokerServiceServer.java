@@ -55,7 +55,7 @@ import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.service.BrokerReadService;
 import org.apache.tubemq.corerpc.service.BrokerWriteService;
 import org.apache.tubemq.server.Server;
-import org.apache.tubemq.server.broker.metadata.MetadataManage;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
@@ -91,7 +91,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private final ConcurrentHashMap<String/* group:topic-partitionId */, ConsumerNodeInfo> consumerRegisterMap =
             new ConcurrentHashMap<String, ConsumerNodeInfo>();
     // metadata manager.
-    private final MetadataManage metadataManage;
+    private final MetadataManager metadataManager;
     // offset storage manager.
     private final OffsetService offsetManager;
     // message storage manager.
@@ -119,7 +119,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                                final BrokerConfig tubeConfig) {
         this.tubeConfig = tubeConfig;
         this.tubeBroker = tubeBroker;
-        this.metadataManage = tubeBroker.getMetadataManage();
+        this.metadataManager = tubeBroker.getMetadataManager();
         this.storeManager = tubeBroker.getStoreManager();
         this.offsetManager = tubeBroker.getOffsetManager();
         this.serverAuthHandler = tubeBroker.getServerAuthHandler();
@@ -305,7 +305,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         final String groupName = (String) paramCheckResult.checkData;
         paramCheckResult =
-                PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManage, strBuffer);
+                PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -352,7 +352,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(e.getMessage());
             return builder.build();
         }
-        Integer topicStatusId = this.metadataManage.getClosedTopicStatusId(topicName);
+        Integer topicStatusId = this.metadataManager.getClosedTopicStatusId(topicName);
         if ((topicStatusId != null)
                 && (topicStatusId > TStatusConstants.STATUS_TOPIC_SOFT_DELETE)) {
             strBuffer.append("[Partition Closed] Partition has been closed, for topic=")
@@ -451,12 +451,12 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         final long maxDataOffset = msgStore.getDataMaxOffset();
         int reqSwitch = consumerNodeInfo.getQryPriorityId() <= 0
-                ? (metadataManage.getFlowCtrlRuleHandler().getQryPriorityId() <= 0
+                ? (metadataManager.getFlowCtrlRuleHandler().getQryPriorityId() <= 0
                 ? TServerConstants.CFG_DEFAULT_CONSUME_RULE
-                : metadataManage.getFlowCtrlRuleHandler().getQryPriorityId())
+                : metadataManager.getFlowCtrlRuleHandler().getQryPriorityId())
                 : consumerNodeInfo.getQryPriorityId();
         int msgDataSizeLimit = consumerNodeInfo.getCurrentAllowedSize(msgStore.getStoreKey(),
-                metadataManage.getFlowCtrlRuleHandler(), maxDataOffset,
+                metadataManager.getFlowCtrlRuleHandler(), maxDataOffset,
                 this.storeManager.getMaxMsgTransferSize(), isEscFlowCtrl);
         if (msgDataSizeLimit <= 0) {
             if (consumerNodeInfo.isSupportLimit()) {
@@ -622,7 +622,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String producerId = (String) paramCheckResult.checkData;
         paramCheckResult =
                 PBParameterUtils.checkExistTopicNameInfo(request.getTopicName(),
-                        request.getPartitionId(), this.metadataManage, strBuffer);
+                        request.getPartitionId(), this.metadataManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -739,7 +739,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         final String clientId = (String) paramCheckResult.checkData;
         paramCheckResult
-                = PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManage, strBuffer);
+                = PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -845,7 +845,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
             boolean needSsdProc =
                     ((reqSsdStoreId != TBaseConstants.META_VALUE_UNDEFINED)
-                            && (reqSsdStoreId == this.metadataManage.getFlowCtrlRuleHandler().getSsdTranslateId()));
+                            && (reqSsdStoreId == this.metadataManager.getFlowCtrlRuleHandler().getSsdTranslateId()));
             consumerRegisterMap.put(partStr, new ConsumerNodeInfo(storeManager, reqQryPriorityId,
                     clientId, filterCondSet, reqSessionKey, reqSessionTime, reqSsdStoreId, needSsdProc,
                     request.hasSsdStoreId(), partStr));
@@ -1078,7 +1078,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             }
             if (consumerNodeInfo.getSsdTransId() != reqSsdStoreId) {
                 boolean needSsdProc = ((reqSsdStoreId != TBaseConstants.META_VALUE_UNDEFINED)
-                        && (reqSsdStoreId == metadataManage.getFlowCtrlRuleHandler().getSsdTranslateId()));
+                        && (reqSsdStoreId == metadataManager.getFlowCtrlRuleHandler().getSsdTranslateId()));
                 consumerNodeInfo.setSsdTransId(reqSsdStoreId, needSsdProc);
             }
             if (consumerNodeInfo.getQryPriorityId() != reqQryPriorityId) {
@@ -1138,7 +1138,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         int partitionId = request.getPartitionId();
         paramCheckResult =
                 PBParameterUtils.checkExistTopicNameInfo(
-                        request.getTopicName(), partitionId, this.metadataManage, strBuffer);
+                        request.getTopicName(), partitionId, this.metadataManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);

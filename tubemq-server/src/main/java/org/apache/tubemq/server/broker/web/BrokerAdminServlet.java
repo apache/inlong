@@ -377,7 +377,7 @@ public class BrokerAdminServlet extends HttpServlet {
         long manualOffset =
                 WebParameterUtils.validLongDataParameter("manualOffset",
                         req.getParameter("manualOffset"), true, -1);
-        List<String> topicList = broker.getMetadataManage().getTopics();
+        List<String> topicList = broker.getMetadataManager().getTopics();
         if (!topicList.contains(topicName)) {
             sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append("Invalid parameter: not found the topicName configure!")
@@ -482,7 +482,7 @@ public class BrokerAdminServlet extends HttpServlet {
         int partitionId =
                 WebParameterUtils.validIntDataParameter("partitionId",
                         req.getParameter("partitionId"), true, -1, 0);
-        List<String> topicList = broker.getMetadataManage().getTopics();
+        List<String> topicList = broker.getMetadataManager().getTopics();
         if (!topicList.contains(topicName)) {
             sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append("Invalid parameter: not found the topicName configure!")

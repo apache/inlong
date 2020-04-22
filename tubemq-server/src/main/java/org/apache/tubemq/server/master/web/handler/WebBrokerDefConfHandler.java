@@ -38,7 +38,7 @@ import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class WebBrokerDefConfHandler {
     private static final Logger logger =
             LoggerFactory.getLogger(WebBrokerDefConfHandler.class);
     private TMaster master;
-    private BrokerConfManage brokerConfManage;
+    private BrokerConfManager brokerConfManager;
 
     /**
      * Constructor
@@ -71,7 +71,7 @@ public class WebBrokerDefConfHandler {
      */
     public WebBrokerDefConfHandler(TMaster master) {
         this.master = master;
-        this.brokerConfManage = this.master.getMasterTopicManage();
+        this.brokerConfManager = this.master.getMasterTopicManager();
     }
 
     // #lizard forgives
@@ -85,7 +85,7 @@ public class WebBrokerDefConfHandler {
      * @param newManageStatus
      * @return
      */
-    public static boolean isBrokerStartNeedFast(BrokerConfManage webMaster,
+    public static boolean isBrokerStartNeedFast(BrokerConfManager webMaster,
                                                 int brokeId,
                                                 int oldManagStatus,
                                                 int newManageStatus) {
@@ -158,7 +158,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String brokerIp =
                     WebParameterUtils.validAddressParameter("brokerIp",
@@ -183,7 +183,7 @@ public class WebBrokerDefConfHandler {
                 }
             }
             BdbBrokerConfEntity oldEntity =
-                    brokerConfManage.getBrokerDefaultConfigStoreInfo(brokerId);
+                    brokerConfManager.getBrokerDefaultConfigStoreInfo(brokerId);
             if (oldEntity != null) {
                 throw new Exception(strBuffer
                         .append("Duplicated broker default configure record by (brokerId or brokerIp), " +
@@ -192,7 +192,7 @@ public class WebBrokerDefConfHandler {
                         .append(",brokerIp=").append(brokerIp).toString());
             }
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
-                    brokerConfManage.getBrokerConfStoreMap();
+                    brokerConfManager.getBrokerConfStoreMap();
             for (BdbBrokerConfEntity brokerConfEntity : bdbBrokerConfEntityMap.values()) {
                 if (brokerConfEntity.getBrokerIp().equals(brokerIp)
                         && brokerConfEntity.getBrokerPort() == brokerPort) {
@@ -293,7 +293,7 @@ public class WebBrokerDefConfHandler {
                             deleteWhen, deletePolicy, manageStatus, acceptPublish,
                             acceptSubscribe, attributes, true, false, createUser,
                             createDate, modifyUser, modifyDate);
-            brokerConfManage.confAddBrokerDefaultConfig(brokerConfEntity);
+            brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -314,7 +314,7 @@ public class WebBrokerDefConfHandler {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -330,7 +330,7 @@ public class WebBrokerDefConfHandler {
             }
             HashMap<String, BdbBrokerConfEntity> inBrokerConfEntiyMap = new HashMap<String, BdbBrokerConfEntity>();
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
-                    brokerConfManage.getBrokerConfStoreMap();
+                    brokerConfManager.getBrokerConfStoreMap();
             for (int count = 0; count < brokerJsonArray.size(); count++) {
                 Map<String, String> jsonObject = brokerJsonArray.get(count);
                 try {
@@ -468,7 +468,7 @@ public class WebBrokerDefConfHandler {
                 }
             }
             for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntiyMap.values()) {
-                brokerConfManage.confAddBrokerDefaultConfig(brokerConfEntity);
+                brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
             }
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
@@ -490,7 +490,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -504,7 +504,7 @@ public class WebBrokerDefConfHandler {
                             false, new Date());
             Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
-                            brokerConfManage, true, strBuffer);
+                            brokerConfManager, true, strBuffer);
             int manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE;
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
@@ -518,7 +518,7 @@ public class WebBrokerDefConfHandler {
                     continue;
                 }
                 checkBrokerDuplicateRecord(oldEntity, strBuffer, oldBrokerInfoMap);
-                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, strBuffer)) {
+                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager, strBuffer)) {
                     throw new Exception(strBuffer.toString());
                 }
                 newBrokerEntitySet.add(new BdbBrokerConfEntity(oldEntity.getBrokerId(),
@@ -533,18 +533,19 @@ public class WebBrokerDefConfHandler {
             }
             for (BdbBrokerConfEntity newEntity : newBrokerEntitySet) {
                 BdbBrokerConfEntity oldEntity =
-                        brokerConfManage.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
+                        brokerConfManager.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
                 if (oldEntity == null
                         || oldEntity.getManageStatus() == newEntity.getManageStatus()
-                        || WebParameterUtils.checkBrokerInProcessing(newEntity.getBrokerId(), brokerConfManage, null)) {
+                        || WebParameterUtils.checkBrokerInProcessing(newEntity.getBrokerId(), brokerConfManager,
+                        null)) {
                     continue;
                 }
                 try {
                     boolean isNeedFastStart =
-                            isBrokerStartNeedFast(brokerConfManage, newEntity.getBrokerId(),
+                            isBrokerStartNeedFast(brokerConfManager, newEntity.getBrokerId(),
                                     oldEntity.getManageStatus(), manageStatus);
-                    brokerConfManage.confModBrokerDefaultConfig(newEntity);
-                    brokerConfManage.triggerBrokerConfDataSync(newEntity,
+                    brokerConfManager.confModBrokerDefaultConfig(newEntity);
+                    brokerConfManager.triggerBrokerConfDataSync(newEntity,
                             oldEntity.getManageStatus(), isNeedFastStart);
                 } catch (Exception e2) {
                     //
@@ -572,7 +573,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminSetReadOrWriteBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -591,7 +592,7 @@ public class WebBrokerDefConfHandler {
                 throw new Exception("Required isAcceptPublish or isAcceptSubscribe parameter");
             }
             Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
-                    req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
+                    req.getParameter("brokerId"), brokerConfManager, true, strBuffer);
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
 
@@ -650,7 +651,7 @@ public class WebBrokerDefConfHandler {
                 if (oldEntity.getManageStatus() == manageStatus) {
                     continue;
                 }
-                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, strBuffer)) {
+                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager, strBuffer)) {
                     throw new Exception(strBuffer.toString());
                 }
                 newBrokerEntitySet.add(new BdbBrokerConfEntity(oldEntity.getBrokerId(),
@@ -667,18 +668,19 @@ public class WebBrokerDefConfHandler {
             // Perform the change on status
             for (BdbBrokerConfEntity newEntity : newBrokerEntitySet) {
                 BdbBrokerConfEntity oldEntity =
-                        brokerConfManage.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
+                        brokerConfManager.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
                 if (oldEntity == null
                         || oldEntity.getManageStatus() == newEntity.getManageStatus()
-                        || WebParameterUtils.checkBrokerInProcessing(newEntity.getBrokerId(), brokerConfManage, null)) {
+                        || WebParameterUtils.checkBrokerInProcessing(newEntity.getBrokerId(), brokerConfManager,
+                        null)) {
                     continue;
                 }
                 try {
                     boolean isNeedFastStart =
-                            isBrokerStartNeedFast(brokerConfManage, newEntity.getBrokerId(),
+                            isBrokerStartNeedFast(brokerConfManager, newEntity.getBrokerId(),
                                     oldEntity.getManageStatus(), newEntity.getManageStatus());
-                    brokerConfManage.confModBrokerDefaultConfig(newEntity);
-                    brokerConfManage.triggerBrokerConfDataSync(newEntity,
+                    brokerConfManager.confModBrokerDefaultConfig(newEntity);
+                    brokerConfManager.triggerBrokerConfDataSync(newEntity,
                             oldEntity.getManageStatus(), isNeedFastStart);
                 } catch (Exception e2) {
                     //
@@ -737,7 +739,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -751,7 +753,7 @@ public class WebBrokerDefConfHandler {
                             false, new Date());
             Set<Integer> batchBrokerIds = new HashSet<Integer>();
             Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
-                    req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
+                    req.getParameter("brokerId"), brokerConfManager, true, strBuffer);
             for (BdbBrokerConfEntity entity : batchBrokerEntitySet) {
                 batchBrokerIds.add(entity.getBrokerId());
             }
@@ -783,14 +785,14 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminUpdateBrokerConf(HttpServletRequest req) throws Throwable {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser = WebParameterUtils.validStringParameter("modifyUser",
                     req.getParameter("modifyUser"), TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
             Date modifyDate = WebParameterUtils.validDateParameter("modifyDate",
                     req.getParameter("modifyDate"), TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
             Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
-                    req.getParameter("brokerId"), brokerConfManage, true, strBuffer);
+                    req.getParameter("brokerId"), brokerConfManager, true, strBuffer);
             Set<BdbBrokerConfEntity> modifyBdbEntitySet = new HashSet<BdbBrokerConfEntity>();
 
             // Check the entities one by one, to see if there are changes.
@@ -913,12 +915,12 @@ public class WebBrokerDefConfHandler {
                 // Perform the updates only on those which are changed
                 boolean result = false;
                 for (BdbBrokerConfEntity itemEntity : modifyBdbEntitySet) {
-                    result = brokerConfManage.confModBrokerDefaultConfig(itemEntity);
+                    result = brokerConfManager.confModBrokerDefaultConfig(itemEntity);
                     BrokerSyncStatusInfo brokerSyncStatusInfo =
-                            brokerConfManage.getBrokerRunSyncStatusInfo(itemEntity.getBrokerId());
+                            brokerConfManager.getBrokerRunSyncStatusInfo(itemEntity.getBrokerId());
                     if (result) {
                         if (brokerSyncStatusInfo != null) {
-                            brokerConfManage.updateBrokerConfChanged(itemEntity.getBrokerId(), true, true);
+                            brokerConfManager.updateBrokerConfChanged(itemEntity.getBrokerId(), true, true);
                         }
                     }
                 }
@@ -944,7 +946,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminReloadBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -958,7 +960,7 @@ public class WebBrokerDefConfHandler {
                             false, new Date());
             Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
-                            brokerConfManage, true, strBuffer);
+                            brokerConfManager, true, strBuffer);
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
@@ -969,20 +971,20 @@ public class WebBrokerDefConfHandler {
                             .append(" not in online status, can't reload this configure! ");
                     throw new Exception(strBuffer.toString());
                 }
-                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, strBuffer)) {
+                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager, strBuffer)) {
                     throw new Exception(strBuffer.toString());
                 }
             }
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (!WebParameterUtils.checkBrokerInOnlineStatus(oldEntity) || WebParameterUtils
-                    .checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, null)) {
+                    .checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager, null)) {
                     continue;
                 }
                 try {
                     boolean isNeedFastStart =
-                            isBrokerStartNeedFast(brokerConfManage, oldEntity.getBrokerId(),
+                            isBrokerStartNeedFast(brokerConfManager, oldEntity.getBrokerId(),
                                     oldEntity.getManageStatus(), oldEntity.getManageStatus());
-                    brokerConfManage.triggerBrokerConfDataSync(oldEntity,
+                    brokerConfManager.triggerBrokerConfDataSync(oldEntity,
                             oldEntity.getManageStatus(), isNeedFastStart);
                 } catch (Exception ee) {
                     //
@@ -1007,7 +1009,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminOfflineBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1022,7 +1024,7 @@ public class WebBrokerDefConfHandler {
             int manageStatus = TStatusConstants.STATUS_MANAGE_OFFLINE;
             Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
-                            brokerConfManage, true, strBuffer);
+                            brokerConfManager, true, strBuffer);
             Set<BdbBrokerConfEntity> newBrokerEntitys =
                     new HashSet<BdbBrokerConfEntity>();
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
@@ -1037,7 +1039,7 @@ public class WebBrokerDefConfHandler {
                 if (oldEntity.getManageStatus() == manageStatus) {
                     continue;
                 }
-                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, strBuffer)) {
+                if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager, strBuffer)) {
                     throw new Exception(strBuffer.toString());
                 }
                 newBrokerEntitys.add(new BdbBrokerConfEntity(oldEntity.getBrokerId(),
@@ -1052,19 +1054,20 @@ public class WebBrokerDefConfHandler {
             }
             for (BdbBrokerConfEntity newEntity : newBrokerEntitys) {
                 BdbBrokerConfEntity oldEntity =
-                        brokerConfManage.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
+                        brokerConfManager.getBrokerDefaultConfigStoreInfo(newEntity.getBrokerId());
                 if (oldEntity == null
                         || oldEntity.getManageStatus() == manageStatus
                         || oldEntity.getManageStatus() < TStatusConstants.STATUS_MANAGE_ONLINE
-                        || WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManage, null)) {
+                        || WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(), brokerConfManager,
+                        null)) {
                     continue;
                 }
                 try {
                     boolean isNeedFastStart =
-                            isBrokerStartNeedFast(brokerConfManage, oldEntity.getBrokerId(),
+                            isBrokerStartNeedFast(brokerConfManager, oldEntity.getBrokerId(),
                                     oldEntity.getManageStatus(), oldEntity.getManageStatus());
-                    brokerConfManage.confModBrokerDefaultConfig(newEntity);
-                    brokerConfManage.triggerBrokerConfDataSync(newEntity, oldEntity.getManageStatus(),
+                    brokerConfManager.confModBrokerDefaultConfig(newEntity);
+                    brokerConfManager.triggerBrokerConfDataSync(newEntity, oldEntity.getManageStatus(),
                             isNeedFastStart);
                 } catch (Exception ee) {
                     //
@@ -1090,7 +1093,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminDeleteBrokerConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManage,
+            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1108,13 +1111,13 @@ public class WebBrokerDefConfHandler {
                             false, false);
             Set<BdbBrokerConfEntity> batchBrokerEntities =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
-                            brokerConfManage, true, strBuffer);
+                            brokerConfManager, true, strBuffer);
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
                 }
                 ConcurrentHashMap<String, BdbTopicConfEntity> brokerTopicEntityMap =
-                        brokerConfManage.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
+                        brokerConfManager.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
                 if ((brokerTopicEntityMap != null)
                         && (!brokerTopicEntityMap.isEmpty())) {
                     if (isReservedData) {
@@ -1144,7 +1147,7 @@ public class WebBrokerDefConfHandler {
                             .append(", please offline first!").toString());
                 }
                 if (WebParameterUtils.checkBrokerInOfflining(oldEntity.getBrokerId(),
-                        oldEntity.getManageStatus(), brokerConfManage, strBuffer)) {
+                        oldEntity.getManageStatus(), brokerConfManager, strBuffer)) {
                     throw new Exception(strBuffer.toString());
                 }
             }
@@ -1152,11 +1155,11 @@ public class WebBrokerDefConfHandler {
                 if (oldEntity == null
                         || WebParameterUtils.checkBrokerInOnlineStatus(oldEntity)
                         || WebParameterUtils.checkBrokerInOfflining(oldEntity.getBrokerId(),
-                        oldEntity.getManageStatus(), brokerConfManage, null)) {
+                        oldEntity.getManageStatus(), brokerConfManager, null)) {
                     continue;
                 }
                 ConcurrentHashMap<String, BdbTopicConfEntity> brokerTopicEntityMap =
-                        brokerConfManage.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
+                        brokerConfManager.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
                 if ((brokerTopicEntityMap != null)
                         && (!brokerTopicEntityMap.isEmpty())) {
                     if (isReservedData) {
@@ -1181,12 +1184,12 @@ public class WebBrokerDefConfHandler {
                 try {
                     if (isReservedData) {
                         ConcurrentHashMap<String, BdbTopicConfEntity> brokerTopicConfMap =
-                                brokerConfManage.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
+                                brokerConfManager.getBrokerTopicConfEntitySet(oldEntity.getBrokerId());
                         if (brokerTopicConfMap != null) {
-                            brokerConfManage.clearConfigureTopicEntityInfo(oldEntity.getBrokerId());
+                            brokerConfManager.clearConfigureTopicEntityInfo(oldEntity.getBrokerId());
                         }
                     }
-                    brokerConfManage.confDelBrokerConfig(oldEntity);
+                    brokerConfManager.confDelBrokerConfig(oldEntity);
                 } catch (Exception ee) {
                     //
                 }
@@ -1230,7 +1233,7 @@ public class WebBrokerDefConfHandler {
                     req.getParameter("onlyEnableTLS"), false, false);
             int count = 0;
             List<BdbBrokerConfEntity> brokerConfEntityList =
-                brokerConfManage.confGetBdbBrokerEntitySet(brokerConfEntity);
+                brokerConfManager.confGetBdbBrokerEntitySet(brokerConfEntity);
             BrokerInfoHolder brokerInfoHolder = master.getBrokerHolder();
             Map<Integer, BrokerInfoHolder.BrokerAbnInfo> brokerAbnInfoMap =
                     brokerInfoHolder.getBrokerAbnormalMap();
@@ -1289,7 +1292,7 @@ public class WebBrokerDefConfHandler {
                         .append(",\"brokerVersion\":\"-\",\"acceptPublish\":\"-\",\"acceptSubscribe\":\"-\"");
                 } else {
                     BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        brokerConfManage.getBrokerRunSyncStatusInfo(entity.getBrokerId());
+                        brokerConfManager.getBrokerRunSyncStatusInfo(entity.getBrokerId());
                     if (brokerSyncStatusInfo == null) {
                         strBuffer.append(",\"runStatus\":\"unRegister\",\"subStatus\":\"-\"")
                             .append(",\"isConfChanged\":\"-\",\"isConfLoaded\":\"-\",\"isBrokerOnline\":\"-\"")
@@ -1461,7 +1464,7 @@ public class WebBrokerDefConfHandler {
             SimpleDateFormat formatter =
                     new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
             List<BdbBrokerConfEntity> brokerConfEntityList =
-                    brokerConfManage.confGetBdbBrokerEntitySet(brokerConfEntity);
+                    brokerConfManager.confGetBdbBrokerEntitySet(brokerConfEntity);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
             for (BdbBrokerConfEntity entity : brokerConfEntityList) {
                 int recordNumTopicStores = entity.getNumTopicStores();
@@ -1478,7 +1481,7 @@ public class WebBrokerDefConfHandler {
                     continue;
                 }
                 ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntityMap =
-                        brokerConfManage.getBrokerTopicConfEntitySet(entity.getBrokerId());
+                        brokerConfManager.getBrokerTopicConfEntitySet(entity.getBrokerId());
                 if (!isValidRecord(batchTopicNames, topicStatusId, isInclude, bdbTopicConfEntityMap)) {
                     continue;
                 }

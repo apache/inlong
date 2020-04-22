@@ -48,15 +48,15 @@ public class BrokerInfoHolder {
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerFbdInfo> brokerForbiddenMap =
             new ConcurrentHashMap<Integer, BrokerFbdInfo>();
     private final int maxAutoForbiddenCnt;
-    private final BrokerConfManage brokerConfManage;
+    private final BrokerConfManager brokerConfManager;
     private AtomicInteger brokerTotalCount = new AtomicInteger(0);
     private AtomicInteger brokerForbiddenCount = new AtomicInteger(0);
 
 
     public BrokerInfoHolder(final int maxAutoForbiddenCnt,
-                            final BrokerConfManage brokerConfManage) {
+                            final BrokerConfManager brokerConfManager) {
         this.maxAutoForbiddenCnt = maxAutoForbiddenCnt;
-        this.brokerConfManage = brokerConfManage;
+        this.brokerConfManager = brokerConfManager;
     }
 
     public BrokerInfo getBrokerInfo(int brokerId) {
@@ -87,7 +87,7 @@ public class BrokerInfoHolder {
             return;
         }
         BdbBrokerConfEntity oldEntity =
-            brokerConfManage.getBrokerDefaultConfigStoreInfo(brokerId);
+            brokerConfManager.getBrokerDefaultConfigStoreInfo(brokerId);
         if (oldEntity == null) {
             return;
         }
@@ -259,7 +259,7 @@ public class BrokerInfoHolder {
         }
         try {
             if (WebParameterUtils.checkBrokerInProcessing(oldEntity.getBrokerId(),
-                brokerConfManage, null)) {
+                    brokerConfManager, null)) {
                 return false;
             }
             BdbBrokerConfEntity newEntity =
@@ -274,10 +274,10 @@ public class BrokerInfoHolder {
                     oldEntity.getRecordCreateDate(), "Broker AutoReport",
                     new Date());
             boolean isNeedFastStart =
-                WebBrokerDefConfHandler.isBrokerStartNeedFast(brokerConfManage,
+                WebBrokerDefConfHandler.isBrokerStartNeedFast(brokerConfManager,
                     newEntity.getBrokerId(), oldEntity.getManageStatus(), newEntity.getManageStatus());
-            brokerConfManage.confModBrokerDefaultConfig(newEntity);
-            brokerConfManage.triggerBrokerConfDataSync(newEntity,
+            brokerConfManager.confModBrokerDefaultConfig(newEntity);
+            brokerConfManager.triggerBrokerConfDataSync(newEntity,
                 oldEntity.getManageStatus(), isNeedFastStart);
             return true;
         } catch (Throwable e1) {

@@ -98,7 +98,7 @@ import org.apache.tubemq.server.master.balance.LoadBalancer;
 import org.apache.tubemq.server.master.bdbstore.DefaultBdbStoreService;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManage;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TargetValidResult;
@@ -108,7 +108,7 @@ import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerEventMana
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodeproducer.ProducerInfoHolder;
 import org.apache.tubemq.server.master.utils.Chore;
-import org.apache.tubemq.server.master.utils.SimpleVisitTokenManage;
+import org.apache.tubemq.server.master.utils.SimpleVisitTokenManager;
 import org.apache.tubemq.server.master.web.WebServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +137,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final OffsetStorage zkOffsetStorage;                //zookeeper offset manager
     private final ShutdownHook shutdownHook;                    //shutdown hook
     private final DefaultBdbStoreService defaultBdbStoreService;        //bdb store service
-    private final BrokerConfManage defaultBrokerConfManage;             //broker config manager
+    private final BrokerConfManager defaultBrokerConfManager;             //broker config manager
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
     private AtomicLong idGenerator = new AtomicLong(0);     //id generator
@@ -149,7 +149,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private boolean startupResetBalance = true;
     private int balanceDelayTimes = 0;
     private Sleeper stopSleeper = new Sleeper(1000, this);
-    private SimpleVisitTokenManage visitTokenManage;
+    private SimpleVisitTokenManager visitTokenManage;
 
     /**
      * constructor
@@ -164,7 +164,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.checkAndCreateBdbDataPath();
         this.masterAddInfo =
                 new NodeAddrInfo(masterConfig.getHostName(), masterConfig.getPort());
-        this.visitTokenManage = new SimpleVisitTokenManage(this.masterConfig);
+        this.visitTokenManage = new SimpleVisitTokenManager(this.masterConfig);
         this.serverAuthHandler = new SimpleCertificateMasterHandler(this.masterConfig);
         this.producerHolder = new ProducerInfoHolder();
         this.consumerHolder = new ConsumerInfoHolder();
@@ -202,11 +202,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 });
         this.defaultBdbStoreService = new DefaultBdbStoreService(masterConfig, this);
         this.defaultBdbStoreService.start();
-        this.defaultBrokerConfManage = new BrokerConfManage(this.defaultBdbStoreService);
-        this.defaultBrokerConfManage.start();
+        this.defaultBrokerConfManager = new BrokerConfManager(this.defaultBdbStoreService);
+        this.defaultBrokerConfManager.start();
         this.brokerHolder =
                 new BrokerInfoHolder(this.masterConfig.getMaxAutoForbiddenCnt(),
-                        this.defaultBrokerConfManage);
+                        this.defaultBrokerConfManager);
         RpcConfig rpcTcpConfig = new RpcConfig();
         rpcTcpConfig.put(RpcConstants.REQUEST_TIMEOUT,
                 masterConfig.getRpcReadTimeoutMs());
@@ -270,8 +270,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      *
      * @return
      */
-    public BrokerConfManage getMasterTopicManage() {
-        return this.defaultBrokerConfManage;
+    public BrokerConfManager getMasterTopicManager() {
+        return this.defaultBrokerConfManager;
     }
 
     /**
@@ -338,8 +338,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
                 new HashSet<String>(transTopicSet), hostName, overtls);
-        builder.setBrokerCheckSum(this.defaultBrokerConfManage.getBrokerInfoCheckSum());
-        builder.addAllBrokerInfos(this.defaultBrokerConfManage.getBrokersMap(overtls).values());
+        builder.setBrokerCheckSum(this.defaultBrokerConfManager.getBrokerInfoCheckSum());
+        builder.addAllBrokerInfos(this.defaultBrokerConfManager.getBrokersMap(overtls).values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
         logger.info(strBuffer.append("[Producer Register] ")
                 .append(producerId).append(", isOverTLS=").append(overtls).toString());
@@ -423,10 +423,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 transTopicSet, hostName, overtls);
         Map<String, String> availTopicPartitions = getProducerTopicPartitionInfo(producerId);
         builder.addAllTopicInfos(availTopicPartitions.values());
-        builder.setBrokerCheckSum(defaultBrokerConfManage.getBrokerInfoCheckSum());
+        builder.setBrokerCheckSum(defaultBrokerConfManager.getBrokerInfoCheckSum());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
-        if (defaultBrokerConfManage.getBrokerInfoCheckSum() != inBrokerCheckSum) {
-            builder.addAllBrokerInfos(defaultBrokerConfManage.getBrokersMap(overtls).values());
+        if (defaultBrokerConfManager.getBrokerInfoCheckSum() != inBrokerCheckSum) {
+            builder.addAllBrokerInfos(defaultBrokerConfManager.getBrokersMap(overtls).values());
         }
         if (logger.isDebugEnabled()) {
             logger.debug(strBuffer.append("[Push Producer's available topic count:]")
@@ -562,7 +562,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         sessionKey, sessionTime, sourceCount, requredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defaultBrokerConfManage, topicPSInfoManager, strBuffer);
+                        masterConfig, defaultBrokerConfManager, topicPSInfoManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -580,7 +580,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         // need removed for authorize center begin
         TargetValidResult validResult =
-                this.defaultBrokerConfManage
+                this.defaultBrokerConfManager
                         .isConsumeTargetAuthorized(consumerId, groupName,
                                 reqTopicSet, reqTopicConditions, strBuffer);
         if (!validResult.result) {
@@ -660,9 +660,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setDefFlowControlInfo(" ");
             builder.setGroupFlowControlInfo(" ");
             BdbGroupFlowCtrlEntity defFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbDefFlowCtrl();
+                    defaultBrokerConfManager.getBdbDefFlowCtrl();
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbGroupFlowCtrl(groupName);
+                    defaultBrokerConfManager.getBdbGroupFlowCtrl(groupName);
             if (defFlowCtrlEntity != null
                     && defFlowCtrlEntity.isValidStatus()) {
                 builder.setDefFlowCheckId(defFlowCtrlEntity.getSerialId());
@@ -842,9 +842,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setDefFlowControlInfo(" ");
             builder.setGroupFlowControlInfo(" ");
             BdbGroupFlowCtrlEntity defFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbDefFlowCtrl();
+                    defaultBrokerConfManager.getBdbDefFlowCtrl();
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbGroupFlowCtrl(groupName);
+                    defaultBrokerConfManager.getBdbGroupFlowCtrl(groupName);
             if (defFlowCtrlEntity != null
                     && defFlowCtrlEntity.isValidStatus()) {
                 builder.setDefFlowCheckId(defFlowCtrlEntity.getSerialId());
@@ -970,7 +970,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 new BrokerInfo(clientId, request.getEnableTls(),
                         request.hasTlsPort() ? request.getTlsPort() : TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
         BdbBrokerConfEntity bdbBrokerConfEntity =
-                defaultBrokerConfManage.getBrokerDefaultConfigStoreInfo(brokerInfo.getBrokerId());
+                defaultBrokerConfManager.getBrokerDefaultConfigStoreInfo(brokerInfo.getBrokerId());
         if (bdbBrokerConfEntity == null) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg(strBuffer
@@ -1014,10 +1014,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         final int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
-                this.defaultBrokerConfManage.getBrokerRunSyncManageMap();
+                this.defaultBrokerConfManager.getBrokerRunSyncManageMap();
         // update broker status
         List<String> brokerTopicSetConfInfo =
-                this.defaultBrokerConfManage.getBrokerTopicStrConfigInfo(bdbBrokerConfEntity);
+                this.defaultBrokerConfManager.getBrokerTopicStrConfigInfo(bdbBrokerConfEntity);
         BrokerSyncStatusInfo brokerStatusInfo =
                 new BrokerSyncStatusInfo(bdbBrokerConfEntity, brokerTopicSetConfInfo);
         brokerSyncStatusMap.put(bdbBrokerConfEntity.getBrokerId(), brokerStatusInfo);
@@ -1040,7 +1040,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     bdbBrokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfo, true,
                     request.getBrokerOnline(), overtls);
         }
-        this.defaultBrokerConfManage.removeBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
+        this.defaultBrokerConfManager.removeBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
         brokerHolder.setBrokerInfo(brokerInfo.getBrokerId(), brokerInfo);
         heartbeatManager.regBrokerNode(String.valueOf(brokerInfo.getBrokerId()));
         logger.info(strBuffer.append("[Broker Register] ").append(clientId)
@@ -1079,7 +1079,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.addAllBrokerTopicSetConfInfo(brokerStatusInfo.getLastPushBrokerTopicSetConfInfo());
         if (request.hasFlowCheckId()) {
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbDefFlowCtrl();
+                    defaultBrokerConfManager.getBdbDefFlowCtrl();
             if (bdbGroupFlowCtrlEntity == null) {
                 builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
                 builder.setFlowCheckId(TBaseConstants.META_VALUE_UNDEFINED);
@@ -1172,7 +1172,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         BdbBrokerConfEntity bdbBrokerConfEntity =
-                defaultBrokerConfManage.getBrokerDefaultConfigStoreInfo(brokerInfo.getBrokerId());
+                defaultBrokerConfManager.getBrokerDefaultConfigStoreInfo(brokerInfo.getBrokerId());
         if (bdbBrokerConfEntity == null) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg(strBuffer
@@ -1189,7 +1189,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
-                this.defaultBrokerConfManage.getBrokerRunSyncManageMap();
+                this.defaultBrokerConfManager.getBrokerRunSyncManageMap();
         BrokerSyncStatusInfo brokerSyncStatusInfo =
                 brokerSyncStatusMap.get(brokerInfo.getBrokerId());
         if (brokerSyncStatusInfo == null) {
@@ -1218,7 +1218,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             logger.info(strBuffer.append("[Broker Report] receive broker confirmed removed topic list is ")
                     .append(removedTopics.toString()).toString());
             strBuffer.delete(0, strBuffer.length());
-            this.defaultBrokerConfManage
+            this.defaultBrokerConfManager
                     .clearRemovedTopicEntityInfo(bdbBrokerConfEntity.getBrokerId(), removedTopics);
         }
         brokerHolder.updateBrokerReportStatus(brokerInfo.getBrokerId(),
@@ -1253,7 +1253,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setConfCheckSumId(brokerSyncStatusInfo.getLastPushBrokerCheckSumId());
         if (request.hasFlowCheckId()) {
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
-                    defaultBrokerConfManage.getBdbDefFlowCtrl();
+                    defaultBrokerConfManager.getBdbDefFlowCtrl();
             if (bdbGroupFlowCtrlEntity == null) {
                 builder.setFlowCheckId(TBaseConstants.META_VALUE_UNDEFINED);
                 builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
@@ -1280,7 +1280,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         brokerHolder.setBrokerHeartBeatReqStatus(brokerInfo.getBrokerId(), builder);
         builder.setTakeRemoveTopicInfo(true);
-        builder.addAllRemoveTopicConfInfo(defaultBrokerConfManage
+        builder.addAllRemoveTopicConfInfo(defaultBrokerConfManager
                 .getBrokerRemovedTopicStrConfigInfo(bdbBrokerConfEntity));
         if (brokerSyncStatusInfo.needSyncConfDataToBroker()) {
             builder.setTakeConfInfo(true);
@@ -1507,7 +1507,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                                   final StringBuilder strBuffer) {
         // #lizard forgives
         BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.defaultBrokerConfManage.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
+                this.defaultBrokerConfManager.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
         if (brokerSyncStatusInfo == null) {
             logger.error(strBuffer
                     .append("Fail to find broker run manage configure! broker is ")
@@ -1567,7 +1567,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         requireSyncClient = true;
                         if ((brokerSyncStatusInfo.isBrokerConfChaned())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
-                            this.defaultBrokerConfManage
+                            this.defaultBrokerConfManager
                                     .updateBrokerConfChanged(brokerInfo.getBrokerId(), false, true);
                         }
                     }
@@ -1711,7 +1711,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // #lizard forgives
         // check broker status
         BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.defaultBrokerConfManage.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
+                this.defaultBrokerConfManager.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
         if (brokerSyncStatusInfo == null) {
             logger.error(strBuffer
                     .append("Fail to find broker run manage configure, not update topic info! broker is ")
@@ -1806,11 +1806,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
 
         ConcurrentHashMap<String/* topicName */, TopicInfo> oldTopicInfoMap =
-                defaultBrokerConfManage.getBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
+                defaultBrokerConfManager.getBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
         deleteTopics(brokerInfo, strBuffer, oldTopicInfoMap, newTopicInfoMap);
         updateTopics(brokerInfo, strBuffer, oldTopicInfoMap, newTopicInfoMap,
                 requirePartUpdate, requireAcceptPublish, requireAcceptSubscribe);
-        defaultBrokerConfManage.updateBrokerRunTopicInfoMap(brokerInfo.getBrokerId(), newTopicInfoMap);
+        defaultBrokerConfManager.updateBrokerRunTopicInfoMap(brokerInfo.getBrokerId(), newTopicInfoMap);
     }
 
     /**
@@ -1895,14 +1895,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (startupBalance) {
             finalSubInfoMap =
                     this.loadBalancer.bukAssign(consumerHolder, topicPSInfoManager,
-                            consumerHolder.getAllGroup(), defaultBrokerConfManage,
+                            consumerHolder.getAllGroup(), defaultBrokerConfManager,
                             masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
             startupBalance = false;
         } else {
             List<String> groupsNeedToBalance = getNeedToBalanceGroupList(strBuffer);
             finalSubInfoMap =
                     this.loadBalancer.balanceCluster(currentSubInfo, consumerHolder, brokerHolder,
-                            topicPSInfoManager, groupsNeedToBalance, defaultBrokerConfManage,
+                            topicPSInfoManager, groupsNeedToBalance, defaultBrokerConfManager,
                             masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
         }
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
@@ -1917,7 +1917,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     || tupleInfo.consumerInfo == null) {
                 continue;
             }
-            List<String> blackTopicList = this.defaultBrokerConfManage.getBdbBlackTopicList(tupleInfo.groupName);
+            List<String> blackTopicList = this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
             Map<String, List<Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<SubscribeInfo>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<SubscribeInfo>();
@@ -2044,14 +2044,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             finalSubInfoMap =
                     this.loadBalancer.resetBukAssign(consumerHolder, topicPSInfoManager,
                             consumerHolder.getAllGroup(), this.zkOffsetStorage,
-                            this.defaultBrokerConfManage, strBuffer);
+                            this.defaultBrokerConfManager, strBuffer);
             startupResetBalance = false;
         } else {
             List<String> groupsNeedToBalance = getNeedToBalanceGroupList(strBuffer);
             finalSubInfoMap =
                     this.loadBalancer.resetBalanceCluster(currentSubInfo, consumerHolder,
                             topicPSInfoManager, groupsNeedToBalance, this.zkOffsetStorage,
-                            this.defaultBrokerConfManage, strBuffer);
+                            this.defaultBrokerConfManager, strBuffer);
         }
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
@@ -2069,7 +2069,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
 
             List<String> blackTopicList =
-                    this.defaultBrokerConfManage.getBdbBlackTopicList(tupleInfo.groupName);
+                    this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
             Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<SubscribeInfo>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<SubscribeInfo>();
@@ -2330,7 +2330,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             stopChores();
             heartbeatManager.stop();
             zkOffsetStorage.close();
-            defaultBrokerConfManage.stop();
+            defaultBrokerConfManager.stop();
             defaultBdbStoreService.stop();
             visitTokenManage.stop();
             if (!shutdownHooked.get()) {
@@ -2448,7 +2448,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 if (topicInfoList != null) {
                     updateTopicsInternal(broker, topicInfoList, EventType.DISCONNECT);
                 }
-                defaultBrokerConfManage.resetBrokerReportInfo(broker.getBrokerId());
+                defaultBrokerConfManager.resetBrokerReportInfo(broker.getBrokerId());
             }
         }
     }

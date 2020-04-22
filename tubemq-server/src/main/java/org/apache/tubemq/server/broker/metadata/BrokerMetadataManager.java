@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  * topic that will be deleted, and broker's policy definition.
  * Metadata is got from Master service, it will refresh in heartbeat between broker and master.
  */
-public class BrokerMetadataManage implements MetadataManage {
-    private static final Logger logger = LoggerFactory.getLogger(BrokerMetadataManage.class);
+public class BrokerMetadataManager implements MetadataManager {
+    private static final Logger logger = LoggerFactory.getLogger(BrokerMetadataManager.class);
 
     protected final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
@@ -66,7 +66,7 @@ public class BrokerMetadataManage implements MetadataManage {
             new ConcurrentHashMap<String, TopicMetadata>();
     private long lastRptBrokerMetaConfId = 0;
 
-    public BrokerMetadataManage() {
+    public BrokerMetadataManager() {
 
     }
 
