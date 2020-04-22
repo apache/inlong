@@ -43,7 +43,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.exception.StartupException;
-import org.apache.tubemq.server.broker.metadata.MetadataManage;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
@@ -401,7 +401,7 @@ public class MsgSSDStoreManager implements Closeable {
         logger.info(strBuffer.append("[SSD Manager] Begin to scan data path:")
                 .append(this.ssdBaseDataDir.getAbsolutePath()).toString());
         strBuffer.delete(0, strBuffer.length());
-        MetadataManage metadataManage = msgStoreMgr.getMetadataManage();
+        MetadataManager metadataManager = msgStoreMgr.getMetadataManager();
         final File[] ls = this.ssdBaseDataDir.listFiles();
         if (ls != null) {
             for (final File subDir : ls) {
@@ -422,7 +422,7 @@ public class MsgSSDStoreManager implements Closeable {
                         continue;
                     }
                     final String topic = name.substring(0, index);
-                    TopicMetadata topicMetadata = metadataManage.getTopicMetadata(topic);
+                    TopicMetadata topicMetadata = metadataManager.getTopicMetadata(topic);
                     if (topicMetadata == null) {
                         logger.warn(strBuffer
                                 .append("[SSD Manager] No valid topic config for topic data directories:")
@@ -712,7 +712,7 @@ public class MsgSSDStoreManager implements Closeable {
             final StringBuilder strBuffer = new StringBuilder(512);
             logger.info("[SSD Manager] start process SSD  transfer requests");
             try {
-                MetadataManage metadataManage = msgStoreMgr.getMetadataManage();
+                MetadataManager metadataManager = msgStoreMgr.getMetadataManager();
                 while (!closed) {
                     try {
                         SSDSegEvent ssdSegEvent =
@@ -737,7 +737,7 @@ public class MsgSSDStoreManager implements Closeable {
                         }
                         final String topic = ssdSegEvent.storeKey.substring(0, index);
                         TopicMetadata topicMetadata =
-                                metadataManage.getTopicMetadata(topic);
+                                metadataManager.getTopicMetadata(topic);
                         if (topicMetadata == null) {
                             logger.warn(strBuffer
                                     .append("[SSD Manager] No valid topic config for storeKey=")

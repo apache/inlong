@@ -57,9 +57,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BrokerConfManage implements Server {
+public class BrokerConfManager implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(BrokerConfManage.class);
+    private static final Logger logger = LoggerFactory.getLogger(BrokerConfManager.class);
     private final BDBConfig bdbConfig;
     private final ScheduledExecutorService scheduledExecutorService;
     private final ConcurrentHashMap<Integer, String> brokersMap =
@@ -105,7 +105,7 @@ public class BrokerConfManage implements Server {
     private long serviceStartTime = System.currentTimeMillis();
 
 
-    public BrokerConfManage(DefaultBdbStoreService mBdbStoreManagerService) {
+    public BrokerConfManager(DefaultBdbStoreService mBdbStoreManagerService) {
         this.mBdbStoreManagerService = mBdbStoreManagerService;
         this.bdbConfig = mBdbStoreManagerService.getBdbConfig();
         this.brokerConfStoreMap = this.mBdbStoreManagerService.getBrokerConfigMap();
@@ -230,7 +230,7 @@ public class BrokerConfManage implements Server {
         }
         isStarted = true;
         serviceStartTime = System.currentTimeMillis();
-        logger.info("BrokerConfManage StoreService Started");
+        logger.info("BrokerConfManager StoreService Started");
     }
 
     @Override
@@ -240,7 +240,7 @@ public class BrokerConfManage implements Server {
         }
         this.scheduledExecutorService.shutdownNow();
         isStopped = true;
-        logger.info("BrokerConfManage StoreService stopped");
+        logger.info("BrokerConfManager StoreService stopped");
     }
 
     public long getBrokerInfoCheckSum() {

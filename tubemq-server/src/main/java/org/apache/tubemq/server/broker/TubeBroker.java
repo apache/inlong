@@ -44,8 +44,8 @@ import org.apache.tubemq.corerpc.netty.NettyClientFactory;
 import org.apache.tubemq.corerpc.service.MasterService;
 import org.apache.tubemq.server.Stoppable;
 import org.apache.tubemq.server.broker.exception.StartupException;
-import org.apache.tubemq.server.broker.metadata.BrokerMetadataManage;
-import org.apache.tubemq.server.broker.metadata.MetadataManage;
+import org.apache.tubemq.server.broker.metadata.BrokerMetadataManager;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.DefaultOffsetManager;
@@ -73,7 +73,7 @@ public class TubeBroker implements Stoppable, Runnable {
     // tube web server
     private final WebServer webServer;
     // tube broker's metadata manager
-    private final MetadataManage metadataManage;
+    private final MetadataManager metadataManager;
     // tube broker's store manager
     private final MessageStoreManager storeManager;
     // tube broker's offset manager
@@ -106,7 +106,7 @@ public class TubeBroker implements Stoppable, Runnable {
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
-        this.metadataManage = new BrokerMetadataManage();
+        this.metadataManager = new BrokerMetadataManager();
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
         this.serverAuthHandler = new SimpleCertificateBrokerHandler(this);
@@ -165,8 +165,8 @@ public class TubeBroker implements Stoppable, Runnable {
         return this.rpcServiceFactory;
     }
 
-    public MetadataManage getMetadataManage() {
-        return metadataManage;
+    public MetadataManager getMetadataManager() {
+        return metadataManager;
     }
 
     public SimpleCertificateBrokerHandler getServerAuthHandler() {
@@ -240,7 +240,7 @@ public class TubeBroker implements Stoppable, Runnable {
                             isKeepAlive.set(true);
                             heartbeatErrors.set(0);
                             FlowCtrlRuleHandler flowCtrlRuleHandler =
-                                metadataManage.getFlowCtrlRuleHandler();
+                                metadataManager.getFlowCtrlRuleHandler();
                             long flowCheckId = flowCtrlRuleHandler.getFlowCtrlId();
                             long ssdTranslateId = flowCtrlRuleHandler.getSsdTranslateId();
                             int qryPriorityId = flowCtrlRuleHandler.getQryPriorityId();
@@ -288,7 +288,7 @@ public class TubeBroker implements Stoppable, Runnable {
                                     .append(",brokerTopicSetConfList=")
                                     .append(response.getBrokerTopicSetConfInfoList().toString()).toString());
                                 sBuilder.delete(0, sBuilder.length());
-                                metadataManage
+                                metadataManager
                                     .updateBrokerTopicConfigMap(response.getCurBrokerConfId(),
                                         response.getConfCheckSumId(), response.getBrokerDefaultConfInfo(),
                                         response.getBrokerTopicSetConfInfoList(), false, sBuilder);
@@ -297,7 +297,7 @@ public class TubeBroker implements Stoppable, Runnable {
                                 serverAuthHandler.appendVisitToken(response.getBrokerAuthorizedInfo());
                             }
                             boolean needProcess =
-                                metadataManage.updateBrokerRemoveTopicMap(
+                                metadataManager.updateBrokerRemoveTopicMap(
                                     response.getTakeRemoveTopicInfo(),
                                     response.getRemoveTopicConfInfoList(), sBuilder);
                             if (needProcess) {
@@ -418,7 +418,7 @@ public class TubeBroker implements Stoppable, Runnable {
                         .setReadWriteServiceStatus(response.getStopRead(),
                                 response.getStopWrite(), "Master");
                 FlowCtrlRuleHandler flowCtrlRuleHandler =
-                        metadataManage.getFlowCtrlRuleHandler();
+                        metadataManager.getFlowCtrlRuleHandler();
                 if (response.hasFlowCheckId()) {
                     int qryPriorityId = response.hasQryPriorityId()
                             ? response.getQryPriorityId() : flowCtrlRuleHandler.getQryPriorityId();
@@ -462,7 +462,7 @@ public class TubeBroker implements Stoppable, Runnable {
                     .append(",brokerTopicSetConfList=")
                     .append(response.getBrokerTopicSetConfInfoList().toString()).toString());
                 sBuilder.delete(0, sBuilder.length());
-                metadataManage.updateBrokerTopicConfigMap(response.getCurBrokerConfId(),
+                metadataManager.updateBrokerTopicConfigMap(response.getCurBrokerConfId(),
                     response.getConfCheckSumId(), response.getBrokerDefaultConfInfo(),
                     response.getBrokerTopicSetConfInfoList(), true, sBuilder);
                 isKeepAlive.set(true);
@@ -499,18 +499,18 @@ public class TubeBroker implements Stoppable, Runnable {
         builder.setTlsPort(this.tubeConfig.getTlsPort());
         builder.setReadStatusRpt(ServiceStatusHolder.getReadServiceReportStatus());
         builder.setWriteStatusRpt(ServiceStatusHolder.getWriteServiceReportStatus());
-        builder.setCurBrokerConfId(metadataManage.getBrokerMetadataConfId());
-        builder.setConfCheckSumId(metadataManage.getBrokerConfCheckSumId());
+        builder.setCurBrokerConfId(metadataManager.getBrokerMetadataConfId());
+        builder.setConfCheckSumId(metadataManager.getBrokerConfCheckSumId());
         FlowCtrlRuleHandler flowCtrlRuleHandler =
-                metadataManage.getFlowCtrlRuleHandler();
+                metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
         builder.setSsdStoreId(flowCtrlRuleHandler.getSsdTranslateId());
-        String brokerDefaultConfInfo = metadataManage.getBrokerDefMetaConfInfo();
+        String brokerDefaultConfInfo = metadataManager.getBrokerDefMetaConfInfo();
         if (brokerDefaultConfInfo != null) {
             builder.setBrokerDefaultConfInfo(brokerDefaultConfInfo);
         }
-        List<String> topicConfInfoList = metadataManage.getTopicMetaConfInfoLst();
+        List<String> topicConfInfoList = metadataManager.getTopicMetaConfInfoLst();
         if (topicConfInfoList != null) {
             builder.addAllBrokerTopicSetConfInfo(topicConfInfoList);
         }
@@ -520,7 +520,7 @@ public class TubeBroker implements Stoppable, Runnable {
         }
         logger.info(new StringBuilder(512)
             .append("[Register request] current broker report info: brokerConfId=")
-            .append(metadataManage.getBrokerMetadataConfId())
+            .append(metadataManager.getBrokerMetadataConfId())
             .append(",readStatusRpt=").append(builder.getReadStatusRpt())
             .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
             .append(",isTlsEnable=").append(tubeConfig.isTlsEnable())
@@ -528,7 +528,7 @@ public class TubeBroker implements Stoppable, Runnable {
             .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
             .append(",SSDTranslateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
             .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
-            .append(",configCheckSumId=").append(metadataManage.getBrokerConfCheckSumId())
+            .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
             .append(",brokerDefaultConfInfo=").append(brokerDefaultConfInfo)
             .append(",brokerTopicSetConfList=").append(topicConfInfoList).toString());
         return builder.build();
@@ -545,16 +545,16 @@ public class TubeBroker implements Stoppable, Runnable {
         builder.setBrokerOnline(isOnline);
         builder.setReadStatusRpt(ServiceStatusHolder.getReadServiceReportStatus());
         builder.setWriteStatusRpt(ServiceStatusHolder.getWriteServiceReportStatus());
-        builder.setCurBrokerConfId(metadataManage.getBrokerMetadataConfId());
-        builder.setConfCheckSumId(metadataManage.getBrokerConfCheckSumId());
+        builder.setCurBrokerConfId(metadataManager.getBrokerMetadataConfId());
+        builder.setConfCheckSumId(metadataManager.getBrokerConfCheckSumId());
         FlowCtrlRuleHandler flowCtrlRuleHandler =
-                metadataManage.getFlowCtrlRuleHandler();
+                metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
         builder.setSsdStoreId(flowCtrlRuleHandler.getSsdTranslateId());
         builder.setTakeConfInfo(false);
         builder.setTakeRemovedTopicInfo(false);
-        List<String> removedTopics = this.metadataManage.getHardRemovedTopics();
+        List<String> removedTopics = this.metadataManager.getHardRemovedTopics();
         if (!removedTopics.isEmpty()) {
             builder.setTakeRemovedTopicInfo(true);
             builder.addAllRemovedTopicsInfo(removedTopics);
@@ -563,13 +563,13 @@ public class TubeBroker implements Stoppable, Runnable {
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
-        if (metadataManage.isBrokerMetadataChanged() || requireReportConf) {
+        if (metadataManager.isBrokerMetadataChanged() || requireReportConf) {
             builder.setTakeConfInfo(true);
-            builder.setBrokerDefaultConfInfo(metadataManage.getBrokerDefMetaConfInfo());
-            builder.addAllBrokerTopicSetConfInfo(metadataManage.getTopicMetaConfInfoLst());
+            builder.setBrokerDefaultConfInfo(metadataManager.getBrokerDefMetaConfInfo());
+            builder.addAllBrokerTopicSetConfInfo(metadataManager.getTopicMetaConfInfoLst());
             logger.info(new StringBuilder(512)
                 .append("[HeartBeat request] current broker report info: brokerConfId=")
-                .append(metadataManage.getBrokerMetadataConfId())
+                .append(metadataManager.getBrokerMetadataConfId())
                 .append(",readStatusRpt=").append(builder.getReadStatusRpt())
                 .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
                 .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
@@ -577,11 +577,11 @@ public class TubeBroker implements Stoppable, Runnable {
                 .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
                 .append(",ReadStatusRpt=").append(builder.getReadStatusRpt())
                 .append(",WriteStatusRpt=").append(builder.getWriteStatusRpt())
-                .append(",lastReportedConfigId=").append(metadataManage.getLastRptBrokerMetaConfId())
-                .append(",configCheckSumId=").append(metadataManage.getBrokerConfCheckSumId())
-                .append(",brokerDefaultConfInfo=").append(metadataManage.getBrokerDefMetaConfInfo())
-                .append(",brokerTopicSetConfList=").append(metadataManage.getTopicMetaConfInfoLst()).toString());
-            metadataManage.setLastRptBrokerMetaConfId(metadataManage.getBrokerMetadataConfId());
+                .append(",lastReportedConfigId=").append(metadataManager.getLastRptBrokerMetaConfId())
+                .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
+                .append(",brokerDefaultConfInfo=").append(metadataManager.getBrokerDefMetaConfInfo())
+                .append(",brokerTopicSetConfList=").append(metadataManager.getTopicMetaConfInfoLst()).toString());
+            metadataManager.setLastRptBrokerMetaConfId(metadataManager.getBrokerMetadataConfId());
             requireReportConf = false;
         }
         return builder.build();

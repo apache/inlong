@@ -25,12 +25,12 @@ import org.junit.Test;
 
 public class BrokerInfoHolderTest {
     private BrokerInfoHolder brokerInfoHolder;
-    private BrokerConfManage brokerConfManage;
+    private BrokerConfManager brokerConfManager;
 
     @Before
     public void setUp() throws Exception {
-        brokerConfManage = mock(BrokerConfManage.class);
-        brokerInfoHolder = new BrokerInfoHolder(10, brokerConfManage);
+        brokerConfManager = mock(BrokerConfManager.class);
+        brokerInfoHolder = new BrokerInfoHolder(10, brokerConfManager);
     }
 
     @Test

@@ -1073,8 +1073,8 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     }
 
     private void clearCachedRunData() {
-        if (tMaster != null && tMaster.getMasterTopicManage() != null) {
-            tMaster.getMasterTopicManage().clearBrokerRunSyncManageData();
+        if (tMaster != null && tMaster.getMasterTopicManager() != null) {
+            tMaster.getMasterTopicManager().clearBrokerRunSyncManageData();
         }
     }
 
@@ -1095,8 +1095,8 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                 BdbBrokerConfEntity tmpBdbEntity = brokerConfigMap.get(bdbEntity.getBrokerId());
                 if (tmpBdbEntity == null) {
                     brokerConfigMap.put(bdbEntity.getBrokerId(), bdbEntity);
-                    if (tMaster != null && tMaster.getMasterTopicManage() != null) {
-                        tMaster.getMasterTopicManage().updateBrokerMaps(bdbEntity);
+                    if (tMaster != null && tMaster.getMasterTopicManager() != null) {
+                        tMaster.getMasterTopicManager().updateBrokerMaps(bdbEntity);
                     }
                 }
                 count++;
