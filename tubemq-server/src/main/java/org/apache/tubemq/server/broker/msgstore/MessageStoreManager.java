@@ -703,7 +703,7 @@ public class MessageStoreManager implements StoreService {
                         .append(tubeConfig.getLogClearupDurationMs()).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
-            if (!expiredTopic.isEmpty()) {
+            if (expiredTopic.isEmpty()) {
                 logger.info("Log Clear Scheduler finished file delete!");
             }
         }
