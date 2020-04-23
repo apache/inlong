@@ -80,7 +80,7 @@ public class MessageStoreManager implements StoreService {
     // flush operation scheduler.
     private final ScheduledExecutorService unFlushDiskScheduler;
     // message on memory sink to disk operation scheduler.
-    private final ScheduledExecutorService unFlushMemkScheduler;
+    private final ScheduledExecutorService unFlushMemScheduler;
     // max transfer size.
     private int maxMsgTransferSize;
     // the status that is deleting topic.
@@ -123,7 +123,7 @@ public class MessageStoreManager implements StoreService {
                         return new Thread(r, "Broker Log Disk Flush Thread");
                     }
                 });
-        this.unFlushMemkScheduler =
+        this.unFlushMemScheduler =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                     @Override
                     public Thread newThread(Runnable r) {
@@ -154,7 +154,7 @@ public class MessageStoreManager implements StoreService {
                 tubeConfig.getLogFlushDiskDurMs(),
                 TimeUnit.MILLISECONDS);
 
-        this.unFlushMemkScheduler.scheduleWithFixedDelay(new MemUnFlushRunner(),
+        this.unFlushMemScheduler.scheduleWithFixedDelay(new MemUnFlushRunner(),
                 tubeConfig.getLogFlushMemDurMs(),
                 tubeConfig.getLogFlushMemDurMs(),
                 TimeUnit.MILLISECONDS);
@@ -170,7 +170,7 @@ public class MessageStoreManager implements StoreService {
             logger.info("[Store Manager] begin close store manager......");
             this.logClearScheduler.shutdownNow();
             this.unFlushDiskScheduler.shutdownNow();
-            this.unFlushMemkScheduler.shutdownNow();
+            this.unFlushMemScheduler.shutdownNow();
             this.msgSsdStoreManager.close();
             for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry :
                     this.dataStores.entrySet()) {
@@ -372,7 +372,7 @@ public class MessageStoreManager implements StoreService {
      * @return
      * @throws IOException
      */
-    public GetMessageResult getSsdMesssage(final String storeKey,
+    public GetMessageResult getSsdMessage(final String storeKey,
                                            final String partStr,
                                            final long ssdStartDataOffset,
                                            final long lastRDOffset,
@@ -516,7 +516,7 @@ public class MessageStoreManager implements StoreService {
                 final String name = subDir.getName();
                 final int index = name.lastIndexOf('-');
                 if (index < 0) {
-                    logger.warn(sBuilder.append("[Store Manager] Ignore invlaid directory:")
+                    logger.warn(sBuilder.append("[Store Manager] Ignore invalid directory:")
                             .append(subDir.getAbsolutePath()).toString());
                     sBuilder.delete(0, sBuilder.length());
                     continue;
@@ -648,7 +648,7 @@ public class MessageStoreManager implements StoreService {
                     try {
                         entry.getValue().refreshUnflushThreshold(newTopicMetadata);
                     } catch (Throwable ee) {
-                        logger.error(sBuilder.append("[Store Manager] refress ")
+                        logger.error(sBuilder.append("[Store Manager] refresh ")
                                 .append(entry.getValue().getStoreKey())
                                 .append("'s parameter error,").toString(), ee);
                         sBuilder.delete(0, sBuilder.length());
@@ -725,7 +725,7 @@ public class MessageStoreManager implements StoreService {
                     } catch (final Throwable e) {
                         logger.error(sb.append("Try to run delete policy with ")
                                 .append(msgStore.getStoreKey())
-                                .append("'s log file  failed").toString(), e);
+                                .append("'s log file failed").toString(), e);
                         sb.delete(0, sb.length());
                     }
                 }
@@ -756,7 +756,7 @@ public class MessageStoreManager implements StoreService {
                     } catch (final Throwable e) {
                         logger.error(sBuilder.append("[Store Manager] Try to flush ")
                                 .append(msgStore.getStoreKey())
-                                .append("'s file-store failed1 : ").toString(), e);
+                                .append("'s file-store failed : ").toString(), e);
                         sBuilder.delete(0, sBuilder.length());
                     }
                 }
@@ -786,7 +786,7 @@ public class MessageStoreManager implements StoreService {
                     } catch (final Throwable e) {
                         logger.error(sBuilder.append("[Store Manager] Try to flush ")
                                 .append(msgStore.getStoreKey())
-                                .append("'s mem-store failed1 : ").toString(), e);
+                                .append("'s mem-store failed : ").toString(), e);
                         sBuilder.delete(0, sBuilder.length());
                     }
                 }
