@@ -149,7 +149,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private boolean startupResetBalance = true;
     private int balanceDelayTimes = 0;
     private Sleeper stopSleeper = new Sleeper(1000, this);
-    private SimpleVisitTokenManager visitTokenManage;
+    private SimpleVisitTokenManager visitTokenManager;
 
     /**
      * constructor
@@ -164,7 +164,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.checkAndCreateBdbDataPath();
         this.masterAddInfo =
                 new NodeAddrInfo(masterConfig.getHostName(), masterConfig.getPort());
-        this.visitTokenManage = new SimpleVisitTokenManager(this.masterConfig);
+        this.visitTokenManager = new SimpleVisitTokenManager(this.masterConfig);
         this.serverAuthHandler = new SimpleCertificateMasterHandler(this.masterConfig);
         this.producerHolder = new ProducerInfoHolder();
         this.consumerHolder = new ConsumerInfoHolder();
@@ -2175,7 +2175,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      */
     private MasterBrokerAuthorizedInfo.Builder genBrokerAuthorizedInfo(String authAuthorizedToken) {
         MasterBrokerAuthorizedInfo.Builder authorizedBuilder = MasterBrokerAuthorizedInfo.newBuilder();
-        authorizedBuilder.setVisitAuthorizedToken(visitTokenManage.getBrokerVisitTokens());
+        authorizedBuilder.setVisitAuthorizedToken(visitTokenManager.getBrokerVisitTokens());
         if (TStringUtils.isNotBlank(authAuthorizedToken)) {
             authorizedBuilder.setAuthAuthorizedToken(authAuthorizedToken);
         }
@@ -2191,9 +2191,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private MasterAuthorizedInfo.Builder genAuthorizedInfo(String authAuthorizedToken, boolean isBroker) {
         MasterAuthorizedInfo.Builder authorizedBuilder = MasterAuthorizedInfo.newBuilder();
         if (isBroker) {
-            authorizedBuilder.setVisitAuthorizedToken(visitTokenManage.getFreshVisitToken());
+            authorizedBuilder.setVisitAuthorizedToken(visitTokenManager.getFreshVisitToken());
         } else {
-            authorizedBuilder.setVisitAuthorizedToken(visitTokenManage.getCurVisitToken());
+            authorizedBuilder.setVisitAuthorizedToken(visitTokenManager.getCurVisitToken());
         }
         if (TStringUtils.isNotBlank(authAuthorizedToken)) {
             authorizedBuilder.setAuthAuthorizedToken(authAuthorizedToken);
@@ -2332,7 +2332,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             zkOffsetStorage.close();
             defaultBrokerConfManager.stop();
             defaultBdbStoreService.stop();
-            visitTokenManage.stop();
+            visitTokenManager.stop();
             if (!shutdownHooked.get()) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
             }

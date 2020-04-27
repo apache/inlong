@@ -252,9 +252,13 @@ public class FileSegmentList implements SegmentList {
         return sum;
     }
 
+    /**
+     *  Binary search the segment that contains the offset
+     * @param offset
+     * @return
+     */
     @Override
     public Segment findSegment(final long offset) {
-        // 二分法查找包含offset的segment
         final Segment[] curViews = segmentList.get();
         if (curViews.length == 0) {
             return null;
