@@ -32,7 +32,7 @@ public interface CertificateMasterHandler {
 
     CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp);
 
-    CertifiedResult validConsumerAuthorizeInfo(String userName, String grounName, Set<String> topics,
+    CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
                                                Map<String, TreeSet<String>> topicConds, String clientIp);
 
 

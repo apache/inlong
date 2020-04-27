@@ -73,13 +73,13 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
         if (authorizedInfo == null) {
             return;
         }
-        String curBrokerVistTokens = authorizedInfo.getVisitAuthorizedToken();
-        if (TStringUtils.isBlank(curBrokerVistTokens)
-            || lastUpdatedVisitTokens.equals(curBrokerVistTokens)) {
+        String curBrokerVisitTokens = authorizedInfo.getVisitAuthorizedToken();
+        if (TStringUtils.isBlank(curBrokerVisitTokens)
+            || lastUpdatedVisitTokens.equals(curBrokerVisitTokens)) {
             return;
         }
-        lastUpdatedVisitTokens = curBrokerVistTokens;
-        String[] visitTokenItems = curBrokerVistTokens.split(TokenConstants.ARRAY_SEP);
+        lastUpdatedVisitTokens = curBrokerVisitTokens;
+        String[] visitTokenItems = curBrokerVisitTokens.split(TokenConstants.ARRAY_SEP);
         for (int i = 0; i < visitTokenItems.length; i++) {
             if (TStringUtils.isBlank(visitTokenItems[i])) {
                 continue;

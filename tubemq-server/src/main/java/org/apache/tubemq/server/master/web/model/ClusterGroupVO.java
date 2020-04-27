@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ClusterGroupVO {
     private String groupName = "";
-    private boolean isPrimaryNodeActived = true;
+    private boolean isPrimaryNodeActive = true;
     private List<ClusterNodeVO> nodeData;
     private String groupStatus = "Error";
 
@@ -30,10 +30,10 @@ public class ClusterGroupVO {
 
     }
 
-    public ClusterGroupVO(String groupName, boolean isPrimaryNodeActived,
+    public ClusterGroupVO(String groupName, boolean isPrimaryNodeActive,
                           List<ClusterNodeVO> nodeData, String groupStatus) {
         this.groupName = groupName;
-        this.isPrimaryNodeActived = isPrimaryNodeActived;
+        this.isPrimaryNodeActive = isPrimaryNodeActive;
         this.nodeData = nodeData;
         this.groupStatus = groupStatus;
     }
@@ -46,12 +46,12 @@ public class ClusterGroupVO {
         this.groupName = groupName;
     }
 
-    public boolean isPrimaryNodeActived() {
-        return isPrimaryNodeActived;
+    public boolean isPrimaryNodeActive() {
+        return isPrimaryNodeActive;
     }
 
-    public void setPrimaryNodeActived(boolean isPrimaryNodeActived) {
-        this.isPrimaryNodeActived = isPrimaryNodeActived;
+    public void setPrimaryNodeActive(boolean isPrimaryNodeActive) {
+        this.isPrimaryNodeActive = isPrimaryNodeActive;
     }
 
     public List<ClusterNodeVO> getNodeData() {

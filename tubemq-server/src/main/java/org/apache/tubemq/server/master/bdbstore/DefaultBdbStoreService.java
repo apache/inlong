@@ -248,7 +248,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             return null;
         }
         if (replicationGroup != null) {
-            clusterGroupVO.setPrimaryNodeActived(isPrimaryNodeActive());
+            clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());
             int count = 0;
             boolean hasMaster = false;
             List<ClusterNodeVO> clusterNodeVOList = new ArrayList<ClusterNodeVO>();
