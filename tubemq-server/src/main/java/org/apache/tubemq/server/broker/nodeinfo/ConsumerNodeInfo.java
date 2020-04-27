@@ -130,13 +130,13 @@ public class ConsumerNodeInfo {
     // #lizard forgives
     public int getCurrentAllowedSize(final String storeKey,
                                      final FlowCtrlRuleHandler flowCtrlRuleHandler,
-                                     final long currMaxDataOffset, int maxMsgTrnsSize,
+                                     final long currMaxDataOffset, int maxMsgTransferSize,
                                      boolean isEscFlowCtrl) {
         if (lastDataRdOffset >= 0) {
             long curDataDlt = currMaxDataOffset - lastDataRdOffset;
             long currTime = System.currentTimeMillis();
             recalcMsgLimitValue(curDataDlt,
-                    currTime, maxMsgTrnsSize, flowCtrlRuleHandler);
+                    currTime, maxMsgTransferSize, flowCtrlRuleHandler);
             if (storeManager.isSsdServiceStart()
                     && needSsdProc.get()
                     && (currTime - createTime > 2 * 60 * 1000)) {
@@ -400,10 +400,10 @@ public class ConsumerNodeInfo {
      *
      * @param curDataDlt
      * @param currTime
-     * @param maxMsgTrnsSize
+     * @param maxMsgTransferSize
      * @param flowCtrlRuleHandler
      */
-    private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTrnsSize,
+    private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTransferSize,
                                      final FlowCtrlRuleHandler flowCtrlRuleHandler) {
         if (currTime > nextLimitUpdateTime) {
             this.curFlowCtrlVal = flowCtrlRuleHandler.getCurDataLimit(curDataDlt);
@@ -422,7 +422,7 @@ public class ConsumerNodeInfo {
                     currTime + TBaseConstants.CFG_FC_MAX_LIMITING_DURATION;
             this.totalUnitSec = this.curFlowCtrlVal.dataLtInSize / 12;
             this.sentUnit =
-                    totalUnitSec > maxMsgTrnsSize ? maxMsgTrnsSize : (int) totalUnitSec;
+                    totalUnitSec > maxMsgTransferSize ? maxMsgTransferSize : (int) totalUnitSec;
         } else if (currTime > nextStatTime) {
             sentMsgSize = 0;
             nextStatTime =

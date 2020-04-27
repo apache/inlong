@@ -80,7 +80,7 @@ public class FileSegment implements Segment {
             long remaining = checkOffset == Long.MAX_VALUE ? -1 : (checkOffset - this.start);
             if (this.segmentType == SegmentType.DATA) {
                 RecoverResult recoverResult = this.recoverData(remaining);
-                if (recoverResult.isEqutal()) {
+                if (recoverResult.isEqual()) {
                     logger.info(
                             "[File Store] Data Segment recover success, ignore content check!");
                 } else {
@@ -94,7 +94,7 @@ public class FileSegment implements Segment {
                 }
             } else {
                 RecoverResult recoverResult = this.recoverIndex(remaining);
-                if (recoverResult.isEqutal()) {
+                if (recoverResult.isEqual()) {
                     logger.info(
                             "[File Store] Index Segment recover success, ignore content check!");
                 } else {
@@ -174,7 +174,6 @@ public class FileSegment implements Segment {
     @Override
     public long append(final ByteBuffer buf) throws IOException {
         if (!this.mutable) {
-            //　只有最后一个segment为可修改状态
             if (this.segmentType == SegmentType.DATA) {
                 throw new UnsupportedOperationException("[File Store] Data Segment is immutable!");
             } else {
@@ -321,7 +320,6 @@ public class FileSegment implements Segment {
             return 0;
         }
         if (!mutable) {
-            // 最后一个segment不能主动设置过期
             if (checkTimestamp - file.lastModified() > maxValidTimeMs) {
                 if (expired.compareAndSet(false, true)) {
                     expiredTime = System.currentTimeMillis();
@@ -461,19 +459,19 @@ public class FileSegment implements Segment {
 
     private static class RecoverResult {
         private long truncated;
-        private boolean isEqutal;
+        private boolean isEqual;
 
-        public RecoverResult(long truncated, boolean isEqutal) {
+        public RecoverResult(long truncated, boolean isEqual) {
             this.truncated = truncated;
-            this.isEqutal = isEqutal;
+            this.isEqual = isEqual;
         }
 
         public long getTruncated() {
             return truncated;
         }
 
-        public boolean isEqutal() {
-            return isEqutal;
+        public boolean isEqual() {
+            return isEqual;
         }
     }
 
