@@ -299,8 +299,8 @@ public class Webapi implements Action {
             strBuffer.append("{\"result\":false,\"errCode\":500,\"errMsg\":\"GetBrokerGroup info error\",\"data\":[]}");
         } else {
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
-                    .append(clusterGroupVO.getGroupName()).append("\",\"isPrimaryNodeActived\":")
-                    .append(clusterGroupVO.isPrimaryNodeActived()).append(",\"data\":[");
+                    .append(clusterGroupVO.getGroupName()).append("\",\"isPrimaryNodeActive\":")
+                    .append(clusterGroupVO.isPrimaryNodeActive()).append(",\"data\":[");
             int count = 0;
             List<ClusterNodeVO> nodeList = clusterGroupVO.getNodeData();
             if (nodeList != null) {
@@ -380,7 +380,7 @@ public class Webapi implements Action {
                         .append(queryGroupSet.size()).append(",\"data\":[");
                 for (String tmpGroup : queryGroupSet) {
                     Set<String> topicSet = consumerHolder.getGroupTopicSet(tmpGroup);
-                    final int consuemrCnt = consumerHolder.getConsuemrCnt(tmpGroup);
+                    final int consuemrCnt = consumerHolder.getConsumerCnt(tmpGroup);
                     if (totalCnt++ > 0) {
                         strBuffer.append(",");
                     }
