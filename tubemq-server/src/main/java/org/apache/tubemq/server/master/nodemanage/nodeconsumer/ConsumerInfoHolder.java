@@ -401,7 +401,7 @@ public class ConsumerInfoHolder {
         }
     }
 
-    public int getConsuemrCnt(String group) {
+    public int getConsumerCnt(String group) {
         int count = 0;
         if (group == null) {
             return 0;

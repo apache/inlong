@@ -159,7 +159,7 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
     }
 
     @Override
-    public CertifiedResult validConsumerAuthorizeInfo(String userName, String grounName, Set<String> topics,
+    public CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
                                                       Map<String, TreeSet<String>> topicConds, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!masterConfig.isStartProduceAuthorize()) {
