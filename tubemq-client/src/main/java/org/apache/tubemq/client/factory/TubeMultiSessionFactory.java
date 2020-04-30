@@ -38,12 +38,13 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
             LoggerFactory.getLogger(TubeMultiSessionFactory.class);
     private final NettyClientFactory clientFactory = new NettyClientFactory();
     private final TubeBaseSessionFactory baseSessionFactory;
-    private final AtomicBoolean isShutDown = new AtomicBoolean(false);
+    private final AtomicBoolean isShutDown = new AtomicBoolean(true);
 
     public TubeMultiSessionFactory(final TubeClientConfig tubeClientConfig) throws TubeClientException {
         RpcConfig config = TubeClientConfigUtils.getRpcConfigByClientConfig(tubeClientConfig, false);
         clientFactory.configure(config);
         baseSessionFactory = new TubeBaseSessionFactory(clientFactory, tubeClientConfig);
+        isShutDown.set(false);
     }
 
     @Override
@@ -56,23 +57,35 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
 
     @Override
     public <T extends Shutdownable> void removeClient(final T client) {
+        if (baseSessionFactory == null) {
+            return;
+        }
         this.baseSessionFactory.removeClient(client);
     }
 
     @Override
     public MessageProducer createProducer() throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return this.baseSessionFactory.createProducer();
     }
 
     @Override
     public PushMessageConsumer createPushConsumer(final ConsumerConfig consumerConfig)
             throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return this.baseSessionFactory.createPushConsumer(consumerConfig);
     }
 
     @Override
     public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return this.baseSessionFactory.createPullConsumer(consumerConfig);
     }
 
