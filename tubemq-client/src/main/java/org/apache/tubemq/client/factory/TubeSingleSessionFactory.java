@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.client.factory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.config.TubeClientConfig;
@@ -33,6 +34,7 @@ import org.apache.tubemq.corerpc.netty.NettyClientFactory;
 public class TubeSingleSessionFactory implements MessageSessionFactory {
 
     private static final NettyClientFactory clientFactory = new NettyClientFactory();
+    private static final AtomicBoolean isShutDown = new AtomicBoolean(true);
     private static final AtomicLong referenceCounter = new AtomicLong(0);
     private static TubeBaseSessionFactory baseSessionFactory;
 
@@ -42,37 +44,61 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
             RpcConfig config = TubeClientConfigUtils.getRpcConfigByClientConfig(tubeClientConfig, true);
             clientFactory.configure(config);
             baseSessionFactory = new TubeBaseSessionFactory(clientFactory, tubeClientConfig);
+            isShutDown.set(false);
+        }
+        while (isShutDown.get()) {
+            try {
+                Thread.sleep(50);
+            } catch (Throwable e) {
+                break;
+            }
         }
     }
 
     @Override
     public void shutdown() throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         if (referenceCounter.decrementAndGet() > 0) {
             return;
         }
         baseSessionFactory.shutdown();
         clientFactory.shutdown();
+        isShutDown.set(true);
     }
 
     @Override
     public <T extends Shutdownable> void removeClient(final T client) {
+        if (baseSessionFactory == null) {
+            return;
+        }
         baseSessionFactory.removeClient(client);
     }
 
     @Override
     public MessageProducer createProducer() throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return baseSessionFactory.createProducer();
     }
 
     @Override
     public PushMessageConsumer createPushConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return baseSessionFactory.createPushConsumer(consumerConfig);
     }
 
     @Override
     public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
         return baseSessionFactory.createPullConsumer(consumerConfig);
     }
 
