@@ -358,7 +358,8 @@ public class TopicMetadata {
                 && this.unflushThreshold == other.unflushThreshold
                 && this.memCacheMsgSize == other.memCacheMsgSize
                 && this.memCacheMsgCnt == other.memCacheMsgCnt
-                && this.memCacheFlushIntvl == other.memCacheFlushIntvl);
+                && this.memCacheFlushIntvl == other.memCacheFlushIntvl
+                && this.deletePolicy.equals(other.deletePolicy));
     }
 
     @Override
