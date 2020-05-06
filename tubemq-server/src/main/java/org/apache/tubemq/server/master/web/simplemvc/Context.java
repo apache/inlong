@@ -30,7 +30,7 @@ public interface Context {
 
     void clear();
 
-    void destory();
+    void destroy();
 
     boolean containsKey(String key);
 
