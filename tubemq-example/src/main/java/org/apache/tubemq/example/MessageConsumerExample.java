@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * This demo shows how to consume message sequentially.
  *
  * <p>Consumer supports subscribe multiple topics in one consume group. Message from subscription
- * sent back to business logic via callback {@link MessageListener}. It is highly recommended NOT
+ * sent back to business logic via callback {@link MessageV2Listener}. It is highly recommended NOT
  * to perform any blocking operation inside the callback.
  *
  * <p>As for consumption control of {@link PushMessageConsumer}, business logic is able to monitor
@@ -120,7 +120,7 @@ public final class MessageConsumerExample {
             }
         });
 
-        final Thread statisticThread = new Thread(msgRecvStats, "Sent Statistic Thread");
+        final Thread statisticThread = new Thread(msgRecvStats, "Received Statistic Thread");
         statisticThread.start();
 
         executorService.shutdown();
