@@ -695,6 +695,7 @@ public class MessageStoreManager implements StoreService {
                         }
                     }
                 }
+                logger.info("Log Clear Scheduler finished file delete!");
             }
             long dltTime = System.currentTimeMillis() - startTime;
             if (dltTime >= tubeConfig.getLogClearupDurationMs()) {
@@ -702,9 +703,6 @@ public class MessageStoreManager implements StoreService {
                         .append("used ").append(dltTime).append(", configure value is ")
                         .append(tubeConfig.getLogClearupDurationMs()).toString());
                 sBuilder.delete(0, sBuilder.length());
-            }
-            if (!expiredTopic.isEmpty()) {
-                logger.info("Log Clear Scheduler finished file delete!");
             }
         }
 

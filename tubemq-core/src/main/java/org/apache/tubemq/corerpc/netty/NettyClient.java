@@ -379,8 +379,7 @@ public class NettyClient implements Client {
                     logger.info("Close client {} due to idle.", e.getChannel());
                 }
                 if (t instanceof UnresolvedAddressException) {
-                    logger
-                            .info("UnresolvedAddressException for connect {} closed.", addressInfo.getHostPortStr());
+                    logger.info("UnresolvedAddressException for connect {} closed.", addressInfo.getHostPortStr());
                 }
                 NettyClient.this.close();
             } else {
