@@ -236,10 +236,9 @@ public class BrokerMetadataManager implements MetadataManager {
         }
         this.brokerDefMetadata = new BrokerDefMetadata(newBrokerDefMetaConfInfo);
         this.brokerDefMetaConfInfo = newBrokerDefMetaConfInfo;
-        if ((newTopicMetaConfInfoLst == null)
-                || newTopicMetaConfInfoLst.isEmpty()) {
-            this.brokerMetadataConfId = newBrokerMetaConfId;
-            this.brokerConfCheckSumId = newConfCheckSumId;
+        this.brokerMetadataConfId = newBrokerMetaConfId;
+        this.brokerConfCheckSumId = newConfCheckSumId;
+        if (newTopicMetaConfInfoLst == null || newTopicMetaConfInfoLst.isEmpty()) {
             logger.error("[Metadata Manage] received broker topic info is Blank, not update");
             return;
         }
@@ -262,8 +261,6 @@ public class BrokerMetadataManager implements MetadataManager {
         }
         this.topicMetaConfInfoLst = newTopicMetaConfInfoLst;
         this.closedTopicMap = tmpInvalidTopicMap;
-        this.brokerMetadataConfId = newBrokerMetaConfId;
-        this.brokerConfCheckSumId = newConfCheckSumId;
         Collections.sort(newTopics);
         if (!newTopicConfigMap.equals(this.topicConfigMap)) {
             Map<String, TopicMetadata> oldTopicConfigMap = this.topicConfigMap;

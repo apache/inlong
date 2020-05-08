@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.server.common.TubeServerVersion;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
@@ -98,7 +99,7 @@ public class BrokerList implements Action {
                 brokerVO.setPartitionCount(totalPartitionNum);
                 brokerVO.setReadable(true);
                 brokerVO.setWritable(true);
-                brokerVO.setVersion("1.0.0");
+                brokerVO.setVersion(TubeServerVersion.BROKER_VERSION);
                 brokerVO.setStatus(1);
                 brokerVO.setLastOpTime(new Date());
                 brokerVOList.add(brokerVO);
