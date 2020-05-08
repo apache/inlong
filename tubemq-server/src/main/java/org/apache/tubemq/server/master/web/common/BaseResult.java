@@ -36,19 +36,19 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
  * should be set in dao PageSize (number of pages per page), should be set in the web
  * layer QueryBase defaults to 20, subclasses can be overwritten getDefaultPageSize()
  * Modify CurrentPage (current page), default is 1, home page, should be set in the
- * web layer. After paging, you can get: TotalPage (total number of pages) FristItem
+ * web layer. After paging, you can get: TotalPage (total number of pages) FirstItem
  * (the current page starts recording position, counting from 1) PageLastItem
  * (current page last recording position) On the page, the number of pages displayed
  * per page should be: lines , the current page name should be: page
  *   * <p/>
  *   * Add the render link function at the same time,
- * the subclass overrides the getParameteres method and returns valid parameters.
+ * the subclass overrides the getParameters method and returns valid parameters.
  */
 public class BaseResult implements Serializable {
     private static final long serialVersionUID = 8807356835558347735L;
     private static final Integer defaultPageSize = new Integer(20);
-    private static final Integer defaultFristPage = new Integer(1);
-    private static final Integer defaultTotleItem = new Integer(0);
+    private static final Integer defaultFirstPage = new Integer(1);
+    private static final Integer defaultTotalItem = new Integer(0);
     /**
      * max page size
      */
@@ -211,7 +211,7 @@ public class BaseResult implements Serializable {
      */
     public Integer getCurrentPage() {
         if (currentPage == null) {
-            return defaultFristPage;
+            return defaultFirstPage;
         }
 
         return currentPage;
@@ -231,14 +231,14 @@ public class BaseResult implements Serializable {
 
     public void setCurrentPageString(String pageString) {
         if (isBlankString(pageString)) {
-            this.setCurrentPage(defaultFristPage);
+            this.setCurrentPage(defaultFirstPage);
         }
 
         try {
             Integer integer = new Integer(pageString);
             this.setCurrentPage(integer);
         } catch (NumberFormatException ignore) {
-            this.setCurrentPage(defaultFristPage);
+            this.setCurrentPage(defaultFirstPage);
         }
     }
 
@@ -311,9 +311,8 @@ public class BaseResult implements Serializable {
      */
     public Integer getTotalItem() {
         if (totalItem == null) {
-            // throw new IllegalStateException("Please set the TotalItem
-            // frist.");
-            return defaultTotleItem;
+            // throw new IllegalStateException("Please set the TotalItem first.");
+            return defaultTotalItem;
         }
 
         return totalItem;
@@ -349,10 +348,8 @@ public class BaseResult implements Serializable {
         return result;
     }
 
-    /**
-     * Frist是first写错了 历史原因，不改了
-     */
-    public int getPageFristItem() {
+
+    public int getPageFirstItem() {
         int cPage = this.getCurrentPage().intValue();
 
         if (cPage == 1) {

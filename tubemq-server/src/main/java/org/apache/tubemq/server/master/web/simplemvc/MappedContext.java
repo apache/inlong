@@ -52,7 +52,7 @@ public class MappedContext implements Context {
     }
 
     @Override
-    public void destory() {
+    public void destroy() {
         map = Collections.emptyMap();
     }
 

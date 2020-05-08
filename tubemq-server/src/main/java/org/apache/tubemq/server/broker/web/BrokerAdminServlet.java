@@ -62,7 +62,7 @@ public class BrokerAdminServlet extends HttpServlet {
             String method = req.getParameter("method");
             if ("admin_manual_set_current_offset".equals(method)) {
                 // manual set offset
-                sBuilder = this.adminManuSetCurrentOffSet(req);
+                sBuilder = this.adminManualSetCurrentOffSet(req);
             } else if ("admin_query_group_offset".equals(method)) {
                 // query consumer group's offset
                 sBuilder = this.adminQueryCurrentGroupOffSet(req);
@@ -358,7 +358,7 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminManuSetCurrentOffSet(HttpServletRequest req) throws Exception {
+    private StringBuilder adminManualSetCurrentOffSet(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         final String topicName =
                 WebParameterUtils.validStringParameter("topicName",

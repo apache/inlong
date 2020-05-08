@@ -186,16 +186,16 @@ public class FlowCtrlRuleHandler {
      * initial statis data
      */
     private void initialStatisData() {
-        initlDataLimitStatisInfo();
-        initlFreqLimitStatisInfo();
-        initlSSDProcLimitStatisInfo();
-        initlLowFetchLimitStatisInfo();
+        initialDataLimitStatisInfo();
+        initialFreqLimitStatisInfo();
+        initialSSDProcLimitStatisInfo();
+        initialLowFetchLimitStatisInfo();
     }
 
     /**
      * initial data limit statis info
      */
-    private void initlDataLimitStatisInfo() {
+    private void initialDataLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = this.flowCtrlRuleSet.get(0);
         if (flowCtrlItemList != null
                 && !flowCtrlItemList.isEmpty()) {
@@ -220,7 +220,7 @@ public class FlowCtrlRuleHandler {
         }
     }
 
-    private void initlFreqLimitStatisInfo() {
+    private void initialFreqLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(1);
         if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
             for (FlowCtrlItem flowCtrlItem : flowCtrlItemList) {
@@ -237,7 +237,7 @@ public class FlowCtrlRuleHandler {
         }
     }
 
-    private void initlSSDProcLimitStatisInfo() {
+    private void initialSSDProcLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(2);
         if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
             for (FlowCtrlItem flowCtrlItem : flowCtrlItemList) {
@@ -260,7 +260,7 @@ public class FlowCtrlRuleHandler {
         }
     }
 
-    private void initlLowFetchLimitStatisInfo() {
+    private void initialLowFetchLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(3);
         if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
             for (FlowCtrlItem flowCtrlItem : flowCtrlItemList) {
