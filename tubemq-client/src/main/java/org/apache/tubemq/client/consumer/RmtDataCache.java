@@ -56,21 +56,21 @@ public class RmtDataCache implements Closeable {
     private final FlowCtrlRuleHandler defFlowCtrlRuleHandler;
     private final AtomicInteger waitCont = new AtomicInteger(0);
     private final ConcurrentHashMap<String, Timeout> timeouts =
-            new ConcurrentHashMap<String, Timeout>();
+            new ConcurrentHashMap<>();
     private final BlockingQueue<String> indexPartition =
-            new LinkedBlockingQueue<String>();
+            new LinkedBlockingQueue<>();
     private final ConcurrentHashMap<String /* index */, PartitionExt> partitionMap =
-            new ConcurrentHashMap<String, PartitionExt>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, Long> partitionUsedMap =
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, Long> partitionOffsetMap =
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* topic */, ConcurrentLinkedQueue<Partition>> topicPartitionConMap =
-            new ConcurrentHashMap<String, ConcurrentLinkedQueue<Partition>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<BrokerInfo/* broker */, ConcurrentLinkedQueue<Partition>> brokerPartitionConMap =
-            new ConcurrentHashMap<BrokerInfo, ConcurrentLinkedQueue<Partition>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* partitionKey */, Integer> partRegisterBookMap =
-            new ConcurrentHashMap<String/* partitionKey */, Integer>();
+            new ConcurrentHashMap<>();
     private AtomicBoolean isClosed = new AtomicBoolean(false);
     private CountDownLatch dataProcessSync = new CountDownLatch(0);
 
@@ -90,7 +90,7 @@ public class RmtDataCache implements Closeable {
         }
         this.defFlowCtrlRuleHandler = defFlowCtrlRuleHandler;
         this.groupFlowCtrlRuleHandler = groupFlowCtrlRuleHandler;
-        Map<Partition, Long> tmpPartOffsetMap = new HashMap<Partition, Long>();
+        Map<Partition, Long> tmpPartOffsetMap = new HashMap<>();
         if (partitionList != null) {
             for (Partition partition : partitionList) {
                 tmpPartOffsetMap.put(partition, -1L);
@@ -294,7 +294,7 @@ public class RmtDataCache implements Closeable {
         if (partition == null) {
             return;
         }
-        Map<Partition, Long> tmpPartOffsetMap = new HashMap<Partition, Long>();
+        Map<Partition, Long> tmpPartOffsetMap = new HashMap<>();
         tmpPartOffsetMap.put(partition, currOffset);
         addPartitionsInfo(tmpPartOffsetMap);
     }
@@ -429,7 +429,7 @@ public class RmtDataCache implements Closeable {
      * @return subscribe information list
      */
     public List<SubscribeInfo> getSubscribeInfoList(String consumerId, String consumeGroup) {
-        List<SubscribeInfo> subscribeInfoList = new ArrayList<SubscribeInfo>();
+        List<SubscribeInfo> subscribeInfoList = new ArrayList<>();
         for (Partition partition : partitionMap.values()) {
             if (partition != null) {
                 subscribeInfoList.add(new SubscribeInfo(consumerId, consumeGroup, partition));
@@ -444,7 +444,7 @@ public class RmtDataCache implements Closeable {
             boolean isWaitTimeoutRollBack) {
         StringBuilder sBuilder = new StringBuilder(512);
         HashMap<BrokerInfo, List<PartitionSelectResult>> unNewRegisterInfoMap =
-                new HashMap<BrokerInfo, List<PartitionSelectResult>>();
+                new HashMap<>();
         pauseProcess();
         try {
             waitPartitions(partitionKeys, inUseWaitPeriodMs);
@@ -491,7 +491,7 @@ public class RmtDataCache implements Closeable {
                         List<PartitionSelectResult> targetPartitonList =
                                 unNewRegisterInfoMap.get(entry.getKey());
                         if (targetPartitonList == null) {
-                            targetPartitonList = new ArrayList<PartitionSelectResult>();
+                            targetPartitonList = new ArrayList<>();
                             unNewRegisterInfoMap.put(entry.getKey(), targetPartitonList);
                         }
                         targetPartitonList.add(partitionRet);
@@ -540,7 +540,7 @@ public class RmtDataCache implements Closeable {
      */
     public Map<String, ConsumeOffsetInfo> getCurPartitionInfoMap() {
         Map<String, ConsumeOffsetInfo> tmpPartitionMap =
-                new ConcurrentHashMap<String, ConsumeOffsetInfo>();
+                new ConcurrentHashMap<>();
         for (Map.Entry<String, PartitionExt> entry : partitionMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -553,12 +553,12 @@ public class RmtDataCache implements Closeable {
 
     public Map<BrokerInfo, List<PartitionSelectResult>> getAllPartitionListWithStatus() {
         Map<BrokerInfo, List<PartitionSelectResult>> registeredInfoMap =
-                new HashMap<BrokerInfo, List<PartitionSelectResult>>();
+                new HashMap<>();
         for (PartitionExt partitionExt : partitionMap.values()) {
             List<PartitionSelectResult> registerPartitionList =
                     registeredInfoMap.get(partitionExt.getBroker());
             if (registerPartitionList == null) {
-                registerPartitionList = new ArrayList<PartitionSelectResult>();
+                registerPartitionList = new ArrayList<>();
                 registeredInfoMap.put(partitionExt.getBroker(), registerPartitionList);
             }
             registerPartitionList.add(new PartitionSelectResult(true,
@@ -584,7 +584,7 @@ public class RmtDataCache implements Closeable {
      * @return partition list
      */
     public List<Partition> getBrokerPartitionList(BrokerInfo brokerInfo) {
-        List<Partition> retPartition = new ArrayList<Partition>();
+        List<Partition> retPartition = new ArrayList<>();
         ConcurrentLinkedQueue<Partition> partitionList =
                 brokerPartitionConMap.get(brokerInfo);
         if (partitionList != null) {
@@ -595,7 +595,7 @@ public class RmtDataCache implements Closeable {
 
     public void filterCachedPartitionInfo(Map<BrokerInfo, List<Partition>> registerInfoMap,
                                           List<Partition> unRegPartitionList) {
-        List<BrokerInfo> brokerInfoList = new ArrayList<BrokerInfo>();
+        List<BrokerInfo> brokerInfoList = new ArrayList<>();
         for (Map.Entry<BrokerInfo, List<Partition>> entry : registerInfoMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -628,7 +628,7 @@ public class RmtDataCache implements Closeable {
 
     public void resumeTimeoutConsumePartitions(long allowedPeriodTimes) {
         if (!partitionUsedMap.isEmpty()) {
-            List<String> partKeys = new ArrayList<String>();
+            List<String> partKeys = new ArrayList<>();
             partKeys.addAll(partitionUsedMap.keySet());
             for (String keyId : partKeys) {
                 Long oldTime = partitionUsedMap.get(keyId);
@@ -689,7 +689,7 @@ public class RmtDataCache implements Closeable {
             ConcurrentLinkedQueue<Partition> topicPartitionQue =
                     topicPartitionConMap.get(partition.getTopic());
             if (topicPartitionQue == null) {
-                topicPartitionQue = new ConcurrentLinkedQueue<Partition>();
+                topicPartitionQue = new ConcurrentLinkedQueue<>();
                 ConcurrentLinkedQueue<Partition> tmpTopicPartitionQue =
                         topicPartitionConMap.putIfAbsent(partition.getTopic(), topicPartitionQue);
                 if (tmpTopicPartitionQue != null) {
@@ -702,7 +702,7 @@ public class RmtDataCache implements Closeable {
             ConcurrentLinkedQueue<Partition> brokerPartitionQue =
                     brokerPartitionConMap.get(partition.getBroker());
             if (brokerPartitionQue == null) {
-                brokerPartitionQue = new ConcurrentLinkedQueue<Partition>();
+                brokerPartitionQue = new ConcurrentLinkedQueue<>();
                 ConcurrentLinkedQueue<Partition> tmpBrokerPartQues =
                         brokerPartitionConMap.putIfAbsent(partition.getBroker(), brokerPartitionQue);
                 if (tmpBrokerPartQues != null) {

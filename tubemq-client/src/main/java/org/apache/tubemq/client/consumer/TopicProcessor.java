@@ -26,7 +26,7 @@ import java.util.TreeSet;
 public class TopicProcessor {
     private MessageListener messageListener;
     private TreeSet<String> filterCondStrs;
-    private List<Integer> filterCondCodes = new ArrayList<Integer>();
+    private List<Integer> filterCondCodes = new ArrayList<>();
 
     public TopicProcessor(final MessageListener messageListener,
                           final TreeSet<String> filterConds) {

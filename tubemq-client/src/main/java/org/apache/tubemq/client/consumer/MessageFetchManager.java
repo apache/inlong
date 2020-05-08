@@ -34,7 +34,7 @@ public class MessageFetchManager {
     private static final Logger logger =
             LoggerFactory.getLogger(MessageFetchManager.class);
     private final ConcurrentHashMap<Long, Integer> fetchWorkerStatusMap =
-            new ConcurrentHashMap<Long, Integer>();
+            new ConcurrentHashMap<>();
     private final ConsumerConfig consumerConfig;
     private final SimplePushMessageConsumer pushConsumer;
     // Manager status:
