@@ -520,18 +520,7 @@ public class FlowCtrlRuleHandler {
                     startTime, endTime, dltVal, dataLimitInM, freqInMs));
         }
 
-        Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
-            @Override
-            public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
-                if (o1.getStartTime() > o2.getStartTime()) {
-                    return 1;
-                } else if (o1.getStartTime() < o2.getStartTime()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+        flowCtrlItems.sort(Comparator.comparingInt(FlowCtrlItem::getStartTime));
         return flowCtrlItems;
     }
 
@@ -578,18 +567,7 @@ public class FlowCtrlRuleHandler {
             flowCtrlItems.add(new FlowCtrlItem(typeVal, zeroCnt, freqInMs));
         }
 
-        Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
-            @Override
-            public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
-                if (o1.getZeroCnt() > o2.getZeroCnt()) {
-                    return -1;
-                } else if (o1.getZeroCnt() < o2.getZeroCnt()) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+        flowCtrlItems.sort((o1, o2) -> Integer.compare(o2.getZeroCnt(), o1.getZeroCnt()));
         return flowCtrlItems;
     }
 
@@ -655,18 +633,7 @@ public class FlowCtrlRuleHandler {
                     normfreqInMs, filterFreqInMs, minDataFilterFreqInMs));
         }
 
-        Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
-            @Override
-            public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
-                if (o1.getFreqLtInMs() > o2.getFreqLtInMs()) {
-                    return -1;
-                } else if (o1.getFreqLtInMs() < o2.getFreqLtInMs()) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+        flowCtrlItems.sort((o1, o2) -> Integer.compare(o2.getFreqLtInMs(), o1.getFreqLtInMs()));
         return flowCtrlItems;
     }
 
@@ -735,18 +702,7 @@ public class FlowCtrlRuleHandler {
             flowCtrlItems.add(new FlowCtrlItem(typeVal, startTime, endTime, dltStInM, dataEndInM));
         }
 
-        Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
-            @Override
-            public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
-                if (o1.getStartTime() > o2.getStartTime()) {
-                    return 1;
-                } else if (o1.getStartTime() < o2.getStartTime()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+        flowCtrlItems.sort(Comparator.comparingInt(FlowCtrlItem::getStartTime));
         return flowCtrlItems;
     }
 
