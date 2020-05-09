@@ -28,7 +28,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 
 public class ClientSubInfo {
     private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
-            new ConcurrentHashMap<String, TopicProcessor>();
+            new ConcurrentHashMap<>();
     private boolean requireBound = false;
     private AtomicBoolean isNotAllocated =
             new AtomicBoolean(true);
@@ -37,9 +37,9 @@ public class ClientSubInfo {
     private long subscribedTime;
     private boolean isSelectBig = true;
     private String requiredPartition = "";
-    private Set<String> subscribedTopics = new HashSet<String>();
-    private Map<String, Long> assignedPartMap = new HashMap<String, Long>();
-    private Map<String, Boolean> topicFilterMap = new HashMap<String, Boolean>();
+    private Set<String> subscribedTopics = new HashSet<>();
+    private Map<String, Long> assignedPartMap = new HashMap<>();
+    private Map<String, Boolean> topicFilterMap = new HashMap<>();
 
     public ClientSubInfo() {
 

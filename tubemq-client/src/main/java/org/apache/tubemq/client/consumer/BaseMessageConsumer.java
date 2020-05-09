@@ -87,9 +87,9 @@ public class BaseMessageConsumer implements MessageConsumer {
     private final ScheduledExecutorService heartService2Master;
     private final Thread rebalanceThread;
     private final BlockingQueue<ConsumerEvent> rebalanceEvents =
-            new ArrayBlockingQueue<ConsumerEvent>(REBALANCE_QUEUE_SIZE);
+            new ArrayBlockingQueue<>(REBALANCE_QUEUE_SIZE);
     private final BlockingQueue<ConsumerEvent> rebalanceResults =
-            new ArrayBlockingQueue<ConsumerEvent>(REBALANCE_QUEUE_SIZE);
+            new ArrayBlockingQueue<>(REBALANCE_QUEUE_SIZE);
     // flowctrl
     private boolean isCurGroupCtrl = false;
     private AtomicLong lastCheckTime = new AtomicLong(0);
@@ -102,7 +102,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     private final RpcConfig rpcConfig = new RpcConfig();
     private AtomicLong visitToken = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private AtomicReference<String> authAuthorizedTokenRef =
-            new AtomicReference<String>("");
+            new AtomicReference<>("");
     private ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
     private Thread heartBeatThread2Broker;
@@ -615,9 +615,9 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private void disconnectFromBroker(ConsumerEvent event) throws InterruptedException {
-        List<String> partKeys = new ArrayList<String>();
+        List<String> partKeys = new ArrayList<>();
         HashMap<BrokerInfo, List<Partition>> unRegisterInfoMap =
-                new HashMap<BrokerInfo, List<Partition>>();
+                new HashMap<>();
         List<SubscribeInfo> subscribeInfoList = event.getSubscribeInfoList();
         for (SubscribeInfo info : subscribeInfoList) {
             BrokerInfo broker =
@@ -627,7 +627,7 @@ public class BaseMessageConsumer implements MessageConsumer {
             List<Partition> unRegisterPartitionList =
                     unRegisterInfoMap.get(broker);
             if (unRegisterPartitionList == null) {
-                unRegisterPartitionList = new ArrayList<Partition>();
+                unRegisterPartitionList = new ArrayList<>();
                 unRegisterInfoMap.put(broker, unRegisterPartitionList);
             }
             if (!unRegisterPartitionList.contains(partition)) {
@@ -639,7 +639,7 @@ public class BaseMessageConsumer implements MessageConsumer {
             return;
         }
         Map<BrokerInfo, List<PartitionSelectResult>> unNewRegisterInfoMap =
-                new HashMap<BrokerInfo, List<PartitionSelectResult>>();
+                new HashMap<>();
         try {
             if (this.isPullConsume) {
                 unNewRegisterInfoMap =
@@ -661,14 +661,14 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     private void connect2Broker(ConsumerEvent event) throws InterruptedException {
         Map<BrokerInfo, List<Partition>> registerInfoMap =
-                new HashMap<BrokerInfo, List<Partition>>();
+                new HashMap<>();
         List<SubscribeInfo> subscribeInfoList = event.getSubscribeInfoList();
         for (SubscribeInfo info : subscribeInfoList) {
             BrokerInfo broker = new BrokerInfo(info.getBrokerId(), info.getHost(), info.getPort());
             Partition partition = new Partition(broker, info.getTopic(), info.getPartitionId());
             List<Partition> curPartList = registerInfoMap.get(broker);
             if (curPartList == null) {
-                curPartList = new ArrayList<Partition>();
+                curPartList = new ArrayList<>();
                 registerInfoMap.put(broker, curPartList);
             }
             if (!curPartList.contains(partition)) {
@@ -678,7 +678,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         if ((isRebalanceStopped()) || (isShutdown())) {
             return;
         }
-        List<Partition> unfinishedPartitions = new ArrayList<Partition>();
+        List<Partition> unfinishedPartitions = new ArrayList<>();
         rmtDataCache.filterCachedPartitionInfo(registerInfoMap, unfinishedPartitions);
         registerPartitions(registerInfoMap, unfinishedPartitions);
         if (this.isFirst.get()) {
@@ -913,7 +913,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     private List<String> formatTopicCondInfo(
             final ConcurrentHashMap<String, TopicProcessor> topicCondMap) {
         final StringBuilder strBuffer = new StringBuilder(512);
-        List<String> strTopicCondList = new ArrayList<String>();
+        List<String> strTopicCondList = new ArrayList<>();
         if ((topicCondMap != null) && (!topicCondMap.isEmpty())) {
             for (Map.Entry<String, TopicProcessor> entry : topicCondMap.entrySet()) {
                 if (entry.getKey() == null || entry.getValue() == null) {
@@ -1253,7 +1253,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                             needFilter = true;
                         }
                     }
-                    List<Message> messageList = new ArrayList<Message>();
+                    List<Message> messageList = new ArrayList<>();
                     for (Message message : tmpMessageList) {
                         if (message == null) {
                             continue;
@@ -1584,7 +1584,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     }
                     // Send heartbeat request to the broker connect by the client
                     for (BrokerInfo brokerInfo : rmtDataCache.getAllRegisterBrokers()) {
-                        List<String> partStrSet = new ArrayList<String>();
+                        List<String> partStrSet = new ArrayList<>();
                         try {
                             // Handle the heartbeat response for partitions belong to the same broker.
                             List<Partition> partitions =

@@ -34,7 +34,7 @@ public class FetchContext {
     private String errMsg = "";
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
     private String confirmContext = "";
-    private List<Message> messageList = new ArrayList<Message>();
+    private List<Message> messageList = new ArrayList<>();
 
     public FetchContext(PartitionSelectResult selectResult) {
         this.partition = selectResult.getPartition();
