@@ -32,7 +32,7 @@ public class ConsumerResult {
     private String topicName = "";
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
-    private List<Message> messageList = new ArrayList<Message>();
+    private List<Message> messageList = new ArrayList<>();
 
 
     public ConsumerResult(int errCode, String errMsg) {
