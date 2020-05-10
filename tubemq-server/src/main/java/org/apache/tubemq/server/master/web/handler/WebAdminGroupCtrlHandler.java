@@ -170,7 +170,7 @@ public class WebAdminGroupCtrlHandler {
             }
             Set<String> confgiuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbGroupFilterCondEntity> inGroupFilterCondEntityMap =
-                    new HashMap<String, BdbGroupFilterCondEntity>();
+                    new HashMap<>();
             for (int j = 0; j < filterJsonArray.size(); j++) {
                 Map<String, String> groupObject = filterJsonArray.get(j);
                 try {
@@ -368,7 +368,7 @@ public class WebAdminGroupCtrlHandler {
             if ((jsonArray == null) || (jsonArray.isEmpty())) {
                 throw new Exception("Null value of filterCondJsonSet, please set the value first!");
             }
-            Set<String> batchRecords = new HashSet<String>();
+            Set<String> batchRecords = new HashSet<>();
             List<BdbGroupFilterCondEntity> modifyFilterCondEntities = new ArrayList<>();
             for (int j = 0; j < jsonArray.size(); j++) {
                 Map<String, String> groupObject = jsonArray.get(j);
@@ -780,7 +780,7 @@ public class WebAdminGroupCtrlHandler {
             }
             Set<String> confgiuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
-                    new HashMap<String, BdbConsumerGroupEntity>();
+                    new HashMap<>();
             for (int j = 0; j < jsonArray.size(); j++) {
                 Map<String, String> groupObject = jsonArray.get(j);
                 try {
@@ -1294,7 +1294,7 @@ public class WebAdminGroupCtrlHandler {
                 throw new Exception("Null value of groupNameJsonSet, please set the value first!");
             }
             HashMap<String, BdbConsumeGroupSettingEntity> inOffsetRstGroupEntityMap =
-                    new HashMap<String, BdbConsumeGroupSettingEntity>();
+                    new HashMap<>();
             for (int j = 0; j < groupNameJsonArray.size(); j++) {
                 Map<String, String> groupObject = groupNameJsonArray.get(j);
                 try {

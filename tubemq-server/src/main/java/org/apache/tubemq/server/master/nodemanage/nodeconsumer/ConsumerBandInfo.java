@@ -46,15 +46,15 @@ public class ConsumerBandInfo {
     private long createTime = System.currentTimeMillis();           //create time
     private Set<String> topicSet = new HashSet<>();                 //topic set
     private Map<String, TreeSet<String>> topicConditions =          //filter condition set
-            new HashMap<String, TreeSet<String>>();
+            new HashMap<>();
     private ConcurrentHashMap<String, ConsumerInfo> consumerInfoMap =   //consumer info
-            new ConcurrentHashMap<String, ConsumerInfo>();
+            new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> partitionInfoMap =        //partition info
-            new ConcurrentHashMap<String, String>();
+            new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Long> partOffsetMap =             //partition offset
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NodeRebInfo> rebalanceMap =       //load balance
-            new ConcurrentHashMap<String, NodeRebInfo>();
+            new ConcurrentHashMap<>();
     private int defBClientRate = -2;            //default broker/client ratio
     private int confBClientRate = -2;           //config broker/client ratio
     private int curBClientRate = -2;            //current broker/client ratio
@@ -205,7 +205,7 @@ public class ConsumerBandInfo {
             return null;
         }
         this.rebalanceMap.remove(consumerId);
-        List<String> partKeyList = new ArrayList<String>();
+        List<String> partKeyList = new ArrayList<>();
         for (Map.Entry<String, String> entry : partitionInfoMap.entrySet()) {
             if (entry.getValue() != null) {
                 if (entry.getValue().equals(consumerId)) {
@@ -274,9 +274,9 @@ public class ConsumerBandInfo {
     }
 
     public RebProcessInfo getNeedRebNodeList() {
-        List<String> needProcessList = new ArrayList<String>();
-        List<String> needEscapeList = new ArrayList<String>();
-        List<String> needRemoved = new ArrayList<String>();
+        List<String> needProcessList = new ArrayList<>();
+        List<String> needEscapeList = new ArrayList<>();
+        List<String> needRemoved = new ArrayList<>();
         for (NodeRebInfo nodeRebInfo : this.rebalanceMap.values()) {
             if (nodeRebInfo.getStatus() == 0) {
                 nodeRebInfo.setStatus(1);
@@ -305,7 +305,7 @@ public class ConsumerBandInfo {
                 || this.rebalanceMap.isEmpty()) {
             return;
         }
-        List<String> needRemoved = new ArrayList<String>();
+        List<String> needRemoved = new ArrayList<>();
         for (NodeRebInfo nodeRebInfo : this.rebalanceMap.values()) {
             if (processList.contains(nodeRebInfo.getClientId())) {
                 if (nodeRebInfo.getReqType() == 0) {

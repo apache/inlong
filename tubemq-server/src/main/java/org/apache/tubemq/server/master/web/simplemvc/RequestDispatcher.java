@@ -44,9 +44,9 @@ public class RequestDispatcher {
     private static final String SCREEN_PLACEHOLDER = "screen_placeholder";
     private final WebConfig config;
     private final TemplateEngine engine;
-    private final HashMap<String, Action> actions = new HashMap<String, Action>();
-    private final HashMap<String, String> templates = new HashMap<String, String>();
-    private final ThreadLocal<ControlTool> controlTools = new ThreadLocal<ControlTool>();
+    private final HashMap<String, Action> actions = new HashMap<>();
+    private final HashMap<String, String> templates = new HashMap<>();
+    private final ThreadLocal<ControlTool> controlTools = new ThreadLocal<>();
     private GenericXmlApplicationContext applicationContext;
 
     /**
@@ -251,7 +251,7 @@ public class RequestDispatcher {
     }
 
     private List<Class> getActionClasses(String packageName) throws Exception {
-        List<Class> classList = new ArrayList<Class>();
+        List<Class> classList = new ArrayList<>();
         String path = packageName.replaceAll("\\.", "/");
         URL url = this.getClass().getClassLoader().getResource(path);
         if (url == null) {
@@ -271,7 +271,7 @@ public class RequestDispatcher {
 
     private List<File> getFileList(String directory, String type) throws Exception {
         File file = new File(directory);
-        List<File> fileList = new ArrayList<File>();
+        List<File> fileList = new ArrayList<>();
         getFile(file, fileList, type);
         return fileList;
     }

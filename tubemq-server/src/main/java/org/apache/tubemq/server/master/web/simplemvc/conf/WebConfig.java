@@ -28,9 +28,9 @@ import org.apache.tubemq.server.master.web.simplemvc.Action;
 
 public class WebConfig {
 
-    private final HashMap<String, Object> tools = new HashMap<String, Object>();
-    private final HashMap<String, Action> actions = new HashMap<String, Action>();
-    private final HashSet<String> types = new HashSet<String>();
+    private final HashMap<String, Object> tools = new HashMap<>();
+    private final HashMap<String, Action> actions = new HashMap<>();
+    private final HashSet<String> types = new HashSet<>();
     private String resourcePath;
     private String templatePath;
     private String actionPackage;
@@ -38,7 +38,7 @@ public class WebConfig {
     private String supportedTypes = ".htm,.html";
     private String defaultPage = "index.htm";
     private boolean springSupported = false;
-    private List<String> beanFilePathList = new ArrayList<String>();
+    private List<String> beanFilePathList = new ArrayList<>();
     private boolean standalone = false;
 
     public WebConfig() {

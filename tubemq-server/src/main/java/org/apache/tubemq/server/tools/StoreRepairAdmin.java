@@ -87,7 +87,7 @@ public class StoreRepairAdmin {
         int count = 0;
         ExecutorService executor =
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-        List<Callable<IndexReparStore>> tasks = new ArrayList<Callable<IndexReparStore>>();
+        List<Callable<IndexReparStore>> tasks = new ArrayList<>();
         if (ls != null) {
             for (final File subDir : ls) {
                 if (subDir == null) {
@@ -127,7 +127,7 @@ public class StoreRepairAdmin {
         }
         if (count > 0) {
             CompletionService<IndexReparStore> completionService =
-                    new ExecutorCompletionService<IndexReparStore>(executor);
+                    new ExecutorCompletionService<>(executor);
             for (Callable<IndexReparStore> task : tasks) {
                 completionService.submit(task);
             }
@@ -218,7 +218,7 @@ public class StoreRepairAdmin {
         }
 
         private void loaderSegments() throws IOException {
-            final List<Segment> accum = new ArrayList<Segment>();
+            final List<Segment> accum = new ArrayList<>();
             String fileSuffix = DataStoreUtils.DATA_FILE_SUFFIX;
             final File[] ls = topicDir.listFiles();
             if (ls != null) {

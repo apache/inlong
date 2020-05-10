@@ -63,7 +63,7 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     private static final Logger logger = LoggerFactory.getLogger(ZooKeeperWatcher.class);
     protected final ZKConfig conf;
     // listeners to be notified
-    private final List<ZooKeeperListener> listeners = new CopyOnWriteArrayList<ZooKeeperListener>();
+    private final List<ZooKeeperListener> listeners = new CopyOnWriteArrayList<>();
     private final Exception constructorCaller;
     // abortable in case of zk failure
     private Abortable abortable;

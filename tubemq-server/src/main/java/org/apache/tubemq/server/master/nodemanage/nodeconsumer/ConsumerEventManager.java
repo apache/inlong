@@ -36,11 +36,11 @@ public class ConsumerEventManager {
     private static final Logger logger = LoggerFactory.getLogger(ConsumerEventManager.class);
 
     private final ConcurrentHashMap<String/* consumerId */, LinkedList<ConsumerEvent>> disconnectEventMap =
-            new ConcurrentHashMap<String, LinkedList<ConsumerEvent>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* consumerId */, LinkedList<ConsumerEvent>> connectEventMap =
-            new ConcurrentHashMap<String, LinkedList<ConsumerEvent>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* group */, AtomicInteger> groupUnfinishedCountMap =
-            new ConcurrentHashMap<String, AtomicInteger>();
+            new ConcurrentHashMap<>();
 
     private final ConsumerInfoHolder consumerHolder;
 
@@ -53,7 +53,7 @@ public class ConsumerEventManager {
         LinkedList<ConsumerEvent> eventList =
                 disconnectEventMap.get(consumerId);
         if (eventList == null) {
-            eventList = new LinkedList<ConsumerEvent>();
+            eventList = new LinkedList<>();
             LinkedList<ConsumerEvent> tmptList =
                     disconnectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList != null) {
@@ -70,7 +70,7 @@ public class ConsumerEventManager {
         LinkedList<ConsumerEvent> eventList =
                 connectEventMap.get(consumerId);
         if (eventList == null) {
-            eventList = new LinkedList<ConsumerEvent>();
+            eventList = new LinkedList<>();
             LinkedList<ConsumerEvent> tmptList =
                     connectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList != null) {
@@ -240,7 +240,7 @@ public class ConsumerEventManager {
      * @return consumer id set
      */
     public Set<String> getUnProcessedIdSet() {
-        Set<String> consumerIdSet = new HashSet<String>();
+        Set<String> consumerIdSet = new HashSet<>();
         for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
                 : disconnectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {

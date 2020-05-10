@@ -70,7 +70,7 @@ public class MessageStoreManager implements StoreService {
     // storeId to store on each topic.
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
-            new ConcurrentHashMap<String, ConcurrentHashMap<Integer, MessageStore>>();
+            new ConcurrentHashMap<>();
     // ssd store manager
     private final MsgSSDStoreManager msgSsdStoreManager;
     // store service status
@@ -204,13 +204,13 @@ public class MessageStoreManager implements StoreService {
         }
         try {
             List<String> removedTopics =
-                    new ArrayList<String>();
+                    new ArrayList<>();
             Map<String, TopicMetadata> removedTopicMap =
                     this.metadataManager.getRemovedTopicConfigMap();
             if (removedTopicMap.isEmpty()) {
                 return removedTopics;
             }
-            Set<String> targetTopics = new HashSet<String>();
+            Set<String> targetTopics = new HashSet<>();
             for (Map.Entry<String, TopicMetadata> entry : removedTopicMap.entrySet()) {
                 if (entry.getKey() == null || entry.getValue() == null) {
                     continue;
@@ -310,7 +310,7 @@ public class MessageStoreManager implements StoreService {
         ConcurrentHashMap<Integer, MessageStore> dataMap = dataStores.get(topic);
         if (dataMap == null) {
             ConcurrentHashMap<Integer, MessageStore> tmpTopicMap =
-                    new ConcurrentHashMap<Integer, MessageStore>();
+                    new ConcurrentHashMap<>();
             dataMap = this.dataStores.putIfAbsent(topic, tmpTopicMap);
             if (dataMap == null) {
                 dataMap = tmpTopicMap;
@@ -454,7 +454,7 @@ public class MessageStoreManager implements StoreService {
 
     private Set<File> getLogDirSet(final BrokerConfig tubeConfig) throws IOException {
         TopicMetadata topicMetadata = null;
-        final Set<String> paths = new HashSet<String>();
+        final Set<String> paths = new HashSet<>();
         paths.add(tubeConfig.getPrimaryPath());
         for (final String topic : metadataManager.getTopics()) {
             topicMetadata = metadataManager.getTopicMetadata(topic);
@@ -463,7 +463,7 @@ public class MessageStoreManager implements StoreService {
                 paths.add(topicMetadata.getDataPath());
             }
         }
-        final Set<File> fileSet = new HashSet<File>();
+        final Set<File> fileSet = new HashSet<>();
         for (final String path : paths) {
             final File dir = new File(path);
             if (!dir.exists() && !dir.mkdirs()) {
@@ -497,7 +497,7 @@ public class MessageStoreManager implements StoreService {
         final long start = System.currentTimeMillis();
         final AtomicInteger errCnt = new AtomicInteger(0);
         final AtomicInteger finishCnt = new AtomicInteger(0);
-        List<Callable<MessageStore>> tasks = new ArrayList<Callable<MessageStore>>();
+        List<Callable<MessageStore>> tasks = new ArrayList<>();
         for (final File dir : this.getLogDirSet(tubeConfig)) {
             if (dir == null) {
                 continue;
@@ -542,7 +542,7 @@ public class MessageStoreManager implements StoreService {
                             ConcurrentHashMap<Integer, MessageStore> map =
                                     dataStores.get(msgStore.getTopic());
                             if (map == null) {
-                                map = new ConcurrentHashMap<Integer, MessageStore>();
+                                map = new ConcurrentHashMap<>();
                                 ConcurrentHashMap<Integer, MessageStore> oldmap =
                                         dataStores.putIfAbsent(msgStore.getTopic(), map);
                                 if (oldmap != null) {
@@ -594,7 +594,7 @@ public class MessageStoreManager implements StoreService {
         ExecutorService executor =
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         CompletionService<MessageStore> completionService =
-                new ExecutorCompletionService<MessageStore>(executor);
+                new ExecutorCompletionService<>(executor);
         for (Callable<MessageStore> task : tasks) {
             completionService.submit(task);
         }
@@ -707,7 +707,7 @@ public class MessageStoreManager implements StoreService {
         }
 
         private Set<String> getExpiredTopicSet(final StringBuilder sb) {
-            Set<String> expiredTopic = new HashSet<String>();
+            Set<String> expiredTopic = new HashSet<>();
             for (Map<Integer, MessageStore> storeMap : dataStores.values()) {
                 if (storeMap == null || storeMap.isEmpty()) {
                     continue;

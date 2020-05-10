@@ -213,9 +213,9 @@ public class MessageStore implements Closeable {
                 // return not found when data is under memory sink operation.
                 if (memMsgRlt.isSuccess) {
                     HashMap<String, CountItem> countMap =
-                            new HashMap<String, CountItem>();
+                            new HashMap<>();
                     List<ClientBroker.TransferedMessage> transferedMessageList =
-                            new ArrayList<ClientBroker.TransferedMessage>();
+                            new ArrayList<>();
                     if (!memMsgRlt.cacheMsgList.isEmpty()) {
                         final StringBuilder strBuffer = new StringBuilder(512);
                         for (ByteBuffer dataBuffer : memMsgRlt.cacheMsgList) {

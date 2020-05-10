@@ -24,9 +24,9 @@ import java.util.List;
 public class RebProcessInfo {
 
     public List<String> needProcessList =
-            new ArrayList<String>();
+            new ArrayList<>();
     public List<String> needEscapeList =
-            new ArrayList<String>();
+            new ArrayList<>();
 
     public RebProcessInfo() {
 

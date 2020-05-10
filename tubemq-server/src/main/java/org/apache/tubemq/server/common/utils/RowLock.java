@@ -34,9 +34,9 @@ public class RowLock {
     private static final Logger logger = LoggerFactory.getLogger(RowLock.class);
     private static Random rand = new Random();
     private final ConcurrentHashMap<HashedBytes, CountDownLatch> lockedRows =
-            new ConcurrentHashMap<HashedBytes, CountDownLatch>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, HashedBytes> lockIds =
-            new ConcurrentHashMap<Integer, HashedBytes>();
+            new ConcurrentHashMap<>();
     private final AtomicInteger lockIdGenerator = new AtomicInteger(1);
     private final int rowLockWaitDuration;
     private final String name;

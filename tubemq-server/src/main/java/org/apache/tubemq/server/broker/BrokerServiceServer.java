@@ -89,7 +89,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private final BrokerConfig tubeConfig;
     // registered consumers. format : consumer group - topic - partition id  --> consumer info
     private final ConcurrentHashMap<String/* group:topic-partitionId */, ConsumerNodeInfo> consumerRegisterMap =
-            new ConcurrentHashMap<String, ConsumerNodeInfo>();
+            new ConcurrentHashMap<>();
     // metadata manager.
     private final MetadataManager metadataManager;
     // offset storage manager.
@@ -555,7 +555,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         .append(topicName).append(")!\"}");
                 return sb;
             } else {
-                List<String> transferMessageList = new ArrayList<String>();
+                List<String> transferMessageList = new ArrayList<>();
                 List<TransferedMessage> tmpMsgList = getMessageResult.transferedMessageList;
                 List<Message> messageList = DataConverterUtil.convertMessage(topicName, tmpMsgList);
                 int startPos = messageList.size() - msgCount < 0 ? 0 : messageList.size() - msgCount;
@@ -755,7 +755,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String groupName = (String) paramCheckResult.checkData;
 
         boolean isRegister = (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER);
-        Set<String> filterCondSet = new HashSet<String>();
+        Set<String> filterCondSet = new HashSet<>();
         if (request.getFilterCondStrList() != null && !request.getFilterCondStrList().isEmpty()) {
             for (String filterCond : request.getFilterCondStrList()) {
                 if (TStringUtils.isNotBlank(filterCond)) {
@@ -1022,7 +1022,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 DataConverterUtil.convertPartitionInfo(request.getPartitionInfoList());
         CertifiedResult authorizeResult = null;
         boolean isAuthorized = false;
-        List<String> failureInfo = new ArrayList<String>();
+        List<String> failureInfo = new ArrayList<>();
         for (Partition partition : partitions) {
             String topic = partition.getTopic();
             int partitionId = partition.getPartitionId();

@@ -63,20 +63,20 @@ public class BrokerSyncStatusInfo {
     private long lastDataPushInMills = 0;
     private String lastPushBrokerDefaultConfInfo;
     private List<String> lastPushBrokerTopicSetConfInfo =
-            new ArrayList<String>();
+            new ArrayList<>();
 
     private long reportedBrokerConfId = -2;
     private int reportedBrokerCheckSumId = -2;
     private long lastDataReportInMills = 0;
     private String reportedBrokerDefaultConfInfo;
     private List<String> reportedBrokerTopicSetConfInfo =
-            new ArrayList<String>();
+            new ArrayList<>();
 
     private AtomicLong currBrokerConfId = new AtomicLong(0);
     private int currBrokerCheckSumId = 0;
     private String curBrokerDefaultConfInfo;
     private List<String> curBrokerTopicSetConfInfo =
-            new ArrayList<String>();
+            new ArrayList<>();
 
     private int numPartitions = 1;              //partition number
     private int numTopicStores = 1;             //store number
@@ -165,7 +165,7 @@ public class BrokerSyncStatusInfo {
         this.reportedBrokerCheckSumId = -2;
         this.reportedBrokerDefaultConfInfo = "";
         this.reportedBrokerTopicSetConfInfo =
-                new ArrayList<String>();
+                new ArrayList<>();
         this.isBrokerRegister = false;
         this.isBrokerOnline = false;
         this.isFastStart = false;
@@ -196,7 +196,7 @@ public class BrokerSyncStatusInfo {
         if (isTackData) {
             this.reportedBrokerDefaultConfInfo = reportDefaultConfInfo;
             if (reportTopicSetConfInfo == null) {
-                this.reportedBrokerTopicSetConfInfo = new ArrayList<String>();
+                this.reportedBrokerTopicSetConfInfo = new ArrayList<>();
             } else {
                 this.reportedBrokerTopicSetConfInfo = reportTopicSetConfInfo;
             }

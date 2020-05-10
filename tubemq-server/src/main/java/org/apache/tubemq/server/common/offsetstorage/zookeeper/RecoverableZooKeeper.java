@@ -84,7 +84,7 @@ public class RecoverableZooKeeper {
      * @return list of every element that starts with one of the prefixes
      */
     private static synchronized List<String> filterByPrefix(List<String> nodes, String... prefixes) {
-        List<String> lockChildren = new ArrayList<String>();
+        List<String> lockChildren = new ArrayList<>();
         for (String child : nodes) {
             for (String prefix : prefixes) {
                 if (child.startsWith(prefix)) {

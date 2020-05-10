@@ -34,11 +34,11 @@ public class HeartbeatManager {
     private static final Logger logger = LoggerFactory.getLogger(HeartbeatManager.class);
 
     private final ConcurrentHashMap<String, TimeoutInfo> brokerRegMap =
-            new ConcurrentHashMap<String, TimeoutInfo>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TimeoutInfo> producerRegMap =
-            new ConcurrentHashMap<String, TimeoutInfo>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TimeoutInfo> consumerRegMap =
-            new ConcurrentHashMap<String, TimeoutInfo>();
+            new ConcurrentHashMap<>();
     private final ExecutorService timeoutScanService = Executors.newCachedThreadPool();
     private long brokerTimeoutDlt = 0;
     private long producerTimeoutDlt = 0;
@@ -128,7 +128,7 @@ public class HeartbeatManager {
                 while (!isStopped) {
                     try {
                         long currentTime = System.currentTimeMillis();
-                        Set<String> removedNodeKey = new HashSet<String>();
+                        Set<String> removedNodeKey = new HashSet<>();
                         for (Map.Entry<String, TimeoutInfo> entry : nodeMap.entrySet()) {
                             if (TStringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                                 continue;

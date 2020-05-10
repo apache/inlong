@@ -42,7 +42,7 @@ public class ClusterManager implements Action {
     public void execute(RequestContext context) {
         HttpServletRequest req = context.getReq();
         BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
-        List<ClusterGroupVO> clusterGroupVOList = new ArrayList<ClusterGroupVO>();
+        List<ClusterGroupVO> clusterGroupVOList = new ArrayList<>();
         ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
         if (clusterGroupVO != null) {
             clusterGroupVOList.add(clusterGroupVO);

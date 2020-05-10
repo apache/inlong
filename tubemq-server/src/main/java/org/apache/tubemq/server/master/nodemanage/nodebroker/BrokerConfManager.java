@@ -63,43 +63,33 @@ public class BrokerConfManager implements Server {
     private final BDBConfig bdbConfig;
     private final ScheduledExecutorService scheduledExecutorService;
     private final ConcurrentHashMap<Integer, String> brokersMap =
-            new ConcurrentHashMap<Integer, String>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, String> brokersTLSMap =
-            new ConcurrentHashMap<Integer, String>();
+            new ConcurrentHashMap<>();
 
     private final MasterGroupStatus masterGroupStatus = new MasterGroupStatus();
-    private ConcurrentHashMap<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfStoreMap =
-            new ConcurrentHashMap<Integer, BdbBrokerConfEntity>();
+    private ConcurrentHashMap<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfStoreMap;
     private ConcurrentHashMap<Integer/* brokerId */, BrokerSyncStatusInfo> brokerRunSyncManageMap =
-            new ConcurrentHashMap<Integer, BrokerSyncStatusInfo>();
+            new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashMap<String/* topicName */, BdbTopicConfEntity>>
-            brokerTopicEntityStoreMap = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, BdbTopicConfEntity>>();
+            brokerTopicEntityStoreMap;
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashMap<String/* topicName */, TopicInfo>>
-            brokerRunTopicInfoStoreMap = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, TopicInfo>>();
+            brokerRunTopicInfoStoreMap = new ConcurrentHashMap<>();
     private volatile boolean isStarted = false;
     private volatile boolean isStopped = false;
     private DefaultBdbStoreService mBdbStoreManagerService;
-    private ConcurrentHashMap<String, BdbTopicAuthControlEntity> topicAuthControlEnableMap =
-            new ConcurrentHashMap<String, BdbTopicAuthControlEntity>();
+    private ConcurrentHashMap<String, BdbTopicAuthControlEntity> topicAuthControlEnableMap;
     private ConcurrentHashMap<
             String /* topicName */,
-            ConcurrentHashMap<String /* consumerGroup */, BdbConsumerGroupEntity>>
-            consumerGroupTopicMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbConsumerGroupEntity>>();
+            ConcurrentHashMap<String /* consumerGroup */, BdbConsumerGroupEntity>> consumerGroupTopicMap;
     private ConcurrentHashMap<
             String /* consumerGroup */,
-            ConcurrentHashMap<String /* topicName */, BdbBlackGroupEntity>>
-            blackGroupTopicMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbBlackGroupEntity>>();
+            ConcurrentHashMap<String /* topicName */, BdbBlackGroupEntity>> blackGroupTopicMap;
     private ConcurrentHashMap<
             String /* topicName */,
-            ConcurrentHashMap<String /* consumerGroup */, BdbGroupFilterCondEntity>>
-            groupFilterCondTopicMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbGroupFilterCondEntity>>();
-    private ConcurrentHashMap<String /* groupName */, BdbGroupFlowCtrlEntity> consumeGroupFlowCtrlMap =
-            new ConcurrentHashMap<String, BdbGroupFlowCtrlEntity>();
-    private ConcurrentHashMap<String /* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap =
-            new ConcurrentHashMap<String, BdbConsumeGroupSettingEntity>();
+            ConcurrentHashMap<String /* consumerGroup */, BdbGroupFilterCondEntity>> groupFilterCondTopicMap;
+    private ConcurrentHashMap<String /* groupName */, BdbGroupFlowCtrlEntity> consumeGroupFlowCtrlMap;
+    private ConcurrentHashMap<String /* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap;
     private AtomicLong brokerInfoCheckSum = new AtomicLong(System.currentTimeMillis());
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private long serviceStartTime = System.currentTimeMillis();
@@ -280,7 +270,7 @@ public class BrokerConfManager implements Server {
         if ((reqTopicConditions != null) && (!reqTopicConditions.isEmpty())) {
             // check if request topic set is all in the filter topic set
             Set<String> condTopics = reqTopicConditions.keySet();
-            List<String> unSetTopic = new ArrayList<String>();
+            List<String> unSetTopic = new ArrayList<>();
             for (String topic : condTopics) {
                 if (!reqTopicSet.contains(topic)) {
                     unSetTopic.add(topic);
@@ -296,7 +286,7 @@ public class BrokerConfManager implements Server {
             }
         }
         // check if consumer group is in the blacklist
-        List<String> fbdTopicList = new ArrayList<String>();
+        List<String> fbdTopicList = new ArrayList<>();
         ConcurrentHashMap<String, BdbBlackGroupEntity> blackGroupEntityMap =
                 this.blackGroupTopicMap.get(consumerGroupName);
         if (blackGroupEntityMap != null) {
@@ -313,8 +303,8 @@ public class BrokerConfManager implements Server {
                             .append(fbdTopicList).toString());
         }
         // check if topic enabled authorization
-        ArrayList<String> enableAuthTopicList = new ArrayList<String>();
-        ArrayList<String> unAuthTopicList = new ArrayList<String>();
+        ArrayList<String> enableAuthTopicList = new ArrayList<>();
+        ArrayList<String> unAuthTopicList = new ArrayList<>();
         for (String topicItem : reqTopicSet) {
             if (TStringUtils.isBlank(topicItem)) {
                 continue;
@@ -408,14 +398,14 @@ public class BrokerConfManager implements Server {
                     break;
                 } else {
                     Map<String, List<String>> unAuthorizedCondMap =
-                            new HashMap<String, List<String>>();
+                            new HashMap<>();
                     for (String item : condItemSet) {
                         if (!allowedConds.contains(sb.append(TokenConstants.ARRAY_SEP)
                                 .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
                             isAllowed = false;
                             List<String> unAuthConds = unAuthorizedCondMap.get(tmpTopic);
                             if (unAuthConds == null) {
-                                unAuthConds = new ArrayList<String>();
+                                unAuthConds = new ArrayList<>();
                                 unAuthorizedCondMap.put(tmpTopic, unAuthConds);
                             }
                             unAuthConds.add(item);
@@ -483,7 +473,7 @@ public class BrokerConfManager implements Server {
         // #lizard forgives
         // find broker info
         validMasterStatus();
-        List<BdbBrokerConfEntity> bdbBrokerEntities = new ArrayList<BdbBrokerConfEntity>();
+        List<BdbBrokerConfEntity> bdbBrokerEntities = new ArrayList<>();
         for (BdbBrokerConfEntity entity : brokerConfStoreMap.values()) {
             if (bdbQueryEntity == null) {
                 bdbBrokerEntities.add(entity);
@@ -730,7 +720,7 @@ public class BrokerConfManager implements Server {
     }
 
     public Set<String> getTotalConfiguredTopicNames() {
-        Set<String> totalTopics = new HashSet<String>(50);
+        Set<String> totalTopics = new HashSet<>(50);
         for (ConcurrentHashMap<String, BdbTopicConfEntity> tmpTopicCfgMap
                 : this.brokerTopicEntityStoreMap.values()) {
             if (tmpTopicCfgMap != null) {
@@ -898,7 +888,7 @@ public class BrokerConfManager implements Server {
             BdbTopicConfEntity bdbQueryEntity) {
         // #lizard forgives
         ConcurrentHashMap<String, List<BdbTopicConfEntity>> bdbTopicEntityMap =
-                new ConcurrentHashMap<String, List<BdbTopicConfEntity>>();
+                new ConcurrentHashMap<>();
         for (ConcurrentHashMap<String, BdbTopicConfEntity> topicEntityMap
                 : brokerTopicEntityStoreMap.values()) {
             for (BdbTopicConfEntity entity : topicEntityMap.values()) {
@@ -906,7 +896,7 @@ public class BrokerConfManager implements Server {
                         bdbTopicEntityMap.get(entity.getTopicName());
                 if (bdbQueryEntity == null) {
                     if (bdbTopicEntities == null) {
-                        bdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+                        bdbTopicEntities = new ArrayList<>();
                         bdbTopicEntityMap.put(entity.getTopicName(), bdbTopicEntities);
                     }
                     bdbTopicEntities.add(entity);
@@ -946,7 +936,7 @@ public class BrokerConfManager implements Server {
                     continue;
                 }
                 if (bdbTopicEntities == null) {
-                    bdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+                    bdbTopicEntities = new ArrayList<>();
                     bdbTopicEntityMap.put(entity.getTopicName(), bdbTopicEntities);
                 }
                 bdbTopicEntities.add(entity);
@@ -988,7 +978,7 @@ public class BrokerConfManager implements Server {
         if (putResult) {
             if (brokerTopicConfMap == null) {
                 brokerTopicConfMap =
-                        new ConcurrentHashMap<String, BdbTopicConfEntity>();
+                        new ConcurrentHashMap<>();
                 ConcurrentHashMap<String, BdbTopicConfEntity> tmpBrokerTopicConfMap =
                         brokerTopicEntityStoreMap.putIfAbsent(bdbEntity.getBrokerId(), brokerTopicConfMap);
                 if (tmpBrokerTopicConfMap != null) {
@@ -1052,7 +1042,7 @@ public class BrokerConfManager implements Server {
 
     private List<String> innGetTopicStrConfigInfo(BdbBrokerConfEntity brokerConfEntity,
                                                   boolean isRemoved) {
-        List<String> brokerTopicStrConfSet = new ArrayList<String>();
+        List<String> brokerTopicStrConfSet = new ArrayList<>();
         ConcurrentHashMap<String, BdbTopicConfEntity> topicBdbEntytyMap =
                 brokerTopicEntityStoreMap.get(brokerConfEntity.getBrokerId());
         if (topicBdbEntytyMap != null) {
@@ -1208,7 +1198,7 @@ public class BrokerConfManager implements Server {
             BdbTopicAuthControlEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
         List<BdbTopicAuthControlEntity> bdbTopicAuthControlEntities =
-                new ArrayList<BdbTopicAuthControlEntity>();
+                new ArrayList<>();
         for (BdbTopicAuthControlEntity entity : this.topicAuthControlEnableMap.values()) {
             if (bdbQueryEntity == null) {
                 bdbTopicAuthControlEntities.add(entity);
@@ -1258,7 +1248,7 @@ public class BrokerConfManager implements Server {
         if (putResult) {
             if (groupFilterCondEntityMap == null) {
                 groupFilterCondEntityMap =
-                        new ConcurrentHashMap<String, BdbGroupFilterCondEntity>();
+                        new ConcurrentHashMap<>();
                 ConcurrentHashMap<String, BdbGroupFilterCondEntity> tmpGroupFilterCondEntityMap =
                         groupFilterCondTopicMap.putIfAbsent(bdbEntity.getTopicName(), groupFilterCondEntityMap);
                 if (tmpGroupFilterCondEntityMap != null) {
@@ -1317,7 +1307,7 @@ public class BrokerConfManager implements Server {
      */
     public List<BdbGroupFilterCondEntity> getBdbAllowedGroupFilterConds(String topicName) {
         List<BdbGroupFilterCondEntity> bdbGroupFilterCondEntities =
-                new ArrayList<BdbGroupFilterCondEntity>();
+                new ArrayList<>();
         ConcurrentHashMap<String, BdbGroupFilterCondEntity> groupFilterCondMap =
                 groupFilterCondTopicMap.get(topicName);
         if (groupFilterCondMap != null) {
@@ -1355,7 +1345,7 @@ public class BrokerConfManager implements Server {
             BdbGroupFilterCondEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
         List<BdbGroupFilterCondEntity> bdbGroupFilterCondEntities =
-                new ArrayList<BdbGroupFilterCondEntity>();
+                new ArrayList<>();
         for (ConcurrentHashMap<String, BdbGroupFilterCondEntity> groupFilterCondEntityMap
                 : groupFilterCondTopicMap.values()) {
             for (BdbGroupFilterCondEntity entity : groupFilterCondEntityMap.values()) {
@@ -1454,7 +1444,7 @@ public class BrokerConfManager implements Server {
                 mBdbStoreManagerService.putBdbConsumerGroupConfEntity(bdbEntity, true);
         if (putResult) {
             if (consumerGroupEntityMap == null) {
-                consumerGroupEntityMap = new ConcurrentHashMap<String, BdbConsumerGroupEntity>();
+                consumerGroupEntityMap = new ConcurrentHashMap<>();
                 ConcurrentHashMap<String, BdbConsumerGroupEntity> tmpConsumerGroupEntityMap =
                         consumerGroupTopicMap.putIfAbsent(bdbEntity.getGroupTopicName(), consumerGroupEntityMap);
                 if (tmpConsumerGroupEntityMap != null) {
@@ -1477,7 +1467,7 @@ public class BrokerConfManager implements Server {
      */
     public List<BdbConsumerGroupEntity> getBdbAllowedConsumerGroups(String topicName) {
         List<BdbConsumerGroupEntity> bdbConsumerGroupEntities =
-                new ArrayList<BdbConsumerGroupEntity>();
+                new ArrayList<>();
         ConcurrentHashMap<String, BdbConsumerGroupEntity> consumerGroupMap =
                 consumerGroupTopicMap.get(topicName);
         if (consumerGroupMap != null) {
@@ -1490,7 +1480,7 @@ public class BrokerConfManager implements Server {
             BdbConsumerGroupEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
         List<BdbConsumerGroupEntity> bdbConsumerGroupEntities =
-                new ArrayList<BdbConsumerGroupEntity>();
+                new ArrayList<>();
         for (ConcurrentHashMap<String, BdbConsumerGroupEntity> consumerGroupEntityMap
                 : consumerGroupTopicMap.values()) {
             for (BdbConsumerGroupEntity entity : consumerGroupEntityMap.values()) {
@@ -1585,7 +1575,7 @@ public class BrokerConfManager implements Server {
         if (putResult) {
             if (blackGroupEntityMap == null) {
                 blackGroupEntityMap =
-                        new ConcurrentHashMap<String, BdbBlackGroupEntity>();
+                        new ConcurrentHashMap<>();
                 blackGroupTopicMap.put(bdbEntity.getBlackGroupName(), blackGroupEntityMap);
             }
             blackGroupEntityMap.put(bdbEntity.getTopicName(), bdbEntity);
@@ -1606,7 +1596,7 @@ public class BrokerConfManager implements Server {
     public List<BdbBlackGroupEntity> confGetBdbBlackConsumerGroupSet(
             BdbBlackGroupEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
-        List<BdbBlackGroupEntity> bdbBlackGroupEntities = new ArrayList<BdbBlackGroupEntity>();
+        List<BdbBlackGroupEntity> bdbBlackGroupEntities = new ArrayList<>();
         for (ConcurrentHashMap<String, BdbBlackGroupEntity> blackGroupEntityMap
                 : blackGroupTopicMap.values()) {
             for (BdbBlackGroupEntity entity : blackGroupEntityMap.values()) {
@@ -1679,7 +1669,7 @@ public class BrokerConfManager implements Server {
     }
 
     public List<String> getBdbBlackTopicList(String consumerGroupName) {
-        ArrayList<String> blackTopicList = new ArrayList<String>();
+        ArrayList<String> blackTopicList = new ArrayList<>();
         ConcurrentHashMap<String/* topicname */, BdbBlackGroupEntity> blackGroupEntityMap =
                 this.blackGroupTopicMap.get(consumerGroupName);
         if (blackGroupEntityMap != null) {
@@ -1786,7 +1776,7 @@ public class BrokerConfManager implements Server {
             BdbConsumeGroupSettingEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
         List<BdbConsumeGroupSettingEntity> bdbOffsetRstGroupEntities =
-                new ArrayList<BdbConsumeGroupSettingEntity>();
+                new ArrayList<>();
         for (BdbConsumeGroupSettingEntity entity
                 : consumeGroupSettingMap.values()) {
             if (entity == null) {
@@ -1897,7 +1887,7 @@ public class BrokerConfManager implements Server {
             BdbGroupFlowCtrlEntity bdbQueryEntity) throws Exception {
         validMasterStatus();
         List<BdbGroupFlowCtrlEntity> bdbGroupFlowCtrlEntities =
-                new ArrayList<BdbGroupFlowCtrlEntity>();
+                new ArrayList<>();
         for (BdbGroupFlowCtrlEntity ctrlEntity : consumeGroupFlowCtrlMap.values()) {
             if (ctrlEntity == null) {
                 continue;

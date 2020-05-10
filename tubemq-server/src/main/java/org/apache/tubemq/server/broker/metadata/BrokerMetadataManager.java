@@ -50,20 +50,20 @@ public class BrokerMetadataManager implements MetadataManager {
     // broker's metadata in String format.
     private String brokerDefMetaConfInfo = "";
     // broker's topic's config list.
-    private List<String> topicMetaConfInfoLst = new ArrayList<String>();
+    private List<String> topicMetaConfInfoLst = new ArrayList<>();
     // topic in this broker.
-    private List<String> topics = new ArrayList<String>();
+    private List<String> topics = new ArrayList<>();
     // broker's default metadata.
     private BrokerDefMetadata brokerDefMetadata = new BrokerDefMetadata();
     // topic with custom config.
     private ConcurrentHashMap<String/* topic */, TopicMetadata> topicConfigMap =
-            new ConcurrentHashMap<String, TopicMetadata>();
+            new ConcurrentHashMap<>();
     // topics will be closed.
     private Map<String/* topic */, Integer> closedTopicMap =
-            new ConcurrentHashMap<String, Integer>();
+            new ConcurrentHashMap<>();
     // topics will be removed.
     private Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
-            new ConcurrentHashMap<String, TopicMetadata>();
+            new ConcurrentHashMap<>();
     private long lastRptBrokerMetaConfId = 0;
 
     public BrokerMetadataManager() {
@@ -174,7 +174,7 @@ public class BrokerMetadataManager implements MetadataManager {
      */
     @Override
     public List<String> getHardRemovedTopics() {
-        List<String> targetTopics = new ArrayList<String>();
+        List<String> targetTopics = new ArrayList<>();
         for (Map.Entry<String, TopicMetadata> entry
                 : this.removedTopicConfigMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
@@ -242,11 +242,11 @@ public class BrokerMetadataManager implements MetadataManager {
             logger.error("[Metadata Manage] received broker topic info is Blank, not update");
             return;
         }
-        List<String> newTopics = new ArrayList<String>();
+        List<String> newTopics = new ArrayList<>();
         Map<String/* topic */, Integer> tmpInvalidTopicMap =
-                new ConcurrentHashMap<String, Integer>();
+                new ConcurrentHashMap<>();
         ConcurrentHashMap<String/* topic */, TopicMetadata> newTopicConfigMap =
-                new ConcurrentHashMap<String, TopicMetadata>();
+                new ConcurrentHashMap<>();
         for (String strTopicConfInfo : newTopicMetaConfInfoLst) {
             if (TStringUtils.isBlank(strTopicConfInfo)) {
                 continue;
@@ -287,7 +287,7 @@ public class BrokerMetadataManager implements MetadataManager {
         // 该部分根据Master上的指示进行对应Topic的删除操作
         boolean needProcess = false;
         if (isTakeRemoveTopics) {
-            List<String> origTopics = new ArrayList<String>();
+            List<String> origTopics = new ArrayList<>();
             if (rmvTopicMetaConfInfoLst != null
                     && !rmvTopicMetaConfInfoLst.isEmpty()) {
                 for (String tmpTopicMetaConfInfo : rmvTopicMetaConfInfoLst) {
@@ -307,7 +307,7 @@ public class BrokerMetadataManager implements MetadataManager {
                     origTopics.add(topicMetadata.getTopic());
                 }
             }
-            List<String> tmpTopics = new ArrayList<String>();
+            List<String> tmpTopics = new ArrayList<>();
             for (Map.Entry<String, TopicMetadata> entry : removedTopicConfigMap.entrySet()) {
                 if (entry.getKey() == null || entry.getValue() == null) {
                     continue;

@@ -601,7 +601,7 @@ public class WebBrokerDefConfHandler {
             // Check the current status and status after the change, to see if there are changes.
             // If yes, check if the current status complies with the change.
             // If it complies, record the change.
-            Set<BdbBrokerConfEntity> newBrokerEntitySet = new HashSet<BdbBrokerConfEntity>();
+            Set<BdbBrokerConfEntity> newBrokerEntitySet = new HashSet<>();
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntitySet) {
                 if (oldEntity == null) {
                     continue;
@@ -1026,7 +1026,7 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManager, true, strBuffer);
             Set<BdbBrokerConfEntity> newBrokerEntitys =
-                    new HashSet<BdbBrokerConfEntity>();
+                    new HashSet<>();
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
