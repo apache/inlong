@@ -57,7 +57,7 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
         this.topicSet = topicSet;
         if (topicConditions == null) {
             this.topicConditions =
-                    new HashMap<String, TreeSet<String>>();
+                    new HashMap<>();
         } else {
             this.topicConditions = topicConditions;
         }

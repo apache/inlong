@@ -67,9 +67,9 @@ public class NettyClient implements Client {
     private static final AtomicLong init = new AtomicLong(0);
     private static Timer timer;
     private final ConcurrentHashMap<Integer, Callback<ResponseWrapper>> requests =
-            new ConcurrentHashMap<Integer, Callback<ResponseWrapper>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, Timeout> timeouts =
-            new ConcurrentHashMap<Integer, Timeout>();
+            new ConcurrentHashMap<>();
     private final AtomicInteger serialNoGenerator =
             new AtomicInteger(0);
     private AtomicBoolean released = new AtomicBoolean(false);

@@ -35,7 +35,7 @@ public class NettyProtocolEncoder extends OneToOneEncoder {
                             Channel channel, Object msg) throws Exception {
         RpcDataPack dataPack = (RpcDataPack) msg;
         List<ByteBuffer> origs = dataPack.getDataLst();
-        List<ByteBuffer> bbs = new ArrayList<ByteBuffer>(origs.size() * 2 + 1);
+        List<ByteBuffer> bbs = new ArrayList<>(origs.size() * 2 + 1);
         bbs.add(getPackHeader(dataPack));
         for (ByteBuffer b : origs) {
             bbs.add(getLengthHeader(b));

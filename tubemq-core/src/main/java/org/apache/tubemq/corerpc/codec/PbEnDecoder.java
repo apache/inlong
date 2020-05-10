@@ -30,10 +30,10 @@ import org.apache.tubemq.corerpc.RpcConstants;
 public class PbEnDecoder {
     // The set of methods supported by RPC, only the methods in the map are accepted
     private static final Map<String, Integer> rpcMethodMap =
-            new HashMap<String, Integer>();
+            new HashMap<>();
     // The set of services supported by RPC, only the services in the map are processed.
     private static final Map<String, Integer> rpcServiceMap =
-            new HashMap<String, Integer>();
+            new HashMap<>();
 
     static {
         // The MAP corresponding to the writing of these strings and constants when the system starts up

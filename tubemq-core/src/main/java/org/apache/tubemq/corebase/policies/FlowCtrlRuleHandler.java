@@ -81,7 +81,7 @@ public class FlowCtrlRuleHandler {
             System.currentTimeMillis();
     // Decoded flow control rules
     private Map<Integer, List<FlowCtrlItem>> flowCtrlRuleSet =
-            new ConcurrentHashMap<Integer, List<FlowCtrlItem>>();
+            new ConcurrentHashMap<>();
 
     public FlowCtrlRuleHandler(boolean isDefault) {
         this.isDefaultHandler = isDefault;
@@ -397,7 +397,7 @@ public class FlowCtrlRuleHandler {
      */
     public Map<Integer, List<FlowCtrlItem>> parseFlowCtrlInfo(final String flowCtrlInfo)
             throws Exception {
-        Map<Integer, List<FlowCtrlItem>> flowCtrlMap = new ConcurrentHashMap<Integer, List<FlowCtrlItem>>();
+        Map<Integer, List<FlowCtrlItem>> flowCtrlMap = new ConcurrentHashMap<>();
         if (TStringUtils.isBlank(flowCtrlInfo)) {
             throw new Exception("Parsing error, flowCtrlInfo value is blank!");
         }
@@ -470,7 +470,7 @@ public class FlowCtrlRuleHandler {
         if (ruleArray == null) {
             throw new Exception("not found rule list in data limit!");
         }
-        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<FlowCtrlItem>();
+        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             int startTime = validAndGetTimeValue("start",
@@ -550,7 +550,7 @@ public class FlowCtrlRuleHandler {
         if (ruleArray == null) {
             throw new Exception("not found rule list in freq limit!");
         }
-        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<FlowCtrlItem>();
+        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             if (!ruleObject.has("zeroCnt")) {
@@ -611,7 +611,7 @@ public class FlowCtrlRuleHandler {
         if (ruleArray.size() > 1) {
             throw new Exception("only allow set one rule in low fetch limit!");
         }
-        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<FlowCtrlItem>();
+        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             int normfreqInMs = 0;
@@ -685,7 +685,7 @@ public class FlowCtrlRuleHandler {
         if (ruleArray == null) {
             throw new Exception("not found rule list in SSD limit!");
         }
-        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<FlowCtrlItem>();
+        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             int startTime = validAndGetTimeValue("start",

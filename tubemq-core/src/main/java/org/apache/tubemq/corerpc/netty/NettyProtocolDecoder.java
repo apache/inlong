@@ -37,9 +37,9 @@ public class NettyProtocolDecoder extends FrameDecoder {
     private static final Logger logger =
             LoggerFactory.getLogger(NettyProtocolDecoder.class);
     private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap =
-            new ConcurrentHashMap<String, AtomicLong>();
+            new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, AtomicLong> errSizeAddrMap =
-            new ConcurrentHashMap<String, AtomicLong>();
+            new ConcurrentHashMap<>();
     private static AtomicLong lastProtolTime = new AtomicLong(0);
     private static AtomicLong lastSizeTime = new AtomicLong(0);
     private boolean packHeaderRead = false;
@@ -61,7 +61,7 @@ public class NettyProtocolDecoder extends FrameDecoder {
             filterIllegalPackageSize(true, tmpListSize,
                     RpcConstants.MAX_FRAME_MAX_LIST_SIZE, channel);
             this.listSize = tmpListSize;
-            this.dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>(this.listSize));
+            this.dataPack = new RpcDataPack(serialNo, new ArrayList<>(this.listSize));
             this.packHeaderRead = true;
         }
         // get PackBody

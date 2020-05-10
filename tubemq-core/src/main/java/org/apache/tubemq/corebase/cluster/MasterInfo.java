@@ -29,7 +29,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 public class MasterInfo {
 
     private final Map<String/** ip:port */, NodeAddrInfo> addrMap4Failover =
-            new HashMap<String, NodeAddrInfo>();
+            new HashMap<>();
     private List<String> nodeHostPortList;
     private NodeAddrInfo firstNodeAddr = null;
     private String masterClusterStr;
@@ -78,7 +78,7 @@ public class MasterInfo {
                 this.firstNodeAddr = tmpNodeAddrInfo;
             }
         }
-        nodeHostPortList = new ArrayList<String>(addrMap4Failover.size());
+        nodeHostPortList = new ArrayList<>(addrMap4Failover.size());
         nodeHostPortList.addAll(addrMap4Failover.keySet());
         int count = 0;
         Collections.sort(nodeHostPortList);
@@ -100,7 +100,7 @@ public class MasterInfo {
             }
             this.addrMap4Failover.put(entry.getKey(), entry.getValue());
         }
-        this.nodeHostPortList = new ArrayList<String>(addrMap4Failover.size());
+        this.nodeHostPortList = new ArrayList<>(addrMap4Failover.size());
         this.nodeHostPortList.addAll(addrMap4Failover.keySet());
         this.firstNodeAddr = firstNodeAddr;
         this.masterClusterStr = masterClusterStr;
