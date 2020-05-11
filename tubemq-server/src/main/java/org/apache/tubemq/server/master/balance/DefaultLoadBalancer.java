@@ -83,10 +83,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
         //　load balance according to group
         Map<String/* consumer */,
                 Map<String/* topic */, List<Partition>>> finalSubInfoMap =
-                new HashMap<String, Map<String, List<Partition>>>();
-        Map<String, RebProcessInfo> rejGroupClientINfoMap = new HashMap<String, RebProcessInfo>();
-        Set<String> onlineOfflineGroupSet = new HashSet<String>();
-        Set<String> bandGroupSet = new HashSet<String>();
+                new HashMap<>();
+        Map<String, RebProcessInfo> rejGroupClientINfoMap = new HashMap<>();
+        Set<String> onlineOfflineGroupSet = new HashSet<>();
+        Set<String> bandGroupSet = new HashSet<>();
         for (String group : groupSet) {
             if (group == null) {
                 continue;
@@ -109,7 +109,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 bandGroupSet.add(group);
                 continue;
             }
-            List<ConsumerInfo> newConsumerList = new ArrayList<ConsumerInfo>();
+            List<ConsumerInfo> newConsumerList = new ArrayList<>();
             for (ConsumerInfo consumerInfo : consumerList) {
                 if (consumerInfo != null) {
                     newConsumerList.add(consumerInfo);
@@ -159,11 +159,11 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     rejGroupClientINfoMap.put(group, rebProcessInfo);
                 }
             }
-            List<ConsumerInfo> newConsumerList2 = new ArrayList<ConsumerInfo>();
+            List<ConsumerInfo> newConsumerList2 = new ArrayList<>();
             Map<String, Partition> psMap = topicPSInfoManager.getPartitionMap(topicSet);
             Map<String, NodeRebInfo> rebProcessInfoMap = consumerBandInfo.getRebalanceMap();
             for (ConsumerInfo consumer : newConsumerList) {
-                Map<String, List<Partition>> partitions = new HashMap<String, List<Partition>>();
+                Map<String, List<Partition>> partitions = new HashMap<>();
                 finalSubInfoMap.put(consumer.getConsumerId(), partitions);
                 Map<String, Map<String, Partition>> relation = clusterState.get(consumer.getConsumerId());
                 if (relation != null) {
@@ -183,7 +183,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     }
                     newConsumerList2.add(consumer);
                     for (Entry<String, Map<String, Partition>> entry : relation.entrySet()) {
-                        List<Partition> ps = new ArrayList<Partition>();
+                        List<Partition> ps = new ArrayList<>();
                         partitions.put(entry.getKey(), ps);
                         Map<String, Partition> partitionMap = entry.getValue();
                         if (partitionMap != null && !partitionMap.isEmpty()) {
@@ -210,7 +210,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         if (onlineOfflineGroupSet.size() == 0) {
             groupsNeedToBalance = groupSet;
         } else {
-            groupsNeedToBalance = new ArrayList<String>();
+            groupsNeedToBalance = new ArrayList<>();
             for (String group : groupSet) {
                 if (group == null) {
                     continue;
@@ -255,7 +255,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 continue;
             }
             // filter consumer which don't need to handle
-            List<ConsumerInfo> consumerList = new ArrayList<ConsumerInfo>();
+            List<ConsumerInfo> consumerList = new ArrayList<>();
             List<ConsumerInfo> consumerList1 = consumerBandInfo.getConsumerInfoList();
             RebProcessInfo rebProcessInfo = rejGroupClientInfoMap.get(group);
             if (rebProcessInfo != null) {
@@ -265,7 +265,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                         Map<String, List<Partition>> partitions2 =
                                 clusterState.get(consumerInfo.getConsumerId());
                         if (partitions2 == null) {
-                            partitions2 = new HashMap<String, List<Partition>>();
+                            partitions2 = new HashMap<>();
                             clusterState.put(consumerInfo.getConsumerId(), partitions2);
                         }
                         Map<String, Map<String, Partition>> relation =
@@ -297,7 +297,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 Map<String, List<Partition>> partitions =
                         clusterState.get(consumer.getConsumerId());
                 if (partitions == null) {
-                    partitions = new HashMap<String, List<Partition>>();
+                    partitions = new HashMap<>();
                 }
                 int load = 0;
                 for (List<Partition> entry : partitions.values()) {
@@ -365,7 +365,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                         String consumerId) {
         Map<String, List<Partition>> partitions = clusterState.get(consumerId);
         if (partitions == null) {
-            partitions = new HashMap<String, List<Partition>>();
+            partitions = new HashMap<>();
             clusterState.put(consumerId, partitions);
         }
         List<Partition> ps = partitions.get(partition.getTopic());
@@ -422,12 +422,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             Map<String, List<Partition>> partitions = clusterState.get(consumer.getConsumerId());
             if (partitions == null) {
-                partitions = new HashMap<String, List<Partition>>();
+                partitions = new HashMap<>();
                 clusterState.put(consumer.getConsumerId(), partitions);
             }
             List<Partition> ps = partitions.get(partition.getTopic());
             if (ps == null) {
-                ps = new ArrayList<Partition>();
+                ps = new ArrayList<>();
                 partitions.put(partition.getTopic(), ps);
             }
             ps.add(partition);
@@ -447,7 +447,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         if (partitions.isEmpty() || consumers.isEmpty()) {
             return null;
         }
-        Map<String, List<Partition>> assignments = new TreeMap<String, List<Partition>>();
+        Map<String, List<Partition>> assignments = new TreeMap<>();
         int numPartitions = partitions.size();
         int numServers = consumers.size();
         int max = (int) Math.ceil((float) numPartitions / numServers);
@@ -458,7 +458,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         int partitionIdx = 0;
         for (int j = 0; j < numServers; j++) {
             String server = consumers.get((j + serverIdx) % numServers);
-            List<Partition> serverPartitions = new ArrayList<Partition>(max);
+            List<Partition> serverPartitions = new ArrayList<>(max);
             for (int i = partitionIdx; i < numPartitions; i += numServers) {
                 serverPartitions.add(partitions.get(i % numPartitions));
             }
@@ -564,12 +564,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     Map<String, List<Partition>> topicSubPartMap =
                             finalSubInfoMap.get(consumerId);
                     if (topicSubPartMap == null) {
-                        topicSubPartMap = new HashMap<String, List<Partition>>();
+                        topicSubPartMap = new HashMap<>();
                         finalSubInfoMap.put(consumerId, topicSubPartMap);
                     }
                     List<Partition> partList = topicSubPartMap.get(topic);
                     if (partList == null) {
-                        partList = new ArrayList<Partition>();
+                        partList = new ArrayList<>();
                         topicSubPartMap.put(topic, partList);
                     }
                     int startIndex = partsPerConsumer * i + Math.min(i, consumersWithExtraPart);
@@ -637,7 +637,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             final StringBuilder strBuffer) {
         // band consume reset offset
         Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap =
-                new HashMap<String, Map<String, Map<String, Partition>>>();
+                new HashMap<>();
         // according group
         for (String group : groupSet) {
             if (group == null) {
@@ -686,10 +686,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // actual reset offset
             Map<String, Long> partsOffsetMap = consumerBandInfo.getPartOffsetMap();
-            List<OffsetStorageInfo> offsetInfoList = new ArrayList<OffsetStorageInfo>();
+            List<OffsetStorageInfo> offsetInfoList = new ArrayList<>();
             Set<Partition> partPubList =
                     topicPSInfoManager.getPartitions(consumerBandInfo.getTopicSet());
-            Map<String, Partition> partitionMap = new HashMap<String, Partition>();
+            Map<String, Partition> partitionMap = new HashMap<>();
             for (Partition partition : partPubList) {
                 partitionMap.put(partition.getPartitionKey(), partition);
             }
@@ -706,7 +706,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     Map<String, Map<String, Partition>> topicSubPartMap =
                             finalSubInfoMap.get(consumerId);
                     if (topicSubPartMap == null) {
-                        topicSubPartMap = new HashMap<String, Map<String, Partition>>();
+                        topicSubPartMap = new HashMap<>();
                         finalSubInfoMap.put(consumerId, topicSubPartMap);
                     }
                     Map<String, Partition> partMap = topicSubPartMap.get(foundPart.getTopic());

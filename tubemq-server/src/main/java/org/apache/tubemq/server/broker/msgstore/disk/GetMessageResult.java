@@ -37,8 +37,8 @@ public class GetMessageResult {
     public long waitTime = -1;
     public boolean isSlowFreq = false;
     public boolean isFromSsdFile = false;
-    public HashMap<String, CountItem> tmpCounters = new HashMap<String, CountItem>();
-    public List<TransferedMessage> transferedMessageList = new ArrayList<TransferedMessage>();
+    public HashMap<String, CountItem> tmpCounters = new HashMap<>();
+    public List<TransferedMessage> transferedMessageList = new ArrayList<>();
 
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,

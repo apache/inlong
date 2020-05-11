@@ -41,10 +41,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     private final OffsetStorage zkOffsetStorage;
     private final ConcurrentHashMap<String/* group */,
             ConcurrentHashMap<String/* topic - partitionId*/, OffsetStorageInfo>> cfmOffsetMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String/* topic */, OffsetStorageInfo>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* group */,
             ConcurrentHashMap<String/* topic - partitionId*/, Long>> tmpOffsetMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, Long>>();
+            new ConcurrentHashMap<>();
 
     public DefaultOffsetManager(final BrokerConfig brokerConfig) {
         super("[Offset Manager]", brokerConfig.getZkConfig().getZkCommitPeriodMs());
@@ -334,7 +334,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         long tmpOffset = origOffset - origOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN;
         ConcurrentHashMap<String, Long> partTmpOffsetMap = tmpOffsetMap.get(group);
         if (partTmpOffsetMap == null) {
-            ConcurrentHashMap<String, Long> tmpMap = new ConcurrentHashMap<String, Long>();
+            ConcurrentHashMap<String, Long> tmpMap = new ConcurrentHashMap<>();
             partTmpOffsetMap = tmpOffsetMap.putIfAbsent(group, tmpMap);
             if (partTmpOffsetMap == null) {
                 partTmpOffsetMap = tmpMap;
@@ -351,7 +351,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     private long getAndResetTmpOffset(final String group, final String offsetCacheKey) {
         ConcurrentHashMap<String, Long> partTmpOffsetMap = tmpOffsetMap.get(group);
         if (partTmpOffsetMap == null) {
-            ConcurrentHashMap<String, Long> tmpMap = new ConcurrentHashMap<String, Long>();
+            ConcurrentHashMap<String, Long> tmpMap = new ConcurrentHashMap<>();
             partTmpOffsetMap = tmpOffsetMap.putIfAbsent(group, tmpMap);
             if (partTmpOffsetMap == null) {
                 partTmpOffsetMap = tmpMap;
@@ -416,7 +416,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         ConcurrentHashMap<String, OffsetStorageInfo> regInfoMap = cfmOffsetMap.get(group);
         if (regInfoMap == null) {
             ConcurrentHashMap<String, OffsetStorageInfo> tmpRegInfoMap
-                    = new ConcurrentHashMap<String, OffsetStorageInfo>();
+                    = new ConcurrentHashMap<>();
             regInfoMap = cfmOffsetMap.putIfAbsent(group, tmpRegInfoMap);
             if (regInfoMap == null) {
                 regInfoMap = tmpRegInfoMap;

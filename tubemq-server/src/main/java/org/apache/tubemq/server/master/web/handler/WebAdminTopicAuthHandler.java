@@ -119,9 +119,9 @@ public class WebAdminTopicAuthHandler {
             }
             Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbTopicAuthControlEntity> inTopicAuthConfEntityMap =
-                    new HashMap<String, BdbTopicAuthControlEntity>();
+                    new HashMap<>();
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
-                    new HashMap<String, BdbConsumerGroupEntity>();
+                    new HashMap<>();
             for (int count = 0; count < topicJsonArray.size(); count++) {
                 Map<String, String> jsonObject = topicJsonArray.get(count);
                 try {

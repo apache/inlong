@@ -84,7 +84,7 @@ public class BrokerList implements Action {
                     fromIndex + pageSize > brokerInfoList.size() ? brokerInfoList.size() : fromIndex
                             + pageSize;
             List<BrokerInfo> firstPageList = brokerInfoList.subList(fromIndex, toIndex);
-            brokerVOList = new ArrayList<BrokerVO>(brokerInfoList.size());
+            brokerVOList = new ArrayList<>(brokerInfoList.size());
             TopicPSInfoManager psInfoManager = master.getTopicPSInfoManager();
             for (BrokerInfo brokerInfo : firstPageList) {
                 BrokerVO brokerVO = new BrokerVO();

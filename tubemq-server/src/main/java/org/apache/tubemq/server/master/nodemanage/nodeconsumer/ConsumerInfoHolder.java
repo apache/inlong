@@ -31,9 +31,9 @@ import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 public class ConsumerInfoHolder {
 
     private final ConcurrentHashMap<String/* group */, ConsumerBandInfo> groupInfoMap =
-            new ConcurrentHashMap<String, ConsumerBandInfo>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* consumerId */, String/* group */> consumerIndexMap =
-            new ConcurrentHashMap<String, String>();
+            new ConcurrentHashMap<>();
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     /**
@@ -55,7 +55,7 @@ public class ConsumerInfoHolder {
                         oldConsumeBandInfo.getConsumerInfoList();
                 if (oldConsumerList != null) {
                     List<ConsumerInfo> consumerList =
-                            new ArrayList<ConsumerInfo>(oldConsumerList.size());
+                            new ArrayList<>(oldConsumerList.size());
                     for (ConsumerInfo consumer : oldConsumerList) {
                         if (consumer != null) {
                             consumerList.add(consumer.clone());
@@ -392,7 +392,7 @@ public class ConsumerInfoHolder {
                 return Collections.emptyList();
             } else {
                 List<String> groupList =
-                        new ArrayList<String>(groupInfoMap.size());
+                        new ArrayList<>(groupInfoMap.size());
                 groupList.addAll(groupInfoMap.keySet());
                 return groupList;
             }

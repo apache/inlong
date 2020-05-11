@@ -44,9 +44,9 @@ public class ConsumerNodeInfo {
     // is filter consumer or not
     private boolean isFilterConsume = false;
     // filter conditions in string format
-    private Set<String> filterCondStrs = new HashSet<String>(10);
+    private Set<String> filterCondStrs = new HashSet<>(10);
     // filter conditions in int format
-    private Set<Integer> filterCondCode = new HashSet<Integer>(10);
+    private Set<Integer> filterCondCode = new HashSet<>(10);
     // consumer's address
     private String rmtAddrInfo;
     private boolean isSupportLimit = false;

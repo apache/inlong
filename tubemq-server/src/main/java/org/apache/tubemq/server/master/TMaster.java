@@ -120,7 +120,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private static final int MAX_BALANCE_DELAY_TIME = 10;
 
     private final ConcurrentHashMap<String/* consumerId */, Map<String/* topic */, Map<String, Partition>>>
-            currentSubInfo = new ConcurrentHashMap<String, Map<String, Map<String, Partition>>>();
+            currentSubInfo = new ConcurrentHashMap<>();
     private final RpcServiceFactory rpcServiceFactory =     //rpc service factory
             new RpcServiceFactory();
     private final ConsumerEventManager consumerEventManager;    //consumer event manager
@@ -337,7 +337,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
-                new HashSet<String>(transTopicSet), hostName, overtls);
+                new HashSet<>(transTopicSet), hostName, overtls);
         builder.setBrokerCheckSum(this.defaultBrokerConfManager.getBrokerInfoCheckSum());
         builder.addAllBrokerInfos(this.defaultBrokerConfManager.getBrokersMap(overtls).values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
@@ -618,7 +618,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ConcurrentHashSet<String> groupSet =
                         topicPSInfoManager.getTopicSubInfo(topic);
                 if (groupSet == null) {
-                    groupSet = new ConcurrentHashSet<String>();
+                    groupSet = new ConcurrentHashSet<>();
                     topicPSInfoManager.setTopicSubInfo(topic, groupSet);
                 }
                 if (!groupSet.contains(groupName)) {
@@ -627,7 +627,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
             if (CollectionUtils.isNotEmpty(subscribeList)) {
                 Map<String, Map<String, Partition>> topicPartSubMap =
-                        new HashMap<String, Map<String, Partition>>();
+                        new HashMap<>();
                 currentSubInfo.put(consumerId, topicPartSubMap);
                 for (SubscribeInfo info : subscribeList) {
                     Map<String, Partition> partMap = topicPartSubMap.get(info.getTopic());
@@ -765,7 +765,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         Map<String, Map<String, Partition>> topicPartSubList =
                 currentSubInfo.get(clientId);
         if (topicPartSubList == null) {
-            topicPartSubList = new HashMap<String, Map<String, Partition>>();
+            topicPartSubList = new HashMap<>();
             Map<String, Map<String, Partition>> tmpTopicPartSubList =
                     currentSubInfo.putIfAbsent(clientId, topicPartSubList);
             if (tmpTopicPartSubList != null) {
@@ -1375,7 +1375,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @return
      */
     private Map<String, String> getProducerTopicPartitionInfo(String producerId) {
-        Map<String, String> topicPartStrMap = new HashMap<String, String>();
+        Map<String, String> topicPartStrMap = new HashMap<>();
         ProducerInfo producerInfo = producerHolder.getProducerInfo(producerId);
         if (producerInfo == null) {
             return topicPartStrMap;
@@ -1387,7 +1387,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return topicPartStrMap;
         }
         Map<String, StringBuilder> topicPartStrBuilderMap =
-                new HashMap<String, StringBuilder>();
+                new HashMap<>();
         for (String topic : producerInfoTopicSet) {
             if (topic == null) {
                 continue;
@@ -1441,7 +1441,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                               Map<String/* topicName */, TopicInfo> newTopicInfoMap,
                               boolean requirePartUpdate, boolean requireAcceptPublish,
                               boolean requireAcceptSubscribe) {
-        List<TopicInfo> needAddTopicList = new ArrayList<TopicInfo>();
+        List<TopicInfo> needAddTopicList = new ArrayList<>();
         for (Map.Entry<String, TopicInfo> entry : newTopicInfoMap.entrySet()) {
             TopicInfo newTopicInfo = entry.getValue();
             TopicInfo oldTopicInfo = null;
@@ -1482,7 +1482,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private void deleteTopics(BrokerInfo brokerInfo, final StringBuilder strBuffer,
                               Map<String/* topicName */, TopicInfo> curTopicInfoMap,
                               Map<String/* topicName */, TopicInfo> newTopicInfoMap) {
-        List<TopicInfo> needRmvTopicList = new ArrayList<TopicInfo>();
+        List<TopicInfo> needRmvTopicList = new ArrayList<>();
         if (curTopicInfoMap != null) {
             for (Map.Entry<String, TopicInfo> entry : curTopicInfoMap.entrySet()) {
                 if (newTopicInfoMap.get(entry.getKey()) == null) {
@@ -1757,7 +1757,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         ConcurrentHashMap<String/* topic */, TopicInfo> newTopicInfoMap =
-                new ConcurrentHashMap<String, TopicInfo>();
+                new ConcurrentHashMap<>();
         // according to broker status and default config, topic config, make up current status record
         for (String strTopicConfInfo : brokerTopicSetConfInfo) {
             if (TStringUtils.isBlank(strTopicConfInfo)) {
@@ -1823,7 +1823,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private void updateTopicsInternal(BrokerInfo broker,
                                       List<TopicInfo> topicList,
                                       EventType type) {
-        List<TopicInfo> cloneTopicList = new ArrayList<TopicInfo>();
+        List<TopicInfo> cloneTopicList = new ArrayList<>();
         for (TopicInfo topicInfo : topicList) {
             cloneTopicList.add(topicInfo.clone());
         }
@@ -1834,7 +1834,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
                         topicPSInfoManager.getBrokerPubInfo(topicInfo.getTopic());
                 if (topicInfoMap == null) {
-                    topicInfoMap = new ConcurrentHashMap<BrokerInfo, TopicInfo>();
+                    topicInfoMap = new ConcurrentHashMap<>();
                     topicPSInfoManager.setBrokerPubInfo(topicInfo.getTopic(), topicInfoMap);
                 }
                 if (EventType.CONNECT == type) {
@@ -1919,8 +1919,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
             List<String> blackTopicList = this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
             Map<String, List<Partition>> topicSubPartMap = entry.getValue();
-            List<SubscribeInfo> deletedSubInfoList = new ArrayList<SubscribeInfo>();
-            List<SubscribeInfo> addedSubInfoList = new ArrayList<SubscribeInfo>();
+            List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
+            List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
             for (Map.Entry<String, List<Partition>> topicEntry : topicSubPartMap.entrySet()) {
                 String topic = topicEntry.getKey();
                 List<Partition> finalPartList = topicEntry.getValue();
@@ -2071,8 +2071,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             List<String> blackTopicList =
                     this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
             Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
-            List<SubscribeInfo> deletedSubInfoList = new ArrayList<SubscribeInfo>();
-            List<SubscribeInfo> addedSubInfoList = new ArrayList<SubscribeInfo>();
+            List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
+            List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
             for (Map.Entry<String, Map<String, Partition>> topicEntry : topicSubPartMap.entrySet()) {
                 String topic = topicEntry.getKey();
                 Map<String, Partition> finalPartMap = topicEntry.getValue();
@@ -2208,8 +2208,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @return
      */
     private List<String> getNeedToBalanceGroupList(final StringBuilder strBuffer) {
-        List<String> groupsNeedToBalance = new ArrayList<String>();
-        Set<String> groupHasUnfinishedEvent = new HashSet<String>();
+        List<String> groupsNeedToBalance = new ArrayList<>();
+        Set<String> groupHasUnfinishedEvent = new HashSet<>();
         if (consumerEventManager.hasEvent()) {
             Set<String> consumerIdSet =
                     consumerEventManager.getUnProcessedIdSet();

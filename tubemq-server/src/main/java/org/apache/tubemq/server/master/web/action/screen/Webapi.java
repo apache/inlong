@@ -428,9 +428,9 @@ public class Webapi implements Action {
             int minRequireClientCnt = -2;
             int rebalanceStatus = -2;
             Set<String> topicSet = new HashSet<>();
-            List<ConsumerInfo> consumerList = new ArrayList<ConsumerInfo>();
-            Map<String, NodeRebInfo> nodeRebInfoMap = new ConcurrentHashMap<String, NodeRebInfo>();
-            Map<String, TreeSet<String>> existedTopicCondtions = new HashMap<String, TreeSet<String>>();
+            List<ConsumerInfo> consumerList = new ArrayList<>();
+            Map<String, NodeRebInfo> nodeRebInfoMap = new ConcurrentHashMap<>();
+            Map<String, TreeSet<String>> existedTopicCondtions = new HashMap<>();
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
             ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(strConsumeGroup);
             if (consumerBandInfo != null) {

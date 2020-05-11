@@ -282,7 +282,7 @@ public class BrokerAdminServlet extends HttpServlet {
      */
     private StringBuilder adminGetMemStoreStatisInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
-        Set<String> batchTopicNames = new HashSet<String>();
+        Set<String> batchTopicNames = new HashSet<>();
         String inputTopicName = req.getParameter("topicName");
         if (TStringUtils.isNotBlank(inputTopicName)) {
             inputTopicName = String.valueOf(inputTopicName).trim();
