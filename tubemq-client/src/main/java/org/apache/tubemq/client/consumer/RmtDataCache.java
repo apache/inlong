@@ -280,7 +280,7 @@ public class RmtDataCache implements Closeable {
         return false;
     }
 
-    public Partition getPartitonByKey(String partitionKey) {
+    public Partition getPartitionByKey(String partitionKey) {
         return partitionMap.get(partitionKey);
     }
 
