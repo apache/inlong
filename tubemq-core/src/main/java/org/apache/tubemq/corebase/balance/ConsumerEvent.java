@@ -28,7 +28,7 @@ public class ConsumerEvent {
     private EventType type;
     private EventStatus status;
     private List<SubscribeInfo> subscribeInfoList =
-            new ArrayList<SubscribeInfo>();
+            new ArrayList<>();
 
 
     public ConsumerEvent(long rebalanceId,

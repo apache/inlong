@@ -51,21 +51,21 @@ public class RpcServiceFactory {
     private static AtomicInteger threadIdGen = new AtomicInteger(0);
     private final ClientFactory clientFactory;
     private final ConcurrentHashMap<Integer, ServiceRpcServer> servers =
-            new ConcurrentHashMap<Integer, ServiceRpcServer>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ServiceHolder> servicesCache =
-            new ConcurrentHashMap<String, ServiceHolder>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* addr */, RemoteConErrStats> remoteAddrMap =
-            new ConcurrentHashMap<String, RemoteConErrStats>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* addr */, Long> forbiddenAddrMap =
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     private final ConnectionManager connectionManager;
     private final ConcurrentHashMap<String, ConnectionNode> brokerQueue =
-            new ConcurrentHashMap<String, ConnectionNode>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> updateTime =
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     // Temporary invalid broker map
     private final ConcurrentHashMap<Integer, Long> brokerUnavailableMap =
-        new ConcurrentHashMap<Integer, Long>();
+            new ConcurrentHashMap<>();
     private long unAvailableFbdDurationMs =
         RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
     private AtomicLong lastLogPrintTime = new AtomicLong(0);
@@ -197,7 +197,7 @@ public class RpcServiceFactory {
             if (beforeTime == null) {
                 int totalCount = 0;
                 Long curTime = System.currentTimeMillis();
-                Set<String> expiredAddrs = new HashSet<String>();
+                Set<String> expiredAddrs = new HashSet<>();
                 for (Map.Entry<String, Long> entry : forbiddenAddrMap.entrySet()) {
                     if (entry.getKey() == null || entry.getValue() == null) {
                         continue;
@@ -244,7 +244,7 @@ public class RpcServiceFactory {
 
     public void rmvAllExpiredRecords() {
         long curTime = System.currentTimeMillis();
-        Set<String> expiredAddrs = new HashSet<String>();
+        Set<String> expiredAddrs = new HashSet<>();
         for (Map.Entry<String, RemoteConErrStats> entry : remoteAddrMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -294,7 +294,7 @@ public class RpcServiceFactory {
 
     public void rmvExpiredUnavailableBrokers() {
         long curTime = System.currentTimeMillis();
-        Set<Integer> expiredBrokers = new HashSet<Integer>();
+        Set<Integer> expiredBrokers = new HashSet<>();
         for (Map.Entry<Integer, Long> entry : brokerUnavailableMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -566,7 +566,7 @@ public class RpcServiceFactory {
                     }
                     long cur = System.currentTimeMillis();
                     if (cur - lastCheckTime.get() >= 30000) {
-                        ArrayList<String> tmpKeyList = new ArrayList<String>();
+                        ArrayList<String> tmpKeyList = new ArrayList<>();
                         for (Map.Entry<String, Long> entry : updateTime.entrySet()) {
                             if (entry.getKey() == null || entry.getValue() == null) {
                                 continue;

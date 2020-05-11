@@ -59,7 +59,7 @@ public class NettyClientFactory implements ClientFactory {
     private static final Logger logger =
             LoggerFactory.getLogger(NettyClientFactory.class);
     protected final ConcurrentHashMap<String, Client> clients =
-            new ConcurrentHashMap<String, Client>();
+            new ConcurrentHashMap<>();
     protected AtomicBoolean shutdown = new AtomicBoolean(true);
     private Timer timer = new HashedWheelTimer();
     private volatile AtomicBoolean init = new AtomicBoolean(true);

@@ -24,7 +24,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 
 public class RpcConfig {
 
-    private final Map<String, Object> params = new HashMap<String, Object>();
+    private final Map<String, Object> params = new HashMap<>();
 
     public RpcConfig() {
 

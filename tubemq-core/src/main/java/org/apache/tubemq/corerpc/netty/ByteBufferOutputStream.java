@@ -70,7 +70,7 @@ public class ByteBufferOutputStream extends OutputStream {
     }
 
     public void reset() {
-        buffers = new LinkedList<ByteBuffer>();
+        buffers = new LinkedList<>();
         buffers.add(ByteBuffer.allocate(RpcConstants.RPC_MAX_BUFFER_SIZE));
     }
 
