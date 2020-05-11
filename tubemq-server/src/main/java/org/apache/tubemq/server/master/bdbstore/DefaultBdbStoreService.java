@@ -93,7 +93,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     // simple log print
     private final BdbStoreSamplePrint bdbStoreSamplePrint =
             new BdbStoreSamplePrint(logger);
-    private Set<String> replicas4Transfer = new HashSet<String>();
+    private Set<String> replicas4Transfer = new HashSet<>();
     private String masterNodeName;
     private int connectNodeFailCount = 0;
     private long masterStartTime = Long.MAX_VALUE;
@@ -107,12 +107,12 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     private EntityStore brokerConfStore;
     private PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
     private ConcurrentHashMap<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfigMap =
-            new ConcurrentHashMap<Integer, BdbBrokerConfEntity>();
+            new ConcurrentHashMap<>();
     // topic config store
     private EntityStore topicConfStore;
     private PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashMap<String/* topicName */, BdbTopicConfEntity>>
-            brokerIdTopicEntityMap = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, BdbTopicConfEntity>>();
+            brokerIdTopicEntityMap = new ConcurrentHashMap<>();
     // consumer group store
     private EntityStore consumerGroupStore;
     private PrimaryIndex<String/* recordKey */, BdbConsumerGroupEntity> consumerGroupIndex;
@@ -120,7 +120,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             String/* topicName */,
             ConcurrentHashMap<String /* consumerGroup */, BdbConsumerGroupEntity>>
             consumerGroupTopicMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbConsumerGroupEntity>>();
+            new ConcurrentHashMap<>();
     //consumer group black list store
     private EntityStore blackGroupStore;
     private PrimaryIndex<String/* recordKey */, BdbBlackGroupEntity> blackGroupIndex;
@@ -128,12 +128,12 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             String/* consumerGroup */,
             ConcurrentHashMap<String /* topicName */, BdbBlackGroupEntity>>
             blackGroupTopicMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbBlackGroupEntity>>();
+            new ConcurrentHashMap<>();
     // topic auth config store
     private EntityStore topicAuthControlStore;
     private PrimaryIndex<String/* recordKey */, BdbTopicAuthControlEntity> topicAuthControlIndex;
     private ConcurrentHashMap<String/* topicName */, BdbTopicAuthControlEntity> topicAuthControlMap =
-            new ConcurrentHashMap<String, BdbTopicAuthControlEntity>();
+            new ConcurrentHashMap<>();
     // consumer group filter condition store
     private EntityStore groupFilterCondStore;
     private PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupFilterCondIndex;
@@ -141,24 +141,24 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             String/* topicName */,
             ConcurrentHashMap<String /* consumerGroup */, BdbGroupFilterCondEntity>>
             groupFilterCondMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<String, BdbGroupFilterCondEntity>>();
+            new ConcurrentHashMap<>();
     // consumer group flow control store
     private EntityStore groupFlowCtrlStore;
     private PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupFlowCtrlIndex;
     private ConcurrentHashMap<String/* groupName */, BdbGroupFlowCtrlEntity> groupFlowCtrlMap =
-            new ConcurrentHashMap<String, BdbGroupFlowCtrlEntity>();
+            new ConcurrentHashMap<>();
     // consumer group setting store
     private EntityStore consumeGroupSettingStore;
     private PrimaryIndex<String/* recordKey */, BdbConsumeGroupSettingEntity> consumeGroupSettingIndex;
     private ConcurrentHashMap<String/* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap =
-            new ConcurrentHashMap<String, BdbConsumeGroupSettingEntity>();
+            new ConcurrentHashMap<>();
     // service status
     private AtomicBoolean isStarted = new AtomicBoolean(false);
     // master role flag
     private volatile boolean isMaster;
     // master node list
     private ConcurrentHashMap<String/* nodeName */, MasterNodeInfo> masterNodeInfoMap =
-            new ConcurrentHashMap<String, MasterNodeInfo>();
+            new ConcurrentHashMap<>();
     private String nodeHost;
     private BDBConfig bdbConfig;
     private Listener listener = new Listener();
@@ -168,7 +168,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         this.tMaster = tMaster;
         this.nodeHost = masterConfig.getHostName();
         this.bdbConfig = masterConfig.getBdbConfig();
-        Set<InetSocketAddress> helpers = new HashSet<InetSocketAddress>();
+        Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
             InetSocketAddress helper = new InetSocketAddress(this.nodeHost, bdbConfig.getBdbNodePort() + i);
             helpers.add(helper);
@@ -251,7 +251,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());
             int count = 0;
             boolean hasMaster = false;
-            List<ClusterNodeVO> clusterNodeVOList = new ArrayList<ClusterNodeVO>();
+            List<ClusterNodeVO> clusterNodeVOList = new ArrayList<>();
             for (ReplicationNode node : replicationGroup.getNodes()) {
                 ClusterNodeVO clusterNodeVO = new ClusterNodeVO();
                 clusterNodeVO.setHostName(node.getHostName());
@@ -838,7 +838,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         }
         int activeNodes = 0;
         boolean isMasterActive = false;
-        Set<String> tmp = new HashSet<String>();
+        Set<String> tmp = new HashSet<>();
         for (ReplicationNode node : replicationGroup.getNodes()) {
             MasterNodeInfo masterNodeInfo =
                     new MasterNodeInfo(replicationGroup.getName(),
@@ -1178,7 +1178,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                         consumerGroupTopicMap.get(topicName);
                 if (consumerGroupMap == null) {
                     consumerGroupMap =
-                            new ConcurrentHashMap<String, BdbConsumerGroupEntity>();
+                            new ConcurrentHashMap<>();
                     consumerGroupTopicMap.put(topicName, consumerGroupMap);
                 }
                 consumerGroupMap.put(consumerGroupName, bdbEntity);
@@ -1221,7 +1221,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                         groupFilterCondMap.get(topicName);
                 if (filterCondMap == null) {
                     filterCondMap =
-                            new ConcurrentHashMap<String, BdbGroupFilterCondEntity>();
+                            new ConcurrentHashMap<>();
                     groupFilterCondMap.put(topicName, filterCondMap);
                 }
                 filterCondMap.put(consumerGroupName, bdbEntity);
@@ -1299,7 +1299,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                         blackGroupTopicMap.get(consumerGroupName);
                 if (blackGroupMap == null) {
                     blackGroupMap =
-                            new ConcurrentHashMap<String, BdbBlackGroupEntity>();
+                            new ConcurrentHashMap<>();
                     blackGroupTopicMap.put(consumerGroupName, blackGroupMap);
                 }
                 blackGroupMap.put(topicName, bdbEntity);

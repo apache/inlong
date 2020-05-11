@@ -512,7 +512,7 @@ public class WebParameterUtils {
                                                  boolean checkResToken,
                                                  Set<String> resTokens,
                                                  final StringBuilder sb) throws Exception {
-        Set<String> batchOpGroupNames = new HashSet<String>();
+        Set<String> batchOpGroupNames = new HashSet<>();
         if (TStringUtils.isNotBlank(inputGroupName)) {
             inputGroupName = escDoubleQuotes(inputGroupName.trim());
         }
@@ -566,7 +566,7 @@ public class WebParameterUtils {
                                                  boolean checkRange,
                                                  Set<String> checkedTopicList,
                                                  final StringBuilder sb) throws Exception {
-        Set<String> batchOpTopicNames = new HashSet<String>();
+        Set<String> batchOpTopicNames = new HashSet<>();
         if (TStringUtils.isNotBlank(inputTopicName)) {
             inputTopicName = escDoubleQuotes(inputTopicName.trim());
         }
@@ -615,7 +615,7 @@ public class WebParameterUtils {
 
     public static Set<String> getBatchBrokerIpSet(String inStrBrokerIps,
                                                   boolean checkEmpty) throws Exception {
-        Set<String> batchBrokerIps = new HashSet<String>();
+        Set<String> batchBrokerIps = new HashSet<>();
         if (TStringUtils.isNotBlank(inStrBrokerIps)) {
             inStrBrokerIps = escDoubleQuotes(inStrBrokerIps.trim());
         }
@@ -648,7 +648,7 @@ public class WebParameterUtils {
 
     public static Set<Integer> getBatchBrokerIdSet(String inStrBrokerIds,
                                                    boolean checkEmpty) throws Exception {
-        Set<Integer> batchBrokerIdSet = new HashSet<Integer>();
+        Set<Integer> batchBrokerIdSet = new HashSet<>();
         if (TStringUtils.isNotBlank(inStrBrokerIds)) {
             inStrBrokerIds = escDoubleQuotes(inStrBrokerIds.trim());
         }
@@ -684,7 +684,7 @@ public class WebParameterUtils {
                                                                BrokerConfManager webMaster,
                                                                boolean checkEmpty,
                                                                final StringBuilder sb) throws Exception {
-        Set<BdbBrokerConfEntity> batchBrokerIdSet = new HashSet<BdbBrokerConfEntity>();
+        Set<BdbBrokerConfEntity> batchBrokerIdSet = new HashSet<>();
         if (TStringUtils.isNotBlank(inStrBrokerIds)) {
             inStrBrokerIds = escDoubleQuotes(inStrBrokerIds.trim());
         }

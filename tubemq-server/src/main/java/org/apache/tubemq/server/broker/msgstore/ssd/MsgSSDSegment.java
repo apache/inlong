@@ -46,7 +46,7 @@ public class MsgSSDSegment implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MsgSSDSegment.class);
     private final Segment dataSegment;
     private final ConcurrentHashMap<String, SSDVisitInfo> visitMap =
-        new ConcurrentHashMap<String, SSDVisitInfo>();
+        new ConcurrentHashMap<>();
     private final String topic;
     private final String storeKey;
     private AtomicLong lastReadTime = new AtomicLong(System.currentTimeMillis());
@@ -100,11 +100,11 @@ public class MsgSSDSegment implements Closeable {
         long lastRdDataOffset = -1L;
         final long curDataMaxOffset = getDataMaxOffset();
         final long curDataMinOffset = getDataMinOffset();
-        HashMap<String, CountItem> countMap = new HashMap<String, CountItem>();
+        HashMap<String, CountItem> countMap = new HashMap<>();
         ByteBuffer dataBuffer =
             ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
-            new ArrayList<ClientBroker.TransferedMessage>();
+            new ArrayList<>();
         if (this.dataSegment == null) {
             logger.error(strBuffer.append("[SSD Store] Found SSD fileRecordView is null! storeKey=")
                 .append(this.storeKey).toString());

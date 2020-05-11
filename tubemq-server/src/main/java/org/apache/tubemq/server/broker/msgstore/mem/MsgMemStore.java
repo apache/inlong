@@ -51,10 +51,10 @@ public class MsgMemStore implements Closeable {
     private final ReentrantLock writeLock = new ReentrantLock();
     //　partitionId to index position, accelerate query
     private final ConcurrentHashMap<Integer, Integer> queuesMap =
-            new ConcurrentHashMap<Integer, Integer>(20);
+            new ConcurrentHashMap<>(20);
     //　key to index position, used for filter consume
     private final ConcurrentHashMap<Integer, Integer> keysMap =
-            new ConcurrentHashMap<Integer, Integer>(100);
+            new ConcurrentHashMap<>(100);
     //　where messages in memory will sink to disk
     private long writeDataStartPos = -1;
     private ByteBuffer cacheDataSegment;
@@ -147,7 +147,7 @@ public class MsgMemStore implements Closeable {
         Integer lastWritePos = 0;
         boolean hasMsg = false;
         //　judge memory contains the given offset or not.
-        List<ByteBuffer> cacheMsgList = new ArrayList<ByteBuffer>();
+        List<ByteBuffer> cacheMsgList = new ArrayList<>();
         if (lastOffset < this.writeIndexStartPos) {
             return new GetCacheMsgResult(false, TErrCodeConstants.MOVED,
                     lastOffset, "Request offset lower than cache minOffset");

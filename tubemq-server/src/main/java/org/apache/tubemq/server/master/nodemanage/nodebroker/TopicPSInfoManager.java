@@ -37,13 +37,13 @@ public class TopicPSInfoManager {
 
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<BrokerInfo, TopicInfo>> brokerPubInfoMap =
-            new ConcurrentHashMap<String/* topic */, ConcurrentHashMap<BrokerInfo, TopicInfo>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
-            new ConcurrentHashMap<String, ConcurrentHashSet<String>>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashSet<String/* group */>> topicSubInfoMap =
-            new ConcurrentHashMap<String, ConcurrentHashSet<String>>();
+            new ConcurrentHashMap<>();
 
     /**
      * Get groups according to topic
@@ -111,7 +111,7 @@ public class TopicPSInfoManager {
                     topicPubInfoMap.get(topic);
             if (producerIdSet == null) {
                 ConcurrentHashSet<String> tmpProducerIdSet =
-                        new ConcurrentHashSet<String>();
+                        new ConcurrentHashSet<>();
                 producerIdSet =
                         topicPubInfoMap.putIfAbsent(topic, tmpProducerIdSet);
                 if (producerIdSet == null) {
@@ -172,7 +172,7 @@ public class TopicPSInfoManager {
     }
 
     public Set<Partition> getPartitions() {
-        Set<Partition> partitions = new HashSet<Partition>();
+        Set<Partition> partitions = new HashSet<>();
         for (Map<BrokerInfo, TopicInfo> broker
                 : this.brokerPubInfoMap.values()) {
             for (Map.Entry<BrokerInfo, TopicInfo> entry
@@ -191,7 +191,7 @@ public class TopicPSInfoManager {
     }
 
     public Set<Partition> getPartitions(Set<String> topics) {
-        Set<Partition> partList = new HashSet<Partition>();
+        Set<Partition> partList = new HashSet<>();
         for (String topic : topics) {
             partList.addAll(getPartitionSet(topic));
         }
@@ -199,7 +199,7 @@ public class TopicPSInfoManager {
     }
 
     public Map<String, Partition> getPartitionMap(Set<String> topics) {
-        Map<String, Partition> partMap = new HashMap<String, Partition>();
+        Map<String, Partition> partMap = new HashMap<>();
         for (String topic : topics) {
             ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
                     brokerPubInfoMap.get(topic);
@@ -225,11 +225,11 @@ public class TopicPSInfoManager {
     }
 
     public Set<Partition> getPartitionSet(String topic) {
-        Set<Partition> partSet = new HashSet<Partition>();
+        Set<Partition> partSet = new HashSet<>();
         ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
                 brokerPubInfoMap.get(topic);
         if (topicInfoMap == null) {
-            return new HashSet<Partition>();
+            return new HashSet<>();
         }
         for (Map.Entry<BrokerInfo, TopicInfo> entry
                 : topicInfoMap.entrySet()) {
@@ -250,7 +250,7 @@ public class TopicPSInfoManager {
     }
 
     public List<Partition> getPartitionList(String topic) {
-        List<Partition> partList = new ArrayList<Partition>(getPartitionSet(topic));
+        List<Partition> partList = new ArrayList<>(getPartitionSet(topic));
         return partList;
     }
 
@@ -264,7 +264,7 @@ public class TopicPSInfoManager {
     }
 
     public List<TopicInfo> getBrokerPubInfoList(BrokerInfo broker) {
-        List<TopicInfo> topicInfoList = new ArrayList<TopicInfo>();
+        List<TopicInfo> topicInfoList = new ArrayList<>();
         for (Map.Entry<String, ConcurrentHashMap<BrokerInfo, TopicInfo>> pubEntry
                 : brokerPubInfoMap.entrySet()) {
             ConcurrentHashMap<BrokerInfo, TopicInfo> topicPubMap =

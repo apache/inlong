@@ -97,8 +97,8 @@ public class WebBrokerTopicConfHandler {
             Set<BdbBrokerConfEntity> batchBrokerEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), brokerConfManager, true,
                             strBuffer);
-            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
-            List<BdbTopicAuthControlEntity> batchAddBdbTopicAuthControls = new ArrayList<BdbTopicAuthControlEntity>();
+            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<>();
+            List<BdbTopicAuthControlEntity> batchAddBdbTopicAuthControls = new ArrayList<>();
             // for each topic
             for (String topicName : batchAddTopicNames) {
                 BdbTopicAuthControlEntity tmpTopicAuthControl =
@@ -238,10 +238,10 @@ public class WebBrokerTopicConfHandler {
             if ((topicJsonArray == null) || (topicJsonArray.isEmpty())) {
                 throw new Exception("Null value of topicJsonSet, please set the value first!");
             }
-            Set<String> batchAddTopicNames = new HashSet<String>();
-            Set<String> batchAddItemKeys = new HashSet<String>();
-            List<BdbTopicAuthControlEntity> batchTopicAuthInfos = new ArrayList<BdbTopicAuthControlEntity>();
-            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            Set<String> batchAddTopicNames = new HashSet<>();
+            Set<String> batchAddItemKeys = new HashSet<>();
+            List<BdbTopicAuthControlEntity> batchTopicAuthInfos = new ArrayList<>();
+            List<BdbTopicConfEntity> batchAddBdbTopicEntities = new ArrayList<>();
             for (int count = 0; count < topicJsonArray.size(); count++) {
                 Map<String, String> jsonObject = topicJsonArray.get(count);
                 try {
@@ -722,9 +722,9 @@ public class WebBrokerTopicConfHandler {
             Set<BdbBrokerConfEntity> batchInputTopicEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"),
                             brokerConfManager, true, strBuffer);
-            Set<Integer> changedBrokerSet = new HashSet<Integer>();
+            Set<Integer> changedBrokerSet = new HashSet<>();
             Set<BdbTopicConfEntity> batchRmvBdbTopicEntitySet =
-                    new HashSet<BdbTopicConfEntity>();
+                    new HashSet<>();
 
             // For the broker to perform, check its status
             // and check the config of the topic to see if the action could be performed
@@ -866,7 +866,7 @@ public class WebBrokerTopicConfHandler {
             Set<BdbBrokerConfEntity> batchBrokerEntitySet =
                     WebParameterUtils.getBatchBrokerIdSet(req.getParameter("brokerId"), brokerConfManager, true,
                             strBuffer);
-            List<BdbTopicConfEntity> batchRmvBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            List<BdbTopicConfEntity> batchRmvBdbTopicEntities = new ArrayList<>();
             for (BdbBrokerConfEntity brokerConfEntity : batchBrokerEntitySet) {
                 if (brokerConfEntity == null) {
                     continue;
@@ -913,7 +913,7 @@ public class WebBrokerTopicConfHandler {
                 }
             }
             try {
-                Set<Integer> changedBrokerSet = new HashSet<Integer>();
+                Set<Integer> changedBrokerSet = new HashSet<>();
                 for (BdbTopicConfEntity itemTopicEntity : batchRmvBdbTopicEntities) {
                     BdbBrokerConfEntity brokerConfEntity =
                             brokerConfManager.getBrokerDefaultConfigStoreInfo(itemTopicEntity.getBrokerId());
@@ -1211,7 +1211,7 @@ public class WebBrokerTopicConfHandler {
                     WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                             req.getParameter("memCacheFlushIntvl"), false, TBaseConstants.META_VALUE_UNDEFINED, 4000);
             int unFlushDataHold = unflushThreshold;
-            List<BdbTopicConfEntity> batchModBdbTopicEntities = new ArrayList<BdbTopicConfEntity>();
+            List<BdbTopicConfEntity> batchModBdbTopicEntities = new ArrayList<>();
             for (BdbBrokerConfEntity tgtEntity : batchBrokerEntitySet) {
                 if (tgtEntity == null) {
                     continue;

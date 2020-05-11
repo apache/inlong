@@ -84,13 +84,13 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validBooleanDataParameter("needSSDProc",
                             req.getParameter("needSSDProc"),
                             false, false);
-            Set<String> batchGroupNames = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<>();
             if (opType == 1) {
                 batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 // get groupname info if rule is set to consume group
                 boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<String>();
+                Set<String> resTokenSet = new HashSet<>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
@@ -147,12 +147,12 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validDateParameter("createDate",
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> batchGroupNames = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<>();
             if (opType == 1) {
                 batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<String>();
+                Set<String> resTokenSet = new HashSet<>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
@@ -193,13 +193,13 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validDateParameter("createDate",
                             req.getParameter("createDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> batchGroupNames = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<>();
             // check optype
             if (opType == 1) {
                 batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<String>();
+                Set<String> resTokenSet = new HashSet<>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }
@@ -302,12 +302,12 @@ public class WebAdminFlowRuleHandler {
                     .setQryPriorityId(WebParameterUtils.validIntDataParameter("qryPriorityId",
                             req.getParameter("qryPriorityId"),
                             false, TBaseConstants.META_VALUE_UNDEFINED, 0));
-            Set<String> batchGroupNames = new HashSet<String>();
+            Set<String> batchGroupNames = new HashSet<>();
             if (opType == 1) {
                 batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
             } else {
                 boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<String>();
+                Set<String> resTokenSet = new HashSet<>();
                 if (checkResToken) {
                     resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
                 }

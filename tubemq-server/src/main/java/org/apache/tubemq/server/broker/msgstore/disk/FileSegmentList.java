@@ -30,7 +30,7 @@ public class FileSegmentList implements SegmentList {
             LoggerFactory.getLogger(FileSegmentList.class);
     // list of segments.
     private AtomicReference<Segment[]> segmentList =
-            new AtomicReference<Segment[]>();
+            new AtomicReference<>();
 
     public FileSegmentList(final Segment[] s) {
         super();

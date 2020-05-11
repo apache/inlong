@@ -39,7 +39,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
     private long inValidTokenCheckTimeMs = 120000; // 2 minutes
     private final TubeBroker tubeBroker;
     private final AtomicReference<List<Long>> visitTokenList =
-            new AtomicReference<List<Long>>();
+            new AtomicReference<>();
     private String lastUpdatedVisitTokens = "";
     private boolean enableVisitTokenCheck = false;
     private boolean enableProduceAuthenticate = false;
@@ -93,7 +93,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
                         if (currList.contains(curVisitToken)) {
                             break;
                         }
-                        List<Long> updateList = new ArrayList<Long>(currList);
+                        List<Long> updateList = new ArrayList<>(currList);
                         while (updateList.size() >= MAX_VISIT_TOKEN_SIZE) {
                             updateList.remove(0);
                         }

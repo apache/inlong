@@ -256,7 +256,7 @@ public class MsgFileStore implements Closeable {
         ByteBuffer dataBuffer =
                 ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
-                new ArrayList<ClientBroker.TransferedMessage>();
+                new ArrayList<>();
         // read data file by index.
         for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
              curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
@@ -513,7 +513,7 @@ public class MsgFileStore implements Closeable {
                 .append(segTypeStr).append(" segments ")
                 .append(segListDir.getAbsolutePath()).toString());
         sBuilder.delete(0, sBuilder.length());
-        final List<Segment> accum = new ArrayList<Segment>();
+        final List<Segment> accum = new ArrayList<>();
         final File[] ls = segListDir.listFiles();
         if (ls != null) {
             for (final File file : ls) {

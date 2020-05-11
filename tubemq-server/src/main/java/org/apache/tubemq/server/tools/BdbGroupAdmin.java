@@ -58,7 +58,7 @@ public class BdbGroupAdmin {
             return;
         }
 
-        Set<InetSocketAddress> helpers = new HashSet<InetSocketAddress>();
+        Set<InetSocketAddress> helpers = new HashSet<>();
         String group = args[0];
         String[] hostAndPort = args[1].split(":");
         if (hostAndPort.length != 2) {

@@ -142,6 +142,6 @@ public class GroupCountService extends AbstractDaemonService implements CountSer
     private class CountSet {
         public AtomicLong refCnt = new AtomicLong(0);
         public ConcurrentHashMap<String, CountItem> counterItem =
-                new ConcurrentHashMap<String, CountItem>();
+                new ConcurrentHashMap<>();
     }
 }

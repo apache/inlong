@@ -25,7 +25,7 @@ import org.apache.tubemq.corebase.cluster.ProducerInfo;
 public class ProducerInfoHolder {
 
     final ConcurrentHashMap<String/* producerId */, ProducerInfo> producerInfoMap =
-            new ConcurrentHashMap<String, ProducerInfo>();
+            new ConcurrentHashMap<>();
 
     public ProducerInfo getProducerInfo(String producerId) {
         return producerInfoMap.get(producerId);

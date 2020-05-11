@@ -69,7 +69,7 @@ public class MsgSSDStoreManager implements Closeable {
     // ssd data directory
     private final File ssdBaseDataDir;
     private final BlockingQueue<SSDSegEvent> reqSSDEvents
-            = new ArrayBlockingQueue<SSDSegEvent>(60);
+            = new ArrayBlockingQueue<>(60);
     private final ExecutorService statusCheckExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService reqExecutor = Executors.newSingleThreadExecutor();
     // total ssd files size
@@ -82,9 +82,9 @@ public class MsgSSDStoreManager implements Closeable {
     private AtomicInteger firstChecked = new AtomicInteger(3);
     // ssd segments
     private ConcurrentHashMap<String, ConcurrentHashMap<Long, MsgSSDSegment>> ssdSegmentsMap =
-            new ConcurrentHashMap<String, ConcurrentHashMap<Long, MsgSSDSegment>>(60);
+            new ConcurrentHashMap<>(60);
     private ConcurrentHashMap<String, ConcurrentHashSet<SSDSegIndex>> ssdPartStrMap =
-            new ConcurrentHashMap<String, ConcurrentHashSet<SSDSegIndex>>(60);
+            new ConcurrentHashMap<>(60);
     private long startTime = System.currentTimeMillis();
     private long lastCheckTime = System.currentTimeMillis();
 
@@ -269,7 +269,7 @@ public class MsgSSDStoreManager implements Closeable {
                 && totalSsdFileSize.get() < (long) (tubeConfig.getMaxSSDTotalFileSizes() * 0.7))) {
             return true;
         }
-        Set<SSDSegIndex> msgSsdIndexSet = new HashSet<SSDSegIndex>();
+        Set<SSDSegIndex> msgSsdIndexSet = new HashSet<>();
         for (Map.Entry<String, ConcurrentHashMap<Long, MsgSSDSegment>> entry : ssdSegmentsMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -323,7 +323,7 @@ public class MsgSSDStoreManager implements Closeable {
             ConcurrentHashMap<String, SSDVisitInfo> ssdVisitInfoMap =
                     msgSsdSegment.getVisitMap();
             if (ssdVisitInfoMap != null) {
-                List<String> rmvPartStrList = new ArrayList<String>();
+                List<String> rmvPartStrList = new ArrayList<>();
                 for (String partStr : ssdVisitInfoMap.keySet()) {
                     ConsumerNodeInfo consumerNodeInfo =
                             consumerNodeInfoMap.get(partStr);
@@ -494,7 +494,7 @@ public class MsgSSDStoreManager implements Closeable {
                 ssdSegmentsMap.get(storeKey);
         if (msgSsdSegMap == null) {
             ConcurrentHashMap<Long, MsgSSDSegment> tmpMsgSsdSegMap =
-                    new ConcurrentHashMap<Long, MsgSSDSegment>();
+                    new ConcurrentHashMap<>();
             msgSsdSegMap = ssdSegmentsMap.putIfAbsent(storeKey, tmpMsgSsdSegMap);
             if (msgSsdSegMap == null) {
                 msgSsdSegMap = tmpMsgSsdSegMap;
@@ -575,7 +575,7 @@ public class MsgSSDStoreManager implements Closeable {
         }
         ConcurrentHashSet<SSDSegIndex> ssdSegIndices = this.ssdPartStrMap.get(partStr);
         if (ssdSegIndices == null) {
-            ConcurrentHashSet<SSDSegIndex> tmpSsdSegIndices = new ConcurrentHashSet<SSDSegIndex>();
+            ConcurrentHashSet<SSDSegIndex> tmpSsdSegIndices = new ConcurrentHashSet<>();
             ssdSegIndices = this.ssdPartStrMap.putIfAbsent(partStr, tmpSsdSegIndices);
             if (ssdSegIndices == null) {
                 ssdSegIndices = tmpSsdSegIndices;
@@ -601,7 +601,7 @@ public class MsgSSDStoreManager implements Closeable {
                 ssdSegmentsMap.get(ssdSegEvent.storeKey);
         if (msgSegmentMap == null) {
             ConcurrentHashMap<Long, MsgSSDSegment> tmpMsgSsdSegMap =
-                    new ConcurrentHashMap<Long, MsgSSDSegment>();
+                    new ConcurrentHashMap<>();
             msgSegmentMap =
                     ssdSegmentsMap.putIfAbsent(ssdSegEvent.storeKey, tmpMsgSsdSegMap);
             if (msgSegmentMap == null) {
@@ -616,7 +616,7 @@ public class MsgSSDStoreManager implements Closeable {
                     ssdPartStrMap.get(ssdSegEvent.partStr);
             if (ssdSegIndices == null) {
                 ConcurrentHashSet<SSDSegIndex> tmpSsdSegIndices =
-                        new ConcurrentHashSet<SSDSegIndex>();
+                        new ConcurrentHashSet<>();
                 ssdSegIndices =
                         ssdPartStrMap.putIfAbsent(ssdSegEvent.partStr, tmpSsdSegIndices);
                 if (ssdSegIndices == null) {
@@ -673,7 +673,7 @@ public class MsgSSDStoreManager implements Closeable {
                         this.ssdSegmentsMap.get(storeKey);
                 if (msgSsdSegMap == null) {
                     ConcurrentHashMap<Long, MsgSSDSegment> tmpMsgSsdSegMap =
-                            new ConcurrentHashMap<Long, MsgSSDSegment>();
+                            new ConcurrentHashMap<>();
                     msgSsdSegMap =
                             ssdSegmentsMap.putIfAbsent(storeKey, tmpMsgSsdSegMap);
                     if (msgSsdSegMap == null) {

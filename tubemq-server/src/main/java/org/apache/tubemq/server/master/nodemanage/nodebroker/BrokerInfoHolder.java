@@ -42,11 +42,11 @@ public class BrokerInfoHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerInfoHolder.class);
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerInfo> brokerInfoMap =
-            new ConcurrentHashMap<Integer, BrokerInfo>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerAbnInfo> brokerAbnormalMap =
-            new ConcurrentHashMap<Integer, BrokerAbnInfo>();
+            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerFbdInfo> brokerForbiddenMap =
-            new ConcurrentHashMap<Integer, BrokerFbdInfo>();
+            new ConcurrentHashMap<>();
     private final int maxAutoForbiddenCnt;
     private final BrokerConfManager brokerConfManager;
     private AtomicInteger brokerTotalCount = new AtomicInteger(0);
@@ -183,7 +183,7 @@ public class BrokerInfoHolder {
     }
 
     public Map<Integer, BrokerInfo> getBrokerInfos(Collection<Integer> brokerIds) {
-        HashMap<Integer, BrokerInfo> brokerMap = new HashMap<Integer, BrokerInfo>();
+        HashMap<Integer, BrokerInfo> brokerMap = new HashMap<>();
         for (Integer brokerId : brokerIds) {
             brokerMap.put(brokerId, brokerInfoMap.get(brokerId));
         }
@@ -307,7 +307,7 @@ public class BrokerInfoHolder {
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
             return;
         }
-        List<BrokerFbdInfo> brokerFbdInfos = new ArrayList<BrokerFbdInfo>();
+        List<BrokerFbdInfo> brokerFbdInfos = new ArrayList<>();
         for (Integer brokerId : brokerIdSet) {
             BrokerFbdInfo fbdInfo = this.brokerForbiddenMap.remove(brokerId);
             if (fbdInfo != null) {

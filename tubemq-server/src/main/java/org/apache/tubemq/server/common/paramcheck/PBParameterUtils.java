@@ -126,7 +126,7 @@ public class PBParameterUtils {
                                                               final Set<String> reqTopicSet,
                                                               final String requiredParts,
                                                               final StringBuilder strBuffer) {
-        Map<String, Long> requiredPartMap = new HashMap<String, Long>();
+        Map<String, Long> requiredPartMap = new HashMap<>();
         ParamCheckResult retResult = new ParamCheckResult();
         if (!isReqConsumeBand) {
             retResult.setCheckData(requiredPartMap);

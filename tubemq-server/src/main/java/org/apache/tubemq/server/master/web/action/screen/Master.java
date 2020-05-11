@@ -224,7 +224,7 @@ public class Master implements Action {
             brokerInfoMap = master.getBrokerHolder().getBrokerInfoMap();
         } else {
             String[] brokerIdArr = brokerIds.split(",");
-            List<Integer> idList = new ArrayList<Integer>(brokerIdArr.length);
+            List<Integer> idList = new ArrayList<>(brokerIdArr.length);
             for (String strId : brokerIdArr) {
                 idList.add(Integer.parseInt(strId));
             }
