@@ -328,7 +328,7 @@ public class WebBrokerDefConfHandler {
             if ((brokerJsonArray == null) || (brokerJsonArray.isEmpty())) {
                 throw new Exception("Null value of brokerJsonSet, please set the value first!");
             }
-            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntiyMap = new HashMap<String, BdbBrokerConfEntity>();
+            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntiyMap = new HashMap<>();
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
                     brokerConfManager.getBrokerConfStoreMap();
             for (int count = 0; count < brokerJsonArray.size(); count++) {
@@ -509,7 +509,7 @@ public class WebBrokerDefConfHandler {
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
             Set<BdbBrokerConfEntity> newBrokerEntitySet =
-                    new HashSet<BdbBrokerConfEntity>();
+                    new HashSet<>();
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntities) {
                 if (oldEntity == null) {
                     continue;
@@ -751,7 +751,7 @@ public class WebBrokerDefConfHandler {
                             req.getParameter("modifyDate"),
                             TBaseConstants.META_MAX_DATEVALUE_LENGTH,
                             false, new Date());
-            Set<Integer> batchBrokerIds = new HashSet<Integer>();
+            Set<Integer> batchBrokerIds = new HashSet<>();
             Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
                     req.getParameter("brokerId"), brokerConfManager, true, strBuffer);
             for (BdbBrokerConfEntity entity : batchBrokerEntitySet) {
@@ -793,7 +793,7 @@ public class WebBrokerDefConfHandler {
                     req.getParameter("modifyDate"), TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
             Set<BdbBrokerConfEntity> batchBrokerEntitySet = WebParameterUtils.getBatchBrokerIdSet(
                     req.getParameter("brokerId"), brokerConfManager, true, strBuffer);
-            Set<BdbBrokerConfEntity> modifyBdbEntitySet = new HashSet<BdbBrokerConfEntity>();
+            Set<BdbBrokerConfEntity> modifyBdbEntitySet = new HashSet<>();
 
             // Check the entities one by one, to see if there are changes.
             for (BdbBrokerConfEntity oldEntity : batchBrokerEntitySet) {

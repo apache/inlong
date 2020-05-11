@@ -48,7 +48,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     private final ProducerManager producerManager;
     private final TubeClientConfig tubeClientConfig;
     private final CopyOnWriteArrayList<Shutdownable> clientLst =
-            new CopyOnWriteArrayList<Shutdownable>();
+            new CopyOnWriteArrayList<>();
     private final DefaultBrokerRcvQltyStats brokerRcvQltyStats;
     private AtomicBoolean shutdown = new AtomicBoolean(false);
 

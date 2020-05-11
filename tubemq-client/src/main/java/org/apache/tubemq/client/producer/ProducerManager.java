@@ -72,17 +72,17 @@ public class ProducerManager {
     private final InnerSessionFactory sessionFactory;
     private final RpcServiceFactory rpcServiceFactory;
     private final ConcurrentHashMap<String, AtomicInteger> publishTopics =
-            new ConcurrentHashMap<String, AtomicInteger>();
+            new ConcurrentHashMap<>();
     private final RpcConfig rpcConfig = new RpcConfig();
     private final ScheduledExecutorService heartbeatService;
     private final AtomicLong visitToken =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private final AtomicReference<String> authAuthorizedTokenRef =
-            new AtomicReference<String>("");
+            new AtomicReference<>("");
     private final ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
     private MasterService masterService;
-    private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<Integer, BrokerInfo>();
+    private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<>();
     private long brokerInfoCheckSum = -1L;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private long lastEmptyBrokerPrintTime = 0;
@@ -93,7 +93,7 @@ public class ProducerManager {
     private volatile long lastHeartbeatTime = System.currentTimeMillis();
     private AtomicInteger nodeStatus = new AtomicInteger(-1);
     private Map<String, Map<Integer, List<Partition>>> topicPartitionMap =
-            new ConcurrentHashMap<String, Map<Integer, List<Partition>>>();
+            new ConcurrentHashMap<>();
     private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
 
 
@@ -215,8 +215,8 @@ public class ProducerManager {
     public Set<String> publish(Set<String> topicSet) throws TubeClientException {
         checkServiceStatus();
         StringBuilder sBuilder = new StringBuilder(512);
-        Set<String> failTopicSet = new HashSet<String>();
-        Set<String> successTopicSet = new HashSet<String>();
+        Set<String> failTopicSet = new HashSet<>();
+        Set<String> successTopicSet = new HashSet<>();
         try {
             logger.info(sBuilder.append("[Publish begin 2] publish topicSet ")
                     .append(topicSet).append(", address = ")
@@ -474,12 +474,12 @@ public class ProducerManager {
 
     private void updateTopicPartitions(List<TopicInfo> topicInfoList) {
         Map<String, Map<Integer, List<Partition>>> partitionListMap =
-                new ConcurrentHashMap<String, Map<Integer, List<Partition>>>();
+                new ConcurrentHashMap<>();
         for (TopicInfo topicInfo : topicInfoList) {
             Map<Integer, List<Partition>> brokerPartList =
                     partitionListMap.get(topicInfo.getTopic());
             if (brokerPartList == null) {
-                brokerPartList = new ConcurrentHashMap<Integer, List<Partition>>();
+                brokerPartList = new ConcurrentHashMap<>();
                 partitionListMap.put(topicInfo.getTopic(), brokerPartList);
             }
             for (int j = 0; j < topicInfo.getTopicStoreNum(); j++) {
@@ -489,7 +489,7 @@ public class ProducerManager {
                             new Partition(topicInfo.getBroker(), topicInfo.getTopic(), baseValue + i);
                     List<Partition> partList = brokerPartList.get(part.getBrokerId());
                     if (partList == null) {
-                        partList = new ArrayList<Partition>();
+                        partList = new ArrayList<>();
                         brokerPartList.put(part.getBrokerId(), partList);
                     }
                     partList.add(part);

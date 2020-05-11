@@ -49,13 +49,13 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     // Broker link quality statistics.
     // Request failure analysis, by broker.
     private final ConcurrentHashMap<Integer, BrokerStatsItemSet> brokerStats =
-            new ConcurrentHashMap<Integer, BrokerStatsItemSet>();
+            new ConcurrentHashMap<>();
     // The request number of the current broker.
     private final ConcurrentHashMap<Integer, AtomicLong> brokerCurSentReqNum =
-            new ConcurrentHashMap<Integer, AtomicLong>();
+            new ConcurrentHashMap<>();
     // The statistics of the blocking brokers.
     private final ConcurrentHashMap<Integer, Long> brokerForbiddenMap =
-            new ConcurrentHashMap<Integer, Long>();
+            new ConcurrentHashMap<>();
     // Status:
     // -1: Uninitialized
     // 0: Running
@@ -72,7 +72,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     // We think the quality is better when the successful ratio is higher. The bad quality brokers
     // will be blocked. The blocking ratio and time can be configured.
     private List<Map.Entry<Integer, BrokerStatsDltTuple>> cachedLinkQualities =
-            new ArrayList<Map.Entry<Integer, BrokerStatsDltTuple>>();
+            new ArrayList<>();
     private long lastQualityStatisticTime = System.currentTimeMillis();
     private long printCount = 0;
 
@@ -129,7 +129,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     public List<Partition> getAllowedBrokerPartitions(
             Map<Integer, List<Partition>> brokerPartList) throws TubeClientException {
         // #lizard forgives
-        List<Partition> partList = new ArrayList<Partition>();
+        List<Partition> partList = new ArrayList<>();
         if ((brokerPartList == null) || (brokerPartList.isEmpty())) {
             throw new TubeClientException("Null brokers to select sent, please try later!");
         }
@@ -141,7 +141,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                     .append(", current count is ").append(currentWaitCount).toString());
         }
         long curTime = System.currentTimeMillis();
-        Set<Integer> allowedBrokerIds = new HashSet<Integer>();
+        Set<Integer> allowedBrokerIds = new HashSet<>();
         ConcurrentHashMap<Integer, Long> unAvailableBrokerMap = rpcServiceFactory.getUnavailableBrokerMap();
         for (Map.Entry<Integer, List<Partition>> oldBrokerPartEntry : brokerPartList.entrySet()) {
             Long lastAddTime = unAvailableBrokerMap.get(oldBrokerPartEntry.getKey());
@@ -183,7 +183,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 partList.addAll(brokerPartList.get(selBrokerId));
             }
         } else {
-            List<Integer> cachedBrokerIds = new ArrayList<Integer>();
+            List<Integer> cachedBrokerIds = new ArrayList<>();
             for (Map.Entry<Integer, BrokerStatsDltTuple> brokerEntry : this.cachedLinkQualities) {
                 cachedBrokerIds.add(brokerEntry.getKey());
             }
@@ -268,7 +268,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
         boolean changed = false;
         long totalSuccRecNum = 0L;
         HashMap<Integer, BrokerStatsDltTuple> needSelNumTMap =
-                new HashMap<Integer, BrokerStatsDltTuple>();
+                new HashMap<>();
         for (Map.Entry<Integer, BrokerStatsItemSet> brokerForbiddenEntry : brokerStats.entrySet()) {
             BrokerStatsItemSet curStatsItemSet = brokerStats.get(brokerForbiddenEntry.getKey());
             if (curStatsItemSet != null) {
@@ -299,7 +299,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             return;
         }
         List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData =
-                new ArrayList<Map.Entry<Integer, BrokerStatsDltTuple>>(needSelNumTMap.entrySet());
+                new ArrayList<>(needSelNumTMap.entrySet());
         // Sort the list in ascending order
         Collections.sort(lstData, new BrokerStatsDltTupleComparator(false));
         int filteredBrokerListSize = lstData.size();
@@ -328,7 +328,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             avgSuccRecNumThreshold = (long) (totalSuccRecNum / (filteredBrokerListSize - 3) * 0.2);
         }
         ConcurrentHashMap<Integer, Boolean> tmpBrokerForbiddenMap =
-                new ConcurrentHashMap<Integer, Boolean>();
+                new ConcurrentHashMap<>();
         for (Map.Entry<Integer, BrokerStatsDltTuple> brokerDltNumEntry : lstData) {
             long succRecvNum = brokerDltNumEntry.getValue().getSuccRecvNum();
             long succSendNumThreshold = (long) (brokerDltNumEntry.getValue().getSendNum() * 0.1);
@@ -363,7 +363,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     }
 
     private List<Map.Entry<Integer, BrokerStatsDltTuple>> getCurBrokerSentWaitStats() {
-        HashMap<Integer, BrokerStatsDltTuple> needSelNumTMap = new HashMap<Integer, BrokerStatsDltTuple>();
+        HashMap<Integer, BrokerStatsDltTuple> needSelNumTMap = new HashMap<>();
         for (Map.Entry<Integer, BrokerStatsItemSet> brokerForbiddenEntry : brokerStats.entrySet()) {
             BrokerStatsItemSet curStatsItemSet = brokerForbiddenEntry.getValue();
             long num = curStatsItemSet.getSendNum() - curStatsItemSet.getReceiveNum();
@@ -373,7 +373,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
         }
         List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData =
-                new ArrayList<Map.Entry<Integer, BrokerStatsDltTuple>>(needSelNumTMap.entrySet());
+                new ArrayList<>(needSelNumTMap.entrySet());
         // Sort the list in descending order
         Collections.sort(lstData, new BrokerStatsDltTupleComparator(true));
         return lstData;

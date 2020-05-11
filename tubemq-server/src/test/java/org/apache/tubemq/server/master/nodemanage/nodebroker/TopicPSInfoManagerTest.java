@@ -69,7 +69,7 @@ public class TopicPSInfoManagerTest {
         Assert.assertTrue(ti1.contains("producer_001"));
 
         topicPSInfoManager.rmvProducerTopicPubInfo("producer_001",
-                new HashSet<String>(Arrays.asList("topic001", "topic002")));
+                new HashSet<>(Arrays.asList("topic001", "topic002")));
 
         ConcurrentHashSet<String> ti2 = topicPSInfoManager.getTopicPubInfo("topic003");
         Assert.assertEquals(1, ti2.size());

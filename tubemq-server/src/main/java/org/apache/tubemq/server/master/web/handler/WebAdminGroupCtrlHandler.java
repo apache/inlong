@@ -540,7 +540,7 @@ public class WebAdminGroupCtrlHandler {
                     WebParameterUtils.validIntDataParameter("reJoinWait",
                             req.getParameter("reJoinWait"),
                             false, 0, 0);
-            Set<String> batchOpConsumerIds = new HashSet<String>();
+            Set<String> batchOpConsumerIds = new HashSet<>();
             String inputConsumerId = req.getParameter("consumerId");
             if (TStringUtils.isNotBlank(inputConsumerId)) {
                 inputConsumerId = String.valueOf(inputConsumerId).trim();

@@ -252,7 +252,7 @@ public class MsgFileStore implements Closeable {
         final StringBuilder sBuilder = new StringBuilder(512);
         final long curDataMaxOffset = getDataMaxOffset();
         final long curDataMinOffset = getDataMinOffset();
-        HashMap<String, CountItem> countMap = new HashMap<String, CountItem>();
+        HashMap<String, CountItem> countMap = new HashMap<>();
         ByteBuffer dataBuffer =
                 ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
