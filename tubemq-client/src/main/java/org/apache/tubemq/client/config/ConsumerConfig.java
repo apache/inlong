@@ -44,8 +44,8 @@ public class ConsumerConfig extends TubeClientConfig {
             TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
     private int pushFetchThreadCnt =
             TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
-    private boolean pushIsListenerWaitTimeoutRollBack = true;
-    private boolean pushIsListenerThrowedRollBack = false;
+    private boolean pushListenerWaitTimeoutRollBack = true;
+    private boolean pushListenerThrowedRollBack = false;
     private long pushListenerWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_PUSH_LISTENER_WAIT_PERIOD_MS;
     private boolean pullRebConfirmTimeoutRollBack = true;
@@ -59,14 +59,14 @@ public class ConsumerConfig extends TubeClientConfig {
     public ConsumerConfig(String localHostIP, String masterAddrInfo,
                           String consumerGroup) throws Exception {
         super(localHostIP, masterAddrInfo);
-        validConsumerGroupParmeter(consumerGroup);
+        validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
     }
 
     public ConsumerConfig(String localHostIP, MasterInfo masterInfo,
                           String consumerGroup) throws Exception {
         super(localHostIP, masterInfo);
-        validConsumerGroupParmeter(consumerGroup);
+        validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
     }
 
@@ -117,19 +117,19 @@ public class ConsumerConfig extends TubeClientConfig {
     }
 
     public boolean isPushListenerWaitTimeoutRollBack() {
-        return pushIsListenerWaitTimeoutRollBack;
+        return pushListenerWaitTimeoutRollBack;
     }
 
-    public void setPushListenerWaitTimeoutRollBack(boolean pushIsListenerWaitTimeoutRollBack) {
-        this.pushIsListenerWaitTimeoutRollBack = pushIsListenerWaitTimeoutRollBack;
+    public void setPushListenerWaitTimeoutRollBack(boolean pushListenerWaitTimeoutRollBack) {
+        this.pushListenerWaitTimeoutRollBack = pushListenerWaitTimeoutRollBack;
     }
 
     public boolean isPushListenerThrowedRollBack() {
-        return pushIsListenerThrowedRollBack;
+        return pushListenerThrowedRollBack;
     }
 
-    public void setPushListenerThrowedRollBack(boolean pushIsListenerThrowedRollBack) {
-        this.pushIsListenerThrowedRollBack = pushIsListenerThrowedRollBack;
+    public void setPushListenerThrowedRollBack(boolean pushListenerThrowedRollBack) {
+        this.pushListenerThrowedRollBack = pushListenerThrowedRollBack;
     }
 
     public long getPushListenerWaitPeriodMs() {
@@ -180,19 +180,19 @@ public class ConsumerConfig extends TubeClientConfig {
         this.maxSubInfoReportIntvlTimes = maxSubInfoReportIntvlTimes;
     }
 
-    private void validConsumerGroupParmeter(String consumerGroup) throws Exception {
+    private void validConsumerGroupParameter(String consumerGroup) {
         if (TStringUtils.isBlank(consumerGroup)) {
-            throw new Exception("Illegal parameter: consumerGroup is Blank!");
+            throw new IllegalArgumentException("Illegal parameter: consumerGroup is Blank!");
         }
         String tmpConsumerGroup = String.valueOf(consumerGroup).trim();
         if (tmpConsumerGroup.length() > TBaseConstants.META_MAX_GROUPNAME_LENGTH) {
-            throw new Exception(new StringBuilder(512)
+            throw new IllegalArgumentException(new StringBuilder(512)
                     .append("Illegal parameter: the max length of consumerGroup is ")
                     .append(TBaseConstants.META_MAX_GROUPNAME_LENGTH)
                     .append(" characters").toString());
         }
         if (!tmpConsumerGroup.matches(TBaseConstants.META_TMP_GROUP_VALUE)) {
-            throw new Exception(new StringBuilder(512)
+            throw new IllegalArgumentException(new StringBuilder(512)
                     .append("Illegal parameter: the value of consumerGroup")
                     .append(" must begin with a letter, ")
                     .append("can only contain characters,numbers,hyphen,and underscores").toString());
@@ -208,10 +208,10 @@ public class ConsumerConfig extends TubeClientConfig {
                 .append(",\"msgNotFoundWaitPeriodMs\":").append(this.msgNotFoundWaitPeriodMs)
                 .append(",\"shutDownRebalanceWaitPeriodMs\":").append(this.shutDownRebalanceWaitPeriodMs)
                 .append(",\"pushFetchThreadCnt\":").append(this.pushFetchThreadCnt)
-                .append(",\"pushIsListenerWaitTimeoutRollBack\":").append(this.pushIsListenerWaitTimeoutRollBack)
-                .append(",\"pushIsListenerThrowedRollBack\":").append(this.pushIsListenerThrowedRollBack)
+                .append(",\"pushListenerWaitTimeoutRollBack\":").append(this.pushListenerWaitTimeoutRollBack)
+                .append(",\"pushListenerThrowedRollBack\":").append(this.pushListenerThrowedRollBack)
                 .append(",\"pushListenerWaitPeriodMs\":").append(this.pushListenerWaitPeriodMs)
-                .append(",\"pullIsRebConfirmWaitTimeoutRollBack\":").append(this.pullRebConfirmTimeoutRollBack)
+                .append(",\"pullRebConfirmTimeoutRollBack\":").append(this.pullRebConfirmTimeoutRollBack)
                 .append(",\"pullConfirmWaitPeriodMs\":").append(this.pullRebConfirmWaitPeriodMs)
                 .append(",\"pullProtectConfirmTimeoutPeriodMs\":").append(this.pullProtectConfirmTimeoutMs)
                 .append(",\"pullConfirmInLocal\":").append(this.pullConfirmInLocal)
