@@ -45,11 +45,11 @@ public class RpcProtocol implements Protocol {
     private static final Logger logger =
             LoggerFactory.getLogger(RpcProtocol.class);
     private final Map<Integer, Object> processors =
-            new HashMap<Integer, Object>();
+            new HashMap<>();
     private final Map<Integer, Method> cacheMethods =
-            new HashMap<Integer, Method>();
+            new HashMap<>();
     private final Map<Integer, ExecutorService> threadPools =
-            new HashMap<Integer, ExecutorService>();
+            new HashMap<>();
     private boolean isOverTLS = false;
 
     @Override

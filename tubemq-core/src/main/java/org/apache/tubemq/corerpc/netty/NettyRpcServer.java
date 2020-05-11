@@ -68,10 +68,10 @@ public class NettyRpcServer implements ServiceRpcServer {
     private static final Logger logger =
             LoggerFactory.getLogger(NettyRpcServer.class);
     private static final ConcurrentHashMap<String, AtomicLong> errParseAddrMap =
-            new ConcurrentHashMap<String, AtomicLong>();
+            new ConcurrentHashMap<>();
     private static AtomicLong lastParseTime = new AtomicLong(0);
     private final ConcurrentHashMap<Integer, Protocol> protocols =
-            new ConcurrentHashMap<Integer, Protocol>();
+            new ConcurrentHashMap<>();
     private ServerBootstrap bootstrap;
     private NioServerSocketChannelFactory channelFactory = null;
     private AtomicBoolean started = new AtomicBoolean(false);

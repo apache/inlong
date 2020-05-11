@@ -40,7 +40,7 @@ public class DataConverterUtilTest {
     public void testDataConvert() {
         // broker convert
         BrokerInfo broker = new BrokerInfo(0, "localhost", 1200);
-        List<String> strInfoList = new ArrayList<String>();
+        List<String> strInfoList = new ArrayList<>();
         strInfoList.add("0:localhost:1200");
         Map<Integer, BrokerInfo> brokerMap = DataConverterUtil.convertBrokerInfo(strInfoList);
         assertEquals("broker should be equal", broker, brokerMap.get(broker.getBrokerId()));

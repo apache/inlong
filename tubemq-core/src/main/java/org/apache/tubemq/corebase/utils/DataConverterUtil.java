@@ -47,7 +47,7 @@ public class DataConverterUtil {
      * @param strSubInfoList return a list of SubscribeInfos
      */
     public static List<SubscribeInfo> convertSubInfo(List<String> strSubInfoList) {
-        List<SubscribeInfo> subInfoList = new ArrayList<SubscribeInfo>();
+        List<SubscribeInfo> subInfoList = new ArrayList<>();
         if (strSubInfoList != null) {
             for (String strSubInfo : strSubInfoList) {
                 if (TStringUtils.isNotBlank(strSubInfo)) {
@@ -65,7 +65,7 @@ public class DataConverterUtil {
      * @param subInfoList return a list of String SubscribeInfos
      */
     public static List<String> formatSubInfo(List<SubscribeInfo> subInfoList) {
-        List<String> strSubInfoList = new ArrayList<String>();
+        List<String> strSubInfoList = new ArrayList<>();
         if ((subInfoList != null) && (!subInfoList.isEmpty())) {
             for (SubscribeInfo subInfo : subInfoList) {
                 if (subInfo != null) {
@@ -83,7 +83,7 @@ public class DataConverterUtil {
      * @return return a list of Partition
      */
     public static List<Partition> convertPartitionInfo(List<String> strPartInfoList) {
-        List<Partition> partList = new ArrayList<Partition>();
+        List<Partition> partList = new ArrayList<>();
         if (strPartInfoList != null) {
             for (String partInfo : strPartInfoList) {
                 if (partInfo != null) {
@@ -102,7 +102,7 @@ public class DataConverterUtil {
      */
     public static List<TopicInfo> convertTopicInfo(Map<Integer, BrokerInfo> brokerInfoMap,
                                                    List<String> strTopicInfos) {
-        List<TopicInfo> topicList = new ArrayList<TopicInfo>();
+        List<TopicInfo> topicList = new ArrayList<>();
         if (strTopicInfos != null) {
             for (String info : strTopicInfos) {
                 if (info != null) {
@@ -133,7 +133,7 @@ public class DataConverterUtil {
      */
     public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos) {
         Map<Integer, BrokerInfo> brokerInfoMap =
-                new ConcurrentHashMap<Integer, BrokerInfo>();
+                new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
             for (String info : strBrokerInfos) {
                 if (info != null) {
@@ -155,7 +155,7 @@ public class DataConverterUtil {
     public static Map<String, TreeSet<String>> convertTopicConditions(
             final List<String> strTopicConditions) {
         Map<String, TreeSet<String>> topicConditions =
-                new HashMap<String, TreeSet<String>>();
+                new HashMap<>();
         if (strTopicConditions == null || strTopicConditions.isEmpty()) {
             return topicConditions;
         }
@@ -172,7 +172,7 @@ public class DataConverterUtil {
             String[] strCondInfo = strInfo[1].split(TokenConstants.ARRAY_SEP);
             TreeSet<String> conditionSet = topicConditions.get(topicName);
             if (conditionSet == null) {
-                conditionSet = new TreeSet<String>();
+                conditionSet = new TreeSet<>();
                 topicConditions.put(topicName, conditionSet);
             }
             for (String cond : strCondInfo) {
@@ -194,7 +194,7 @@ public class DataConverterUtil {
      */
     public static List<Message> convertMessage(final String topicName,
                                                List<ClientBroker.TransferedMessage> transferedMessageList) {
-        List<Message> messageList = new ArrayList<Message>();
+        List<Message> messageList = new ArrayList<>();
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
             return messageList;
         }

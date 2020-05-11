@@ -37,7 +37,7 @@ public class NettyProtocolEncoderTest {
         RpcDataPack obj = new RpcDataPack();
         // set serial number
         obj.setSerialNo(123);
-        List<ByteBuffer> dataList = new LinkedList<ByteBuffer>();
+        List<ByteBuffer> dataList = new LinkedList<>();
         dataList.add(ByteBuffer.wrap("abc".getBytes()));
         dataList.add(ByteBuffer.wrap("def".getBytes()));
         // append data list.
