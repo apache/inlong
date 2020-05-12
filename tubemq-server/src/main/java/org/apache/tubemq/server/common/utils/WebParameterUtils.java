@@ -413,7 +413,7 @@ public class WebParameterUtils {
             }
         } else {
             sb.append(TokenConstants.ARRAY_SEP);
-            TreeSet<String> filterConds = new TreeSet<String>();
+            TreeSet<String> filterConds = new TreeSet<>();
             String[] strFilterConds = inFilterConds.split(TokenConstants.ARRAY_SEP);
             for (int i = 0; i < strFilterConds.length; i++) {
                 if (TStringUtils.isBlank(strFilterConds[i])) {
@@ -463,7 +463,7 @@ public class WebParameterUtils {
                                                        boolean transCondItem,
                                                        boolean checkTotalCnt,
                                                        StringBuilder sb) throws Exception {
-        Set<String> filterCondSet = new HashSet<String>();
+        Set<String> filterCondSet = new HashSet<>();
         if (TStringUtils.isBlank(inFilterConds)) {
             return filterCondSet;
         }

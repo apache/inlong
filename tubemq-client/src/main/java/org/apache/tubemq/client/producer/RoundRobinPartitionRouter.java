@@ -29,7 +29,7 @@ public class RoundRobinPartitionRouter implements PartitionRouter {
 
     private final AtomicInteger steppedCounter = new AtomicInteger(0);
     private final ConcurrentHashMap<String/* topic */, AtomicInteger> partitionRouterMap =
-            new ConcurrentHashMap<String, AtomicInteger>();
+            new ConcurrentHashMap<>();
 
     @Override
     public Partition getPartition(final Message message, final List<Partition> partitions) throws TubeClientException {
