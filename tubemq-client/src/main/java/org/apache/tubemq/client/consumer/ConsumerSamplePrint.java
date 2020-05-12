@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.client.consumer;
 
-import java.io.IOException;
 import org.apache.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ public class ConsumerSamplePrint extends AbstractSamplePrint {
         if (e == null) {
             return;
         }
-        if (e instanceof IOException || e instanceof Exception) {
+        if (e instanceof Exception) {
             final long now = System.currentTimeMillis();
             final long diffTime = now - lastLogTime.get();
             final long curPrintCnt = totalPrintCount.incrementAndGet();
