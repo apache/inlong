@@ -488,13 +488,13 @@ public class RmtDataCache implements Closeable {
                         PartitionSelectResult partitionRet =
                                 new PartitionSelectResult(true, TErrCodeConstants.SUCCESS,
                                         "Ok!", partition, 0, lastPackConsumed);
-                        List<PartitionSelectResult> targetPartitonList =
+                        List<PartitionSelectResult> targetPartitionList =
                                 unNewRegisterInfoMap.get(entry.getKey());
-                        if (targetPartitonList == null) {
-                            targetPartitonList = new ArrayList<>();
-                            unNewRegisterInfoMap.put(entry.getKey(), targetPartitonList);
+                        if (targetPartitionList == null) {
+                            targetPartitionList = new ArrayList<>();
+                            unNewRegisterInfoMap.put(entry.getKey(), targetPartitionList);
                         }
-                        targetPartitonList.add(partitionRet);
+                        targetPartitionList.add(partitionRet);
                     }
                 }
             }
@@ -606,9 +606,9 @@ public class RmtDataCache implements Closeable {
                 unRegPartitionList.addAll(entry.getValue());
             } else {
                 boolean isNewBroker = true;
-                for (Partition regPartiton : entry.getValue()) {
-                    if (!partitionList.contains(regPartiton)) {
-                        unRegPartitionList.add(regPartiton);
+                for (Partition regPartition : entry.getValue()) {
+                    if (!partitionList.contains(regPartition)) {
+                        unRegPartitionList.add(regPartition);
                         isNewBroker = false;
                     }
                 }
