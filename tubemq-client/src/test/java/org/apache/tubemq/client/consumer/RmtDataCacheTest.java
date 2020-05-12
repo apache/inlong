@@ -54,7 +54,7 @@ public class RmtDataCacheTest {
         assertEquals(1, brokerInfos.size());
         assertTrue(brokerInfos.contains(brokerInfo));
 
-        assertEquals(expectPartition.getPartitionId(), cache.getPartitonByKey("1:test:1").getBrokerId());
+        assertEquals(expectPartition.getPartitionId(), cache.getPartitionByKey("1:test:1").getBrokerId());
         cache.addPartition(new Partition(brokerInfo, "test", 2), 10);
         assertEquals(2, cache.getBrokerPartitionList(brokerInfo).size());
 

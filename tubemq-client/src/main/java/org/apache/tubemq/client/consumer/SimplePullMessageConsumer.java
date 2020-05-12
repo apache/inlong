@@ -156,7 +156,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                     "The confirmContext's value invalid!");
         }
         Partition curPartition =
-                baseConsumer.rmtDataCache.getPartitonByKey(keyId);
+                baseConsumer.rmtDataCache.getPartitionByKey(keyId);
         if (curPartition == null) {
             return new ConsumerResult(TErrCodeConstants.NOT_FOUND, sBuilder
                     .append("Not found the partition by confirmContext:")

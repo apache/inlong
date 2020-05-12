@@ -1651,7 +1651,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                     logger.warn(strBuffer
                                             .append("[heart2broker error] certificate failure, ")
                                             .append(brokerInfo.getBrokerStrInfo())
-                                            .append("'s partitions ared released, ")
+                                            .append("'s partitions area released, ")
                                             .append(heartBeatResponseV2.getErrMsg()).toString());
                                     strBuffer.delete(0, strBuffer.length());
                                 }
@@ -1663,12 +1663,12 @@ public class BaseMessageConsumer implements MessageConsumer {
                                 samplePrintCtrl.printExceptionCaught(ee);
                                 if (!partStrSet.isEmpty()) {
                                     strBuffer.delete(0, strBuffer.length());
-                                    for (String partionStr : partStrSet) {
-                                        Partition tmpPartition = new Partition(partionStr);
+                                    for (String partitionStr : partStrSet) {
+                                        Partition tmpPartition = new Partition(partitionStr);
                                         removePartition(tmpPartition);
                                         logger.warn(strBuffer
                                                 .append("[heart2broker Throwable] release partition:")
-                                                .append(partionStr).toString());
+                                                .append(partitionStr).toString());
                                         strBuffer.delete(0, strBuffer.length());
                                     }
                                 }
