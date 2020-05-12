@@ -291,8 +291,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
             int min = psPartMap.size() / consumerList.size();
             int max = psPartMap.size() % consumerList.size() == 0 ? min : min + 1;
             int serverNumToLoadMax = psPartMap.size() % consumerList.size();
-            Queue<Partition> partitionToMove = new LinkedBlockingQueue<Partition>();
-            Map<String, Integer> serverToTake = new HashMap<String, Integer>();
+            Queue<Partition> partitionToMove = new LinkedBlockingQueue<>();
+            Map<String, Integer> serverToTake = new HashMap<>();
             for (ConsumerInfo consumer : consumerList) {
                 Map<String, List<Partition>> partitions =
                         clusterState.get(consumer.getConsumerId());
@@ -370,7 +370,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         }
         List<Partition> ps = partitions.get(partition.getTopic());
         if (ps == null) {
-            ps = new ArrayList<Partition>();
+            ps = new ArrayList<>();
             partitions.put(partition.getTopic(), ps);
         }
         ps.add(partition);
@@ -500,7 +500,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         // #lizard forgives
         // regular consumer allocate operation
         Map<String, Map<String, List<Partition>>> finalSubInfoMap =
-                new HashMap<String, Map<String, List<Partition>>>();
+                new HashMap<>();
         for (String group : groupSet) {
             ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(group);
             // filter empty consumer

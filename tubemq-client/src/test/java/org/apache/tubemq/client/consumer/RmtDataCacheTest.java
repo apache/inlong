@@ -67,7 +67,7 @@ public class RmtDataCacheTest {
         assertEquals(1, cache.getAllPartitionListWithStatus().size());
         cache.resumeTimeoutConsumePartitions(1000);
         Map<BrokerInfo, List<Partition>> infoMap = new HashMap<>();
-        cache.removeAndGetPartition(infoMap, new ArrayList<String>(), 1000, true);
+        cache.removeAndGetPartition(infoMap, new ArrayList<>(), 1000, true);
         cache.getSubscribeInfoList("test", "test");
         cache.errReqRelease("1:test:2", 1000, true);
         cache.succRspRelease("1:test:2", "test", 1000, true, true, 1000);

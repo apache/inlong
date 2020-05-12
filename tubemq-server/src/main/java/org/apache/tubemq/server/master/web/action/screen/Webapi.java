@@ -340,7 +340,7 @@ public class Webapi implements Action {
                     req.getParameter("topicName"), TBaseConstants.META_MAX_TOPICNAME_LENGTH, false, "");
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
             TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
-            List<String> queryGroupSet = new ArrayList<String>();
+            List<String> queryGroupSet = new ArrayList<>();
             if (TStringUtils.isEmpty(strTopicName)) {
                 List<String> tmpGroupSet = consumerHolder.getAllGroup();
                 if (!tmpGroupSet.isEmpty()) {

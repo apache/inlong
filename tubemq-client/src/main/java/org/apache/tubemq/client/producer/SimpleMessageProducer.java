@@ -56,7 +56,7 @@ public class SimpleMessageProducer implements MessageProducer {
             LoggerFactory.getLogger(SimpleMessageProducer.class);
     private final TubeClientConfig producerConfig;
     private final ConcurrentHashMap<String, Long> publishTopicMap =
-            new ConcurrentHashMap<String, Long>();
+            new ConcurrentHashMap<>();
     private final InnerSessionFactory sessionFactory;
     private final RpcServiceFactory rpcServiceFactory;
     private final ProducerManager producerManager;
@@ -129,7 +129,7 @@ public class SimpleMessageProducer implements MessageProducer {
         if ((topicSet == null) || topicSet.isEmpty()) {
             throw new TubeClientException("Illegal parameter: topicSet is null or empty!");
         }
-        Set<String> newTopicSet = new HashSet<String>();
+        Set<String> newTopicSet = new HashSet<>();
         for (String topicItem : topicSet) {
             if (TStringUtils.isBlank(topicItem)) {
                 throw new TubeClientException(new StringBuilder(256)

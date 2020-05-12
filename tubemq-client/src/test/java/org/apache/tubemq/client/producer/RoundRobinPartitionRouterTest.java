@@ -32,7 +32,7 @@ public class RoundRobinPartitionRouterTest {
     public void testGetPartitionInvalidInput() throws TubeClientException {
         RoundRobinPartitionRouter router = new RoundRobinPartitionRouter();
         Message message = new Message("test", new byte[]{1, 2, 3});
-        List<Partition> partitions = new ArrayList<Partition>();
+        List<Partition> partitions = new ArrayList<>();
         router.getPartition(message, partitions);
     }
 
@@ -40,7 +40,7 @@ public class RoundRobinPartitionRouterTest {
     public void testGetPartition() throws TubeClientException {
         RoundRobinPartitionRouter router = new RoundRobinPartitionRouter();
         Message message = new Message("test", new byte[]{1, 2, 3});
-        List<Partition> partitions = new ArrayList<Partition>();
+        List<Partition> partitions = new ArrayList<>();
         Partition partition = new Partition(new BrokerInfo("0:127.0.0.1:18080"), "test", 0);
         partitions.add(partition);
         Partition actualPartition = router.getPartition(message, partitions);

@@ -38,8 +38,8 @@ public class DefaultBrokerRcvQltyStatsTest {
     @Test
     public void testStartBrokerStatistic() throws Exception {
         RpcServiceFactory rpcServiceFactory = mock(RpcServiceFactory.class);
-        when(rpcServiceFactory.getForbiddenAddrMap()).thenReturn(new ConcurrentHashMap<String, Long>());
-        when(rpcServiceFactory.getUnavailableBrokerMap()).thenReturn(new ConcurrentHashMap<Integer, Long>());
+        when(rpcServiceFactory.getForbiddenAddrMap()).thenReturn(new ConcurrentHashMap<>());
+        when(rpcServiceFactory.getUnavailableBrokerMap()).thenReturn(new ConcurrentHashMap<>());
 
         TubeClientConfig config = mock(TubeClientConfig.class);
         when(config.getSessionMaxAllowedDelayedMsgCount()).thenReturn(1000L);
@@ -64,7 +64,7 @@ public class DefaultBrokerRcvQltyStatsTest {
         assertEquals(1, actualPartitions.get(0).getPartitionId());
 
         // Unregister and stop statistic server
-        stats.removeUnRegisteredBroker(new ArrayList<Integer>());
+        stats.removeUnRegisteredBroker(new ArrayList<>());
         stats.stopBrokerStatistic();
         assertTrue(stats.isStopped());
     }

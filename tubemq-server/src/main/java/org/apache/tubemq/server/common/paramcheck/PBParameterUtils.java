@@ -60,7 +60,7 @@ public class PBParameterUtils {
                     "Request miss necessary topic field info!");
             return retResult;
         }
-        Set<String> transTopicList = new HashSet<String>();
+        Set<String> transTopicList = new HashSet<>();
         if (!reqTopicLst.isEmpty()) {
             for (String topic : reqTopicLst) {
                 if (TStringUtils.isNotBlank(topic)) {

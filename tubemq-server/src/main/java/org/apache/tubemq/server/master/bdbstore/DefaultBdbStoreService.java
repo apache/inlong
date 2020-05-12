@@ -1135,7 +1135,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                         brokerIdTopicEntityMap.get(bdbEntity.getBrokerId());
                 if (brokerTopicMap == null) {
                     brokerTopicMap =
-                            new ConcurrentHashMap<String, BdbTopicConfEntity>();
+                            new ConcurrentHashMap<>();
                     brokerIdTopicEntityMap.put(bdbEntity.getBrokerId(), brokerTopicMap);
                 }
                 brokerTopicMap.put(bdbEntity.getTopicName(), bdbEntity);
