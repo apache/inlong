@@ -816,8 +816,8 @@ public class BrokerConfManager implements Server {
                 if (brokerSyncStatusInfo.isFastStart()) {
                     brokerSyncStatusInfo.setFastStart(isFasterStart);
                 }
-                if (!brokerSyncStatusInfo.isBrokerConfChaned()) {
-                    brokerSyncStatusInfo.setBrokerConfChaned();
+                if (!brokerSyncStatusInfo.isBrokerConfChanged()) {
+                    brokerSyncStatusInfo.setBrokerConfChanged();
                 }
             }
         } else {
@@ -841,7 +841,7 @@ public class BrokerConfManager implements Server {
                         brokerSyncStatusInfo = tmpBrokerSyncStatusInfo;
                     }
                 }
-                if (brokerSyncStatusInfo.isBrokerConfChaned()) {
+                if (brokerSyncStatusInfo.isBrokerConfChanged()) {
                     brokerSyncStatusInfo.setBrokerLoaded();
                     brokerSyncStatusInfo.setFastStart(isFasterStart);
                 }
@@ -1043,16 +1043,16 @@ public class BrokerConfManager implements Server {
     private List<String> innGetTopicStrConfigInfo(BdbBrokerConfEntity brokerConfEntity,
                                                   boolean isRemoved) {
         List<String> brokerTopicStrConfSet = new ArrayList<>();
-        ConcurrentHashMap<String, BdbTopicConfEntity> topicBdbEntytyMap =
+        ConcurrentHashMap<String, BdbTopicConfEntity> topicBdbEntityMap =
                 brokerTopicEntityStoreMap.get(brokerConfEntity.getBrokerId());
-        if (topicBdbEntytyMap != null) {
+        if (topicBdbEntityMap != null) {
             int defNumTopicStores = brokerConfEntity.getNumTopicStores();
             int defunFlushDataHold = brokerConfEntity.getDftUnFlushDataHold();
             int defmemCacheMsgSizeInMB = brokerConfEntity.getDftMemCacheMsgSizeInMB();
             int defmemCacheMsgCntInK = brokerConfEntity.getDftMemCacheMsgCntInK();
             int defMemCacheFlushIntvl = brokerConfEntity.getDftMemCacheFlushIntvl();
             StringBuilder sbuffer = new StringBuilder(512);
-            for (BdbTopicConfEntity topicEntity : topicBdbEntytyMap.values()) {
+            for (BdbTopicConfEntity topicEntity : topicBdbEntityMap.values()) {
                 /*
                  * topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:
                  * deletePolicy:filterStatusId:statusId

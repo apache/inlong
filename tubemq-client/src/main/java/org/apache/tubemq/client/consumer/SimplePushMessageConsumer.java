@@ -179,7 +179,6 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                     final TopicProcessor topicProcessor =
                             baseConsumer.consumeSubInfo.getTopicProcessor(taskContext.getPartition().getTopic());
                     if ((topicProcessor == null) || (topicProcessor.getMessageListener() == null)) {
-                        isConsumed = false;
                         throw new TubeClientException(sBuilder
                                 .append("Listener is null for topic ")
                                 .append(taskContext.getPartition().getTopic()).toString());

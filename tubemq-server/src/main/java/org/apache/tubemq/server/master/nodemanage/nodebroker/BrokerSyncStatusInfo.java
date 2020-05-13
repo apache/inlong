@@ -54,7 +54,7 @@ public class BrokerSyncStatusInfo {
     private boolean isBrokerRegister = false;       //broker register flag
     private boolean isBrokerOnline = false;         //broker online flag
     private boolean isOverTLS = false;              //enable tls
-    private boolean isBrokerConfChaned = false;     //config change flag
+    private boolean isBrokerConfChanged = false;     //config change flag
     private boolean isBrokerLoaded = false;         //broker load status
     private boolean isFastStart = false;            //enable fast start
 
@@ -97,7 +97,7 @@ public class BrokerSyncStatusInfo {
         updateBrokerConfigureInfo(bdbEntity.getBrokerDefaultConfInfo(),
                 brokerTopicSetConfInfo);
         this.brokerManageStatus = bdbEntity.getManageStatus();
-        this.isBrokerConfChaned = bdbEntity.isConfDataUpdated();
+        this.isBrokerConfChanged = bdbEntity.isConfDataUpdated();
         this.isBrokerLoaded = bdbEntity.isBrokerLoaded();
         this.brokerId = bdbEntity.getBrokerId();
         this.brokerIp = bdbEntity.getBrokerIp();
@@ -113,19 +113,19 @@ public class BrokerSyncStatusInfo {
      * Update current broker config info
      *
      * @param brokerManageStatus     broker status
-     * @param isBrokerConfChaned
+     * @param isBrokerConfChanged
      * @param isBrokerLoaded
      * @param brokerDefaultConfInfo  broker default config
      * @param brokerTopicSetConfInfo topic config
      * @param isOnlineUpdate
      */
-    public void updateCurrBrokerConfInfo(int brokerManageStatus, boolean isBrokerConfChaned,
+    public void updateCurrBrokerConfInfo(int brokerManageStatus, boolean isBrokerConfChanged,
                                          boolean isBrokerLoaded, String brokerDefaultConfInfo,
                                          List<String> brokerTopicSetConfInfo,
                                          boolean isOnlineUpdate) {
         this.brokerManageStatus = brokerManageStatus;
         this.currBrokerConfId.incrementAndGet();
-        this.isBrokerConfChaned = isBrokerConfChaned;
+        this.isBrokerConfChanged = isBrokerConfChanged;
         this.isBrokerLoaded = isBrokerLoaded;
         updateBrokerConfigureInfo(brokerDefaultConfInfo, brokerTopicSetConfInfo);
         this.lastPushBrokerConfId = this.currBrokerConfId.get();
@@ -208,7 +208,7 @@ public class BrokerSyncStatusInfo {
         if (isRegister) {
             if (this.isBrokerOnline) {
                 if (this.reportedBrokerConfId <= 0) {
-                    if (this.isBrokerConfChaned
+                    if (this.isBrokerConfChanged
                             || !this.isBrokerLoaded
                             || this.reportedBrokerCheckSumId != this.lastPushBrokerCheckSumId
                             || !isFirstInit) {
@@ -580,12 +580,12 @@ public class BrokerSyncStatusInfo {
         this.reportedBrokerTopicSetConfInfo = reportedBrokerTopicSetConfInfo;
     }
 
-    public boolean isBrokerConfChaned() {
-        return isBrokerConfChaned;
+    public boolean isBrokerConfChanged() {
+        return isBrokerConfChanged;
     }
 
-    public void setBrokerConfChaned() {
-        this.isBrokerConfChaned = true;
+    public void setBrokerConfChanged() {
+        this.isBrokerConfChanged = true;
         this.isBrokerLoaded = false;
     }
 
@@ -595,7 +595,7 @@ public class BrokerSyncStatusInfo {
 
     public void setBrokerLoaded() {
         this.isBrokerLoaded = true;
-        this.isBrokerConfChaned = false;
+        this.isBrokerConfChanged = false;
     }
 
     // #lizard forgives
@@ -760,7 +760,7 @@ public class BrokerSyncStatusInfo {
                 .append(",\"isBrokerRegister\":").append(isBrokerRegister)
                 .append(",\"isBrokerOnline\":").append(isBrokerOnline)
                 .append(",\"isFirstInit\":").append(isFirstInit)
-                .append(",\"isBrokerConfChaned\":").append(isBrokerConfChaned)
+                .append(",\"isBrokerConfChanged\":").append(isBrokerConfChanged)
                 .append(",\"isBrokerLoaded\":").append(isBrokerLoaded)
                 .append(",\"isFastStart\":").append(isFastStart);
         if (isOrig) {

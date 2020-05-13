@@ -112,7 +112,7 @@ public class WebBrokerDefConfHandler {
                         isNeedFastStart = false;
                     }
                     if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
-                        if ((brokerSyncStatusInfo.isBrokerConfChaned())
+                        if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
                         }
@@ -125,7 +125,7 @@ public class WebBrokerDefConfHandler {
                         isNeedFastStart = false;
                     }
                     if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
-                        if ((brokerSyncStatusInfo.isBrokerConfChaned())
+                        if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
                         }
@@ -1318,7 +1318,7 @@ public class WebBrokerDefConfHandler {
                                     .append(stepStatus);
                             }
                         }
-                        strBuffer.append(",\"isConfChanged\":\"").append(brokerSyncStatusInfo.isBrokerConfChaned())
+                        strBuffer.append(",\"isConfChanged\":\"").append(brokerSyncStatusInfo.isBrokerConfChanged())
                             .append("\",\"isConfLoaded\":\"").append(brokerSyncStatusInfo.isBrokerLoaded())
                             .append("\",\"isBrokerOnline\":\"").append(brokerSyncStatusInfo.isBrokerOnline())
                             .append("\"");
