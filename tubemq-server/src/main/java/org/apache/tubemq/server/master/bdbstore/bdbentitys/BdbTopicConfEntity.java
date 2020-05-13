@@ -131,7 +131,7 @@ public class BdbTopicConfEntity implements Serializable {
         this.numTopicStores = numTopicStores;
     }
 
-    public void setunFlushDataHold(final int unFlushDataHold) {
+    public void setUnflushDataHold(final int unFlushDataHold) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
                         TokenConstants.TOKEN_DATA_UNFLUSHHOLD,
@@ -284,7 +284,7 @@ public class BdbTopicConfEntity implements Serializable {
         this.modifyDate = modifyDate;
     }
 
-    public int getunFlushDataHold() {
+    public int getUnflushDataHold() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
@@ -365,7 +365,7 @@ public class BdbTopicConfEntity implements Serializable {
                 .append("\",\"topicName\":\"").append(topicName)
                 .append("\",\"numPartitions\":").append(numPartitions)
                 .append(",\"unflushThreshold\":").append(unflushThreshold)
-                .append(",\"unFlushDataHold\":").append(getunFlushDataHold())
+                .append(",\"unFlushDataHold\":").append(getUnflushDataHold())
                 .append(",\"unflushInterval\":").append(unflushInterval)
                 .append(",\"deleteWhen\":\"").append(deleteWhen)
                 .append("\",\"deletePolicy\":\"").append(deletePolicy)

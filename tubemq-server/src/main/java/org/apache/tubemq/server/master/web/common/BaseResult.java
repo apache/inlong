@@ -412,34 +412,34 @@ public class BaseResult implements Serializable {
         return value + '%';
     }
 
-    protected String formatDate(String datestring) {
-        if (TStringUtils.isBlank(datestring)) {
+    protected String formatDate(String dateString) {
+        if (TStringUtils.isBlank(dateString)) {
             return null;
         } else {
-            return (datestring + " 00:00:00");
+            return (dateString + " 00:00:00");
         }
     }
 
     /**
      * When the time is queried, the end time is 23:59:59
      */
-    protected String addDateEndPostfix(String datestring) {
-        if (TStringUtils.isBlank(datestring)) {
+    protected String addDateEndPostfix(String dateString) {
+        if (TStringUtils.isBlank(dateString)) {
             return null;
         }
 
-        return datestring + " 23:59:59";
+        return dateString + " 23:59:59";
     }
 
     /**
      * When the time is queried, the start time is 00:00:00
      */
-    protected String addDateStartPostfix(String datestring) {
-        if (TStringUtils.isBlank(datestring)) {
+    protected String addDateStartPostfix(String dateString) {
+        if (TStringUtils.isBlank(dateString)) {
             return null;
         }
 
-        return datestring + " 00:00:00";
+        return dateString + " 00:00:00";
     }
 
     @Override
@@ -447,7 +447,7 @@ public class BaseResult implements Serializable {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public String[] getParameteres() {
+    public String[] getParameters() {
         return new String[0];
     }
 

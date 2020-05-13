@@ -1613,7 +1613,7 @@ public class WebBrokerDefConfHandler {
                             .append(",\"numPartitions\":").append(topicEntity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(topicEntity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(topicEntity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(topicEntity.getunFlushDataHold())
+                            .append(",\"unFlushDataHold\":").append(topicEntity.getUnflushDataHold())
                             .append(",\"memCacheMsgCntInK\":").append(topicEntity.getMemCacheMsgCntInK())
                             .append(",\"memCacheMsgSizeInMB\":").append(topicEntity.getMemCacheMsgSizeInMB())
                             .append(",\"memCacheFlushIntvl\":").append(topicEntity.getMemCacheFlushIntvl())

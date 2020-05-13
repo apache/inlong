@@ -552,7 +552,7 @@ public class WebBrokerTopicConfHandler {
                             .append(",\"numPartitions\":").append(entity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(entity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(entity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(entity.getunFlushDataHold())
+                            .append(",\"unFlushDataHold\":").append(entity.getUnflushDataHold())
                             .append(",\"deleteWhen\":\"").append(entity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(entity.getDeletePolicy())
                             .append("\",\"acceptPublish\":").append(String.valueOf(entity.getAcceptPublish()))
@@ -1274,9 +1274,9 @@ public class WebBrokerTopicConfHandler {
                         foundChange = true;
                         newEntity.setUnflushThreshold(unflushThreshold);
                     }
-                    if (unFlushDataHold >= 0 && unFlushDataHold != oldEntity.getunFlushDataHold()) {
+                    if (unFlushDataHold >= 0 && unFlushDataHold != oldEntity.getUnflushDataHold()) {
                         foundChange = true;
-                        newEntity.setunFlushDataHold(unFlushDataHold);
+                        newEntity.setUnflushDataHold(unFlushDataHold);
                     }
                     if (memCacheMsgCntInK >= 0 && memCacheMsgCntInK != oldEntity.getMemCacheMsgCntInK()) {
                         foundChange = true;
