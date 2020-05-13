@@ -1108,10 +1108,10 @@ public class BrokerConfManager implements Server {
                     sbuffer.append(TokenConstants.ATTR_SEP).append(topicEntity.getNumTopicStores());
                 }
                 sbuffer.append(TokenConstants.ATTR_SEP).append(topicEntity.getTopicStatusId());
-                if (topicEntity.getunFlushDataHold() == defunFlushDataHold) {
+                if (topicEntity.getUnflushDataHold() == defunFlushDataHold) {
                     sbuffer.append(TokenConstants.ATTR_SEP).append(" ");
                 } else {
-                    sbuffer.append(TokenConstants.ATTR_SEP).append(topicEntity.getunFlushDataHold());
+                    sbuffer.append(TokenConstants.ATTR_SEP).append(topicEntity.getUnflushDataHold());
                 }
                 if (topicEntity.getMemCacheMsgSizeInMB() == defmemCacheMsgSizeInMB) {
                     sbuffer.append(TokenConstants.ATTR_SEP).append(" ");

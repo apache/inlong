@@ -28,7 +28,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 
 public class MasterInfo {
 
-    private final Map<String/** ip:port */, NodeAddrInfo> addrMap4Failover =
+    private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover =
             new HashMap<>();
     private List<String> nodeHostPortList;
     private NodeAddrInfo firstNodeAddr = null;
@@ -71,9 +71,7 @@ public class MasterInfo {
             }
             int port = Integer.parseInt(hostPortItem[1].trim());
             NodeAddrInfo tmpNodeAddrInfo = new NodeAddrInfo(hostName, port);
-            if (addrMap4Failover.get(tmpNodeAddrInfo.getHostPortStr()) == null) {
-                addrMap4Failover.put(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
-            }
+            addrMap4Failover.putIfAbsent(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
             if (this.firstNodeAddr == null) {
                 this.firstNodeAddr = tmpNodeAddrInfo;
             }
