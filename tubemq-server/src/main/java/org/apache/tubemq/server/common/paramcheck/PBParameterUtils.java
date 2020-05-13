@@ -278,7 +278,7 @@ public class PBParameterUtils {
         // 先检查消费的topic集合
         List<ConsumerInfo> infoList = consumerBandInfo.getConsumerInfoList();
         Set<String> existedTopics = consumerBandInfo.getTopicSet();
-        Map<String, TreeSet<String>> existedTopicCondtions = consumerBandInfo.getTopicConditions();
+        Map<String, TreeSet<String>> existedTopicConditions = consumerBandInfo.getTopicConditions();
         if (existedTopics != null && !existedTopics.isEmpty()) {
             if (existedTopics.size() != inConsumerInfo.getTopicSet().size()
                     || !existedTopics.containsAll(inConsumerInfo.getTopicSet())) {
@@ -295,7 +295,7 @@ public class PBParameterUtils {
         }
         if (infoList != null && !infoList.isEmpty()) {
             boolean isCondEqual = true;
-            if (existedTopicCondtions == null || existedTopicCondtions.isEmpty()) {
+            if (existedTopicConditions == null || existedTopicConditions.isEmpty()) {
                 if (inConsumerInfo.getTopicConditions().isEmpty()) {
                     isCondEqual = true;
                 } else {
@@ -312,9 +312,9 @@ public class PBParameterUtils {
                     strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
                             .append(" subscribe without filter condition ")
                             .append(" is inconsistency with other consumers in the group, existed topic conditions is ")
-                            .append(existedTopicCondtions);
+                            .append(existedTopicConditions);
                 } else {
-                    Set<String> existedCondTopics = existedTopicCondtions.keySet();
+                    Set<String> existedCondTopics = existedTopicConditions.keySet();
                     Set<String> reqCondTopics = inConsumerInfo.getTopicConditions().keySet();
                     if (existedCondTopics.size() != reqCondTopics.size()
                             || !existedCondTopics.containsAll(reqCondTopics)) {
@@ -324,13 +324,13 @@ public class PBParameterUtils {
                                 .append(inConsumerInfo.getTopicConditions())
                                 .append(" is inconsistency with other consumers in the group, existed topic" +
                                         " conditions is ")
-                                .append(existedTopicCondtions);
+                                .append(existedTopicConditions);
                     } else {
                         isCondEqual = true;
                         for (String topicKey : existedCondTopics) {
-                            if ((existedTopicCondtions.get(topicKey).size()
+                            if ((existedTopicConditions.get(topicKey).size()
                                     != inConsumerInfo.getTopicConditions().get(topicKey).size())
-                                    || (!existedTopicCondtions.get(topicKey).containsAll(inConsumerInfo
+                                    || (!existedTopicConditions.get(topicKey).containsAll(inConsumerInfo
                                     .getTopicConditions().get(topicKey)))) {
                                 isCondEqual = false;
                                 strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
@@ -338,7 +338,7 @@ public class PBParameterUtils {
                                         .append(inConsumerInfo.getTopicConditions())
                                         .append(" is inconsistency with other consumers in the group, existed topic" +
                                                 " conditions is ")
-                                        .append(existedTopicCondtions);
+                                        .append(existedTopicConditions);
                                 break;
                             }
                         }

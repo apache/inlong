@@ -168,7 +168,7 @@ public class WebAdminGroupCtrlHandler {
             if ((filterJsonArray == null) || (filterJsonArray.isEmpty())) {
                 throw new Exception("Null value of filterCondJsonSet, please set the value first!");
             }
-            Set<String> confgiuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
+            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbGroupFilterCondEntity> inGroupFilterCondEntityMap =
                     new HashMap<>();
             for (int j = 0; j < filterJsonArray.size(); j++) {
@@ -184,7 +184,7 @@ public class WebAdminGroupCtrlHandler {
                                     groupObject.get("topicName"),
                                     TBaseConstants.META_MAX_TOPICNAME_LENGTH,
                                     true, "");
-                    if (!confgiuredTopicSet.contains(groupTopicName)) {
+                    if (!configuredTopicSet.contains(groupTopicName)) {
                         throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
                                 .append(" not configure in master configure, please configure first!").toString());
                     }
@@ -1046,7 +1046,7 @@ public class WebAdminGroupCtrlHandler {
             if ((jsonArray == null) || (jsonArray.isEmpty())) {
                 throw new Exception("Null value of groupNameJsonSet, please set the value first!");
             }
-            Set<String> confgiuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
+            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbBlackGroupEntity> inBlackGroupEntityMap = new HashMap<>();
             for (int j = 0; j < jsonArray.size(); j++) {
                 Map<String, String> groupObject = jsonArray.get(j);
@@ -1076,7 +1076,7 @@ public class WebAdminGroupCtrlHandler {
                         groupCreateUser = createUser;
                         groupCreateDate = createDate;
                     }
-                    if (!confgiuredTopicSet.contains(groupTopicName)) {
+                    if (!configuredTopicSet.contains(groupTopicName)) {
                         throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
                                 .append(" not configure in master configure, please configure first!").toString());
                     }

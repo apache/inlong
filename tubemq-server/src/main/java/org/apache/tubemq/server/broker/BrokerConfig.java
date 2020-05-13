@@ -84,8 +84,6 @@ public class BrokerConfig extends AbstractFileConfig {
     private boolean updateConsumerOffsets = true;
     // heartbeat interval in milliseconds
     private long heartbeatPeriodMs = 8000L;
-    // quartz thread count
-    private int quartzThreadCount = 5;
     // netty write buffer high water mark
     private long nettyWriteBufferHighWaterMark = 10 * 1024 * 1024;
     // netty write buffer low water mark
@@ -122,11 +120,6 @@ public class BrokerConfig extends AbstractFileConfig {
     public BrokerConfig() {
         super();
     }
-
-    public int getQuartzThreadCount() {
-        return this.quartzThreadCount;
-    }
-
 
     public boolean isUpdateConsumerOffsets() {
         return this.updateConsumerOffsets;
@@ -286,9 +279,6 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("maxSSDTotalFileSizes"))) {
             this.maxSSDTotalFileSizes = getLong(brokerSect, "maxSSDTotalFileSizes");
-        }
-        if (!TStringUtils.isBlank(brokerSect.get("quartzThreadCount"))) {
-            this.quartzThreadCount = getInt(brokerSect, "quartzThreadCount");
         }
         if (!TStringUtils.isBlank(brokerSect.get("updateConsumerOffsets"))) {
             this.updateConsumerOffsets = getBoolean(brokerSect, "updateConsumerOffsets");

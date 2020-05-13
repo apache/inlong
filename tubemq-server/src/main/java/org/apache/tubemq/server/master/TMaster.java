@@ -1537,7 +1537,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     requireAcceptSubscribe = true;
                     requireSyncClient = true;
                 } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_ONLY_READ) {
-                    if ((brokerSyncStatusInfo.isBrokerConfChaned())
+                    if ((brokerSyncStatusInfo.isBrokerConfChanged())
                             || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                         long waitTime =
                                 brokerSyncStatusInfo.isFastStart() ? masterConfig.getStepChgWaitPeriodMs()
@@ -1565,7 +1565,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         requireAcceptPublish = true;
                         requireAcceptSubscribe = true;
                         requireSyncClient = true;
-                        if ((brokerSyncStatusInfo.isBrokerConfChaned())
+                        if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             this.defaultBrokerConfManager
                                     .updateBrokerConfChanged(brokerInfo.getBrokerId(), false, true);
@@ -1584,7 +1584,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     requireSyncClient = true;
                     requirePartUpdate = true;
                 } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_PART_ONLY_READ) {
-                    if ((brokerSyncStatusInfo.isBrokerConfChaned())
+                    if ((brokerSyncStatusInfo.isBrokerConfChanged())
                             || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                         long waitTime =
                                 brokerSyncStatusInfo.isFastStart()
