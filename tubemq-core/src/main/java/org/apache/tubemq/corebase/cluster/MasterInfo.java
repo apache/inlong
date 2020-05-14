@@ -71,7 +71,9 @@ public class MasterInfo {
             }
             int port = Integer.parseInt(hostPortItem[1].trim());
             NodeAddrInfo tmpNodeAddrInfo = new NodeAddrInfo(hostName, port);
-            addrMap4Failover.putIfAbsent(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
+            if (addrMap4Failover.get(tmpNodeAddrInfo.getHostPortStr()) == null) {
+                addrMap4Failover.put(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
+            }
             if (this.firstNodeAddr == null) {
                 this.firstNodeAddr = tmpNodeAddrInfo;
             }
