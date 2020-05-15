@@ -30,11 +30,11 @@ public class ConcurrentHashSet<E> extends MapBackedSet<E> {
     private static final long serialVersionUID = 8518578988740277828L;
 
     public ConcurrentHashSet() {
-        super(new ConcurrentHashMap<>());
+        super(new ConcurrentHashMap<E, Boolean>());
     }
 
     public ConcurrentHashSet(Collection<E> c) {
-        super(new ConcurrentHashMap<>(), c);
+        super(new ConcurrentHashMap<E, Boolean>(), c);
     }
 
     @Override
