@@ -61,7 +61,7 @@ public class NettyProtocolDecoder extends FrameDecoder {
             filterIllegalPackageSize(true, tmpListSize,
                     RpcConstants.MAX_FRAME_MAX_LIST_SIZE, channel);
             this.listSize = tmpListSize;
-            this.dataPack = new RpcDataPack(serialNo, new ArrayList<>(this.listSize));
+            this.dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>(this.listSize));
             this.packHeaderRead = true;
         }
         // get PackBody
