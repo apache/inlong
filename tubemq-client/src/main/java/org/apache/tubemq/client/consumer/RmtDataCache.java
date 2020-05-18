@@ -273,9 +273,7 @@ public class RmtDataCache implements Closeable {
     protected boolean isPartitionInUse(String partitionKey, long usedToken) {
         if (partitionMap.containsKey(partitionKey)) {
             Long curToken = partitionUsedMap.get(partitionKey);
-            if (curToken != null && curToken == usedToken) {
-                return true;
-            }
+            return curToken != null && curToken == usedToken;
         }
         return false;
     }
@@ -310,9 +308,7 @@ public class RmtDataCache implements Closeable {
         Integer isReged = partRegisterBookMap.get(partitionKey);
         if (isReged == null) {
             isReged = partRegisterBookMap.putIfAbsent(partitionKey, 1);
-            if (isReged == null) {
-                return true;
-            }
+            return isReged == null;
         }
         return false;
     }
@@ -628,8 +624,7 @@ public class RmtDataCache implements Closeable {
 
     public void resumeTimeoutConsumePartitions(long allowedPeriodTimes) {
         if (!partitionUsedMap.isEmpty()) {
-            List<String> partKeys = new ArrayList<>();
-            partKeys.addAll(partitionUsedMap.keySet());
+            List<String> partKeys = new ArrayList<>(partitionUsedMap.keySet());
             for (String keyId : partKeys) {
                 Long oldTime = partitionUsedMap.get(keyId);
                 if (oldTime != null && System.currentTimeMillis() - oldTime > allowedPeriodTimes) {
