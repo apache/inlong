@@ -231,6 +231,7 @@
                         <exclude>resources/assets/public/**</exclude>
                         <!-- manually installed version on travis -->
                         <exclude>protobuf-2.5.0/**</exclude>
+                        <exclude>DISCLAIMER-WIP</exclude>
                     </excludes>
                 </configuration>
             </plugin>
