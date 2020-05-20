@@ -32,6 +32,9 @@
             <directory>../</directory>
             <includes>
                 <include>./conf/tools.log4j.properties</include>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+                <include>DISCLAIMER-WIP</include>
             </includes>
             <excludes>
                 <exclude>**/src/**</exclude>
