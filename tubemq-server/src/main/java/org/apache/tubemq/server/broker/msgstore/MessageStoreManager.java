@@ -145,7 +145,7 @@ public class MessageStoreManager implements StoreService {
             Thread.currentThread().interrupt();
         }
         this.logClearScheduler.scheduleWithFixedDelay(new LogClearRunner(),
-                tubeConfig.getLogClearupDurationMs() / 2,
+                tubeConfig.getLogClearupDurationMs(),
                 tubeConfig.getLogClearupDurationMs(),
                 TimeUnit.MILLISECONDS);
 

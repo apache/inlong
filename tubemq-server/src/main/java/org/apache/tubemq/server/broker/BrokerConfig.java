@@ -89,7 +89,7 @@ public class BrokerConfig extends AbstractFileConfig {
     // netty write buffer low water mark
     private long nettyWriteBufferLowWaterMark = 5 * 1024 * 1024;
     // log cleanup interval in milliseconds
-    private long logClearupDurationMs = 30 * 60 * 1000;
+    private long logClearupDurationMs = 3 * 60 * 1000;
     // log flush to disk interval in milliseconds
     private long logFlushDiskDurMs = 20 * 1000;
     // memory flush to disk interval in milliseconds
@@ -239,8 +239,8 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logClearupDurationMs"))) {
             this.logClearupDurationMs = getLong(brokerSect, "logClearupDurationMs");
-            if (this.logClearupDurationMs < 20 * 60 * 1000) {
-                this.logClearupDurationMs = 20 * 60 * 1000;
+            if (this.logClearupDurationMs < 1 * 60 * 1000) {
+                this.logClearupDurationMs = 1 * 60 * 1000;
             }
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logFlushDiskDurMs"))) {
