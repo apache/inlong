@@ -65,7 +65,7 @@ message RegisterRequestC2B {
     optional int64 currOffset = 8;
     optional string sessionKey = 9;
     optional int64 sessionTime = 10;
-    optional int64 ssdStoreId = 11;
+    optional int64 ssdStoreId = 11;  /* Deprecated  */
     optional int32 qryPriorityId = 12;
     optional AuthorizedInfo authInfo = 13;
 }
@@ -83,7 +83,7 @@ message HeartBeatRequestC2B {
     required int32 readStatus = 3;
     /* brokerId:host:port:topic:partitionId:delayTimeStamp */
     repeated string partitionInfo = 4;
-    optional int64 ssdStoreId = 5;
+    optional int64 ssdStoreId = 5;   /* Deprecated  */
     optional int32 qryPriorityId = 6;
     optional AuthorizedInfo authInfo = 7;
 }

@@ -19,13 +19,10 @@ package org.apache.tubemq.server.broker.nodeinfo;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.policies.FlowCtrlResult;
 import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
-import org.apache.tubemq.corebase.policies.SSDCtrlResult;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.common.TServerConstants;
 
@@ -59,19 +56,7 @@ public class ConsumerNodeInfo {
     private long totalUnitMin = 0L;
     private FlowCtrlResult curFlowCtrlVal =
             new FlowCtrlResult(Long.MAX_VALUE, 0);
-    private SSDCtrlResult curSsdDltLimit =
-            new SSDCtrlResult(Long.MAX_VALUE, 0);
     private long nextLimitUpdateTime = 0;
-    private AtomicBoolean needSsdProc =
-            new AtomicBoolean(false);
-    private AtomicLong ssdTransId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    // -2 : 未启用 0:已发起请求 1://已接收请求正在处理 2:已处理完可用 3:已处理不可用 4:已停止
-    private AtomicInteger ssdProcStatus =
-            new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
-    private long lastOpTime = 0;
-    private long startSsdDataOffset = -2;
-    private long endSsdDataOffset = -2;
     private AtomicInteger qryPriorityId =
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private long createTime = System.currentTimeMillis();
@@ -80,31 +65,15 @@ public class ConsumerNodeInfo {
     public ConsumerNodeInfo(final MessageStoreManager storeManager,
                             final String consumerId, Set<String> filterCodes,
                             final String sessionKey, long sessionTime, final String partStr) {
-        setConsumerId(consumerId);
-        if (filterCodes != null) {
-            for (String filterItem : filterCodes) {
-                this.filterCondStrs.add(filterItem);
-                this.filterCondCode.add(filterItem.hashCode());
-            }
-        }
-        this.sessionKey = sessionKey;
-        this.sessionTime = sessionTime;
-        this.isSupportLimit = false;
-        this.needSsdProc.set(false);
-        this.storeManager = storeManager;
-        this.partStr = partStr;
-        this.createTime = System.currentTimeMillis();
-        if (filterCodes != null && !filterCodes.isEmpty()) {
-            this.isFilterConsume = true;
-        }
-        this.ssdTransId.set(TBaseConstants.META_VALUE_UNDEFINED);
+        this(storeManager, TBaseConstants.META_VALUE_UNDEFINED, consumerId,
+            filterCodes, sessionKey, sessionTime, false, partStr);
     }
 
     public ConsumerNodeInfo(final MessageStoreManager storeManager,
                             final int qryPriorityId, final String consumerId,
                             Set<String> filterCodes, final String sessionKey,
-                            long sessionTime, long ssdTransId, boolean needSsdProc,
-                            boolean isSupportLimit, final String partStr) {
+                            long sessionTime, boolean isSupportLimit,
+                            final String partStr) {
         setConsumerId(consumerId);
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
@@ -115,14 +84,11 @@ public class ConsumerNodeInfo {
         this.sessionKey = sessionKey;
         this.sessionTime = sessionTime;
         this.qryPriorityId.set(qryPriorityId);
-        this.ssdTransId.set(ssdTransId);
-        this.needSsdProc.set(needSsdProc);
         this.storeManager = storeManager;
         this.partStr = partStr;
         this.createTime = System.currentTimeMillis();
         if (filterCodes != null && !filterCodes.isEmpty()) {
             this.isFilterConsume = true;
-            this.needSsdProc.set(false);
         }
         this.isSupportLimit = isSupportLimit;
     }
@@ -137,69 +103,6 @@ public class ConsumerNodeInfo {
             long currTime = System.currentTimeMillis();
             recalcMsgLimitValue(curDataDlt,
                     currTime, maxMsgTransferSize, flowCtrlRuleHandler);
-            if (storeManager.isSsdServiceStart()
-                    && needSsdProc.get()
-                    && (currTime - createTime > 2 * 60 * 1000)) {
-                // get message from ssd.
-                switch (ssdProcStatus.get()) {
-                    case TBaseConstants.META_VALUE_UNDEFINED:
-                    case 4:
-                        // Request ssd sink operation, when finish first fetch operation.
-                        if (curDataDlt >= curSsdDltLimit.dataStartDltInSize
-                                && currTime - this.lastOpTime > 20 * 1000) {
-                            if (this.storeManager.putSsdTransferReq(partStr,
-                                    storeKey, lastDataRdOffset)) {
-                                ssdProcStatus.set(0);
-                            }
-                            this.lastOpTime = System.currentTimeMillis();
-                        }
-                        break;
-                    case 0:
-                        // Request ssd sink operation, when exceed 2 minutes since last time.
-                        if (curDataDlt >= curSsdDltLimit.dataStartDltInSize
-                                && currTime - this.lastOpTime > 2 * 60 * 1000) {
-                            if (this.storeManager.putSsdTransferReq(partStr,
-                                    storeKey, lastDataRdOffset)) {
-                                ssdProcStatus.set(0);
-                            }
-                            this.lastOpTime = System.currentTimeMillis();
-                        }
-                        break;
-                    case 2:
-                        // Set read message size, after finish ssd sink operation.
-                        if (lastDataRdOffset >= startSsdDataOffset
-                                && lastDataRdOffset < endSsdDataOffset) {
-                            return this.sentUnit;
-                        }
-                        if (lastDataRdOffset >= endSsdDataOffset) {
-                            // Request ssd sink operation, after read operation.
-                            if (curDataDlt >= curSsdDltLimit.dataEndDLtInSz) {
-                                resetSSDProcSeg(false);
-                                if (this.storeManager.putSsdTransferReq(partStr,
-                                        storeKey, lastDataRdOffset)) {
-                                    ssdProcStatus.set(0);
-                                }
-                                this.lastOpTime = System.currentTimeMillis();
-                            } else {
-                                resetSSDProcSeg(true);
-                            }
-                        }
-                        break;
-                    case 3:
-                        // Request ssd sink operation, when has been conducted or occur error in response.
-                        if (curDataDlt >= curSsdDltLimit.dataEndDLtInSz
-                                && currTime - this.lastOpTime > 20 * 1000) {
-                            if (this.storeManager.putSsdTransferReq(partStr,
-                                    storeKey, lastDataRdOffset)) {
-                                ssdProcStatus.set(0);
-                            }
-                            this.lastOpTime = System.currentTimeMillis();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
             if (isEscFlowCtrl
                     || (totalUnitSec > sentMsgSize
                     && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
@@ -216,21 +119,8 @@ public class ConsumerNodeInfo {
         }
     }
 
-    public boolean processFromSsdFile() {
-        return (storeManager != null
-                && storeManager.isSsdServiceStart()
-                && needSsdProc.get()
-                && ssdProcStatus.get() == 2
-                && lastDataRdOffset >= startSsdDataOffset
-                && lastDataRdOffset < endSsdDataOffset);
-    }
-
     public String getPartStr() {
         return partStr;
-    }
-
-    public long getStartSsdDataOffset() {
-        return startSsdDataOffset;
     }
 
     public int getSentMsgSize() {
@@ -241,70 +131,12 @@ public class ConsumerNodeInfo {
         return isSupportLimit;
     }
 
-    public boolean getNeedSsdProc() {
-        return needSsdProc.get();
-    }
-
-    public void setNeedSsdProc(boolean needSsdProc) {
-        this.needSsdProc.set(needSsdProc);
-    }
-
-    public long getDataStartDltInM() {
-        return this.curSsdDltLimit.dataStartDltInSize / 1024 / 1024;
-    }
-
-    public long getSsdDataEndDltInM() {
-        return this.curSsdDltLimit.dataEndDLtInSz / 1024 / 1024;
-    }
-
-    public long getSsdTransId() {
-        return ssdTransId.get();
-    }
-
-    public void setSsdTransId(long ssdTransId, boolean needSSDProc) {
-        this.ssdTransId.set(ssdTransId);
-        this.needSsdProc.set(needSSDProc);
-    }
-
-    public void setSSDProcing() {
-        if (this.ssdProcStatus.get() == 0) {
-            this.ssdProcStatus.set(1);
-            this.lastOpTime = System.currentTimeMillis();
-        }
-    }
-
     public int getQryPriorityId() {
         return qryPriorityId.get();
     }
 
     public void setQryPriorityId(int qryPriorityId) {
         this.qryPriorityId.set(qryPriorityId);
-    }
-
-    public void setSSDTransferFinished(boolean isUse,
-                                       final long startOffset,
-                                       final long endOffset) {
-        if (this.ssdProcStatus.get() == 1) {
-            if (isUse) {
-                this.ssdProcStatus.set(2);
-            } else {
-                this.ssdProcStatus.set(3);
-            }
-            this.startSsdDataOffset = startOffset;
-            this.endSsdDataOffset = endOffset;
-            this.lastOpTime = System.currentTimeMillis();
-        }
-    }
-
-    public void resetSSDProcSeg(boolean finished) {
-        if (finished) {
-            this.ssdProcStatus.set(4);
-        } else {
-            this.ssdProcStatus.set(3);
-        }
-        this.startSsdDataOffset = -2;
-        this.endSsdDataOffset = -2;
-        this.lastOpTime = System.currentTimeMillis();
     }
 
     public long getNextStatTime() {
@@ -409,9 +241,6 @@ public class ConsumerNodeInfo {
             this.curFlowCtrlVal = flowCtrlRuleHandler.getCurDataLimit(curDataDlt);
             if (this.curFlowCtrlVal == null) {
                 this.curFlowCtrlVal = new FlowCtrlResult(Long.MAX_VALUE, 0);
-            }
-            if (storeManager.isSsdServiceStart() && needSsdProc.get()) {
-                this.curSsdDltLimit = flowCtrlRuleHandler.getCurSSDStartDltInSZ();
             }
             currTime = System.currentTimeMillis();
             this.sentMsgSize = 0;

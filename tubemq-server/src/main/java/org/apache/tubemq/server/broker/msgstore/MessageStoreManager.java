@@ -21,7 +21,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,8 +49,6 @@ import org.apache.tubemq.server.broker.exception.StartupException;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
-import org.apache.tubemq.server.broker.msgstore.ssd.MsgSSDStoreManager;
-import org.apache.tubemq.server.broker.msgstore.ssd.SSDSegFound;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TStatusConstants;
@@ -71,8 +68,6 @@ public class MessageStoreManager implements StoreService {
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
             new ConcurrentHashMap<>();
-    // ssd store manager
-    private final MsgSSDStoreManager msgSsdStoreManager;
     // store service status
     private final AtomicBoolean stopped = new AtomicBoolean(false);
     // data expire operation scheduler.
@@ -97,7 +92,6 @@ public class MessageStoreManager implements StoreService {
         this.maxMsgTransferSize =
                 tubeConfig.getTransferSize() > DataStoreUtils.MAX_MSG_TRANSFER_SIZE
                         ? DataStoreUtils.MAX_MSG_TRANSFER_SIZE : tubeConfig.getTransferSize();
-        this.msgSsdStoreManager = new MsgSSDStoreManager(this, this.tubeConfig);
         this.metadataManager.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
@@ -136,7 +130,6 @@ public class MessageStoreManager implements StoreService {
     @Override
     public void start() {
         try {
-            this.msgSsdStoreManager.loadSSDStores();
             this.loadMessageStores(this.tubeConfig);
         } catch (final IOException e) {
             logger.error("[Store Manager] load message stores failed", e);
@@ -171,7 +164,6 @@ public class MessageStoreManager implements StoreService {
             this.logClearScheduler.shutdownNow();
             this.unFlushDiskScheduler.shutdownNow();
             this.unFlushMemScheduler.shutdownNow();
-            this.msgSsdStoreManager.close();
             for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry :
                     this.dataStores.entrySet()) {
                 if (entry.getValue() != null) {
@@ -345,52 +337,6 @@ public class MessageStoreManager implements StoreService {
         return this.tubeBroker;
     }
 
-    public boolean isSsdServiceStart() {
-        return this.msgSsdStoreManager.isSsdServiceInUse();
-    }
-
-    public boolean putSsdTransferReq(final String partStr,
-                                     final String storeKey, final long startOffset) {
-        if (this.msgSsdStoreManager.isSsdServiceInUse()) {
-            return this.msgSsdStoreManager.requestSsdTransfer(partStr, storeKey, startOffset, 1);
-        }
-        return false;
-    }
-
-    /***
-     * Get messages from ssd.
-     *
-     * @param storeKey
-     * @param partStr
-     * @param ssdStartDataOffset
-     * @param lastRDOffset
-     * @param partitionId
-     * @param reqOffset
-     * @param indexBuffer
-     * @param msgDataSizeLimit
-     * @param statisKeyBase
-     * @return
-     * @throws IOException
-     */
-    public GetMessageResult getSsdMessage(final String storeKey,
-                                           final String partStr,
-                                           final long ssdStartDataOffset,
-                                           final long lastRDOffset,
-                                           final int partitionId,
-                                           final long reqOffset,
-                                           final ByteBuffer indexBuffer,
-                                           int msgDataSizeLimit,
-                                           final String statisKeyBase) throws IOException {
-        if (this.msgSsdStoreManager.isSsdServiceInUse()) {
-            return msgSsdStoreManager.getMessages(storeKey, partStr,
-                    ssdStartDataOffset, lastRDOffset,
-                    partitionId, reqOffset, indexBuffer,
-                    msgDataSizeLimit, statisKeyBase);
-        }
-        return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
-                reqOffset, 0, "SSD StoreService not in use!");
-    }
-
     /***
      * Get message from store.
      *
@@ -425,19 +371,6 @@ public class MessageStoreManager implements StoreService {
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, "Get message failure, errMsg=" + e1.getMessage());
         }
-    }
-
-    public SSDSegFound getSourceSegment(final String topic, final int storeId,
-                                        final long offset, final int rate) throws IOException {
-        ConcurrentHashMap<Integer, MessageStore> map = this.dataStores.get(topic);
-        if (map == null) {
-            return new SSDSegFound(false, 1, null);
-        }
-        MessageStore messageStore = map.get(storeId);
-        if (messageStore == null) {
-            return new SSDSegFound(false, 2, null);
-        }
-        return messageStore.getSourceSegment(offset, rate);
     }
 
     public MetadataManager getMetadataManager() {

@@ -79,11 +79,6 @@ public class WebAdminFlowRuleHandler {
                     WebParameterUtils.validIntDataParameter("qryPriorityId",
                             req.getParameter("qryPriorityId"), false, 301, 101);
             checkQryPriorityId(qryPriorityId);
-            // get if enable ssd process function
-            boolean curNeedSSDProc =
-                    WebParameterUtils.validBooleanDataParameter("needSSDProc",
-                            req.getParameter("needSSDProc"),
-                            false, false);
             Set<String> batchGroupNames = new HashSet<>();
             if (opType == 1) {
                 batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
@@ -107,12 +102,12 @@ public class WebAdminFlowRuleHandler {
                     brokerConfManager.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(strBuffer.toString(),
                                     statusId, ruleCnt, qryPriorityId, "",
-                                    curNeedSSDProc, createUser, createDate));
+                                false, createUser, createDate));
                 } else {
                     brokerConfManager.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(groupName,
                                     strBuffer.toString(), statusId, ruleCnt, qryPriorityId, "",
-                                    curNeedSSDProc, createUser, createDate));
+                                false, createUser, createDate));
                 }
             }
             strBuffer.delete(0, strBuffer.length());
@@ -248,16 +243,6 @@ public class WebAdminFlowRuleHandler {
                         newGroupFlowCtrlEntity.setFlowCtrlInfo(newFlowCtrlInfo);
                         newGroupFlowCtrlEntity.setRuleCnt(ruleCnt);
                     }
-                    String inNeedSsdProc = req.getParameter("needSSDProc");
-                    if (TStringUtils.isNotBlank(inNeedSsdProc)) {
-                        boolean curNeedSsdProc =
-                                WebParameterUtils.validBooleanDataParameter("needSSDProc",
-                                        req.getParameter("needSSDProc"), false, false);
-                        if (curNeedSsdProc != oldEntity.isNeedSSDProc()) {
-                            foundChange = true;
-                            newGroupFlowCtrlEntity.setNeedSSDProc(curNeedSsdProc);
-                        }
-                    }
                     // update record if found change
                     if (foundChange) {
                         try {
@@ -361,7 +346,7 @@ public class WebAdminFlowRuleHandler {
         strBuffer.append("[");
         if (TStringUtils.isNotBlank(inFlowCtrlInfo)) {
             List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);
-            inFlowCtrlInfo = String.valueOf(inFlowCtrlInfo).trim();
+            inFlowCtrlInfo = inFlowCtrlInfo.trim();
             FlowCtrlRuleHandler flowCtrlRuleHandler =
                 new FlowCtrlRuleHandler(true);
             Map<Integer, List<FlowCtrlItem>> flowCtrlItemMap =
@@ -371,10 +356,6 @@ public class WebAdminFlowRuleHandler {
                     int rules = 0;
                     List<FlowCtrlItem> flowCtrlItems = flowCtrlItemMap.get(typeId);
                     if (flowCtrlItems != null) {
-                        if (opType != 1 && typeId == 2) {
-                            throw new Exception(
-                                    "Illegal value: SSD limit rule only set in default flow control set!");
-                        }
                         if (ruleCnt++ > 0) {
                             strBuffer.append(",");
                         }

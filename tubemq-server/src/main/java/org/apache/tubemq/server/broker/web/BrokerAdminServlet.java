@@ -165,18 +165,14 @@ public class BrokerAdminServlet extends HttpServlet {
                         .append(regTime).append(",\"isFilterConsume\":")
                         .append(ifFilterConsume);
             }
-            sBuilder.append(",\"needSSDProc\":").append(entry.getValue().getNeedSsdProc())
-                    .append(",\"ssdTransId\":").append(entry.getValue().getSsdTransId())
-                    .append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
+            sBuilder.append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
                     .append(",\"curDataLimitInM\":").append(entry.getValue().getCurFlowCtrlLimitSize())
                     .append(",\"curFreqLimit\":").append(entry.getValue().getCurFlowCtrlFreqLimit())
                     .append(",\"totalSentSec\":").append(entry.getValue().getSentMsgSize())
                     .append(",\"isSupportLimit\":").append(entry.getValue().isSupportLimit())
                     .append(",\"sentUnitSec\":").append(entry.getValue().getTotalUnitSec())
                     .append(",\"totalSentMin\":").append(entry.getValue().getTotalUnitMin())
-                    .append(",\"sentUnit\":").append(entry.getValue().getSentUnit())
-                    .append(",\"SSDDataDltStartInM\":").append(entry.getValue().getDataStartDltInM())
-                    .append(",\"SSDDataDltEndInM\":").append(entry.getValue().getSsdDataEndDltInM());
+                    .append(",\"sentUnit\":").append(entry.getValue().getSentUnit());
             MessageStoreManager storeManager = broker.getStoreManager();
             OffsetService offsetService = broker.getOffsetManager();
             MessageStore store = null;
