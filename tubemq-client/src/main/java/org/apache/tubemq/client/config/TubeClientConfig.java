@@ -536,7 +536,7 @@ public class TubeClientConfig {
         if (!usrPassWord.equals(that.usrPassWord)) {
             return false;
         }
-        if (this.tlsConfig.equals(that.tlsConfig)) {
+        if (!this.tlsConfig.equals(that.tlsConfig)) {
             return false;
         }
         return masterInfo.equals(that.masterInfo);
