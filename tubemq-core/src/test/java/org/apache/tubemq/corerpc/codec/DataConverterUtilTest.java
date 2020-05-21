@@ -18,6 +18,8 @@
 package org.apache.tubemq.corerpc.codec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +59,7 @@ public class DataConverterUtilTest {
         strInfoList.clear();
         strInfoList.add("001@group#0:localhost:1200#tube:0");
         List<SubscribeInfo> subscribeInfoList = DataConverterUtil.convertSubInfo(strInfoList);
-        assertEquals("subscribe should be equal", subscribeInfoEqual(subscribeInfo, subscribeInfoList.get(0)), true);
+        assertTrue("subscribe should be equal", subscribeInfoEqual(subscribeInfo, subscribeInfoList.get(0)));
 
         // topic convert
         TopicInfo topic = new TopicInfo(broker, "tube", 10, 5, true, true);

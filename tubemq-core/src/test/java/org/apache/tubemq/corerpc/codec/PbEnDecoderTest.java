@@ -16,7 +16,7 @@
  */
 package org.apache.tubemq.corerpc.codec;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import com.googlecode.protobuf.format.JsonFormat;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corerpc.RpcConstants;
@@ -42,10 +42,10 @@ public class PbEnDecoderTest {
         ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M)
                 PbEnDecoder.pbDecode(true, RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
 
-        assertTrue(decodeObject.getClientId().equals(object.getClientId()));
-        assertTrue(decodeObject.getBrokerCheckSum() == object.getBrokerCheckSum());
-        assertTrue(decodeObject.getHostName().equals(object.getHostName()));
-        assertTrue(jsonOject.equals(jsonFormat.printToString(decodeObject)));
+        assertEquals(decodeObject.getClientId(), object.getClientId());
+        assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());
+        assertEquals(decodeObject.getHostName(), object.getHostName());
+        assertEquals(jsonOject, jsonFormat.printToString(decodeObject));
     }
 
 }

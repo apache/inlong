@@ -49,7 +49,7 @@ public class NettyProtocolEncoderTest {
             // read data.
             int i = buf.readInt();
             i = buf.readInt();
-            Assert.assertTrue(i == 123);
+            Assert.assertEquals(123, i);
         } catch (Exception e) {
             e.printStackTrace();
         }
