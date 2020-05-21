@@ -43,7 +43,8 @@ public class TSSLEngineUtilTest {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        Assert.assertNotNull(sslEngine);
         boolean needClientAuth = sslEngine.getNeedClientAuth();
-        Assert.assertTrue(!needClientAuth);
+        Assert.assertFalse(needClientAuth);
     }
 }
