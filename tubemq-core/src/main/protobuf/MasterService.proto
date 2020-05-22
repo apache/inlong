@@ -126,7 +126,7 @@ message RegisterRequestC2M {
     optional bool selectBig = 13;
     optional int64 groupFlowCheckId = 14;
     optional int64 defFlowCheckId = 15;
-    optional int64 ssdStoreId = 16;
+    optional int64 ssdStoreId = 16; /* Deprecated  */
     optional int32 qryPriorityId = 17;
     optional MasterCertificateInfo authInfo = 18;
 }
@@ -142,7 +142,7 @@ message RegisterResponseM2C {
     optional string defFlowControlInfo = 7;
     optional int64 groupFlowCheckId = 8;
     optional string groupFlowControlInfo = 9;
-    optional int64 ssdStoreId = 10;
+    optional int64 ssdStoreId = 10; /* Deprecated  */
     optional int32 qryPriorityId = 11;
     optional MasterAuthorizedInfo authorizedInfo = 12;
 }
@@ -155,7 +155,7 @@ message HeartRequestC2M {
     optional EventProto event = 5;
     optional int64 defFlowCheckId = 6;
     optional int64 groupFlowCheckId = 7;
-    optional int64 ssdStoreId = 8;
+    optional int64 ssdStoreId = 8;  /* Deprecated  */
     optional int32 qryPriorityId = 9;
     optional MasterCertificateInfo authInfo = 10;
 }
@@ -170,7 +170,7 @@ message HeartResponseM2C {
     optional string defFlowControlInfo = 7;
     optional int64 groupFlowCheckId = 8;
     optional string groupFlowControlInfo = 9;
-    optional int64 ssdStoreId = 10;
+    optional int64 ssdStoreId = 10;   /* Deprecated  */
     optional int32 qryPriorityId = 11;
     optional bool requireAuth = 12;
     optional MasterAuthorizedInfo authorizedInfo = 13;
@@ -201,7 +201,7 @@ message RegisterRequestB2M {
     required string brokerDefaultConfInfo = 8;
     /* topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:deletePolicy:filterStatusId:statusId:attributes */
     repeated string brokerTopicSetConfInfo = 9;
-    optional int64 ssdStoreId = 10;
+    optional int64 ssdStoreId = 10;   /* Deprecated  */
     optional int64 flowCheckId = 11;
     optional int32 qryPriorityId = 12;
     optional int32 tlsPort = 13;
@@ -222,7 +222,7 @@ message RegisterResponseM2B {
     optional string brokerDefaultConfInfo = 10;
     /* topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:deletePolicy:filterStatusId:statusId:attributes */
     repeated string brokerTopicSetConfInfo = 11;
-    optional int64 ssdStoreId = 12;
+    optional int64 ssdStoreId = 12;   /* Deprecated  */
     optional int64 flowCheckId = 13;
     optional string flowControlInfo = 14;
     optional int32 qryPriorityId = 15;
@@ -244,7 +244,7 @@ message HeartRequestB2M {
     /* topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:deletePolicy:filterStatusId:statusId:attributes */
     repeated string brokerTopicSetConfInfo = 10;
     repeated string removedTopicsInfo = 11;
-    optional int64 ssdStoreId = 12;
+    optional int64 ssdStoreId = 12;  /* Deprecated  */
     optional int64 flowCheckId = 13;
     optional int32 qryPriorityId = 14;
     optional MasterCertificateInfo authInfo = 15;
@@ -267,7 +267,7 @@ message HeartResponseM2B {
     repeated string brokerTopicSetConfInfo = 12;
     /* topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:deletePolicy:filterStatusId:statusId:attributes */
     repeated string removeTopicConfInfo = 13;
-    optional int64 ssdStoreId = 14;
+    optional int64 ssdStoreId = 14; /* Deprecated  */
     optional int64 flowCheckId = 15;
     optional string flowControlInfo = 16;
     optional int32 qryPriorityId = 17;

@@ -50,7 +50,6 @@ public class BrokerConfig extends AbstractFileConfig {
     // master service address
     private String masterAddressList;
     private String primaryPath;
-    private String secondDataPath;
     // tcp write service thread count
     private int tcpWriteServiceThread =
             Runtime.getRuntime().availableProcessors() * 2;
@@ -75,10 +74,6 @@ public class BrokerConfig extends AbstractFileConfig {
     private int indexTransCount = 1000;
     // rpc read timeout in milliseconds
     private long rpcReadTimeoutMs = 10 * 1000;
-    // max ssd file count
-    private int maxSSDTotalFileCnt = 70;
-    // max ssd file size
-    private long maxSSDTotalFileSizes = 32212254720L;
     // consumer register timeout in milliseconds
     private int consumerRegTimeoutMs = 30000;
     private boolean updateConsumerOffsets = true;
@@ -164,14 +159,6 @@ public class BrokerConfig extends AbstractFileConfig {
         return maxIndexSegmentSize;
     }
 
-    public int getMaxSSDTotalFileCnt() {
-        return maxSSDTotalFileCnt;
-    }
-
-    public long getMaxSSDTotalFileSizes() {
-        return maxSSDTotalFileSizes;
-    }
-
     public long getAuthValidTimeStampPeriodMs() {
         return authValidTimeStampPeriodMs;
     }
@@ -210,9 +197,6 @@ public class BrokerConfig extends AbstractFileConfig {
             throw new IllegalArgumentException("Require primaryPath not Blank!");
         }
         this.primaryPath = brokerSect.get("primaryPath").trim();
-        if (TStringUtils.isNotBlank(brokerSect.get("secondDataPath"))) {
-            this.secondDataPath = brokerSect.get("secondDataPath");
-        }
         if (TStringUtils.isBlank(brokerSect.get("hostName"))) {
             throw new IllegalArgumentException(new StringBuilder(256).append("hostName is null or Blank in ")
                     .append(SECT_TOKEN_BROKER).append(" section!").toString());
@@ -273,12 +257,6 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("maxIndexSegmentSize"))) {
             this.maxIndexSegmentSize = getInt(brokerSect, "maxIndexSegmentSize");
-        }
-        if (TStringUtils.isNotBlank(brokerSect.get("maxSSDTotalFileCnt"))) {
-            this.maxSSDTotalFileCnt = getInt(brokerSect, "maxSSDTotalFileCnt");
-        }
-        if (TStringUtils.isNotBlank(brokerSect.get("maxSSDTotalFileSizes"))) {
-            this.maxSSDTotalFileSizes = getLong(brokerSect, "maxSSDTotalFileSizes");
         }
         if (!TStringUtils.isBlank(brokerSect.get("updateConsumerOffsets"))) {
             this.updateConsumerOffsets = getBoolean(brokerSect, "updateConsumerOffsets");
@@ -455,10 +433,6 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public String getPrimaryPath() {
         return this.primaryPath;
-    }
-
-    public String getSecondDataPath() {
-        return this.secondDataPath;
     }
 
     public int getWebPort() {

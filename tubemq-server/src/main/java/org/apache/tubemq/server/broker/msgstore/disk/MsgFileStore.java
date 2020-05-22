@@ -36,7 +36,6 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.tubemq.server.broker.msgstore.ssd.SSDSegFound;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.broker.utils.DiskSamplePrint;
@@ -470,29 +469,6 @@ public class MsgFileStore implements Closeable {
 
     public long getIndexMinOffset() {
         return this.indexSegments.getMinOffset();
-    }
-
-    /***
-     * Read from ssd file.
-     *
-     * @param offset
-     * @param rate
-     * @return
-     * @throws IOException
-     */
-    public SSDSegFound getSourceSegment(final long offset, final int rate) throws IOException {
-
-        final Segment segment = this.dataSegments.findSegment(offset);
-        if (segment == null) {
-            return new SSDSegFound(false, -1, null);
-        }
-        long dataSize = segment.getCachedSize();
-        if ((dataSize - offset + segment.getStart()) < dataSize * rate / 100) {
-            return new SSDSegFound(false, -2, null,
-                    segment.getStart(), segment.getStart() + segment.getCachedSize());
-        }
-        return new SSDSegFound(true, 0, segment.getFile(),
-                segment.getStart(), segment.getStart() + segment.getCachedSize());
     }
 
     public Segment indexSlice(final long offset, final int maxSize) throws IOException {

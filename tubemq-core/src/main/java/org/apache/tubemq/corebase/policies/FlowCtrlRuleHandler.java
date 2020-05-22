@@ -53,8 +53,6 @@ public class FlowCtrlRuleHandler {
     // Flow control ID and string information obtained from the server
     private AtomicLong flowCtrlId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private AtomicLong ssdTranslateId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private AtomicInteger qryPriorityId =
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private String strFlowCtrlInfo;
@@ -62,12 +60,6 @@ public class FlowCtrlRuleHandler {
     //improving the efficiency of the search return in the range
     private AtomicInteger minZeroCnt =
             new AtomicInteger(Integer.MAX_VALUE);
-    private AtomicLong minSSDProcDlt =
-            new AtomicLong(Long.MAX_VALUE);
-    private AtomicInteger ssdLimitStartTime =
-            new AtomicInteger(2500);
-    private AtomicInteger ssdLimitEndTime =
-            new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private AtomicLong minDataLimitDlt =
             new AtomicLong(Long.MAX_VALUE);
     private AtomicInteger dataLimitStartTime =
@@ -94,14 +86,12 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param ssdTranslateId
      * @param qyrPriorityId
      * @param flowCtrlId
      * @param flowCtrlInfo
      * @throws Exception
      */
-    public void updateDefFlowCtrlInfo(final long ssdTranslateId,
-                                      final int qyrPriorityId,
+    public void updateDefFlowCtrlInfo(final int qyrPriorityId,
                                       final long flowCtrlId,
                                       final String flowCtrlInfo) throws Exception {
         if (flowCtrlId == this.flowCtrlId.get()) {
@@ -118,9 +108,7 @@ public class FlowCtrlRuleHandler {
             logger.info(new StringBuilder(512)
                 .append("[Flow Ctrl] Updated ").append(flowCtrlName)
                 .append(" to flowId=").append(flowCtrlId)
-                .append(",ssdTranslateId=").append(ssdTranslateId)
                 .append(",qyrPriorityId=").append(qyrPriorityId).toString());
-            this.ssdTranslateId.set(ssdTranslateId);
             this.qryPriorityId.set(qyrPriorityId);
             clearStatisData();
             if (flowCtrlItemsMap == null
@@ -188,7 +176,6 @@ public class FlowCtrlRuleHandler {
     private void initialStatisData() {
         initialDataLimitStatisInfo();
         initialFreqLimitStatisInfo();
-        initialSSDProcLimitStatisInfo();
         initialLowFetchLimitStatisInfo();
     }
 
@@ -237,29 +224,6 @@ public class FlowCtrlRuleHandler {
         }
     }
 
-    private void initialSSDProcLimitStatisInfo() {
-        List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(2);
-        if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
-            for (FlowCtrlItem flowCtrlItem : flowCtrlItemList) {
-                if (flowCtrlItem == null) {
-                    continue;
-                }
-                if (flowCtrlItem.getType() != 2) {
-                    continue;
-                }
-                if (flowCtrlItem.getDltInM() < this.minSSDProcDlt.get()) {
-                    this.minSSDProcDlt.set(flowCtrlItem.getDltInM());
-                }
-                if (flowCtrlItem.getStartTime() < this.ssdLimitStartTime.get()) {
-                    this.ssdLimitStartTime.set(flowCtrlItem.getStartTime());
-                }
-                if (flowCtrlItem.getEndTime() > this.ssdLimitEndTime.get()) {
-                    this.ssdLimitEndTime.set(flowCtrlItem.getEndTime());
-                }
-            }
-        }
-    }
-
     private void initialLowFetchLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(3);
         if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
@@ -280,41 +244,11 @@ public class FlowCtrlRuleHandler {
 
     private void clearStatisData() {
         this.minZeroCnt.set(Integer.MAX_VALUE);
-        this.minSSDProcDlt.set(Long.MAX_VALUE);
         this.minDataLimitDlt.set(Long.MAX_VALUE);
-        this.ssdLimitStartTime.set(2500);
-        this.ssdLimitEndTime.set(TBaseConstants.META_VALUE_UNDEFINED);
         this.dataLimitStartTime.set(2500);
         this.dataLimitEndTime.set(TBaseConstants.META_VALUE_UNDEFINED);
         this.filterCtrlItem = new FlowCtrlItem(3, TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED);
-    }
-
-
-    public SSDCtrlResult getCurSSDStartDltInSZ() {
-        Calendar rightNow = Calendar.getInstance(timeZone);
-        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-        int minu = rightNow.get(Calendar.MINUTE);
-        int curTime = hour * 100 + minu;
-        if (curTime < this.ssdLimitStartTime.get()
-                || curTime > this.ssdLimitEndTime.get()) {
-            return new SSDCtrlResult(Long.MAX_VALUE, 0);
-        }
-        List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(2);
-        if (flowCtrlItemList == null
-                || flowCtrlItemList.isEmpty()) {
-            return new SSDCtrlResult(Long.MAX_VALUE, 0);
-        }
-        for (FlowCtrlItem flowCtrlItem : flowCtrlItemList) {
-            if (flowCtrlItem == null) {
-                continue;
-            }
-            SSDCtrlResult ruleVal = flowCtrlItem.getSSDStartDltProc(hour, minu);
-            if (ruleVal != null && ruleVal.dataStartDltInSize > 0) {
-                return ruleVal;
-            }
-        }
-        return new SSDCtrlResult(Long.MAX_VALUE, 0);
     }
 
     public int getMinZeroCnt() {
@@ -348,18 +282,6 @@ public class FlowCtrlRuleHandler {
         return rcmVal;
     }
 
-    public long getSsdTranslateId() {
-        return ssdTranslateId.get();
-    }
-
-
-    /**
-     * @param ssdTranslateId
-     */
-    public void setSsdTranslateId(long ssdTranslateId) {
-        this.ssdTranslateId.set(ssdTranslateId);
-    }
-
     public int getQryPriorityId() {
         return qryPriorityId.get();
     }
@@ -382,7 +304,6 @@ public class FlowCtrlRuleHandler {
             this.strFlowCtrlInfo = "";
             this.flowCtrlRuleSet.clear();
             this.flowCtrlId.set(TBaseConstants.META_VALUE_UNDEFINED);
-            this.ssdTranslateId.set(TBaseConstants.META_VALUE_UNDEFINED);
             this.qryPriorityId.set(TBaseConstants.META_VALUE_UNDEFINED);
         } finally {
             writeLock.unlock();
@@ -420,7 +341,7 @@ public class FlowCtrlRuleHandler {
                 int typeVal = jsonObject.get("type").getAsInt();
                 if (typeVal < 0 || typeVal > 3) {
                     throw new Exception(new StringBuilder(512)
-                            .append("type value must in [0,1,2,3] in index(")
+                            .append("type value must in [0,1,3] in index(")
                             .append(i).append(") of flowCtrlInfo value!").toString());
                 }
                 switch (typeVal) {
@@ -428,8 +349,8 @@ public class FlowCtrlRuleHandler {
                         flowCtrlItemList = parseFreqLimit(typeVal, jsonObject);
                         break;
 
-                    case 2:
-                        flowCtrlItemList = parseSSDProcLimit(typeVal, jsonObject);
+                    case 2:  /* Deprecated  */
+                        flowCtrlItemList = null;
                         break;
 
                     case 3:
@@ -662,86 +583,6 @@ public class FlowCtrlRuleHandler {
                     return -1;
                 } else if (o1.getFreqLtInMs() < o2.getFreqLtInMs()) {
                     return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
-        return flowCtrlItems;
-    }
-
-    /**
-     * @param typeVal
-     * @param jsonObject
-     * @return
-     * @throws Exception
-     */
-    private List<FlowCtrlItem> parseSSDProcLimit(int typeVal,
-                                                 JsonObject jsonObject) throws Exception {
-        if (jsonObject == null || jsonObject.get("type").getAsInt() != 2) {
-            throw new Exception("parse SSD limit rule failure!");
-        }
-        JsonArray ruleArray = jsonObject.get("rule").getAsJsonArray();
-        if (ruleArray == null) {
-            throw new Exception("not found rule list in SSD limit!");
-        }
-        ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
-        for (int index = 0; index < ruleArray.size(); index++) {
-            JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
-            int startTime = validAndGetTimeValue("start",
-                    ruleObject.get("start").getAsString(), index, "SSD");
-            int endTime = validAndGetTimeValue("end",
-                    ruleObject.get("end").getAsString(), index, "SSD");
-            if (startTime >= endTime) {
-                throw new Exception(new StringBuilder(512)
-                        .append("start value must be less than End value in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            if (!ruleObject.has("dltStInM")) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltStInM key is required in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            long dltStInM = ruleObject.get("dltStInM").getAsLong();
-            if (dltStInM < 512) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltStInM value must be greater than or equal to 512 in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            if (!ruleObject.has("dltEdInM")) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltEdInM key is required in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            long dataEndInM = ruleObject.get("dltEdInM").getAsLong();
-            if (dataEndInM < 0) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltEdInM value must be greater than or equal to zero in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            if (dataEndInM < 512) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltStInM value must be greater than or equal to 512 in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            if (dltStInM < dataEndInM) {
-                throw new Exception(new StringBuilder(512)
-                        .append("dltStInM value must be greater than ")
-                        .append("or equal to dltEdInM value in index(")
-                        .append(index).append(") of SSD limit rule!").toString());
-            }
-            dltStInM = (long) (dltStInM * 1024 * 1024);
-            dataEndInM = (long) (dataEndInM * 1024 * 1024);
-            flowCtrlItems.add(new FlowCtrlItem(typeVal, startTime, endTime, dltStInM, dataEndInM));
-        }
-
-        Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
-            @Override
-            public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
-                if (o1.getStartTime() > o2.getStartTime()) {
-                    return 1;
-                } else if (o1.getStartTime() < o2.getStartTime()) {
-                    return -1;
                 } else {
                     return 0;
                 }

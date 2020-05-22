@@ -41,7 +41,7 @@ public class TestFlowCtrlRuleHandler {
     public void testFlowCtrlRuleHandler() {
         try {
             FlowCtrlRuleHandler handler = new FlowCtrlRuleHandler(true);
-            handler.updateDefFlowCtrlInfo(1001, 2, 10, mockFlowCtrlInfo());
+            handler.updateDefFlowCtrlInfo(2, 10, mockFlowCtrlInfo());
             TimeZone timeZone = TimeZone.getTimeZone("GMT+8:00");
             Calendar rightNow = Calendar.getInstance(timeZone);
             int hour = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -68,23 +68,12 @@ public class TestFlowCtrlRuleHandler {
             assertEquals(item.getZeroCnt(), 400);
             assertEquals(item.getFreqLtInMs(), 100);
 
-            // check ssd ctrl
-            SSDCtrlResult ssdResult = handler.getCurSSDStartDltInSZ();
-            if (curTime >= 1200) {
-                assertEquals(ssdResult.dataEndDLtInSz, 2048L * 1024L * 1024L);
-                assertEquals(ssdResult.dataStartDltInSize, 20480L * 1024L * 1024L);
-            } else {
-                assertEquals(ssdResult.dataEndDLtInSz, 0L);
-                assertEquals(ssdResult.dataStartDltInSize, Long.MAX_VALUE);
-            }
-
             //check values
             assertEquals(handler.getNormFreqInMs(), 100);
             assertEquals(handler.getFlowCtrlId(), 10);
             assertEquals(handler.getMinDataFreqInMs(), 400);
             assertEquals(handler.getMinZeroCnt(), 3);
             assertEquals(handler.getQryPriorityId(), 2);
-            assertEquals(handler.getSsdTranslateId(), 1001);
             assertEquals(handler.getFlowCtrlId(), 10);
 
             System.out.println();

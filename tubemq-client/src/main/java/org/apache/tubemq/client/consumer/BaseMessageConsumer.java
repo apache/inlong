@@ -886,7 +886,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setSessionTime(this.consumeSubInfo.getSubscribedTime());
         builder.addAllTopicList(this.consumeSubInfo.getSubscribedTopics());
         builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
-        builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setGroupFlowCheckId(groupFlowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         List<SubscribeInfo> subInfoList =
@@ -945,7 +944,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setReportSubscribeInfo(reportSubscribeInfo);
         builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
-        builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         builder.setGroupFlowCheckId(groupFlowCtrlRuleHandler.getFlowCtrlId());
         if (event != null) {
@@ -989,7 +987,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setOpType(RpcConstants.MSG_OPTYPE_REGISTER);
         builder.setTopicName(partition.getTopic());
         builder.setPartitionId(partition.getPartitionId());
-        builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         builder.setReadStatus(getGroupInitReadStatus(rmtDataCache.bookPartition(partition.getPartitionKey())));
         TopicProcessor topicProcessor =
@@ -1042,7 +1039,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setClientId(consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setReadStatus(getGroupInitReadStatus(false));
-        builder.setSsdStoreId(groupFlowCtrlRuleHandler.getSsdTranslateId());
         builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
         builder.addAllPartitionInfo(partitionList);
         ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
@@ -1062,15 +1058,11 @@ public class BaseMessageConsumer implements MessageConsumer {
                     ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
             if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
                 try {
-                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(response.getSsdStoreId(),
-                            TBaseConstants.META_VALUE_UNDEFINED,
+                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
                             response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn("[Register response] found parse group flowCtrl rules failure", e1);
                 }
-            }
-            if (response.getSsdStoreId() != groupFlowCtrlRuleHandler.getSsdTranslateId()) {
-                groupFlowCtrlRuleHandler.setSsdTranslateId(response.getSsdStoreId());
             }
             if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
                 groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
@@ -1093,16 +1085,12 @@ public class BaseMessageConsumer implements MessageConsumer {
                     ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
             if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
                 try {
-                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(response.getSsdStoreId(),
-                            TBaseConstants.META_VALUE_UNDEFINED,
+                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
                             response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn(
                             "[Heartbeat response] found parse group flowCtrl rules failure", e1);
                 }
-            }
-            if (response.getSsdStoreId() != groupFlowCtrlRuleHandler.getSsdTranslateId()) {
-                groupFlowCtrlRuleHandler.setSsdTranslateId(response.getSsdStoreId());
             }
             if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
                 groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);

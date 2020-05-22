@@ -242,7 +242,6 @@ public class TubeBroker implements Stoppable, Runnable {
                             FlowCtrlRuleHandler flowCtrlRuleHandler =
                                 metadataManager.getFlowCtrlRuleHandler();
                             long flowCheckId = flowCtrlRuleHandler.getFlowCtrlId();
-                            long ssdTranslateId = flowCtrlRuleHandler.getSsdTranslateId();
                             int qryPriorityId = flowCtrlRuleHandler.getQryPriorityId();
                             ServiceStatusHolder
                                 .setReadWriteServiceStatus(response.getStopRead(),
@@ -252,19 +251,14 @@ public class TubeBroker implements Stoppable, Runnable {
                                     ? response.getQryPriorityId() : qryPriorityId;
                                 if (response.getFlowCheckId() != flowCheckId) {
                                     flowCheckId = response.getFlowCheckId();
-                                    ssdTranslateId = response.getSsdStoreId();
                                     try {
                                         flowCtrlRuleHandler
-                                            .updateDefFlowCtrlInfo(ssdTranslateId,
-                                                qryPriorityId, flowCheckId, response.getFlowControlInfo());
+                                            .updateDefFlowCtrlInfo(qryPriorityId,
+                                                flowCheckId, response.getFlowControlInfo());
                                     } catch (Exception e1) {
                                         logger.warn(
                                             "[HeartBeat response] found parse flowCtrl rules failure", e1);
                                     }
-                                }
-                                if (response.getSsdStoreId() != ssdTranslateId) {
-                                    ssdTranslateId = response.getSsdStoreId();
-                                    flowCtrlRuleHandler.setSsdTranslateId(ssdTranslateId);
                                 }
                                 if (qryPriorityId != flowCtrlRuleHandler.getQryPriorityId()) {
                                     flowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
@@ -281,7 +275,6 @@ public class TubeBroker implements Stoppable, Runnable {
                                     .append(",configCheckSumId=").append(response.getConfCheckSumId())
                                     .append(",hasFlowCtrl=").append(response.hasFlowCheckId())
                                     .append(",curFlowCtrlId=").append(flowCheckId)
-                                    .append(",curSsdTranslateId=").append(ssdTranslateId)
                                     .append(",curQryPriorityId=").append(qryPriorityId)
                                     .append(",brokerDefaultConfInfo=")
                                     .append(response.getBrokerDefaultConfInfo())
@@ -425,14 +418,11 @@ public class TubeBroker implements Stoppable, Runnable {
                     if (response.getFlowCheckId() != flowCtrlRuleHandler.getFlowCtrlId()) {
                         try {
                             flowCtrlRuleHandler
-                                .updateDefFlowCtrlInfo(response.getSsdStoreId(), response.getQryPriorityId(),
+                                .updateDefFlowCtrlInfo(response.getQryPriorityId(),
                                     response.getFlowCheckId(), response.getFlowControlInfo());
                         } catch (Exception e1) {
                             logger.warn("[Register response] found parse flowCtrl rules failure", e1);
                         }
-                    }
-                    if (response.getSsdStoreId() != flowCtrlRuleHandler.getSsdTranslateId()) {
-                        flowCtrlRuleHandler.setSsdTranslateId(response.getSsdStoreId());
                     }
                     if (qryPriorityId != flowCtrlRuleHandler.getQryPriorityId()) {
                         flowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
@@ -456,7 +446,6 @@ public class TubeBroker implements Stoppable, Runnable {
                     .append(",enableConsumeAuthorize=")
                     .append(serverAuthHandler.isEnableConsumeAuthorize())
                     .append(",curFlowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-                    .append(",curSsdTranslateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
                     .append(",curQryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
                     .append(",brokerDefaultConfInfo=").append(response.getBrokerDefaultConfInfo())
                     .append(",brokerTopicSetConfList=")
@@ -505,7 +494,6 @@ public class TubeBroker implements Stoppable, Runnable {
                 metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
-        builder.setSsdStoreId(flowCtrlRuleHandler.getSsdTranslateId());
         String brokerDefaultConfInfo = metadataManager.getBrokerDefMetaConfInfo();
         if (brokerDefaultConfInfo != null) {
             builder.setBrokerDefaultConfInfo(brokerDefaultConfInfo);
@@ -526,7 +514,6 @@ public class TubeBroker implements Stoppable, Runnable {
             .append(",isTlsEnable=").append(tubeConfig.isTlsEnable())
             .append(",TlsPort=").append(tubeConfig.getTlsPort())
             .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-            .append(",SSDTranslateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
             .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
             .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
             .append(",brokerDefaultConfInfo=").append(brokerDefaultConfInfo)
@@ -551,7 +538,6 @@ public class TubeBroker implements Stoppable, Runnable {
                 metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
-        builder.setSsdStoreId(flowCtrlRuleHandler.getSsdTranslateId());
         builder.setTakeConfInfo(false);
         builder.setTakeRemovedTopicInfo(false);
         List<String> removedTopics = this.metadataManager.getHardRemovedTopics();
@@ -573,7 +559,6 @@ public class TubeBroker implements Stoppable, Runnable {
                 .append(",readStatusRpt=").append(builder.getReadStatusRpt())
                 .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
                 .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-                .append(",SSDTranslateId=").append(flowCtrlRuleHandler.getSsdTranslateId())
                 .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
                 .append(",ReadStatusRpt=").append(builder.getReadStatusRpt())
                 .append(",WriteStatusRpt=").append(builder.getWriteStatusRpt())
