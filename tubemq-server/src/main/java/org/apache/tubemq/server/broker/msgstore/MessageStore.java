@@ -44,7 +44,6 @@ import org.apache.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStatisInfo;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStore;
-import org.apache.tubemq.server.broker.msgstore.ssd.SSDSegFound;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 /***
  * Topic's message storage. It's a logical topic storage. Contains multi types storage: data in memory,
- * data in disk, data in ssd, and statistics of produce and consume.
+ * data in disk, and statistics of produce and consume.
  */
 public class MessageStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MessageStore.class);
@@ -261,36 +260,27 @@ public class MessageStore implements Closeable {
         indexRecordView.read(indexBuffer, reqNewOffset);
         indexBuffer.flip();
         indexRecordView.relViewRef();
-        //　judge whether read from ssd or disk.
-        if (consumerNodeInfo.processFromSsdFile()) {
-            return msgStoreMgr.getSsdMessage(storeKey, consumerNodeInfo.getPartStr(),
-                    consumerNodeInfo.getStartSsdDataOffset(),
-                    consumerNodeInfo.getLastDataRdOffset(),
-                    partitionId, reqNewOffset, indexBuffer,
-                    msgSizeLimit, statisKeyBase);
-        } else {
-            if ((msgFileStore.getDataHighMaxOffset() - consumerNodeInfo.getLastDataRdOffset()
-                    >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
-                    && msgSizeLimit > this.maxAllowRdSize) {
-                msgSizeLimit = this.maxAllowRdSize;
-            }
-            GetMessageResult retResult =
-                    msgFileStore.getMessages(partitionId,
-                            consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
-                            indexBuffer, consumerNodeInfo.isFilterConsume(),
-                            consumerNodeInfo.getFilterCondCodeSet(),
-                            statisKeyBase, msgSizeLimit);
-            if (consumerNodeInfo.isFilterConsume()
-                    && retResult.isSuccess
-                    && retResult.getLastReadOffset() > 0) {
-                if ((msgFileStore.getIndexMaxHighOffset()
-                        - reqNewOffset - retResult.getLastReadOffset())
-                        < fileLowReqMaxFilterIndexReadSize.get()) {
-                    retResult.setSlowFreq(true);
-                }
-            }
-            return retResult;
+        if ((msgFileStore.getDataHighMaxOffset() - consumerNodeInfo.getLastDataRdOffset()
+            >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
+            && msgSizeLimit > this.maxAllowRdSize) {
+            msgSizeLimit = this.maxAllowRdSize;
         }
+        GetMessageResult retResult =
+            msgFileStore.getMessages(partitionId,
+                consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
+                indexBuffer, consumerNodeInfo.isFilterConsume(),
+                consumerNodeInfo.getFilterCondCodeSet(),
+                statisKeyBase, msgSizeLimit);
+        if (consumerNodeInfo.isFilterConsume()
+            && retResult.isSuccess
+            && retResult.getLastReadOffset() > 0) {
+            if ((msgFileStore.getIndexMaxHighOffset()
+                - reqNewOffset - retResult.getLastReadOffset())
+                < fileLowReqMaxFilterIndexReadSize.get()) {
+                retResult.setSlowFreq(true);
+            }
+        }
+        return retResult;
     }
 
     /***
@@ -542,11 +532,6 @@ public class MessageStore implements Closeable {
         }
         totalSize += this.msgFileStore.getIndexSizeInBytes();
         return totalSize;
-    }
-
-    public SSDSegFound getSourceSegment(final long offset,
-                                        final int rate) throws IOException {
-        return this.msgFileStore.getSourceSegment(offset, rate);
     }
 
     public long getDataStoreSize() {

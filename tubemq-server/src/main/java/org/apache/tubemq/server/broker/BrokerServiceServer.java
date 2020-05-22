@@ -378,11 +378,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         msgResult.lastRdDataOffset,
                         msgResult.totalMsgSize);
                 getCounterGroup.add(msgResult.tmpCounters);
-                if (msgResult.isFromSsdFile) {
-                    builder.setEscFlowCtrl(true);
-                } else {
-                    builder.setEscFlowCtrl(false);
-                }
+                builder.setEscFlowCtrl(false);
                 builder.setRequireSlow(msgResult.isSlowFreq);
                 builder.setSuccess(true);
                 builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -839,16 +835,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             final long reqOffset = request.hasCurrOffset() ? request.getCurrOffset() : -1;
             long reqSessionTime = request.hasSessionTime() ? request.getSessionTime() : -1;
             String reqSessionKey = request.hasSessionKey() ? request.getSessionKey() : null;
-            long reqSsdStoreId = request.hasSsdStoreId()
-                    ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
             int reqQryPriorityId = request.hasQryPriorityId()
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
-            boolean needSsdProc =
-                    ((reqSsdStoreId != TBaseConstants.META_VALUE_UNDEFINED)
-                            && (reqSsdStoreId == this.metadataManager.getFlowCtrlRuleHandler().getSsdTranslateId()));
             consumerRegisterMap.put(partStr, new ConsumerNodeInfo(storeManager, reqQryPriorityId,
-                    clientId, filterCondSet, reqSessionKey, reqSessionTime, reqSsdStoreId, needSsdProc,
-                    request.hasSsdStoreId(), partStr));
+                    clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr));
             heartbeatManager.regConsumerNode(getHeartbeatNodeId(clientId, partStr), clientId, partStr);
             MessageStore dataStore = null;
             try {
@@ -876,7 +866,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append(TokenConstants.SEGMENT_SEP).append(partStr)
                     .append(TokenConstants.SEGMENT_SEP).append(offsetInfo)
                     .append(", reqOffset=").append(reqOffset)
-                    .append(", reqSsdStoreId=").append(reqSsdStoreId)
                     .append(", reqQryPriorityId=").append(reqQryPriorityId)
                     .append(", isOverTLS=").append(overtls).toString());
             builder.setSuccess(true);
@@ -1014,8 +1003,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-        long reqSsdStoreId = request.hasSsdStoreId()
-                ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
         int reqQryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         List<Partition> partitions =
@@ -1075,11 +1062,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         .append(topic).append(TokenConstants.ATTR_SEP).append(partitionId).toString());
                 strBuffer.delete(0, strBuffer.length());
                 continue;
-            }
-            if (consumerNodeInfo.getSsdTransId() != reqSsdStoreId) {
-                boolean needSsdProc = ((reqSsdStoreId != TBaseConstants.META_VALUE_UNDEFINED)
-                        && (reqSsdStoreId == metadataManager.getFlowCtrlRuleHandler().getSsdTranslateId()));
-                consumerNodeInfo.setSsdTransId(reqSsdStoreId, needSsdProc);
             }
             if (consumerNodeInfo.getQryPriorityId() != reqQryPriorityId) {
                 consumerNodeInfo.setQryPriorityId(reqQryPriorityId);

@@ -107,9 +107,6 @@ In addition to the back-end system configuration file, the Master also stores th
 | consumerRegTimeoutMs  | no       | long    | Consumer heartbeat timeout, optional, in milliseconds, default 30 seconds |
 | socketRecvBuffer      | no       | long    | Socket receives the size of the Buffer buffer SO_RCVBUF, the unit byte, the negative number is not set, the default value is |
 | socketSendBuffer      | no       | long    | Socket sends Buffer buffer SO_SNDBUF size, unit byte, negative number is not set, the default value is |
-| secondDataPath        | no       | string  | The SSD to storage location where the broker is located, optional field. The default is blank to indicate that the machine has no SSD. |
-| maxSSDTotalFileCnt    | no       | int     | The maximum number of Data files allowed by the SSD where the Broker is located, optional field, default 70 |
-| maxSSDTotalFileSizes  | no       | long    | The SSD where the Broker is located allows the maximum size of the data file to be saved. The optional field is 32G by default. |
 | tcpWriteServiceThread | no       | int     | Broker supports the number of socket worker threads for TCP production services, optional fields, and defaults to 2 times the number of CPUs of the machine. |
 | tcpReadServiceThread  | no       | int     | Broker supports the number of socket worker threads for TCP consumer services, optional fields, defaults to 2 times the number of CPUs of the machine |
 | logClearupDurationMs  | no       | long    | The aging cleanup period of the message file, in milliseconds. The default is 3 minutes for a log cleanup operation. The minimum is 1 minutes. |
