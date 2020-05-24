@@ -59,19 +59,19 @@ public class MAMessageProducerExample {
     private static final int SESSION_FACTORY_NUM = 10;
 
     private static Set<String> topicSet;
-    private static int msgCnt;
-    private static int producerCnt;
+    private static int msgCount;
+    private static int producerCount;
     private static byte[] sendData;
 
-    private final String[] arrayKey = {"aaa", "bbb", "ac", "dd", "eee", "fff", "gggg", "hhhh"};
+    private final String[] arrayKey = {"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"};
     private final Set<String> filters = new TreeSet<>();
     private final Map<MessageProducer, Sender> producerMap = new HashMap<>();
     private final List<MessageSessionFactory> sessionFactoryList = new ArrayList<>();
     private final ExecutorService sendExecutorService =
             Executors.newFixedThreadPool(MAX_PRODUCER_NUM, new ThreadFactory() {
                 @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "sender_" + producerMap.size());
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "sender_" + producerMap.size());
                 }
             });
     private final AtomicInteger producerIndex = new AtomicInteger(0);
@@ -98,28 +98,28 @@ public class MAMessageProducerExample {
 
         topicSet = new TreeSet<>(topicList);
 
-        msgCnt = Integer.parseInt(args[3]);
-        producerCnt = Math.min(args.length > 4 ? Integer.parseInt(args[4]) : 10, MAX_PRODUCER_NUM);
+        msgCount = Integer.parseInt(args[3]);
+        producerCount = Math.min(args.length > 4 ? Integer.parseInt(args[4]) : 10, MAX_PRODUCER_NUM);
 
         logger.info("MAMessageProducerExample.main started...");
 
         final byte[] transmitData = StringUtils.getBytesUtf8("This is a test message from multi-session factory.");
-        final ByteBuffer dataBuffer1 = ByteBuffer.allocate(1024);
+        final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
 
-        while (dataBuffer1.hasRemaining()) {
-            int offset = dataBuffer1.arrayOffset();
-            dataBuffer1.put(transmitData, offset, Math.min(dataBuffer1.remaining(), transmitData.length));
+        while (dataBuffer.hasRemaining()) {
+            int offset = dataBuffer.arrayOffset();
+            dataBuffer.put(transmitData, offset, Math.min(dataBuffer.remaining(), transmitData.length));
         }
 
-        dataBuffer1.flip();
-        sendData = dataBuffer1.array();
+        dataBuffer.flip();
+        sendData = dataBuffer.array();
 
         try {
             MAMessageProducerExample messageProducer = new MAMessageProducerExample(localHost, masterHostAndPort);
 
             messageProducer.startService();
 
-            while (SENT_SUCC_COUNTER.get() < msgCnt * producerCnt * topicSet.size()) {
+            while (SENT_SUCC_COUNTER.get() < msgCount * producerCount * topicSet.size()) {
                 Thread.sleep(1000);
             }
             messageProducer.producerMap.clear();
@@ -130,7 +130,6 @@ public class MAMessageProducerExample {
         } catch (Throwable e) {
             logger.error("Throwable: ", e);
         }
-
     }
 
     public MessageProducer createProducer() throws TubeClientException {
@@ -139,7 +138,7 @@ public class MAMessageProducerExample {
     }
 
     private void startService() throws TubeClientException {
-        for (int i = 0; i < producerCnt; i++) {
+        for (int i = 0; i < producerCount; i++) {
             PRODUCER_LIST.add(createProducer());
         }
 
@@ -175,7 +174,7 @@ public class MAMessageProducerExample {
             } catch (Throwable t) {
                 logger.error("publish exception: ", t);
             }
-            for (int i = 0; i < msgCnt; i++) {
+            for (int i = 0; i < msgCount; i++) {
                 long millis = System.currentTimeMillis();
                 for (String topic : topicSet) {
                     try {

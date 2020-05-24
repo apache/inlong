@@ -51,7 +51,7 @@ public final class MessageProducerExample {
     private static final Logger logger = LoggerFactory.getLogger(MessageProducerExample.class);
     private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
 
-    private final String[] arrayKey = {"aaa", "bbb", "ac", "dd", "eee", "fff", "gggg", "hhhh"};
+    private final String[] arrayKey = {"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"};
     private final Set<String> filters = new TreeSet<>();
     private final MessageProducer messageProducer;
     private final MessageSessionFactory messageSessionFactory;
@@ -73,21 +73,20 @@ public final class MessageProducerExample {
         final String masterHostAndPort = args[1];
         final String topics = args[2];
         final List<String> topicList = Arrays.asList(topics.split(","));
-        final int cnt = Integer.parseInt(args[3]);
+        final int count = Integer.parseInt(args[3]);
 
         String body = "This is a test message from single-session-factory.";
-        byte[] bodyData = StringUtils.getBytesUtf8(body);
-        int bodyDataLen = bodyData.length;
-        final ByteBuffer dataBuffer1 = ByteBuffer.allocate(1024);
-        while (dataBuffer1.hasRemaining()) {
-            int offset = dataBuffer1.arrayOffset();
-            dataBuffer1.put(bodyData, offset, Math.min(dataBuffer1.remaining(), bodyDataLen));
+        byte[] bodyBytes = StringUtils.getBytesUtf8(body);
+        final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
+        while (dataBuffer.hasRemaining()) {
+            int offset = dataBuffer.arrayOffset();
+            dataBuffer.put(bodyBytes, offset, Math.min(dataBuffer.remaining(), bodyBytes.length));
         }
-        dataBuffer1.flip();
+        dataBuffer.flip();
         try {
             MessageProducerExample messageProducer = new MessageProducerExample(localHost, masterHostAndPort);
             messageProducer.publishTopics(topicList);
-            for (int i = 0; i < cnt; i++) {
+            for (int i = 0; i < count; i++) {
                 for (String topic : topicList) {
                     try {
                         // next line sends message synchronously, which is not recommended
@@ -97,8 +96,9 @@ public final class MessageProducerExample {
                         messageProducer.sendMessageAsync(
                             i,
                             topic,
-                            dataBuffer1.array(),
-                            messageProducer.new DefaultSendCallback());
+                            dataBuffer.array(),
+                            messageProducer.new DefaultSendCallback()
+                        );
                     } catch (Throwable e1) {
                         logger.error("Send Message throw exception  ", e1);
                     }
@@ -117,12 +117,12 @@ public final class MessageProducerExample {
                 logger.info(
                     "********* Current {} Message sent count is {}",
                     entry.getKey(),
-                    entry.getValue().get());
+                    entry.getValue().get()
+                );
             }
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
     }
 
     public void publishTopics(List<String> topicList) throws TubeClientException {
@@ -151,14 +151,9 @@ public final class MessageProducerExample {
     }
 
     /**
-     * Send message synchronous. More efficient and recommended.
+     * Send message asynchronous. More efficient and recommended.
      */
-    public void sendMessageAsync(
-        int id,
-        String topic,
-        byte[] body,
-        MessageSentCallback callback
-    ) {
+    public void sendMessageAsync(int id, String topic, byte[] body, MessageSentCallback callback) {
         Message message = new Message(topic, body);
 
         // date format is accurate to minute, not to second
