@@ -100,7 +100,7 @@ public final class MessageConsumerExample {
             }
             topicTidsMap.put(topicTidStr[0], tids);
         }
-        final int startFetchCnt = fetchCount;
+        final int startFetchCount = fetchCount;
         final ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(new Runnable() {
             @Override
@@ -111,7 +111,8 @@ public final class MessageConsumerExample {
                                 localHost,
                                 masterHostAndPort,
                                 group,
-                                startFetchCnt);
+                                startFetchCount
+                        );
                         messageConsumer.subscribe(topicTidsMap);
                     }
                 } catch (Exception e) {
