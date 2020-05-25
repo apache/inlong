@@ -338,11 +338,7 @@ public class RmtDataCache implements Closeable {
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
                     partitionUsedMap.remove(partitionKey);
                     partitionExt.setLastPackConsumed(isLastPackConsumed);
-                    try {
-                        indexPartition.offer(partitionKey);
-                    } catch (Throwable e) {
-                        //
-                    }
+                    releaseIdlePartition(-1, partitionKey);
                 }
             }
         }
@@ -363,16 +359,7 @@ public class RmtDataCache implements Closeable {
                     partitionExt.setLastPackConsumed(isLastPackConsumed);
                     long waitDlt =
                             partitionExt.procConsumeResult(isFilterConsume);
-                    if (waitDlt > 10) {
-                        timeouts.put(partitionKey,
-                                timer.newTimeout(new TimeoutTask(partitionKey), waitDlt, TimeUnit.MILLISECONDS));
-                    } else {
-                        try {
-                            indexPartition.offer(partitionKey);
-                        } catch (Throwable e) {
-                            //
-                        }
-                    }
+                    releaseIdlePartition(waitDlt, partitionKey);
                 }
             }
         }
@@ -396,17 +383,22 @@ public class RmtDataCache implements Closeable {
                     long waitDlt =
                             partitionExt.procConsumeResult(isFilterConsume, reqProcType,
                                     errCode, msgSize, isEscLimit, limitDlt, curDataDlt, false);
-                    if (waitDlt > 10) {
-                        timeouts.put(partitionKey,
-                                timer.newTimeout(new TimeoutTask(partitionKey), waitDlt, TimeUnit.MILLISECONDS));
-                    } else {
-                        try {
-                            indexPartition.offer(partitionKey);
-                        } catch (Throwable e) {
-                            //
-                        }
-                    }
+                    releaseIdlePartition(waitDlt, partitionKey);
                 }
+            }
+        }
+    }
+
+    private void releaseIdlePartition(long waitDlt, String partitionKey) {
+        if (waitDlt > 10) {
+            TimeoutTask timeoutTask = new TimeoutTask(partitionKey);
+            timeouts.put(partitionKey,
+                timer.newTimeout(timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
+        } else {
+            try {
+                indexPartition.offer(partitionKey);
+            } catch (Throwable e) {
+                //
             }
         }
     }
@@ -425,11 +417,7 @@ public class RmtDataCache implements Closeable {
                 timer = null;
             }
             for (int i = this.waitCont.get() + 1; i > 0; i--) {
-                try {
-                    indexPartition.offer("------");
-                } catch (Throwable e) {
-                    //
-                }
+                releaseIdlePartition(-1, "------");
             }
         }
     }
@@ -660,6 +648,31 @@ public class RmtDataCache implements Closeable {
                 }
             }
         }
+        // add timeout expired check
+        if (!timeouts.isEmpty()) {
+            List<String> partKeys = new ArrayList<String>();
+            partKeys.addAll(timeouts.keySet());
+            Timeout timeout1 = null;
+            for (String keyId : partKeys) {
+                timeout1 = timeouts.get(keyId);
+                if (timeout1 != null && timeout1.isExpired()) {
+                    timeout1 = timeouts.remove(keyId);
+                    if (timeout1 != null) {
+                        PartitionExt partitionExt = partitionMap.get(keyId);
+                        if (partitionExt != null) {
+                            if (!indexPartition.contains(keyId)) {
+                                try {
+                                    indexPartition.offer(keyId);
+                                } catch (Throwable e) {
+                                    //
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
     private void waitPartitions(List<String> partitionKeys, long inUseWaitPeriodMs) {
@@ -784,9 +797,15 @@ public class RmtDataCache implements Closeable {
     public class TimeoutTask implements TimerTask {
 
         private String indexId;
+        private long createTime = 0L;
 
         public TimeoutTask(final String indexId) {
             this.indexId = indexId;
+            this.createTime = System.currentTimeMillis();
+        }
+
+        public long getCreateTime() {
+            return this.createTime;
         }
 
         @Override
