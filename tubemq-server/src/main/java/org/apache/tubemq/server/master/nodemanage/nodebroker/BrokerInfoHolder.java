@@ -236,7 +236,7 @@ public class BrokerInfoHolder {
         int manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ;
         if (repWriteStatus == 0 && repReadStatus == 0) {
             manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE;
-        } else if (repWriteStatus != 0 && repReadStatus != 0) {
+        } else if (repReadStatus != 0) {
             manageStatus = TStatusConstants.STATUS_MANAGE_OFFLINE;
         } else if (repWriteStatus != 0) {
             manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE;
