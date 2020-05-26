@@ -740,7 +740,7 @@ __Request__
 |---|---|---|---|
 |groupName|yes|the group name to set flow control rule|String|
 |enableBind|no|whether to bind consuming permission, default value 0 means disable|int|
-|allowBCleintRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
+|allowBClientRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
 |createUser|yes|the creator|String|
 |createDate|yes|the creating date in format `yyyyMMddHHmmss`|String|
 |confModAuthToken|yes|the authorized key for configuration update|String|
@@ -755,7 +755,7 @@ __Request__
 |---|---|---|---|
 |groupName|yes|the group name to set flow control rule|String|
 |enableBind|no|whether to bind consuming permission, default value 0 means disable|int|
-|allowBCleintRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
+|allowBClientRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
 |createUser|yes|the creator|String|
 
 ### `admin_upd_consume_group_setting`
@@ -768,8 +768,8 @@ __Request__
 |---|---|---|---|
 |groupName|yes|the group name to set flow control rule|String|
 |enableBind|no|whether to bind consuming permission, default value 0 means disable|int|
-|allowBCleintRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
-|modfiyUser|yes|the modifier|String|
+|allowBClientRatio|no|the ratio of the number of the consuming target's broker against the number of client in consuming group|int|
+|modifyUser|yes|the modifier|String|
 |modifyDate|yes|the modifying date in format `yyyyMMddHHmmss`|String|
 |confModAuthToken|yes|the authorized key for configuration update|String|
 
@@ -782,7 +782,7 @@ __Request__
 |name|must|description|type|
 |---|---|---|---|
 |groupName|yes|the group name to set flow control rule|String|
-|modfiyUser|yes|the modifier|String|
+|modifyUser|yes|the modifier|String|
 |modifyDate|yes|the modifying date in format `yyyyMMddHHmmss`|String|
 |confModAuthToken|yes|the authorized key for configuration update|String|
 
@@ -850,7 +850,7 @@ __Request__
 
 ### `admin_manual_set_current_offset`
 
-Modfiy the offset value of consuming group under current broker. The new value will be persisted to ZK.
+Modify the offset value of consuming group under current broker. The new value will be persisted to ZK.
 
 
 __Request__

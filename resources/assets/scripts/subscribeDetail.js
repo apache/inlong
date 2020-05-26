@@ -82,7 +82,7 @@
                         title: "分区ID"
                     }],
                     language: {
-                        searchPlaceholder: '请输入消费组或者Tipc名称',
+                        searchPlaceholder: '请输入消费组或者Topic名称',
                         processing: "Loading...",
                         search: "搜索:",
                         //lengthMenu: "每页显示 _MENU_ 条",

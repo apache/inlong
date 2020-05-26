@@ -289,7 +289,7 @@ public class WebParameterUtils {
      * @param reqToken         the token for checking
      * @throws Exception if authorization failed
      */
-    public static void reqAuthorizenCheck(TMaster master,
+    public static void reqAuthorizeCheck(TMaster master,
                                           BrokerConfManager brokerConfManager,
                                           String reqToken) throws Exception {
         if (brokerConfManager.isPrimaryNodeActive()) {

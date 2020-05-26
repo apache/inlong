@@ -289,7 +289,7 @@ public class BrokerSyncStatusInfo {
      */
     public boolean needReportData() {
         if (System.currentTimeMillis() - this.lastDataPushInMills
-                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATITON) {
+                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION) {
             this.lastDataPushInMills = System.currentTimeMillis();
             return true;
         }

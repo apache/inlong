@@ -138,7 +138,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     }
                     consumerHolder.setCurConsumeBClientInfo(group, defAllowBClientRate,
                             confAllowBClientRate, curBClientRate, minClientCnt, false);
-                    if (consumerBandInfo.isRebalanCheckPrint()) {
+                    if (consumerBandInfo.isRebalanceCheckPrint()) {
                         logger.info(strBuffer.append("[UnBound Alloc 2] Not allocate partition :group(")
                                 .append(group).append(")'s consumer getCachedSize(")
                                 .append(consumerBandInfo.getGroupCnt())
@@ -539,7 +539,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 consumerHolder.setCurConsumeBClientInfo(group,
                         defAllowBClientRate, confAllowBClientRate,
                         curBClientRate, minClientCnt, false);
-                if (consumerBandInfo.isRebalanCheckPrint()) {
+                if (consumerBandInfo.isRebalanceCheckPrint()) {
                     logger.info(strBuffer.append("[UnBound Alloc 1] Not allocate partition :group(")
                             .append(group).append(")'s consumer getCachedSize(")
                             .append(consumerBandInfo.getGroupCnt())

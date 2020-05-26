@@ -236,7 +236,7 @@ public class MsgMemStore implements Closeable {
             if ((cDataOffset < 0)
                     || (cDataSize <= 0)
                     || (cDataOffset >= currDataOffset)
-                    || (cDataSize > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024)
+                    || (cDataSize > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024)
                     || (cDataOffset + cDataSize > currDataOffset)) {
                 readedOff = usedPos + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
@@ -300,7 +300,7 @@ public class MsgMemStore implements Closeable {
             readPos += this.indexUnitLength;
             if (cDataOffset >= this.cacheDataOffset.get()
                     || cDataSize > this.cacheDataSize.get()
-                    || cDataSize > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024
+                    || cDataSize > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024
                     || cDataOffset + cDataSize > this.cacheDataOffset.get()) {
                 logger.error(strBuffer
                         .append("[Mem Cache] flush Message found error data: cDataOffset=")
