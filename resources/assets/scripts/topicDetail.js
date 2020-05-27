@@ -173,7 +173,7 @@
                 var checked = data === true ? '是' : '否';
                 return checked;
             };
-            var getCheckeBox = function (data, className) {
+            var getCheckBox = function (data, className) {
                 var checked = data === true ? ' checked' : '';
                 className = className || '';
                 return '<span class="switch' + checked + ' ' + className
@@ -205,7 +205,7 @@
                 '    <div class="row">' +
                 '        <div class="tit">可发布:</div>' +
                 '        <div class="cnt">' +
-                getCheckeBox(dataSet.isSrvAcceptPublish, 'js_toggle_pub') +
+                getCheckBox(dataSet.isSrvAcceptPublish, 'js_toggle_pub') +
                 '        </div>' +
                 '    </div>' +
                 '    <div class="row">' +
@@ -230,7 +230,7 @@
                 '    <div class="row">' +
                 '        <div class="tit">可订阅:</div>' +
                 '        <div class="cnt">' +
-                getCheckeBox(dataSet.isSrvAcceptSubscribe, 'js_toggle_pub') +
+                getCheckBox(dataSet.isSrvAcceptSubscribe, 'js_toggle_pub') +
                 '        </div>' +
                 '    </div>' +
                 '    <div class="row">' +
@@ -335,7 +335,7 @@
                         }
                     }],
                     language: {
-                        searchPlaceholder: '请输入消费组或者Tipc名称',
+                        searchPlaceholder: '请输入消费组或者Topic名称',
                         processing: "Loading...",
                         search: "搜索:",
                         //lengthMenu: "每页显示 _MENU_ 条",
@@ -414,7 +414,7 @@
                         }
                     }],
                     language: {
-                        searchPlaceholder: '请输入消费组或者Tipc名称',
+                        searchPlaceholder: '请输入消费组或者Topic名称',
                         processing: "Loading...",
                         search: "搜索:",
                         //lengthMenu: "每页显示 _MENU_ 条",

@@ -50,7 +50,7 @@ public class DataStoreUtils {
     //
     public static final int MAX_MSG_TRANSFER_SIZE = 1024 * 1024;
     public static final int MAX_MSG_DATA_STORE_SIZE =
-            TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE * 2;
+            TBaseConstants.META_MAX_MESSAGE_DATA_SIZE * 2;
     public static final int MAX_READ_BUFFER_ADJUST = MAX_MSG_DATA_STORE_SIZE * 10;
 
     public static final int STORE_DATA_PREFX_LEN = 48;

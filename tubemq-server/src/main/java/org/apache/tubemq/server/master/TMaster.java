@@ -543,7 +543,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(paramCheckResult.errMsg);
             return builder.build();
         }
-        Map<String, Long> requredPartMap = (Map<String, Long>) paramCheckResult.checkData;
+        Map<String, Long> requiredPartMap = (Map<String, Long>) paramCheckResult.checkData;
         Map<String, TreeSet<String>> reqTopicConditions =
                 DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         String sessionKey = request.hasSessionKey() ? request.getSessionKey() : "";
@@ -557,7 +557,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
                         reqTopicSet, reqTopicConditions, isReqConsumeBand,
-                        sessionKey, sessionTime, sourceCount, requredPartMap);
+                        sessionKey, sessionTime, sourceCount, requiredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defaultBrokerConfManager, topicPSInfoManager, strBuffer);
@@ -2171,7 +2171,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     }
 
     /**
-     * get neet balance group list
+     * get need balance group list
      *
      * @param strBuffer
      * @return

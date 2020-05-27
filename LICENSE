@@ -250,10 +250,10 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-Open Source Software Licensed under the  Apache License Version 2.0 and Other License of the Third-party Componnents therein
+Open Source Software Licensed under the  Apache License Version 2.0 and Other License of the Third-party Components therein
 --------------------------------------------------------------------------------------------------------------------------------
 1. hbase 0.94.27 （Please note that the software have been modified.）
-Copyrighy (C)  The Apache Software Foundation
+Copyright (C)  The Apache Software Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -290,7 +290,7 @@ The JRuby community went out of their way to make JRuby compatible with Apache
 projects: See https://issues.apache.org/jira/browse/HBASE-3374)
 
 
-Open Source Software Licensed under the  Apache License Version 2.0 and Other License of the Third-party Componnents therein
+Open Source Software Licensed under the  Apache License Version 2.0 and Other License of the Third-party Components therein
 --------------------------------------------------------------------------------------------------------------------------------
 1. openmct v0.9.0
 Copyright (c) 2014-2015, United States Government as represented by the Administrator of the National Aeronautics and Space Administration. 
@@ -1333,7 +1333,7 @@ Copyright 2009-2011 The Apache Software Foundation
 Copyright (C) 2008 The Guava Authors
 
 10. servlet-api 2.5
-Copyriht (c) Mort Bay Consulting
+Copyright (c) Mort Bay Consulting
 
 11. spring-core 4.1.6.RELEASE
 Copyright (c) the original author or authors.

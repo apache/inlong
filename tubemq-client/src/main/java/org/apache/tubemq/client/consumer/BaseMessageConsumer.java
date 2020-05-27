@@ -378,7 +378,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     /**
-     * Chekc if current consumer is shutdown.
+     * Check if current consumer is shutdown.
      *
      * @return consumer status
      */
@@ -518,7 +518,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     /**
      * Check if the rebalance is stopped.
      *
-     * @return reblance status
+     * @return rebalance status
      */
     private boolean isRebalanceStopped() {
         return isRebalanceStopped.get();

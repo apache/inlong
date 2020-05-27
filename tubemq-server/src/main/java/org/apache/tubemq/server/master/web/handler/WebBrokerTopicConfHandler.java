@@ -73,7 +73,7 @@ public class WebBrokerTopicConfHandler {
     public StringBuilder adminAddTopicEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             // user
             String createUser =
@@ -224,7 +224,7 @@ public class WebBrokerTopicConfHandler {
     public StringBuilder adminBatchAddTopicEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -710,7 +710,7 @@ public class WebBrokerTopicConfHandler {
         try {
             // Check if the request is authorized
             // and the parameters are valid
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -857,7 +857,7 @@ public class WebBrokerTopicConfHandler {
     public StringBuilder adminRedoDeleteTopicEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser", req.getParameter("modifyUser"),
                             TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
@@ -1169,7 +1169,7 @@ public class WebBrokerTopicConfHandler {
     public StringBuilder adminModifyTopicEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder();
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser", req.getParameter("modifyUser"),
                             TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");

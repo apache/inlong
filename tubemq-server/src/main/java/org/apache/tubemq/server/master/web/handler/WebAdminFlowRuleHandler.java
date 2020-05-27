@@ -58,7 +58,7 @@ public class WebAdminFlowRuleHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             // check if allow modify
-            WebParameterUtils.reqAuthorizenCheck(master,
+            WebParameterUtils.reqAuthorizeCheck(master,
                     brokerConfManager, req.getParameter("confModAuthToken"));
             // get createUser info
             String createUser =
@@ -132,7 +132,7 @@ public class WebAdminFlowRuleHandler {
                                                          int opType) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master,
+            WebParameterUtils.reqAuthorizeCheck(master,
                     brokerConfManager, req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -178,7 +178,7 @@ public class WebAdminFlowRuleHandler {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master,
+            WebParameterUtils.reqAuthorizeCheck(master,
                     brokerConfManager, req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("createUser",

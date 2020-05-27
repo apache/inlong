@@ -81,13 +81,13 @@ public class WebBrokerDefConfHandler {
      *
      * @param webMaster
      * @param brokeId
-     * @param oldManagStatus
+     * @param oldManageStatus
      * @param newManageStatus
      * @return
      */
     public static boolean isBrokerStartNeedFast(BrokerConfManager webMaster,
                                                 int brokeId,
-                                                int oldManagStatus,
+                                                int oldManageStatus,
                                                 int newManageStatus) {
         ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntMap =
                 webMaster.getBrokerTopicConfEntitySet(brokeId);
@@ -106,12 +106,12 @@ public class WebBrokerDefConfHandler {
         if (isNeedFastStart) {
             switch (newManageStatus) {
                 case TStatusConstants.STATUS_MANAGE_ONLINE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_APPLY)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_APPLY)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ)) {
                         isNeedFastStart = false;
                     }
-                    if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
+                    if (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
                         if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
@@ -120,11 +120,11 @@ public class WebBrokerDefConfHandler {
                 }
                 break;
                 case TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_APPLY)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_APPLY)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)) {
                         isNeedFastStart = false;
                     }
-                    if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
+                    if (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
                         if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
@@ -133,8 +133,8 @@ public class WebBrokerDefConfHandler {
                 }
                 break;
                 case TStatusConstants.STATUS_MANAGE_OFFLINE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE)) {
                         isNeedFastStart = false;
                     }
                 }
@@ -158,7 +158,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String brokerIp =
                     WebParameterUtils.validAddressParameter("brokerIp",
@@ -314,7 +314,7 @@ public class WebBrokerDefConfHandler {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -328,7 +328,7 @@ public class WebBrokerDefConfHandler {
             if ((brokerJsonArray == null) || (brokerJsonArray.isEmpty())) {
                 throw new Exception("Null value of brokerJsonSet, please set the value first!");
             }
-            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntiyMap = new HashMap<>();
+            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntityMap = new HashMap<>();
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
                     brokerConfManager.getBrokerConfStoreMap();
             for (int count = 0; count < brokerJsonArray.size(); count++) {
@@ -375,7 +375,7 @@ public class WebBrokerDefConfHandler {
                             throw new Exception(strBuffer.toString());
                         }
                     }
-                    for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntiyMap.values()) {
+                    for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntityMap.values()) {
                         if (brokerConfEntity.getBrokerIp().equals(brokerIp)
                                 && brokerConfEntity.getBrokerPort() == brokerPort) {
                             throw new Exception(strBuffer
@@ -456,7 +456,7 @@ public class WebBrokerDefConfHandler {
                             .append(TokenConstants.TOKEN_TLS_PORT).append(TokenConstants.EQ)
                             .append(brokerTlsPort).toString();
                     strBuffer.delete(0, strBuffer.length());
-                    inBrokerConfEntiyMap.put(inputKey, new BdbBrokerConfEntity(brokerId, brokerIp,
+                    inBrokerConfEntityMap.put(inputKey, new BdbBrokerConfEntity(brokerId, brokerIp,
                             brokerPort, numPartitions, unflushThreshold, unflushInterval, deleteWhen,
                             deletePolicy, manageStatus, acceptPublish, acceptSubscribe, attributes,
                             true, false, itemCreateUser, itemCreateDate, itemCreateUser, itemCreateDate));
@@ -467,7 +467,7 @@ public class WebBrokerDefConfHandler {
                             .append(ee.getMessage()).toString());
                 }
             }
-            for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntiyMap.values()) {
+            for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntityMap.values()) {
                 brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
             }
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
@@ -490,7 +490,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -573,7 +573,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminSetReadOrWriteBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -739,7 +739,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -785,7 +785,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminUpdateBrokerConf(HttpServletRequest req) throws Throwable {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser = WebParameterUtils.validStringParameter("modifyUser",
                     req.getParameter("modifyUser"), TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
@@ -946,7 +946,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminReloadBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1009,7 +1009,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminOfflineBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1093,7 +1093,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminDeleteBrokerConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",

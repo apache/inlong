@@ -61,7 +61,7 @@ public class MsgFileStatisInfo {
                 putCountSet.writeFailCont.incrementAndGet();
             }
             if (System.currentTimeMillis() - lastStatisTime.get()
-                    > TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATITON) {
+                    > TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATION) {
                 if (isStart.compareAndSet(true, false)) {
                     if (putCountSet != null) {
                         putCountSet.endTime = System.currentTimeMillis();
@@ -99,7 +99,7 @@ public class MsgFileStatisInfo {
                 putCountSet.msgTotalCnt.addAndGet(msgTotalCnt);
             }
             if (currTime - lastStatisTime.get()
-                    > TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATITON) {
+                    > TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATION) {
                 if (isStart.compareAndSet(true, false)) {
                     if (putCountSet != null) {
                         putCountSet.endTime = currTime;

@@ -60,7 +60,7 @@ public class ConsumerBandInfo {
     private int curBClientRate = -2;            //current broker/client ratio
     private int minRequireClientCnt = -2;       //minimal client count according to above ratio
     private int rebalanceCheckStatus = -2;      //rebalance check status
-    private boolean rebalanCheckPrint = true;   //log print flag
+    private boolean rebalanceCheckPrint = true;   //log print flag
 
     public ConsumerBandInfo(boolean isSelectedBig) {
         this.sessionKey = "";
@@ -84,7 +84,7 @@ public class ConsumerBandInfo {
                             Map<String, NodeRebInfo> rebalanceMap,
                             int defBClientRate, int confBClientRate,
                             int curBClientRate, int minRequireClientCnt,
-                            int rebalanceCheckStatus, boolean rebalanCheckPrint) {
+                            int rebalanceCheckStatus, boolean rebalanceCheckPrint) {
         this.isBandConsume = isBandConsume;
         this.sessionKey = sessionKey;
         this.sessionTime = sessionTime;
@@ -99,7 +99,7 @@ public class ConsumerBandInfo {
         this.curBClientRate = curBClientRate;
         this.minRequireClientCnt = minRequireClientCnt;
         this.rebalanceCheckStatus = rebalanceCheckStatus;
-        this.rebalanCheckPrint = rebalanCheckPrint;
+        this.rebalanceCheckPrint = rebalanceCheckPrint;
         this.topicSet.addAll(topicSet);
         for (Map.Entry<String, ConsumerInfo> entry : consumerInfoMap.entrySet()) {
             this.consumerInfoMap.put(entry.getKey(), entry.getValue().clone());
@@ -397,7 +397,7 @@ public class ConsumerBandInfo {
         this.confBClientRate = confBClientRate;
         this.curBClientRate = curBClientRate;
         this.minRequireClientCnt = minRequireClientCnt;
-        this.rebalanCheckPrint = false;
+        this.rebalanceCheckPrint = false;
         if (isRebalanced) {
             this.rebalanceCheckStatus = 1;
         } else {
@@ -405,8 +405,8 @@ public class ConsumerBandInfo {
         }
     }
 
-    public boolean isRebalanCheckPrint() {
-        return rebalanCheckPrint;
+    public boolean isRebalanceCheckPrint() {
+        return rebalanceCheckPrint;
     }
 
     public AtomicBoolean getNotAllocate() {
@@ -480,7 +480,7 @@ public class ConsumerBandInfo {
                 this.partOffsetMap, this.rebalanceMap,
                 this.defBClientRate, this.confBClientRate,
                 this.curBClientRate, this.minRequireClientCnt,
-                this.rebalanceCheckStatus, this.rebalanCheckPrint);
+                this.rebalanceCheckStatus, this.rebalanceCheckPrint);
     }
 
 }
