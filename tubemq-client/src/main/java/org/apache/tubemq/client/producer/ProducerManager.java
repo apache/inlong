@@ -95,7 +95,7 @@ public class ProducerManager {
     private Map<String, Map<Integer, List<Partition>>> topicPartitionMap =
             new ConcurrentHashMap<>();
     private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
-
+    private AtomicLong lastGotAuthTokenTime = new AtomicLong(0L);
 
     public ProducerManager(final InnerSessionFactory sessionFactory,
                            final TubeClientConfig tubeClientConfig) throws TubeClientException {
@@ -452,8 +452,14 @@ public class ProducerManager {
             this.lastBrokerUpdatedTime = System.currentTimeMillis();
         }
         builder.setHostName(AddressUtils.getLocalAddress());
+        // judge whether to refresh token.
+        boolean force = false;
+        if ((System.currentTimeMillis() - lastGotAuthTokenTime.get()) >
+            this.tubeClientConfig.getMinAuthTokenExpireMills()) {
+            force = true;
+        }
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
-                genMasterCertificateInfo(true);
+                genMasterCertificateInfo(force);
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
@@ -567,6 +573,7 @@ public class ProducerManager {
                     String curAuthAuthorizedToken = authAuthorizedTokenRef.get();
                     if (!inAuthAuthorizedToken.equals(curAuthAuthorizedToken)) {
                         authAuthorizedTokenRef.set(inAuthAuthorizedToken);
+                        lastGotAuthTokenTime.set(System.currentTimeMillis());
                     }
                 }
             }
@@ -577,6 +584,7 @@ public class ProducerManager {
         boolean needAdd = false;
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
         if (this.tubeClientConfig.isEnableUserAuthentic()) {
+            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
             if (force) {
                 needAdd = true;
                 nextWithAuthInfo2M.set(false);
@@ -585,12 +593,13 @@ public class ProducerManager {
                     needAdd = true;
                 }
             }
-        }
-        if (needAdd) {
-            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
-            authInfoBuilder.setAuthInfo(authenticateHandler
+            if (needAdd) {
+                authInfoBuilder.setAuthInfo(authenticateHandler
                     .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
-                            tubeClientConfig.getUsrPassWord()).build());
+                        tubeClientConfig.getUsrPassWord()));
+            } else {
+                authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
+            }
         }
         return authInfoBuilder;
     }

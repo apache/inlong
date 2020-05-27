@@ -91,7 +91,8 @@ public class TubeClientConfig {
     private String usrPassWord = "";
     // TLS configuration.
     private TLSConfig tlsConfig = new TLSConfig();
-
+    // min Authenticate token expired time
+    private long minAuthTokenExpireMills = 2 * 60 * 1000;
 
     public TubeClientConfig(final String localHostIP, final String masterAddrInfo) throws Exception {
         if (TStringUtils.isBlank(localHostIP)) {
@@ -447,6 +448,16 @@ public class TubeClientConfig {
         return usrPassWord;
     }
 
+    public long getMinAuthTokenExpireMills() {
+        return minAuthTokenExpireMills;
+    }
+
+    public void setMinAuthTokenExpireMills(long minAuthTokenExpireMills) {
+        if (minAuthTokenExpireMills >= 0) {
+            this.minAuthTokenExpireMills = minAuthTokenExpireMills;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         // #lizard forgives
@@ -486,6 +497,9 @@ public class TubeClientConfig {
             return false;
         }
         if (heartbeatPeriodMs != that.heartbeatPeriodMs) {
+            return false;
+        }
+        if (minAuthTokenExpireMills != that.minAuthTokenExpireMills) {
             return false;
         }
         if (heartbeatPeriodAfterFail != that.heartbeatPeriodAfterFail) {
@@ -576,6 +590,7 @@ public class TubeClientConfig {
             .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
             .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
             .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
+            .append(",\"minAuthTokenExpireMills\":").append(this.minAuthTokenExpireMills)
             .append(",\"usrName\":\"").append(this.usrName)
             .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
             .append("\",").append(this.tlsConfig.toString())
