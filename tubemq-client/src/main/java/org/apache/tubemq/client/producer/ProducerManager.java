@@ -452,8 +452,7 @@ public class ProducerManager {
             this.lastBrokerUpdatedTime = System.currentTimeMillis();
         }
         builder.setHostName(AddressUtils.getLocalAddress());
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
-                genMasterCertificateInfo(true);
+        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(false);
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
@@ -467,7 +466,7 @@ public class ProducerManager {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
                 genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder.build());
+            builder.setAuthInfo(authInfoBuilder);
         }
         return builder.build();
     }
@@ -577,6 +576,7 @@ public class ProducerManager {
         boolean needAdd = false;
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
         if (this.tubeClientConfig.isEnableUserAuthentic()) {
+            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
             if (force) {
                 needAdd = true;
                 nextWithAuthInfo2M.set(false);
@@ -585,12 +585,13 @@ public class ProducerManager {
                     needAdd = true;
                 }
             }
-        }
-        if (needAdd) {
-            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
-            authInfoBuilder.setAuthInfo(authenticateHandler
+            if (needAdd) {
+                authInfoBuilder.setAuthInfo(authenticateHandler
                     .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
-                            tubeClientConfig.getUsrPassWord()).build());
+                        tubeClientConfig.getUsrPassWord()));
+            } else {
+                authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
+            }
         }
         return authInfoBuilder;
     }
