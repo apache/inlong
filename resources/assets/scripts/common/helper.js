@@ -58,7 +58,7 @@
  * @param {String} [value]
  * @param {{expires:Number|'forever', domain:String, path:String , inCommon : boolean , secure :
  *     boolean}} [options]
- * @reutrns {String}
+ * @returns {String}
  * @example
  * $.cookie(key); //读取cookie
  * $.cookie(key, null); //删除cookie

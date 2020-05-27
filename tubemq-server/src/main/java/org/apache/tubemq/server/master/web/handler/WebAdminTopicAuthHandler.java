@@ -58,7 +58,7 @@ public class WebAdminTopicAuthHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -103,7 +103,7 @@ public class WebAdminTopicAuthHandler {
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String operator =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -191,7 +191,7 @@ public class WebAdminTopicAuthHandler {
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",

@@ -203,7 +203,7 @@ public class BrokerAdminServlet extends HttpServlet {
     }
 
     /***
-     * Query broker's all messge store info.
+     * Query broker's all message store info.
      *
      * @param req
      * @return
@@ -413,7 +413,7 @@ public class BrokerAdminServlet extends HttpServlet {
                         topicName, partitionId, manualOffset, modifyUser);
         if (oldOffset < 0) {
             sBuilder.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
-                    .append("Manual update current Offset failue!")
+                    .append("Manual update current Offset failure!")
                     .append("\"}");
         } else {
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")

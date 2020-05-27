@@ -87,7 +87,7 @@ public class StoreRepairAdmin {
         int count = 0;
         ExecutorService executor =
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-        List<Callable<IndexReparStore>> tasks = new ArrayList<>();
+        List<Callable<IndexRepairStore>> tasks = new ArrayList<>();
         if (ls != null) {
             for (final File subDir : ls) {
                 if (subDir == null) {
@@ -106,15 +106,15 @@ public class StoreRepairAdmin {
                         }
                     }
                     final int storeId = Integer.parseInt(name.substring(index + 1));
-                    tasks.add(new Callable<IndexReparStore>() {
+                    tasks.add(new Callable<IndexRepairStore>() {
                         @Override
-                        public IndexReparStore call() throws Exception {
+                        public IndexRepairStore call() throws Exception {
                             StringBuilder sBuilder = new StringBuilder(512);
                             logger.info(sBuilder.append("[Data Repair] Loading data directory:")
                                     .append(subDir.getAbsolutePath()).append("...").toString());
                             sBuilder.delete(0, sBuilder.length());
-                            final IndexReparStore messageStore =
-                                    new IndexReparStore(storePath, topic, storeId);
+                            final IndexRepairStore messageStore =
+                                    new IndexRepairStore(storePath, topic, storeId);
                             messageStore.reCreateIndexFiles();
                             logger.info(sBuilder.append("[Data Repair] Finished data index recreation :")
                                     .append(subDir.getAbsolutePath()).toString());
@@ -126,13 +126,13 @@ public class StoreRepairAdmin {
             }
         }
         if (count > 0) {
-            CompletionService<IndexReparStore> completionService =
+            CompletionService<IndexRepairStore> completionService =
                     new ExecutorCompletionService<>(executor);
-            for (Callable<IndexReparStore> task : tasks) {
+            for (Callable<IndexRepairStore> task : tasks) {
                 completionService.submit(task);
             }
             for (int i = 0; i < tasks.size(); i++) {
-                IndexReparStore messageStore =
+                IndexRepairStore messageStore =
                         completionService.take().get();
                 if (messageStore != null) {
                     messageStore.close();
@@ -153,7 +153,7 @@ public class StoreRepairAdmin {
         System.exit(0);
     }
 
-    private static class IndexReparStore implements Closeable {
+    private static class IndexRepairStore implements Closeable {
         private static final String DATA_SUFFIX = ".tube";
         private static final String INDEX_SUFFIX = ".index";
         private static final int ONE_M_BYTES = 10 * 1024 * 1024;
@@ -169,7 +169,7 @@ public class StoreRepairAdmin {
                 500000 * DataStoreUtils.STORE_INDEX_HEAD_LEN;
         private SegmentList segments;
 
-        public IndexReparStore(final String basePath,
+        public IndexRepairStore(final String basePath,
                                final String topic,
                                final int storeId) {
             this.basePath = basePath;

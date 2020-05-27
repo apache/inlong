@@ -41,7 +41,7 @@ public final class TServerConstants {
     public static final int CFG_CONSUMER_CLIENTID_MAX_LENGTH =
             TBaseConstants.META_MAX_GROUPNAME_LENGTH + 512;
 
-    public static final long CFG_REPORT_DEFAULT_SYNC_DURATITON = 2 * 3600 * 1000;
-    public static final long CFG_STORE_STATS_MAX_REFRESH_DURATITON = 20 * 60 * 1000;
+    public static final long CFG_REPORT_DEFAULT_SYNC_DURATION = 2 * 3600 * 1000;
+    public static final long CFG_STORE_STATS_MAX_REFRESH_DURATION = 20 * 60 * 1000;
 
 }

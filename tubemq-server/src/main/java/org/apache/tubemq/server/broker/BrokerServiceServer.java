@@ -639,10 +639,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("data length is zero!");
             return builder.build();
         }
-        if (dataLength > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024) {
+        if (dataLength > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg(strBuffer.append("data length over max length, allowed max length is ")
-                    .append(TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024)
+                    .append(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024)
                     .append(", data length is ").append(dataLength).toString());
             return builder.build();
         }

@@ -290,11 +290,11 @@ public class SimpleMessageProducer implements MessageProducer {
         }
         int msgSize = TStringUtils.isBlank(message.getAttribute())
                 ? message.getData().length : (message.getData().length + message.getAttribute().length());
-        if (msgSize > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE) {
+        if (msgSize > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE) {
             throw new TubeClientException(new StringBuilder(512)
                     .append("Illegal parameter: over max message length for the total size of")
                     .append(" message data and attribute, allowed size is ")
-                    .append(TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE)
+                    .append(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE)
                     .append(", message's real size is ").append(msgSize).toString());
         }
         if (isShutDown.get()) {
