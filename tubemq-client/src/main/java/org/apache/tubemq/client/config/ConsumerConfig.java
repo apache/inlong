@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -55,14 +55,23 @@ public class ConsumerConfig extends TubeClientConfig {
             TClientConstants.CFG_DEFAULT_PULL_PROTECT_CONFIRM_WAIT_PERIOD_MS;
     private boolean pullConfirmInLocal = false;
 
+    public ConsumerConfig(String masterAddrInfo, String consumerGroup) {
+        this(new MasterInfo(masterAddrInfo), consumerGroup);
+    }
 
-    public ConsumerConfig(String localHostIP, String masterAddrInfo,
-                          String consumerGroup) throws Exception {
-        super(localHostIP, masterAddrInfo);
+    public ConsumerConfig(MasterInfo masterInfo, String consumerGroup) {
+        super(masterInfo);
         validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
     }
 
+    @Deprecated
+    public ConsumerConfig(String localHostIP, String masterAddrInfo,
+                          String consumerGroup) throws Exception {
+        this(localHostIP, new MasterInfo(masterAddrInfo), consumerGroup);
+    }
+
+    @Deprecated
     public ConsumerConfig(String localHostIP, MasterInfo masterInfo,
                           String consumerGroup) throws Exception {
         super(localHostIP, masterInfo);
