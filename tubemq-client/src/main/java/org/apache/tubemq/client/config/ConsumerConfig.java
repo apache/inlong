@@ -18,6 +18,7 @@
 package org.apache.tubemq.client.config;
 
 import org.apache.tubemq.client.common.TClientConstants;
+import org.apache.tubemq.client.consumer.ConsumeModel;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
@@ -35,7 +36,7 @@ public class ConsumerConfig extends TubeClientConfig {
      *  0: Start from the latest position for the first time. Otherwise start from last consume position.
      *  1: Start from the latest consume position.
     */
-    private int consumeModel = 0;
+    private ConsumeModel consumeModel = ConsumeModel.CONSUMER_FROM_LATEST_OFFSET;
     private int maxSubInfoReportIntvlTimes =
             TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
     private long msgNotFoundWaitPeriodMs =
@@ -74,18 +75,12 @@ public class ConsumerConfig extends TubeClientConfig {
         return consumerGroup;
     }
 
-    public int getConsumeModel() {
+    public ConsumeModel getConsumeModel() {
         return consumeModel;
     }
 
-    public void setConsumeModel(int consumeModel) {
-        if (consumeModel > 0) {
-            this.consumeModel = 1;
-        } else if (consumeModel < 0) {
-            this.consumeModel = -1;
-        } else {
-            this.consumeModel = 0;
-        }
+    public void setConsumeModel(ConsumeModel consumeModel) {
+        this.consumeModel = consumeModel;
     }
 
     public long getMsgNotFoundWaitPeriodMs() {

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.tubemq.client.config.ConsumerConfig;
+import org.apache.tubemq.client.consumer.ConsumeModel;
 import org.apache.tubemq.client.consumer.ConsumeOffsetInfo;
 import org.apache.tubemq.client.consumer.ConsumerResult;
 import org.apache.tubemq.client.consumer.PullMessageConsumer;
@@ -54,7 +55,7 @@ public final class MessagePullConsumerExample {
         String group
     ) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(localHost, masterHostAndPort, group);
-        consumerConfig.setConsumeModel(0);
+        consumerConfig.setConsumeModel(ConsumeModel.CONSUMER_FROM_LATEST_OFFSET);
         this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
     }
