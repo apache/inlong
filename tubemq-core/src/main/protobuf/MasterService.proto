@@ -286,3 +286,127 @@ message CloseResponseM2B {
     required string errMsg = 3;
 }
 
+/*************************** v2  ****************************/
+
+message DataStorePath {
+    required int32 recordId = 1;
+    required bool isActive = 2;
+    required bool isDefPath = 3;
+    optional string dataPath = 4;
+}
+
+message TopicRmvInfo {
+    required string topicName = 1;
+    required int32 statusId = 2;
+}
+
+message DefaultConfigInfo {
+    required int32 numTopicStores = 1;
+    required int32 numPartitions = 2;
+    required int32 unflushMsgCnt = 3;
+    required int32 unflushInterval = 4;
+    required int32 unflushDataSize = 5;
+    required int32 memCacheBlockSize = 6;
+    required int32 numMemCacheBlock = 7;
+    required int32 bathDiskWriteUnit = 8;
+    required int32 bathDiskReadUnit = 9;
+    required bool acceptPublish = 10;
+    required bool acceptSubscribe = 11;
+    required string deletePolicy = 12;
+}
+
+message TopicConfigInfo {
+    required string topicName = 1;
+    optional int32 statusId = 2;
+    optional int32 numTopicStores = 3;
+    optional int32 numPartitions = 4;
+    optional int32 unflushMsgCnt = 5;
+    optional int32 unflushInterval = 6;
+    optional int32 unflushDataSize = 7;
+    optional int32 memCacheBlockSize = 8;
+    optional int32 numMemCacheBlock = 9;
+    optional bool acceptPublish = 10;
+    optional bool acceptSubscribe = 11;
+    optional string deletePolicy = 12;
+    repeated DataStorePath dataPath = 13;
+}
+
+message BrokerConfigInfo {
+    required int64 brokerConfId = 1;
+    required int32 confCheckSumId = 2;
+    optional DefaultConfigInfo defConfigInfo = 3;
+    repeated TopicConfigInfo topicConfigInfos = 4;
+    optional bool enableTls = 5;
+    optional int32 tlsPort = 6;
+    optional int32 webPort = 7;
+}
+
+message BrokerPolicyInfo {
+    optional int64 policyId = 1;
+    optional int32 qryPriorityId = 2;
+    optional string policyInfo = 3;
+}
+
+message BrokerStatusInfo {
+    required bool  isOnline = 1;
+    required int32 readStatusRpt = 2;
+    required int32 writeStatusRpt = 3;
+    optional int32 lastOperateId = 4;
+}
+
+message BrokerOperateInfo {
+    required int32 operateId = 1;
+    // 00:normal, 01:stop read, 10:stop write, 11:stop read and write
+    required int32 frcServiceStatus = 2;
+    optional bool  frcRptConfig = 3;
+    optional bool  enableConsumeAuthenticate = 4;
+    optional bool  enableConsumeAuthorize = 5;
+    optional bool  enableProduceAuthenticate = 6;
+    optional bool  enableProduceAuthorize = 7;
+    optional bool  enableVisitTokenCheck = 8;
+    repeated TopicRmvInfo rmvTopicsInfo = 9;
+}
+
+message RegisterRequest_V2_B2M {
+    required string clientId = 1;
+    required BrokerStatusInfo statusRptInfo = 2;
+    required BrokerConfigInfo configInfo = 3;
+    required BrokerPolicyInfo policyInfo = 4;
+    optional MasterCertificateInfo authInfo = 5;
+}
+
+message RegisterResponse_V2_M2B {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional BrokerConfigInfo configInfo = 3;
+    optional BrokerOperateInfo operateInfo = 4;
+    optional BrokerPolicyInfo policyInfo = 5;
+    optional MasterBrokerAuthorizedInfo authorizedInfo = 6;
+}
+
+message HeartRequest_V2_B2M {
+    required string brokerId = 1;
+    required BrokerStatusInfo statusRptInfo = 2;
+    required BrokerConfigInfo configInfo = 3;
+    optional BrokerPolicyInfo policyInfo = 4;
+    optional MasterCertificateInfo authInfo = 5;
+}
+
+message HeartResponse_V2_M2B {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional BrokerConfigInfo configInfo = 3;
+    optional BrokerOperateInfo operateInfo = 4;
+    optional BrokerPolicyInfo policyInfo = 5;
+    optional MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 6;
+}
+
+message CloseRequest_V2_B2M {
+	required string brokerId = 1;
+	optional MasterCertificateInfo authInfo = 2;
+}
+
+message CloseResponse_V2_M2B {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+}
