@@ -72,9 +72,20 @@
 | [TUBEMQ-66](https://issues.apache.org/jira/browse/TUBEMQ-66) |TubeSingleSessionFactory shutdown bug|Normal|
 | [TUBEMQ-85](https://issues.apache.org/jira/browse/TUBEMQ-85) |There is NPE when creating PullConsumer with TubeSingleSessionFactory|Major|
 | [TUBEMQ-88](https://issues.apache.org/jira/browse/TUBEMQ-88) |Broker does not take effect after the deletePolicy value is changed|Major|
+| [TUBEMQ-149](https://issues.apache.org/jira/browse/TUBEMQ-149) |Some of the consumers stop consuming their corresponding partitions and never release the partition to others|Major|
+| [TUBEMQ-153](https://issues.apache.org/jira/browse/TUBEMQ-153) |update copyright notices year to 2020|  Major |
+| [TUBEMQ-165](https://issues.apache.org/jira/browse/TUBEMQ-165) |Remove unnecessary fiiles|  Major |
 
 ### TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
 |[TUBEMQ-12](https://issues.apache.org/jira/browse/TUBEMQ-12)  |Change to use Apache License V2   |  Major |
-|[TUBEMQ-130](https://issues.apache.org/jira/browse/TUBEMQ-130)  |Generate CHANGES.md and DISCLAIMER-WIP   |  Major |
+
+### SUB-TASK:
+| JIRA | Summary | Priority |
+|:---- |:---- | :--- |
+|[TUBEMQ-130](https://issues.apache.org/jira/browse/TUBEMQ-130) |Generate CHANGES.md and DISCLAIMER-WIP   |  Major |
+|[TUBEMQ-133](https://issues.apache.org/jira/browse/TUBEMQ-133) |Add Apache parent pom |  Major |
+|[TUBEMQ-134](https://issues.apache.org/jira/browse/TUBEMQ-134) |add maven-source-plugin for generate source jar|  Major |
+|[TUBEMQ-135](https://issues.apache.org/jira/browse/TUBEMQ-135) |Refactoring all pom.xml|  Major |
+|[TUBEMQ-136](https://issues.apache.org/jira/browse/TUBEMQ-136) |Add LICENSE/NOTICE/DISCLAIMER-WIP to binary package|  Major |
