@@ -75,12 +75,16 @@ function start_server() {
     config_files="-f $BASE_DIR/conf/master.ini"
     
 	echo "Starting Master server..."
+  pushd .
     
+    cd $BASE_DIR
    	echo "$JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files"
     sleep 1
     nohup $JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files 2>&1 >>$LOG_FILE &
     echo $! > $PID_FILE
     chmod 755 $PID_FILE
+  
+  popd
 }
 
 function stop_server() {
