@@ -32,7 +32,7 @@
     <inceptionYear>2013</inceptionYear>
     <version>0.5.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>tubemq</name>
+    <name>Apache TubeMQ</name>
 
     <licenses>
         <license>
@@ -71,10 +71,6 @@
     </modules>
 
     <properties>
-        <tubemq-core-version>0.5.0-incubating-SNAPSHOT</tubemq-core-version>
-        <tubemq-client-version>0.5.0-incubating-SNAPSHOT</tubemq-client-version>
-        <tubemq-server-version>0.5.0-incubating-SNAPSHOT</tubemq-server-version>
-        <tubemq-example-version>0.5.0-incubating-SNAPSHOT</tubemq-example-version>
         <junit.version>4.11</junit.version>
         <mockito.version>2.0.2-beta</mockito.version>
         <powermock.version>1.6.5</powermock.version>
@@ -268,17 +264,17 @@
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-core</artifactId>
-                <version>${tubemq-core-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-client</artifactId>
-                <version>${tubemq-client-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-example</artifactId>
-                <version>${tubemq-example-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
