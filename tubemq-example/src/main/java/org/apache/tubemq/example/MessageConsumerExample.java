@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.client.config.ConsumerConfig;
-import org.apache.tubemq.client.consumer.ConsumeModel;
+import org.apache.tubemq.client.consumer.ConsumePosition;
 import org.apache.tubemq.client.consumer.MessageV2Listener;
 import org.apache.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.tubemq.client.exception.TubeClientException;
@@ -68,7 +68,7 @@ public final class MessageConsumerExample {
         int fetchCount
     ) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(localHost, masterHostAndPort, group);
-        consumerConfig.setConsumeModel(ConsumeModel.CONSUMER_FROM_LATEST_OFFSET);
+        consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         if (fetchCount > 0) {
             consumerConfig.setPushFetchThreadCnt(fetchCount);
         }

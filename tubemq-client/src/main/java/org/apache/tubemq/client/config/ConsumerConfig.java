@@ -18,7 +18,7 @@
 package org.apache.tubemq.client.config;
 
 import org.apache.tubemq.client.common.TClientConstants;
-import org.apache.tubemq.client.consumer.ConsumeModel;
+import org.apache.tubemq.client.consumer.ConsumePosition;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
@@ -36,7 +36,7 @@ public class ConsumerConfig extends TubeClientConfig {
      *  0: Start from the latest position for the first time. Otherwise start from last consume position.
      *  1: Start from the latest consume position.
     */
-    private ConsumeModel consumeModel = ConsumeModel.CONSUMER_FROM_LATEST_OFFSET;
+    private ConsumePosition consumePosition = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
     private int maxSubInfoReportIntvlTimes =
             TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
     private long msgNotFoundWaitPeriodMs =
@@ -84,12 +84,28 @@ public class ConsumerConfig extends TubeClientConfig {
         return consumerGroup;
     }
 
-    public ConsumeModel getConsumeModel() {
-        return consumeModel;
+    public ConsumePosition getConsumePosition() {
+        return consumePosition;
     }
 
-    public void setConsumeModel(ConsumeModel consumeModel) {
-        this.consumeModel = consumeModel;
+    public void setConsumePosition(ConsumePosition consumePosition) {
+        this.consumePosition = consumePosition;
+    }
+
+    /**
+     * recommend to use getConsumePosition
+     */
+    @Deprecated
+    public int getConsumeModel() {
+        return consumePosition.getCode();
+    }
+
+    /**
+     * recommend to use setConsumePosition
+     */
+    @Deprecated
+    public void setConsumeModel(int consumeModel) {
+        setConsumePosition(ConsumePosition.valueOf(consumeModel));
     }
 
     public long getMsgNotFoundWaitPeriodMs() {
@@ -208,7 +224,7 @@ public class ConsumerConfig extends TubeClientConfig {
         return new StringBuilder(512).append("\"ConsumerConfig\":{")
                 .append("\"consumerGroup\":\"").append(this.consumerGroup)
                 .append("\",\"maxSubInfoReportIntvlTimes\":").append(this.maxSubInfoReportIntvlTimes)
-                .append(",\"consumeModel\":").append(this.consumeModel)
+                .append(",\"consumePosition\":").append(this.consumePosition)
                 .append(",\"msgNotFoundWaitPeriodMs\":").append(this.msgNotFoundWaitPeriodMs)
                 .append(",\"shutDownRebalanceWaitPeriodMs\":").append(this.shutDownRebalanceWaitPeriodMs)
                 .append(",\"pushFetchThreadCnt\":").append(this.pushFetchThreadCnt)
