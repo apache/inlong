@@ -61,13 +61,8 @@ public final class MessageConsumerExample {
     private final PushMessageConsumer messageConsumer;
     private final MessageSessionFactory messageSessionFactory;
 
-    public MessageConsumerExample(
-        String localHost,
-        String masterHostAndPort,
-        String group,
-        int fetchCount
-    ) throws Exception {
-        ConsumerConfig consumerConfig = new ConsumerConfig(localHost, masterHostAndPort, group);
+    public MessageConsumerExample(String masterHostAndPort, String group, int fetchCount) throws Exception {
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
         consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         if (fetchCount > 0) {
             consumerConfig.setPushFetchThreadCnt(fetchCount);
@@ -77,14 +72,13 @@ public final class MessageConsumerExample {
     }
 
     public static void main(String[] args) {
-        final String localHost = args[0];
-        final String masterHostAndPort = args[1];
-        final String topics = args[2];
-        final String group = args[3];
-        final int consumerCount = Integer.parseInt(args[4]);
+        final String masterHostAndPort = args[0];
+        final String topics = args[1];
+        final String group = args[2];
+        final int consumerCount = Integer.parseInt(args[3]);
         int fetchCount = -1;
         if (args.length > 5) {
-            fetchCount = Integer.parseInt(args[5]);
+            fetchCount = Integer.parseInt(args[4]);
         }
         final Map<String, TreeSet<String>> topicTidsMap = new HashMap<>();
 
@@ -109,7 +103,6 @@ public final class MessageConsumerExample {
                 try {
                     for (int i = 0; i < consumerCount; i++) {
                         MessageConsumerExample messageConsumer = new MessageConsumerExample(
-                                localHost,
                                 masterHostAndPort,
                                 group,
                                 startFetchCount
