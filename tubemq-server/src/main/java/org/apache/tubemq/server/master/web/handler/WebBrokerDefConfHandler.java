@@ -45,9 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Broker的缺省配置操作类,包括新增broker配置记录,变更配置,删除配置,以及修改broker的线上管理状态
- * 需要注意的是每个IP只能部署一个Broker,每个brokerId必须要唯一
- * 相关逻辑比较简单,API代码里有对应要求,代码只是做对应的处理
  * <p>
  * The class to handle the default config of broker, including:
  * - Add config
@@ -596,8 +593,6 @@ public class WebBrokerDefConfHandler {
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
 
-            // 确认待修改broker状态的broker当前状态与预期状态信息,确认是否有修改
-            // 如果有修改则检查当前broker状态是否满足修改,如果都满足则形成修改记录
             // Check the current status and status after the change, to see if there are changes.
             // If yes, check if the current status complies with the change.
             // If it complies, record the change.
@@ -1537,7 +1532,8 @@ public class WebBrokerDefConfHandler {
      */
     private boolean isValidRecord(final Set<String> batchTopicNames, int topicStatusId, Boolean isInclude,
                                   ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntityMap) {
-        // 首先检查指定了topic并且要求进行topic区分,并且broker有topic记录时,按照业务指定的topic区分要求进行过滤
+        // First check the difference between specified topic and request topic, and then when the broker
+        // has a topic record, filter according to the topic requirements specified by the business
         if (!batchTopicNames.isEmpty() && isInclude != null) {
             if ((bdbTopicConfEntityMap == null) || (bdbTopicConfEntityMap.isEmpty())) {
                 if (isInclude) {
@@ -1567,8 +1563,6 @@ public class WebBrokerDefConfHandler {
                 }
             }
         }
-        // 然后按照指定的topic状态进行过滤
-        // 符合状态要求的才会被认为有效
         // Filter according to the topic status
         if (topicStatusId == TBaseConstants.META_VALUE_UNDEFINED) {
             return true;

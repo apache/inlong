@@ -28,7 +28,6 @@ import org.dom4j.io.SAXReader;
 
 
 public class ConfigFileParser {
-    //　配置文件解析类，前台相关的内容处理
     private static final String ROOT_ELEMENT = "simpleMVConfig";
     private static final String DEFAULT_PAGE = "default-page";
     private static final String RESOURCES = "resources";

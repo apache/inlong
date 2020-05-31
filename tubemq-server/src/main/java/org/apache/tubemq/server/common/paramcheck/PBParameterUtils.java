@@ -251,14 +251,14 @@ public class PBParameterUtils {
                                                           boolean isSelectBig,
                                                           ConsumerBandInfo consumerBandInfo,
                                                           final StringBuilder strBuffer) throws Exception {
-        // 该部分处理主要是检查新接入的客户端是否与已存在的消费端消费目标一致,
-        // 包括是否绑定消费,绑定消费的参数是否一致,订阅的topic集合是否一致,订阅的过滤消费项集合是否一致
+        // This part is mainly to check whether the newly accessed client is consistent with the existing
+        // consumer consumption target
         ParamCheckResult retResult = new ParamCheckResult();
         if (consumerBandInfo == null) {
             retResult.setCheckData(inConsumerInfo);
             return retResult;
         }
-        // 确认消费行为是不是一致
+        // check whether the consumer behavior is consistent
         if (inConsumerInfo.isRequireBound() != consumerBandInfo.isBandConsume()) {
             if (inConsumerInfo.isRequireBound()) {
                 strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
@@ -275,7 +275,7 @@ public class PBParameterUtils {
             logger.warn(strBuffer.toString());
             return retResult;
         }
-        // 先检查消费的topic集合
+        // check the topics of consumption
         List<ConsumerInfo> infoList = consumerBandInfo.getConsumerInfoList();
         Set<String> existedTopics = consumerBandInfo.getTopicSet();
         Map<String, TreeSet<String>> existedTopicConditions = consumerBandInfo.getTopicConditions();
@@ -306,7 +306,7 @@ public class PBParameterUtils {
                             .append(" is inconsistency with other consumers in the group: topic without conditions");
                 }
             } else {
-                // 该部分主要是做topic的过滤条件比较
+                // check the filter conditions of the topic
                 if (inConsumerInfo.getTopicConditions().isEmpty()) {
                     isCondEqual = false;
                     strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
@@ -354,8 +354,9 @@ public class PBParameterUtils {
             }
         }
         if (inConsumerInfo.isRequireBound()) {
-            // 如果sessionKey不一致,则表示上一轮的消费还没完全退出
-            // 为了避免offset设置不完全,需要完全清理之上的数据后才进行本轮次的消费重置及消费
+            // If the sessionKey is inconsistent, it means that the previous round of consumption has not completely
+            // exited. In order to avoid the incomplete offset setting, it is necessary to completely clear the above
+            // data before resetting and consuming this round of consumption
             if (!inConsumerInfo.getSessionKey().equals(consumerBandInfo.getSessionKey())) {
                 strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
                         .append("'s sessionKey is inconsistency with other consumers in the group, required is ")
@@ -367,7 +368,7 @@ public class PBParameterUtils {
                 logger.warn(strBuffer.toString());
                 return retResult;
             }
-            // 选择offset的偏好也要保持一致
+            // check the offset config
             if (isSelectBig != consumerBandInfo.isSelectedBig()) {
                 strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
                         .append("'s isSelectBig is inconsistency with other consumers in the group, required is ")
@@ -379,7 +380,7 @@ public class PBParameterUtils {
                 logger.warn(strBuffer.toString());
                 return retResult;
             }
-            // 启动最少的消费者量也要一致,如果不一致有些offset就无法作设置,形成数据消费丢的情况
+            // check the consumers count
             if (inConsumerInfo.getSourceCount() != consumerBandInfo.getSourceCount()) {
                 strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
                         .append("'s sourceCount is inconsistency with other consumers in the group, required is ")
