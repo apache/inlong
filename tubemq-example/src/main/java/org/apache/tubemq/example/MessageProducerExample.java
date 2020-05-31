@@ -59,21 +59,20 @@ public final class MessageProducerExample {
     private int keyCount = 0;
     private int sentCount = 0;
 
-    public MessageProducerExample(String localHost, String masterHostAndPort) throws Exception {
+    public MessageProducerExample(String masterHostAndPort) throws Exception {
         filters.add("aaa");
         filters.add("bbb");
 
-        TubeClientConfig clientConfig = new TubeClientConfig(localHost, masterHostAndPort);
+        TubeClientConfig clientConfig = new TubeClientConfig(masterHostAndPort);
         this.messageSessionFactory = new TubeSingleSessionFactory(clientConfig);
         this.messageProducer = messageSessionFactory.createProducer();
     }
 
     public static void main(String[] args) {
-        final String localHost = args[0];
-        final String masterHostAndPort = args[1];
-        final String topics = args[2];
+        final String masterHostAndPort = args[0];
+        final String topics = args[1];
         final List<String> topicList = Arrays.asList(topics.split(","));
-        final int count = Integer.parseInt(args[3]);
+        final int count = Integer.parseInt(args[2]);
 
         String body = "This is a test message from single-session-factory.";
         byte[] bodyBytes = StringUtils.getBytesUtf8(body);
@@ -84,7 +83,7 @@ public final class MessageProducerExample {
         }
         dataBuffer.flip();
         try {
-            MessageProducerExample messageProducer = new MessageProducerExample(localHost, masterHostAndPort);
+            MessageProducerExample messageProducer = new MessageProducerExample(masterHostAndPort);
             messageProducer.publishTopics(topicList);
             for (int i = 0; i < count; i++) {
                 for (String topic : topicList) {

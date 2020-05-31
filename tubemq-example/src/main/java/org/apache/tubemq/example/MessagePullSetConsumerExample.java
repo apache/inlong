@@ -52,22 +52,17 @@ public final class MessagePullSetConsumerExample {
     private final PullMessageConsumer messagePullConsumer;
     private final MessageSessionFactory messageSessionFactory;
 
-    public MessagePullSetConsumerExample(
-        String localHost,
-        String masterHostAndPort,
-        String group
-    ) throws Exception {
-        ConsumerConfig consumerConfig = new ConsumerConfig(localHost, masterHostAndPort, group);
+    public MessagePullSetConsumerExample(String masterHostAndPort, String group) throws Exception {
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
         this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
     }
 
     public static void main(String[] args) {
-        final String localhost = args[0];
-        final String masterHostAndPort = args[1];
-        final String topics = args[2];
-        final String group = args[3];
-        final int consumeCount = Integer.parseInt(args[4]);
+        final String masterHostAndPort = args[0];
+        final String topics = args[1];
+        final String group = args[2];
+        final int consumeCount = Integer.parseInt(args[3]);
         final Map<String, Long> partOffsetMap = new ConcurrentHashMap<>();
         partOffsetMap.put("123:test_1:0", 0L);
         partOffsetMap.put("123:test_1:1", 0L);
@@ -85,7 +80,7 @@ public final class MessagePullSetConsumerExample {
                 try {
                     int getCount = consumeCount;
                     MessagePullSetConsumerExample messageConsumer =
-                        new MessagePullSetConsumerExample(localhost, masterHostAndPort, group);
+                        new MessagePullSetConsumerExample(masterHostAndPort, group);
                     messageConsumer.subscribe(topicList, partOffsetMap);
 
                     // wait until the consumer is allocated parts
