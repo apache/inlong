@@ -266,7 +266,7 @@ public class BaseResult implements Serializable {
         if ((pSize == null) || (pSize.intValue() < 0)) {
             this.pageSize = null;
         } else if (pSize > MAX_PAGE_SIZE || pSize < 1) {
-            throw new IllegalArgumentException("每页显示条数范围为1~" + MAX_PAGE_SIZE + "条");
+            throw new IllegalArgumentException("The number of displayed pages per page ranges from 1~" + MAX_PAGE_SIZE);
         } else {
             this.pageSize = pSize;
         }
@@ -285,7 +285,8 @@ public class BaseResult implements Serializable {
         try {
             Integer integer = new Integer(pageSizeString);
             if (integer > MAX_PAGE_SIZE || integer < 1) {
-                throw new IllegalArgumentException("每页显示条数范围为1~" + MAX_PAGE_SIZE + "条");
+                throw new IllegalArgumentException("The number of displayed pages per page ranges from 1~" +
+                        MAX_PAGE_SIZE);
             }
             this.setPageSize(integer);
         } catch (NumberFormatException ignore) {
@@ -353,7 +354,7 @@ public class BaseResult implements Serializable {
         int cPage = this.getCurrentPage().intValue();
 
         if (cPage == 1) {
-            return 1; // 第一页开始当然是第 1 条记录
+            return 1;
         }
 
         cPage--;

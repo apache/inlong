@@ -18,8 +18,7 @@
 package org.apache.tubemq.server.common.utils;
 
 /**
- * 来自于twitter项目snowflake的id产生方案，全局唯一，时间有序
- * https://github.com/twitter/snowflake/blob/master/src/main/scala/com/twitter/service/snowflake/IdWorker.scala
+ * reference :https://github.com/twitter/snowflake/blob/master/src/main/scala/com/twitter/service/snowflake/IdWorker.scala
  */
 public class IdWorker {
     private static final long twepoch = 1350282310830L;

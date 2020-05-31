@@ -284,7 +284,7 @@ public class BrokerMetadataManager implements MetadataManager {
     public boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
                                               List<String> rmvTopicMetaConfInfoLst,
                                               final StringBuilder sb) {
-        // 该部分根据Master上的指示进行对应Topic的删除操作
+        // This part deletes the corresponding topic according to the instructions on the Master
         boolean needProcess = false;
         if (isTakeRemoveTopics) {
             List<String> origTopics = new ArrayList<>();
