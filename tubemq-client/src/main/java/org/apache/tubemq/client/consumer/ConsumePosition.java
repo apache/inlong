@@ -16,8 +16,8 @@
  */
 package org.apache.tubemq.client.consumer;
 
-public enum ConsumeModel {
-    CONSUMER_FROM_MAX_OFFSET(1, "Always start from the max consume position."),
+public enum ConsumePosition {
+    CONSUMER_FROM_MAX_OFFSET_ALWAYS(1, "Always start from the max consume position."),
     CONSUMER_FROM_LATEST_OFFSET(0, "Start from the latest position for the first time. " +
             "Otherwise start from last consume position."),
     CONSUMER_FROM_FIRST_OFFSET(-1, "Start from 0 for the first time. Otherwise start from last consume position.");
@@ -25,7 +25,7 @@ public enum ConsumeModel {
     private int code;
     private String description;
 
-    ConsumeModel(int code, String description) {
+    ConsumePosition(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -36,5 +36,14 @@ public enum ConsumeModel {
 
     public String getDescription() {
         return description;
+    }
+
+    public static ConsumePosition valueOf(int code) {
+        for (ConsumePosition consumePosition : ConsumePosition.values()) {
+            if (consumePosition.getCode() == code) {
+                return consumePosition;
+            }
+        }
+        throw new IllegalArgumentException(String.format("unknown ConsumePosition code %s", code));
     }
 }
