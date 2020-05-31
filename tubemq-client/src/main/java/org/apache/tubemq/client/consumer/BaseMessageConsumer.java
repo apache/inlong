@@ -1179,7 +1179,7 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     private int getGroupInitReadStatus(boolean isFistReg) {
         int readStatus = TBaseConstants.CONSUME_MODEL_READ_NORMAL;
-        switch (consumerConfig.getConsumeModel()) {
+        switch (consumerConfig.getConsumePosition()) {
             case CONSUMER_FROM_LATEST_OFFSET: {
                 if (isFistReg) {
                     readStatus = TBaseConstants.CONSUME_MODEL_READ_FROM_MAX;
@@ -1187,7 +1187,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 }
                 break;
             }
-            case CONSUMER_FROM_MAX_OFFSET: {
+            case CONSUMER_FROM_MAX_OFFSET_ALWAYS: {
                 if (isFistReg) {
                     readStatus = TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS;
                     logger.info("[Consume From Max Offset Always]" + consumerId);
