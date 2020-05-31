@@ -79,27 +79,26 @@ public class MAMessageProducerExample {
     private int keyCount = 0;
     private int sentCount = 0;
 
-    public MAMessageProducerExample(String localHost, String masterHostAndPort) throws Exception {
+    public MAMessageProducerExample(String masterHostAndPort) throws Exception {
         this.filters.add("aaa");
         this.filters.add("bbb");
 
-        TubeClientConfig clientConfig = new TubeClientConfig(localHost, masterHostAndPort);
+        TubeClientConfig clientConfig = new TubeClientConfig(masterHostAndPort);
         for (int i = 0; i < SESSION_FACTORY_NUM; i++) {
             this.sessionFactoryList.add(new TubeMultiSessionFactory(clientConfig));
         }
     }
 
     public static void main(String[] args) {
-        final String localHost = args[0];
-        final String masterHostAndPort = args[1];
+        final String masterHostAndPort = args[0];
 
-        final String topics = args[2];
+        final String topics = args[1];
         final List<String> topicList = Arrays.asList(topics.split(","));
 
         topicSet = new TreeSet<>(topicList);
 
-        msgCount = Integer.parseInt(args[3]);
-        producerCount = Math.min(args.length > 4 ? Integer.parseInt(args[4]) : 10, MAX_PRODUCER_NUM);
+        msgCount = Integer.parseInt(args[2]);
+        producerCount = Math.min(args.length > 4 ? Integer.parseInt(args[3]) : 10, MAX_PRODUCER_NUM);
 
         logger.info("MAMessageProducerExample.main started...");
 
@@ -115,7 +114,7 @@ public class MAMessageProducerExample {
         sendData = dataBuffer.array();
 
         try {
-            MAMessageProducerExample messageProducer = new MAMessageProducerExample(localHost, masterHostAndPort);
+            MAMessageProducerExample messageProducer = new MAMessageProducerExample(masterHostAndPort);
 
             messageProducer.startService();
 
