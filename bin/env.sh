@@ -30,9 +30,15 @@ tubemq_home=$BASE_DIR
 export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
 
 #Master jvm args
-MASTER_JVM_ARGS="-Xmx10g -Xms6g -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
+if [ -z "$MASTER_JVM_SIZE" ]; then
+  MASTER_JVM_SIZE="-Xmx10g -Xms6g"
+fi
+MASTER_JVM_ARGS="$MASTER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Broker jvm args
-BROKER_JVM_ARGS="-Xmx16g -Xms8g -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
+if [ -z "$MASTER_JVM_SIZE" ]; then
+  BROKER_JVM_SIZE="-Xmx16g -Xms8g"
+fi
+BROKER_JVM_ARGS="$BROKER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Tools jvm args,you don't have to modify this at all.
 TOOLS_JVM_ARGS="-Xmx512m -Xms512m -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Tool repair jvm args
