@@ -102,7 +102,6 @@ public class TubeClientConfig {
         }
         this.masterInfo = masterInfo.clone();
         String iPv4LocalAddress = AddressUtils.getIPV4LocalAddress();
-        AddressUtils.setLocalAddress(iPv4LocalAddress);
     }
 
     @Deprecated

@@ -276,20 +276,17 @@ public class MasterConfig extends AbstractFileConfig {
                 TBaseConstants.META_DEFAULT_MASTER_PORT);
 
         // hostname
-        if (TStringUtils.isBlank(masterConf.get("hostName"))) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("hostName is null or Blank in ").append(SECT_TOKEN_MASTER)
-                    .append(" section!").toString());
-        }
-        try {
+        if (TStringUtils.isNotBlank(masterConf.get("hostName"))) {
             this.hostName = masterConf.get("hostName").trim();
-            AddressUtils.validLocalIp(this.hostName);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Illegal hostName value in ").append(SECT_TOKEN_MASTER)
-                    .append(" section!").toString());
+        } else {
+            try {
+                this.hostName = AddressUtils.getIPV4LocalAddress();
+            } catch (Throwable e) {
+                throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("Get default master hostName failure : ")
+                    .append(e.getMessage()).toString());
+            }
         }
-
         // web port
         if (TStringUtils.isNotBlank(masterConf.get("webPort"))) {
             this.webPort = this.getInt(masterConf, "webPort");

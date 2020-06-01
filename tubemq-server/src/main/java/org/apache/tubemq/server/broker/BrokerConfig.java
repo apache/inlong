@@ -41,6 +41,8 @@ public class BrokerConfig extends AbstractFileConfig {
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
     private int brokerId = 0;
+    // default NetworkInterface
+    private String defEthName = "eth1";
     // broker hostname
     private String hostName;
     // broker port
@@ -139,7 +141,7 @@ public class BrokerConfig extends AbstractFileConfig {
     public int getBrokerId() {
         if (this.brokerId <= 0) {
             try {
-                brokerId = abs(AddressUtils.ipToInt(AddressUtils.getLocalAddress()));
+                brokerId = abs(AddressUtils.ipToInt(AddressUtils.getIPV4LocalAddress(this.defEthName)));
             } catch (Exception e) {
                 logger.error("Get brokerId error!", e);
             }
@@ -201,12 +203,19 @@ public class BrokerConfig extends AbstractFileConfig {
             throw new IllegalArgumentException(new StringBuilder(256).append("hostName is null or Blank in ")
                     .append(SECT_TOKEN_BROKER).append(" section!").toString());
         }
-        try {
+        if (TStringUtils.isNotBlank(brokerSect.get("defEthName"))) {
+            this.defEthName = brokerSect.get("defEthName").trim();
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("hostName"))) {
             this.hostName = brokerSect.get("hostName").trim();
-            AddressUtils.validLocalIp(this.hostName);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(new StringBuilder(256).append("Illegal hostName value in ")
-                    .append(SECT_TOKEN_BROKER).append(" section!").toString());
+        } else {
+            try {
+                this.hostName = AddressUtils.getIPV4LocalAddress(this.defEthName);
+            } catch (Throwable e) {
+                throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("Get default broker hostName failure : ")
+                    .append(e.getMessage()).toString());
+            }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
             throw new IllegalArgumentException(new StringBuilder(256).append("masterAddressList is null or Blank in ")
