@@ -2,19 +2,15 @@
 #### pull
 - for all contributors
 ```
-docker pull tdbank/tubemq-build
-```
-- for contributors who worked for tencent
-```
-docker pull csighub.tencentyun.com/tdbank/tubemq-build:latest
+docker pull apachetubemq/tubemq-build
 ```
 
 #### build
 ```
-docker build  -t tdbank/tubemq-build ./
+docker build  -t apachetubemq/tubemq-build ./
 ```
 
 #### run
 ```
-docker run -v REPLACE_WITH_SOURCE_PATH:/tubemq  csighub.tencentyun.com/tdbank/tubemq-build clean package -DskipTests
+docker run -v REPLACE_WITH_SOURCE_PATH:/tubemq  apachetubemq/tubemq-build clean package -DskipTests
 ```
