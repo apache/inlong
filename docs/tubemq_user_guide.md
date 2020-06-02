@@ -217,7 +217,10 @@ Now we can use the topic to send messages.
 Now we can run the example to test our cluster. First let's run the produce data demo. Please don't
 forget replace `YOUR_SERVER_IP` with your server ip.
 ```bash
-java -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties  -Djava.net.preferIPv4Stack=true -cp  /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageProducerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo 10000000
+java -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties  \
+    -Djava.net.preferIPv4Stack=true -cp  \
+    /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageProducerExample \
+    YOUR_SERVER_IP:8000 demo 100000
 ```
 From the log, we can see the message is sent out.
 ```bash
@@ -229,7 +232,10 @@ From the log, we can see the message is sent out.
 
 Then we run the consume data demo. Also replace the server ip
 ```bash
-java -Xmx512m -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties -Djava.net.preferIPv4Stack=true -cp /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageConsumerExample YOUR_SERVER_IP YOUR_SERVER_IP:8000 demo demoGroup 3 1 1
+java -Xmx512m -Dlog4j.configuration=file:/opt/tubemq-server/conf/tools.log4j.properties \
+    -Djava.net.preferIPv4Stack=true -cp \
+    /opt/tubemq-server/lib/*:/opt/tubemq-server/conf/*: org.apache.tubemq.example.MessageConsumerExample \
+    YOUR_SERVER_IP:8000 demo demoGroup 3 1 1
 ```
 From the log, we can see the message received by the consumer.
 
