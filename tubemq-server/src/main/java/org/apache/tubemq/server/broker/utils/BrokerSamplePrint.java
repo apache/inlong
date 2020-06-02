@@ -20,23 +20,20 @@ package org.apache.tubemq.server.broker.utils;
 import java.io.IOException;
 import org.apache.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /***
  * Compressed print broker's statistics.
  */
 public class BrokerSamplePrint extends AbstractSamplePrint {
-    private final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(BrokerSamplePrint.class);
 
-    public BrokerSamplePrint(final Logger logger) {
-        super();
-        this.logger = logger;
+    public BrokerSamplePrint() {
     }
 
-    public BrokerSamplePrint(final Logger logger,
-                             long sampleDetailDur, long sampleResetDur,
+    public BrokerSamplePrint(long sampleDetailDur, long sampleResetDur,
                              long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
-        this.logger = logger;
     }
 
     @Override
@@ -48,12 +45,9 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
                 final long curPrintCnt = totalPrintCount.incrementAndGet();
                 if (curPrintCnt < maxTotalCount) {
                     if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
-                        logger.error("[heartbeat failed] heartbeat to master exception 1 is ", e);
+                        logger.error("[heartbeat failed] heartbeat to master exception", e);
                     } else {
-                        logger.error(sBuilder
-                                .append("[heartbeat failed] heartbeat to master exception 2 is ")
-                                .append(e.toString()).toString());
-                        sBuilder.delete(0, sBuilder.length());
+                        logger.error("[heartbeat failed] heartbeat to master exception", e);
                     }
                 }
                 if (diffTime > sampleResetDur) {
@@ -64,12 +58,9 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
             } else {
                 final long curPrintCnt = totalUncheckCount.incrementAndGet();
                 if (curPrintCnt < maxUncheckDetailCount) {
-                    logger.error("[heartbeat failed] heartbeat to master exception 3 is ", e);
+                    logger.error("[heartbeat failed] heartbeat to master exception", e);
                 } else {
-                    logger.error(sBuilder
-                            .append("[heartbeat failed] heartbeat to master exception 4 is ")
-                            .append(e.toString()).toString());
-                    sBuilder.delete(0, sBuilder.length());
+                    logger.error("[heartbeat failed] heartbeat to master exception", e);
                 }
             }
         }

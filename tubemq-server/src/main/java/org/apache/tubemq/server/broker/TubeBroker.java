@@ -79,7 +79,7 @@ public class TubeBroker implements Stoppable {
     private final OffsetService offsetManager;
     private final BrokerServiceServer brokerServiceServer;
     private final BrokerSamplePrint samplePrintCtrl =
-            new BrokerSamplePrint(logger);
+            new BrokerSamplePrint();
     private final ScheduledExecutorService scheduledExecutorService;
     // shutdown hook.
     private final ShutdownHook shutdownHook = new ShutdownHook();
