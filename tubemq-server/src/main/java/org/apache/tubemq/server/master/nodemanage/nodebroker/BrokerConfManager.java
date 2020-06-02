@@ -41,7 +41,7 @@ import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
-import org.apache.tubemq.server.common.fileconfig.BDBConfig;
+import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.master.bdbstore.DefaultBdbStoreService;
 import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 public class BrokerConfManager implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfManager.class);
-    private final BDBConfig bdbConfig;
+    private final MasterReplicationConfig replicationConfig;
     private final ScheduledExecutorService scheduledExecutorService;
     private final ConcurrentHashMap<Integer, String> brokersMap =
             new ConcurrentHashMap<>();
@@ -97,7 +97,7 @@ public class BrokerConfManager implements Server {
 
     public BrokerConfManager(DefaultBdbStoreService mBdbStoreManagerService) {
         this.mBdbStoreManagerService = mBdbStoreManagerService;
-        this.bdbConfig = mBdbStoreManagerService.getBdbConfig();
+        this.replicationConfig = mBdbStoreManagerService.getReplicationConfig();
         this.brokerConfStoreMap = this.mBdbStoreManagerService.getBrokerConfigMap();
         for (BdbBrokerConfEntity entity : this.brokerConfStoreMap.values()) {
             updateBrokerMaps(entity);
@@ -187,11 +187,11 @@ public class BrokerConfManager implements Server {
                 } catch (Throwable e) {
                     logger.error(new StringBuilder(512)
                             .append("BDBGroupStatus Check exception, wait ")
-                            .append(bdbConfig.getBdbStatusCheckTimeoutMs())
+                            .append(replicationConfig.getRepStatusCheckTimeoutMs())
                             .append(" ms to try again.").append(e.getMessage()).toString());
                 }
             }
-        }, 0, bdbConfig.getBdbStatusCheckTimeoutMs(), TimeUnit.MILLISECONDS);
+        }, 0, replicationConfig.getRepStatusCheckTimeoutMs(), TimeUnit.MILLISECONDS);
         for (BdbBrokerConfEntity brokerConfEntity : this.brokerConfStoreMap.values()) {
             updateBrokerMaps(brokerConfEntity);
             if (brokerConfEntity.getManageStatus() > TStatusConstants.STATUS_MANAGE_APPLY) {

@@ -40,6 +40,7 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_BDB = "bdbStore";
     protected static final String SECT_TOKEN_TLS = "tlsSetting";
     protected static final String SECT_TOKEN_ZKEEPER = "zookeeper";
+    protected static final String SECT_TOKEN_REPLICATION = "replication";
 
     private String basePath;
     private String configPath;
