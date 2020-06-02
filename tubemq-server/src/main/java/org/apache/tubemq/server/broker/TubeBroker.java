@@ -54,14 +54,13 @@ import org.apache.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.tubemq.server.broker.web.WebServer;
 import org.apache.tubemq.server.common.TubeServerVersion;
 import org.apache.tubemq.server.common.aaaserver.SimpleCertificateBrokerHandler;
-import org.apache.tubemq.server.common.utils.Sleeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /***
  * Tube broker server. In charge of init each components, and communicating to master.
  */
-public class TubeBroker implements Stoppable, Runnable {
+public class TubeBroker implements Stoppable {
     private static final Logger logger =
             LoggerFactory.getLogger(TubeBroker.class);
     // tube broker config
@@ -82,7 +81,6 @@ public class TubeBroker implements Stoppable, Runnable {
     private final BrokerSamplePrint samplePrintCtrl =
             new BrokerSamplePrint(logger);
     private final ScheduledExecutorService scheduledExecutorService;
-    private final Sleeper sleeper;
     // shutdown hook.
     private final ShutdownHook shutdownHook = new ShutdownHook();
     // certificate handler.
@@ -101,7 +99,6 @@ public class TubeBroker implements Stoppable, Runnable {
 
 
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
-        super();
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         this.tubeConfig = tubeConfig;
@@ -137,7 +134,6 @@ public class TubeBroker implements Stoppable, Runnable {
                         return t;
                     }
                 });
-        this.sleeper = new Sleeper(3000, this);
         Runtime.getRuntime().addShutdownHook(this.shutdownHook);
     }
 
@@ -186,25 +182,12 @@ public class TubeBroker implements Stoppable, Runnable {
         return brokerServiceServer;
     }
 
-    @Override
-    public void run() {
-        try {
-            this.start();
-            while (!this.shutdown.get()) {
-                this.sleeper.sleep();
-            }
-        } catch (Exception e) {
-            logger.error("Running exception.", e);
-        }
-        this.stop("Stop running.");
-    }
-
     /***
      * Start broker service.
      *
      * @throws Exception
      */
-    public synchronized void start() throws Exception {
+    public void start() throws Exception {
         logger.info("Starting tube server...");
         if (!this.shutdown.get()) {
             return;
@@ -322,21 +305,12 @@ public class TubeBroker implements Stoppable, Runnable {
         this.tubeConfig.reload();
     }
 
-    public void waitForServerOnline() {
-        while (!isOnline() && !isStopped()) {
-            sleeper.sleep();
-        }
-    }
-
     public boolean isOnline() {
         return this.isOnline;
     }
 
     @Override
     public void stop(String why) {
-        if (this.shutdown.get()) {
-            return;
-        }
         if (!shutdown.compareAndSet(false, true)) {
             return;
         }
