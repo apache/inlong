@@ -480,12 +480,10 @@ public class MasterConfig extends AbstractFileConfig {
         } else {
             replicationConfig.setRepNodePort(getInt(bdbSect, "bdbNodePort"));
         }
-        if (TStringUtils.isBlank(metaDataPath)) {
-            if (TStringUtils.isBlank(bdbSect.get("bdbEnvHome"))) {
-                getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbEnvHome");
-            } else {
-                this.metaDataPath = bdbSect.get("bdbEnvHome").trim();
-            }
+        if (TStringUtils.isBlank(bdbSect.get("bdbEnvHome"))) {
+            getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbEnvHome");
+        } else {
+            this.metaDataPath = bdbSect.get("bdbEnvHome").trim();
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbHelperHost"))) {
             getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbHelperHost");
@@ -536,9 +534,7 @@ public class MasterConfig extends AbstractFileConfig {
                     .append("Empty configure item in ").append(SECT_TOKEN_REPLICATION)
                     .append(" section!").toString());
         }
-        if (TStringUtils.isBlank(repSect.get("repGroupName"))) {
-            getSimilarConfigField(SECT_TOKEN_REPLICATION, configKeySet, "repGroupName");
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("repGroupName"))) {
             replicationConfig.setRepGroupName(repSect.get("repGroupName").trim());
         }
         if (TStringUtils.isBlank(repSect.get("repNodeName"))) {
@@ -546,34 +542,22 @@ public class MasterConfig extends AbstractFileConfig {
         } else {
             replicationConfig.setRepNodeName(repSect.get("repNodeName").trim());
         }
-        if (TStringUtils.isBlank(repSect.get("repNodePort"))) {
-            replicationConfig.setRepNodePort(9001);
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("repNodePort"))) {
             replicationConfig.setRepNodePort(getInt(repSect, "repNodePort"));
         }
-        if (TStringUtils.isBlank(repSect.get("repHelperHost"))) {
-            getSimilarConfigField(SECT_TOKEN_REPLICATION, configKeySet, "repHelperHost");
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("repHelperHost"))) {
             replicationConfig.setRepHelperHost(repSect.get("repHelperHost").trim());
         }
-        if (TStringUtils.isBlank(repSect.get("metaLocalSyncPolicy"))) {
-            replicationConfig.setMetaLocalSyncPolicy(1);
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("metaLocalSyncPolicy"))) {
             replicationConfig.setMetaLocalSyncPolicy(getInt(repSect, "metaLocalSyncPolicy"));
         }
-        if (TStringUtils.isBlank(repSect.get("metaReplicaSyncPolicy"))) {
-            replicationConfig.setMetaReplicaSyncPolicy(3);
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("metaReplicaSyncPolicy"))) {
             replicationConfig.setMetaReplicaSyncPolicy(getInt(repSect, "metaReplicaSyncPolicy"));
         }
-        if (TStringUtils.isBlank(repSect.get("repReplicaAckPolicy"))) {
-            replicationConfig.setRepReplicaAckPolicy(1);
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("repReplicaAckPolicy"))) {
             replicationConfig.setRepReplicaAckPolicy(getInt(repSect, "repReplicaAckPolicy"));
         }
-        if (TStringUtils.isBlank(repSect.get("repStatusCheckTimeoutMs"))) {
-            replicationConfig.setRepStatusCheckTimeoutMs(10000);
-        } else {
+        if (TStringUtils.isNotBlank(repSect.get("repStatusCheckTimeoutMs"))) {
             replicationConfig.setRepStatusCheckTimeoutMs(getLong(repSect, "repStatusCheckTimeoutMs"));
         }
     }
