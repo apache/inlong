@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.Server;
-import org.apache.tubemq.server.common.fileconfig.BDBConfig;
+import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
@@ -160,21 +160,23 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     private ConcurrentHashMap<String/* nodeName */, MasterNodeInfo> masterNodeInfoMap =
             new ConcurrentHashMap<>();
     private String nodeHost;
-    private BDBConfig bdbConfig;
+    private MasterConfig masterConfig;
+    private MasterReplicationConfig replicationConfig;
     private Listener listener = new Listener();
     private ExecutorService executorService = null;
 
     public DefaultBdbStoreService(MasterConfig masterConfig, final TMaster tMaster) {
         this.tMaster = tMaster;
+        this.masterConfig = masterConfig;
         this.nodeHost = masterConfig.getHostName();
-        this.bdbConfig = masterConfig.getBdbConfig();
+        this.replicationConfig = masterConfig.getReplicationConfig();
         Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
-            InetSocketAddress helper = new InetSocketAddress(this.nodeHost, bdbConfig.getBdbNodePort() + i);
+            InetSocketAddress helper = new InetSocketAddress(this.nodeHost, replicationConfig.getRepNodePort() + i);
             helpers.add(helper);
         }
         this.replicationGroupAdmin =
-                new ReplicationGroupAdmin(this.bdbConfig.getBdbRepGroupName(), helpers);
+                new ReplicationGroupAdmin(this.replicationConfig.getRepGroupName(), helpers);
     }
 
     @Override
@@ -223,12 +225,12 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     }
 
     /**
-     * Get bdb config
+     * Get replication config
      *
      * @return
      */
-    public BDBConfig getBdbConfig() {
-        return this.bdbConfig;
+    public MasterReplicationConfig getReplicationConfig() {
+        return this.replicationConfig;
     }
 
     /**
@@ -996,13 +998,13 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         // Wait up to 3 seconds for commitConsumed acknowledgments.
         repConfig.setReplicaAckTimeout(3, TimeUnit.SECONDS);
         repConfig.setConfigParam(ReplicationConfig.TXN_ROLLBACK_LIMIT, "1000");
-        repConfig.setGroupName(bdbConfig.getBdbRepGroupName());
-        repConfig.setNodeName(bdbConfig.getBdbNodeName());
+        repConfig.setGroupName(replicationConfig.getRepGroupName());
+        repConfig.setNodeName(replicationConfig.getRepNodeName());
         repConfig.setNodeHostPort(this.nodeHost + TokenConstants.ATTR_SEP
-                + bdbConfig.getBdbNodePort());
-        if (TStringUtils.isNotEmpty(bdbConfig.getBdbHelperHost())) {
+                + replicationConfig.getRepNodePort());
+        if (TStringUtils.isNotEmpty(replicationConfig.getRepHelperHost())) {
             logger.info("ADD HELP HOST");
-            repConfig.setHelperHosts(bdbConfig.getBdbHelperHost());
+            repConfig.setHelperHosts(replicationConfig.getRepHelperHost());
         }
 
         //A replicated environment must be opened with transactions enabled. Environments on a master
@@ -1012,12 +1014,12 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         envConfig = new EnvironmentConfig();
         envConfig.setTransactional(true);
         Durability durability =
-                new Durability(bdbConfig.getBdbLocalSync(), bdbConfig.getBdbReplicaSync(),
-                        bdbConfig.getBdbReplicaAck());
+                new Durability(replicationConfig.getMetaLocalSyncPolicy(), replicationConfig.getMetaReplicaSyncPolicy(),
+                        replicationConfig.getRepReplicaAckPolicy());
         envConfig.setDurability(durability);
         envConfig.setAllowCreate(true);
 
-        envHome = new File(bdbConfig.getBdbEnvHome());
+        envHome = new File(masterConfig.getMetaDataPath());
 
         // An Entity Store in a replicated environment must be transactional.
         storeConfig.setTransactional(true);

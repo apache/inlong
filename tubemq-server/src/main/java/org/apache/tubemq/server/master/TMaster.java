@@ -2347,7 +2347,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @throws Exception
      */
     private void checkAndCreateBdbDataPath() throws Exception {
-        String bdbEnvPath = this.masterConfig.getBdbConfig().getBdbEnvHome();
+        String bdbEnvPath = this.masterConfig.getMetaDataPath();
         final File dir = new File(bdbEnvPath);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new Exception(new StringBuilder(256)
