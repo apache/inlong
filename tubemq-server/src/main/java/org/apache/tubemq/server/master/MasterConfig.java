@@ -30,11 +30,16 @@ import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Basic config for master service
  */
 public class MasterConfig extends AbstractFileConfig {
+    private static final Logger logger = LoggerFactory.getLogger(MasterConfig.class);
+
     private String hostName;
     private int port;
     private int webPort = 8080;
@@ -526,6 +531,8 @@ public class MasterConfig extends AbstractFileConfig {
                 throw new IllegalArgumentException(new StringBuilder(256)
                         .append(SECT_TOKEN_REPLICATION).append(" configure section is required!").toString());
             }
+            logger.warn("[bdbStore] section is deprecated. " +
+                    "Please config in [replication] section.");
             return;
         }
         Set<String> configKeySet = repSect.keySet();
