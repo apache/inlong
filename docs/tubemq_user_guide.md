@@ -152,7 +152,7 @@ Please notice that the master servers should be clock synchronized.
 After update the config file, please go to the `bin` folder and run this command to start
 the master service.
 ```bash
-./master.sh start
+./tubemq master start
 ```
 You should be able to access `http://your-master-ip:8080/config/topic_list.htm` to see the
 web GUI now.
@@ -178,7 +178,7 @@ Click the online link to activate the new added broker.
 
 Go to the broker server, under the `bin` folder run this command to start the broker service
 ```bash
-./broker.sh start
+./tubemq broker start
 ```
 
 Refresh the GUI broker list page, you can see that the broker now is registered.
@@ -186,6 +186,20 @@ Refresh the GUI broker list page, you can see that the broker now is registered.
 After the sub-state of the broker changed to `idle`, we can add topics to that broker.
 
 ![Add Broker 3](img/tubemq-add-broker-3.png)
+
+## Set Environment Variable (optional)
+We can set the path of TubeMQ to the environment variable for easy use.
+```bash
+TUBEMQ_HOME=/opt/tubemq-server
+PATH=$TUBEMQ_HOME/bin:$PATH
+```
+After that, we can use the following commands to start/stop and restart the master/broker service anywhere.
+```bash
+Usage: tubemq {master|broker} {start|stop|restart}
+       start:      start the master/broker server
+       stop:       stop the master/broker server
+       restart:    restart the master/broker server
+```
 
 ## Add Topic
 We can add or manage the cluster topics on the web GUI. To add a new topic, go to the
