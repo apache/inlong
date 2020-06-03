@@ -1340,7 +1340,7 @@ public class BaseMessageConsumer implements MessageConsumer {
             }
             return taskContext;
         } catch (Throwable ee) {
-            ee.printStackTrace();
+            logger.error("Process response code error", ee);
             rmtDataCache.succRspRelease(partitionKey, topic,
                     taskContext.getUsedToken(), false, isFilterConsume(topic), -1);
             taskContext.setFailProcessResult(500, strBuffer
