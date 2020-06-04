@@ -242,8 +242,7 @@ public class Message implements Serializable {
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)) {
             throw new IllegalArgumentException(new StringBuilder(512).append("System Headers(")
                     .append(TokenConstants.TOKEN_MSG_TYPE).append(",")
-                    .append(TokenConstants.TOKEN_MSG_TIME).append(",")
-                    .append(TokenConstants.TOKEN_COMPRESS_TYPE)
+                    .append(TokenConstants.TOKEN_MSG_TIME)
                     .append(") are reserved tokens, can't include in keyVal or valueVal!").toString());
         }
         if ((keyVal.contains(TokenConstants.ARRAY_SEP)
