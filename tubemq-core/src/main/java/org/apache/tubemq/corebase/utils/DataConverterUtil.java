@@ -233,7 +233,7 @@ public class DataConverterUtil {
                     payloadDataLen -= attrLen;
                 }
             }
-            byte[] payload = new byte[payloadDataLen];
+            final byte[] payload = new byte[payloadDataLen];
             System.arraycopy(payloadData.array(), readPos, payload, 0, payloadDataLen);
             messageList.add(new MessageExt(trsMessage.getMessageId(), topicName, payload, attribute, flag));
         }
