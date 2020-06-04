@@ -336,10 +336,11 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     private byte[] encodePayload(final Message message) {
-        byte[] payload = message.getData();
-        message.setAttrKeyVal(TokenConstants.TOKEN_COMPRESS_TYPE, producerConfig.getCompressionType().name());
-        String attribute = message.getAttribute();
-        payload = compressIfNecessary(payload);
+        final byte[] payload = compressIfNecessary(message);
+        final String attribute = message.getAttribute();
+        if (TStringUtils.isBlank(attribute)) {
+            return payload;
+        }
         byte[] attrData = StringUtils.getBytesUtf8(attribute);
         final ByteBuffer buffer =
                 ByteBuffer.allocate(4 + attrData.length + payload.length);
@@ -349,8 +350,10 @@ public class SimpleMessageProducer implements MessageProducer {
         return buffer.array();
     }
 
-    private byte[] compressIfNecessary(byte[] payload){
+    private byte[] compressIfNecessary(final Message message){
+        final byte[] payload = message.getData();
         if (payload.length > producerConfig.getPayloadCompressThreshold()) {
+            message.setAttrKeyVal(TokenConstants.TOKEN_COMPRESS_TYPE, producerConfig.getCompressionType().name());
             return producerConfig.getCompressionType().compress(payload);
         }
         return payload;
