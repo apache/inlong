@@ -79,12 +79,8 @@ public class Message implements Serializable {
         this.topic = topic;
         this.data = data;
         this.attribute = attribute;
-        int compressIndex = attribute.indexOf(TokenConstants.TOKEN_COMPRESS_TYPE);
-        if (compressIndex != -1) {
-            String compressionType = attribute.substring(compressIndex + TokenConstants.TOKEN_COMPRESS_TYPE.length());
-            this.data = CompressionType.valueOf(compressionType).uncompress(data);
-        }
         this.flag = flag;
+        this.uncompress();
     }
 
     public int getFlag() {
@@ -325,6 +321,14 @@ public class Message implements Serializable {
             return false;
         }
         return true;
+    }
+
+    private void uncompress(){
+        int compressIndex = attribute.indexOf(TokenConstants.TOKEN_COMPRESS_TYPE);
+        if (compressIndex != -1) {
+            String compressionType = attribute.substring(compressIndex + TokenConstants.TOKEN_COMPRESS_TYPE.length());
+            this.data = CompressionType.valueOf(compressionType).uncompress(data);
+        }
     }
 
     private void parseSystemHeader() {
