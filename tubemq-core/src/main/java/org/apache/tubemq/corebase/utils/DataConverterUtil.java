@@ -235,15 +235,6 @@ public class DataConverterUtil {
             }
             byte[] payload = new byte[payloadDataLen];
             System.arraycopy(payloadData.array(), readPos, payload, 0, payloadDataLen);
-            String compressionType = "";
-            if (TStringUtils.isNotEmpty(attribute) && attribute.contains(TokenConstants.TOKEN_COMPRESS_TYPE)) {
-                int compressIndex = attribute.indexOf(TokenConstants.TOKEN_COMPRESS_TYPE);
-                compressionType = attribute.substring(compressIndex + TokenConstants.TOKEN_COMPRESS_TYPE.length());
-                attribute = attribute.substring(0, compressIndex - 1);
-            }
-            if (TStringUtils.isNotEmpty(compressionType)) {
-                payload = CompressionType.valueOf(compressionType).uncompress(payload);
-            }
             messageList.add(new MessageExt(trsMessage.getMessageId(), topicName, payload, attribute, flag));
         }
         return messageList;

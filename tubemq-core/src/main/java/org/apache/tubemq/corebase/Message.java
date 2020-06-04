@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+
+import org.apache.tubemq.corebase.utils.CompressionType;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 
 /**
@@ -77,6 +79,11 @@ public class Message implements Serializable {
         this.topic = topic;
         this.data = data;
         this.attribute = attribute;
+        int compressIndex = attribute.indexOf(TokenConstants.TOKEN_COMPRESS_TYPE);
+        if (compressIndex != -1) {
+            String compressionType = attribute.substring(compressIndex + TokenConstants.TOKEN_COMPRESS_TYPE.length());
+            this.data = CompressionType.valueOf(compressionType).uncompress(data);
+        }
         this.flag = flag;
     }
 
@@ -232,9 +239,7 @@ public class Message implements Serializable {
         if (keyVal.contains(TokenConstants.TOKEN_MSG_TYPE)
                 || keyVal.contains(TokenConstants.TOKEN_MSG_TIME)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TYPE)
-                || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)
-                || keyVal.contains(TokenConstants.TOKEN_COMPRESS_TYPE)
-                || valueVal.contains(TokenConstants.TOKEN_COMPRESS_TYPE)) {
+                || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)) {
             throw new IllegalArgumentException(new StringBuilder(512).append("System Headers(")
                     .append(TokenConstants.TOKEN_MSG_TYPE).append(",")
                     .append(TokenConstants.TOKEN_MSG_TIME).append(",")

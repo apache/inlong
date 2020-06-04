@@ -322,7 +322,7 @@ public class SimpleMessageProducer implements MessageProducer {
         builder.setTopicName(partition.getTopic());
         builder.setPartitionId(partition.getPartitionId());
         builder.setData(ByteString.copyFrom(encodePayload(message)));
-        builder.setFlag(MessageFlagUtils.getFlag(message, true));
+        builder.setFlag(MessageFlagUtils.getFlag(message));
         builder.setSentAddr(this.producerManager.getProducerAddrId());
         builder.setCheckSum(-1);
         if (TStringUtils.isNotBlank(message.getMsgType())) {
@@ -337,11 +337,8 @@ public class SimpleMessageProducer implements MessageProducer {
 
     private byte[] encodePayload(final Message message) {
         byte[] payload = message.getData();
+        message.setAttrKeyVal(TokenConstants.TOKEN_COMPRESS_TYPE, producerConfig.getCompressionType().name());
         String attribute = message.getAttribute();
-        if (TStringUtils.isBlank(attribute)) {
-            attribute = "";
-        }
-        attribute = attribute + "," + TokenConstants.TOKEN_COMPRESS_TYPE + producerConfig.getCompressionType().name();
         payload = compressIfNecessary(payload);
         byte[] attrData = StringUtils.getBytesUtf8(attribute);
         final ByteBuffer buffer =

@@ -22,12 +22,8 @@ import org.apache.tubemq.corebase.Message;
 public class MessageFlagUtils {
 
     public static int getFlag(final Message message) {
-        return getFlag(message, false);
-    }
-
-    public static int getFlag(final Message message, boolean force) {
         int flag = 0;
-        if (force || (message != null && message.getAttribute() != null)) {
+        if (message != null && message.getAttribute() != null) {
             flag = flag & 0xFFFFFFFE | 1;
         }
         return flag;
