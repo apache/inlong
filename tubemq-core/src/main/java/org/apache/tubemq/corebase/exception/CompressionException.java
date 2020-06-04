@@ -14,27 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.tubemq.corebase.exception;
 
-package org.apache.tubemq.corebase.utils;
+public class CompressionException extends RuntimeException {
 
-import org.apache.tubemq.corebase.Message;
-
-public class MessageFlagUtils {
-
-    public static int getFlag(final Message message) {
-        return getFlag(message, false);
+    public CompressionException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public static int getFlag(final Message message, boolean force) {
-        int flag = 0;
-        if (force || (message != null && message.getAttribute() != null)) {
-            flag = flag & 0xFFFFFFFE | 1;
-        }
-        return flag;
+    public CompressionException(String message) {
+        super(message);
     }
 
-    public static boolean hasAttribute(final int flag) {
-        return (flag & 0x1) == 1;
+    public CompressionException(Throwable cause) {
+        super(cause);
     }
 
+    public CompressionException() {
+        super();
+    }
 }

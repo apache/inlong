@@ -21,6 +21,7 @@ import org.apache.tubemq.client.common.TClientConstants;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
 import org.apache.tubemq.corebase.config.TLSConfig;
 import org.apache.tubemq.corebase.utils.AddressUtils;
+import org.apache.tubemq.corebase.utils.CompressionType;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.RpcConstants;
 
@@ -91,6 +92,10 @@ public class TubeClientConfig {
     private String usrPassWord = "";
     // TLS configuration.
     private TLSConfig tlsConfig = new TLSConfig();
+    // Compression type
+    private CompressionType compressionType = CompressionType.NONE;
+    // Payload compress threshold
+    private long payloadCompressThreshold = 1024 * 4;
 
     public TubeClientConfig(String masterAddrInfo) {
         this(new MasterInfo(masterAddrInfo));
@@ -447,6 +452,22 @@ public class TubeClientConfig {
 
     public String getUsrPassWord() {
         return usrPassWord;
+    }
+
+    public CompressionType getCompressionType() {
+        return compressionType;
+    }
+
+    public void setCompressionType(CompressionType compressionType) {
+        this.compressionType = compressionType;
+    }
+
+    public long getPayloadCompressThreshold() {
+        return payloadCompressThreshold;
+    }
+
+    public void setPayloadCompressThreshold(long payloadCompressThreshold) {
+        this.payloadCompressThreshold = payloadCompressThreshold;
     }
 
     @Override

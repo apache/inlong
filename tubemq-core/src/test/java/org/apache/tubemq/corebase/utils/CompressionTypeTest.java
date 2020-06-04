@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,24 +17,23 @@
 
 package org.apache.tubemq.corebase.utils;
 
-import org.apache.tubemq.corebase.Message;
+import junit.framework.TestCase;
+import org.junit.Assert;
 
-public class MessageFlagUtils {
+public class CompressionTypeTest extends TestCase {
 
-    public static int getFlag(final Message message) {
-        return getFlag(message, false);
+    public void testNone() {
+        String original = "abcdefg";
+        byte[] compress = CompressionType.NONE.compress(original.getBytes());
+        byte[] uncompress = CompressionType.NONE.uncompress(compress);
+        Assert.assertEquals(original, new String(uncompress));
     }
 
-    public static int getFlag(final Message message, boolean force) {
-        int flag = 0;
-        if (force || (message != null && message.getAttribute() != null)) {
-            flag = flag & 0xFFFFFFFE | 1;
-        }
-        return flag;
-    }
-
-    public static boolean hasAttribute(final int flag) {
-        return (flag & 0x1) == 1;
+    public void testGzip() {
+        String original = "abcdefg";
+        byte[] compress = CompressionType.GZIP.compress(original.getBytes());
+        byte[] uncompress = CompressionType.GZIP.uncompress(compress);
+        Assert.assertEquals(original, new String(uncompress));
     }
 
 }

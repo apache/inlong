@@ -33,6 +33,7 @@ import org.apache.tubemq.client.producer.qltystats.DefaultBrokerRcvQltyStats;
 import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
+import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
@@ -321,7 +322,7 @@ public class SimpleMessageProducer implements MessageProducer {
         builder.setTopicName(partition.getTopic());
         builder.setPartitionId(partition.getPartitionId());
         builder.setData(ByteString.copyFrom(encodePayload(message)));
-        builder.setFlag(MessageFlagUtils.getFlag(message));
+        builder.setFlag(MessageFlagUtils.getFlag(message, true));
         builder.setSentAddr(this.producerManager.getProducerAddrId());
         builder.setCheckSum(-1);
         if (TStringUtils.isNotBlank(message.getMsgType())) {
@@ -335,11 +336,13 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     private byte[] encodePayload(final Message message) {
-        final byte[] payload = message.getData();
-        final String attribute = message.getAttribute();
+        byte[] payload = message.getData();
+        String attribute = message.getAttribute();
         if (TStringUtils.isBlank(attribute)) {
-            return payload;
+            attribute = "";
         }
+        attribute = attribute + "," + TokenConstants.TOKEN_COMPRESS_TYPE + producerConfig.getCompressionType().name();
+        payload = compressIfNecessary(payload);
         byte[] attrData = StringUtils.getBytesUtf8(attribute);
         final ByteBuffer buffer =
                 ByteBuffer.allocate(4 + attrData.length + payload.length);
@@ -347,6 +350,13 @@ public class SimpleMessageProducer implements MessageProducer {
         buffer.put(attrData);
         buffer.put(payload);
         return buffer.array();
+    }
+
+    private byte[] compressIfNecessary(byte[] payload){
+        if (payload.length > producerConfig.getPayloadCompressThreshold()) {
+            return producerConfig.getCompressionType().compress(payload);
+        }
+        return payload;
     }
 
     private MessageSentResult buildMsgSentResult(final Message message,

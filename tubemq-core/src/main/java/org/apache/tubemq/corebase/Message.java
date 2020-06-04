@@ -232,10 +232,13 @@ public class Message implements Serializable {
         if (keyVal.contains(TokenConstants.TOKEN_MSG_TYPE)
                 || keyVal.contains(TokenConstants.TOKEN_MSG_TIME)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TYPE)
-                || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)) {
+                || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)
+                || keyVal.contains(TokenConstants.TOKEN_COMPRESS_TYPE)
+                || valueVal.contains(TokenConstants.TOKEN_COMPRESS_TYPE)) {
             throw new IllegalArgumentException(new StringBuilder(512).append("System Headers(")
                     .append(TokenConstants.TOKEN_MSG_TYPE).append(",")
-                    .append(TokenConstants.TOKEN_MSG_TIME)
+                    .append(TokenConstants.TOKEN_MSG_TIME).append(",")
+                    .append(TokenConstants.TOKEN_COMPRESS_TYPE)
                     .append(") are reserved tokens, can't include in keyVal or valueVal!").toString());
         }
         if ((keyVal.contains(TokenConstants.ARRAY_SEP)

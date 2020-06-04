@@ -38,5 +38,6 @@ public class TokenConstants {
     public static final String TOKEN_MCACHE_FLUSH_INTVL = "memCacheFlushIntvl";
     public static final String TOKEN_MSG_TYPE = "$msgType$";
     public static final String TOKEN_MSG_TIME = "$msgTime$";
+    public static final String TOKEN_COMPRESS_TYPE = "$compressType$";
 
 }
