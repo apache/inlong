@@ -33,13 +33,10 @@ public class FileSegmentListTest {
 
     @Test
     public void getView() {
-        File dir = new File("src/test/resource/data");
-        dir.mkdir();
+        File file = null;
         try {
-            File file =
-                    new File("src/test/resource/data",
-                            DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
-            file.createNewFile();
+            file = File.createTempFile("data",
+                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();
             fileSegmentList.append(new FileSegment(0, file, SegmentType.DATA));
@@ -55,27 +52,18 @@ public class FileSegmentListTest {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (dir.exists()) {
-                dir.delete();
+            if (file != null) {
+                file.deleteOnExit();
             }
         }
     }
 
     @Test
     public void append() {
-        File dir = new File("src/test/resource/data");
-        if (dir.exists()) {
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                file.delete();
-            }
-            dir.delete();
-        }
-        dir.mkdir();
+        File file = null;
         try {
-            File file =
-                    new File("src/test/resource/data",
-                            DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+            file = File.createTempFile("data",
+                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             file.createNewFile();
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();
@@ -87,9 +75,12 @@ public class FileSegmentListTest {
             fileSegmentList.append(fileSegment);
             Segment[] segmentList = fileSegmentList.getView();
             Assert.assertTrue(segmentList.length == 1);
-            file.delete();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (file != null) {
+                file.deleteOnExit();
+            }
         }
     }
 }

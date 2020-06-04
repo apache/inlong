@@ -31,12 +31,9 @@ public class FileSegmentTest {
     @org.junit.Test
     public void append() {
         long start = 0;
-        File file = new File("src/test/resource/testdata");
-        if (file.exists()) {
-            file.delete();
-        }
+        File file = null;
         try {
-            file.createNewFile();
+            file = File.createTempFile("testdata", null);
             // create FileSegment
             fileSegment = new FileSegment(start, file, true, SegmentType.DATA);
             String data = "abc";
@@ -49,18 +46,18 @@ public class FileSegmentTest {
             e.printStackTrace();
         } finally {
             fileSegment.close();
+            if (file != null) {
+                file.deleteOnExit();
+            }
         }
     }
 
     @org.junit.Test
     public void getViewRef() {
         long start = 0;
-        File file = new File("src/test/resource/testdata");
-        if (file.exists()) {
-            file.delete();
-        }
+        File file = null;
         try {
-            file.createNewFile();
+            file = File.createTempFile("testdata", null);
             // create FileSegment.
             fileSegment = new FileSegment(start, file, true, SegmentType.DATA);
             String data = "abc";
@@ -79,6 +76,9 @@ public class FileSegmentTest {
             e.printStackTrace();
         } finally {
             fileSegment.close();
+            if (file != null) {
+                file.deleteOnExit();
+            }
         }
     }
 }
