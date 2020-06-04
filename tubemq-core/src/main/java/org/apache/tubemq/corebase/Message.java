@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-
 import org.apache.tubemq.corebase.utils.CompressionType;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 
