@@ -68,6 +68,7 @@
         <module>tubemq-client</module>
         <module>tubemq-server</module>
         <module>tubemq-example</module>
+        <module>tubemq-connectors</module>
     </modules>
 
     <properties>
@@ -251,8 +252,6 @@
                         <!-- Front-end -->
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
-                        <!-- manually installed version on travis -->
-                        <exclude>protobuf-2.5.0/**</exclude>
                         <exclude>DISCLAIMER-WIP</exclude>
                     </excludes>
                 </configuration>
