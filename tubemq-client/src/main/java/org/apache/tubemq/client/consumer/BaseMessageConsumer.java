@@ -1555,11 +1555,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                         .append(", sleep ").append(consumerConfig.getHeartbeatPeriodAfterFail())
                         .append(" Ms").toString());
                 sBuilder.delete(0, sBuilder.length());
-                try {
-                    Thread.sleep(consumerConfig.getHeartbeatPeriodAfterFail());
-                } catch (InterruptedException e1) {
-                    //
-                }
+                ThreadUtils.sleep(consumerConfig.getHeartbeatPeriodAfterFail());
             }
         }
     }
