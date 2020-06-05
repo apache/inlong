@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -700,8 +700,7 @@ public class ProducerManager {
                 sBuilder.delete(0, sBuilder.length());
                 try {
                     Thread.sleep(tubeClientConfig.getHeartbeatPeriodAfterFail());
-                } catch (InterruptedException e1) {
-                    return;
+                } catch (InterruptedException ignored) {
                 }
             }
         }

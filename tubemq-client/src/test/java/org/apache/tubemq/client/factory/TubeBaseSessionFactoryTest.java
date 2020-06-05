@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -63,9 +63,9 @@ public class TubeBaseSessionFactoryTest {
         assertEquals(1, factory.getCurrClients().size());
 
         final PullMessageConsumer pullMessageConsumer = factory.createPullConsumer(
-                new ConsumerConfig("127.0.0.1:18080", "192.168.1.1:18080", "test"));
+                new ConsumerConfig("192.168.1.1:18080", "test"));
         final PushMessageConsumer pushMessageConsumer = factory.createPushConsumer(
-                new ConsumerConfig("127.0.0.1:18081", "192.168.1.1:18080", "test"));
+                new ConsumerConfig("192.168.1.1:18080", "test"));
 
         assertEquals(3, factory.getCurrClients().size());
         factory.removeClient(producer);
