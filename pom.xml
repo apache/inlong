@@ -68,6 +68,7 @@
         <module>tubemq-client</module>
         <module>tubemq-server</module>
         <module>tubemq-example</module>
+        <module>tubemq-connectors</module>
     </modules>
 
     <properties>
