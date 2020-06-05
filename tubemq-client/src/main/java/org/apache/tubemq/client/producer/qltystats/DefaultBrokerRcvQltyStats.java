@@ -33,6 +33,7 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +90,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                     } catch (Throwable e) {
                         //
                     }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Throwable e) {
-                        //
-                    }
+                    ThreadUtils.sleep(1000);
                 }
             }
         }, "Sent Statistic Thread");

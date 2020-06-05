@@ -37,6 +37,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.RegisterRequestB2M;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
@@ -324,11 +325,7 @@ public class TubeBroker implements Stoppable {
         } catch (Throwable e) {
             logger.warn("CloseBroker throw exception : ", e);
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            //
-        }
+        ThreadUtils.sleep(2000);
         logger.info("Tube Client StoreService stopping.....");
         TubeBroker.this.brokerServiceServer.stop();
         logger.info("Tube Client StoreService stopped.....");
@@ -348,11 +345,7 @@ public class TubeBroker implements Stoppable {
         }
         logger.info("Stop tube server successfully.");
         LogManager.shutdown();
-        try {
-            Thread.sleep(2000);
-        } catch (Throwable ee) {
-            //
-        }
+        ThreadUtils.sleep(2000);
     }
 
     private String generateBrokerClientId() {
