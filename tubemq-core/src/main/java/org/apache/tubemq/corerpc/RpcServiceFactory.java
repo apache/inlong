@@ -31,6 +31,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
 import org.apache.tubemq.corebase.cluster.NodeAddrInfo;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.client.ClientFactory;
 import org.apache.tubemq.corerpc.exception.LocalConnException;
 import org.apache.tubemq.corerpc.netty.NettyRpcServer;
@@ -586,11 +587,7 @@ public class RpcServiceFactory {
                 } catch (Throwable e2) {
                     logger.warn("[connectionManager]: runner found throw error info ", e2);
                 }
-                try {
-                    Thread.sleep(80);
-                } catch (Exception e) {
-                    //
-                }
+                ThreadUtils.sleep(80);
             }
         }
     }

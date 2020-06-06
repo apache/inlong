@@ -48,6 +48,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
@@ -413,11 +414,7 @@ public class ProducerManager {
                 if (e instanceof LocalConnException) {
                     logger.warn("register2Master error, retry... exception: ", e);
                 }
-                try {
-                    Thread.sleep(1200);
-                } catch (Throwable ee2) {
-                    //
-                }
+                ThreadUtils.sleep(1200);
                 if (remainingRetry <= 0) {
                     throw e;
                 }
@@ -602,11 +599,7 @@ public class ProducerManager {
         public void run() {
             StringBuilder sBuilder = new StringBuilder(512);
             while (!heartBeatStatus.compareAndSet(0, 1)) {
-                try {
-                    Thread.sleep(100);
-                } catch (Throwable e1) {
-                    //
-                }
+                ThreadUtils.sleep(100);
             }
             if (publishTopics.isEmpty()) {
                 return;
