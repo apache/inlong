@@ -204,7 +204,7 @@ public class ConsumerConfig extends TubeClientConfig {
         if (TStringUtils.isBlank(consumerGroup)) {
             throw new IllegalArgumentException("Illegal parameter: consumerGroup is Blank!");
         }
-        String tmpConsumerGroup = String.valueOf(consumerGroup).trim();
+        String tmpConsumerGroup = consumerGroup.trim();
         if (tmpConsumerGroup.length() > TBaseConstants.META_MAX_GROUPNAME_LENGTH) {
             throw new IllegalArgumentException(new StringBuilder(512)
                     .append("Illegal parameter: the max length of consumerGroup is ")

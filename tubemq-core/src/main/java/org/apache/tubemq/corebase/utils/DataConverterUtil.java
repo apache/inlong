@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -109,11 +109,9 @@ public class DataConverterUtil {
                     info = info.trim();
                     String[] strInfo = info.split(TokenConstants.SEGMENT_SEP);
                     String[] strTopicInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
-                    for (int i = 0; i < strTopicInfoSet.length; i++) {
-                        String[] strTopicInfo =
-                                strTopicInfoSet[i].split(TokenConstants.ATTR_SEP);
-                        BrokerInfo brokerInfo =
-                                brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
+                    for (String s : strTopicInfoSet) {
+                        String[] strTopicInfo = s.split(TokenConstants.ATTR_SEP);
+                        BrokerInfo brokerInfo = brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
                         if (brokerInfo != null) {
                             topicList.add(new TopicInfo(brokerInfo,
                                     strInfo[0], Integer.parseInt(strTopicInfo[1]),
@@ -194,10 +192,10 @@ public class DataConverterUtil {
      */
     public static List<Message> convertMessage(final String topicName,
                                                List<ClientBroker.TransferedMessage> transferedMessageList) {
-        List<Message> messageList = new ArrayList<>();
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
-            return messageList;
+            return new ArrayList<>();
         }
+        List<Message> messageList = new ArrayList<>(transferedMessageList.size());
         for (ClientBroker.TransferedMessage trsMessage : transferedMessageList) {
             final int flag = trsMessage.getFlag();
             int dataCheckSum = trsMessage.getCheckSum();
