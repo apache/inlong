@@ -623,14 +623,14 @@ public class FlowCtrlRuleHandler {
                     + ruleType + " limit rule!");
         }
         try {
-            timeHour = Integer.valueOf(startItems[0]);
+            timeHour = Integer.parseInt(startItems[0]);
         } catch (Throwable e2) {
             throw new Exception("illegal format, " + strValName
                     + " value must be 'aa:bb' and 'aa' must be int value in "
                     + ruleType + " limit rule!");
         }
         try {
-            timeMin = Integer.valueOf(startItems[1]);
+            timeMin = Integer.parseInt(startItems[1]);
         } catch (Throwable e2) {
             throw new Exception("illegal format, " + strValName
                     + " value must be 'aa:bb' and 'bb' must be int value in "

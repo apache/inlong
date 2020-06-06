@@ -67,7 +67,7 @@ public class BdbGroupAdmin {
         }
         String nodeName2Remove = args[2];
         InetSocketAddress helper =
-                new InetSocketAddress(hostAndPort[0], Integer.valueOf(hostAndPort[1]));
+                new InetSocketAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1]));
         helpers.add(helper);
         ReplicationGroupAdmin rga = new ReplicationGroupAdmin(group, helpers);
 

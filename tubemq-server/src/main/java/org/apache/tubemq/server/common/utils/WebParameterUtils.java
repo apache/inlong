@@ -364,13 +364,13 @@ public class WebParameterUtils {
         long validDuration = 0;
         try {
             if (timeUnit.endsWith("s")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
             } else if (timeUnit.endsWith("m")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (timeUnit.endsWith("h")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                validDuration = Long.valueOf(validValStr) * 3600000;
+                validDuration = Long.parseLong(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             throw new Exception(new StringBuilder(512)
