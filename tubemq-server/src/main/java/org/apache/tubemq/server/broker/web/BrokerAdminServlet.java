@@ -281,7 +281,7 @@ public class BrokerAdminServlet extends HttpServlet {
         Set<String> batchTopicNames = new HashSet<>();
         String inputTopicName = req.getParameter("topicName");
         if (TStringUtils.isNotBlank(inputTopicName)) {
-            inputTopicName = String.valueOf(inputTopicName).trim();
+            inputTopicName = inputTopicName.trim();
             String[] strTopicNames =
                     inputTopicName.split(TokenConstants.ARRAY_SEP);
             for (int i = 0; i < strTopicNames.length; i++) {
