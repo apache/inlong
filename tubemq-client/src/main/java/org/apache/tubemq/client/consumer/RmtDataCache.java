@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -288,9 +288,7 @@ public class RmtDataCache implements Closeable {
         PartitionExt partitionExt = partitionMap.get(partitionKey);
         if (partitionExt != null) {
             Long curToken = partitionUsedMap.get(partitionKey);
-            if (curToken != null && curToken == usedToken) {
-                return true;
-            }
+            return curToken != null && curToken == usedToken;
         }
         return false;
     }

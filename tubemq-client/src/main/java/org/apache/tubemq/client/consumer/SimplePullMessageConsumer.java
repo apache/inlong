@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -150,7 +150,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                 .append(TokenConstants.ATTR_SEP).append(strConfirmContextItems[2].trim()).toString();
         sBuilder.delete(0, sBuilder.length());
         String topicName = strConfirmContextItems[1].trim();
-        long timeStamp = Long.valueOf(strConfirmContextItems[3]);
+        long timeStamp = Long.parseLong(strConfirmContextItems[3]);
         if (!baseConsumer.rmtDataCache.isPartitionInUse(keyId, timeStamp)) {
             return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
                     "The confirmContext's value invalid!");
