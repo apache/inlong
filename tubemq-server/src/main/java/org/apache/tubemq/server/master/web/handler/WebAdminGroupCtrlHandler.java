@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -543,7 +543,7 @@ public class WebAdminGroupCtrlHandler {
             Set<String> batchOpConsumerIds = new HashSet<>();
             String inputConsumerId = req.getParameter("consumerId");
             if (TStringUtils.isNotBlank(inputConsumerId)) {
-                inputConsumerId = String.valueOf(inputConsumerId).trim();
+                inputConsumerId = inputConsumerId.trim();
                 String[] strInputConsumerIds =
                         inputConsumerId.split(TokenConstants.ARRAY_SEP);
                 for (int i = 0; i < strInputConsumerIds.length; i++) {

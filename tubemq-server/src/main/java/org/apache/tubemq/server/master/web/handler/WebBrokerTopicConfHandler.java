@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -555,8 +555,8 @@ public class WebBrokerTopicConfHandler {
                             .append(",\"unFlushDataHold\":").append(entity.getUnflushDataHold())
                             .append(",\"deleteWhen\":\"").append(entity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(entity.getDeletePolicy())
-                            .append("\",\"acceptPublish\":").append(String.valueOf(entity.getAcceptPublish()))
-                            .append(",\"acceptSubscribe\":").append(String.valueOf(entity.getAcceptSubscribe()))
+                            .append("\",\"acceptPublish\":").append(entity.getAcceptPublish())
+                            .append(",\"acceptSubscribe\":").append(entity.getAcceptSubscribe())
                             .append(",\"numTopicStores\":").append(entity.getNumTopicStores())
                             .append(",\"memCacheMsgSizeInMB\":").append(entity.getMemCacheMsgSizeInMB())
                             .append(",\"memCacheFlushIntvl\":").append(entity.getMemCacheFlushIntvl())
