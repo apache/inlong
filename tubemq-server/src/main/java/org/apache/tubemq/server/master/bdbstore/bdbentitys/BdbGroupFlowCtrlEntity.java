@@ -186,7 +186,7 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_QRY_PRIORITY_ID);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 0;
     }

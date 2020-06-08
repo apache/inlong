@@ -719,12 +719,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 } else {
                     String[] partitionKeyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
                     BdbBrokerConfEntity bdbBrokerConfEntity = defaultBrokerConfManager
-                            .getBrokerDefaultConfigStoreInfo(Integer.valueOf(partitionKeyItems[0]));
+                            .getBrokerDefaultConfigStoreInfo(Integer.parseInt(partitionKeyItems[0]));
                     if (bdbBrokerConfEntity != null) {
                         if (partsOffsetMap.get(entry.getKey()) != null) {
                             offsetInfoList.add(new OffsetStorageInfo(partitionKeyItems[1],
                                     bdbBrokerConfEntity.getBrokerId(),
-                                    Integer.valueOf(partitionKeyItems[2]),
+                                    Integer.parseInt(partitionKeyItems[2]),
                                     partsOffsetMap.get(entry.getKey()), 0));
                         }
                     }
