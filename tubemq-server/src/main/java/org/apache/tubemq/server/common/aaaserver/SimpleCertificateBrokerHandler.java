@@ -85,7 +85,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
                 continue;
             }
             try {
-                long curVisitToken = Long.valueOf(visitTokenItems[i].trim());
+                long curVisitToken = Long.parseLong(visitTokenItems[i].trim());
                 List<Long> currList = visitTokenList.get();
                 if (!currList.contains(curVisitToken)) {
                     while (true) {

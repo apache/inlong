@@ -1207,7 +1207,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                                 consumerNodeInfo.getPartStr().split(TokenConstants.ATTR_SEP);
                         long updatedOffset =
                                 offsetManager.commitOffset(groupTopicPart[0],
-                                        groupTopicPart[1], Integer.valueOf(groupTopicPart[2]), false);
+                                        groupTopicPart[1], Integer.parseInt(groupTopicPart[2]), false);
                         logger.info(strBuffer.append("[Consumer-Partition Timeout]")
                                 .append(nodeId).append(",updatedOffset=")
                                 .append(updatedOffset).toString());

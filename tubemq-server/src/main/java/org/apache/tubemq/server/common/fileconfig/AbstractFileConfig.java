@@ -101,10 +101,9 @@ public abstract class AbstractFileConfig {
             return defaultValue;
         } else {
             try {
-                final Long rt = Long.valueOf(value);
-                return rt.intValue();
+                return Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                logger.warn("Long.valueOf(" + value + ") failure for key=" + key);
+                logger.warn("Integer.parseInt(" + value + ") failure for key=" + key);
                 return defaultValue;
             }
         }
@@ -124,8 +123,7 @@ public abstract class AbstractFileConfig {
                     .append("Blank value for ").append(key).toString());
         } else {
             try {
-                final Long rt = Long.valueOf(value);
-                return rt.intValue();
+                return Integer.parseInt(value);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
                         .append("Translate key(").append(key).append(")'s value ")
@@ -148,7 +146,7 @@ public abstract class AbstractFileConfig {
                     .append("Blank value for ").append(key).toString());
         } else {
             try {
-                return Boolean.valueOf(value);
+                return Boolean.parseBoolean(value);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
                         .append("Translate key(").append(key).append(")'s value ")
@@ -171,7 +169,7 @@ public abstract class AbstractFileConfig {
                     .append("Blank value for ").append(key).toString());
         } else {
             try {
-                return Long.valueOf(value);
+                return Long.parseLong(value);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
                         .append("Translate key(").append(key).append(")'s value ")

@@ -559,13 +559,13 @@ public class MessageStore implements Closeable {
         String validValStr = tmpStrs[1];
         try {
             if (validValStr.endsWith("m")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (validValStr.endsWith("s")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
             } else if (validValStr.endsWith("h")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                return Long.valueOf(validValStr) * 3600000;
+                return Long.parseLong(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             return DataStoreUtils.MAX_FILE_VALID_DURATION;

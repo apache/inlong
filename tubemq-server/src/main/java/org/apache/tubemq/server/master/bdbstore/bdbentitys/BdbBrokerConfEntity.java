@@ -261,7 +261,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_STORE_NUM);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 1;
     }
@@ -271,7 +271,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 10;
     }
@@ -288,7 +288,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 2;
     }
@@ -305,7 +305,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 20000;
     }
@@ -322,7 +322,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
     }
@@ -339,7 +339,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_TLS_PORT);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
     }
