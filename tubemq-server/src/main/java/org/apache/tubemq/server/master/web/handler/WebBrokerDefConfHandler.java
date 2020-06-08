@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -1496,8 +1496,8 @@ public class WebBrokerDefConfHandler {
                         .append(",\"memCacheFlushIntvl\":").append(recordMemCacheFlushIntvl)
                         .append(",\"deleteWhen\":\"").append(entity.getDftDeleteWhen())
                         .append("\",\"deletePolicy\":\"").append(entity.getDftDeletePolicy())
-                        .append("\",\"acceptPublish\":").append(String.valueOf(entity.isAcceptPublish()))
-                        .append(",\"acceptSubscribe\":").append(String.valueOf(entity.isAcceptSubscribe()))
+                        .append("\",\"acceptPublish\":").append(entity.isAcceptPublish())
+                        .append(",\"acceptSubscribe\":").append(entity.isAcceptSubscribe())
                         .append(",\"createUser\":\"").append(entity.getRecordCreateUser())
                         .append("\",\"createDate\":\"").append(formatter.format(entity.getRecordCreateDate()))
                         .append("\",\"modifyUser\":\"").append(entity.getRecordModifyUser())
@@ -1613,8 +1613,8 @@ public class WebBrokerDefConfHandler {
                             .append(",\"memCacheFlushIntvl\":").append(topicEntity.getMemCacheFlushIntvl())
                             .append(",\"deleteWhen\":\"").append(topicEntity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(topicEntity.getDeletePolicy())
-                            .append("\",\"acceptPublish\":").append(String.valueOf(topicEntity.getAcceptPublish()))
-                            .append(",\"acceptSubscribe\":").append(String.valueOf(topicEntity.getAcceptSubscribe()))
+                            .append("\",\"acceptPublish\":").append(topicEntity.getAcceptPublish())
+                            .append(",\"acceptSubscribe\":").append(topicEntity.getAcceptSubscribe())
                             .append(",\"createUser\":\"").append(topicEntity.getCreateUser())
                             .append("\",\"createDate\":\"").append(formatter.format(topicEntity.getCreateDate()))
                             .append("\",\"modifyUser\":\"").append(topicEntity.getModifyUser())
