@@ -169,7 +169,8 @@ public class MsgFileStore implements Closeable {
             if ((isMsgCntFlushed = this.curUnflushed.addAndGet(1)
                     >= messageStore.getUnflushThreshold())
                     || (isMsgTimeFushed = currTime - this.lastFlushTime.get()
-                    >= messageStore.getUnflushInterval())
+                    >= messageStore.getUnflushInterval()
+                    || (curUnflushSize.get() >= messageStore.getUnflushSizeThreshold()))
                     || isDataFlushed || isIndexFlushed) {
                 boolean forceMetadata = (isDataFlushed
                         || isIndexFlushed

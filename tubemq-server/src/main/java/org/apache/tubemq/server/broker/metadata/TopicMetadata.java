@@ -37,6 +37,8 @@ public class TopicMetadata {
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushInterval = 10000;
+    // data will be flushed to disk when unflushed message accumulated size exceed threshold, default to 64MB.
+    private long unflushSizeThreshold = 1 << 26;
     @Deprecated
     private int unflushDataHold = 10000;
     // enable produce data to topic.
@@ -95,50 +97,55 @@ public class TopicMetadata {
             this.unflushInterval = Integer.parseInt(topicConfInfoArr[5]);
         }
         if (TStringUtils.isBlank(topicConfInfoArr[6])) {
-            this.deleteWhen = brokerDefMetadata.getDeleteWhen();
+            this.unflushSizeThreshold = brokerDefMetadata.getUnflushSizeThreshold();
         } else {
-            this.deleteWhen = topicConfInfoArr[6];
+            this.unflushSizeThreshold = Integer.parseInt(topicConfInfoArr[6]);
         }
         if (TStringUtils.isBlank(topicConfInfoArr[7])) {
-            this.deletePolicy = brokerDefMetadata.getDeletePolicy();
+            this.deleteWhen = brokerDefMetadata.getDeleteWhen();
         } else {
-            this.deletePolicy = topicConfInfoArr[7];
+            this.deleteWhen = topicConfInfoArr[7];
         }
         if (TStringUtils.isBlank(topicConfInfoArr[8])) {
-            this.numTopicStores = brokerDefMetadata.getNumTopicStores();
+            this.deletePolicy = brokerDefMetadata.getDeletePolicy();
         } else {
-            this.numTopicStores = Integer.parseInt(topicConfInfoArr[8]);
+            this.deletePolicy = topicConfInfoArr[8];
         }
         if (TStringUtils.isBlank(topicConfInfoArr[9])) {
-            this.statusId = TStatusConstants.STATUS_TOPIC_OK;
+            this.numTopicStores = brokerDefMetadata.getNumTopicStores();
         } else {
-            this.statusId = Integer.parseInt(topicConfInfoArr[9]);
+            this.numTopicStores = Integer.parseInt(topicConfInfoArr[9]);
         }
         if (TStringUtils.isBlank(topicConfInfoArr[10])) {
-            this.unflushDataHold = brokerDefMetadata.getUnflushDataHold();
+            this.statusId = TStatusConstants.STATUS_TOPIC_OK;
         } else {
-            this.unflushDataHold = Integer.parseInt(topicConfInfoArr[10]);
+            this.statusId = Integer.parseInt(topicConfInfoArr[10]);
         }
         if (TStringUtils.isBlank(topicConfInfoArr[11])) {
-            this.memCacheMsgSize = brokerDefMetadata.getMemCacheMsgSize();
+            this.unflushDataHold = brokerDefMetadata.getUnflushDataHold();
         } else {
-            this.memCacheMsgSize = Integer.parseInt(topicConfInfoArr[11]) * 1024 * 512;
+            this.unflushDataHold = Integer.parseInt(topicConfInfoArr[11]);
         }
         if (TStringUtils.isBlank(topicConfInfoArr[12])) {
-            this.memCacheMsgCnt = brokerDefMetadata.getMemCacheMsgCnt();
+            this.memCacheMsgSize = brokerDefMetadata.getMemCacheMsgSize();
         } else {
-            this.memCacheMsgCnt = Integer.parseInt(topicConfInfoArr[12]) * 512;
+            this.memCacheMsgSize = Integer.parseInt(topicConfInfoArr[12]) * 1024 * 512;
         }
         if (TStringUtils.isBlank(topicConfInfoArr[13])) {
+            this.memCacheMsgCnt = brokerDefMetadata.getMemCacheMsgCnt();
+        } else {
+            this.memCacheMsgCnt = Integer.parseInt(topicConfInfoArr[13]) * 512;
+        }
+        if (TStringUtils.isBlank(topicConfInfoArr[14])) {
             this.memCacheFlushIntvl = brokerDefMetadata.getMemCacheFlushInterval();
         } else {
-            this.memCacheFlushIntvl = Integer.parseInt(topicConfInfoArr[13]);
+            this.memCacheFlushIntvl = Integer.parseInt(topicConfInfoArr[14]);
         }
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, String dataPath,
-                          String deleteWhen, String deletePolicy,
+                          int unflushInterval, long unflushSizeThreshold,
+                          String dataPath, String deleteWhen, String deletePolicy,
                           int numPartitions, boolean acceptPublish,
                           boolean acceptSubscribe, int statusId,
                           int numTopicStores, int memCacheMsgSize,
@@ -146,6 +153,7 @@ public class TopicMetadata {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
+        this.unflushSizeThreshold = unflushSizeThreshold;
         this.dataPath = dataPath;
         this.deleteWhen = deleteWhen;
         this.deletePolicy = deletePolicy;
@@ -162,8 +170,8 @@ public class TopicMetadata {
     @Override
     public TopicMetadata clone() {
         return new TopicMetadata(this.topic, this.unflushThreshold,
-                this.unflushInterval, this.dataPath,
-                this.deleteWhen, this.deletePolicy,
+                this.unflushInterval, this.unflushSizeThreshold,
+                this.dataPath, this.deleteWhen, this.deletePolicy,
                 this.numPartitions, this.acceptPublish,
                 this.acceptSubscribe, this.statusId,
                 this.numTopicStores, this.memCacheMsgSize,
@@ -226,6 +234,14 @@ public class TopicMetadata {
         this.unflushInterval = unflushInterval;
     }
 
+    public long getUnflushSizeThreshold() {
+        return this.unflushSizeThreshold;
+    }
+
+    public void setUnflushSizeThreshold(long unflushSizeThreshold) {
+        this.unflushSizeThreshold = unflushSizeThreshold;
+    }
+
     public int getStatusId() {
         return statusId;
     }
@@ -262,8 +278,9 @@ public class TopicMetadata {
         result = prime * result + this.numPartitions;
         result = prime * result + this.numTopicStores;
         result = prime * result + (this.topic == null ? 0 : this.topic.hashCode());
-        result = prime * result + this.unflushInterval;
         result = prime * result + this.unflushThreshold;
+        result = prime * result + this.unflushInterval;
+        result = prime * result + (int) this.unflushSizeThreshold + (int) (this.unflushSizeThreshold >> 32);
         result = prime * result + this.statusId;
         result = prime * result + this.memCacheMsgSize;
         result = prime * result + this.memCacheMsgCnt;
@@ -321,10 +338,13 @@ public class TopicMetadata {
         } else if (!this.topic.equals(other.topic)) {
             return false;
         }
+        if (this.unflushThreshold != other.unflushThreshold) {
+            return false;
+        }
         if (this.unflushInterval != other.unflushInterval) {
             return false;
         }
-        if (this.unflushThreshold != other.unflushThreshold) {
+        if (this.unflushSizeThreshold != other.unflushSizeThreshold) {
             return false;
         }
         if (this.statusId != other.statusId) {
@@ -354,8 +374,9 @@ public class TopicMetadata {
      */
     public boolean isPropertyEquals(final TopicMetadata other) {
         return (this.numPartitions == other.numPartitions
-                && this.unflushInterval == other.unflushInterval
                 && this.unflushThreshold == other.unflushThreshold
+                && this.unflushInterval == other.unflushInterval
+                && this.unflushSizeThreshold == other.unflushSizeThreshold
                 && this.memCacheMsgSize == other.memCacheMsgSize
                 && this.memCacheMsgCnt == other.memCacheMsgCnt
                 && this.memCacheFlushIntvl == other.memCacheFlushIntvl
@@ -367,6 +388,7 @@ public class TopicMetadata {
         return new StringBuilder(512).append("TopicMetadata [topic=").append(this.topic)
                 .append(", unflushThreshold=").append(this.unflushThreshold)
                 .append(", unflushInterval=").append(this.unflushInterval)
+                .append(", unflushSizeThreshold=").append(this.unflushSizeThreshold)
                 .append(", dataPath=").append(this.dataPath)
                 .append(", deleteWhen=").append(this.deleteWhen)
                 .append(", deletePolicy=").append(this.deletePolicy)

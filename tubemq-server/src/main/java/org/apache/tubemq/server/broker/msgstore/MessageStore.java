@@ -76,6 +76,7 @@ public class MessageStore implements Closeable {
     private volatile int partitionNum;
     private AtomicInteger unflushInterval = new AtomicInteger(0);
     private AtomicInteger unflushThreshold = new AtomicInteger(0);
+    private AtomicLong unflushSizeThreshold = new AtomicLong(0);
     private volatile int writeCacheMaxSize;
     private volatile int writeCacheMaxCnt;
     private volatile int writeCacheFlushIntvl;
@@ -120,6 +121,7 @@ public class MessageStore implements Closeable {
         this.unflushInterval.set(topicMetadata.getUnflushInterval());
         this.maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         this.unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        this.unflushSizeThreshold.set(topicMetadata.getUnflushSizeThreshold());
         this.writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
         this.writeCacheMaxSize = topicMetadata.getMemCacheMsgSize();
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
@@ -383,6 +385,7 @@ public class MessageStore implements Closeable {
         partitionNum = topicMetadata.getNumPartitions();
         unflushInterval.set(topicMetadata.getUnflushInterval());
         unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        unflushSizeThreshold.set(topicMetadata.getUnflushSizeThreshold());
         maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
@@ -487,6 +490,10 @@ public class MessageStore implements Closeable {
         return this.unflushThreshold.get();
     }
 
+    public long getUnflushSizeThreshold() {
+        return this.unflushSizeThreshold.get();
+    }
+
     public long getIndexMaxOffset() {
         long lastOffset = 0L;
         this.writeCacheMutex.readLock().lock();
@@ -559,13 +566,13 @@ public class MessageStore implements Closeable {
         String validValStr = tmpStrs[1];
         try {
             if (validValStr.endsWith("m")) {
-                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (validValStr.endsWith("s")) {
-                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
             } else if (validValStr.endsWith("h")) {
-                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                return Long.parseLong(validValStr) * 3600000;
+                return Long.valueOf(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             return DataStoreUtils.MAX_FILE_VALID_DURATION;

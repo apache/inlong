@@ -36,6 +36,8 @@ public class BrokerDefMetadata {
     private int unflushDataHold = 10000;
     // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
     private int unflushInterval = 10000;
+    // data will be flushed to disk when unflushed message accumulated size exceed threshold, default to 64MB.
+    private long unflushSizeThreshold = 1 << 26;
     // enable produce data to topic.
     private boolean acceptPublish = true;
     // enable consume data from topic.
@@ -72,13 +74,14 @@ public class BrokerDefMetadata {
         this.acceptSubscribe = Boolean.parseBoolean(brokerDefaultConfInfoArr[2]);
         this.unflushThreshold = Integer.parseInt(brokerDefaultConfInfoArr[3]);
         this.unflushInterval = Integer.parseInt(brokerDefaultConfInfoArr[4]);
-        this.deleteWhen = brokerDefaultConfInfoArr[5];
-        this.deletePolicy = brokerDefaultConfInfoArr[6];
-        this.numTopicStores = Integer.parseInt(brokerDefaultConfInfoArr[7]);
-        this.unflushDataHold = Integer.parseInt(brokerDefaultConfInfoArr[8]);
-        this.memCacheMsgSize = Integer.parseInt(brokerDefaultConfInfoArr[9]) * 1024 * 512;
-        this.memCacheMsgCnt = Integer.parseInt(brokerDefaultConfInfoArr[10]) * 512;
-        this.memCacheFlushInterval = Integer.parseInt(brokerDefaultConfInfoArr[11]);
+        this.unflushSizeThreshold = Long.parseLong(brokerDefaultConfInfoArr[5]);
+        this.deleteWhen = brokerDefaultConfInfoArr[6];
+        this.deletePolicy = brokerDefaultConfInfoArr[7];
+        this.numTopicStores = Integer.parseInt(brokerDefaultConfInfoArr[8]);
+        this.unflushDataHold = Integer.parseInt(brokerDefaultConfInfoArr[9]);
+        this.memCacheMsgSize = Integer.parseInt(brokerDefaultConfInfoArr[10]) * 1024 * 512;
+        this.memCacheMsgCnt = Integer.parseInt(brokerDefaultConfInfoArr[11]) * 512;
+        this.memCacheFlushInterval = Integer.parseInt(brokerDefaultConfInfoArr[12]);
     }
 
     public int getNumTopicStores() {
@@ -119,6 +122,14 @@ public class BrokerDefMetadata {
 
     public void setUnflushInterval(int unflushInterval) {
         this.unflushInterval = unflushInterval;
+    }
+
+    public long getUnflushSizeThreshold() {
+        return unflushSizeThreshold;
+    }
+
+    public void setUnflushSizeThreshold(long unflushSizeThreshold) {
+        this.unflushSizeThreshold = unflushSizeThreshold;
     }
 
     public boolean isAcceptPublish() {
