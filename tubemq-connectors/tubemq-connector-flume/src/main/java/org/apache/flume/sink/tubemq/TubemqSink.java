@@ -146,9 +146,9 @@ public class TubemqSink extends AbstractSink implements Configurable {
         try {
             sessionFactory = new TubeMultiSessionFactory(clientConfig);
         } catch (TubeClientException e) {
-            LOGGER.error("create connection error in tubeSink, "
-                    + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
-            throw new FlumeException("connect to Tube error1, please re-check", e);
+            LOGGER.error("create connection error in tubemqSink, "
+                    + "maybe tubemq master set error, please re-check. ex1 {}", e.getMessage());
+            throw new FlumeException("connect to tubemq error1, please re-check", e);
         }
 
         if (producerMap == null) {
@@ -166,7 +166,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
             try {
                 producer.shutdown();
             } catch (Throwable e) {
-                LOGGER.error("destroy producer error in tubeSink, ex", e);
+                LOGGER.error("destroy producer error in tubemqSink, ex", e);
             }
         }
         producerMap.clear();
@@ -175,7 +175,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
             try {
                 sessionFactory.shutdown();
             } catch (Exception e) {
-                LOGGER.error("destroy sessionFactory error in tubeSink, MetaClientException", e);
+                LOGGER.error("destroy sessionFactory error in tubemqSink, MetaClientException", e);
             }
         }
         sessionFactory = null;
@@ -184,7 +184,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
 
     @Override
     public void start() {
-        LOGGER.info("tube sink starting...");
+        LOGGER.info("tubemq sink starting...");
 
         // create connection
         try {
@@ -192,7 +192,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
         } catch (FlumeException e) {
             // close connection
             destroyConnection();
-            LOGGER.error("Unable to create tube client" + ". Exception follows.", e);
+            LOGGER.error("Unable to create tubemq client" + ". Exception follows.", e);
         }
         started = true;
         // submit worker threads
@@ -204,7 +204,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
 
     @Override
     public void stop() {
-        LOGGER.info("tube sink stopping");
+        LOGGER.info("tubemq sink stopping");
         started = false;
         if (sinkThreadPool != null) {
             sinkThreadPool.shutdown();
@@ -231,8 +231,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
             Event event = channel.take();
             if (event != null) {
                 if (!eventQueue.offer(event, eventOfferTimeout, TimeUnit.MILLISECONDS)) {
-                    LOGGER.info("[{}] Channel --> Queue(has no enough space,current code point) --> Tube,Check " +
-                            "if Tube server or network is ok.(if this situation last long time it will cause" +
+                    LOGGER.info("[{}] Channel --> Queue(has no enough space,current code point) --> tubemq, Check " +
+                            "if tubemq server or network is ok.(if this situation last long time it will cause" +
                             " memoryChannel full and fileChannel write.)", getName());
                     counter.incrementRollbackCount();
                     tx.rollback();
@@ -250,7 +250,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
                 counter.incrementRollbackCount();
                 tx.rollback();
             } catch (Throwable e) {
-                LOGGER.error("tube sink transaction rollback exception", e);
+                LOGGER.error("tubemq sink transaction rollback exception", e);
             }
         } finally {
             tx.close();
