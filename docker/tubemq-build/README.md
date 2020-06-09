@@ -1,16 +1,10 @@
 ### Docker image for building TubeMQ
-#### pull
-- for all contributors
+##### Pull Image
 ```
 docker pull apachetubemq/tubemq-build
 ```
 
-#### build
-```
-docker build  -t apachetubemq/tubemq-build ./
-```
-
-#### run
+#### Build TubeMQ
 ```
 docker run -v REPLACE_WITH_SOURCE_PATH:/tubemq  apachetubemq/tubemq-build clean package -DskipTests
 ```
