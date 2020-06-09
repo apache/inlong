@@ -30,7 +30,7 @@ Contact us
 
 Contributing
 -------
-We always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [here](https://tubemq.apache.org/en-us/docs/contribution.html) 
+We always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [here](https://tubemq.apache.org/en-us/docs/development/how-to-contribute.html) 
 
 
 License
