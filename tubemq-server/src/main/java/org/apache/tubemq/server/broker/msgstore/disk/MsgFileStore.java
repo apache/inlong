@@ -17,6 +17,9 @@
 
 package org.apache.tubemq.server.broker.msgstore.disk;
 
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +28,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
@@ -52,6 +57,7 @@ public class MsgFileStore implements Closeable {
     private static final int MAX_META_REFRESH_DUR = 1000 * 60 * 60;
     private static final DiskSamplePrint samplePrintCtrl =
         new DiskSamplePrint(logger);
+    private static final int overviewIndexEstimatedScale = 10000;
     // storage ID
     private final String storeKey;
     // data file storage directory
@@ -79,6 +85,10 @@ public class MsgFileStore implements Closeable {
     private SegmentList indexSegments;
     // close status
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    // overview index to check whether a topic exists in the whole store
+    private BloomFilter<Integer> overviewIndex;
+    // counter for recording purged amount, for overview index refresh
+    private long purgedIndexAmount;
 
 
     public MsgFileStore(final MessageStore messageStore,
@@ -95,6 +105,8 @@ public class MsgFileStore implements Closeable {
         this.indexDir = new File(sBuilder.append(baseStorePath)
                 .append(File.separator).append(this.storeKey)
                 .append(File.separator).append("index").toString());
+        overviewIndex = BloomFilter.create(Funnels.integerFunnel(), overviewIndexEstimatedScale);
+        purgedIndexAmount = 0;
         sBuilder.delete(0, sBuilder.length());
         FileUtil.checkDir(this.dataDir);
         FileUtil.checkDir(this.indexDir);
@@ -163,6 +175,7 @@ public class MsgFileStore implements Closeable {
                 sb.delete(0, sb.length());
                 this.indexSegments.append(new FileSegment(newIndexOffset,
                         newIndexFile, SegmentType.INDEX));
+                overviewIndex.put(keyCode);
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
@@ -231,6 +244,15 @@ public class MsgFileStore implements Closeable {
                                         final Set<Integer> filterKeySet,
                                         final String statisKeyBase,
                                         final int maxMsgTransferSize) {
+        // Optimization: Early filter by Overview Index
+        Set<Integer> nonexistingKeycode = new HashSet<Integer>();
+        for (Integer keyCode : filterKeySet) {
+            if (!overviewIndex.mightContain(keyCode)) {
+                nonexistingKeycode.add(keyCode);
+            }
+        }
+        filterKeySet.removeAll(nonexistingKeycode);
+
         // #lizard forgives
         //　Orderly read from index file, then random read from data file.
         int retCode = 0;
@@ -248,14 +270,24 @@ public class MsgFileStore implements Closeable {
         long recvTimeInMillsec = 0L;
         long maxDataLimitOffset = 0L;
         long lastRdDataOffset = 0L;
-        final StringBuilder sBuilder = new StringBuilder(512);
         final long curDataMaxOffset = getDataMaxOffset();
         final long curDataMinOffset = getDataMinOffset();
         HashMap<String, CountItem> countMap = new HashMap<>();
-        ByteBuffer dataBuffer =
-                ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
                 new ArrayList<>();
+
+        // Optimization: Early filter by Overview Index
+        if (filterKeySet.size() == 0) {
+            // return result.
+            return new GetMessageResult(result, retCode, errInfo,
+                    reqOffset, readedOffset, lastRdDataOffset,
+                    totalSize, countMap, transferedMessageList);
+        }
+
+        final StringBuilder sBuilder = new StringBuilder(512);
+        ByteBuffer dataBuffer =
+                ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
+
         // read data file by index.
         for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
              curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
@@ -400,6 +432,19 @@ public class MsgFileStore implements Closeable {
         }
         if (hasExpiredIndexSegs) {
             indexSegments.delExpiredSegments(sBuilder);
+            // NOT GOOD! It should depend on entities removed by policy, not the running times.
+            purgedIndexAmount++;
+        }
+        if (purgedIndexAmount >= 10) {
+            try {
+                rebuildOverviewIndex();
+                purgedIndexAmount = 0;
+            } catch (IOException ioe) {
+                StringBuilder sb = new StringBuilder();
+                logger.error(sb.append(
+                        "[File Store]: runClearupPolicy rebuild OverviewIndex failed, purgedIndexAmount=")
+                        .append(purgedIndexAmount).append(",IOException=").append(ioe).toString());
+            }
         }
         return (hasExpiredDataSegs || hasExpiredIndexSegs);
     }
@@ -562,11 +607,45 @@ public class MsgFileStore implements Closeable {
             this.dataSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
         } else {
             this.indexSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
+            rebuildOverviewIndex();
         }
         logger.info(sBuilder.append("[File Store] Loaded ")
                 .append(segTypeStr).append(" ").append(accum.size()).append(" segments from ")
                 .append(segListDir.getAbsolutePath()).toString());
         sBuilder.delete(0, sBuilder.length());
+    }
+
+    private void rebuildOverviewIndex() throws IOException {
+        BloomFilter<Integer> newOverviewIndex = BloomFilter.create(
+                Funnels.integerFunnel(), overviewIndexEstimatedScale);
+        try {
+            // Such an expensive Stop-The-World thing.
+            this.writeLock.lock();
+            // Do we really need to allocate such a big cache?
+            // Ideally, it's best to parse just *some* data, instead of parsing in a big bunch.
+            final ByteBuffer indexBuffer = ByteBuffer.allocate(this.tubeConfig.getMaxIndexSegmentSize());
+            for (Segment seg : indexSegments.getView()) {
+                indexBuffer.clear();
+                seg.read(indexBuffer, 0); // it reads all, and IOException may raise here
+                for (long curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
+                     curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+                    indexBuffer.getInt();
+                    indexBuffer.getLong();
+                    indexBuffer.getInt();
+                    int curIndexKeyCode = indexBuffer.getInt();
+                    indexBuffer.getLong();
+                    newOverviewIndex.put(curIndexKeyCode);
+                }
+            }
+            overviewIndex = newOverviewIndex;
+        } catch (IOException ioe) {
+            StringBuilder sb = new StringBuilder();
+            logger.error(sb.append("[File Store] Rebuild OverviewIndex failed by IOE: ")
+                    .append(ioe).toString());
+            throw ioe;  // Float-up
+        } finally {
+            this.writeLock.unlock();
+        }
     }
 
     private void validateSegments(final String segTypeStr, final List<Segment> segments) {
