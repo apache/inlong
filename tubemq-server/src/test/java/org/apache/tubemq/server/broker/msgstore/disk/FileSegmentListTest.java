@@ -20,6 +20,9 @@ package org.apache.tubemq.server.broker.msgstore.disk;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
+
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,6 +51,34 @@ public class FileSegmentListTest {
             // get view
             Segment[] segmentList = fileSegmentList.getView();
             Assert.assertTrue(segmentList.length == 1);
+            file.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (file != null) {
+                file.deleteOnExit();
+            }
+        }
+    }
+
+    @Test
+    public void iteration() {
+        File file = null;
+        try {
+            file = File.createTempFile("data",
+                    DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+            // create FileSegmentList.
+            fileSegmentList = new FileSegmentList();
+            fileSegmentList.append(new FileSegment(0, file, SegmentType.DATA));
+            Segment fileSegment = fileSegmentList.last();
+            String data = "abc";
+            // append data to last FileSegment.
+            fileSegment.append(ByteBuffer.wrap(data.getBytes()));
+            fileSegment.flush(true);
+            // get view
+            Iterator<ObjectCursor<Segment>> it = fileSegmentList.getIterator(true);
+            Assert.assertTrue(it.hasNext());
+            Assert.assertTrue(it.next().value == fileSegment);
             file.delete();
         } catch (IOException e) {
             e.printStackTrace();

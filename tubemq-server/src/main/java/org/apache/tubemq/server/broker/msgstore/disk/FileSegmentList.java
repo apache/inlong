@@ -17,8 +17,12 @@
 
 package org.apache.tubemq.server.broker.msgstore.disk;
 
+import com.carrotsearch.hppc.ObjectArrayDeque;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,23 +32,26 @@ import org.slf4j.LoggerFactory;
 public class FileSegmentList implements SegmentList {
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegmentList.class);
-    // list of segments.
-    private AtomicReference<Segment[]> segmentList =
-            new AtomicReference<>();
+    private AtomicBoolean preemptiveOwnership = new AtomicBoolean(false);
+    private ObjectArrayDeque<Segment> segmentList2 = new ObjectArrayDeque<Segment>(10000);
 
     public FileSegmentList(final Segment[] s) {
         super();
-        this.segmentList.set(s);
+        for (Segment e : s) {
+            segmentList2.addLast(e);
+        }
     }
 
     public FileSegmentList() {
         super();
-        this.segmentList.set(new Segment[0]);
     }
 
     @Override
     public void close() {
-        for (Segment segment : segmentList.get()) {
+        // There's "forEach-Lambda" sugar, but it's for Java 1.8+
+        Iterator<ObjectCursor<Segment>> it = getIterator(true);
+        for (ObjectCursor<Segment> s = it.next(); it.hasNext(); it.next()) {
+            Segment segment = s.value;
             if (segment != null) {
                 segment.close();
             }
@@ -52,8 +59,24 @@ public class FileSegmentList implements SegmentList {
     }
 
     @Override
+    /**
+     * Here it returns a *snapshot* of current list, so generally it's NOT encouraged
+     * to call this function, unless there's special need to take it.
+     * Please use getIterator() instead.
+     * @see getIterator
+     */
     public Segment[] getView() {
-        return segmentList.get();
+        return segmentList2.toArray(new Segment[segmentList2.size()]);
+    }
+
+    /**
+     * As for performance consideration, it's complex but efficient.
+     * @param isAscent
+     * @return
+     * @see FileSegmentList::getView
+     */
+    public Iterator<ObjectCursor<Segment>> getIterator(boolean isAscent) {
+        return (isAscent) ? segmentList2.iterator() : segmentList2.descendingIterator();
     }
 
     /***
@@ -74,15 +97,11 @@ public class FileSegmentList implements SegmentList {
 
     @Override
     public void append(final Segment segment) {
-        while (true) {
-            final Segment[] curr = segmentList.get();
-            final Segment[] update = new Segment[curr.length + 1];
-            System.arraycopy(curr, 0, update, 0, curr.length);
-            update[curr.length] = segment;
-            if (segmentList.compareAndSet(curr, update)) {
-                return;
-            }
+        while (!preemptiveOwnership.weakCompareAndSet(false, true)) {
+            // implicit yield by while-weakCompareAndSet.
         }
+        segmentList2.addLast(segment);
+        preemptiveOwnership.set(false);
     }
 
     /***
@@ -95,7 +114,9 @@ public class FileSegmentList implements SegmentList {
     @Override
     public boolean checkExpiredSegments(final long checkTimestamp, final long fileValidTimeMs) {
         boolean hasExpired = false;
-        for (Segment segment : segmentList.get()) {
+        Iterator<ObjectCursor<Segment>> it = getIterator(true);
+        for (ObjectCursor<Segment> s = it.next(); it.hasNext(); it.next()) {
+            Segment segment = s.value;
             if (segment == null) {
                 continue;
             }
@@ -115,7 +136,9 @@ public class FileSegmentList implements SegmentList {
     @Override
     public void delExpiredSegments(final StringBuilder sb) {
         //　delete expired segment
-        for (Segment segment : segmentList.get()) {
+        Iterator<ObjectCursor<Segment>> it = getIterator(true);
+        for (ObjectCursor<Segment> s = it.next(); it.hasNext(); it.next()) {
+            Segment segment = s.value;
             if (segment == null) {
                 continue;
             }
@@ -129,49 +152,24 @@ public class FileSegmentList implements SegmentList {
 
     @Override
     public void delete(final Segment segment) {
-        while (true) {
-            int index = -1;
-            final Segment[] curViews = segmentList.get();
-            for (int i = 0; i < curViews.length; i++) {
-                if (curViews[i] == segment) {
-                    index = i;
-                    break;
-                }
-            }
-            if (index == -1) {
-                return;
-            }
-            final Segment[] update = new Segment[curViews.length - 1];
-            System.arraycopy(curViews, 0, update, 0, index);
-            if (index + 1 < curViews.length) {
-                System.arraycopy(curViews, index + 1, update, index, curViews.length - index - 1);
-            }
-            if (this.segmentList.compareAndSet(curViews, update)) {
-                return;
-            }
+        while (!preemptiveOwnership.weakCompareAndSet(false, true)) {
+            // implicit yield by while-weakCompareAndSet.
         }
+        segmentList2.removeFirst(segment);
+        preemptiveOwnership.set(false);
     }
 
     @Override
     public void flushLast(boolean force) throws IOException {
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
-            return;
+        Segment segment = segmentList2.getLast();
+        if (segment != null && !segment.isExpired()) {
+            segment.flush(force);
         }
-        Segment last = curViews[curViews.length - 1];
-        if (last == null) {
-            return;
-        }
-        last.flush(force);
     }
 
     @Override
     public Segment last() {
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
-            return null;
-        }
-        return curViews[curViews.length - 1];
+        return segmentList2.getLast();
     }
 
     /***
@@ -182,21 +180,22 @@ public class FileSegmentList implements SegmentList {
     @Override
     public long getMinOffset() {
         long last = 0L;
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
-            return last;
-        }
-        for (int i = 0; i < curViews.length; i++) {
-            if (curViews[i] == null) {
+        Iterator<ObjectCursor<Segment>> it = getIterator(true);
+        for (ObjectCursor<Segment> s = it.next(); it.hasNext(); it.next()) {
+            Segment segment = s.value;
+            if (segment == null) {
                 continue;
             }
-            if (curViews[i].isExpired()) {
-                last = curViews[i].getCommitLast();
+
+            if (segment.isExpired()) {
+                last = segment.getCommitLast();
                 continue;
+            } else {
+                last = segment.getStart();
+                break;
             }
-            return curViews[i].getStart();
         }
-        return  last;
+        return last;
     }
 
     /***
@@ -206,15 +205,12 @@ public class FileSegmentList implements SegmentList {
      */
     @Override
     public long getMaxOffset() {
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
+        Segment lastSegment = segmentList2.getLast();
+        if (lastSegment != null) {
+            return lastSegment.getLast();
+        } else {
             return 0L;
         }
-        Segment last = curViews[curViews.length - 1];
-        if (last == null) {
-            return 0L;
-        }
-        return last.getLast();
     }
 
     /***
@@ -224,32 +220,41 @@ public class FileSegmentList implements SegmentList {
      */
     @Override
     public long getCommitMaxOffset() {
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
+        Segment lastSegment = segmentList2.getLast();
+        if (lastSegment != null) {
+            return lastSegment.getCommitLast();
+        } else {
             return 0L;
         }
-        Segment last = curViews[curViews.length - 1];
-        if (last == null) {
-            return 0L;
-        }
-        return last.getCommitLast();
     }
 
     @Override
     public long getSizeInBytes() {
         long sum = 0L;
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
-            return sum;
-        }
-        for (int i = 0; i < curViews.length; i++) {
-            if (curViews[i] == null
-                    || curViews[i].isExpired()) {
+        Iterator<ObjectCursor<Segment>> it = getIterator(false);
+        for (ObjectCursor<Segment> s = it.next(); it.hasNext(); it.next()) {
+            Segment segment = s.value;
+            if (segment == null) {
                 continue;
             }
-            sum += curViews[i].getCachedSize();
+            if (segment.isExpired()) {
+                break;
+            }
+            sum += segment.getCachedSize();
         }
         return sum;
+    }
+
+    /**
+     * Internal Usage ONLY: get the binary middle index to segmentList2, for binary search.
+     * @param lowerBound
+     * @param upperBound
+     * @return
+     */
+    private int getMidIndex(int lowerBound, int upperBound) {
+        int range = segmentList2.buffer.length;
+        int upperFill = (lowerBound > upperBound) ? range : 0;
+        return (lowerBound + upperBound + upperFill) >>> 1;
     }
 
     /**
@@ -259,43 +264,50 @@ public class FileSegmentList implements SegmentList {
      */
     @Override
     public Segment findSegment(final long offset) {
-        final Segment[] curViews = segmentList.get();
-        if (curViews.length == 0) {
-            return null;
-        }
-        int minStart  = 0;
-        for (minStart = 0; minStart < curViews.length; minStart++) {
-            if (curViews[minStart] == null
-                    || curViews[minStart].isExpired()) {
-                continue;
+        int lowerBound = segmentList2.head;
+        int upperBound = segmentList2.tail;
+        Object[] internalList = segmentList2.buffer;
+        int range = segmentList2.buffer.length;
+
+        // Re-locate not-expired lowerBound
+        for (int walk = lowerBound; walk <= upperBound; walk = (walk + 1) % range) {
+            Segment walkSegment = (Segment) internalList[walk];
+            if (walkSegment != null && !walkSegment.isExpired()) {
+                lowerBound = walk;
+                break;
             }
-            break;
         }
-        if (minStart >= curViews.length) {
-            minStart = curViews.length - 1;
-        }
-        final Segment startSeg = curViews[minStart];
-        if (offset < startSeg.getStart()) {
+        // Under-run check
+        Segment lowerSegment = (Segment) internalList[lowerBound];
+        if (offset < lowerSegment.getStart()) {
             throw new ArrayIndexOutOfBoundsException(new StringBuilder(512)
                     .append("Request offsets is ").append(offset)
-                    .append(", the start is ").append(startSeg.getStart()).toString());
+                    .append(", the start is ").append(lowerSegment.getStart()).toString());
         }
-        final Segment last = curViews[curViews.length - 1];
-        if (offset >= last.getStart() + last.getCachedSize()) {
-            return null;
+        // Overflow check
+        Segment upperSegment = (Segment) internalList[lowerBound];
+        if (offset > upperSegment.getLast()) {
+            throw new ArrayIndexOutOfBoundsException(new StringBuilder(512)
+                    .append("Request offsets is ").append(offset)
+                    .append(", the boundary is ").append(upperSegment.getLast()).toString());
         }
-        int high = curViews.length - 1;
-        while (minStart <= high) {
-            final int mid = high + minStart >>> 1;
-            final Segment found = curViews[mid];
-            if (found.contains(offset)) {
-                return found;
-            } else if (offset < found.getStart()) {
-                high = mid - 1;
-            } else {
-                minStart = mid + 1;
+
+        // Binary search
+        while (lowerBound != upperBound) {
+            int middleIndex = getMidIndex(lowerBound, upperBound);
+            Segment middleSegment = (Segment) internalList[middleIndex];
+            if (offset < middleSegment.getStart()) {
+                upperBound = middleIndex;
+                continue;
+            } else if (offset > middleSegment.getLast()) {
+                lowerBound = middleIndex;
+                continue;
             }
+            return middleSegment;
         }
+
+        // Fail-safe: In case of offset-gap between segments.
+        // Usually it means a bug when it returns null instead of throwing an exception.
         return null;
     }
 
