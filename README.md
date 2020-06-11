@@ -1,7 +1,7 @@
 Apache TubeMQ
 ==============================================
 [![Build Status](https://travis-ci.org/apache/incubator-tubemq.svg?branch=master)](https://travis-ci.org/apache/incubator-tubemq)
-
+[![CodeCov](https://codecov.io/gh/apache/incubator-tubemq/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/incubator-tubemq)
 [Apache TubeMQ](https://tubemq.apache.org)(incubating) is a trillion-records-scale distributed messaging queue (MQ) system, focuses on data transmission and storage under massive data. Compared to many open source MQ projects, TubeMQ has unique advantages in terms of stability, performance, and low cost.
 
 It offers a variety of features:
