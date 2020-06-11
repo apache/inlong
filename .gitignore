@@ -3,7 +3,6 @@ target/
 *.iml
 /.metadata/
 *.class
-.*
 !.github/
 !.gitignore
 !.gitkeep
