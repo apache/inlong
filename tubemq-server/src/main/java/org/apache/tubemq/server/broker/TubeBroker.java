@@ -430,6 +430,7 @@ public class TubeBroker implements Stoppable {
                 if (remainingRetry == 0) {
                     throw new StartupException("Register to master failed!", e);
                 }
+                ThreadUtils.sleep(200);
             }
         }
     }
