@@ -87,7 +87,7 @@
         <repository>
             <id>berkeleydb-je</id>
             <name>berkeleydb-je</name>
-            <url>https://download.dcache.org/nexus/service/rest/repository/browse/berkeleydb-je/</url>
+            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
