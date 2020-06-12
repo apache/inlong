@@ -31,3 +31,6 @@ cache:
 
 script:
   - mvn -B -V -e verify
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
