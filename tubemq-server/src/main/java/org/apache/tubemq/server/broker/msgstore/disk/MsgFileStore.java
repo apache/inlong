@@ -29,8 +29,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -86,9 +88,7 @@ public class MsgFileStore implements Closeable {
     // close status
     private final AtomicBoolean closed = new AtomicBoolean(false);
     // overview index to check whether a topic exists in the whole store
-    private BloomFilter<Integer> overviewIndex;
-    // counter for recording purged amount, for overview index refresh
-    private long purgedIndexAmount;
+    private ConcurrentLinkedDeque<BloomFilter<Integer>> overviewSegments;
 
 
     public MsgFileStore(final MessageStore messageStore,
@@ -105,8 +105,7 @@ public class MsgFileStore implements Closeable {
         this.indexDir = new File(sBuilder.append(baseStorePath)
                 .append(File.separator).append(this.storeKey)
                 .append(File.separator).append("index").toString());
-        overviewIndex = BloomFilter.create(Funnels.integerFunnel(), overviewIndexEstimatedScale);
-        purgedIndexAmount = 0;
+        overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
         sBuilder.delete(0, sBuilder.length());
         FileUtil.checkDir(this.dataDir);
         FileUtil.checkDir(this.indexDir);
@@ -161,6 +160,8 @@ public class MsgFileStore implements Closeable {
             this.byteBufferIndex.flip();
             final Segment curIndexSeg = this.indexSegments.last();
             final long indexOffset = curIndexSeg.append(this.byteBufferIndex);
+            BloomFilter<Integer> curOverviewSeg = this.overviewSegments.getLast();
+            curOverviewSeg.put(keyCode);
             // judge whether need to create a new index segment.
             if (curIndexSeg.getCachedSize()
                     >= this.tubeConfig.getMaxIndexSegmentSize()) {
@@ -175,7 +176,8 @@ public class MsgFileStore implements Closeable {
                 sb.delete(0, sb.length());
                 this.indexSegments.append(new FileSegment(newIndexOffset,
                         newIndexFile, SegmentType.INDEX));
-                overviewIndex.put(keyCode);
+                this.overviewSegments.add(
+                        BloomFilter.create(Funnels.integerFunnel(), this.tubeConfig.MaxIndexSegmentElements));
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
@@ -245,13 +247,25 @@ public class MsgFileStore implements Closeable {
                                         final String statisKeyBase,
                                         final int maxMsgTransferSize) {
         // Optimization: Early filter by Overview Index
-        Set<Integer> nonexistingKeycode = new HashSet<Integer>();
-        for (Integer keyCode : filterKeySet) {
-            if (!overviewIndex.mightContain(keyCode)) {
-                nonexistingKeycode.add(keyCode);
+        try {
+            Set<Integer> nonexistingKeycode = new HashSet<Integer>();
+            int indexSegment = indexSeqSlice(reqOffset);
+            Iterator<BloomFilter<Integer>> overviewIndexIt = overviewSegments.iterator();
+            BloomFilter<Integer> overviewIndex = null;
+            for (int i = 0; i < indexSegment; i++) {
+                overviewIndex = overviewIndexIt.next();
             }
+            for (Integer keyCode : filterKeySet) {
+                if (!overviewIndex.mightContain(keyCode)) {
+                    nonexistingKeycode.add(keyCode);
+                }
+            }
+            filterKeySet.removeAll(nonexistingKeycode);
+        } catch (IOException ioe) {
+            StringBuilder sb = new StringBuilder();
+            logger.error(sb.append("[File Store] Early filter failed due to IOException in indexSeqSlice: ")
+                .append(ioe).toString());
         }
-        filterKeySet.removeAll(nonexistingKeycode);
 
         // #lizard forgives
         //　Orderly read from index file, then random read from data file.
@@ -431,19 +445,9 @@ public class MsgFileStore implements Closeable {
             dataSegments.delExpiredSegments(sBuilder);
         }
         if (hasExpiredIndexSegs) {
-            indexSegments.delExpiredSegments(sBuilder);
-            // NOT GOOD! It should depend on entities removed by policy, not the running times.
-            purgedIndexAmount++;
-        }
-        if (purgedIndexAmount >= 10) {
-            try {
-                rebuildOverviewIndex();
-                purgedIndexAmount = 0;
-            } catch (IOException ioe) {
-                StringBuilder sb = new StringBuilder();
-                logger.error(sb.append(
-                        "[File Store]: runClearupPolicy rebuild OverviewIndex failed, purgedIndexAmount=")
-                        .append(purgedIndexAmount).append(",IOException=").append(ioe).toString());
+            int removes = indexSegments.delExpiredSegments(sBuilder);
+            for (int i = 0; i < removes; i++) {
+                overviewSegments.remove();
             }
         }
         return (hasExpiredDataSegs || hasExpiredIndexSegs);
@@ -518,6 +522,10 @@ public class MsgFileStore implements Closeable {
 
     public Segment indexSlice(final long offset, final int maxSize) throws IOException {
         return indexSegments.getRecordSeg(offset);
+    }
+
+    public int indexSeqSlice(long offset) throws IOException {
+        return indexSegments.getSegmentIndex(offset);
     }
 
     private void loadSegments(final SegmentType segType, long offsetIfCreate,
@@ -607,7 +615,7 @@ public class MsgFileStore implements Closeable {
             this.dataSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
         } else {
             this.indexSegments = new FileSegmentList(accum.toArray(new Segment[accum.size()]));
-            rebuildOverviewIndex();
+            rebuildOverviewIndex(accum);
         }
         logger.info(sBuilder.append("[File Store] Loaded ")
                 .append(segTypeStr).append(" ").append(accum.size()).append(" segments from ")
@@ -615,16 +623,16 @@ public class MsgFileStore implements Closeable {
         sBuilder.delete(0, sBuilder.length());
     }
 
-    private void rebuildOverviewIndex() throws IOException {
-        BloomFilter<Integer> newOverviewIndex = BloomFilter.create(
-                Funnels.integerFunnel(), overviewIndexEstimatedScale);
+    private void rebuildOverviewIndex(List<Segment> accum) throws IOException {
+        overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
         try {
-            // Such an expensive Stop-The-World thing.
-            this.writeLock.lock();
             // Do we really need to allocate such a big cache?
             // Ideally, it's best to parse just *some* data, instead of parsing in a big bunch.
             final ByteBuffer indexBuffer = ByteBuffer.allocate(this.tubeConfig.getMaxIndexSegmentSize());
-            for (Segment seg : indexSegments.getView()) {
+
+            for (Segment seg : accum) {
+                BloomFilter<Integer> newOverviewSegment = BloomFilter.create(
+                        Funnels.integerFunnel(), this.tubeConfig.MaxIndexSegmentElements);
                 indexBuffer.clear();
                 seg.read(indexBuffer, 0); // it reads all, and IOException may raise here
                 for (long curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
@@ -634,17 +642,15 @@ public class MsgFileStore implements Closeable {
                     indexBuffer.getInt();
                     int curIndexKeyCode = indexBuffer.getInt();
                     indexBuffer.getLong();
-                    newOverviewIndex.put(curIndexKeyCode);
+                    newOverviewSegment.put(curIndexKeyCode);
                 }
+                overviewSegments.add(newOverviewSegment);
             }
-            overviewIndex = newOverviewIndex;
         } catch (IOException ioe) {
             StringBuilder sb = new StringBuilder();
             logger.error(sb.append("[File Store] Rebuild OverviewIndex failed by IOE: ")
                     .append(ioe).toString());
             throw ioe;  // Float-up
-        } finally {
-            this.writeLock.unlock();
         }
     }
 

@@ -30,6 +30,8 @@ public interface SegmentList {
 
     Segment findSegment(final long offset);
 
+    int findSegmentIndex(long offset);
+
     Segment[] getView();
 
     long getSizeInBytes();
@@ -38,7 +40,7 @@ public interface SegmentList {
 
     boolean checkExpiredSegments(final long checkTimestamp, final long fileValidTimeMs);
 
-    void delExpiredSegments(final StringBuilder sb);
+    int delExpiredSegments(final StringBuilder sb);
 
     void flushLast(boolean force) throws IOException;
 
@@ -51,5 +53,7 @@ public interface SegmentList {
     void delete(final Segment segment);
 
     Segment getRecordSeg(final long offset) throws IOException;
+
+    int getSegmentIndex(long offset) throws IOException;
 
 }

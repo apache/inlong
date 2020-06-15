@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BrokerConfig extends AbstractFileConfig {
     static final long serialVersionUID = -1L;
+    public static final int MaxIndexSegmentElements = 700000;
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
     private int brokerId = 0;
@@ -69,7 +70,7 @@ public class BrokerConfig extends AbstractFileConfig {
     // max data segment size
     private int maxSegmentSize = 1024 * 1024 * 1024;
     // max index segment size
-    private int maxIndexSegmentSize = 700000 * DataStoreUtils.STORE_INDEX_HEAD_LEN;
+    private int maxIndexSegmentSize = MaxIndexSegmentElements * DataStoreUtils.STORE_INDEX_HEAD_LEN;
     // transfer size
     private int transferSize = 512 * 1024;
     // transfer index count

@@ -72,6 +72,23 @@ public class FileSegmentList implements SegmentList {
         return tmpSeg;
     }
 
+    /***
+     * Return index by the given offset.
+     *
+     * @param offset
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public int getSegmentIndex(final long offset) throws IOException {
+        int tmpSegIndex = this.findSegmentIndex(offset);
+        Segment tmpSeg = this.segmentList.get()[tmpSegIndex];
+        if (tmpSeg.isExpired()) {
+            return -1;
+        }
+        return tmpSegIndex;
+    }
+
     @Override
     public void append(final Segment segment) {
         while (true) {
@@ -113,8 +130,9 @@ public class FileSegmentList implements SegmentList {
      * @param sb
      */
     @Override
-    public void delExpiredSegments(final StringBuilder sb) {
+    public int delExpiredSegments(final StringBuilder sb) {
         //　delete expired segment
+        int removes = 0;
         for (Segment segment : segmentList.get()) {
             if (segment == null) {
                 continue;
@@ -124,7 +142,9 @@ public class FileSegmentList implements SegmentList {
             }
             delete(segment);
             segment.deleteFile();
+            removes++;
         }
+        return removes;
     }
 
     @Override
@@ -297,6 +317,53 @@ public class FileSegmentList implements SegmentList {
             }
         }
         return null;
+    }
+
+    /**
+     *  Binary search the segment that contains the offset
+     * @param offset
+     * @return
+     */
+    @Override
+    public int findSegmentIndex(long offset) {
+        final Segment[] curViews = segmentList.get();
+        if (curViews.length == 0) {
+            return -1;
+        }
+        int minStart  = 0;
+        for (minStart = 0; minStart < curViews.length; minStart++) {
+            if (curViews[minStart] == null
+                    || curViews[minStart].isExpired()) {
+                continue;
+            }
+            break;
+        }
+        if (minStart >= curViews.length) {
+            minStart = curViews.length - 1;
+        }
+        final Segment startSeg = curViews[minStart];
+        if (offset < startSeg.getStart()) {
+            throw new ArrayIndexOutOfBoundsException(new StringBuilder(512)
+                    .append("Request offsets is ").append(offset)
+                    .append(", the start is ").append(startSeg.getStart()).toString());
+        }
+        final Segment last = curViews[curViews.length - 1];
+        if (offset >= last.getStart() + last.getCachedSize()) {
+            return -1;
+        }
+        int high = curViews.length - 1;
+        while (minStart <= high) {
+            final int mid = high + minStart >>> 1;
+            final Segment found = curViews[mid];
+            if (found.contains(offset)) {
+                return mid;
+            } else if (offset < found.getStart()) {
+                high = mid - 1;
+            } else {
+                minStart = mid + 1;
+            }
+        }
+        return -1;
     }
 
 }
