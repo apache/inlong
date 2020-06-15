@@ -41,6 +41,7 @@ import static org.apache.flume.sink.tubemq.ConfigOptions.RPC_TIMEOUT;
 import static org.apache.flume.sink.tubemq.ConfigOptions.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT;
 import static org.apache.flume.sink.tubemq.ConfigOptions.SESSION_WARN_DELAYED_MSG_COUNT;
 import static org.apache.flume.sink.tubemq.ConfigOptions.SINK_THREAD_NUM;
+import static org.apache.flume.sink.tubemq.ConfigOptions.TOPIC;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
     public ConcurrentHashMap<String, MessageProducer> producerMap;
 
     private String masterHostAndPortList;
+    private String defaultTopic;
     private long heartbeatPeriod;
     private long rpcTimeout;
 
@@ -262,6 +264,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
     public void configure(Context context) {
         LOGGER.info(context.toString());
         masterHostAndPortList = context.getString(MASTER_HOST_PORT_LIST);
+        defaultTopic = context.getString(TOPIC);
         heartbeatPeriod = context.getLong(HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD);
         rpcTimeout = context.getLong(RPC_TIMEOUT, DEFAULT_RPC_TIMEOUT);
 
@@ -397,8 +400,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
                     // fetch event, wait if necessary
                     es = fetchEventStat();
                     if (es.getTopic() == null || es.getTopic().equals("")) {
-                        LOGGER.warn("no topic specified in event header, just skip this event");
-                        continue;
+                        LOGGER.debug("no topic specified in event header, use default topic instead");
+                        es.setTopic(defaultTopic);
                     }
                     counter.incrementSendCount();
                     MessageProducer producer;

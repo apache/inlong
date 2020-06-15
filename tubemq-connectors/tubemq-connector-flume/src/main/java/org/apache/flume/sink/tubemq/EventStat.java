@@ -45,6 +45,10 @@ public class EventStat {
         return topic;
     }
 
+    public void setTopic(String defaultTopic) {
+        this.topic = defaultTopic;
+    }
+
     public Event getEvent() {
         return event;
     }
