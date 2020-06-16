@@ -17,7 +17,10 @@
 
 package org.apache.tubemq.corerpc.utils;
 
+import java.io.InputStream;
+
 import javax.net.ssl.SSLEngine;
+
 import org.junit.Assert;
 
 /***
@@ -28,18 +31,19 @@ public class TSSLEngineUtilTest {
     @org.junit.Test
     public void createSSLEngine() {
         // key store file path
-        String keyStorePath = "./src/test/resource/tubeServer.keystore";
+        InputStream keyStoreStream = this.getClass().getResourceAsStream("tubeServer.keystore");
         // key store file password
         String keyStorePassword = "tubeserver";
         // trust store file path
-        String trustStorePath = "./src/test/resource/tubeServerTrustStore.keystore";
+        InputStream trustStoreStream = this.getClass()
+            .getResourceAsStream("tubeServerTrustStore.keystore");
         // trust store file password
         String trustStorePassword = "tubeserver";
         SSLEngine sslEngine = null;
         try {
             // create engine
-            sslEngine = TSSLEngineUtil.createSSLEngine(keyStorePath, trustStorePath,
-                    keyStorePassword, trustStorePassword, true, false);
+            sslEngine = TSSLEngineUtil.createSSLEngine(keyStoreStream, keyStorePassword,
+                trustStoreStream, trustStorePassword, true, false);
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -17,24 +17,21 @@
 package org.apache.tubemq.corerpc.codec;
 
 import static org.junit.Assert.assertEquals;
-import com.googlecode.protobuf.format.JsonFormat;
+
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.junit.Test;
 
 public class PbEnDecoderTest {
 
-
     @Test
     public void testPbEncodeAndDecoder() throws Exception {
         // mock a pb object
-        JsonFormat jsonFormat = new JsonFormat();
         ClientMaster.RegisterRequestP2M.Builder builder = ClientMaster.RegisterRequestP2M.newBuilder();
         builder.setClientId("10001");
         builder.setBrokerCheckSum(99);
         builder.setHostName("tube-test");
         ClientMaster.RegisterRequestP2M object = builder.build();
-        final String jsonOject = jsonFormat.printToString(object);
         // encode pb
         byte[] data = PbEnDecoder.pbEncode(object);
 
@@ -45,7 +42,6 @@ public class PbEnDecoderTest {
         assertEquals(decodeObject.getClientId(), object.getClientId());
         assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());
         assertEquals(decodeObject.getHostName(), object.getHostName());
-        assertEquals(jsonOject, jsonFormat.printToString(decodeObject));
     }
 
 }
