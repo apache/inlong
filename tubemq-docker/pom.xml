@@ -26,23 +26,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Apache TubeMQ - Connectors</name>
-    <artifactId>tubemq-connectors</artifactId>
+    <name>Apache TubeMQ - Docker</name>
+    <artifactId>tubemq-docker</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>tubemq-connector-flink</module>
-        <module>tubemq-connector-flume</module>
+        <module>tubemq-all</module>
+        <module>tubemq-build</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.tubemq</groupId>
-            <artifactId>tubemq-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.tubemq</groupId>
-            <artifactId>tubemq-core</artifactId>
+            <artifactId>tubemq-server</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 
