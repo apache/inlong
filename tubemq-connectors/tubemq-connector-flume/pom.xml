@@ -20,45 +20,44 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>tubemq</artifactId>
+        <artifactId>tubemq-connectors</artifactId>
         <groupId>org.apache.tubemq</groupId>
         <version>0.5.0-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Apache TubeMQ - Connectors</name>
-    <artifactId>tubemq-connectors</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>tubemq-connector-flink</module>
-        <module>tubemq-connector-flume</module>
-    </modules>
+    <name>Apache TubeMQ - Connectors-flume</name>
+    <artifactId>tubemq-connector-flume</artifactId>
+
+    <properties>
+        <flume.version>1.9.0</flume.version>
+        <mockito.version>1.9.0</mockito.version>
+        <junit.version>4.10</junit.version>
+        <awaitility.version>4.0.3</awaitility.version>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.tubemq</groupId>
-            <artifactId>tubemq-client</artifactId>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-core</artifactId>
+            <version>${flume.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.tubemq</groupId>
-            <artifactId>tubemq-core</artifactId>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
