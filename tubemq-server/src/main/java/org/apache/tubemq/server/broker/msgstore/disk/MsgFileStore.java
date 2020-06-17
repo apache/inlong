@@ -635,7 +635,9 @@ public class MsgFileStore implements Closeable {
     }
 
     private void rebuildOverviewIndex(List<Segment> accum) throws IOException {
-        if (this.tubeConfig.getMfsIndexScale() <= 0) return;
+        if (this.tubeConfig.getMfsIndexScale() <= 0) {
+            return;
+        }
 
         overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
         try {
