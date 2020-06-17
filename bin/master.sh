@@ -87,6 +87,16 @@ function start_server() {
   popd
 }
 
+function status_server() {
+	if running; then
+		echo "Master is running."
+		exit 0
+	else
+	  echo "Master is not running."
+	  exit 1
+	fi
+}
+
 function stop_server() {
 	if ! running; then
 		echo "Master is not running."
@@ -111,7 +121,8 @@ function stop_server() {
 }
 
 function help() {
-    echo "Usage: master.sh {start|stop|restart}" >&2
+    echo "Usage: master.sh {status|start|stop|restart}" >&2
+    echo "       status:     the status of master server"
     echo "       start:      start the master server"
     echo "       stop:       stop the master server"
     echo "       restart:    restart the master server"
@@ -120,6 +131,9 @@ function help() {
 command=$1
 shift 1
 case $command in
+    status)
+        status_server $@;
+        ;;
     start)
         start_server $@;
         ;;    
