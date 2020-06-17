@@ -59,7 +59,6 @@ public class MsgFileStore implements Closeable {
     private static final int MAX_META_REFRESH_DUR = 1000 * 60 * 60;
     private static final DiskSamplePrint samplePrintCtrl =
         new DiskSamplePrint(logger);
-    private static final int overviewIndexEstimatedScale = 10000;
     // storage ID
     private final String storeKey;
     // data file storage directory
@@ -105,7 +104,9 @@ public class MsgFileStore implements Closeable {
         this.indexDir = new File(sBuilder.append(baseStorePath)
                 .append(File.separator).append(this.storeKey)
                 .append(File.separator).append("index").toString());
-        overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
+        if (this.tubeConfig.getMfsIndexScale() > 0) {
+            overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
+        }
         sBuilder.delete(0, sBuilder.length());
         FileUtil.checkDir(this.dataDir);
         FileUtil.checkDir(this.indexDir);
@@ -160,8 +161,10 @@ public class MsgFileStore implements Closeable {
             this.byteBufferIndex.flip();
             final Segment curIndexSeg = this.indexSegments.last();
             final long indexOffset = curIndexSeg.append(this.byteBufferIndex);
-            BloomFilter<Integer> curOverviewSeg = this.overviewSegments.getLast();
-            curOverviewSeg.put(keyCode);
+            if (this.tubeConfig.getMfsIndexScale() > 0) {
+                BloomFilter<Integer> curOverviewSeg = this.overviewSegments.getLast();
+                curOverviewSeg.put(keyCode);
+            }
             // judge whether need to create a new index segment.
             if (curIndexSeg.getCachedSize()
                     >= this.tubeConfig.getMaxIndexSegmentSize()) {
@@ -176,8 +179,10 @@ public class MsgFileStore implements Closeable {
                 sb.delete(0, sb.length());
                 this.indexSegments.append(new FileSegment(newIndexOffset,
                         newIndexFile, SegmentType.INDEX));
-                this.overviewSegments.add(
-                        BloomFilter.create(Funnels.integerFunnel(), this.tubeConfig.MaxIndexSegmentElements));
+                if (this.tubeConfig.getMfsIndexScale() > 0) {
+                    this.overviewSegments.add(
+                            BloomFilter.create(Funnels.integerFunnel(), this.tubeConfig.getMfsIndexScale()));
+                }
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
@@ -247,24 +252,26 @@ public class MsgFileStore implements Closeable {
                                         final String statisKeyBase,
                                         final int maxMsgTransferSize) {
         // Optimization: Early filter by Overview Index
-        try {
-            Set<Integer> nonexistingKeycode = new HashSet<Integer>();
-            int indexSegment = indexSeqSlice(reqOffset);
-            Iterator<BloomFilter<Integer>> overviewIndexIt = overviewSegments.iterator();
-            BloomFilter<Integer> overviewIndex = null;
-            for (int i = 0; i < indexSegment; i++) {
-                overviewIndex = overviewIndexIt.next();
-            }
-            for (Integer keyCode : filterKeySet) {
-                if (!overviewIndex.mightContain(keyCode)) {
-                    nonexistingKeycode.add(keyCode);
+        if (this.tubeConfig.getMfsIndexScale() > 0) {
+            try {
+                Set<Integer> nonexistingKeycode = new HashSet<Integer>();
+                int indexSegment = indexSeqSlice(reqOffset);
+                Iterator<BloomFilter<Integer>> overviewIndexIt = overviewSegments.iterator();
+                BloomFilter<Integer> overviewIndex = null;
+                for (int i = 0; i < indexSegment; i++) {
+                    overviewIndex = overviewIndexIt.next();
                 }
+                for (Integer keyCode : filterKeySet) {
+                    if (!overviewIndex.mightContain(keyCode)) {
+                        nonexistingKeycode.add(keyCode);
+                    }
+                }
+                filterKeySet.removeAll(nonexistingKeycode);
+            } catch (IOException ioe) {
+                StringBuilder sb = new StringBuilder();
+                logger.error(sb.append("[File Store] Early filter failed due to IOException in indexSeqSlice: ")
+                        .append(ioe).toString());
             }
-            filterKeySet.removeAll(nonexistingKeycode);
-        } catch (IOException ioe) {
-            StringBuilder sb = new StringBuilder();
-            logger.error(sb.append("[File Store] Early filter failed due to IOException in indexSeqSlice: ")
-                .append(ioe).toString());
         }
 
         // #lizard forgives
@@ -291,11 +298,13 @@ public class MsgFileStore implements Closeable {
                 new ArrayList<>();
 
         // Optimization: Early filter by Overview Index
-        if (filterKeySet.size() == 0) {
-            // return result.
-            return new GetMessageResult(result, retCode, errInfo,
-                    reqOffset, readedOffset, lastRdDataOffset,
-                    totalSize, countMap, transferedMessageList);
+        if (this.tubeConfig.getMfsIndexScale() > 0) {
+            if (filterKeySet.size() == 0) {
+                // return result.
+                return new GetMessageResult(result, retCode, errInfo,
+                        reqOffset, readedOffset, lastRdDataOffset,
+                        totalSize, countMap, transferedMessageList);
+            }
         }
 
         final StringBuilder sBuilder = new StringBuilder(512);
@@ -446,8 +455,10 @@ public class MsgFileStore implements Closeable {
         }
         if (hasExpiredIndexSegs) {
             int removes = indexSegments.delExpiredSegments(sBuilder);
-            for (int i = 0; i < removes; i++) {
-                overviewSegments.remove();
+            if (this.tubeConfig.getMfsIndexScale() > 0) {
+                for (int i = 0; i < removes; i++) {
+                    overviewSegments.remove();
+                }
             }
         }
         return (hasExpiredDataSegs || hasExpiredIndexSegs);
@@ -624,6 +635,8 @@ public class MsgFileStore implements Closeable {
     }
 
     private void rebuildOverviewIndex(List<Segment> accum) throws IOException {
+        if (this.tubeConfig.getMfsIndexScale() <= 0) return;
+
         overviewSegments = new ConcurrentLinkedDeque<BloomFilter<Integer>>();
         try {
             // Do we really need to allocate such a big cache?
@@ -632,7 +645,7 @@ public class MsgFileStore implements Closeable {
 
             for (Segment seg : accum) {
                 BloomFilter<Integer> newOverviewSegment = BloomFilter.create(
-                        Funnels.integerFunnel(), this.tubeConfig.MaxIndexSegmentElements);
+                        Funnels.integerFunnel(), this.tubeConfig.getMfsIndexScale());
                 indexBuffer.clear();
                 seg.read(indexBuffer, 0); // it reads all, and IOException may raise here
                 for (long curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();

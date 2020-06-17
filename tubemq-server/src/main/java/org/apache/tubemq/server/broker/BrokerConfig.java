@@ -114,6 +114,8 @@ public class BrokerConfig extends AbstractFileConfig {
     private String visitName = "";
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    // MessageFileStore negative prediction index, 0=disabled, +Integer=<estimated clients amount scale>
+    private int mfsIndexScale = 0;
 
     public BrokerConfig() {
         super();
@@ -334,6 +336,7 @@ public class BrokerConfig extends AbstractFileConfig {
             this.visitName = brokerSect.get("visitName").trim();
             this.visitPassword = brokerSect.get("visitPassword").trim();
         }
+        this.mfsIndexScale = this.getInt(brokerSect, "_mfsIndexScale", 0);
     }
 
     public long getLogClearupDurationMs() {
@@ -454,5 +457,8 @@ public class BrokerConfig extends AbstractFileConfig {
         return masterAddressList;
     }
 
+    public int getMfsIndexScale() {
+        return mfsIndexScale;
+    }
 
 }
