@@ -46,13 +46,17 @@ import java.util.Optional;
 import java.util.TreeSet;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.SchemaValidator;
 import org.apache.flink.table.factories.DeserializationSchemaFactory;
+import org.apache.flink.table.factories.SerializationSchemaFactory;
+import org.apache.flink.table.factories.StreamTableSinkFactory;
 import org.apache.flink.table.factories.StreamTableSourceFactory;
 import org.apache.flink.table.factories.TableFactoryService;
+import org.apache.flink.table.sinks.StreamTableSink;
 import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.types.Row;
@@ -60,11 +64,12 @@ import org.apache.flink.types.Row;
 /**
  * Factory for creating configured instances of {@link TubemqTableSource}.
  */
-public class TubemqTableSourceFactory implements StreamTableSourceFactory<Row> {
+public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Row>,
+    StreamTableSinkFactory<Row> {
 
     private static final String SPLIT_COMMA = ",";
 
-    private TubemqTableSourceFactory() {
+    private TubemqTableSourceSinkFactory() {
     }
 
     @Override
@@ -164,6 +169,52 @@ public class TubemqTableSourceFactory implements StreamTableSourceFactory<Row> {
             consumerGroup,
             configuration
         );
+    }
+
+    @Override
+    public StreamTableSink<Row> createStreamTableSink(
+        Map<String, String> properties
+    ) {
+        final SerializationSchema<Row> serializationSchema =
+            getSerializationSchema(properties);
+
+        final DescriptorProperties descriptorProperties =
+            new DescriptorProperties(true);
+        descriptorProperties.putProperties(properties);
+
+        validateProperties(descriptorProperties);
+
+        final TableSchema tableSchema =
+            descriptorProperties.getTableSchema(SCHEMA);
+        final String topic =
+            descriptorProperties.getString(TubemqValidator.CONNECTOR_TOPIC);
+        final String masterAddress =
+            descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
+
+        final Configuration configuration =
+            getConfiguration(descriptorProperties);
+
+        return new TubemqTableSink(
+            serializationSchema,
+            tableSchema,
+            topic,
+            masterAddress,
+            configuration
+        );
+    }
+
+    private SerializationSchema<Row> getSerializationSchema(
+        Map<String, String> properties
+    ) {
+        @SuppressWarnings("unchecked")
+        final SerializationSchemaFactory<Row> formatFactory =
+            TableFactoryService.find(
+                SerializationSchemaFactory.class,
+                properties,
+                this.getClass().getClassLoader()
+            );
+
+        return formatFactory.createSerializationSchema(properties);
     }
 
     private void validateProperties(DescriptorProperties descriptorProperties) {
