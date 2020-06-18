@@ -31,6 +31,17 @@ public class TubemqOptions {
             .noDefaultValue()
             .withDescription("The session key for this consumer group at startup.");
 
+    public static final ConfigOption<String> TID =
+        ConfigOptions.key("topic.tid")
+            .noDefaultValue()
+            .withDescription("The tid owned this topic.");
+
+    public static final ConfigOption<Integer> MAX_RETRIES =
+        ConfigOptions.key("max.retries")
+            .defaultValue(5)
+            .withDescription("The maximum number of retries when an " +
+                "exception is caught.");
+
     public static final ConfigOption<Boolean> BOOTSTRAP_FROM_MAX =
         ConfigOptions.key("bootstrap.from.max")
             .defaultValue(false)
