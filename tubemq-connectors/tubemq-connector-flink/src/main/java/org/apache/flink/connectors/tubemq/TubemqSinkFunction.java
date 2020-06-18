@@ -20,6 +20,8 @@ package org.apache.flink.connectors.tubemq;
 import static org.apache.flink.connectors.tubemq.TubemqOptions.MAX_RETRIES;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +46,7 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
 
     private static final Logger LOG = LoggerFactory.getLogger(TubemqSinkFunction.class);
 
-    private static final String TID = "tid";
+    private static final String SYSTEM_HEADER_TIME_FORMAT = "yyyyMMddHHmm";
 
     /**
      * The address of tubemq master, format eg: 127.0.0.1:8080,127.0.0.2:8081.
@@ -134,7 +136,9 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
                 byte[] body = serializationSchema.serialize(in);
                 Message message = new Message(topic, body);
                 if (StringUtils.isNotBlank(tid)) {
-                    message.setAttrKeyVal(TID, tid);
+                    SimpleDateFormat sdf = new SimpleDateFormat(SYSTEM_HEADER_TIME_FORMAT);
+                    long currTimeMillis = System.currentTimeMillis();
+                    message.putSystemHeader(tid, sdf.format(new Date(currTimeMillis)));
                 }
 
                 MessageSentResult sendResult = producer.sendMessage(message);
