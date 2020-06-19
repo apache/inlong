@@ -701,7 +701,7 @@ public class MessageStore implements Closeable {
                 writeCacheMutex.writeLock().unlock();
             }
         }
-        msgMemStoreBeingFlush.flush(msgFileStore, strBuffer);
+        msgMemStoreBeingFlush.batchFlush(msgFileStore, strBuffer);
     }
 
 }
