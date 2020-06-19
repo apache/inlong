@@ -1,0 +1,55 @@
+{{/* vim: set filetype=mustache: */}}
+  {{/*
+Expand the name of the chart.
+*/}}
+  {{- define "tubemq.name" -}}
+  {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+  {{- end -}}
+
+  {{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+  {{- define "tubemq.fullname" -}}
+  {{- if .Values.fullnameOverride -}}
+  {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+  {{- else -}}
+  {{- .Chart.Name | trunc 63 | trimSuffix "-" -}}
+  {{- end -}}
+  {{- end -}}
+
+  {{/*
+Create chart name and version as used by the chart label.
+*/}}
+  {{- define "tubemq.chart" -}}
+  {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+  {{- end -}}
+
+  {{/*
+Create the common labels.
+*/}}
+  {{- define "tubemq.standardLabels" -}}
+app: {{ template "tubemq.name" . }}
+chart: {{ template "tubemq.chart" . }}
+release: {{ .Release.Name }}
+heritage: {{ .Release.Service }}
+cluster: {{ template "tubemq.fullname" . }}
+  {{- end }}
+
+  {{/*
+Create the template labels.
+*/}}
+  {{- define "tubemq.template.labels" -}}
+app: {{ template "tubemq.name" . }}
+release: {{ .Release.Name }}
+cluster: {{ template "tubemq.fullname" . }}
+  {{- end }}
+
+  {{/*
+Create the match labels.
+*/}}
+  {{- define "tubemq.matchLabels" -}}
+app: {{ template "tubemq.name" . }}
+release: {{ .Release.Name }}
+  {{- end }}
