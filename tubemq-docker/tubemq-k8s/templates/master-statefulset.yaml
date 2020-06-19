@@ -1,0 +1,161 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tubemq.standardLabels" . | nindent 4 }}
+    component: {{ .Values.master.component }}
+spec:
+  serviceName: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}"
+  replicas: {{ .Values.master.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "tubemq.matchLabels" . | nindent 6 }}
+      component: {{ .Values.master.component }}
+  updateStrategy:
+{{ toYaml .Values.master.updateStrategy | indent 4 }}
+  podManagementPolicy: {{ .Values.master.podManagementPolicy }}
+  template:
+    metadata:
+      labels:
+        {{- include "tubemq.template.labels" . | nindent 8 }}
+        component: {{ .Values.master.component }}
+      annotations:
+{{ toYaml .Values.master.annotations | indent 8 }}
+    spec:
+    {{- if .Values.master.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.master.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.master.tolerations }}
+      tolerations:
+{{ toYaml .Values.master.tolerations | indent 8 }}
+    {{- end }}
+      initContainers:
+        - name: wait-zk-ready
+          image: "{{ .Values.images.tubemq_all.repository }}:{{ .Values.images.tubemq_all.tag }}"
+          imagePullPolicy: {{ .Values.images.tubemq_all.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >-
+              for ((i=0;i<{{ .Values.zookeeper.replicaCount }};i++)); do
+              until echo ruok | nc {{ template "tubemq.fullname" $ }}-{{ .Values.zookeeper.component }}-$i.{{ template "tubemq.fullname" $ }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local ${1:-2181}; do
+              sleep 3; done; done;
+      affinity:
+        {{- if .Values.affinity.anti_affinity}}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                - "{{ template "tubemq.name" . }}-{{ .Values.master.component }}"
+              - key: "release"
+                operator: In
+                values:
+                - {{ .Release.Name }}
+              - key: "component"
+                operator: In
+                values:
+                - {{ .Values.master.component }}
+            topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.master.gracePeriod }}
+      containers:
+      - name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}"
+        image: "{{ .Values.images.tubemq_all.repository }}:{{ .Values.images.tubemq_all.tag }}"
+        imagePullPolicy: {{ .Values.images.tubemq_all.pullPolicy }}
+      {{- if .Values.master.resources }}
+        resources:
+{{ toYaml .Values.master.resources | indent 10 }}
+      {{- end }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          /config-scripts/run;
+        ports:
+        - name: web-port
+          containerPort: {{ .Values.master.ports.webPort }}
+        - name: help-port
+          containerPort: {{ .Values.master.ports.helpPort }}
+        - name: rpc-port
+          containerPort: {{ .Values.master.ports.rpcPort }}
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        {{- if .Values.master.probe.readiness.enabled }}
+        readinessProbe:
+          exec:
+            command:
+            - /config-scripts/ready
+          initialDelaySeconds: {{ .Values.master.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.master.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.master.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.master.probe.liveness.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - /config-scripts/ok
+          initialDelaySeconds: {{ .Values.master.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.master.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.master.probe.liveness.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        - name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}-{{ .Values.master.volumes.data.name }}"
+          mountPath: /data
+        - name: config
+          mountPath: /config-scripts
+        - name: {{ .Values.master.component }}-ini
+          mountPath: /opt/tubemq-server/conf/{{ .Values.master.component }}.ini.raw
+          subPath: {{ .Values.master.component }}.ini.raw
+          readOnly: false
+      volumes:
+      - name: config
+        configMap:
+          name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}"
+          defaultMode: 0755
+      - name: {{ .Values.master.component }}-ini
+        configMap:
+          name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}-ini"
+          defaultMode: 0644
+      {{- if not .Values.volumes.persistence }}
+      - name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}-{{ .Values.master.volumes.data.name }}"
+        emptyDir: {}
+      {{- end }}
+{{- if .Values.volumes.persistence }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "tubemq.fullname" . }}-{{ .Values.master.component }}-{{ .Values.master.volumes.data.name }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.master.volumes.data.size }}
+    {{- if .Values.volumes.storageClassName }}
+      storageClassName: "{{ .Values.volumes.storageClassName }}"
+    {{- end }}
+{{- end }}
