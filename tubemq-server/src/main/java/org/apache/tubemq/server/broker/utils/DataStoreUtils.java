@@ -75,10 +75,17 @@ public class DataStoreUtils {
     // Index storage structure
     // partitionId         4
     // offset              8
-    // + getCachedSize              4
+    // + getCachedSize     4
     // + keyCode           4
     // + timeInMillSec     8
     public static final int STORE_INDEX_HEAD_LEN = 28;
+    public static final int INDEX_POS_PARTITIONID = 0;
+    public static final int INDEX_POS_DATAOFFSET = 4;
+    public static final int INDEX_POS_MSG_SIZE = 12;
+    public static final int INDEX_POS_KEY_CODE = 16;
+    public static final int INDEX_POS_TIME_RECV = 20;
+
+
     public static final int STORE_MAX_MESSAGE_STORE_LEN
             = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 
