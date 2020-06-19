@@ -158,10 +158,8 @@ public class WebBrokerDefConfHandler {
             WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String brokerIp =
-                    WebParameterUtils.validAddressParameter("brokerIp",
-                            req.getParameter("brokerIp"),
-                            TBaseConstants.META_MAX_BROKER_IP_LENGTH,
-                            true, "");
+                    WebParameterUtils.checkParamCommonRequires("brokerIp",
+                            req.getParameter("brokerIp"), true);
             int brokerPort =
                     WebParameterUtils.validIntDataParameter("brokerPort",
                             req.getParameter("brokerPort"),
@@ -332,8 +330,8 @@ public class WebBrokerDefConfHandler {
                 Map<String, String> jsonObject = brokerJsonArray.get(count);
                 try {
                     String brokerIp =
-                            WebParameterUtils.validAddressParameter("brokerIp", jsonObject.get("brokerIp"),
-                                    TBaseConstants.META_MAX_BROKER_IP_LENGTH, false, "");
+                            WebParameterUtils.checkParamCommonRequires("brokerIp",
+                                    jsonObject.get("brokerIp"), false);
                     int brokerPort =
                             WebParameterUtils.validIntDataParameter("brokerPort",
                                     jsonObject.get("brokerPort"), false, 8123, 0);
@@ -342,8 +340,8 @@ public class WebBrokerDefConfHandler {
                                     jsonObject.get("brokerId"), false, 0, 0);
                     if (brokerId <= 0) {
                         brokerIp =
-                                WebParameterUtils.validAddressParameter("brokerIp", jsonObject.get("brokerIp"),
-                                        TBaseConstants.META_MAX_BROKER_IP_LENGTH, true, "");
+                                WebParameterUtils.checkParamCommonRequires("brokerIp",
+                                        jsonObject.get("brokerIp"), true);
                         try {
                             brokerId = abs(AddressUtils.ipToInt(brokerIp));
                         } catch (Exception e) {
@@ -1417,8 +1415,8 @@ public class WebBrokerDefConfHandler {
                     .setDftUnflushThreshold(WebParameterUtils.validIntDataParameter("unflushThreshold",
                             req.getParameter("unflushThreshold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
             brokerConfEntity
-                    .setBrokerIp(WebParameterUtils.validAddressParameter("brokerIp",
-                            req.getParameter("brokerIp"), TBaseConstants.META_MAX_BROKER_IP_LENGTH, false, ""));
+                    .setBrokerIp(WebParameterUtils.checkParamCommonRequires("brokerIp",
+                            req.getParameter("brokerIp"), false));
             boolean withTopic =
                     WebParameterUtils.validBooleanDataParameter("withTopic",
                             req.getParameter("withTopic"), false, false);
