@@ -85,17 +85,6 @@ function start_server() {
   popd
 }
 
-# status of the specified service
-function status_server() {
-  if running; then
-    echo "TubeMQ $SERVICE is running."
-    exit 0
-  else
-    echo "TubeMQ $SERVICE is not running."
-    exit 1
-  fi
-}
-
 # stop the specified service
 function stop_server() {
   if ! running; then
@@ -122,8 +111,7 @@ function stop_server() {
 
 # display usage
 function help() {
-  echo "Usage: tubemq {master|broker} {status|start|stop|restart}" >&2
-  echo "       status:      start the master/broker server"
+  echo "Usage: tubemq {master|broker} {start|stop|restart}" >&2
   echo "       start:      start the master/broker server"
   echo "       stop:       stop the master/broker server"
   echo "       restart:    restart the master/broker server"
@@ -158,9 +146,6 @@ LOG_FILE="$LOG_DIR/$SERVICE.log"
 PID_FILE="$PID_DIR/.$SERVICE.run.pid"
 
 case $COMMAND in
-  status)
-    status_server $@;
-    ;;
   start)
     start_server $@;
     ;;
