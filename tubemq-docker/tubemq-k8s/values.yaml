@@ -1,0 +1,158 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Default values for TubeMQ.
+# Declare variables to be passed into your templates.
+images:
+  tubemq_all:
+    repository: apachetubemq/tubemq-all
+    tag: latest
+    pullPolicy: IfNotPresent
+
+volumes:
+  persistence: false
+  storageClassName: "local-storage"
+
+affinity:
+  anti_affinity: false
+
+zookeeper:
+  component: zookeeper
+  replicaCount: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  ports:
+    client: 2181
+    follower: 2888
+    leaderElection: 3888
+    #nodeSelector:
+    #  apache-tubemq-nodepool: zookeeper-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+  tolerations: []
+  gracePeriod: 30
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1
+  volumes:
+    data:
+      name: data
+      size: 20Gi
+  service:
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
+
+master:
+  component: master
+  replicaCount: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  ports:
+    rpcPort: 8000
+    webPort: 8080
+    webNodePort: 8080
+    helpPort: 9001
+    #nodeSelector:
+    #  apache-tubemq-nodepool: master-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  tolerations: []
+  gracePeriod: 30
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1
+  volumes:
+    data:
+      name: data
+      size: 20Gi
+  service:
+    type: LoadBalancer
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
+
+broker:
+  component: broker
+  replicaCount: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  ports:
+    rpcPort: 8123
+    webPort: 8081
+    #nodeSelector:
+    #  apache-tubemq-nodepool: broker-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  tolerations: []
+  gracePeriod: 30
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1
+  volumes:
+    data:
+      name: data
+      size: 20Gi
+  service:
+    type: LoadBalancer
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
