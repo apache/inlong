@@ -36,10 +36,12 @@ public class Tubeweb implements Action {
     public void execute(RequestContext context) {
         BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
         InetSocketAddress masterAddr = brokerConfManager.getMasterAddress();
-        if (masterAddr == null) {
-            context.put("tubemqRemoteAddr", ":");
+        if (master.getMasterConfig().isUseWebProxy() || masterAddr == null) {
+            // use absolute path
+            context.put("tubemqRemoteAddr", "");
         } else {
-            context.put("tubemqRemoteAddr", masterAddr.getAddress().getHostAddress() + ":"
+            // use the whole path of the active master
+            context.put("tubemqRemoteAddr", "http://" + masterAddr.getAddress().getHostAddress() + ":"
                     + master.getMasterConfig().getWebPort());
         }
     }

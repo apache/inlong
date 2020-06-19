@@ -75,6 +75,7 @@ public class MasterConfig extends AbstractFileConfig {
     private boolean startConsumeAuthorize = false;
     private long visitTokenValidPeriodMs = 5 * 60 * 1000;
     private boolean needBrokerVisitAuth = false;
+    private boolean useWebProxy = false;
     private String visitName = "";
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
@@ -226,6 +227,10 @@ public class MasterConfig extends AbstractFileConfig {
 
     public boolean isStartConsumeAuthorize() {
         return startConsumeAuthorize;
+    }
+
+    public boolean isUseWebProxy() {
+        return useWebProxy;
     }
 
     public long getSocketSendBuffer() {
@@ -421,6 +426,9 @@ public class MasterConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(masterConf.get("startProduceAuthorize"))) {
             this.startProduceAuthorize = this.getBoolean(masterConf, "startProduceAuthorize");
         }
+        if (TStringUtils.isNotBlank(masterConf.get("useWebProxy"))) {
+            this.useWebProxy = this.getBoolean(masterConf, "useWebProxy");
+        }
         if (!this.startProduceAuthenticate && this.startProduceAuthorize) {
             throw new IllegalArgumentException(
                     "startProduceAuthenticate must set true if startProduceAuthorize is true!");
@@ -595,6 +603,7 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("startOffsetResetCheck", startOffsetResetCheck)
                 .append("rowLockWaitDurMs", rowLockWaitDurMs)
                 .append("needBrokerVisitAuth", needBrokerVisitAuth)
+                .append("useWebProxy", useWebProxy)
                 .append("visitName", visitName)
                 .append("visitPassword", visitPassword)
                 .append(",").append(replicationConfig.toString())
