@@ -47,6 +47,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcConfig;
@@ -429,6 +430,7 @@ public class ProducerManager {
         builder.addAllTopicList(publishTopics.keySet());
         builder.setBrokerCheckSum(this.brokerInfoCheckSum);
         builder.setHostName(AddressUtils.getLocalAddress());
+        builder.setJdkVersion(MixedUtils.getJavaVersion());
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
                 genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
