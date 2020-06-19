@@ -36,7 +36,7 @@
     <script type="text/javascript">
         // global configuration of js
         var G_CONFIG = {
-            HOST: 'http://$!tubemqRemoteAddr/webapi.htm'
+            HOST: '$!tubemqRemoteAddr/webapi.htm'
         };
     </script>
 
