@@ -335,14 +335,16 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(authorizeResult.errInfo);
             return builder.build();
         }
+        String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
                 new HashSet<>(transTopicSet), hostName, overtls);
         builder.setBrokerCheckSum(this.defaultBrokerConfManager.getBrokerInfoCheckSum());
         builder.addAllBrokerInfos(this.defaultBrokerConfManager.getBrokersMap(overtls).values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
-        logger.info(strBuffer.append("[Producer Register] ")
-                .append(producerId).append(", isOverTLS=").append(overtls).toString());
+        logger.info(strBuffer.append("[Producer Register] ").append(producerId)
+            .append(", isOverTLS=").append(overtls)
+            .append(", clientJDKVer=").append(clientJdkVer).toString());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -536,8 +538,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         boolean isReqConsumeBand = (request.hasRequireBound() && request.getRequireBound());
-        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand, reqTopicSet, requiredParts,
-                strBuffer);
+        String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
+        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand,
+                reqTopicSet, requiredParts, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -648,7 +651,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         logger.info(strBuffer.append("[Consumer Register] ")
-                .append(consumerId).append(", isOverTLS=").append(overtls).toString());
+            .append(consumerId).append(", isOverTLS=").append(overtls)
+            .append(", clientJDKVer=").append(clientJdkVer).toString());
         strBuffer.delete(0, strBuffer.length());
         if (request.hasDefFlowCheckId() || request.hasGroupFlowCheckId()) {
             builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
