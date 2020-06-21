@@ -58,6 +58,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcConfig;
@@ -882,6 +883,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 ClientMaster.RegisterRequestC2M.newBuilder();
         builder.setClientId(consumerId);
         builder.setHostName(AddressUtils.getLocalAddress());
+        builder.setJdkVersion(MixedUtils.getJavaVersion());
         builder.setRequireBound(this.consumeSubInfo.isRequireBound());
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setSessionTime(this.consumeSubInfo.getSubscribedTime());

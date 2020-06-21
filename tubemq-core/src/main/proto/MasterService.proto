@@ -67,6 +67,7 @@ message RegisterRequestP2M {
     required int64 brokerCheckSum = 3;
     required string hostName = 4;
     optional MasterCertificateInfo authInfo = 5;
+    optional string jdkVersion = 6;
 }
 
 message RegisterResponseM2P {
@@ -129,6 +130,7 @@ message RegisterRequestC2M {
     optional int64 ssdStoreId = 16; /* Deprecated  */
     optional int32 qryPriorityId = 17;
     optional MasterCertificateInfo authInfo = 18;
+    optional string jdkVersion = 19;
 }
 
 message RegisterResponseM2C {
