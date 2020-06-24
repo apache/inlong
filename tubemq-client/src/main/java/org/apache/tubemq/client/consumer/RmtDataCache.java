@@ -253,6 +253,7 @@ public class RmtDataCache implements Closeable {
             String key = null;
             do {
                 if (!indexPartition.isEmpty()) {
+                    // If there are idle partitions, poll
                     key = indexPartition.poll();
                     if (key != null) {
                         break;
@@ -261,10 +262,8 @@ public class RmtDataCache implements Closeable {
                 if (this.isClosed.get()) {
                     break;
                 }
-                if (!partitionMap.isEmpty()) {
-                    break;
-                }
                 ThreadUtils.sleep(300);
+                //if no idle partitions to get, wait and cycle 500 times
             } while(cycleCnt++ < 500);
             if (key == null) {
                 return null;
