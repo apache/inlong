@@ -16,6 +16,12 @@
 # limitations under the License.
 #
 cd /opt/tubemq-server/bin/
+# configure useWebProxy
+if [[ $USE_WEB_PROXY ]]; then
+  sed -i 's/useWebProxy=.*/useWebProxy=true/g' /opt/tubemq-server/conf/master.ini
+else
+  sed -i 's/useWebProxy=.*/useWebProxy=false/g' /opt/tubemq-server/conf/master.ini
+fi
 # for standalone, start all services
 if [[ $TARGET == "standalone" ]]; then
   # zookeeper start

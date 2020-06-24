@@ -20,6 +20,8 @@ ADD ${TUBEMQ_TARBALL} /
 RUN mv /apache-tubemq-server-* /opt/tubemq-server
 # overwrite default jvm size
 ENV MASTER_JVM_SIZE="-Xmx1g -Xms1g" BROKER_JVM_SIZE="-Xmx1g -Xms1g"
+# support using diffent port mapping
+ENV USE_WEB_PROXY=true
 ADD tubemq.sh /opt/tubemq-server/bin/
 RUN chmod +x /opt/tubemq-server/bin/*
 # standalone default
