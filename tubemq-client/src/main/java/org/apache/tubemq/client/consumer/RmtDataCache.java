@@ -238,7 +238,7 @@ public class RmtDataCache implements Closeable {
             if (!partitionMap.isEmpty()) {
                 break;
             }
-            ThreadUtils.sleep(200);
+            ThreadUtils.sleep(300);
         } while (true);
         if (this.isClosed.get()) {
             return null;
@@ -249,11 +249,14 @@ public class RmtDataCache implements Closeable {
             if (this.isClosed.get()) {
                 return null;
             }
+            int cycleCnt = 0;
             String key = null;
             do {
-                key = indexPartition.poll();
-                if (key != null) {
-                    break;
+                if (!indexPartition.isEmpty()) {
+                    key = indexPartition.poll();
+                    if (key != null) {
+                        break;
+                    }
                 }
                 if (this.isClosed.get()) {
                     break;
@@ -261,8 +264,8 @@ public class RmtDataCache implements Closeable {
                 if (!partitionMap.isEmpty()) {
                     break;
                 }
-                ThreadUtils.sleep(200);
-            } while(true);
+                ThreadUtils.sleep(300);
+            } while(cycleCnt++ < 500);
             if (key == null) {
                 return null;
             }
