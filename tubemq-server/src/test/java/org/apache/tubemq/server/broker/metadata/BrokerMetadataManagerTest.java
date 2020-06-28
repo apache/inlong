@@ -34,13 +34,13 @@ public class BrokerMetadataManagerTest {
     public void updateBrokerTopicConfigMap() {
         brokerMetadataManager = new BrokerMetadataManager();
         // topic default config
-        String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000";
+        String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000";
         List<String> newTopicMetaConfInfoList = new LinkedList<>();
         // add topic custom config.
         newTopicMetaConfInfoList.add(
-                "topic1:2:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+                "topic1:2:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         newTopicMetaConfInfoList.add(
-                "topic2:4:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+                "topic2:4:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         brokerMetadataManager.updateBrokerTopicConfigMap(0L, 0,
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         // get topic custom config.
@@ -48,7 +48,7 @@ public class BrokerMetadataManagerTest {
         Assert.isTrue(count == 4);
         // add topic custom config.
         newTopicMetaConfInfoList.add(
-                "topic3:6:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+                "topic3:6:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         brokerMetadataManager.updateBrokerTopicConfigMap(0L, 1,
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         count = brokerMetadataManager.getNumPartitions("topic3");
@@ -58,19 +58,19 @@ public class BrokerMetadataManagerTest {
     @Test
     public void updateBrokerRemoveTopicMap() {
         brokerMetadataManager = new BrokerMetadataManager();
-        String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000";
+        String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000";
         List<String> newTopicMetaConfInfoList = new LinkedList<>();
         // add topic custom config.
         newTopicMetaConfInfoList.add(
-                "topic1:2:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+                "topic1:2:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         newTopicMetaConfInfoList.add(
-                "topic2:4:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+                "topic2:4:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         brokerMetadataManager.updateBrokerTopicConfigMap(0L, 0,
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         Map<String, TopicMetadata> topicMetadataMap = brokerMetadataManager.getRemovedTopicConfigMap();
         Assert.isTrue(topicMetadataMap.size() == 0);
         List<String> rmvTopics = new LinkedList<>();
-        rmvTopics.add("topic2:4:true:true:1000:10000:67108864:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
+        rmvTopics.add("topic2:4:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         // update topic custom config.
         brokerMetadataManager.updateBrokerRemoveTopicMap(true, rmvTopics, new StringBuilder());
         topicMetadataMap = brokerMetadataManager.getRemovedTopicConfigMap();

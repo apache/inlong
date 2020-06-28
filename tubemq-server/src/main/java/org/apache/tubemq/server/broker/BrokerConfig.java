@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BrokerConfig extends AbstractFileConfig {
     static final long serialVersionUID = -1L;
+    static final long DEFAULT_FLUSH_BY_SIZE_THRESHOLD = 67108864;  // 64M
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
     private int brokerId = 0;
@@ -113,6 +114,9 @@ public class BrokerConfig extends AbstractFileConfig {
     private String visitName = "";
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    // flush by size threshold config
+    private boolean isFlushBySizeEnabled = false;
+    private long flushBySizeThreshold = 0;  // size in Bytes, default to DEFAULT_FLUSH_BY_SIZE_THRESHOLD by parser.
 
     public BrokerConfig() {
         super();
@@ -171,6 +175,14 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public long getSocketRecvBuffer() {
         return socketRecvBuffer;
+    }
+
+    public boolean getFlushBySizeEnabled() {
+        return isFlushBySizeEnabled;
+    }
+
+    public long getFlushBySizeThreshold() {
+        return flushBySizeThreshold;
     }
 
 
@@ -332,6 +344,18 @@ public class BrokerConfig extends AbstractFileConfig {
             }
             this.visitName = brokerSect.get("visitName").trim();
             this.visitPassword = brokerSect.get("visitPassword").trim();
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("enableFlushBySize"))) {
+            this.isFlushBySizeEnabled = getBoolean(brokerSect, "enableFlushBySize");
+            this.flushBySizeThreshold = DEFAULT_FLUSH_BY_SIZE_THRESHOLD;
+            if (TStringUtils.isNotBlank(brokerSect.get("flushBySizeThreshold"))) {
+                long tempFlushBySizeThreshold = getLong(brokerSect, "flushBySizeThreshold");
+                if (tempFlushBySizeThreshold >= 0) {
+                    // Equal-to-Zero is valid if someone wants to "Flush Immediately regardless of cached times"
+                    // However, user needs to know what it really means themselves.
+                    this.flushBySizeThreshold = tempFlushBySizeThreshold;
+                }
+            }
         }
     }
 
