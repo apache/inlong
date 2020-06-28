@@ -34,7 +34,7 @@ public class MasterConfigTest {
     @Test
     public void testNormalConfig() {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile("src/test/resource/master-normal.ini");
+        masterConfig.loadFromFile(this.getClass().getResource("/master-normal.ini").getPath());
 
         Assert.assertEquals("127.0.0.1", masterConfig.getHostName());
         Assert.assertEquals(8000, masterConfig.getPort());
@@ -70,7 +70,8 @@ public class MasterConfigTest {
     @Test
     public void testOptionalReplicationConfig() {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile("src/test/resource/master-replication-optional.ini");
+        masterConfig.loadFromFile(this.getClass()
+            .getResource("/master-replication-optional.ini").getPath());
 
         Assert.assertEquals(masterConfig.getMetaDataPath(), "var/meta_data");
 
@@ -88,7 +89,8 @@ public class MasterConfigTest {
     @Test
     public void testReplicationConfigBackwardCompatibility() {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile("src/test/resource/master-replication-compatibility.ini");
+        masterConfig.loadFromFile(this.getClass()
+            .getResource("/master-replication-compatibility.ini").getPath());
 
         Assert.assertEquals("var/tubemqMasterGroup/master_data", masterConfig.getMetaDataPath());
 

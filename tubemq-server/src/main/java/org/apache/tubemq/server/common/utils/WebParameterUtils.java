@@ -631,8 +631,7 @@ public class WebParameterUtils {
                 continue;
             }
             String brokerIp =
-                    validAddressParameter("brokerIp", strBrokerIps[i],
-                            TBaseConstants.META_MAX_BROKER_IP_LENGTH, true, "");
+                    checkParamCommonRequires("brokerIp", strBrokerIps[i], true);
             if (batchBrokerIps.contains(brokerIp)) {
                 continue;
             }
@@ -879,7 +878,7 @@ public class WebParameterUtils {
         return sdf.format(date);
     }
 
-    private static String checkParamCommonRequires(final String paramName, final String paramValue,
+    public static String checkParamCommonRequires(final String paramName, final String paramValue,
                                                    boolean required) throws Exception {
         String temParamValue = null;
         if (paramValue == null) {

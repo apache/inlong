@@ -19,13 +19,9 @@ package org.apache.tubemq.corerpc.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
+import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -33,49 +29,61 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class TSSLEngineUtil {
 
-    public static SSLEngine createSSLEngine(String keyStorePath, String trustStorePath,
-                                            String keyStorePassword, String trustStorePassword,
-                                            boolean isClientMode, boolean needTwyWayAuth)
-            throws IOException, CertificateException,
-            NoSuchAlgorithmException, UnrecoverableKeyException,
-            KeyStoreException, KeyManagementException {
+    public static SSLEngine createSSLEngine(InputStream keyStoreStream,
+                                            String keyStorePassword,
+                                            InputStream trustStoreStream,
+                                            String trustStorePassword,
+                                            boolean isClientMode,
+                                            boolean needTwyWayAuth)
+        throws Exception {
+
         KeyManagerFactory kmf = null;
         TrustManagerFactory tmf = null;
         if (isClientMode || needTwyWayAuth) {
-            FileInputStream fileInputStream = null;
             KeyStore ts = KeyStore.getInstance("JKS");
             try {
-                fileInputStream = new FileInputStream(new File(trustStorePath));
-                ts.load(fileInputStream, trustStorePassword.toCharArray());
+                ts.load(trustStoreStream, trustStorePassword.toCharArray());
                 tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init(ts);
             } finally {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
+                if (trustStoreStream != null) {
+                    trustStoreStream.close();
                 }
             }
 
         }
         if (!isClientMode || needTwyWayAuth) {
-            FileInputStream fileInputStream = null;
             KeyStore ks = KeyStore.getInstance("JKS");
             try {
-                fileInputStream = new FileInputStream(new File(keyStorePath));
-                ks.load(fileInputStream, keyStorePassword.toCharArray());
+                ks.load(keyStoreStream, keyStorePassword.toCharArray());
                 kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 kmf.init(ks, keyStorePassword.toCharArray());
             } finally {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
+                if (keyStoreStream != null) {
+                    keyStoreStream.close();
                 }
             }
         }
+
         SSLContext serverContext = SSLContext.getInstance("TLS");
         serverContext.init(kmf == null ? null : kmf.getKeyManagers(),
-                tmf == null ? null : tmf.getTrustManagers(), null);
+            tmf == null ? null : tmf.getTrustManagers(), null);
         SSLEngine sslEngine = serverContext.createSSLEngine();
         sslEngine.setUseClientMode(isClientMode);
         sslEngine.setNeedClientAuth(needTwyWayAuth);
+
         return sslEngine;
+    }
+
+    public static SSLEngine createSSLEngine(String keyStorePath, String trustStorePath,
+                                            String keyStorePassword, String trustStorePassword,
+                                            boolean isClientMode, boolean needTwyWayAuth)
+        throws Exception {
+
+        InputStream keyStoreStream = new FileInputStream(new File(keyStorePath));
+        InputStream trustStoreStream = new FileInputStream(new File(trustStorePath));
+
+        return createSSLEngine(keyStoreStream, keyStorePassword, trustStoreStream,
+            trustStorePassword, isClientMode, needTwyWayAuth);
     }
 }
