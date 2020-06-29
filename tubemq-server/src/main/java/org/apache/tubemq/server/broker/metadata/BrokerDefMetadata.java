@@ -32,7 +32,7 @@ public class BrokerDefMetadata {
     private int numPartitions = 1;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushThreshold = 1000;
-    @Deprecated
+    // data will be flushed to disk when unflushed data size reaches the threshold.
     private int unflushDataHold = 10000;
     // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
     private int unflushInterval = 10000;

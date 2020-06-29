@@ -144,6 +144,10 @@ public class MessageStore implements Closeable {
         this.lastMemFlushTime.set(System.currentTimeMillis());
     }
 
+    public TopicMetadata getTopicMetadata() {
+        return topicMetadata;
+    }
+
     /***
      * Get message from message store. Support the given offset, filter.
      *
