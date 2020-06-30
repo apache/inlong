@@ -76,6 +76,7 @@ public class MessageStore implements Closeable {
     private volatile int partitionNum;
     private AtomicInteger unflushInterval = new AtomicInteger(0);
     private AtomicInteger unflushThreshold = new AtomicInteger(0);
+    private AtomicInteger unflushDataHold = new AtomicInteger(0);
     private volatile int writeCacheMaxSize;
     private volatile int writeCacheMaxCnt;
     private volatile int writeCacheFlushIntvl;
@@ -120,6 +121,7 @@ public class MessageStore implements Closeable {
         this.unflushInterval.set(topicMetadata.getUnflushInterval());
         this.maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         this.unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        this.unflushDataHold.set(topicMetadata.getUnflushDataHold());
         this.writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
         this.writeCacheMaxSize = topicMetadata.getMemCacheMsgSize();
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
@@ -142,10 +144,6 @@ public class MessageStore implements Closeable {
         this.msgMemStoreBeingFlush.resetStartPos(
                 this.msgFileStore.getDataMaxOffset(), this.msgFileStore.getIndexMaxOffset());
         this.lastMemFlushTime.set(System.currentTimeMillis());
-    }
-
-    public TopicMetadata getTopicMetadata() {
-        return topicMetadata;
     }
 
     /***
@@ -387,6 +385,7 @@ public class MessageStore implements Closeable {
         partitionNum = topicMetadata.getNumPartitions();
         unflushInterval.set(topicMetadata.getUnflushInterval());
         unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        unflushDataHold.set(topicMetadata.getUnflushDataHold());
         maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
@@ -489,6 +488,10 @@ public class MessageStore implements Closeable {
 
     public int getUnflushThreshold() {
         return this.unflushThreshold.get();
+    }
+
+    public int getUnflushDataHold() {
+        return this.unflushDataHold.get();
     }
 
     public long getIndexMaxOffset() {

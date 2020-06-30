@@ -169,7 +169,7 @@ public class MsgFileStore implements Closeable {
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
-            int unflushDataHold = this.messageStore.getTopicMetadata().getUnflushDataHold();
+            int unflushDataHold = messageStore.getUnflushDataHold();
             if ((isMsgCntFlushed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold())
                 || (isMsgTimeFushed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval())
                 || (unflushDataHold > 0 && curUnflushSize.get() >= unflushDataHold)

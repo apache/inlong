@@ -37,8 +37,8 @@ public class TopicMetadata {
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushInterval = 10000;
-    // data will be flushed to disk when unflushed data size reach this threshold.
-    private int unflushDataHold = 10000;
+    // data will be flushed to disk when unflushed data size reach this threshold, 0=disabled.
+    private int unflushDataHold = 0;
     // enable produce data to topic.
     private boolean acceptPublish = true;
     // enable consume data from topic.
