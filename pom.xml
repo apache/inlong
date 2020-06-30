@@ -261,6 +261,10 @@
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
                         <exclude>DISCLAIMER-WIP</exclude>
+
+                        <!-- These files is go module configs -->
+                        <exclude>**/go.mod</exclude>
+                        <exclude>**/go.sum</exclude>
                     </excludes>
                 </configuration>
             </plugin>
