@@ -26,80 +26,81 @@
 
 
 
-namespace TubeMQ {
+namespace tubemq {
 
-  using namespace std;
+using namespace std;
 
-  // configuration value setting
-  namespace config {
-  
-    // rpc timeout define  
-    static const int kRpcTimoutDef = 15;
-    static const int kRpcTimoutMax = 300;
-    static const int kRpcTimoutMin = 8;
-    // heartbeat period define
-    static const int kHeartBeatPeriodDef = 10;
-    static const int kHeartBeatFailRetryTimesDef = 5;
-    static const int kHeartBeatSleepPeriodDef = 60;
-    // max masterAddrInfo length
-    static const int kMasterAddrInfoMaxLength = 1024;
-    // max TopicName length
-    static const int kTopicNameMaxLength = 64;
-    // max Consume GroupName length
-    static const int kGroupNameMaxLength = 1024;
-  }  // namespace config
 
-  class BaseConfig {
-   public:
-    BaseConfig();
-    ~BaseConfig();
-    BaseConfig& operator=(const BaseConfig& target);
-    bool SetMasterAddrInfo(string& errInfo, const string& masterAddrInfo);
-    bool SetTlsInfo(string& errInfo, bool tlsEnable, 
-                        const string& trustStorePath, const string& trustStorePassword);
-    bool SetAuthenticInfo(string& errInfo, bool needAuthentic, 
-                                const string& usrName, const string& usrPassWord);
-    const string& GetMasterAddrInfo() const;
-    bool IsTlsEnabled();
-    const string& GetTrustStorePath() const;
-    const string& GetTrustStorePassword() const;
-    bool IsAuthenticEnabled();
-    const string& GetUsrName() const;
-    const string& GetUsrPassWord() const;            
-    // set the rpc timout, unit second, duration [8, 300], default 15 seconds;
-    void SetRpcReadTimeoutSec(int rpcReadTimeoutSec);
-    int GetRpcReadTimeoutSec();
-    // Set the duration of the client's heartbeat cycle, in seconds, the default is 10 seconds
-    void SetHeartbeatPeriodSec(int heartbeatPeriodInSec);
-    int GetHeartbeatPeriodSec();
-    void SetMaxHeartBeatRetryTimes(int maxHeartBeatRetryTimes);
-    int GetMaxHeartBeatRetryTimes();
-    void SetHeartbeatPeriodAftFailSec(int heartbeatPeriodSecAfterFailSec);
-    int GetHeartbeatPeriodAftFailSec();
-    string ToString();
-  
+// configuration value setting
+namespace config {
+// rpc timeout define  
+static const int kRpcTimoutDef = 15;
+static const int kRpcTimoutMax = 300;
+static const int kRpcTimoutMin = 8;
+// heartbeat period define
+static const int kHeartBeatPeriodDef = 10;
+static const int kHeartBeatFailRetryTimesDef = 5;
+static const int kHeartBeatSleepPeriodDef = 60;
+// max masterAddrInfo length
+static const int kMasterAddrInfoMaxLength = 1024;
+// max TopicName length
+static const int kTopicNameMaxLength = 64;
+// max Consume GroupName length
+static const int kGroupNameMaxLength = 1024;
+}  // namespace config
+
+
+class BaseConfig {
+ public:
+  BaseConfig();
+  ~BaseConfig();
+  BaseConfig& operator=(const BaseConfig& target);
+  bool SetMasterAddrInfo(string& err_info, const string& master_addrinfo);
+  bool SetTlsInfo(string& err_info, bool tls_enable, 
+                    const string& trust_store_path, const string& trust_store_password);
+  bool SetAuthenticInfo(string& err_info, bool authentic_enable, 
+                            const string& usr_name, const string& usr_password);
+  const string& GetMasterAddrInfo() const;
+  bool IsTlsEnabled();
+  const string& GetTrustStorePath() const;
+  const string& GetTrustStorePassword() const;
+  bool IsAuthenticEnabled();
+  const string& GetUsrName() const;
+  const string& GetUsrPassWord() const;            
+  // set the rpc timout, unit second, duration [8, 300], default 15 seconds;
+  void SetRpcReadTimeoutSec(int rpc_read_timeout_sec);
+  int GetRpcReadTimeoutSec();
+  // Set the duration of the client's heartbeat cycle, in seconds, the default is 10 seconds
+  void SetHeartbeatPeriodSec(int heartbeat_period_sec);
+  int GetHeartbeatPeriodSec();
+  void SetMaxHeartBeatRetryTimes(int max_heartbeat_retry_times);
+  int GetMaxHeartBeatRetryTimes();
+  void SetHeartbeatPeriodAftFailSec(int heartbeat_period_afterfail_sec);
+  int GetHeartbeatPeriodAftFailSec();
+  string ToString();
+
  private:
-  string masterAddrStr_;
+  string master_addrinfo_;
   // user authenticate
-  bool   authEnable_;
-  string authUsrName_;
-  string authUsrPassWord_;
+  bool   auth_enable_;
+  string auth_usrname_;
+  string auth_usrpassword_;
   // TLS configuration
-  bool   tlsEnabled_;
-  string tlsTrustStorePath_;
-  string tlsTrustStorePassword_;
+  bool   tls_enabled_;
+  string tls_trust_store_path_;
+  string tls_trust_store_password_;
   // other setting
-  int   rpcReadTimeoutSec_;
-  int   heartbeatPeriodSec_;
-  int    maxHeartBeatRetryTimes_;
-  int   heartbeatPeriodAfterFailSec_;
+  int   rpc_read_timeout_sec_;
+  int   heartbeat_period_sec_;
+  int   max_heartbeat_retry_times_;
+  int   heartbeat_period_afterfail_sec_;
 };
 
 
-  class ConsumerConfig {
-   public:
-     ConsumerConfig();
-  };
+class ConsumerConfig {
+ public:
+  ConsumerConfig();
+};
 
 }
 

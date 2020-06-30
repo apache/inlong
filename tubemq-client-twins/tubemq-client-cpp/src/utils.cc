@@ -21,66 +21,65 @@
 #include <stdlib.h>
 #include "utils.h"
 
-namespace TubeMQ {
+namespace tubemq {
 
 
 string Utils::trim(const string& source) {
   string target = source;
   if(!target.empty()) {
-    size_t foudPos = target.find_first_not_of(tWhitespaceCharSet);
-    if (foudPos != string::npos) {
-      target = target.substr(foudPos);
+    size_t foud_pos = target.find_first_not_of(tWhitespaceCharSet);
+    if (foud_pos != string::npos) {
+      target = target.substr(foud_pos);
     }
-    foudPos = target.find_last_not_of(tWhitespaceCharSet);
-    if(foudPos != string::npos) {
-      target = target.substr(0, foudPos + 1);
+    foud_pos = target.find_last_not_of(tWhitespaceCharSet);
+    if(foud_pos != string::npos) {
+      target = target.substr(0, foud_pos + 1);
     }
   }
   return target;
 }
 
 void Utils::split(const string& source, map<string, int>& result, 
-      const string& delimiterStep1, const string& delimiterStep2) {
-  int tmpValue;
-  string subStr;
-  string keyStr;
-  string valStr;
+      const string& delimiter_step1, const string& delimiter_step2) {
+  string item_str;
+  string key_str;
+  string val_str;
   string::size_type pos1,pos2,pos3;
   if(!source.empty()) {
     pos1 = 0;
-    pos2 = source.find(delimiterStep1);
+    pos2 = source.find(delimiter_step1);
     while(string::npos != pos2) {
-      subStr = source.substr(pos1, pos2-pos1);
-      subStr = Utils::trim(subStr);
-      pos1 = pos2 + delimiterStep1.length();
-      pos2 = source.find(delimiterStep1, pos1);
-      if(subStr.empty()) {
+      item_str = source.substr(pos1, pos2-pos1);
+      item_str = Utils::trim(item_str);
+      pos1 = pos2 + delimiter_step1.length();
+      pos2 = source.find(delimiter_step1, pos1);
+      if(item_str.empty()) {
         continue;
       }
-      pos3 = subStr.find(delimiterStep2);
+      pos3 = item_str.find(delimiter_step2);
       if(string::npos == pos3) {
         continue;
       }
-      keyStr = subStr.substr(0, pos3);
-      valStr = subStr.substr(pos3+delimiterStep2.length());
-      keyStr = Utils::trim(keyStr);
-      valStr = Utils::trim(valStr);
-      if(keyStr.empty()) {
+      key_str = item_str.substr(0, pos3);
+      val_str = item_str.substr(pos3+delimiter_step2.length());
+      key_str = Utils::trim(key_str);
+      val_str = Utils::trim(val_str);
+      if(key_str.empty()) {
         continue;
       }
-      result[keyStr] = atoi(valStr.c_str());
+      result[key_str] = atoi(val_str.c_str());
     }
     if(pos1 != source.length()) {
-      subStr = source.substr(pos1);
-      subStr = Utils::trim(subStr);
-      pos3 = subStr.find(delimiterStep2);
+      item_str = source.substr(pos1);
+      item_str = Utils::trim(item_str);
+      pos3 = item_str.find(delimiter_step2);
       if(string::npos != pos3) {
-        keyStr = subStr.substr(0, pos3);
-        valStr = subStr.substr(pos3+delimiterStep2.length());
-        keyStr = Utils::trim(keyStr);
-        valStr = Utils::trim(valStr);
-        if(!keyStr.empty()){
-          result[keyStr] = atoi(valStr.c_str());
+        key_str = item_str.substr(0, pos3);
+        val_str = item_str.substr(pos3+delimiter_step2.length());
+        key_str = Utils::trim(key_str);
+        val_str = Utils::trim(val_str);
+        if(!key_str.empty()){
+          result[key_str] = atoi(val_str.c_str());
         }
       }
     }

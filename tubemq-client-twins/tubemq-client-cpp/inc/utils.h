@@ -23,30 +23,30 @@
 #include <map>
 #include <string>
 
-namespace TubeMQ {
+namespace tubemq {
 
-  using namespace std;
+using namespace std;
 
-  static const string tWhitespaceCharSet = " \n\r\t\f\v";
+static const string tWhitespaceCharSet = " \n\r\t\f\v";
 
-  namespace delimiter {
-    static const string tDelimiterEqual = "=";
-    static const string tDelimiterAnd   = "&";
-    static const string tDelimiterComma = ",";
-    static const string tDelimiterColon = ":";
-    static const string tDelimiterAt    = "@";
-    static const string tDelimiterPound = "#";
-  }
+namespace delimiter {
+  static const string tDelimiterEqual = "=";
+  static const string tDelimiterAnd   = "&";
+  static const string tDelimiterComma = ",";
+  static const string tDelimiterColon = ":";
+  static const string tDelimiterAt    = "@";
+  static const string tDelimiterPound = "#";
+}
 
-  class Utils {
-   public:
-    // trim string info
-    static string trim(const string& source);
-    // split string to vector
-    static void split(const string& source, map<string, int>& result, 
-                     const string& delimiterStep1, const string& delimiterStep2);
+class Utils {
+ public:
+  // trim string info
+  static string trim(const string& source);
+  // split string to vector
+  static void split(const string& source, map<string, int>& result, 
+                   const string& delimiter_step1, const string& delimiter_step2);
 
-  };
+};
  
 }
 
