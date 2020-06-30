@@ -22,11 +22,11 @@
 
 #include <string>
 
-namespace TubeMQ {
+namespace tubemq {
 
-  using namespace std;
+using namespace std;
 
-  static const String tTubeMQClientVersion = "0.5.0";
+static const String tTubeMQClientVersion = "0.5.0";
 
 }
 
