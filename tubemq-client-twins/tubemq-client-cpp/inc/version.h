@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-#include "TubeClientConfig.h"
+      
+#ifndef _TUBEMQ_CLIENT_VERSION_H_
+#define _TUBEMQ_CLIENT_VERSION_H_
 
+#include <string>
 
 namespace TubeMQ {
 
+  using namespace std;
 
-TubeConsumerConfig::TubeConsumerConfig()
-{
-
-}
-
-TubeConsumerConfig::~TubeConsumerConfig()
-{
+  static const String tTubeMQClientVersion = "0.5.0";
 
 }
 
-
-
-}
+#endif
 
