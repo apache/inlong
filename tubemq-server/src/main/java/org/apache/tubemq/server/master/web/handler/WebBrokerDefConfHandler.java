@@ -239,6 +239,10 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.validIntDataParameter("unflushInterval",
                             req.getParameter("unflushInterval"),
                             false, 10000, 1);
+            int unFlushDataHold =
+                    WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"),
+                            false, 0, 0);
             int memCacheMsgCntInK =
                     WebParameterUtils.validIntDataParameter("memCacheMsgCntInK",
                             req.getParameter("memCacheMsgCntInK"),
@@ -264,7 +268,6 @@ public class WebBrokerDefConfHandler {
             int numTopicStores =
                     WebParameterUtils.validIntDataParameter("numTopicStores",
                             req.getParameter("numTopicStores"), false, 1, 1);
-            int unFlushDataHold = unflushThreshold;
             int brokerTlsPort =
                     WebParameterUtils.validIntDataParameter("brokerTLSPort",
                             req.getParameter("brokerTLSPort"), false,
@@ -403,6 +406,9 @@ public class WebBrokerDefConfHandler {
                     final int unflushInterval =
                             WebParameterUtils.validIntDataParameter("unflushInterval",
                                     jsonObject.get("unflushInterval"), false, 10000, 1);
+                    final int unFlushDataHold =
+                            WebParameterUtils.validIntDataParameter("unflushDataHold",
+                                    jsonObject.get("unflushDataHold"), false, 0, 0);
                     final boolean acceptPublish =
                             WebParameterUtils.validBooleanDataParameter("acceptPublish",
                                     jsonObject.get("acceptPublish"), false, true);
@@ -419,7 +425,6 @@ public class WebBrokerDefConfHandler {
                         itemCreateUser = createUser;
                         itemCreateDate = createDate;
                     }
-                    int unFlushDataHold = unflushThreshold;
                     int brokerTlsPort =
                             WebParameterUtils.validIntDataParameter("brokerTLSPort",
                                     jsonObject.get("brokerTLSPort"), false,
@@ -848,7 +853,12 @@ public class WebBrokerDefConfHandler {
                     foundChange = true;
                     newEntity.appendAttributes(TokenConstants.TOKEN_STORE_NUM, String.valueOf(numTopicStores));
                 }
-                int unFlushDataHold = unflushThreshold;
+                int unFlushDataHold = WebParameterUtils.validIntDataParameter("unflushDataHold",
+                        req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
+                if ((unFlushDataHold >= 0) && (unFlushDataHold != oldEntity.getDftUnFlushDataHold())) {
+                    foundChange = true;
+                    newEntity.setDftUnFlushDataHold(unFlushDataHold);
+                }
                 int brokerTlsPort = WebParameterUtils.validIntDataParameter("brokerTLSPort",
                         req.getParameter("brokerTLSPort"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
                 if (brokerTlsPort >= 0 && brokerTlsPort != oldEntity.getBrokerTLSPort()) {
@@ -1414,6 +1424,9 @@ public class WebBrokerDefConfHandler {
             brokerConfEntity
                     .setDftUnflushThreshold(WebParameterUtils.validIntDataParameter("unflushThreshold",
                             req.getParameter("unflushThreshold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
+            brokerConfEntity
+                    .setDftUnFlushDataHold(WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
             brokerConfEntity
                     .setBrokerIp(WebParameterUtils.checkParamCommonRequires("brokerIp",
                             req.getParameter("brokerIp"), false));
