@@ -32,35 +32,6 @@ namespace tubemq {
 using namespace std;
 
 
-// configuration value setting
-namespace config {
-// rpc timeout define  
-static const int kRpcTimoutDef = 15;
-static const int kRpcTimoutMax = 300;
-static const int kRpcTimoutMin = 8;
-// heartbeat period define
-static const int kHeartBeatPeriodDef = 10;
-static const int kHeartBeatFailRetryTimesDef = 5;
-static const int kHeartBeatSleepPeriodDef = 60;
-// max masterAddrInfo length
-static const int kMasterAddrInfoMaxLength = 1024;
-// max TopicName length
-static const int kTopicNameMaxLength = 64;
-// max Consume GroupName length
-static const int kGroupNameMaxLength = 1024;
-// max subscribe info report times
-static const int kSubInfoReportMaxIntervalTimes = 6;
-// default message not found response wait period
-static const int kMsgNotfoundWaitPeriodMsDef = 200;
-// default confirm wait period if rebalance meeting
-static const int kRebConfirmWaitPeriodMsDef = 3000;
-// max confirm wait period anyway
-static const int kConfirmWaitPeriodMsMax = 60000;
-// default rebalance wait if shutdown meeting
-static const int kRebWaitPeriodWhenShutdownMs = 10000;
-}  // namespace config
-
-
 class BaseConfig {
  public:
   BaseConfig();
@@ -147,7 +118,12 @@ class ConsumerConfig : public BaseConfig {
   const int GetShutdownRebWaitPeriodMs() const;
   void SetShutdownRebWaitPeriodMs(int wait_period_when_shutdown_ms);
   string ToString();
-     
+
+ private:
+  bool setGroupConsumeTarget(string& err_info, bool is_bound_consume,
+    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
+    const string& session_key, int source_count, bool is_select_big, const map<string, long>& part_offset_map);
+    
   
  private: 
   string group_name_;
