@@ -26,7 +26,7 @@ namespace tubemq {
 
 using namespace std;
 
-static const String tTubeMQClientVersion = "0.5.0";
+static const String kTubeMQClientVersion = "0.1.0-0.5.0";
 
 }
 
