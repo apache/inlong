@@ -23,15 +23,16 @@
 
 namespace tubemq {
 
+static const string kWhitespaceCharSet = " \n\r\t\f\v";
 
-string Utils::trim(const string& source) {
+string Utils::Trim(const string& source) {
   string target = source;
   if(!target.empty()) {
-    size_t foud_pos = target.find_first_not_of(tWhitespaceCharSet);
+    size_t foud_pos = target.find_first_not_of(kWhitespaceCharSet);
     if (foud_pos != string::npos) {
       target = target.substr(foud_pos);
     }
-    foud_pos = target.find_last_not_of(tWhitespaceCharSet);
+    foud_pos = target.find_last_not_of(kWhitespaceCharSet);
     if(foud_pos != string::npos) {
       target = target.substr(0, foud_pos + 1);
     }
@@ -39,7 +40,7 @@ string Utils::trim(const string& source) {
   return target;
 }
 
-void Utils::split(const string& source, map<string, int>& result, 
+void Utils::Split(const string& source, map<string, int>& result, 
       const string& delimiter_step1, const string& delimiter_step2) {
   string item_str;
   string key_str;
@@ -50,7 +51,7 @@ void Utils::split(const string& source, map<string, int>& result,
     pos2 = source.find(delimiter_step1);
     while(string::npos != pos2) {
       item_str = source.substr(pos1, pos2-pos1);
-      item_str = Utils::trim(item_str);
+      item_str = Utils::Trim(item_str);
       pos1 = pos2 + delimiter_step1.length();
       pos2 = source.find(delimiter_step1, pos1);
       if(item_str.empty()) {
@@ -62,8 +63,8 @@ void Utils::split(const string& source, map<string, int>& result,
       }
       key_str = item_str.substr(0, pos3);
       val_str = item_str.substr(pos3+delimiter_step2.length());
-      key_str = Utils::trim(key_str);
-      val_str = Utils::trim(val_str);
+      key_str = Utils::Trim(key_str);
+      val_str = Utils::Trim(val_str);
       if(key_str.empty()) {
         continue;
       }
@@ -71,13 +72,13 @@ void Utils::split(const string& source, map<string, int>& result,
     }
     if(pos1 != source.length()) {
       item_str = source.substr(pos1);
-      item_str = Utils::trim(item_str);
+      item_str = Utils::Trim(item_str);
       pos3 = item_str.find(delimiter_step2);
       if(string::npos != pos3) {
         key_str = item_str.substr(0, pos3);
         val_str = item_str.substr(pos3+delimiter_step2.length());
-        key_str = Utils::trim(key_str);
-        val_str = Utils::trim(val_str);
+        key_str = Utils::Trim(key_str);
+        val_str = Utils::Trim(val_str);
         if(!key_str.empty()){
           result[key_str] = atoi(val_str.c_str());
         }

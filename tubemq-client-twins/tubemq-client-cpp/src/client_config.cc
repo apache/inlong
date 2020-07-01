@@ -62,7 +62,7 @@ BaseConfig& BaseConfig::operator=(const BaseConfig& target) {
 
 bool BaseConfig::SetMasterAddrInfo(string& err_info, const string& master_addrinfo) {
   // check parameter masterAddrInfo
-  string trimed_master_addr_info = Utils::trim(master_addrinfo);
+  string trimed_master_addr_info = Utils::Trim(master_addrinfo);
   if(trimed_master_addr_info.empty()) {
     err_info = "Illegal parameter: master_addrinfo is blank!";
     return false;
@@ -78,8 +78,8 @@ bool BaseConfig::SetMasterAddrInfo(string& err_info, const string& master_addrin
   // parse and verify master address info
   // master_addrinfo's format like ip1:port1,ip2:port2,ip3:port3
   map<string, int> tgt_address_map;
-  Utils::split(master_addrinfo, tgt_address_map, 
-    delimiter::tDelimiterComma, delimiter::tDelimiterColon);
+  Utils::Split(master_addrinfo, tgt_address_map, 
+    delimiter::kDelimiterComma, delimiter::kDelimiterColon);
   if(tgt_address_map.empty()) {
     err_info = "Illegal parameter: master_addrinfo is blank!";
     return false;
@@ -93,12 +93,12 @@ bool BaseConfig::SetTlsInfo(string& err_info, bool tls_enable,
                 const string& trust_store_path, const string& trust_store_password) {
   this->tls_enabled_ = tls_enable;
   if(tls_enable) {
-    string trimed_trust_store_path = Utils::trim(trust_store_path);  
+    string trimed_trust_store_path = Utils::Trim(trust_store_path);  
     if(trimed_trust_store_path.empty()) {
       err_info = "Illegal parameter: trust_store_path is empty!";
       return false;
     }
-    string trimed_trust_store_password = Utils::trim(trust_store_password);  
+    string trimed_trust_store_password = Utils::Trim(trust_store_password);  
     if(trimed_trust_store_password.empty()) {
       err_info = "Illegal parameter: trust_store_password is empty!";
       return false;
@@ -117,7 +117,7 @@ bool BaseConfig::SetAuthenticInfo(string& err_info, bool authentic_enable,
                                        const string& usr_name, const string& usr_password) {
   this->auth_enable_ = authentic_enable;
   if(authentic_enable) {
-    string trimed_usr_name = Utils::trim(usr_name);
+    string trimed_usr_name = Utils::Trim(usr_name);
     if(trimed_usr_name.empty()) {
       err_info = "Illegal parameter: usr_name is empty!";
       return false;
@@ -231,6 +231,61 @@ string BaseConfig::ToString() {
   return ss.str();
 }
 
+
+ ConsumerConfig::ConsumerConfig() {
+   this->group_name_ = "";
+   this->is_bound_consume_ = false;
+   this->session_key_ = "";
+   this->source_count_ = -1;
+   this->is_select_big_ = true;
+   this->consume_position_ = kConsumeFromLatestOffset;
+   this->is_confirm_in_local_ = false;
+   this->is_rollback_if_confirm_timout_ = true;
+   this->max_subinfo_report_intvl_ = config::kSubInfoReportMaxIntervalTimes;
+   this->msg_notfound_wait_period_ms_ = config::kMsgNotfoundWaitPeriodMsDef;
+   this->reb_confirm_wait_period_ms_ = config::kRebConfirmWaitPeriodMsDef;
+   this->max_confirm_wait_period_ms_ = config::kConfirmWaitPeriodMsMax;
+   this->shutdown_reb_wait_period_ms_ = config::kRebWaitPeriodWhenShutdownMs;
+ }
+ 
+ ConsumerConfig::~ConsumerConfig() {
+
+ }
+
+ConsumerConfig& ConsumerConfig::operator=(const ConsumerConfig& target) {
+  if(this != &target) {
+    // parent class 
+    this->master_addrinfo_ = target.master_addrinfo_;
+    this->auth_enable_    = target.auth_enable_;
+    this->auth_usrname_   = target.auth_usrname_;
+    this->auth_usrpassword_ = target.auth_usrpassword_;
+    this->tls_enabled_      = target.tls_enabled_;
+    this->tls_trust_store_path_      = target.tls_trust_store_path_;
+    this->tls_trust_store_password_  = target.tls_trust_store_password_;
+    this->rpc_read_timeout_sec_      = target.rpc_read_timeout_sec_;
+    this->heartbeat_period_sec_     = target.heartbeat_period_sec_;
+    this->max_heartbeat_retry_times_ = target.max_heartbeat_retry_times_;
+    this->heartbeat_period_afterfail_sec_ = target.heartbeat_period_afterfail_sec_;    
+    // child class
+    this->group_name_ = target.group_name_;
+    this->sub_topic_and_filter_map_ = target.sub_topic_and_filter_map_;
+    this->is_bound_consume_ = target.is_bound_consume_;
+    this->session_key_ = target.session_key_;
+    this->source_count_ = target.source_count_;
+    this->is_select_big_ = target.is_select_big_;
+    this->part_offset_map_ = target.part_offset_map_;
+    this->consume_position_ = target.consume_position_;
+    this->max_subinfo_report_intvl_ = target.max_subinfo_report_intvl_;
+    this->msg_notfound_wait_period_ms_ = target.msg_notfound_wait_period_ms_;
+    this->is_confirm_in_local_ = target.is_confirm_in_local_;
+    this->is_rollback_if_confirm_timout_ = target.is_rollback_if_confirm_timout_;
+    this->reb_confirm_wait_period_ms_ = target.reb_confirm_wait_period_ms_;
+    this->max_confirm_wait_period_ms_ = target.max_confirm_wait_period_ms_;
+    this->shutdown_reb_wait_period_ms_ = target.shutdown_reb_wait_period_ms_;
+    
+  }
+  return *this;
+}
 
 
 }

@@ -23,6 +23,7 @@
 #include <string>
 #include <stdio.h>
 #include <map>
+#include <set>
 
 
 
@@ -47,6 +48,16 @@ static const int kMasterAddrInfoMaxLength = 1024;
 static const int kTopicNameMaxLength = 64;
 // max Consume GroupName length
 static const int kGroupNameMaxLength = 1024;
+// max subscribe info report times
+static const int kSubInfoReportMaxIntervalTimes = 6;
+// default message not found response wait period
+static const int kMsgNotfoundWaitPeriodMsDef = 200;
+// default confirm wait period if rebalance meeting
+static const int kRebConfirmWaitPeriodMsDef = 3000;
+// max confirm wait period anyway
+static const int kConfirmWaitPeriodMsMax = 60000;
+// default rebalance wait if shutdown meeting
+static const int kRebWaitPeriodWhenShutdownMs = 10000;
 }  // namespace config
 
 
@@ -97,10 +108,67 @@ class BaseConfig {
 };
 
 
-class ConsumerConfig {
- public:
-  ConsumerConfig();
+enum ConsumePosition {
+  kConsumeFromFirstOffset = -1,
+  kConsumeFromLatestOffset = 0,
+  kComsumeFromMaxOffsetAlways = 1
 };
+
+
+
+class ConsumerConfig : public BaseConfig {
+ public: 
+  ConsumerConfig();
+  ~ConsumerConfig();
+  ConsumerConfig& operator=(const ConsumerConfig& target); 
+  bool SetGroupConsumeTarget(string& err_info, 
+    const string& group_name, const set<string>& subscribed_topicset);
+  bool SetGroupConsumeTarget(string& err_info, 
+    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map);
+  bool SetGroupConsumeTarget(string& err_info, 
+    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
+    const string& session_key, int source_count, bool is_select_big, const map<string, long>& part_offset_map);
+  const string& GetGroupName() const;
+  const map<string, set<string> >& GetSubTopicAndFilterMap() const;
+  void SetConsumePosition(ConsumePosition consume_from_where);
+  const ConsumePosition GetConsumePosition() const;
+  const int GetMsgNotFoundWaitPeriodMs() const;
+  void SetMsgNotFoundWaitPeriodMs(int msg_notfound_wait_period_ms);
+  const int GetMaxSubinfoReportIntvl() const;
+  void SetMaxSubinfoReportIntvl(int max_subinfo_report_intvl);
+  bool IsConfirmInLocal();
+  void SetConfirmInLocal(bool confirm_in_local);
+  bool IsRollbackIfConfirmTimeout();
+  void setRollbackIfConfirmTimeout(bool is_rollback_if_confirm_timeout);
+  const int GetWaitPeriodIfConfirmWaitRebalanceMs() const;
+  void SetWaitPeriodIfConfirmWaitRebalanceMs(int reb_confirm_wait_period_ms);
+  const int GetMaxConfirmWaitPeriodMs() const;
+  void SetMaxConfirmWaitPeriodMs(int max_confirm_wait_period_ms);
+  const int GetShutdownRebWaitPeriodMs() const;
+  void SetShutdownRebWaitPeriodMs(int wait_period_when_shutdown_ms);
+  string ToString();
+     
+  
+ private: 
+  string group_name_;
+  map<string, set<string> > sub_topic_and_filter_map_;
+  bool is_bound_consume_;
+  string session_key_;
+  int source_count_;
+  bool is_select_big_;
+  map<string, long> part_offset_map_;
+  ConsumePosition consume_position_;
+  int max_subinfo_report_intvl_;
+  int msg_notfound_wait_period_ms_;
+  bool is_confirm_in_local_;
+  bool is_rollback_if_confirm_timout_;
+  int reb_confirm_wait_period_ms_;
+  int max_confirm_wait_period_ms_;
+  int shutdown_reb_wait_period_ms_;
+};
+
+
+
 
 }
 

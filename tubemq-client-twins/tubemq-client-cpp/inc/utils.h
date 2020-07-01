@@ -27,23 +27,22 @@ namespace tubemq {
 
 using namespace std;
 
-static const string tWhitespaceCharSet = " \n\r\t\f\v";
 
 namespace delimiter {
-  static const string tDelimiterEqual = "=";
-  static const string tDelimiterAnd   = "&";
-  static const string tDelimiterComma = ",";
-  static const string tDelimiterColon = ":";
-  static const string tDelimiterAt    = "@";
-  static const string tDelimiterPound = "#";
+  static const string kDelimiterEqual = "=";
+  static const string kDelimiterAnd   = "&";
+  static const string kDelimiterComma = ",";
+  static const string kDelimiterColon = ":";
+  static const string kDelimiterAt    = "@";
+  static const string kDelimiterPound = "#";
 }
 
 class Utils {
  public:
   // trim string info
-  static string trim(const string& source);
+  static string Trim(const string& source);
   // split string to vector
-  static void split(const string& source, map<string, int>& result, 
+  static void Split(const string& source, map<string, int>& result, 
                    const string& delimiter_step1, const string& delimiter_step2);
 
 };
