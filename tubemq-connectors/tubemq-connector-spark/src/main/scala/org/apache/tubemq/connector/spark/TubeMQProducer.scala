@@ -28,19 +28,19 @@ import org.apache.tubemq.client.producer.{MessageProducer, MessageSentCallback, 
 import org.apache.tubemq.corebase.Message
 import org.slf4j.{Logger, LoggerFactory}
 
-private[spark] class TubeProducer(
+private[spark] class TubeMQProducer(
     topic: String,
     masterHostAndPort: String,
     maxRetryTimes: Int,
     exitOnException: Boolean)
   extends Serializable {
 
-  private val LOG: Logger = LoggerFactory.getLogger(classOf[TubeProducer])
+  private val LOG: Logger = LoggerFactory.getLogger(classOf[TubeMQProducer])
 
   private var producer: MessageProducer = _
   private var sessionFactory: TubeSingleSessionFactory = _
 
-  def this(producerConfig: TubeProducerConf) = {
+  def this(producerConfig: TubeMQProducerConf) = {
     this(producerConfig.topic, producerConfig.masterHostAndPort, producerConfig.maxRetryTimes, producerConfig.exitOnException)
   }
 

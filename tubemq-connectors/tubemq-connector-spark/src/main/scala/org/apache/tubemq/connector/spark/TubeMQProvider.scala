@@ -21,9 +21,9 @@ package org.apache.tubemq.connector.spark
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import TubeFunctions._
+import TubeMQFunctions._
 
-class TubeProvider(val ssc: StreamingContext) {
+class TubeMQProvider(val ssc: StreamingContext) {
 
   /**
    * Receive from tube
@@ -36,9 +36,9 @@ class TubeProvider(val ssc: StreamingContext) {
       numReceiver: Int): DStream[Array[Byte]] = {
     require(numReceiver >= 1, s"the argument 'numReceiver' error: $numReceiver >= 1 ?")
     val streams = config match {
-      case conf: TubeConsumerConf =>
+      case conf: TubeMQConsumerConf =>
         (1 to numReceiver).map { _ =>
-          ssc.receiverStream(new TubeConsumer(conf))
+          ssc.receiverStream(new TubeMQConsumer(conf))
         }
       case _ =>
         throw new UnsupportedOperationException("Unknown receiver config.")

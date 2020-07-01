@@ -32,7 +32,7 @@ import org.apache.tubemq.corebase.Message
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-class TubeConsumer(
+class TubeMQConsumer(
     master: String,
     group: String,
     topic: String,
@@ -45,7 +45,7 @@ class TubeConsumer(
   extends Receiver[Array[Byte]](storageLevel) {
   self =>
 
-  def this(receiverConfig: TubeConsumerConf) = {
+  def this(receiverConfig: TubeMQConsumerConf) = {
     this(receiverConfig.master,
       receiverConfig.group,
       receiverConfig.topic,

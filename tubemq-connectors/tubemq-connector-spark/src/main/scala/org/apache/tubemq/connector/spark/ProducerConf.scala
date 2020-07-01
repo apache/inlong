@@ -22,7 +22,7 @@ package org.apache.tubemq.connector.spark
 abstract class ProducerConf extends Serializable {
 }
 
-class TubeProducerConf extends ProducerConf {
+class TubeMQProducerConf extends ProducerConf {
   private var _topic: String = _
   def topic: String = _topic
   def setTopic(value: String): this.type = {

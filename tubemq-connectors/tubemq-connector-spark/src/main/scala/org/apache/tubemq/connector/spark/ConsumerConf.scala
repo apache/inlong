@@ -52,7 +52,7 @@ abstract class ConsumerConf {
   }
 }
 
-class TubeConsumerConf extends ConsumerConf {
+class TubeMQConsumerConf extends ConsumerConf {
   private var _master: String = _
   def master: String = _master
   def setMaster(value: String): this.type = {

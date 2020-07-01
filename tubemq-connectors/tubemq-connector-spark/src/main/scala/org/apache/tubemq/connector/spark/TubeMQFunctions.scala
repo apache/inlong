@@ -25,15 +25,15 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.language.implicitConversions
 
-object TubeFunctions {
+object TubeMQFunctions {
 
   class ArrayByteRDDFunctins(rdd: RDD[Array[Byte]]) extends Serializable {
     def saveToTube(config: ProducerConf): Unit = {
       SparkEnv.get.conf.set("spark.task.maxFailures", "1")
       SparkEnv.get.conf.set("spark.speculation", "false")
       config match {
-        case conf: TubeProducerConf =>
-          val sender = new TubeProducer(conf)
+        case conf: TubeMQProducerConf =>
+          val sender = new TubeMQProducer(conf)
           val writer = (iter: Iterator[Array[Byte]]) => {
             sender.start()
             try {
@@ -59,7 +59,7 @@ object TubeFunctions {
   }
 
   class ArrayByteDStreamFunctins(dstream: DStream[Array[Byte]]) extends Serializable {
-    def saveRDD(rdd: RDD[Array[Byte]], sender: TubeProducer): Unit = {
+    def saveRDD(rdd: RDD[Array[Byte]], sender: TubeMQProducer): Unit = {
       val writer = (iter: Iterator[Array[Byte]]) => {
         try {
           sender.start()
@@ -78,8 +78,8 @@ object TubeFunctions {
     def saveToTube(config: ProducerConf): Unit = {
       SparkEnv.get.conf.set("spark.task.maxFailures", "1")
       SparkEnv.get.conf.set("spark.speculation", "false")
-      val sender: TubeProducer = config match {
-        case conf: TubeProducerConf => new TubeProducer(conf)
+      val sender: TubeMQProducer = config match {
+        case conf: TubeMQProducerConf => new TubeMQProducer(conf)
         case _ => throw new UnsupportedOperationException("Unknown SenderConfig")
       }
       val saveFunc = (rdd: RDD[Array[Byte]], time: Time) => {
