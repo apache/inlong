@@ -352,8 +352,7 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
     // check topic_name info
     is_success = Utils::ValidString(err_info, itMap->first, 
                          false, true, true, config::kTopicNameMaxLength);  
-    if (!is_success)
-    {
+    if (!is_success) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
       ss << itMap->first;
@@ -365,8 +364,7 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
     string topic_name = Utils::Trim(itMap->first);
     // check filter info
     set<string> subscribed_filters = itMap->second;
-    for (set<string>::iterator it = subscribed_filters.begin(); it != subscribed_filters.end(); ++it)
-    {
+    for (set<string>::iterator it = subscribed_filters.begin(); it != subscribed_filters.end(); ++it) {
       is_success = Utils::ValidFilterItem(err_info, *it, tmp_filteritem);
       if (!is_success) {
         stringstream ss;

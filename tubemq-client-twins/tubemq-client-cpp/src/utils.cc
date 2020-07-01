@@ -51,7 +51,7 @@ void Utils::Split(const string& source, vector<string>& result, const string& de
   if (!source.empty()) {
     pos1 = 0;
     pos2 = source.find(delimiter);
-    while(string::npos != pos2) {
+    while (string::npos != pos2) {
       item_str = Utils::Trim(source.substr(pos1, pos2-pos1));
       pos1 = pos2 + delimiter.size();
       pos2 = source.find(delimiter, pos1);
@@ -79,7 +79,7 @@ void Utils::Split(const string& source, map<string, int>& result,
   if (!source.empty()) {
     pos1 = 0;
     pos2 = source.find(delimiter_step1);
-    while(string::npos != pos2) {
+    while (string::npos != pos2) {
       item_str = source.substr(pos1, pos2-pos1);
       item_str = Utils::Trim(item_str);
       pos1 = pos2 + delimiter_step1.length();
@@ -229,8 +229,8 @@ bool Utils::ValidFilterItem(string& err_info,
   int status = regexec(&reg, tgt_filteritem.c_str(), 1, pmatch, 0);
   regfree(&reg);
   if (status == REG_NOMATCH) {
-      err_info = "value only contain characters,numbers,and underscores";
-      return false;
+    err_info = "value only contain characters,numbers,and underscores";
+    return false;
   }
   err_info = "Ok";
   return true;      
