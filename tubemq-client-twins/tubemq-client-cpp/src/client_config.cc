@@ -421,7 +421,7 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
   string part_key;
   map<string, long> tmp_parts_map;
   map<string, long>::const_iterator it_part;
-  for (itPart = part_offset_map.begin(); it_part != part_offset_map.end(); ++it_part) {
+  for (it_part = part_offset_map.begin(); it_part != part_offset_map.end(); ++it_part) {
     vector<string> result;
     Utils::Split(it_part->first, result, delimiter::kDelimiterColon);
     if (result.size() != 3) {
@@ -566,7 +566,7 @@ string ConsumerConfig::ToString() {
       ss << ",";
     }
     ss << "'";
-    ss << itMap->first;
+    ss << it_map->first;
     ss << "'=[";
     int j=0;
     set<string> topic_set = it_map->second;
