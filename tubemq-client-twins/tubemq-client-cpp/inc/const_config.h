@@ -63,6 +63,15 @@ static const int kConfirmWaitPeriodMsMax = 60000;
 // default rebalance wait if shutdown meeting
 static const int kRebWaitPeriodWhenShutdownMs = 10000;
 
+// max int value
+static const int kMaxIntValue = 0x7fffffff;
+// max long value
+static const int kMaxLongValue = 0x7fffffffffffffffL;
+
+// invalid value
+static const int kInvalidValue = -2;
+
+
 }  // namespace config
 
 
