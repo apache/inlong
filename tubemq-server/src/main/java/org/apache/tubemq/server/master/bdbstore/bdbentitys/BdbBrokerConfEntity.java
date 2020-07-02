@@ -115,7 +115,7 @@ public class BdbBrokerConfEntity implements Serializable {
                 .append(",\"isBrokerLoaded\":").append(isBrokerLoaded)
                 .append(",\"numTopicStores\":").append(getNumTopicStores())
                 .append(",\"dataPath\":\"").append(dataPath)
-                .append("\",\"unFlushDataHold\":").append(getDftUnFlushDataHold())
+                .append("\",\"unflushDataHold\":").append(getDftUnFlushDataHold())
                 .append(",\"memCacheMsgSizeInMB\":").append(getDftMemCacheMsgSizeInMB())
                 .append(",\"memCacheMsgCntInK\":").append(getDftMemCacheMsgCntInK())
                 .append(",\"memCacheFlushIntvl\":").append(getDftMemCacheFlushIntvl())

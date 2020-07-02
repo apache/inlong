@@ -562,7 +562,7 @@ public class WebBrokerTopicConfHandler {
                             .append(",\"numPartitions\":").append(entity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(entity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(entity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(entity.getUnflushDataHold())
+                            .append(",\"unflushDataHold\":").append(entity.getUnflushDataHold())
                             .append(",\"deleteWhen\":\"").append(entity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(entity.getDeletePolicy())
                             .append("\",\"acceptPublish\":").append(entity.getAcceptPublish())
