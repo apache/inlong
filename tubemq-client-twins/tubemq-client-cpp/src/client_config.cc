@@ -344,26 +344,27 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
     return false;
   }
   map<string, set<string> > tmp_sub_map;
-  map<string, set<string> >::const_iterator itMap;
-  for (itMap = subscribed_topic_and_filter_map.begin(); itMap != subscribed_topic_and_filter_map.end(); ++itMap) {
+  map<string, set<string> >::const_iterator it_map;
+  for (it_map = subscribed_topic_and_filter_map.begin(); 
+    it_map != subscribed_topic_and_filter_map.end(); ++it_map) {
     int count=0;
     string tmp_filteritem;
     set<string> tgt_filters;
     // check topic_name info
-    is_success = Utils::ValidString(err_info, itMap->first, 
+    is_success = Utils::ValidString(err_info, it_map->first, 
                          false, true, true, config::kTopicNameMaxLength);  
     if (!is_success) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
-      ss << itMap->first;
+      ss << it_map->first;
       ss << " ";
       ss << err_info;
       err_info = ss.str();
       return false;
     }
-    string topic_name = Utils::Trim(itMap->first);
+    string topic_name = Utils::Trim(it_map->first);
     // check filter info
-    set<string> subscribed_filters = itMap->second;
+    set<string> subscribed_filters = it_map->second;
     for (set<string>::iterator it = subscribed_filters.begin(); it != subscribed_filters.end(); ++it) {
       is_success = Utils::ValidFilterItem(err_info, *it, tmp_filteritem);
       if (!is_success) {
@@ -381,7 +382,7 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
     if (count > config::kFilterItemMaxCount) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
-      ss << itMap->first;
+      ss << it_map->first;
       ss << "'s filter item over max item count : ";
       ss << config::kFilterItemMaxCount;
       err_info = ss.str();
@@ -419,14 +420,14 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
   // check part_offset_map
   string part_key;
   map<string, long> tmp_parts_map;
-  map<string, long>::const_iterator itPart;
-  for (itPart = part_offset_map.begin(); itPart != part_offset_map.end(); ++itPart) {
+  map<string, long>::const_iterator it_part;
+  for (itPart = part_offset_map.begin(); it_part != part_offset_map.end(); ++it_part) {
     vector<string> result;
-    Utils::Split(itPart->first, result, delimiter::kDelimiterColon);
+    Utils::Split(it_part->first, result, delimiter::kDelimiterColon);
     if (result.size() != 3) {
       stringstream ss;
       ss << "Illegal parameter: part_offset_map's key ";
-      ss << itPart->first;
+      ss << it_part->first;
       ss << " format error, value must be aaaa:bbbb:cccc !";
       err_info = ss.str();
       return false;
@@ -434,34 +435,34 @@ bool ConsumerConfig::setGroupConsumeTarget(string& err_info, bool is_bound_consu
     if (tmp_sub_map.find(result[1]) != tmp_sub_map.end()) {
       stringstream ss;
       ss << "Illegal parameter: ";
-      ss << itPart->first;
+      ss << it_part->first;
       ss << " subscribed topic ";
       ss << result[1];
       ss << " not included in subscribed_topic_and_filter_map's topic list!";
       err_info = ss.str();
       return false;
     }
-    if (itPart->first.find_first_of(delimiter::kDelimiterComma) != string::npos) {
+    if (it_part->first.find_first_of(delimiter::kDelimiterComma) != string::npos) {
       stringstream ss;
       ss << "Illegal parameter: key ";
-      ss << itPart->first;
+      ss << it_part->first;
       ss << " include ";
       ss << delimiter::kDelimiterComma;
       ss << " char!";
       err_info = ss.str();
       return false;
     }
-    if (itPart->second < 0) {
+    if (it_part->second < 0) {
       stringstream ss;
       ss << "Illegal parameter: ";
-      ss << itPart->first;
+      ss << it_part->first;
       ss << "'s offset must over or equal zero, value is ";
-      ss << itPart->second;
+      ss << it_part->second;
       err_info = ss.str();
       return false;
     }
     Utils::Join(result, delimiter::kDelimiterColon, part_key);
-    tmp_parts_map[part_key] = itPart->second;
+    tmp_parts_map[part_key] = it_part->second;
   }
   // set verified data
   this->is_bound_consume_ = true;
@@ -551,7 +552,7 @@ string ConsumerConfig::ToString() {
   int i = 0;
   stringstream ss;
   map<string, long>::iterator it;
-  map<string, set<string> >::iterator itMap;
+  map<string, set<string> >::iterator it_map;
 
   // print info
   ss << "ConsumerConfig = {";
@@ -559,8 +560,8 @@ string ConsumerConfig::ToString() {
   ss << ", group_name_='";
   ss << this->group_name_;
   ss << "', sub_topic_and_filter_map_={";
-  for (itMap = this->sub_topic_and_filter_map_.begin(); 
-      itMap != this->sub_topic_and_filter_map_.end(); ++itMap) {
+  for (it_map = this->sub_topic_and_filter_map_.begin(); 
+      it_map != this->sub_topic_and_filter_map_.end(); ++it_map) {
     if (i++ > 0) {
       ss << ",";
     }
@@ -568,8 +569,8 @@ string ConsumerConfig::ToString() {
     ss << itMap->first;
     ss << "'=[";
     int j=0;
-    set<string> topicSet = itMap->second;
-    for (set<string>::iterator it = topicSet.begin(); it != topicSet.end(); ++it) {
+    set<string> topic_set = it_map->second;
+    for (set<string>::iterator it = topic_set.begin(); it != topic_set.end(); ++it) {
       if (j++ > 0) {
         ss << ",";
       }
