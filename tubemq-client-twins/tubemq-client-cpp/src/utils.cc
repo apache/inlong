@@ -21,6 +21,8 @@
 #include <sstream> 
 #include <regex.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
 #include "utils.h"
 #include "const_config.h"
 
