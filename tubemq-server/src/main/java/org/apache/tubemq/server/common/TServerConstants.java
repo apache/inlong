@@ -34,7 +34,7 @@ public final class TServerConstants {
     public static final int CFG_BATCH_BROKER_OPERATE_MAX_COUNT = 50;
     public static final int CFG_BATCH_RECORD_OPERATE_MAX_COUNT = 100;
 
-    public static final int CFG_DEFAULT_DATA_UNFLUSH_HOLD = 10000;
+    public static final int CFG_DEFAULT_DATA_UNFLUSH_HOLD = 0;
     public static final int CFG_DEFAULT_CONSUME_RULE = 300;
     public static final int CFG_DELETEWHEN_MAX_LENGTH = 1024;
     public static final int CFG_DELETEPOLICY_MAX_LENGTH = 1024;
