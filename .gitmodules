@@ -1,0 +1,4 @@
+[submodule "tubemq-client-twins/tubemq-client-cpp/third_party/jsoncpp"]
+	path = tubemq-client-twins/tubemq-client-cpp/third_party/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
+	tag = 1.9.3
