@@ -261,6 +261,8 @@
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
                         <exclude>DISCLAIMER-WIP</exclude>
+
+                        <exclude>**/tubemq-client-twins/tubemq-client-cpp/third_party/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
