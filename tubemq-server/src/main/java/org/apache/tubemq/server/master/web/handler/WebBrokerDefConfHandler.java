@@ -1218,7 +1218,6 @@ public class WebBrokerDefConfHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
-            brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
             boolean withDetail =
                 WebParameterUtils.validBooleanDataParameter("withDetail",
                     req.getParameter("withDetail"), false, false);
@@ -1403,7 +1402,6 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminQueryBrokerDefConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
-        brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
         try {
             brokerConfEntity
                     .setRecordCreateUser(WebParameterUtils.validStringParameter("createUser",

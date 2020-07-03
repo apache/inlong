@@ -1051,7 +1051,6 @@ public class WebBrokerTopicConfHandler {
             webTopicEntity.setMemCacheMsgSizeInMB(TBaseConstants.META_VALUE_UNDEFINED);
             webTopicEntity.setMemCacheMsgCntInK(TBaseConstants.META_VALUE_UNDEFINED);
             webTopicEntity.setMemCacheFlushIntvl(TBaseConstants.META_VALUE_UNDEFINED);
-            webTopicEntity.setUnflushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
             Map<Integer, BdbBrokerConfEntity> totalBrokers =
                     brokerConfManager.getBrokerConfStoreMap();
             Map<Integer, BrokerSyncStatusInfo> brokerSyncStatusInfoMap =
