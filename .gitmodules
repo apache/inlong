@@ -1,0 +1,8 @@
+[submodule "tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson"]
+	path = tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+	tag = v1.1.0
+[submodule "tubemq-client-twins/tubemq-client-cpp/third_party/log4cplus"]
+	path = tubemq-client-twins/tubemq-client-cpp/third_party/log4cplus
+	url = https://github.com/log4cplus/log4cplus.git
+    tag = REL_2_0_5
