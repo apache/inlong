@@ -82,6 +82,14 @@ namespace delimiter {
   static const string kDelimiterColon = ":";
   static const string kDelimiterAt    = "@";
   static const string kDelimiterPound = "#";
+  static const string kDelimiterSemicolon = ";";
+  //Double slash
+  static const string kDelimiterDbSlash = "//";
+  // left square bracket
+  static const string kDelimiterLftSB = "[";
+  // right square bracket
+  static const string kDelimiterRgtSB = "]";
+  
 } // namespace delimiter
 
 
