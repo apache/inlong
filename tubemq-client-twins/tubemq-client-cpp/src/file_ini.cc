@@ -19,6 +19,7 @@
 
 #include <fstream>
 #include <sstream> 
+#include <stdlib.h>
 #include "utils.h"
 #include "file_ini.h"
 #include "const_config.h"
@@ -79,7 +80,7 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
       continue;
     }
     key = line_str.substr(0, equal_pos);
-    value = line_str.substr(equal_pos + (delimiter::kDelimiterEqual).size(), line_str.size() - 1);
+    value = line_str.substr(equal_pos + (delimiter::kDelimiterEqual).size(), line_str.size());
     key = Utils::Trim(key);
     value = Utils::Trim(value);
     // get data from file to memory
@@ -113,6 +114,7 @@ bool Fileini::GetValue(string& err_info, const string& sector,
     return false;
   }
   err_info = "Ok";
+  value.clear();
   // search key's value in sector
   map<string, map<string, string> >::iterator it_sec;
   map<string, string>::iterator it_keyval;
@@ -129,6 +131,19 @@ bool Fileini::GetValue(string& err_info, const string& sector,
   value = it_keyval->second;
   return true;
 }
+
+bool Fileini::GetValue(string& err_info, const string& sector, 
+                const string& key, int& value, const int def) {
+  string val_str;
+  string def_str = Utils::int2str(def);
+  bool result = GetValue(err_info, sector, key, val_str, def_str);
+  if (!result) {
+    return result;
+  }
+  value = atoi(val_str.c_str());
+  return true;
+}
+
 
 
 }
