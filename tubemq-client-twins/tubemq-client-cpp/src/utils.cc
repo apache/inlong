@@ -239,6 +239,19 @@ bool Utils::ValidFilterItem(string& err_info,
 }
 
 
+string Utils::int2str(int data) {
+  stringstream ss;
+  ss<<data;
+  return ss.str();
+}
+
+string Utils::long2str(long data) {
+  stringstream ss;
+  ss<<data;
+  return ss.str();
+}
+
+
 long Utils::GetCurrentTimeMillis() {
   struct timeval tv;
   gettimeofday(&tv,NULL);

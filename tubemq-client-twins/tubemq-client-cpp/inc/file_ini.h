@@ -34,6 +34,8 @@ class Fileini {
   bool Loadini(string& err_info, const string& file_name);
   bool GetValue(string& err_info, const string& sector, 
                    const string& key, string& value, const string& def);
+  bool GetValue(string& err_info, const string& sector, 
+                   const string& key, int& value, const int def);  
 
  private:
   bool init_flag_;
