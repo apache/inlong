@@ -47,6 +47,8 @@ class Utils {
                    const string& group_name, string& tgt_group_name);
   static bool ValidFilterItem(string& err_info, 
                    const string& src_filteritem, string& tgt_filteritem);
+  static string int2str(int data);
+  static string long2str(long data);
   static long GetCurrentTimeMillis();
 
 };
