@@ -239,18 +239,29 @@ bool Utils::ValidFilterItem(string& err_info,
 }
 
 
-string Utils::int2str(int data) {
+string Utils::Int2str(int data) {
   stringstream ss;
   ss<<data;
   return ss.str();
 }
 
-string Utils::long2str(long data) {
+string Utils::Long2str(long data) {
   stringstream ss;
   ss<<data;
   return ss.str();
 }
 
+int Utils::IpToInt(const string& ipv4_addr) {
+  int result = 0;
+  vector<string> result_vec;
+
+  Utils::Split(ipv4_addr, result_vec, delimiter::kDelimiterDot);
+  result = ((char) atoi(result_vec[3].c_str())) & 0xFF;
+  result |= ((char) atoi(result_vec[2].c_str()) << 8) & 0xFF00;
+  result |= ((char) atoi(result_vec[1].c_str()) << 16) & 0xFF0000;
+  result |= ((char) atoi(result_vec[0].c_str()) << 24) & 0xFF000000;
+  return result;
+}
 
 long Utils::GetCurrentTimeMillis() {
   struct timeval tv;
