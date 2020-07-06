@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 namespace tubemq {
 class Logger;
@@ -36,13 +37,13 @@ Logger& GetLogger();
     }                                                                                                       \
   }
 
-#define LOG_TRACE(fmt, ...) LOG_TUBE(tubemq::GetLogger(), tubemq::Logger::kTrace, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) LOG_TUBE(tubemq::GetLogger(), tubemq::Logger::kDebug, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) LOG_TUBE(tubemq::GetLogger(), tubemq::Logger::kInfo, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...) LOG_TUBE(tubemq::GetLogger(), tubemq::Logger::kWarn, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) LOG_TUBE(tubemq::GetLogger(), tubemq::Logger::kError, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kTrace, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kDebug, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kInfo, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kWarn, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kError, fmt, ##__VA_ARGS__)
 
-#define LOG_TUBE(logger, level, fmt, ...)                                                                      \
+#define LOG_TUBEMQ(logger, level, fmt, ...)                                                                      \
   {                                                                                                            \
     if (logger.IsEnable(level)) {                                                                              \
       logger.Write("[%s:%d][%s]" fmt, __func__, __LINE__, tubemq::Logger::Level2String(level), ##__VA_ARGS__); \
