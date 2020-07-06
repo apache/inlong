@@ -29,10 +29,6 @@ using namespace std;
 
 // configuration value setting
 namespace config {
-// rpc timeout define  
-static const int kRpcTimoutDef = 15;
-static const int kRpcTimoutMax = 300;
-static const int kRpcTimoutMin = 8;
 // heartbeat period define
 static const int kHeartBeatPeriodDef = 10;
 static const int kHeartBeatFailRetryTimesDef = 5;

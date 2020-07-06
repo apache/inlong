@@ -21,6 +21,8 @@
 #include <vector>
 #include "client_config.h"
 #include "const_config.h"
+#include "const_rpc.h"
+
 #include "utils.h"
 
 
@@ -35,7 +37,7 @@ BaseConfig::BaseConfig() {
   this->tls_enabled_ = false;
   this->tls_trust_store_path_ = "";
   this->tls_trust_store_password_ = "";
-  this->rpc_read_timeout_sec_ = config::kRpcTimoutDef;
+  this->rpc_read_timeout_sec_ = rpc_config::kRpcTimoutDefSec;
   this->heartbeat_period_sec_ = config::kHeartBeatPeriodDef;
   this->max_heartbeat_retry_times_ = config::kHeartBeatFailRetryTimesDef;
   this->heartbeat_period_afterfail_sec_ = config::kHeartBeatSleepPeriodDef;
@@ -168,10 +170,10 @@ const string& BaseConfig::GetUsrPassWord() const {
 }
 
 void BaseConfig::SetRpcReadTimeoutSec(int rpc_read_timeout_sec) {
-  if (rpc_read_timeout_sec >= config::kRpcTimoutMax) {
-    this->rpc_read_timeout_sec_ = config::kRpcTimoutMax;
-  } else if (rpc_read_timeout_sec <= config::kRpcTimoutMin) {
-    this->rpc_read_timeout_sec_ = config::kRpcTimoutMin;
+  if (rpc_read_timeout_sec >= rpc_config::kRpcTimoutMaxSec) {
+    this->rpc_read_timeout_sec_ = rpc_config::kRpcTimoutMaxSec;
+  } else if (rpc_read_timeout_sec <= rpc_config::kRpcTimoutMinSec) {
+    this->rpc_read_timeout_sec_ = rpc_config::kRpcTimoutMinSec;
   } else {
     this->rpc_read_timeout_sec_ = rpc_read_timeout_sec;
   }
