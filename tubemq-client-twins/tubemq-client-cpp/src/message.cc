@@ -190,7 +190,7 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if(trimed_key == kRsvPropKeyFilterItem 
+  if (trimed_key == kRsvPropKeyFilterItem 
     || trimed_key == kRsvPropKeyMsgTime) {
     stringstream ss;
     ss << "Reserved token '";

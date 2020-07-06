@@ -20,6 +20,7 @@
 #ifndef _TUBEMQ_CLIENT_META_INFO_H_
 #define _TUBEMQ_CLIENT_META_INFO_H_
 
+#include <list>
 #include <string>
 
 namespace tubemq {
@@ -62,7 +63,7 @@ class Partition {
  public:
   Partition();
   Partition(const string& partition_info);
-  Partition(const NodeInfo& broker_info, const string& partStr);
+  Partition(const NodeInfo& broker_info, const string& part_str);
   Partition(const NodeInfo& broker_info, const string& topic, int partition_id);
   ~Partition();
   Partition& operator=(const Partition& target);
@@ -86,6 +87,65 @@ class Partition {
   string   partition_key_;
   string   partition_info_;
 };
+
+
+class SubscribeInfo {
+ public:
+  SubscribeInfo(const string& sub_info);
+  SubscribeInfo(const string& consumer_id, const string& group, const Partition& partition);
+  SubscribeInfo& operator=(const SubscribeInfo& target);
+  const string& GetConsumerId() const;
+  const string& GetGroup() const;
+  const Partition& GetPartition() const;
+  const int GgetBrokerId() const;
+  const string& GetBrokerHost() const;
+  const int GetBrokerPort() const;
+  const string& GetTopic() const;
+  const int GetPartitionId() const;
+  const string& ToString() const;
+
+ private:
+  void buildSubInfo();
+
+ private:
+  string    consumer_id_;
+  string    group_;
+  Partition partition_;
+  string    sub_info_;
+};
+
+
+class ConsumerEvent {
+ public:
+  ConsumerEvent();
+  ConsumerEvent(const ConsumerEvent& target);
+  ConsumerEvent(long rebalance_id,int event_type, 
+    const list<SubscribeInfo>& subscribeInfo_lst, int event_status);
+  ConsumerEvent& operator=(const ConsumerEvent& target);
+  const long GetRebalanceId() const;
+  const int  GetEventType() const;
+  const int  GetEventStatus() const;
+  void SetEventType(int event_type);
+  void SetEventStatus(int event_status);
+  const list<SubscribeInfo>& GetSubscribeInfoList() const;
+  string ToString();
+
+ private:
+  long rebalance_id_;
+  int  event_type_;
+  int  event_status_;
+  list<SubscribeInfo> subscribe_list_;
+};
+
+
+class PartitionExt : public Partition {
+  PartitionExt();
+  
+
+};
+
+
+
 
 
 }
