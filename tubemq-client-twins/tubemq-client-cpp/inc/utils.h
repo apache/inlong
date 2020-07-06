@@ -47,6 +47,9 @@ class Utils {
                    const string& group_name, string& tgt_group_name);
   static bool ValidFilterItem(string& err_info, 
                    const string& src_filteritem, string& tgt_filteritem);
+  static string Int2str(int data);
+  static string Long2str(long data);
+  static int IpToInt(const string& ipv4_addr);
   static long GetCurrentTimeMillis();
 
 };
