@@ -16,61 +16,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-      
-#ifndef _TUBEMQ_CLIENT_CONST_CONFIG_H_
-#define _TUBEMQ_CLIENT_CONST_CONFIG_H_
 
+#ifndef TUBEMQ_CLIENT_CONST_CONFIG_H_
+#define TUBEMQ_CLIENT_CONST_CONFIG_H_
+
+#include <stdint.h>
 #include <map>
 #include <string>
 
 namespace tubemq {
 
-using namespace std;
+using std::string;
+
 
 // configuration value setting
 namespace config {
 // heartbeat period define
-static const int kHeartBeatPeriodDef = 10;
-static const int kHeartBeatFailRetryTimesDef = 5;
-static const int kHeartBeatSleepPeriodDef = 60;
+static const int32_t kHeartBeatPeriodDef = 10;
+static const int32_t kHeartBeatFailRetryTimesDef = 5;
+static const int32_t kHeartBeatSleepPeriodDef = 60;
 // max masterAddrInfo length
-static const int kMasterAddrInfoMaxLength = 1024;
+static const int32_t kMasterAddrInfoMaxLength = 1024;
 
 // max TopicName length
-static const int kTopicNameMaxLength = 64;
+static const int32_t kTopicNameMaxLength = 64;
 // max Consume GroupName length
-static const int kGroupNameMaxLength = 1024;
+static const int32_t kGroupNameMaxLength = 1024;
 // max filter item length
-static const int kFilterItemMaxLength = 256;
+static const int32_t kFilterItemMaxLength = 256;
 // max allowed filter item count
-static const int kFilterItemMaxCount = 500;
+static const int32_t kFilterItemMaxCount = 500;
 // max session key length
-static const int kSessionKeyMaxLength = 1024;
+static const int32_t kSessionKeyMaxLength = 1024;
 
 // max subscribe info report times
-static const int kSubInfoReportMaxIntervalTimes = 6;
+static const int32_t kSubInfoReportMaxIntervalTimes = 6;
 // default message not found response wait period
-static const int kMsgNotfoundWaitPeriodMsDef = 200;
+static const int32_t kMsgNotfoundWaitPeriodMsDef = 200;
 // default confirm wait period if rebalance meeting
-static const int kRebConfirmWaitPeriodMsDef = 3000;
+static const int32_t kRebConfirmWaitPeriodMsDef = 3000;
 // max confirm wait period anyway
-static const int kConfirmWaitPeriodMsMax = 60000;
+static const int32_t kConfirmWaitPeriodMsMax = 60000;
 // default rebalance wait if shutdown meeting
-static const int kRebWaitPeriodWhenShutdownMs = 10000;
+static const int32_t kRebWaitPeriodWhenShutdownMs = 10000;
 
 // max int value
-static const int kMaxIntValue = 0x7fffffff;
+static const int32_t kMaxIntValue = 0x7fffffff;
 // max long value
-static const long kMaxLongValue = 0x7fffffffffffffffL;
+static const int64_t kMaxLongValue = 0x7fffffffffffffffL;
 
 // default broker port
-static const int kBrokerPortDef = 8123;
+static const uint32_t kBrokerPortDef = 8123;
 // default broker TLS port
-static const int kBrokerTlsPortDef = 8124;
+static const uint32_t kBrokerTlsPortDef = 8124;
 
 // invalid value
-static const int kInvalidValue = -2;
-
+static const int32_t kInvalidValue = -2;
 
 }  // namespace config
 
@@ -84,18 +85,17 @@ namespace delimiter {
   static const string kDelimiterAt    = "@";
   static const string kDelimiterPound = "#";
   static const string kDelimiterSemicolon = ";";
-  //Double slash
+  // Double slash
   static const string kDelimiterDbSlash = "//";
   // left square bracket
   static const string kDelimiterLftSB = "[";
   // right square bracket
   static const string kDelimiterRgtSB = "]";
-  
-} // namespace delimiter
+
+}  // namespace delimiter
 
 
- 
-}
+}  // namespace tubemq
 
-#endif
+#endif  // TUBEMQ_CLIENT_CONST_CONFIG_H_
 
