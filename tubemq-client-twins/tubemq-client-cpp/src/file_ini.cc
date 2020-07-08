@@ -18,15 +18,16 @@
  */
 
 #include "file_ini.h"
+
 #include <stdlib.h>
+
 #include <fstream>
 #include <sstream>
+
 #include "const_config.h"
 #include "utils.h"
 
-
 namespace tubemq {
-
 
 Fileini::Fileini() {
   this->init_flag_ = false;
@@ -61,9 +62,8 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
   while (getline(conf_file, line_str)) {
     // check if a comment
     line_str = Utils::Trim(line_str);
-    if (line_str.empty()
-      || line_str.find(delimiter::kDelimiterDbSlash) == 0
-      || line_str.find(delimiter::kDelimiterSemicolon) == 0) {
+    if (line_str.empty() || line_str.find(delimiter::kDelimiterDbSlash) == 0 ||
+        line_str.find(delimiter::kDelimiterSemicolon) == 0) {
       continue;
     }
     // check if a sector head
@@ -71,7 +71,7 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
     rgtsb_pos = line_str.find(delimiter::kDelimiterRgtSB);
     if (lftsb_pos != string::npos && rgtsb_pos != string::npos) {
       sector = line_str.substr(lftsb_pos + (delimiter::kDelimiterLftSB).size(),
-                      rgtsb_pos - (delimiter::kDelimiterRgtSB).size());
+                               rgtsb_pos - (delimiter::kDelimiterRgtSB).size());
       sector = Utils::Trim(sector);
       continue;
     }
@@ -108,8 +108,8 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
   return true;
 }
 
-bool Fileini::GetValue(string& err_info, const string& sector,
-                const string& key, string& value, const string& def) {
+bool Fileini::GetValue(string& err_info, const string& sector, const string& key, string& value,
+                       const string& def) {
   if (!this->init_flag_) {
     err_info = "Please load configure file first!";
     return false;
@@ -133,8 +133,8 @@ bool Fileini::GetValue(string& err_info, const string& sector,
   return true;
 }
 
-bool Fileini::GetValue(string& err_info, const string& sector,
-                const string& key, int32_t& value, const int32_t def) {
+bool Fileini::GetValue(string& err_info, const string& sector, const string& key, int32_t& value,
+                       const int32_t def) {
   string val_str;
   string def_str = Utils::Int2str(def);
   bool result = GetValue(err_info, sector, key, val_str, def_str);
@@ -146,5 +146,3 @@ bool Fileini::GetValue(string& err_info, const string& sector,
 }
 
 }  // namespace tubemq
-
-

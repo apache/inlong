@@ -20,8 +20,9 @@
 #ifndef TUBEMQ_UNIQUESEQID_H
 #define TUBEMQ_UNIQUESEQID_H
 
-#include <atomic>
 #include <stdint.h>
+
+#include <atomic>
 
 namespace tubemq {
 

@@ -18,18 +18,18 @@
  */
 
 #include "flowctrl_def.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+
 #include <sstream>
+
 #include "const_config.h"
 #include "logger.h"
 #include "utils.h"
 
-
-
 namespace tubemq {
-
 
 FlowCtrlResult::FlowCtrlResult() {
   this->datasize_limit_ = config::kMaxIntValue;
@@ -42,8 +42,7 @@ FlowCtrlResult::FlowCtrlResult(int64_t datasize_limit, int32_t freqms_limit) {
 }
 
 FlowCtrlResult& FlowCtrlResult::operator=(const FlowCtrlResult& target) {
-  if (this == &target)
-    return *this;
+  if (this == &target) return *this;
   this->datasize_limit_ = target.datasize_limit_;
   this->freqms_limit_ = target.freqms_limit_;
   return *this;
@@ -58,73 +57,64 @@ void FlowCtrlResult::SetDataSizeLimit(int64_t datasize_limit) {
   this->datasize_limit_ = datasize_limit;
 }
 
-void FlowCtrlResult::SetFreqMsLimit(int32_t freqms_limit) {
-  this->freqms_limit_ = freqms_limit;
-}
+void FlowCtrlResult::SetFreqMsLimit(int32_t freqms_limit) { this->freqms_limit_ = freqms_limit; }
 
-int64_t FlowCtrlResult::GetDataSizeLimit() {
-  return this->datasize_limit_;
-}
+int64_t FlowCtrlResult::GetDataSizeLimit() { return this->datasize_limit_; }
 
-int32_t FlowCtrlResult::GetFreqMsLimit() {
-  return this->freqms_limit_;
-}
-
+int32_t FlowCtrlResult::GetFreqMsLimit() { return this->freqms_limit_; }
 
 FlowCtrlItem::FlowCtrlItem() {
-  this->type_           = 0;
-  this->start_time_     = 2500;
-  this->end_time_       = config::kInvalidValue;
-  this->datadlt_m_      = config::kInvalidValue;
+  this->type_ = 0;
+  this->start_time_ = 2500;
+  this->end_time_ = config::kInvalidValue;
+  this->datadlt_m_ = config::kInvalidValue;
   this->datasize_limit_ = config::kInvalidValue;
-  this->freqms_limit_   = config::kInvalidValue;
-  this->zero_cnt_       = config::kInvalidValue;
+  this->freqms_limit_ = config::kInvalidValue;
+  this->zero_cnt_ = config::kInvalidValue;
 }
 
-FlowCtrlItem::FlowCtrlItem(int32_t type,
-                       int32_t zero_cnt, int32_t freqms_limit) {
-  this->type_           = type;
-  this->start_time_     = 2500;
-  this->end_time_       = config::kInvalidValue;
-  this->datadlt_m_      = config::kInvalidValue;
+FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t zero_cnt, int32_t freqms_limit) {
+  this->type_ = type;
+  this->start_time_ = 2500;
+  this->end_time_ = config::kInvalidValue;
+  this->datadlt_m_ = config::kInvalidValue;
   this->datasize_limit_ = config::kInvalidValue;
-  this->freqms_limit_   = freqms_limit;
-  this->zero_cnt_       = zero_cnt;
+  this->freqms_limit_ = freqms_limit;
+  this->zero_cnt_ = zero_cnt;
 }
 
-FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t datasize_limit,
-                      int32_t freqms_limit, int32_t min_data_filter_freqms) {
-  this->type_           = type;
-  this->start_time_     = 2500;
-  this->end_time_       = config::kInvalidValue;
-  this->datadlt_m_      = config::kInvalidValue;
+FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t datasize_limit, int32_t freqms_limit,
+                           int32_t min_data_filter_freqms) {
+  this->type_ = type;
+  this->start_time_ = 2500;
+  this->end_time_ = config::kInvalidValue;
+  this->datadlt_m_ = config::kInvalidValue;
   this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_   = freqms_limit;
-  this->zero_cnt_       = min_data_filter_freqms;
+  this->freqms_limit_ = freqms_limit;
+  this->zero_cnt_ = min_data_filter_freqms;
 }
 
-FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t start_time, int32_t end_time,
-                      int64_t datadlt_m, int64_t datasize_limit, int32_t freqms_limit) {
-  this->type_           = type;
-  this->start_time_     = start_time;
-  this->end_time_       = end_time;
-  this->datadlt_m_      = datadlt_m;
+FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t start_time, int32_t end_time, int64_t datadlt_m,
+                           int64_t datasize_limit, int32_t freqms_limit) {
+  this->type_ = type;
+  this->start_time_ = start_time;
+  this->end_time_ = end_time;
+  this->datadlt_m_ = datadlt_m;
   this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_   = freqms_limit;
-  this->zero_cnt_       = config::kInvalidValue;
+  this->freqms_limit_ = freqms_limit;
+  this->zero_cnt_ = config::kInvalidValue;
 }
 
 FlowCtrlItem& FlowCtrlItem::operator=(const FlowCtrlItem& target) {
-  if (this == &target)
-    return *this;
-  this->type_           = target.type_;
-  this->start_time_     = target.start_time_;
-  this->end_time_       = target.end_time_;
-  this->datadlt_m_      = target.datadlt_m_;
+  if (this == &target) return *this;
+  this->type_ = target.type_;
+  this->start_time_ = target.start_time_;
+  this->end_time_ = target.end_time_;
+  this->datadlt_m_ = target.datadlt_m_;
   this->datasize_limit_ = target.datasize_limit_;
-  this->freqms_limit_   = target.freqms_limit_;
-  this->zero_cnt_       = target.zero_cnt_;
-    return *this;
+  this->freqms_limit_ = target.freqms_limit_;
+  this->zero_cnt_ = target.zero_cnt_;
+  return *this;
 }
 
 int32_t FlowCtrlItem::GetFreLimit(int32_t msg_zero_cnt) {
@@ -137,40 +127,38 @@ int32_t FlowCtrlItem::GetFreLimit(int32_t msg_zero_cnt) {
   return -1;
 }
 
-void FlowCtrlItem::ResetFlowCtrlValue(int32_t type, int32_t datasize_limit,
-                                  int32_t freqms_limit, int32_t min_data_filter_freqms) {
-  this->type_           = type;
-  this->start_time_     = 2500;
-  this->end_time_       = config::kInvalidValue;
-  this->datadlt_m_      = config::kInvalidValue;
+void FlowCtrlItem::ResetFlowCtrlValue(int32_t type, int32_t datasize_limit, int32_t freqms_limit,
+                                      int32_t min_data_filter_freqms) {
+  this->type_ = type;
+  this->start_time_ = 2500;
+  this->end_time_ = config::kInvalidValue;
+  this->datadlt_m_ = config::kInvalidValue;
   this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_   = freqms_limit;
-  this->zero_cnt_       = min_data_filter_freqms;
+  this->freqms_limit_ = freqms_limit;
+  this->zero_cnt_ = min_data_filter_freqms;
 }
 
 void FlowCtrlItem::Clear() {
-  this->type_           = 0;
-  this->start_time_     = 2500;
-  this->end_time_       = config::kInvalidValue;
-  this->datadlt_m_      = config::kInvalidValue;
+  this->type_ = 0;
+  this->start_time_ = 2500;
+  this->end_time_ = config::kInvalidValue;
+  this->datadlt_m_ = config::kInvalidValue;
   this->datasize_limit_ = config::kInvalidValue;
-  this->freqms_limit_   = config::kInvalidValue;
-  this->zero_cnt_       = config::kInvalidValue;
+  this->freqms_limit_ = config::kInvalidValue;
+  this->zero_cnt_ = config::kInvalidValue;
 }
 
-bool FlowCtrlItem::GetDataLimit(int64_t datadlt_m,
-                      int32_t curr_time, FlowCtrlResult& flowctrl_result) {
+bool FlowCtrlItem::GetDataLimit(int64_t datadlt_m, int32_t curr_time,
+                                FlowCtrlResult& flowctrl_result) {
   if (this->type_ != 0 || datadlt_m <= this->datadlt_m_) {
     return false;
   }
-  if (curr_time < this->start_time_
-    || curr_time > this->end_time_) {
+  if (curr_time < this->start_time_ || curr_time > this->end_time_) {
     return false;
   }
   flowctrl_result.SetDataDltAndFreqLimit(this->datasize_limit_, this->freqms_limit_);
   return true;
 }
-
 
 FlowCtrlRuleHandler::FlowCtrlRuleHandler() {
   this->flowctrl_id_.GetAndSet(config::kInvalidValue);
@@ -184,16 +172,14 @@ FlowCtrlRuleHandler::FlowCtrlRuleHandler() {
   pthread_rwlock_init(&configrw_lock_, NULL);
 }
 
-FlowCtrlRuleHandler::~FlowCtrlRuleHandler() {
-  pthread_rwlock_destroy(&configrw_lock_);
-}
+FlowCtrlRuleHandler::~FlowCtrlRuleHandler() { pthread_rwlock_destroy(&configrw_lock_); }
 
-void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default,
-                  int32_t qrypriority_id, int64_t flowctrl_id, const string& flowctrl_info) {
+void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qrypriority_id,
+                                                int64_t flowctrl_id, const string& flowctrl_info) {
   bool result;
   map<int32_t, vector<FlowCtrlItem> > tmp_flowctrl_map;
   if (flowctrl_id == this->flowctrl_id_.Get()) {
-      return;
+    return;
   }
   int64_t curr_flowctrl_id = this->flowctrl_id_.Get();
   if (flowctrl_info.length() > 0) {
@@ -214,15 +200,14 @@ void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default,
   this->last_update_time_ = Utils::GetCurrentTimeMillis();
   pthread_rwlock_unlock(&this->configrw_lock_);
   if (is_default) {
-    LOG_INFO("[Flow Ctrl] Default FlowCtrl's flowctrl_id from %ld to %ld\n",
-      curr_flowctrl_id, flowctrl_id);
+    LOG_INFO("[Flow Ctrl] Default FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
+             flowctrl_id);
   } else {
-    LOG_INFO("[Flow Ctrl] Group FlowCtrl's flowctrl_id from %ld to %ld\n",
-      curr_flowctrl_id, flowctrl_id);
+    LOG_INFO("[Flow Ctrl] Group FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
+             flowctrl_id);
   }
   return;
 }
-
 
 void FlowCtrlRuleHandler::initialStatisData() {
   vector<FlowCtrlItem>::iterator it_vec;
@@ -250,7 +235,7 @@ void FlowCtrlRuleHandler::initialStatisData() {
   if (it_map != this->flowctrl_rules_.end()) {
     for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       if (it_vec->GetType() != 1) {
-          continue;
+        continue;
       }
       if (it_vec->GetZeroCnt() < this->min_zero_cnt_.Get()) {
         this->min_zero_cnt_.Set(it_vec->GetZeroCnt());
@@ -264,8 +249,8 @@ void FlowCtrlRuleHandler::initialStatisData() {
         continue;
       }
       it_vec->GetDataSizeLimit();
-      this->filter_ctrl_item_.ResetFlowCtrlValue(3,
-          (int)(it_vec->GetDataSizeLimit()), it_vec->GetFreqMsLimit(), it_vec->GetZeroCnt());
+      this->filter_ctrl_item_.ResetFlowCtrlValue(3, (int)(it_vec->GetDataSizeLimit()),
+                                                 it_vec->GetFreqMsLimit(), it_vec->GetZeroCnt());
     }
   }
 }
@@ -286,10 +271,10 @@ bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt, FlowCtrlResult& 
   time_t cur_time = time(NULL);
 
   gmtime_r(&cur_time, &utc_tm);
-  int curr_time = (utc_tm.tm_hour+8)%24 * 100 + utc_tm.tm_min;
-  if ((last_datadlt < this->min_datadlt_limt_.Get())
-    || (curr_time < this->datalimit_start_time_.Get())
-    || (curr_time > this->datalimit_end_time_.Get())) {
+  int curr_time = (utc_tm.tm_hour + 8) % 24 * 100 + utc_tm.tm_min;
+  if ((last_datadlt < this->min_datadlt_limt_.Get()) ||
+      (curr_time < this->datalimit_start_time_.Get()) ||
+      (curr_time > this->datalimit_end_time_.Get())) {
     return false;
   }
   it_map = this->flowctrl_rules_.find(0);
@@ -325,7 +310,6 @@ int FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt, int32_t recei
   return received_limit;
 }
 
-
 bool FlowCtrlRuleHandler::compareDataLimitQueue(const FlowCtrlItem& o1, const FlowCtrlItem& o2) {
   if (o1.GetStartTime() >= o2.GetStartTime()) {
     return true;
@@ -334,11 +318,11 @@ bool FlowCtrlRuleHandler::compareDataLimitQueue(const FlowCtrlItem& o1, const Fl
 }
 
 bool FlowCtrlRuleHandler::compareFeqQueue(const FlowCtrlItem& queue1, const FlowCtrlItem& queue2) {
-    return (queue1.GetZeroCnt() < queue2.GetZeroCnt());
+  return (queue1.GetZeroCnt() < queue2.GetZeroCnt());
 }
 
-bool FlowCtrlRuleHandler::parseFlowCtrlInfo(const string& flowctrl_info,
-                                map<int32_t, vector<FlowCtrlItem> >& flowctrl_info_map) {
+bool FlowCtrlRuleHandler::parseFlowCtrlInfo(
+    const string& flowctrl_info, map<int32_t, vector<FlowCtrlItem> >& flowctrl_info_map) {
   int32_t type;
   string err_info;
   stringstream ss;
@@ -386,17 +370,15 @@ bool FlowCtrlRuleHandler::parseFlowCtrlInfo(const string& flowctrl_info,
         } else {
           LOG_ERROR("parse flowCtrlInfo's freqLimit failure: %s", err_info.c_str());
         }
-      }
-      break;
+      } break;
 
       case 3: {
         if (FlowCtrlRuleHandler::parseLowFetchLimit(err_info, node_item, flowctrl_item_vec)) {
-            flowctrl_info_map[3] = flowctrl_item_vec;
+          flowctrl_info_map[3] = flowctrl_item_vec;
         } else {
           LOG_ERROR("parse flowCtrlInfo's lowFetchLimit failure: %s", err_info.c_str());
         }
-      }
-      break;
+      } break;
 
       case 0: {
         if (FlowCtrlRuleHandler::parseDataLimit(err_info, node_item, flowctrl_item_vec)) {
@@ -404,8 +386,7 @@ bool FlowCtrlRuleHandler::parseFlowCtrlInfo(const string& flowctrl_info,
         } else {
           LOG_ERROR("parse flowCtrlInfo's dataLimit failure: %s", err_info.c_str());
         }
-      }
-      break;
+      } break;
 
       default:
         break;
@@ -414,8 +395,8 @@ bool FlowCtrlRuleHandler::parseFlowCtrlInfo(const string& flowctrl_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseDataLimit(string& err_info,
-                           const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items) {
+bool FlowCtrlRuleHandler::parseDataLimit(string& err_info, const rapidjson::Value& root,
+                                         vector<FlowCtrlItem>& flowctrl_items) {
   int32_t type_val;
   stringstream ss;
   string attr_sep = delimiter::kDelimiterColon;
@@ -438,7 +419,7 @@ bool FlowCtrlRuleHandler::parseDataLimit(string& err_info,
   }
   // parse rule info
   const rapidjson::Value& obj_set = root["rule"];
-  for (uint32_t index = 0 ; index < obj_set.Size() ; index++) {
+  for (uint32_t index = 0; index < obj_set.Size(); index++) {
     int32_t start_time = 0;
     int32_t end_time = 0;
     int64_t datadlt_m = 0;
@@ -446,8 +427,8 @@ bool FlowCtrlRuleHandler::parseDataLimit(string& err_info,
     int32_t freqms_limit = 0;
     const rapidjson::Value& node_item = obj_set[index];
     if (!node_item.IsObject()) {
-        err_info = "Illegal rule'value item, must be dict type";
-        return false;
+      err_info = "Illegal rule'value item, must be dict type";
+      return false;
     }
     if (!parseTimeMember(err_info, node_item, "start", start_time)) {
       return false;
@@ -506,8 +487,7 @@ bool FlowCtrlRuleHandler::parseDataLimit(string& err_info,
       err_info = ss.str();
       return false;
     }
-    FlowCtrlItem flowctrl_item(0, start_time,
-               end_time, datadlt_m, datasize_limit, freqms_limit);
+    FlowCtrlItem flowctrl_item(0, start_time, end_time, datadlt_m, datasize_limit, freqms_limit);
     flowctrl_items.push_back(flowctrl_item);
   }
   if (!flowctrl_items.empty()) {
@@ -517,8 +497,8 @@ bool FlowCtrlRuleHandler::parseDataLimit(string& err_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseFreqLimit(string& err_info,
-                           const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items) {
+bool FlowCtrlRuleHandler::parseFreqLimit(string& err_info, const rapidjson::Value& root,
+                                         vector<FlowCtrlItem>& flowctrl_items) {
   int32_t type_val;
   stringstream ss;
 
@@ -539,7 +519,7 @@ bool FlowCtrlRuleHandler::parseFreqLimit(string& err_info,
   }
   // parse rule info
   const rapidjson::Value& obj_set = root["rule"];
-  for (uint32_t i = 0 ; i < obj_set.Size() ; i++) {
+  for (uint32_t i = 0; i < obj_set.Size(); i++) {
     int32_t zeroCnt = -2;
     int32_t freqms_limit = -2;
     const rapidjson::Value& node_item = obj_set[i];
@@ -571,17 +551,17 @@ bool FlowCtrlRuleHandler::parseFreqLimit(string& err_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info,
-                            const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items) {
+bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info, const rapidjson::Value& root,
+                                             vector<FlowCtrlItem>& flowctrl_items) {
   int32_t type_val;
-  stringstream ss;
+  stringstream ss;
   if (!parseIntMember(err_info, root, "type", type_val, true, 3)) {
     ss << "Decode Failure: ";
     ss << err_info;
     ss << " of type field in parse low fetch limit!";
     err_info = ss.str();
     return false;
-  }
+  }
   if (!root.HasMember("rule")) {
     err_info = "rule field not existed";
     return false;
@@ -592,7 +572,7 @@ bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info,
   }
   // parse rule info
   const rapidjson::Value& node_item = root["rule"];
-  for (uint32_t i = 0 ; i < node_item.Size() ; i++) {
+  for (uint32_t i = 0; i < node_item.Size(); i++) {
     int32_t norm_freq_ms = 0;
     int32_t filter_freq_ms = 0;
     int32_t min_filter_freq_ms = 0;
@@ -602,18 +582,16 @@ bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info,
       err_info = "Illegal rule'value item, must be dict type";
       return false;
     }
-    if (node_item.HasMember("filterFreqInMs") 
-      || node_item.HasMember("minDataFilterFreqInMs")) {
-      if (!parseIntMember(err_info, node_item,
-                "filterFreqInMs", filter_freq_ms, false, -1)) {
+    if (node_item.HasMember("filterFreqInMs") || node_item.HasMember("minDataFilterFreqInMs")) {
+      if (!parseIntMember(err_info, node_item, "filterFreqInMs", filter_freq_ms, false, -1)) {
         ss << "Decode Failure: ";
         ss << err_info;
         ss << " of filterFreqInMs field in parse low fetch limit!";
         err_info = ss.str();
         return false;
       }
-      if (!parseIntMember(err_info, node_item,
-                "minDataFilterFreqInMs", min_filter_freq_ms, false, -1)) {
+      if (!parseIntMember(err_info, node_item, "minDataFilterFreqInMs", min_filter_freq_ms, false,
+                          -1)) {
         ss << "Decode Failure: ";
         ss << err_info;
         ss << " of minDataFilterFreqInMs field in parse low fetch limit!";
@@ -646,8 +624,7 @@ bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info,
       }
     }
     if (node_item.HasMember("normFreqInMs")) {
-      if (!parseIntMember(err_info, node_item,
-                "normFreqInMs", norm_freq_ms, false, -1)) {
+      if (!parseIntMember(err_info, node_item, "normFreqInMs", norm_freq_ms, false, -1)) {
         ss << "Decode Failure: ";
         ss << err_info;
         ss << " of normFreqInMs field in parse low fetch limit!";
@@ -663,17 +640,16 @@ bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info,
         return false;
       }
     }
-    flowctrl_item.ResetFlowCtrlValue(3,
-                     norm_freq_ms, filter_freq_ms, min_filter_freq_ms);
+    flowctrl_item.ResetFlowCtrlValue(3, norm_freq_ms, filter_freq_ms, min_filter_freq_ms);
     flowctrl_items.push_back(flowctrl_item);
   }
   err_info = "Ok";
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseStringMember(string& err_info,
-    const rapidjson::Value& root, const char* key, string& value,
-    bool compare_value, string required_val) {
+bool FlowCtrlRuleHandler::parseStringMember(string& err_info, const rapidjson::Value& root,
+                                            const char* key, string& value, bool compare_value,
+                                            string required_val) {
   // check key if exist
   if (!root.HasMember(key)) {
     err_info = "Field not existed";
@@ -694,9 +670,9 @@ bool FlowCtrlRuleHandler::parseStringMember(string& err_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseLongMember(string& err_info,
-      const rapidjson::Value& root, const char* key, int64_t& value,
-      bool compare_value, int64_t required_val) {
+bool FlowCtrlRuleHandler::parseLongMember(string& err_info, const rapidjson::Value& root,
+                                          const char* key, int64_t& value, bool compare_value,
+                                          int64_t required_val) {
   if (!root.HasMember(key)) {
     err_info = "Field not existed";
     return false;
@@ -715,9 +691,9 @@ bool FlowCtrlRuleHandler::parseLongMember(string& err_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseIntMember(string& err_info,
-      const rapidjson::Value& root, const char* key, int32_t& value,
-      bool compare_value, int32_t required_val) {
+bool FlowCtrlRuleHandler::parseIntMember(string& err_info, const rapidjson::Value& root,
+                                         const char* key, int32_t& value, bool compare_value,
+                                         int32_t required_val) {
   if (!root.HasMember(key)) {
     err_info = "Field not existed";
     return false;
@@ -736,8 +712,8 @@ bool FlowCtrlRuleHandler::parseIntMember(string& err_info,
   return true;
 }
 
-bool FlowCtrlRuleHandler::parseTimeMember(string& err_info,
-              const rapidjson::Value& root, const char* key, int32_t& value) {
+bool FlowCtrlRuleHandler::parseTimeMember(string& err_info, const rapidjson::Value& root,
+                                          const char* key, int32_t& value) {
   // check key if exist
   stringstream ss;
   if (!root.HasMember(key)) {
@@ -787,6 +763,4 @@ bool FlowCtrlRuleHandler::parseTimeMember(string& err_info,
   return true;
 }
 
-
 }  // namespace tubemq
-

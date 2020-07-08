@@ -18,14 +18,16 @@
  */
 
 #include "utils.h"
-#include <sstream>
-#include <vector>
-#include "const_config.h"
+
 #include <regex.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <sstream>
+#include <vector>
+
+#include "const_config.h"
 
 namespace tubemq {
 
@@ -71,9 +73,8 @@ void Utils::Split(const string& source, vector<string>& result, const string& de
   }
 }
 
-
-void Utils::Split(const string& source, map<string, int>& result,
-                const string& delimiter_step1, const string& delimiter_step2) {
+void Utils::Split(const string& source, map<string, int>& result, const string& delimiter_step1,
+                  const string& delimiter_step2) {
   string item_str;
   string key_str;
   string val_str;
@@ -84,7 +85,7 @@ void Utils::Split(const string& source, map<string, int>& result,
     pos1 = 0;
     pos2 = source.find(delimiter_step1);
     while (string::npos != pos2) {
-      item_str = source.substr(pos1, pos2-pos1);
+      item_str = source.substr(pos1, pos2 - pos1);
       item_str = Utils::Trim(item_str);
       pos1 = pos2 + delimiter_step1.length();
       pos2 = source.find(delimiter_step1, pos1);
@@ -96,7 +97,7 @@ void Utils::Split(const string& source, map<string, int>& result,
         continue;
       }
       key_str = item_str.substr(0, pos3);
-      val_str = item_str.substr(pos3+delimiter_step2.length());
+      val_str = item_str.substr(pos3 + delimiter_step2.length());
       key_str = Utils::Trim(key_str);
       val_str = Utils::Trim(val_str);
       if (key_str.empty()) {
@@ -110,7 +111,7 @@ void Utils::Split(const string& source, map<string, int>& result,
       pos3 = item_str.find(delimiter_step2);
       if (string::npos != pos3) {
         key_str = item_str.substr(0, pos3);
-        val_str = item_str.substr(pos3+delimiter_step2.length());
+        val_str = item_str.substr(pos3 + delimiter_step2.length());
         key_str = Utils::Trim(key_str);
         val_str = Utils::Trim(val_str);
         if (!key_str.empty()) {
@@ -132,9 +133,8 @@ void Utils::Join(const vector<string>& vec, const string& delimiter, string& tar
   }
 }
 
-bool Utils::ValidString(string& err_info, const string& source,
-                bool allow_empty, bool pat_match, bool check_max_length,
-                unsigned int maxlen) {
+bool Utils::ValidString(string& err_info, const string& source, bool allow_empty, bool pat_match,
+                        bool check_max_length, unsigned int maxlen) {
   if (source.empty()) {
     if (allow_empty) {
       err_info = "Ok";
@@ -174,8 +174,7 @@ bool Utils::ValidString(string& err_info, const string& source,
   return true;
 }
 
-bool Utils::ValidGroupName(string& err_info,
-                const string& group_name, string& tgt_group_name) {
+bool Utils::ValidGroupName(string& err_info, const string& group_name, string& tgt_group_name) {
   tgt_group_name = Utils::Trim(group_name);
   if (tgt_group_name.empty()) {
     err_info = "Illegal parameter: group_name is blank!";
@@ -210,8 +209,8 @@ bool Utils::ValidGroupName(string& err_info,
   return true;
 }
 
-bool Utils::ValidFilterItem(string& err_info,
-                const string& src_filteritem, string& tgt_filteritem) {
+bool Utils::ValidFilterItem(string& err_info, const string& src_filteritem,
+                            string& tgt_filteritem) {
   tgt_filteritem = Utils::Trim(src_filteritem);
   if (tgt_filteritem.empty()) {
     err_info = "value is blank!";
@@ -257,20 +256,18 @@ uint32_t Utils::IpToInt(const string& ipv4_addr) {
   vector<string> result_vec;
 
   Utils::Split(ipv4_addr, result_vec, delimiter::kDelimiterDot);
-  result = ((char) atoi(result_vec[3].c_str())) & 0xFF;
-  result |= ((char) atoi(result_vec[2].c_str()) << 8) & 0xFF00;
-  result |= ((char) atoi(result_vec[1].c_str()) << 16) & 0xFF0000;
-  result |= ((char) atoi(result_vec[0].c_str()) << 24) & 0xFF000000;
+  result = ((char)atoi(result_vec[3].c_str())) & 0xFF;
+  result |= ((char)atoi(result_vec[2].c_str()) << 8) & 0xFF00;
+  result |= ((char)atoi(result_vec[1].c_str()) << 16) & 0xFF0000;
+  result |= ((char)atoi(result_vec[0].c_str()) << 24) & 0xFF000000;
   return result;
 }
 
 int64_t Utils::GetCurrentTimeMillis() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  return tv.tv_sec * 1000 + tv.tv_usec /1000;
+  return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
-
-
 
 }  // namespace tubemq
 

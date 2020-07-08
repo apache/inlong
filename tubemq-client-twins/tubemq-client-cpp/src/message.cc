@@ -18,15 +18,15 @@
  */
 
 #include "message.h"
+
 #include <string.h>
+
 #include <sstream>
+
 #include "const_config.h"
 #include "utils.h"
 
-
-
 namespace tubemq {
-
 
 // message flag's properties settings
 static const int32_t kMsgFlagIncProperties = 0x01;
@@ -35,88 +35,66 @@ static const string kRsvPropKeyFilterItem = "$msgType$";
 // reserved property key message send time
 static const string kRsvPropKeyMsgTime = "$msgTime$";
 
-
 Message::Message() {
-  this->topic_      = "";
-  this->flag_       = 0;
+  this->topic_ = "";
+  this->flag_ = 0;
   this->message_id_ = config::kInvalidValue;
-  this->data_       = NULL;
-  this->datalen_    = 0;
+  this->data_ = NULL;
+  this->datalen_ = 0;
   this->properties_.clear();
 }
 
 Message::Message(const Message& target) {
-  this->topic_      = target.topic_;
+  this->topic_ = target.topic_;
   this->message_id_ = target.message_id_;
   copyData(target.data_, target.datalen_);
   copyProperties(target.properties_);
-  this->flag_       = target.flag_;
+  this->flag_ = target.flag_;
 }
 
 Message::Message(const string& topic, const char* data, uint32_t datalen) {
-  this->topic_      = topic;
-  this->flag_       = 0;
+  this->topic_ = topic;
+  this->flag_ = 0;
   this->message_id_ = config::kInvalidValue;
   copyData(data, datalen);
   this->properties_.clear();
 }
 
-Message::~Message() {
-  clearData();
-}
+Message::~Message() { clearData(); }
 
 Message& Message::operator=(const Message& target) {
-  if (this == &target)
-    return *this;
-  this->topic_      = target.topic_;
+  if (this == &target) return *this;
+  this->topic_ = target.topic_;
   this->message_id_ = target.message_id_;
   clearData();
   copyData(target.data_, target.datalen_);
   copyProperties(target.properties_);
-  this->flag_       = target.flag_;
+  this->flag_ = target.flag_;
   return *this;
 }
 
-const uint64_t Message::GetMessageId() const {
-  return this->message_id_;
-}
+const uint64_t Message::GetMessageId() const { return this->message_id_; }
 
-void Message::SetMessageId(int64_t message_id) {
-  this->message_id_ = message_id;
-}
+void Message::SetMessageId(int64_t message_id) { this->message_id_ = message_id; }
 
-const string& Message::GetTopic() const {
-  return this->topic_;
-}
+const string& Message::GetTopic() const { return this->topic_; }
 
-void Message::SetTopic(const string& topic) {
-  this->topic_ = topic;
-}
+void Message::SetTopic(const string& topic) { this->topic_ = topic; }
 
-const char* Message::GetData() const {
-  return this->data_;
-}
+const char* Message::GetData() const { return this->data_; }
 
-uint32_t Message::GetDataLength() const {
-  return this->datalen_;
-}
+uint32_t Message::GetDataLength() const { return this->datalen_; }
 
 void Message::setData(const char* data, uint32_t datalen) {
   clearData();
   copyData(data, datalen);
 }
 
-const int32_t Message::GetFlag() const {
-  return this->flag_;
-}
+const int32_t Message::GetFlag() const { return this->flag_; }
 
-void Message::SetFlag(int32_t flag) {
-  this->flag_ = flag;
-}
+void Message::SetFlag(int32_t flag) { this->flag_ = flag; }
 
-const map<string, string>& Message::GetProperties() const {
-  return this->properties_;
-}
+const map<string, string>& Message::GetProperties() const { return this->properties_; }
 
 int32_t Message::GetProperties(string& attribute) {
   attribute.clear();
@@ -157,9 +135,7 @@ bool Message::GetProperty(const string& key, string& value) {
   return false;
 }
 
-bool Message::GetFilterItem(string& value) {
-  return GetProperty(kRsvPropKeyFilterItem, value);
-}
+bool Message::GetFilterItem(string& value) { return GetProperty(kRsvPropKeyFilterItem, value); }
 
 bool Message::AddProperty(string& err_info, const string& key, const string& value) {
   string trimed_key = Utils::Trim(key);
@@ -168,8 +144,8 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = "Not allowed null value of parmeter key or value";
     return false;
   }
-  if ((string::npos != trimed_key.find(delimiter::kDelimiterComma))
-    ||(string::npos != trimed_key.find(delimiter::kDelimiterEqual))) {
+  if ((string::npos != trimed_key.find(delimiter::kDelimiterComma)) ||
+      (string::npos != trimed_key.find(delimiter::kDelimiterEqual))) {
     stringstream ss;
     ss << "Reserved token '";
     ss << delimiter::kDelimiterComma;
@@ -179,8 +155,8 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if ((string::npos != trimed_value.find(delimiter::kDelimiterComma))
-    ||(string::npos != trimed_value.find(delimiter::kDelimiterEqual))) {
+  if ((string::npos != trimed_value.find(delimiter::kDelimiterComma)) ||
+      (string::npos != trimed_value.find(delimiter::kDelimiterEqual))) {
     stringstream ss;
     ss << "Reserved token '";
     ss << delimiter::kDelimiterComma;
@@ -190,8 +166,7 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if (trimed_key == kRsvPropKeyFilterItem
-         || trimed_key == kRsvPropKeyMsgTime) {
+  if (trimed_key == kRsvPropKeyFilterItem || trimed_key == kRsvPropKeyMsgTime) {
     stringstream ss;
     ss << "Reserved token '";
     ss << kRsvPropKeyFilterItem;
@@ -204,7 +179,7 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
   // add key and value
   this->properties_[trimed_key] = trimed_value;
   if (!this->properties_.empty()) {
-      this->flag_ |= kMsgFlagIncProperties;
+    this->flag_ |= kMsgFlagIncProperties;
   }
   err_info = "Ok";
   return true;
@@ -241,9 +216,4 @@ void Message::copyProperties(const map<string, string>& properties) {
   }
 }
 
-
 }  // namespace tubemq
-
-
-
-

@@ -18,22 +18,22 @@
  */
 
 #include "meta_info.h"
+
 #include <stdlib.h>
+
 #include <sstream>
 #include <vector>
+
 #include "const_config.h"
 #include "utils.h"
 
-
 namespace tubemq {
 
-using std::vector;
 using std::sstream;
-
-
+using std::vector;
 
 NodeInfo::NodeInfo() {
-  this->node_id_   = 0;
+  this->node_id_ = 0;
   this->node_host_ = " ";
   this->node_port_ = config::kBrokerPortDef;
   buildStrInfo();
@@ -44,14 +44,14 @@ NodeInfo::NodeInfo(bool is_broker, const string& node_info) {
   vector<string> result;
   Utils::Split(node_info, result, delimiter::kDelimiterColon);
   if (is_broker) {
-    this->node_id_   = atoi(result[0].c_str());
+    this->node_id_ = atoi(result[0].c_str());
     this->node_host_ = result[1];
     this->node_port_ = config::kBrokerPortDef;
     if (result.size() >= 3) {
       this->node_port_ = atoi(result[2].c_str());
     }
   } else {
-    this->node_id_   = 0;
+    this->node_id_ = 0;
     this->node_host_ = result[0];
     this->node_port_ = config::kBrokerPortDef;
     if (result.size() >= 2) {
@@ -62,14 +62,14 @@ NodeInfo::NodeInfo(bool is_broker, const string& node_info) {
 }
 
 NodeInfo::NodeInfo(const string& node_host, uint32_t node_port) {
-  this->node_id_   = config::kInvalidValue;
+  this->node_id_ = config::kInvalidValue;
   this->node_host_ = node_host;
   this->node_port_ = node_port;
   buildStrInfo();
 }
 
 NodeInfo::NodeInfo(int node_id, const string& node_host, uint32_t node_port) {
-  this->node_id_   = node_id;
+  this->node_id_ = node_id;
   this->node_host_ = node_host;
   this->node_port_ = node_port;
   buildStrInfo();
@@ -81,7 +81,7 @@ NodeInfo::~NodeInfo() {
 
 NodeInfo& NodeInfo::operator=(const NodeInfo& target) {
   if (this != &target) {
-    this->node_id_   = target.node_id_;
+    this->node_id_ = target.node_id_;
     this->node_host_ = target.node_host_;
     this->node_port_ = target.node_port_;
     this->addr_info_ = target.addr_info_;
@@ -90,7 +90,7 @@ NodeInfo& NodeInfo::operator=(const NodeInfo& target) {
   return *this;
 }
 
-bool NodeInfo::operator== (const NodeInfo& target) {
+bool NodeInfo::operator==(const NodeInfo& target) {
   if (this == &target) {
     return true;
   }
@@ -100,28 +100,18 @@ bool NodeInfo::operator== (const NodeInfo& target) {
   return false;
 }
 
-bool NodeInfo::operator< (const NodeInfo& target) const {
+bool NodeInfo::operator<(const NodeInfo& target) const {
   return this->node_info_ < target.node_info_;
 }
-const uint32_t NodeInfo::GetNodeId() const {
-  return this->node_id_;
-}
+const uint32_t NodeInfo::GetNodeId() const { return this->node_id_; }
 
-const string& NodeInfo::GetHost() const {
-  return this->node_host_;
-}
+const string& NodeInfo::GetHost() const { return this->node_host_; }
 
-const uint32_t NodeInfo::GetPort() const {
-  return this->node_port_;
-}
+const uint32_t NodeInfo::GetPort() const { return this->node_port_; }
 
-const string& NodeInfo::GetAddrInfo() const {
-  return this->addr_info_;
-}
+const string& NodeInfo::GetAddrInfo() const { return this->addr_info_; }
 
-const string& NodeInfo::GetNodeInfo() const {
-  return this->node_info_;
-}
+const string& NodeInfo::GetNodeInfo() const { return this->node_info_; }
 
 void NodeInfo::buildStrInfo() {
   stringstream ss1;
@@ -136,7 +126,6 @@ void NodeInfo::buildStrInfo() {
   ss2 << this->addr_info_;
   this->node_info_ = ss2.str();
 }
-
 
 Partition::Partition() {
   this->topic_ = " ";
@@ -210,7 +199,7 @@ Partition& Partition::operator=(const Partition& target) {
   return *this;
 }
 
-bool Partition::operator== (const Partition& target) {
+bool Partition::operator==(const Partition& target) {
   if (this == &target) {
     return true;
   }
@@ -220,37 +209,21 @@ bool Partition::operator== (const Partition& target) {
   return false;
 }
 
-const uint32_t Partition::GetBrokerId() const {
-  return this->broker_info_.GetNodeId();
-}
+const uint32_t Partition::GetBrokerId() const { return this->broker_info_.GetNodeId(); }
 
-const string& Partition::GetBrokerHost() const {
-  return this->broker_info_.GetHost();
-}
+const string& Partition::GetBrokerHost() const { return this->broker_info_.GetHost(); }
 
-const uint32_t Partition::GetBrokerPort() const {
-  return this->broker_info_.GetPort();
-}
+const uint32_t Partition::GetBrokerPort() const { return this->broker_info_.GetPort(); }
 
-const string& Partition::GetPartitionKey() const {
-  return this->partition_key_;
-}
+const string& Partition::GetPartitionKey() const { return this->partition_key_; }
 
-const string& Partition::GetTopic() const {
-  return this->topic_;
-}
+const string& Partition::GetTopic() const { return this->topic_; }
 
-const NodeInfo& Partition::GetBrokerInfo() const {
-  return this->broker_info_;
-}
+const NodeInfo& Partition::GetBrokerInfo() const { return this->broker_info_; }
 
-const uint32_t Partition::GetPartitionId() const {
-  return this->partition_id_;
-}
+const uint32_t Partition::GetPartitionId() const { return this->partition_id_; }
 
-const string& Partition::ToString() const {
-  return this->partition_info_;
-}
+const string& Partition::ToString() const { return this->partition_info_; }
 
 void Partition::buildPartitionKey() {
   stringstream ss1;
@@ -269,7 +242,6 @@ void Partition::buildPartitionKey() {
   ss2 << this->partition_id_;
   this->partition_info_ = ss2.str();
 }
-
 
 // sub_info = consumerId@group#broker_info#topic:partitionId
 SubscribeInfo::SubscribeInfo(const string& sub_info) {
@@ -295,59 +267,40 @@ SubscribeInfo::SubscribeInfo(const string& sub_info) {
   buildSubInfo();
 }
 
-SubscribeInfo::SubscribeInfo(const string& consumer_id,
-                 const string& group, const Partition& partition) {
+SubscribeInfo::SubscribeInfo(const string& consumer_id, const string& group,
+                             const Partition& partition) {
   this->consumer_id_ = consumer_id;
-  this->group_       = group;
-  this->partition_   = partition;
+  this->group_ = group;
+  this->partition_ = partition;
   buildSubInfo();
 }
-
 
 SubscribeInfo& SubscribeInfo::operator=(const SubscribeInfo& target) {
   if (this != &target) {
     this->consumer_id_ = target.consumer_id_;
-    this->group_       = target.group_;
-    this->partition_   = target.partition_;
+    this->group_ = target.group_;
+    this->partition_ = target.partition_;
   }
   return *this;
 }
 
-const string& SubscribeInfo::GetConsumerId() const {
-  return this->consumer_id_;
-}
+const string& SubscribeInfo::GetConsumerId() const { return this->consumer_id_; }
 
-const string& SubscribeInfo::GetGroup() const {
-  return this->group_;
-}
+const string& SubscribeInfo::GetGroup() const { return this->group_; }
 
-const Partition& SubscribeInfo::GetPartition() const {
-  return this->partition_;
-}
+const Partition& SubscribeInfo::GetPartition() const { return this->partition_; }
 
-const uint32_t SubscribeInfo::GgetBrokerId() const {
-  return this->partition_.GetBrokerId();
-}
+const uint32_t SubscribeInfo::GgetBrokerId() const { return this->partition_.GetBrokerId(); }
 
-const string& SubscribeInfo::GetBrokerHost() const {
-  return this->partition_.GetBrokerHost();
-}
+const string& SubscribeInfo::GetBrokerHost() const { return this->partition_.GetBrokerHost(); }
 
-const uint32_t SubscribeInfo::GetBrokerPort() const {
-  return this->partition_.GetBrokerPort();
-}
+const uint32_t SubscribeInfo::GetBrokerPort() const { return this->partition_.GetBrokerPort(); }
 
-const string& SubscribeInfo::GetTopic() const {
-  return this->partition_.GetTopic();
-}
+const string& SubscribeInfo::GetTopic() const { return this->partition_.GetTopic(); }
 
-const uint32_t SubscribeInfo::GetPartitionId() const {
-  return this->partition_.GetPartitionId();
-}
+const uint32_t SubscribeInfo::GetPartitionId() const { return this->partition_.GetPartitionId(); }
 
-const string& SubscribeInfo::ToString() const {
-  return this->sub_info_;
-}
+const string& SubscribeInfo::ToString() const { return this->sub_info_; }
 
 void SubscribeInfo::buildSubInfo() {
   stringstream ss;
@@ -359,25 +312,24 @@ void SubscribeInfo::buildSubInfo() {
   this->sub_info_ = ss.str();
 }
 
-
 ConsumerEvent::ConsumerEvent() {
   this->rebalance_id_ = config::kInvalidValue;
-  this->event_type_   = config::kInvalidValue;
+  this->event_type_ = config::kInvalidValue;
   this->event_status_ = config::kInvalidValue;
 }
 
 ConsumerEvent::ConsumerEvent(const ConsumerEvent& target) {
   this->rebalance_id_ = target.rebalance_id_;
-  this->event_type_   = target.event_type_;
+  this->event_type_ = target.event_type_;
   this->event_status_ = target.event_status_;
   this->subscribe_list_ = target.subscribe_list_;
 }
 
 ConsumerEvent::ConsumerEvent(int64_t rebalance_id, int32_t event_type,
-                 const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status) {
+                             const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status) {
   list<SubscribeInfo>::const_iterator it;
   this->rebalance_id_ = rebalance_id;
-  this->event_type_   = event_type;
+  this->event_type_ = event_type;
   this->event_status_ = event_status;
   for (it = subscribeInfo_lst.begin(); it != subscribeInfo_lst.end(); ++it) {
     this->subscribe_list_.push_back(*it);
@@ -394,25 +346,15 @@ ConsumerEvent& ConsumerEvent::operator=(const ConsumerEvent& target) {
   return *this;
 }
 
-const int64_t ConsumerEvent::GetRebalanceId() const {
-  return this->rebalance_id_;
-}
+const int64_t ConsumerEvent::GetRebalanceId() const { return this->rebalance_id_; }
 
-const int32_t ConsumerEvent::GetEventType() const {
-  return this->event_type_;
-}
+const int32_t ConsumerEvent::GetEventType() const { return this->event_type_; }
 
-const int32_t ConsumerEvent::GetEventStatus() const {
-  return this->event_status_;
-}
+const int32_t ConsumerEvent::GetEventStatus() const { return this->event_status_; }
 
-void ConsumerEvent::SetEventType(int32_t event_type) {
-  this->event_type_ = event_type;
-}
+void ConsumerEvent::SetEventType(int32_t event_type) { this->event_type_ = event_type; }
 
-void ConsumerEvent::SetEventStatus(int32_t event_status) {
-  this->event_status_ = event_status;
-}
+void ConsumerEvent::SetEventStatus(int32_t event_status) { this->event_status_ = event_status; }
 
 const list<SubscribeInfo>& ConsumerEvent::GetSubscribeInfoList() const {
   return this->subscribe_list_;
@@ -429,8 +371,7 @@ string ConsumerEvent::ToString() {
   ss << ", status=";
   ss << this->event_status_;
   ss << ", subscribeInfoList=[";
-  for (it = this->subscribe_list_.begin();
-          it != this->subscribe_list_.end(); ++it) {
+  for (it = this->subscribe_list_.begin(); it != this->subscribe_list_.end(); ++it) {
     if (count++ > 0) {
       ss << ",";
     }
@@ -441,4 +382,3 @@ string ConsumerEvent::ToString() {
 }
 
 };  // namespace tubemq
-
