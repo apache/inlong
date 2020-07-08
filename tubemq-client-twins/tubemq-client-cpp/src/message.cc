@@ -28,6 +28,9 @@
 
 namespace tubemq {
 
+using std::stringstream;
+
+
 // message flag's properties settings
 static const int32_t kMsgFlagIncProperties = 0x01;
 // reserved property key Filter Item
@@ -73,7 +76,7 @@ Message& Message::operator=(const Message& target) {
   return *this;
 }
 
-const uint64_t Message::GetMessageId() const { return this->message_id_; }
+const int64_t Message::GetMessageId() const { return this->message_id_; }
 
 void Message::SetMessageId(int64_t message_id) { this->message_id_ = message_id; }
 

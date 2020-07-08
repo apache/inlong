@@ -45,7 +45,7 @@ class Message {
   void SetTopic(const string& topic);
   const char* GetData() const;
   uint32_t GetDataLength() const;
-  void setData(const char* data, int datalen);
+  void setData(const char* data, uint32_t datalen);
   const int32_t GetFlag() const;
   void SetFlag(int32_t flag);
   const map<string, string>& GetProperties() const;

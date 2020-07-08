@@ -25,11 +25,12 @@
 #include <vector>
 
 #include "const_config.h"
+#include "const_errcode.h"
 #include "utils.h"
 
 namespace tubemq {
 
-using std::sstream;
+using std::stringstream;
 using std::vector;
 
 NodeInfo::NodeInfo() {
@@ -380,5 +381,150 @@ string ConsumerEvent::ToString() {
   ss << "]]";
   return ss.str();
 }
+
+
+PartitionExt::PartitionExt() : Partition() {
+  resetParameters();
+}
+
+PartitionExt::PartitionExt(const string& partition_info) : Partition(partition_info) {
+  resetParameters();
+}
+
+PartitionExt::PartitionExt(const NodeInfo& broker_info, const string& part_str)
+  : Partition(broker_info, part_str) {
+  resetParameters();
+}
+
+PartitionExt::~PartitionExt() {
+  //
+}
+
+void PartitionExt::BookConsumeData(int32_t errcode, int32_t msg_size,
+  bool req_esc_limit, int64_t rsp_dlt_limit, long last_datadlt, bool require_slow) {
+  this->booked_time_ =Utils::GetCurrentTimeMillis();
+  this->booked_errcode_ = errcode;
+  this->booked_esc_limit_= req_esc_limit;
+  this->booked_msgsize_ = msg_size;
+  this->booked_dlt_limit_ = rsp_dlt_limit;
+  this->booked_curdata_dlt_ = last_datadlt;
+  this->booked_require_slow_ = require_slow;
+}
+
+int64_t PartitionExt::ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
+  const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed) {
+  int64_t dlt_time = Utils::GetCurrentTimeMillis() - this->booked_time_;
+  return ProcConsumeResult(def_flowctrl_handler, group_flowctrl_handler, filter_consume,
+    last_consumed, this->booked_errcode_, this->booked_msgsize_, this->booked_esc_limit_,
+    this->booked_dlt_limit_, this->booked_curdata_dlt_, this->booked_require_slow_) - dlt_time;
+}
+
+int64_t PartitionExt::ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
+  const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed,
+  int32_t errcode, int32_t msg_size, bool req_esc_limit, int64_t rsp_dlt_limit,
+  int64_t last_datadlt, bool require_slow) {
+  bool result = false;
+  // Accumulated data received
+  this->_isLastConsumed = last_consumed;
+  this->cur_stage_msgsize_ += msg_size;
+  this->cur_slice_msgsize_ += msg_size;
+  // Update strategy data values
+  int64_t curr_time = Utils::GetCurrentTimeMillis();
+  if (curr_time - this->next_stage_updtime_) {
+    this->cur_stage_msgsize_ = 0;
+    this->cur_slice_msgsize_ = 0;
+    if (last_datadlt >= 0) {
+      result = group_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
+      if (!result) {
+        result = def_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
+        if (!result) {
+          this->cur_flowctrl_.SetDataDltAndFreqLimit(config::kMaxLongValue, 0);
+        }
+      }
+      this->cur_freqctrl_ = group_flowctrl_handler.GetFilterCtrlItem();
+      if (this->cur_freqctrl_.getFreqLtInMs() < 0) {
+        this->cur_freqctrl_ = def_flowctrl_handler.GetFilterCtrlItem();
+      }
+      curr_time = Utils::GetCurrentTimeMillis();
+    }
+    this->limit_slice_msgsize_ = this->cur_flowctrl_.GetDataSizeLimit() / 12;
+    this->next_stage_updtime_ = curr_time + 60000;
+    this->next_slice_updtime_ = curr_time + 5000;
+  } else if(curr_time > this->next_slice_updtime_) {
+    this->cur_slice_msgsize_ = 0;
+    this->next_slice_updtime_ = curr_time + 5000;
+  }
+  // Perform different strategies based on error codes
+  switch (errcode) {
+    case err_code::kErrNotFound:
+    case err_code::kErrSuccess:
+      if (msg_size == 0 && errcode != err_code::kErrSuccess) {
+        this->total_zero_cnt_ += 1;
+      } else {
+        this->total_zero_cnt_ = 0;
+      }
+      if (this->total_zero_cnt_ > 0) {
+        if (group_flowctrl_handler.GetMinZeroCnt() != config::kMaxIntValue) {
+          return (int64_t)group_flowctrl_handler.GetCurFreqLimitTime(
+            this->total_zero_cnt_, (int32_t)rsp_dlt_limit);
+        } else {
+          return (int64_t)def_flowctrl_handler.GetCurFreqLimitTime(
+            this->_totalRcvZeroCount, (int32_t)rsp_dlt_limit);
+        }
+      }
+      if (req_esc_limit) {
+        return 0;
+      } else {
+        if (this->cur_stage_msgsize_ >= this->cur_flowctrl_.GetDataSizeLimit()
+          || this->cur_slice_msgsize_ >= this->limit_slice_msgsize_) {
+          return this->cur_flowctrl_.GetFreqMsLimit() > rsp_dlt_limit
+            ? this->cur_flowctrl_.GetFreqMsLimit() : rsp_dlt_limit;
+        }
+        if (errcode == err_code::kErrSuccess) {
+          if (filter_consume && this->cur_freqctrl_.GetFreqMsLimit() >= 0) {
+            if (require_slow) {
+              return this->cur_freqctrl_.GetZeroCnt();
+            } else {
+              return this->cur_freqctrl_.GetFreqMsLimit();
+            }
+          } else if (!filter_consume && this->cur_freqctrl_.GetDataSizeLimit() >=0) {
+            return this->cur_freqctrl_.GetDataSizeLimit();
+          }
+        }
+        return rsp_dlt_limit;
+      }
+      break;
+
+    default:
+      return rsp_dlt_limit;
+  }
+}
+
+void PartitionExt::SetLastConsumed(bool last_consumed) {
+  this->is_last_consumed_ = last_consumed;
+}
+
+bool PartitionExt::IsLastConsumed() {
+  return this->is_last_consumed_;
+}
+
+void PartitionExt::resetParameters() {
+  this->is_last_consumed_ = false;
+  this->cur_flowctrl_.SetDataDltAndFreqLimit(config::kMaxLongValue, 20);
+  this->next_stage_updtime_ = 0;
+  this->next_slice_updtime_ = 0;
+  this->limit_slice_msgsize_ = 0;
+  this->cur_stage_msgsize_ = 0;
+  this->cur_slice_msgsize_ = 0;
+  this->total_zero_cnt_ = 0;
+  this->booked_time_ = 0;
+  this->booked_errcode_ = 0;
+  this->booked_esc_limit_= false;
+  this->booked_msgsize_ = 0;
+  this->booked_dlt_limit_ = 0;
+  this->booked_curdata_dlt_ = 0;
+  this->booked_require_slow_ = false;
+}
+
 
 };  // namespace tubemq
