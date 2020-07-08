@@ -20,10 +20,11 @@
 #ifndef _TUBEMQ_SINGLETON_H
 #define _TUBEMQ_SINGLETON_H
 
-#include <mutex>
-#include <thread>
 #include <assert.h>
 #include <stdlib.h>
+
+#include <mutex>
+#include <thread>
 
 #include "noncopyable.h"
 
@@ -48,9 +49,6 @@ class Singleton : noncopyable {
   static std::once_flag once_;
   static T* value_;
 };
-
-template <typename T>
-std::once_flag Singleton<T>::once_;
 
 template <typename T>
 T* Singleton<T>::value_ = nullptr;

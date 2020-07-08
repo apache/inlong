@@ -21,25 +21,24 @@
 #define TUBEMQ_CLIENT_FILE_INI_H_
 
 #include <stdint.h>
+
 #include <map>
 #include <string>
 
-
 namespace tubemq {
 
-using std::string;
 using std::map;
-
+using std::string;
 
 class Fileini {
  public:
   Fileini();
   ~Fileini();
   bool Loadini(string& err_info, const string& file_name);
-  bool GetValue(string& err_info, const string& sector,
-                   const string& key, string& value, const string& def);
-  bool GetValue(string& err_info, const string& sector,
-                   const string& key, int32_t& value, const int32_t def);
+  bool GetValue(string& err_info, const string& sector, const string& key, string& value,
+                const string& def);
+  bool GetValue(string& err_info, const string& sector, const string& key, int32_t& value,
+                const int32_t def);
 
  private:
   bool init_flag_;
@@ -50,4 +49,3 @@ class Fileini {
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_FILE_INI_H_
-

@@ -21,13 +21,13 @@
 #define TUBEMQ_CLIENT_CONST_CONFIG_H_
 
 #include <stdint.h>
+
 #include <map>
 #include <string>
 
 namespace tubemq {
 
 using std::string;
-
 
 // configuration value setting
 namespace config {
@@ -75,27 +75,24 @@ static const int32_t kInvalidValue = -2;
 
 }  // namespace config
 
-
 namespace delimiter {
-  static const string kDelimiterDot = ".";
-  static const string kDelimiterEqual = "=";
-  static const string kDelimiterAnd   = "&";
-  static const string kDelimiterComma = ",";
-  static const string kDelimiterColon = ":";
-  static const string kDelimiterAt    = "@";
-  static const string kDelimiterPound = "#";
-  static const string kDelimiterSemicolon = ";";
-  // Double slash
-  static const string kDelimiterDbSlash = "//";
-  // left square bracket
-  static const string kDelimiterLftSB = "[";
-  // right square bracket
-  static const string kDelimiterRgtSB = "]";
+static const string kDelimiterDot = ".";
+static const string kDelimiterEqual = "=";
+static const string kDelimiterAnd = "&";
+static const string kDelimiterComma = ",";
+static const string kDelimiterColon = ":";
+static const string kDelimiterAt = "@";
+static const string kDelimiterPound = "#";
+static const string kDelimiterSemicolon = ";";
+// Double slash
+static const string kDelimiterDbSlash = "//";
+// left square bracket
+static const string kDelimiterLftSB = "[";
+// right square bracket
+static const string kDelimiterRgtSB = "]";
 
 }  // namespace delimiter
-
 
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_CONST_CONFIG_H_
-

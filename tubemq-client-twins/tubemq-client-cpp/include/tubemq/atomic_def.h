@@ -22,35 +22,24 @@
 
 #include <stdlib.h>
 
-
 namespace tubemq {
 
 using namespace std;
 
 class AtomicInteger {
  public:
-  AtomicInteger() {
-    this->counter_ = 0;
-  }
+  AtomicInteger() { this->counter_ = 0; }
 
-  AtomicInteger(int initial_value) {
-    this->counter_ = initial_value;
-  }
+  AtomicInteger(int initial_value) { this->counter_ = initial_value; }
 
-  int Get() {
-    return this->counter_;
-  }
+  int Get() { return this->counter_; }
 
-  void Set(long new_value) {
-    this->counter_ = new_value;
-  }
+  void Set(long new_value) { this->counter_ = new_value; }
 
-  long LongValue() {
-    return (long)this->counter_;
-  }
+  long LongValue() { return (long)this->counter_; }
 
   int GetAndSet(int new_value) {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
         return current;
@@ -63,7 +52,7 @@ class AtomicInteger {
   }
 
   int GetAndIncrement() {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -73,7 +62,7 @@ class AtomicInteger {
   }
 
   int GetAndDecrement() {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -83,7 +72,7 @@ class AtomicInteger {
   }
 
   int GetAndAdd(int delta) {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -93,7 +82,7 @@ class AtomicInteger {
   }
 
   int IncrementAndGet() {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -103,7 +92,7 @@ class AtomicInteger {
   }
 
   int DecrementAndGet() {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -113,7 +102,7 @@ class AtomicInteger {
   }
 
   int AddAndGet(int delta) {
-    for ( ; ; ) {
+    for (;;) {
       int current = this->counter_;
       int next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -126,31 +115,20 @@ class AtomicInteger {
   volatile int counter_;
 };
 
-
 class AtomicLong {
  public:
-  AtomicLong() {
-    this->counter_ = 0;
-  }
+  AtomicLong() { this->counter_ = 0; }
 
-  AtomicLong(long initial_value) {
-    this->counter_ = initial_value;
-  }
+  AtomicLong(long initial_value) { this->counter_ = initial_value; }
 
-  long Get() {
-    return this->counter_;
-  }
+  long Get() { return this->counter_; }
 
-  void Set(long new_value) {
-    this->counter_ = new_value;
-  }
+  void Set(long new_value) { this->counter_ = new_value; }
 
-  long IntValue() {
-    return (int)this->counter_;
-  }
+  long IntValue() { return (int)this->counter_; }
 
   long GetAndSet(long new_value) {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
         return current;
@@ -163,7 +141,7 @@ class AtomicLong {
   }
 
   long GetAndIncrement() {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -173,7 +151,7 @@ class AtomicLong {
   }
 
   long GetAndDecrement() {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -183,7 +161,7 @@ class AtomicLong {
   }
 
   long GetAndAdd(long delta) {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -193,7 +171,7 @@ class AtomicLong {
   }
 
   long IncrementAndGet() {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -203,7 +181,7 @@ class AtomicLong {
   }
 
   long DecrementAndGet() {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -213,7 +191,7 @@ class AtomicLong {
   }
 
   long AddAndGet(long delta) {
-    for ( ; ; ) {
+    for (;;) {
       long current = this->counter_;
       long next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
@@ -226,24 +204,15 @@ class AtomicLong {
   volatile long counter_;
 };
 
-
-class AtomicBoolean{
+class AtomicBoolean {
  public:
-  AtomicBoolean() {
-    this->counter_ = 0;
-  }
+  AtomicBoolean() { this->counter_ = 0; }
 
-  AtomicBoolean(bool initial_value) {
-    this->counter_ = initial_value ? 1 : 0;
-  }
+  AtomicBoolean(bool initial_value) { this->counter_ = initial_value ? 1 : 0; }
 
-  bool Get() {
-    return this->counter_ != 0;
-  }
+  bool Get() { return this->counter_ != 0; }
 
-  void Set(bool new_value) {
-    this->counter_ = new_value ? 1 : 0;
-  }
+  void Set(bool new_value) { this->counter_ = new_value ? 1 : 0; }
 
   bool GetAndSet(bool new_value) {
     int u = new_value ? 1 : 0;
@@ -265,9 +234,6 @@ class AtomicBoolean{
   volatile int counter_;
 };
 
-
 }  // namespace tubemq
 
-
 #endif  // TUBEMQ_CLIENT_ATOMIC_DEF_H_
-

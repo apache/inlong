@@ -21,17 +21,17 @@
 #define TUBEMQ_CLIENT_META_INFO_H_
 
 #include <stdint.h>
+
 #include <list>
 #include <string>
-#include "flowctrl_def.h"
 
+#include "flowctrl_def.h"
 
 namespace tubemq {
 
 using std::list;
 using std::map;
 using std::string;
-
 
 class NodeInfo {
  public:
@@ -41,8 +41,8 @@ class NodeInfo {
   NodeInfo(int32_t node_id, const string& node_host, uint32_t node_port);
   ~NodeInfo();
   NodeInfo& operator=(const NodeInfo& target);
-  bool operator== (const NodeInfo& target);
-  bool operator< (const NodeInfo& target) const;
+  bool operator==(const NodeInfo& target);
+  bool operator<(const NodeInfo& target) const;
   const uint32_t GetNodeId() const;
   const string& GetHost() const;
   const uint32_t GetPort() const;
@@ -54,14 +54,13 @@ class NodeInfo {
 
  private:
   uint32_t node_id_;
-  string   node_host_;
+  string node_host_;
   uint32_t node_port_;
   // ip:port
-  string  addr_info_;
+  string addr_info_;
   // id:ip:port
-  string  node_info_;
+  string node_info_;
 };
-
 
 class Partition {
  public:
@@ -71,7 +70,7 @@ class Partition {
   Partition(const NodeInfo& broker_info, const string& topic, uint32_t partition_id);
   ~Partition();
   Partition& operator=(const Partition& target);
-  bool operator== (const Partition& target);
+  bool operator==(const Partition& target);
   const uint32_t GetBrokerId() const;
   const string& GetBrokerHost() const;
   const uint32_t GetBrokerPort() const;
@@ -85,13 +84,12 @@ class Partition {
   void buildPartitionKey();
 
  private:
-  string   topic_;
+  string topic_;
   NodeInfo broker_info_;
   uint32_t partition_id_;
-  string   partition_key_;
-  string   partition_info_;
+  string partition_key_;
+  string partition_info_;
 };
-
 
 class SubscribeInfo {
  public:
@@ -112,23 +110,22 @@ class SubscribeInfo {
   void buildSubInfo();
 
  private:
-  string    consumer_id_;
-  string    group_;
+  string consumer_id_;
+  string group_;
   Partition partition_;
-  string    sub_info_;
+  string sub_info_;
 };
-
 
 class ConsumerEvent {
  public:
   ConsumerEvent();
   ConsumerEvent(const ConsumerEvent& target);
   ConsumerEvent(int64_t rebalance_id, int32_t event_type,
-    const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status);
+                const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status);
   ConsumerEvent& operator=(const ConsumerEvent& target);
   const int64_t GetRebalanceId() const;
   const int32_t GetEventType() const;
-  const int32_t  GetEventStatus() const;
+  const int32_t GetEventStatus() const;
   void SetEventType(int32_t event_type);
   void SetEventStatus(int32_t event_status);
   const list<SubscribeInfo>& GetSubscribeInfoList() const;
@@ -142,12 +139,10 @@ class ConsumerEvent {
 };
 
 class PartitionExt : public Partition {
+ public:
   PartitionExt();
-  
-
 };
 
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_META_INFO_H_
-

@@ -22,17 +22,15 @@
 
 #include <stdint.h>
 #include <stdio.h>
+
 #include <list>
 #include <map>
 #include <string>
-
 
 namespace tubemq {
 
 using std::map;
 using std::string;
-
-
 
 class Message {
  public:
@@ -66,13 +64,11 @@ class Message {
   string topic_;
   char* data_;
   uint32_t datalen_;
-  int64_t  message_id_;
-  int32_t  flag_;
+  int64_t message_id_;
+  int32_t flag_;
   map<string, string> properties_;
 };
 
 }  // namespace tubemq
 
-
 #endif  // TUBEMQ_CLIENT_MESSAGE_H_
-

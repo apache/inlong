@@ -31,4 +31,3 @@ static const string kTubeMQClientVersion = "0.1.0-0.5.0";
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_VERSION_H_
-
