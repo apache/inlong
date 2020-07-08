@@ -18,11 +18,13 @@
  */
 
 #include "logger.h"
+
 #include <log4cplus/fileappender.h>
 #include <log4cplus/layout.h>
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 #include <stdarg.h>
+
 #include <string>
 
 namespace tubemq {
@@ -31,7 +33,10 @@ Logger tubemq_logger;
 
 Logger& GetLogger() { return tubemq_logger; }
 
-bool Logger::Init(const std::string& path, Logger::Level level, uint32_t file_max_size, uint32_t file_num) {
+static const uint32_t kMBSize = 1024 * 1024;
+
+bool Logger::Init(const std::string& path, Logger::Level level, uint32_t file_max_size,
+                  uint32_t file_num) {
   base_path_ = path;
   file_max_size_ = file_max_size;
   file_num_ = file_num;
@@ -64,7 +69,8 @@ void Logger::setup() {
   auto logger_d = log4cplus::Logger::getInstance(instance_);
   logger_d.setLogLevel(log4cplus::TRACE_LOG_LEVEL);
   log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> append_d(
-      new log4cplus::RollingFileAppender(base_path_ + ".log", file_max_size_, file_num_, immediate_fush));
+      new log4cplus::RollingFileAppender(base_path_ + ".log", file_max_size_ * kMBSize, file_num_,
+                                         immediate_fush));
   std::unique_ptr<log4cplus::Layout> layout_d(new log4cplus::PatternLayout(pattern));
   append_d->setLayout(std::move(layout_d));
   logger_d.addAppender(append_d);

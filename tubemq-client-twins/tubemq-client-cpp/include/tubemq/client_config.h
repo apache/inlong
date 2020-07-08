@@ -22,20 +22,17 @@
 
 #include <stdint.h>
 #include <stdio.h>
+
 #include <map>
 #include <set>
 #include <string>
 
-
 namespace tubemq {
-
 
 using std::map;
 using std::set;
 using std::string;
 using std::vector;
-
-
 
 class BaseConfig {
  public:
@@ -43,10 +40,10 @@ class BaseConfig {
   ~BaseConfig();
   BaseConfig& operator=(const BaseConfig& target);
   bool SetMasterAddrInfo(string& err_info, const string& master_addrinfo);
-  bool SetTlsInfo(string& err_info, bool tls_enable,
-                    const string& trust_store_path, const string& trust_store_password);
-  bool SetAuthenticInfo(string& err_info, bool authentic_enable,
-                              const string& usr_name, const string& usr_password);
+  bool SetTlsInfo(string& err_info, bool tls_enable, const string& trust_store_path,
+                  const string& trust_store_password);
+  bool SetAuthenticInfo(string& err_info, bool authentic_enable, const string& usr_name,
+                        const string& usr_password);
   const string& GetMasterAddrInfo() const;
   bool IsTlsEnabled();
   const string& GetTrustStorePath() const;
@@ -69,11 +66,11 @@ class BaseConfig {
  private:
   string master_addrinfo_;
   // user authenticate
-  bool   auth_enable_;
+  bool auth_enable_;
   string auth_usrname_;
   string auth_usrpassword_;
   // TLS configuration
-  bool   tls_enabled_;
+  bool tls_enabled_;
   string tls_trust_store_path_;
   string tls_trust_store_password_;
   // other setting
@@ -83,28 +80,25 @@ class BaseConfig {
   int32_t heartbeat_period_afterfail_sec_;
 };
 
-
 enum ConsumePosition {
   kConsumeFromFirstOffset = -1,
   kConsumeFromLatestOffset = 0,
   kComsumeFromMaxOffsetAlways = 1
 };  // enum ConsumePosition
 
-
-
 class ConsumerConfig : public BaseConfig {
  public:
   ConsumerConfig();
   ~ConsumerConfig();
   ConsumerConfig& operator=(const ConsumerConfig& target);
-  bool SetGroupConsumeTarget(string& err_info,
-    const string& group_name, const set<string>& subscribed_topicset);
-  bool SetGroupConsumeTarget(string& err_info,
-    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map);
-  bool SetGroupConsumeTarget(string& err_info,
-    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
-    const string& session_key, uint32_t source_count, bool is_select_big,
-    const map<string, int64_t>& part_offset_map);
+  bool SetGroupConsumeTarget(string& err_info, const string& group_name,
+                             const set<string>& subscribed_topicset);
+  bool SetGroupConsumeTarget(string& err_info, const string& group_name,
+                             const map<string, set<string> >& subscribed_topic_and_filter_map);
+  bool SetGroupConsumeTarget(string& err_info, const string& group_name,
+                             const map<string, set<string> >& subscribed_topic_and_filter_map,
+                             const string& session_key, uint32_t source_count, bool is_select_big,
+                             const map<string, int64_t>& part_offset_map);
   const string& GetGroupName() const;
   const map<string, set<string> >& GetSubTopicAndFilterMap() const;
   void SetConsumePosition(ConsumePosition consume_from_where);
@@ -126,10 +120,10 @@ class ConsumerConfig : public BaseConfig {
   string ToString();
 
  private:
-  bool setGroupConsumeTarget(string& err_info, bool is_bound_consume,
-    const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
-    const string& session_key, int32_t source_count, bool is_select_big,
-    const map<string, int64_t>& part_offset_map);
+  bool setGroupConsumeTarget(string& err_info, bool is_bound_consume, const string& group_name,
+                             const map<string, set<string> >& subscribed_topic_and_filter_map,
+                             const string& session_key, int32_t source_count, bool is_select_big,
+                             const map<string, int64_t>& part_offset_map);
 
  private:
   string group_name_;
@@ -149,24 +143,6 @@ class ConsumerConfig : public BaseConfig {
   int32_t shutdown_reb_wait_period_ms_;
 };
 
-
-
-
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_CONFIGURE_H_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

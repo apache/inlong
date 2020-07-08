@@ -21,17 +21,16 @@
 #define TUBEMQ_CLIENT_UTILS_H_
 
 #include <stdint.h>
+
 #include <map>
 #include <string>
 #include <vector>
-
 
 namespace tubemq {
 
 using std::map;
 using std::string;
 using std::vector;
-
 
 class Utils {
  public:
@@ -40,15 +39,14 @@ class Utils {
   // split string to vector
   static void Split(const string& source, vector<string>& result, const string& delimiter);
   // split string to map<string, int>
-  static void Split(const string& source, map<string, int>& result,
-                   const string& delimiter_step1, const string& delimiter_step2);
+  static void Split(const string& source, map<string, int>& result, const string& delimiter_step1,
+                    const string& delimiter_step2);
   static void Join(const vector<string>& vec, const string& delimiter, string& target);
-  static bool ValidString(string& err_info, const string& source,
-                   bool allow_empty, bool pat_match, bool check_max_length, unsigned int maxlen);
-  static bool ValidGroupName(string &err_info,
-                   const string& group_name, string& tgt_group_name);
-  static bool ValidFilterItem(string& err_info,
-                   const string& src_filteritem, string& tgt_filteritem);
+  static bool ValidString(string& err_info, const string& source, bool allow_empty, bool pat_match,
+                          bool check_max_length, unsigned int maxlen);
+  static bool ValidGroupName(string& err_info, const string& group_name, string& tgt_group_name);
+  static bool ValidFilterItem(string& err_info, const string& src_filteritem,
+                              string& tgt_filteritem);
   static string Int2str(int32_t data);
   static string Long2str(int64_t data);
   static uint32_t IpToInt(const string& ipv4_addr);
@@ -58,4 +56,3 @@ class Utils {
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_UTILS_H_
-

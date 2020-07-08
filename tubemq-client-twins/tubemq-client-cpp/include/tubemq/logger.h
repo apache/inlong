@@ -20,34 +20,41 @@
 #ifndef _TUBEMQ_LOG_FILE_
 #define _TUBEMQ_LOG_FILE_
 
+#include <stdint.h>
+
 #include <string>
 #include <vector>
-#include <stdint.h>
 
 namespace tubemq {
 class Logger;
 
 Logger& GetLogger();
 
-#define LOG_LEVEL(level, fmt, ...)                                                                          \
-  {                                                                                                         \
-    if (tubemq::GetLogger().IsEnable(level)) {                                                              \
-      tubemq::GetLogger().Write("[%s:%d][%s]" fmt, __func__, __LINE__, tubemq::Logger::Level2String(level), \
-                                ##__VA_ARGS__);                                                             \
-    }                                                                                                       \
+#define LOG_LEVEL(level, fmt, ...)                                                   \
+  {                                                                                  \
+    if (tubemq::GetLogger().IsEnable(level)) {                                       \
+      tubemq::GetLogger().Write("[%s:%d][%s]" fmt, __func__, __LINE__,               \
+                                tubemq::Logger::Level2String(level), ##__VA_ARGS__); \
+    }                                                                                \
   }
 
-#define LOG_TRACE(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kTrace, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kDebug, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kInfo, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kWarn, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kError, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) \
+  LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kTrace, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) \
+  LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kDebug, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) \
+  LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kInfo, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) \
+  LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kWarn, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) \
+  LOG_TUBEMQ(tubemq::GetLogger(), tubemq::Logger::kError, fmt, ##__VA_ARGS__)
 
-#define LOG_TUBEMQ(logger, level, fmt, ...)                                                                      \
-  {                                                                                                            \
-    if (logger.IsEnable(level)) {                                                                              \
-      logger.Write("[%s:%d][%s]" fmt, __func__, __LINE__, tubemq::Logger::Level2String(level), ##__VA_ARGS__); \
-    }                                                                                                          \
+#define LOG_TUBEMQ(logger, level, fmt, ...)                                                    \
+  {                                                                                            \
+    if (logger.IsEnable(level)) {                                                              \
+      logger.Write("[%s:%d][%s]" fmt, __func__, __LINE__, tubemq::Logger::Level2String(level), \
+                   ##__VA_ARGS__);                                                             \
+    }                                                                                          \
   }
 
 class Logger {
@@ -61,13 +68,21 @@ class Logger {
   };
 
   // size: MB
-  Logger() : file_max_size_(100), file_num_(10), level_(kError), base_path_("tubemq"), instance_("TubeMQ") { setup(); }
+  Logger()
+      : file_max_size_(100),
+        file_num_(10),
+        level_(kError),
+        base_path_("tubemq"),
+        instance_("TubeMQ") {
+    setup();
+  }
 
   ~Logger(void) {}
 
   // path example: ../log/tubemq
   // size: MB
-  bool Init(const std::string& path, Level level, uint32_t file_max_size = 100, uint32_t file_num = 10);
+  bool Init(const std::string& path, Level level, uint32_t file_max_size = 100,
+            uint32_t file_num = 10);
 
   bool Write(const char* sFormat, ...) __attribute__((format(printf, 2, 3)));
   inline bool WriteStream(const std::string& msg) { return writeStream(msg.c_str()); }
