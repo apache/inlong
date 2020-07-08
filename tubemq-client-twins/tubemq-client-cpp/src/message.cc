@@ -17,19 +17,19 @@
  * under the License.
  */
 
-#include <sstream> 
-#include <string.h> 
-
 #include "message.h"
-#include "utils.h"
+#include <string.h>
+#include <sstream>
 #include "const_config.h"
+#include "utils.h"
+
 
 
 namespace tubemq {
 
 
 // message flag's properties settings
-static const int kMsgFlagIncProperties = 0x01;
+static const int32_t kMsgFlagIncProperties = 0x01;
 // reserved property key Filter Item
 static const string kRsvPropKeyFilterItem = "$msgType$";
 // reserved property key message send time
@@ -53,7 +53,7 @@ Message::Message(const Message& target) {
   this->flag_       = target.flag_;
 }
 
-Message::Message(const string& topic, const char* data, int datalen) {
+Message::Message(const string& topic, const char* data, uint32_t datalen) {
   this->topic_      = topic;
   this->flag_       = 0;
   this->message_id_ = config::kInvalidValue;
@@ -66,7 +66,7 @@ Message::~Message() {
 }
 
 Message& Message::operator=(const Message& target) {
-  if (this == &target) 
+  if (this == &target)
     return *this;
   this->topic_      = target.topic_;
   this->message_id_ = target.message_id_;
@@ -77,11 +77,11 @@ Message& Message::operator=(const Message& target) {
   return *this;
 }
 
-const long Message::GetMessageId() const {
+const uint64_t Message::GetMessageId() const {
   return this->message_id_;
 }
 
-void Message::SetMessageId(long message_id) {
+void Message::SetMessageId(int64_t message_id) {
   this->message_id_ = message_id;
 }
 
@@ -97,20 +97,20 @@ const char* Message::GetData() const {
   return this->data_;
 }
 
-int Message::GetDataLength() const {
+uint32_t Message::GetDataLength() const {
   return this->datalen_;
 }
 
-void Message::setData(const char* data, int datalen) {
+void Message::setData(const char* data, uint32_t datalen) {
   clearData();
   copyData(data, datalen);
 }
 
-const int Message::GetFlag() const {
+const int32_t Message::GetFlag() const {
   return this->flag_;
 }
 
-void Message::SetFlag(int flag) {
+void Message::SetFlag(int32_t flag) {
   this->flag_ = flag;
 }
 
@@ -118,7 +118,7 @@ const map<string, string>& Message::GetProperties() const {
   return this->properties_;
 }
 
-int Message::GetProperties(string& attribute) {
+int32_t Message::GetProperties(string& attribute) {
   attribute.clear();
   map<string, string>::iterator it_map;
   for (it_map = this->properties_.begin(); it_map != this->properties_.end(); ++it_map) {
@@ -141,7 +141,7 @@ bool Message::HasProperty(const string& key) {
       return true;
     }
   }
-  return false;  
+  return false;
 }
 
 bool Message::GetProperty(const string& key, string& value) {
@@ -154,7 +154,7 @@ bool Message::GetProperty(const string& key, string& value) {
       return true;
     }
   }
-  return false;  
+  return false;
 }
 
 bool Message::GetFilterItem(string& value) {
@@ -168,7 +168,7 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = "Not allowed null value of parmeter key or value";
     return false;
   }
-  if ((string::npos != trimed_key.find(delimiter::kDelimiterComma)) 
+  if ((string::npos != trimed_key.find(delimiter::kDelimiterComma))
     ||(string::npos != trimed_key.find(delimiter::kDelimiterEqual))) {
     stringstream ss;
     ss << "Reserved token '";
@@ -179,7 +179,7 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if ((string::npos != trimed_value.find(delimiter::kDelimiterComma)) 
+  if ((string::npos != trimed_value.find(delimiter::kDelimiterComma))
     ||(string::npos != trimed_value.find(delimiter::kDelimiterEqual))) {
     stringstream ss;
     ss << "Reserved token '";
@@ -190,8 +190,8 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if (trimed_key == kRsvPropKeyFilterItem 
-    || trimed_key == kRsvPropKeyMsgTime) {
+  if (trimed_key == kRsvPropKeyFilterItem
+         || trimed_key == kRsvPropKeyMsgTime) {
     stringstream ss;
     ss << "Reserved token '";
     ss << kRsvPropKeyFilterItem;
@@ -218,7 +218,7 @@ void Message::clearData() {
   }
 }
 
-void Message::copyData(const char* data, int datalen) {
+void Message::copyData(const char* data, uint32_t datalen) {
   if (data == NULL) {
     this->data_ = NULL;
     this->datalen_ = 0;
@@ -242,7 +242,7 @@ void Message::copyProperties(const map<string, string>& properties) {
 }
 
 
-}
+}  // namespace tubemq
 
 
 

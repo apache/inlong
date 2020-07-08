@@ -16,26 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-      
-#ifndef _TUBEMQ_CLIENT_FILE_INI_H_
-#define _TUBEMQ_CLIENT_FILE_INI_H_
 
+#ifndef TUBEMQ_CLIENT_FILE_INI_H_
+#define TUBEMQ_CLIENT_FILE_INI_H_
+
+#include <stdint.h>
 #include <map>
 #include <string>
 
+
 namespace tubemq {
 
-using namespace std;
+using std::string;
+using std::map;
+
 
 class Fileini {
  public:
   Fileini();
   ~Fileini();
   bool Loadini(string& err_info, const string& file_name);
-  bool GetValue(string& err_info, const string& sector, 
+  bool GetValue(string& err_info, const string& sector,
                    const string& key, string& value, const string& def);
-  bool GetValue(string& err_info, const string& sector, 
-                   const string& key, int& value, const int def);  
+  bool GetValue(string& err_info, const string& sector,
+                   const string& key, int32_t& value, const int32_t def);
 
  private:
   bool init_flag_;
@@ -43,8 +47,7 @@ class Fileini {
   map<string, map<string, string> > ini_map_;
 };
 
-  
-}
+}  // namespace tubemq
 
-#endif
+#endif  // TUBEMQ_CLIENT_FILE_INI_H_
 

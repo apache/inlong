@@ -20,8 +20,8 @@
 #ifndef _TUBEMQ_SINGLETON_H
 #define _TUBEMQ_SINGLETON_H
 
-#include <thread>
 #include <mutex>
+#include <thread>
 #include <assert.h>
 #include <stdlib.h>
 

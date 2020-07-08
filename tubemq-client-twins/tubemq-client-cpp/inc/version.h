@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-      
-#ifndef _TUBEMQ_CLIENT_VERSION_H_
-#define _TUBEMQ_CLIENT_VERSION_H_
+
+#ifndef TUBEMQ_CLIENT_VERSION_H_
+#define TUBEMQ_CLIENT_VERSION_H_
 
 #include <string>
 
 namespace tubemq {
 
-using namespace std;
+using std::string;
 
-static const String kTubeMQClientVersion = "0.1.0-0.5.0";
+static const string kTubeMQClientVersion = "0.1.0-0.5.0";
 
-}
+}  // namespace tubemq
 
-#endif
+#endif  // TUBEMQ_CLIENT_VERSION_H_
 

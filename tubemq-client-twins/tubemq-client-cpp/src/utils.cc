@@ -17,14 +17,14 @@
  * under the License.
  */
 
+#include "utils.h"
+#include <sstream>
 #include <vector>
-#include <sstream> 
+#include "const_config.h"
 #include <regex.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/time.h>
-#include "utils.h"
-#include "const_config.h"
+#include <unistd.h>
 
 
 namespace tubemq {
@@ -48,21 +48,21 @@ string Utils::Trim(const string& source) {
 
 void Utils::Split(const string& source, vector<string>& result, const string& delimiter) {
   string item_str;
-  string::size_type pos1,pos2;
+  string::size_type pos1 = 0;
+  string::size_type pos2 = 0;
   result.clear();
   if (!source.empty()) {
     pos1 = 0;
     pos2 = source.find(delimiter);
     while (string::npos != pos2) {
-      item_str = Utils::Trim(source.substr(pos1, pos2-pos1));
+      item_str = Utils::Trim(source.substr(pos1, pos2 - pos1));
       pos1 = pos2 + delimiter.size();
       pos2 = source.find(delimiter, pos1);
       if (!item_str.empty()) {
         result.push_back(item_str);
       }
     }
-    if (pos1 != source.length())
-    {
+    if (pos1 != source.length()) {
       item_str = Utils::Trim(source.substr(pos1));
       if (!item_str.empty()) {
         result.push_back(item_str);
@@ -72,12 +72,14 @@ void Utils::Split(const string& source, vector<string>& result, const string& de
 }
 
 
-void Utils::Split(const string& source, map<string, int>& result, 
+void Utils::Split(const string& source, map<string, int>& result,
                 const string& delimiter_step1, const string& delimiter_step2) {
   string item_str;
   string key_str;
   string val_str;
-  string::size_type pos1,pos2,pos3;
+  string::size_type pos1 = 0;
+  string::size_type pos2 = 0;
+  string::size_type pos3 = 0;
   if (!source.empty()) {
     pos1 = 0;
     pos2 = source.find(delimiter_step1);
@@ -111,7 +113,7 @@ void Utils::Split(const string& source, map<string, int>& result,
         val_str = item_str.substr(pos3+delimiter_step2.length());
         key_str = Utils::Trim(key_str);
         val_str = Utils::Trim(val_str);
-        if (!key_str.empty()){
+        if (!key_str.empty()) {
           result[key_str] = atoi(val_str.c_str());
         }
       }
@@ -130,8 +132,8 @@ void Utils::Join(const vector<string>& vec, const string& delimiter, string& tar
   }
 }
 
-bool Utils::ValidString(string& err_info, const string& source, 
-                bool allow_empty, bool pat_match, bool check_max_length, 
+bool Utils::ValidString(string& err_info, const string& source,
+                bool allow_empty, bool pat_match, bool check_max_length,
                 unsigned int maxlen) {
   if (source.empty()) {
     if (allow_empty) {
@@ -153,11 +155,11 @@ bool Utils::ValidString(string& err_info, const string& source,
   }
 
   if (pat_match) {
-    int cflags =REG_EXTENDED;     
-    regex_t reg;    
+    int cflags = REG_EXTENDED;
+    regex_t reg;
     regmatch_t pmatch[1];
-    const char* patRule = "^[a-zA-Z]\\w+$";  
-    regcomp(&reg, patRule,cflags);
+    const char* patRule = "^[a-zA-Z]\\w+$";
+    regcomp(&reg, patRule, cflags);
     int status = regexec(&reg, source.c_str(), 1, pmatch, 0);
     regfree(&reg);
     if (status == REG_NOMATCH) {
@@ -169,10 +171,10 @@ bool Utils::ValidString(string& err_info, const string& source,
     }
   }
   err_info = "Ok";
-  return true;        
+  return true;
 }
 
-bool Utils::ValidGroupName(string& err_info, 
+bool Utils::ValidGroupName(string& err_info,
                 const string& group_name, string& tgt_group_name) {
   tgt_group_name = Utils::Trim(group_name);
   if (tgt_group_name.empty()) {
@@ -188,11 +190,11 @@ bool Utils::ValidGroupName(string& err_info,
     err_info = ss.str();
     return false;
   }
-  int cflags =REG_EXTENDED;     
-  regex_t reg;    
+  int cflags = REG_EXTENDED;
+  regex_t reg;
   regmatch_t pmatch[1];
-  const char* patRule = "^[a-zA-Z][\\w-]+$"; 
-  regcomp(&reg, patRule,cflags);
+  const char* patRule = "^[a-zA-Z][\\w-]+$";
+  regcomp(&reg, patRule, cflags);
   int status = regexec(&reg, tgt_group_name.c_str(), 1, pmatch, 0);
   regfree(&reg);
   if (status == REG_NOMATCH) {
@@ -205,10 +207,10 @@ bool Utils::ValidGroupName(string& err_info,
     return false;
   }
   err_info = "Ok";
-  return true;        
+  return true;
 }
 
-bool Utils::ValidFilterItem(string& err_info, 
+bool Utils::ValidFilterItem(string& err_info,
                 const string& src_filteritem, string& tgt_filteritem) {
   tgt_filteritem = Utils::Trim(src_filteritem);
   if (tgt_filteritem.empty()) {
@@ -223,11 +225,11 @@ bool Utils::ValidFilterItem(string& err_info,
     err_info = ss.str();
     return false;
   }
-  int cflags =REG_EXTENDED;    
-  regex_t reg;    
+  int cflags = REG_EXTENDED;
+  regex_t reg;
   regmatch_t pmatch[1];
-  const char* patRule = "^[_A-Za-z0-9]+$";  
-  regcomp(&reg, patRule,cflags);
+  const char* patRule = "^[_A-Za-z0-9]+$";
+  regcomp(&reg, patRule, cflags);
   int status = regexec(&reg, tgt_filteritem.c_str(), 1, pmatch, 0);
   regfree(&reg);
   if (status == REG_NOMATCH) {
@@ -235,24 +237,23 @@ bool Utils::ValidFilterItem(string& err_info,
     return false;
   }
   err_info = "Ok";
-  return true;      
+  return true;
 }
 
-
-string Utils::Int2str(int data) {
+string Utils::Int2str(int32_t data) {
   stringstream ss;
-  ss<<data;
+  ss << data;
   return ss.str();
 }
 
-string Utils::Long2str(long data) {
+string Utils::Long2str(int64_t data) {
   stringstream ss;
-  ss<<data;
+  ss << data;
   return ss.str();
 }
 
-int Utils::IpToInt(const string& ipv4_addr) {
-  int result = 0;
+uint32_t Utils::IpToInt(const string& ipv4_addr) {
+  uint32_t result = 0;
   vector<string> result_vec;
 
   Utils::Split(ipv4_addr, result_vec, delimiter::kDelimiterDot);
@@ -263,13 +264,13 @@ int Utils::IpToInt(const string& ipv4_addr) {
   return result;
 }
 
-long Utils::GetCurrentTimeMillis() {
+int64_t Utils::GetCurrentTimeMillis() {
   struct timeval tv;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv, NULL);
   return tv.tv_sec * 1000 + tv.tv_usec /1000;
 }
 
 
 
-}
+}  // namespace tubemq
 

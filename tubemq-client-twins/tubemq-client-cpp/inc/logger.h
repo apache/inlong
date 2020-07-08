@@ -52,8 +52,7 @@ Logger& GetLogger();
 
 class Logger {
  public:
-  enum Level
-  {
+  enum Level {
     kTrace = 0,
     kDebug = 1,
     kInfo = 2,

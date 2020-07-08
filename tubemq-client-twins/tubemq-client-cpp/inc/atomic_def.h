@@ -17,11 +17,10 @@
  * under the License.
  */
 
-#ifndef _TUBEMQ_CLIENT_ATOMIC_DEF_H_
-#define _TUBEMQ_CLIENT_ATOMIC_DEF_H_
+#ifndef TUBEMQ_CLIENT_ATOMIC_DEF_H_
+#define TUBEMQ_CLIENT_ATOMIC_DEF_H_
 
 #include <stdlib.h>
-
 
 
 namespace tubemq {
@@ -30,10 +29,10 @@ using namespace std;
 
 class AtomicInteger {
  public:
-  AtomicInteger(){
+  AtomicInteger() {
     this->counter_ = 0;
   }
-            
+
   AtomicInteger(int initial_value) {
     this->counter_ = initial_value;
   }
@@ -69,7 +68,7 @@ class AtomicInteger {
       int next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
-      }  
+      }
     }
   }
 
@@ -79,7 +78,7 @@ class AtomicInteger {
       int next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
-      }  
+      }
     }
   }
 
@@ -89,7 +88,7 @@ class AtomicInteger {
       int next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
-      }  
+      }
     }
   }
 
@@ -117,12 +116,12 @@ class AtomicInteger {
     for ( ; ; ) {
       int current = this->counter_;
       int next = current + delta;
-      if (__sync_bool_compare_and_swap (&this->counter_, current, next)) {
+      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
   }
-            
+
  private:
   volatile int counter_;
 };
@@ -217,7 +216,7 @@ class AtomicLong {
     for ( ; ; ) {
       long current = this->counter_;
       long next = current + delta;
-      if (__sync_bool_compare_and_swap (&this->counter_, current, next)) {
+      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
@@ -267,11 +266,8 @@ class AtomicBoolean{
 };
 
 
+}  // namespace tubemq
 
 
-
-}
-
-
-#endif
+#endif  // TUBEMQ_CLIENT_ATOMIC_DEF_H_
 

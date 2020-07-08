@@ -16,20 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-#ifndef _TUBEMQ_CLIENT_CONFIGURE_H_
-#define _TUBEMQ_CLIENT_CONFIGURE_H_
 
-#include <string>
+#ifndef TUBEMQ_CLIENT_CONFIGURE_H_
+#define TUBEMQ_CLIENT_CONFIGURE_H_
+
+#include <stdint.h>
 #include <stdio.h>
 #include <map>
 #include <set>
-
+#include <string>
 
 
 namespace tubemq {
 
-using namespace std;
+
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
+
 
 
 class BaseConfig {
@@ -38,27 +43,27 @@ class BaseConfig {
   ~BaseConfig();
   BaseConfig& operator=(const BaseConfig& target);
   bool SetMasterAddrInfo(string& err_info, const string& master_addrinfo);
-  bool SetTlsInfo(string& err_info, bool tls_enable, 
+  bool SetTlsInfo(string& err_info, bool tls_enable,
                     const string& trust_store_path, const string& trust_store_password);
-  bool SetAuthenticInfo(string& err_info, bool authentic_enable, 
-                            const string& usr_name, const string& usr_password);
+  bool SetAuthenticInfo(string& err_info, bool authentic_enable,
+                              const string& usr_name, const string& usr_password);
   const string& GetMasterAddrInfo() const;
   bool IsTlsEnabled();
   const string& GetTrustStorePath() const;
   const string& GetTrustStorePassword() const;
   bool IsAuthenticEnabled();
   const string& GetUsrName() const;
-  const string& GetUsrPassWord() const;            
+  const string& GetUsrPassWord() const;
   // set the rpc timout, unit second, duration [8, 300], default 15 seconds;
-  void SetRpcReadTimeoutSec(int rpc_read_timeout_sec);
-  int GetRpcReadTimeoutSec();
+  void SetRpcReadTimeoutSec(int32_t rpc_read_timeout_sec);
+  int32_t GetRpcReadTimeoutSec();
   // Set the duration of the client's heartbeat cycle, in seconds, the default is 10 seconds
-  void SetHeartbeatPeriodSec(int heartbeat_period_sec);
-  int GetHeartbeatPeriodSec();
-  void SetMaxHeartBeatRetryTimes(int max_heartbeat_retry_times);
-  int GetMaxHeartBeatRetryTimes();
-  void SetHeartbeatPeriodAftFailSec(int heartbeat_period_afterfail_sec);
-  int GetHeartbeatPeriodAftFailSec();
+  void SetHeartbeatPeriodSec(int32_t heartbeat_period_sec);
+  int32_t GetHeartbeatPeriodSec();
+  void SetMaxHeartBeatRetryTimes(int32_t max_heartbeat_retry_times);
+  int32_t GetMaxHeartBeatRetryTimes();
+  void SetHeartbeatPeriodAftFailSec(int32_t heartbeat_period_afterfail_sec);
+  int32_t GetHeartbeatPeriodAftFailSec();
   string ToString();
 
  private:
@@ -72,10 +77,10 @@ class BaseConfig {
   string tls_trust_store_path_;
   string tls_trust_store_password_;
   // other setting
-  int   rpc_read_timeout_sec_;
-  int   heartbeat_period_sec_;
-  int   max_heartbeat_retry_times_;
-  int   heartbeat_period_afterfail_sec_;
+  int32_t rpc_read_timeout_sec_;
+  int32_t heartbeat_period_sec_;
+  int32_t max_heartbeat_retry_times_;
+  int32_t heartbeat_period_afterfail_sec_;
 };
 
 
@@ -83,72 +88,73 @@ enum ConsumePosition {
   kConsumeFromFirstOffset = -1,
   kConsumeFromLatestOffset = 0,
   kComsumeFromMaxOffsetAlways = 1
-};
+};  // enum ConsumePosition
 
 
 
 class ConsumerConfig : public BaseConfig {
- public: 
+ public:
   ConsumerConfig();
   ~ConsumerConfig();
-  ConsumerConfig& operator=(const ConsumerConfig& target); 
-  bool SetGroupConsumeTarget(string& err_info, 
+  ConsumerConfig& operator=(const ConsumerConfig& target);
+  bool SetGroupConsumeTarget(string& err_info,
     const string& group_name, const set<string>& subscribed_topicset);
-  bool SetGroupConsumeTarget(string& err_info, 
+  bool SetGroupConsumeTarget(string& err_info,
     const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map);
-  bool SetGroupConsumeTarget(string& err_info, 
+  bool SetGroupConsumeTarget(string& err_info,
     const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
-    const string& session_key, int source_count, bool is_select_big, const map<string, long>& part_offset_map);
+    const string& session_key, uint32_t source_count, bool is_select_big,
+    const map<string, int64_t>& part_offset_map);
   const string& GetGroupName() const;
   const map<string, set<string> >& GetSubTopicAndFilterMap() const;
   void SetConsumePosition(ConsumePosition consume_from_where);
   const ConsumePosition GetConsumePosition() const;
-  const int GetMsgNotFoundWaitPeriodMs() const;
+  const int32_t GetMsgNotFoundWaitPeriodMs() const;
   void SetMsgNotFoundWaitPeriodMs(int msg_notfound_wait_period_ms);
-  const int GetMaxSubinfoReportIntvl() const;
-  void SetMaxSubinfoReportIntvl(int max_subinfo_report_intvl);
+  const int32_t GetMaxSubinfoReportIntvl() const;
+  void SetMaxSubinfoReportIntvl(int32_t max_subinfo_report_intvl);
   bool IsConfirmInLocal();
   void SetConfirmInLocal(bool confirm_in_local);
   bool IsRollbackIfConfirmTimeout();
   void setRollbackIfConfirmTimeout(bool is_rollback_if_confirm_timeout);
-  const int GetWaitPeriodIfConfirmWaitRebalanceMs() const;
-  void SetWaitPeriodIfConfirmWaitRebalanceMs(int reb_confirm_wait_period_ms);
-  const int GetMaxConfirmWaitPeriodMs() const;
-  void SetMaxConfirmWaitPeriodMs(int max_confirm_wait_period_ms);
-  const int GetShutdownRebWaitPeriodMs() const;
-  void SetShutdownRebWaitPeriodMs(int wait_period_when_shutdown_ms);
+  const int32_t GetWaitPeriodIfConfirmWaitRebalanceMs() const;
+  void SetWaitPeriodIfConfirmWaitRebalanceMs(int32_t reb_confirm_wait_period_ms);
+  const int32_t GetMaxConfirmWaitPeriodMs() const;
+  void SetMaxConfirmWaitPeriodMs(int32_t max_confirm_wait_period_ms);
+  const int32_t GetShutdownRebWaitPeriodMs() const;
+  void SetShutdownRebWaitPeriodMs(int32_t wait_period_when_shutdown_ms);
   string ToString();
 
  private:
   bool setGroupConsumeTarget(string& err_info, bool is_bound_consume,
     const string& group_name, const map<string, set<string> >& subscribed_topic_and_filter_map,
-    const string& session_key, int source_count, bool is_select_big, const map<string, long>& part_offset_map);
-    
-  
- private: 
+    const string& session_key, int32_t source_count, bool is_select_big,
+    const map<string, int64_t>& part_offset_map);
+
+ private:
   string group_name_;
   map<string, set<string> > sub_topic_and_filter_map_;
   bool is_bound_consume_;
   string session_key_;
-  int source_count_;
+  uint32_t source_count_;
   bool is_select_big_;
-  map<string, long> part_offset_map_;
+  map<string, int64_t> part_offset_map_;
   ConsumePosition consume_position_;
-  int max_subinfo_report_intvl_;
-  int msg_notfound_wait_period_ms_;
+  int32_t max_subinfo_report_intvl_;
+  int32_t msg_notfound_wait_period_ms_;
   bool is_confirm_in_local_;
   bool is_rollback_if_confirm_timout_;
-  int reb_confirm_wait_period_ms_;
-  int max_confirm_wait_period_ms_;
-  int shutdown_reb_wait_period_ms_;
+  int32_t reb_confirm_wait_period_ms_;
+  int32_t max_confirm_wait_period_ms_;
+  int32_t shutdown_reb_wait_period_ms_;
 };
 
 
 
 
-}
+}  // namespace tubemq
 
-#endif
+#endif  // TUBEMQ_CLIENT_CONFIGURE_H_
 
 
 
