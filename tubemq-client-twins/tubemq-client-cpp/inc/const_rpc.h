@@ -16,68 +16,73 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-      
-#ifndef _TUBEMQ_CLIENT_CONST_RPC_H_
-#define _TUBEMQ_CLIENT_CONST_RPC_H_
+
+#ifndef TUBEMQ_CLIENT_CONST_RPC_H_
+#define TUBEMQ_CLIENT_CONST_RPC_H_
 
 namespace tubemq {
 
-using namespace std;
+#include <stdint.h>
 
 
 namespace rpc_config {
 
   // constant define
-  static const int kRpcPrtBeginToken    = 0xFF7FF4FE;
-  static const int kRpcMaxBufferSize    = 8192;
-  static const int kRpcMaxFrameListCnt  = (int) ((1024 * 1024 * 8) / kRpcMaxBufferSize);
+  static const uint32_t kRpcPrtBeginToken    = 0xFF7FF4FE;
+  static const uint32_t kRpcMaxBufferSize    = 8192;
+  static const uint32_t kRpcMaxFrameListCnt  = (uint32_t) ((1024 * 1024 * 8) / kRpcMaxBufferSize);
+
   // rpc protocol version
-  static const int kRpcProtocolVersion  = 2;
+  static const uint32_t kRpcProtocolVersion  = 2;
+
   // msg type flag
-  static const int kRpcFlagMsgRequest   = 0x0;
-  static const int kRpcFlagMsgResponse  = 0x1;
+  static const int32_t  kRpcFlagMsgRequest   = 0x0;
+  static const int32_t  kRpcFlagMsgResponse  = 0x1;
+
   // service type
-  static const int kMasterService      = 1;
-  static const int kBrokerReadService  = 2;
-  static const int kBrokerWriteService = 3;
-  static const int kBrokerAdminService = 4;
-  static const int kMasterAdminService = 5;
+  static const int32_t kMasterService      = 1;
+  static const int32_t kBrokerReadService  = 2;
+  static const int32_t kBrokerWriteService = 3;
+  static const int32_t kBrokerAdminService = 4;
+  static const int32_t kMasterAdminService = 5;
+
   // request method
   // master rpc method
-  static const int kMasterMethoddProducerRegister = 1;
-  static const int kMasterMethoddProducerHeatbeat = 2;
-  static const int kMasterMethoddProducerClose    = 3;
-  static const int kMasterMethoddConsumerRegister = 4;
-  static const int kMasterMethoddConsumerHeatbeat = 5;
-  static const int kMasterMethoddConsumerClose    = 6;
+  static const int32_t kMasterMethoddProducerRegister = 1;
+  static const int32_t kMasterMethoddProducerHeatbeat = 2;
+  static const int32_t kMasterMethoddProducerClose    = 3;
+  static const int32_t kMasterMethoddConsumerRegister = 4;
+  static const int32_t kMasterMethoddConsumerHeatbeat = 5;
+  static const int32_t kMasterMethoddConsumerClose    = 6;
+
   // broker rpc method
-  static const int kBrokerMethoddProducerRegister    = 11;
-  static const int kBrokerMethoddProducerHeatbeat    = 12;
-  static const int kBrokerMethoddProducerSendMsg     = 13;
-  static const int kBrokerMethoddProducerClose       = 14;
-  static const int kBrokerMethoddConsumerRegister    = 15;
-  static const int kBrokerMethoddConsumerHeatbeat    = 16;
-  static const int kBrokerMethoddConsumerGetMsg      = 17;
-  static const int kBrokerMethoddConsumerCommit      = 18;  
-  static const int kBrokerMethoddConsumerClose       = 19; 
+  static const int32_t kBrokerMethoddProducerRegister    = 11;
+  static const int32_t kBrokerMethoddProducerHeatbeat    = 12;
+  static const int32_t kBrokerMethoddProducerSendMsg     = 13;
+  static const int32_t kBrokerMethoddProducerClose       = 14;
+  static const int32_t kBrokerMethoddConsumerRegister    = 15;
+  static const int32_t kBrokerMethoddConsumerHeatbeat    = 16;
+  static const int32_t kBrokerMethoddConsumerGetMsg      = 17;
+  static const int32_t kBrokerMethoddConsumerCommit      = 18;
+  static const int32_t kBrokerMethoddConsumerClose       = 19;
 
   // register operate type
-  static const int kRegOpTypeRegister       = 31; 
-  static const int kRegOpTypeUnReg          = 32; 
+  static const int32_t kRegOpTypeRegister       = 31;
+  static const int32_t kRegOpTypeUnReg          = 32;
 
   // rpc connect node timeout
-  static const int kRpcConnectTimeoutMs    = 3000;
-  
-  // rpc timeout define  
-  static const int kRpcTimoutDefSec = 15;
-  static const int kRpcTimoutMaxSec = 300;
-  static const int kRpcTimoutMinSec = 8;
+  static const int32_t kRpcConnectTimeoutMs    = 3000;
+
+  // rpc timeout define
+  static const int32_t kRpcTimoutDefSec = 15;
+  static const int32_t kRpcTimoutMaxSec = 300;
+  static const int32_t kRpcTimoutMinSec = 8;
 
 
-}
+}  // namespace rpc_config
 
 
-}
+}  // namespace tubemq
 
-#endif
+#endif  // TUBEMQ_CLIENT_CONST_RPC_H_
 

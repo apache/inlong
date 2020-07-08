@@ -17,108 +17,113 @@
  * under the License.
  */
 
-#ifndef _TUBEMQ_CLIENT_FLOW_CONTROL_H_
-#define _TUBEMQ_CLIENT_FLOW_CONTROL_H_
+#ifndef TUBEMQ_CLIENT_FLOW_CONTROL_H_
+#define TUBEMQ_CLIENT_FLOW_CONTROL_H_
 
-#include <map>
+#include <stdint.h>
+#include <algorithm>
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <rapidjson/document.h>
 #include "atomic_def.h"
+#include <rapidjson/document.h>
 
 
 
 namespace tubemq {
 
-using namespace std;
+
+using std::map;
+using std::string;
+using std::vector;
+
 
 class FlowCtrlResult {
  public:
   FlowCtrlResult();
-  FlowCtrlResult(long datasize_limit, int freqms_limit);
+  FlowCtrlResult(int64_t datasize_limit, int32_t freqms_limit);
   FlowCtrlResult& operator=(const FlowCtrlResult& target);
-  void SetDataDltAndFreqLimit(long datasize_limit, int freqms_limit);
-  void SetDataSizeLimit(long datasize_limit);
-  void SetFreqMsLimit(int freqms_limit);
-  long GetDataSizeLimit();
-  int GetFreqMsLimit();
+  void SetDataDltAndFreqLimit(int64_t datasize_limit, int32_t freqms_limit);
+  void SetDataSizeLimit(int64_t datasize_limit);
+  void SetFreqMsLimit(int32_t freqms_limit);
+  int64_t GetDataSizeLimit();
+  int32_t GetFreqMsLimit();
 
  private:
-  long datasize_limit_;  
-  int  freqms_limit_;
+  int64_t datasize_limit_;
+  int32_t freqms_limit_;
 };
 
 
 class FlowCtrlItem {
  public:
   FlowCtrlItem();
-  FlowCtrlItem(int type,int zero_cnt,int freqms_limit);
-  FlowCtrlItem(int type, 
-    int datasize_limit,int freqms_limit,int min_data_filter_freqms);
-  FlowCtrlItem(int type, int start_time, 
-    int end_time, long datadlt_m, long datasize_limit, int freqms_limit);
+  FlowCtrlItem(int32_t type, int32_t zero_cnt, int32_t freqms_limit);
+  FlowCtrlItem(int32_t type, int32_t datasize_limit,
+    int32_t freqms_limit, int32_t min_data_filter_freqms);
+  FlowCtrlItem(int32_t type, int32_t start_time, int32_t end_time,
+    int64_t datadlt_m, int64_t datasize_limit, int32_t freqms_limit);
   FlowCtrlItem& operator=(const FlowCtrlItem& target);
   void Clear();
-  void ResetFlowCtrlValue(int type, 
-    int datasize_limit,int freqms_limit,int min_data_filter_freqms);
-  int GetFreLimit(int msg_zero_cnt);
-  bool GetDataLimit(long datadlt_m, int curr_time, FlowCtrlResult& flowctrl_result);
-  const int GetType() const {
+  void ResetFlowCtrlValue(int32_t type,
+    int32_t datasize_limit, int32_t freqms_limit, int32_t min_data_filter_freqms);
+  int32_t GetFreLimit(int32_t msg_zero_cnt);
+  bool GetDataLimit(int64_t datadlt_m, int32_t curr_time, FlowCtrlResult& flowctrl_result);
+  const int32_t GetType() const {
     return type_;
   }
-  const int GetZeroCnt() const {
+  const int32_t GetZeroCnt() const {
     return zero_cnt_;
   }
-  const int GetStartTime() const {
+  const int32_t GetStartTime() const {
     return start_time_;
   }
-  const int GetEndTime() const {
+  const int32_t GetEndTime() const {
     return end_time_;
   }
-  const long GetDataSizeLimit() const { 
+  const int64_t GetDataSizeLimit() const {
     return datasize_limit_;
   }
-  const int GetFreqMsLimit() const {
+  const int32_t GetFreqMsLimit() const {
     return freqms_limit_;
   }
-  const long GetDltInM() const {
+  const int64_t GetDltInM() const {
     return datadlt_m_;
   }
 
  private:
-  int  type_;
-  int  start_time_;
-  int  end_time_;
-  long datadlt_m_;
-  long datasize_limit_;
-  int  freqms_limit_;
-  int  zero_cnt_;
+  int32_t  type_;
+  int32_t  start_time_;
+  int32_t  end_time_;
+  int64_t datadlt_m_;
+  int64_t datasize_limit_;
+  int32_t  freqms_limit_;
+  int32_t  zero_cnt_;
 };
 
 class FlowCtrlRuleHandler {
  public:
   FlowCtrlRuleHandler();
   ~FlowCtrlRuleHandler();
-  void UpdateDefFlowCtrlInfo(bool is_default, 
-    int qrypriority_id, long flowctrl_id, const string& flowctrl_info);
-  bool GetCurDataLimit(long last_datadlt,FlowCtrlResult& flowctrl_result);
-  int GetCurFreqLimitTime(int msg_zero_cnt, int received_limit);
-  int GetMinZeroCnt() { return this->min_zero_cnt_.Get();}
-  int GetQryPriorityId() { 
+  void UpdateDefFlowCtrlInfo(bool is_default,
+    int32_t qrypriority_id, int64_t flowctrl_id, const string& flowctrl_info);
+  bool GetCurDataLimit(int32_t last_datadlt, FlowCtrlResult& flowctrl_result);
+  int32_t GetCurFreqLimitTime(int32_t msg_zero_cnt, int32_t received_limit);
+  int32_t GetMinZeroCnt() { return this->min_zero_cnt_.Get();}
+  int32_t GetQryPriorityId() {
     return this->qrypriority_id_.Get();
   }
-  void SetQryPriorityId(int qrypriority_id) { 
+  void SetQryPriorityId(int32_t qrypriority_id) {
     this->qrypriority_id_.Set(qrypriority_id);
   }
-  long GetFlowCtrlId() { 
+  int64_t GetFlowCtrlId() {
     return this->flowctrl_id_.Get();
   }
   const FlowCtrlItem& GetFilterCtrlItem() const {
     return this->filter_ctrl_item_;
   }
-  const string& GetFlowCtrlInfo() const { 
+  const string& GetFlowCtrlInfo() const {
     return this->flowctrl_info_;
   }
 
@@ -127,17 +132,22 @@ class FlowCtrlRuleHandler {
   void clearStatisData();
   static bool compareFeqQueue(const FlowCtrlItem& queue1, const FlowCtrlItem& queue2);
   static bool compareDataLimitQueue(const FlowCtrlItem& o1, const FlowCtrlItem& o2);
-  bool parseStringMember(string &err_info, const rapidjson::Value& root, 
+  bool parseStringMember(string &err_info, const rapidjson::Value& root,
     const char* key, string& value, bool compare_value, string required_val);
-  bool parseLongMember(string &err_info, const rapidjson::Value& root, 
-    const char* key, long& value, bool compare_value, long required_val);
-  bool parseIntMember(string &err_info, const rapidjson::Value& root, 
-    const char* key, int& value, bool compare_value, int required_val);
-  bool parseFlowCtrlInfo(const string& flowctrl_info, map<int,vector<FlowCtrlItem> >& flowctrl_info_map);
-  bool parseDataLimit(string& err_info, const rapidjson::Value& root, vector<FlowCtrlItem>& flowCtrlItems);
-  bool parseFreqLimit(string& err_info, const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items);
-  bool parseLowFetchLimit(string& err_info, const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items);
-  bool parseTimeMember(string& err_info, const rapidjson::Value& root, const char* key, int& value);
+  bool parseLongMember(string &err_info, const rapidjson::Value& root,
+    const char* key, int64_t& value, bool compare_value, int64_t required_val);
+  bool parseIntMember(string &err_info, const rapidjson::Value& root,
+    const char* key, int32_t& value, bool compare_value, int32_t required_val);
+  bool parseFlowCtrlInfo(const string& flowctrl_info,
+                      map<int32_t, vector<FlowCtrlItem> >& flowctrl_info_map);
+  bool parseDataLimit(string& err_info,
+            const rapidjson::Value& root, vector<FlowCtrlItem>& flowCtrlItems);
+  bool parseFreqLimit(string& err_info,
+            const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items);
+  bool parseLowFetchLimit(string& err_info,
+            const rapidjson::Value& root, vector<FlowCtrlItem>& flowctrl_items);
+  bool parseTimeMember(string& err_info,
+            const rapidjson::Value& root, const char* key, int32_t& value);
 
  private:
   AtomicLong    flowctrl_id_;
@@ -148,15 +158,13 @@ class FlowCtrlRuleHandler {
   AtomicInteger datalimit_start_time_;
   AtomicInteger datalimit_end_time_;
   FlowCtrlItem  filter_ctrl_item_;
-  map<int, vector<FlowCtrlItem> > flowctrl_rules_;
+  map<int32_t, vector<FlowCtrlItem> > flowctrl_rules_;
   pthread_rwlock_t configrw_lock_;
-  long last_update_time_;
+  int64_t last_update_time_;
 };
 
-  
-
-}
+}  // namespace tubemq
 
 
-#endif
+#endif  // TUBEMQ_CLIENT_FLOW_CONTROL_H_
 
