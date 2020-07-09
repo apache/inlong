@@ -30,7 +30,7 @@ namespace tubemq {
 using std::string;
 
 // configuration value setting
-namespace config {
+namespace tb_config {
 // heartbeat period define
 static const int32_t kHeartBeatPeriodDef = 10;
 static const int32_t kHeartBeatFailRetryTimesDef = 5;
@@ -73,7 +73,7 @@ static const uint32_t kBrokerTlsPortDef = 8124;
 // invalid value
 static const int32_t kInvalidValue = -2;
 
-}  // namespace config
+}  // namespace tb_config
 
 namespace delimiter {
 static const string kDelimiterDot = ".";

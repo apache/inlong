@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "logger.h"
+#include "tubemq/logger.h"
 
 #include <log4cplus/fileappender.h>
 #include <log4cplus/layout.h>

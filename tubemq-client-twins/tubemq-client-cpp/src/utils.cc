@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "utils.h"
+#include "tubemq/utils.h"
 
 #include <regex.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 #include <sstream>
 #include <vector>
 
-#include "const_config.h"
+#include "tubemq/const_config.h"
 
 namespace tubemq {
 
@@ -183,12 +183,12 @@ bool Utils::ValidGroupName(string& err_info, const string& group_name, string& t
     err_info = "Illegal parameter: group_name is blank!";
     return false;
   }
-  if (tgt_group_name.length() > config::kGroupNameMaxLength) {
+  if (tgt_group_name.length() > tb_config::kGroupNameMaxLength) {
     stringstream ss;
     ss << "Illegal parameter: ";
     ss << group_name;
     ss << " over max length, the max allowed length is ";
-    ss << config::kGroupNameMaxLength;
+    ss << tb_config::kGroupNameMaxLength;
     err_info = ss.str();
     return false;
   }
@@ -220,10 +220,10 @@ bool Utils::ValidFilterItem(string& err_info, const string& src_filteritem,
     return false;
   }
 
-  if (tgt_filteritem.length() > config::kFilterItemMaxLength) {
+  if (tgt_filteritem.length() > tb_config::kFilterItemMaxLength) {
     stringstream ss;
     ss << "value over max length ";
-    ss << config::kFilterItemMaxLength;
+    ss << tb_config::kFilterItemMaxLength;
     err_info = ss.str();
     return false;
   }
