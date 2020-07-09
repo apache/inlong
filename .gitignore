@@ -7,3 +7,4 @@ target/
 !.gitignore
 !.gitkeep
 !.travis.yml
+tubemq-client-twins/tubemq-client-cpp/build/

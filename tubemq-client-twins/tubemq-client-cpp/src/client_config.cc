@@ -28,10 +28,9 @@
 
 namespace tubemq {
 
-using std::stringstream;
 using std::set;
+using std::stringstream;
 using std::vector;
-
 
 BaseConfig::BaseConfig() {
   this->master_addrinfo_ = "";
@@ -335,8 +334,8 @@ bool ConsumerConfig::setGroupConsumeTarget(
     string tmp_filteritem;
     set<string> tgt_filters;
     // check topic_name info
-    is_success =
-        Utils::ValidString(err_info, it_map->first, false, true, true, tb_config::kTopicNameMaxLength);
+    is_success = Utils::ValidString(err_info, it_map->first, false, true, true,
+                                    tb_config::kTopicNameMaxLength);
     if (!is_success) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
@@ -503,7 +502,7 @@ void ConsumerConfig::SetWaitPeriodIfConfirmWaitRebalanceMs(int reb_confirm_wait_
   this->reb_confirm_wait_period_ms_ = reb_confirm_wait_period_ms;
 }
 
-const int ConsumerConfig::GetMaxConfirmWaitPeriodMs() const { this->max_confirm_wait_period_ms_; }
+const int ConsumerConfig::GetMaxConfirmWaitPeriodMs() const { return max_confirm_wait_period_ms_; }
 
 void ConsumerConfig::SetMaxConfirmWaitPeriodMs(int max_confirm_wait_period_ms) {
   this->max_confirm_wait_period_ms_ = max_confirm_wait_period_ms;
