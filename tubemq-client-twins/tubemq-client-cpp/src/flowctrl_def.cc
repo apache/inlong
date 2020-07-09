@@ -31,6 +31,8 @@
 
 namespace tubemq {
 
+using std::stringstream;
+
 FlowCtrlResult::FlowCtrlResult() {
   this->datasize_limit_ = config::kMaxIntValue;
   this->freqms_limit_ = 0;

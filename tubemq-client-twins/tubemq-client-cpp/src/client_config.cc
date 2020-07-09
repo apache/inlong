@@ -28,6 +28,11 @@
 
 namespace tubemq {
 
+using std::stringstream;
+using std::set;
+using std::vector;
+
+
 BaseConfig::BaseConfig() {
   this->master_addrinfo_ = "";
   this->auth_enable_ = false;
@@ -389,11 +394,6 @@ bool ConsumerConfig::setGroupConsumeTarget(
       ss << config::kSessionKeyMaxLength;
       err_info = ss.str();
     }
-    return false;
-  }
-  // check source_count
-  if (source_count <= 0) {
-    err_info = "Illegal parameter: source_count must over zero!";
     return false;
   }
   // check part_offset_map
