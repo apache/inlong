@@ -178,14 +178,13 @@ FlowCtrlRuleHandler::~FlowCtrlRuleHandler() { pthread_rwlock_destroy(&configrw_l
 
 void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qrypriority_id,
                                                 int64_t flowctrl_id, const string& flowctrl_info) {
-  bool result;
   map<int32_t, vector<FlowCtrlItem> > tmp_flowctrl_map;
   if (flowctrl_id == this->flowctrl_id_.Get()) {
     return;
   }
   int64_t curr_flowctrl_id = this->flowctrl_id_.Get();
   if (flowctrl_info.length() > 0) {
-    result = parseFlowCtrlInfo(flowctrl_info, tmp_flowctrl_map);
+    parseFlowCtrlInfo(flowctrl_info, tmp_flowctrl_map);
   }
   pthread_rwlock_wrlock(&this->configrw_lock_);
   this->flowctrl_id_.Set(flowctrl_id);
@@ -266,7 +265,8 @@ void FlowCtrlRuleHandler::clearStatisData() {
   this->filter_ctrl_item_.Clear();
 }
 
-bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt, FlowCtrlResult& flowctrl_result) const {
+bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt,
+                                          FlowCtrlResult& flowctrl_result) const {
   struct tm utc_tm;
   vector<FlowCtrlItem>::const_iterator it_vec;
   map<int, vector<FlowCtrlItem> >::const_iterator it_map;
@@ -291,7 +291,8 @@ bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt, FlowCtrlResult& 
   return false;
 }
 
-int32_t FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt, int32_t received_limit) const {
+int32_t FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt,
+                                                 int32_t received_limit) const {
   int32_t rule_val = -2;
   vector<FlowCtrlItem>::const_iterator it_vec;
   map<int, vector<FlowCtrlItem> >::const_iterator it_map;
@@ -402,7 +403,6 @@ bool FlowCtrlRuleHandler::parseDataLimit(string& err_info, const rapidjson::Valu
   int32_t type_val;
   stringstream ss;
   string attr_sep = delimiter::kDelimiterColon;
-  string::size_type pos1;
   if (!parseIntMember(err_info, root, "type", type_val, true, 0)) {
     ss << "Decode Failure: ";
     ss << err_info;
@@ -573,13 +573,13 @@ bool FlowCtrlRuleHandler::parseLowFetchLimit(string& err_info, const rapidjson::
     return false;
   }
   // parse rule info
-  const rapidjson::Value& node_item = root["rule"];
-  for (uint32_t i = 0; i < node_item.Size(); i++) {
+  const rapidjson::Value& nodes = root["rule"];
+  for (uint32_t i = 0; i < nodes.Size(); ++i) {
     int32_t norm_freq_ms = 0;
     int32_t filter_freq_ms = 0;
     int32_t min_filter_freq_ms = 0;
     FlowCtrlItem flowctrl_item;
-    const rapidjson::Value& node_item = node_item[i];
+    const rapidjson::Value& node_item = nodes[i];
     if (!node_item.IsObject()) {
       err_info = "Illegal rule'value item, must be dict type";
       return false;
