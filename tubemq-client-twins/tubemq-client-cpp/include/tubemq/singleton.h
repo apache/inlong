@@ -26,7 +26,7 @@
 #include <mutex>
 #include <thread>
 
-#include "noncopyable.h"
+#include "tubemq/noncopyable.h"
 
 namespace tubemq {
 

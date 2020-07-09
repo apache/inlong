@@ -25,7 +25,7 @@
 #include <list>
 #include <string>
 
-#include "flowctrl_def.h"
+#include "tubemq/flowctrl_def.h"
 
 namespace tubemq {
 
@@ -145,7 +145,7 @@ class PartitionExt : public Partition {
   PartitionExt(const NodeInfo& broker_info, const string& part_str);
   ~PartitionExt();
   void BookConsumeData(int32_t errcode, int32_t msg_size, bool req_esc_limit,
-    int64_t rsp_dlt_limit, long last_datadlt, bool require_slow);
+    int64_t rsp_dlt_limit, int64_t last_datadlt, bool require_slow);
   int64_t ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
     const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed);
   int64_t ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
@@ -154,8 +154,11 @@ class PartitionExt : public Partition {
     int64_t last_datadlt, bool require_slow);
   void SetLastConsumed(bool last_consumed);
   bool IsLastConsumed();
+
  private:
   void resetParameters();
+  void updateStrategyData(const FlowCtrlRuleHandler& def_flowctrl_handler,
+    const FlowCtrlRuleHandler& group_flowctrl_handler, int32_t msg_size, int64_t last_datadlt);
 
  private:
   bool is_last_consumed_;
