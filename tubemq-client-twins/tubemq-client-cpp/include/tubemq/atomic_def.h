@@ -30,81 +30,81 @@ class AtomicInteger {
  public:
   AtomicInteger() { this->counter_ = 0; }
 
-  AtomicInteger(int initial_value) { this->counter_ = initial_value; }
+  AtomicInteger(int32_t initial_value) { this->counter_ = initial_value; }
 
-  int Get() { return this->counter_; }
+  int32_t Get() const { return this->counter_; }
 
-  void Set(long new_value) { this->counter_ = new_value; }
+  void Set(int32_t new_value) { this->counter_ = new_value; }
 
-  long LongValue() { return (long)this->counter_; }
+  int64_t LongValue() const { return (int64_t)this->counter_; }
 
-  int GetAndSet(int new_value) {
+  int32_t GetAndSet(int32_t new_value) {
     for (;;) {
-      int current = this->counter_;
+      int32_t current = this->counter_;
       if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
         return current;
       }
     }
   }
 
-  bool CompareAndSet(int expect, int update) {
+  bool CompareAndSet(int32_t expect, int32_t update) {
     return __sync_bool_compare_and_swap(&this->counter_, expect, update);
   }
 
-  int GetAndIncrement() {
+  int32_t GetAndIncrement() {
     for (;;) {
-      int current = this->counter_;
-      int next = current + 1;
+      int32_t current = this->counter_;
+      int32_t next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  int GetAndDecrement() {
+  int32_t GetAndDecrement() {
     for (;;) {
-      int current = this->counter_;
-      int next = current - 1;
+      int32_t current = this->counter_;
+      int32_t next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  int GetAndAdd(int delta) {
+  int32_t GetAndAdd(int32_t delta) {
     for (;;) {
-      int current = this->counter_;
-      int next = current + delta;
+      int32_t current = this->counter_;
+      int32_t next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  int IncrementAndGet() {
+  int32_t IncrementAndGet() {
     for (;;) {
-      int current = this->counter_;
-      int next = current + 1;
+      int32_t current = this->counter_;
+      int32_t next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
   }
 
-  int DecrementAndGet() {
+  int32_t DecrementAndGet() {
     for (;;) {
-      int current = this->counter_;
-      int next = current - 1;
+      int32_t current = this->counter_;
+      int32_t next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
   }
 
-  int AddAndGet(int delta) {
+  int32_t AddAndGet(int32_t delta) {
     for (;;) {
-      int current = this->counter_;
-      int next = current + delta;
+      int32_t current = this->counter_;
+      int32_t next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
@@ -112,88 +112,88 @@ class AtomicInteger {
   }
 
  private:
-  volatile int counter_;
+  volatile int32_t counter_;
 };
 
 class AtomicLong {
  public:
   AtomicLong() { this->counter_ = 0; }
 
-  AtomicLong(long initial_value) { this->counter_ = initial_value; }
+  AtomicLong(int64_t initial_value) { this->counter_ = initial_value; }
 
-  long Get() { return this->counter_; }
+  int64_t Get() const { return this->counter_; }
 
-  void Set(long new_value) { this->counter_ = new_value; }
+  void Set(int64_t new_value) { this->counter_ = new_value; }
 
-  long IntValue() { return (int)this->counter_; }
+  int32_t IntValue() const { return (int32_t)this->counter_; }
 
-  long GetAndSet(long new_value) {
+  int64_t GetAndSet(int64_t new_value) {
     for (;;) {
-      long current = this->counter_;
+      int64_t current = this->counter_;
       if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
         return current;
       }
     }
   }
 
-  bool CompareAndSet(long expect, long update) {
+  bool CompareAndSet(int64_t expect, int64_t update) {
     return __sync_bool_compare_and_swap(&this->counter_, expect, update);
   }
 
-  long GetAndIncrement() {
+  int64_t GetAndIncrement() {
     for (;;) {
-      long current = this->counter_;
-      long next = current + 1;
+      int64_t current = this->counter_;
+      int64_t next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  long GetAndDecrement() {
+  int64_t GetAndDecrement() {
     for (;;) {
-      long current = this->counter_;
-      long next = current - 1;
+      int64_t current = this->counter_;
+      int64_t next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  long GetAndAdd(long delta) {
+  int64_t GetAndAdd(int64_t delta) {
     for (;;) {
-      long current = this->counter_;
-      long next = current + delta;
+      int64_t current = this->counter_;
+      int64_t next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return current;
       }
     }
   }
 
-  long IncrementAndGet() {
+  int64_t IncrementAndGet() {
     for (;;) {
-      long current = this->counter_;
-      long next = current + 1;
+      int64_t current = this->counter_;
+      int64_t next = current + 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
   }
 
-  long DecrementAndGet() {
+  int64_t DecrementAndGet() {
     for (;;) {
-      long current = this->counter_;
-      long next = current - 1;
+      int64_t current = this->counter_;
+      int64_t next = current - 1;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
     }
   }
 
-  long AddAndGet(long delta) {
+  int64_t AddAndGet(int64_t delta) {
     for (;;) {
-      long current = this->counter_;
-      long next = current + delta;
+      int64_t current = this->counter_;
+      int64_t next = current + delta;
       if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
         return next;
       }
@@ -201,7 +201,7 @@ class AtomicLong {
   }
 
  private:
-  volatile long counter_;
+  volatile int64_t counter_;
 };
 
 class AtomicBoolean {
@@ -210,14 +210,14 @@ class AtomicBoolean {
 
   AtomicBoolean(bool initial_value) { this->counter_ = initial_value ? 1 : 0; }
 
-  bool Get() { return this->counter_ != 0; }
+  bool Get() const { return this->counter_ != 0; }
 
   void Set(bool new_value) { this->counter_ = new_value ? 1 : 0; }
 
   bool GetAndSet(bool new_value) {
-    int u = new_value ? 1 : 0;
+    int32_t u = new_value ? 1 : 0;
     for (;;) {
-      int e = this->counter_ ? 1 : 0;
+      int32_t e = this->counter_ ? 1 : 0;
       if (__sync_bool_compare_and_swap(&this->counter_, e, u)) {
         return e != 0;
       }
@@ -225,13 +225,13 @@ class AtomicBoolean {
   }
 
   bool CompareAndSet(bool expect, bool update) {
-    int e = expect ? 1 : 0;
-    int u = update ? 1 : 0;
+    int32_t e = expect ? 1 : 0;
+    int32_t u = update ? 1 : 0;
     return __sync_bool_compare_and_swap(&this->counter_, e, u);
   }
 
  private:
-  volatile int counter_;
+  volatile int32_t counter_;
 };
 
 }  // namespace tubemq

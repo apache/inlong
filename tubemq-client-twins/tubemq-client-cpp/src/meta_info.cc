@@ -17,16 +17,16 @@
  * under the License.
  */
 
-#include "meta_info.h"
+#include "tubemq/meta_info.h"
 
 #include <stdlib.h>
 
 #include <sstream>
 #include <vector>
 
-#include "const_config.h"
-#include "const_errcode.h"
-#include "utils.h"
+#include "tubemq/const_config.h"
+#include "tubemq/const_errcode.h"
+#include "tubemq/utils.h"
 
 namespace tubemq {
 
@@ -36,7 +36,7 @@ using std::vector;
 NodeInfo::NodeInfo() {
   this->node_id_ = 0;
   this->node_host_ = " ";
-  this->node_port_ = config::kBrokerPortDef;
+  this->node_port_ = tb_config::kBrokerPortDef;
   buildStrInfo();
 }
 
@@ -47,14 +47,14 @@ NodeInfo::NodeInfo(bool is_broker, const string& node_info) {
   if (is_broker) {
     this->node_id_ = atoi(result[0].c_str());
     this->node_host_ = result[1];
-    this->node_port_ = config::kBrokerPortDef;
+    this->node_port_ = tb_config::kBrokerPortDef;
     if (result.size() >= 3) {
       this->node_port_ = atoi(result[2].c_str());
     }
   } else {
     this->node_id_ = 0;
     this->node_host_ = result[0];
-    this->node_port_ = config::kBrokerPortDef;
+    this->node_port_ = tb_config::kBrokerPortDef;
     if (result.size() >= 2) {
       this->node_port_ = atoi(result[1].c_str());
     }
@@ -63,7 +63,7 @@ NodeInfo::NodeInfo(bool is_broker, const string& node_info) {
 }
 
 NodeInfo::NodeInfo(const string& node_host, uint32_t node_port) {
-  this->node_id_ = config::kInvalidValue;
+  this->node_id_ = tb_config::kInvalidValue;
   this->node_host_ = node_host;
   this->node_port_ = node_port;
   buildStrInfo();
@@ -314,9 +314,9 @@ void SubscribeInfo::buildSubInfo() {
 }
 
 ConsumerEvent::ConsumerEvent() {
-  this->rebalance_id_ = config::kInvalidValue;
-  this->event_type_ = config::kInvalidValue;
-  this->event_status_ = config::kInvalidValue;
+  this->rebalance_id_ = tb_config::kInvalidValue;
+  this->event_type_ = tb_config::kInvalidValue;
+  this->event_status_ = tb_config::kInvalidValue;
 }
 
 ConsumerEvent::ConsumerEvent(const ConsumerEvent& target) {
@@ -401,10 +401,10 @@ PartitionExt::~PartitionExt() {
 }
 
 void PartitionExt::BookConsumeData(int32_t errcode, int32_t msg_size,
-  bool req_esc_limit, int64_t rsp_dlt_limit, long last_datadlt, bool require_slow) {
-  this->booked_time_ =Utils::GetCurrentTimeMillis();
+  bool req_esc_limit, int64_t rsp_dlt_limit, int64_t last_datadlt, bool require_slow) {
+  this->booked_time_ = Utils::GetCurrentTimeMillis();
   this->booked_errcode_ = errcode;
-  this->booked_esc_limit_= req_esc_limit;
+  this->booked_esc_limit_ = req_esc_limit;
   this->booked_msgsize_ = msg_size;
   this->booked_dlt_limit_ = rsp_dlt_limit;
   this->booked_curdata_dlt_ = last_datadlt;
@@ -423,37 +423,11 @@ int64_t PartitionExt::ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_
   const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed,
   int32_t errcode, int32_t msg_size, bool req_esc_limit, int64_t rsp_dlt_limit,
   int64_t last_datadlt, bool require_slow) {
-  bool result = false;
-  // Accumulated data received
-  this->_isLastConsumed = last_consumed;
-  this->cur_stage_msgsize_ += msg_size;
-  this->cur_slice_msgsize_ += msg_size;
+  // #lizard forgives
+  // record consume status
+  this->is_last_consumed_ = last_consumed;
   // Update strategy data values
-  int64_t curr_time = Utils::GetCurrentTimeMillis();
-  if (curr_time - this->next_stage_updtime_) {
-    this->cur_stage_msgsize_ = 0;
-    this->cur_slice_msgsize_ = 0;
-    if (last_datadlt >= 0) {
-      result = group_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
-      if (!result) {
-        result = def_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
-        if (!result) {
-          this->cur_flowctrl_.SetDataDltAndFreqLimit(config::kMaxLongValue, 0);
-        }
-      }
-      this->cur_freqctrl_ = group_flowctrl_handler.GetFilterCtrlItem();
-      if (this->cur_freqctrl_.getFreqLtInMs() < 0) {
-        this->cur_freqctrl_ = def_flowctrl_handler.GetFilterCtrlItem();
-      }
-      curr_time = Utils::GetCurrentTimeMillis();
-    }
-    this->limit_slice_msgsize_ = this->cur_flowctrl_.GetDataSizeLimit() / 12;
-    this->next_stage_updtime_ = curr_time + 60000;
-    this->next_slice_updtime_ = curr_time + 5000;
-  } else if(curr_time > this->next_slice_updtime_) {
-    this->cur_slice_msgsize_ = 0;
-    this->next_slice_updtime_ = curr_time + 5000;
-  }
+  updateStrategyData(def_flowctrl_handler, group_flowctrl_handler, msg_size, last_datadlt);
   // Perform different strategies based on error codes
   switch (errcode) {
     case err_code::kErrNotFound:
@@ -464,12 +438,12 @@ int64_t PartitionExt::ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_
         this->total_zero_cnt_ = 0;
       }
       if (this->total_zero_cnt_ > 0) {
-        if (group_flowctrl_handler.GetMinZeroCnt() != config::kMaxIntValue) {
-          return (int64_t)group_flowctrl_handler.GetCurFreqLimitTime(
-            this->total_zero_cnt_, (int32_t)rsp_dlt_limit);
+        if (group_flowctrl_handler.GetMinZeroCnt() != tb_config::kMaxIntValue) {
+          return (int64_t)(group_flowctrl_handler.GetCurFreqLimitTime(
+            this->total_zero_cnt_, (int32_t)rsp_dlt_limit));
         } else {
           return (int64_t)def_flowctrl_handler.GetCurFreqLimitTime(
-            this->_totalRcvZeroCount, (int32_t)rsp_dlt_limit);
+            this->total_zero_cnt_, (int32_t)rsp_dlt_limit);
         }
       }
       if (req_esc_limit) {
@@ -510,7 +484,7 @@ bool PartitionExt::IsLastConsumed() {
 
 void PartitionExt::resetParameters() {
   this->is_last_consumed_ = false;
-  this->cur_flowctrl_.SetDataDltAndFreqLimit(config::kMaxLongValue, 20);
+  this->cur_flowctrl_.SetDataDltAndFreqLimit(tb_config::kMaxLongValue, 20);
   this->next_stage_updtime_ = 0;
   this->next_slice_updtime_ = 0;
   this->limit_slice_msgsize_ = 0;
@@ -519,11 +493,45 @@ void PartitionExt::resetParameters() {
   this->total_zero_cnt_ = 0;
   this->booked_time_ = 0;
   this->booked_errcode_ = 0;
-  this->booked_esc_limit_= false;
+  this->booked_esc_limit_ = false;
   this->booked_msgsize_ = 0;
   this->booked_dlt_limit_ = 0;
   this->booked_curdata_dlt_ = 0;
   this->booked_require_slow_ = false;
+}
+
+void PartitionExt::updateStrategyData(const FlowCtrlRuleHandler& def_flowctrl_handler,
+  const FlowCtrlRuleHandler& group_flowctrl_handler, int32_t msg_size, int64_t last_datadlt) {
+  bool result = false;
+  // Accumulated data received
+  this->cur_stage_msgsize_ += msg_size;
+  this->cur_slice_msgsize_ += msg_size;  
+  int64_t curr_time = Utils::GetCurrentTimeMillis();
+  // Update strategy data values
+  if (curr_time > this->next_stage_updtime_) {
+    this->cur_stage_msgsize_ = 0;
+    this->cur_slice_msgsize_ = 0;
+    if (last_datadlt >= 0) {
+      result = group_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
+      if (!result) {
+        result = def_flowctrl_handler.GetCurDataLimit(last_datadlt, this->cur_flowctrl_);
+        if (!result) {
+          this->cur_flowctrl_.SetDataDltAndFreqLimit(tb_config::kMaxLongValue, 0);
+        }
+      }
+      this->cur_freqctrl_ = group_flowctrl_handler.GetFilterCtrlItem();
+      if (this->cur_freqctrl_.GetFreqMsLimit() < 0) {
+        this->cur_freqctrl_ = def_flowctrl_handler.GetFilterCtrlItem();
+      }
+      curr_time = Utils::GetCurrentTimeMillis();
+    }
+    this->limit_slice_msgsize_ = this->cur_flowctrl_.GetDataSizeLimit() / 12;
+    this->next_stage_updtime_ = curr_time + 60000;
+    this->next_slice_updtime_ = curr_time + 5000;
+  } else if (curr_time > this->next_slice_updtime_) {
+    this->cur_slice_msgsize_ = 0;
+    this->next_slice_updtime_ = curr_time + 5000;
+  }
 }
 
 

@@ -39,11 +39,13 @@ namespace err_code {
   static const int32_t kErrConsumeGroupForbidden = 450;
   static const int32_t kErrConsumeSpeedLimit = 452;
   static const int32_t kErrConsumeContentForbidden = 455;
-  
+
   static const int32_t kErrServerError = 500;
   static const int32_t kErrServiceUnavilable = 503;
   static const int32_t kErrServerMsgsetNullError = 510;
   static const int32_t kErrWaitServerRspTimeout = 550;
+}  // namespace err_code
+
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_CONST_ERR_CODE_H_

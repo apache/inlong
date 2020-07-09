@@ -17,14 +17,14 @@
  * under the License.
  */
 
-#include "message.h"
+#include "tubemq/message.h"
 
 #include <string.h>
 
 #include <sstream>
 
-#include "const_config.h"
-#include "utils.h"
+#include "tubemq/const_config.h"
+#include "tubemq/utils.h"
 
 namespace tubemq {
 
@@ -41,7 +41,7 @@ static const string kRsvPropKeyMsgTime = "$msgTime$";
 Message::Message() {
   this->topic_ = "";
   this->flag_ = 0;
-  this->message_id_ = config::kInvalidValue;
+  this->message_id_ = tb_config::kInvalidValue;
   this->data_ = NULL;
   this->datalen_ = 0;
   this->properties_.clear();
@@ -58,7 +58,7 @@ Message::Message(const Message& target) {
 Message::Message(const string& topic, const char* data, uint32_t datalen) {
   this->topic_ = topic;
   this->flag_ = 0;
-  this->message_id_ = config::kInvalidValue;
+  this->message_id_ = tb_config::kInvalidValue;
   copyData(data, datalen);
   this->properties_.clear();
 }

@@ -17,14 +17,14 @@
  * under the License.
  */
 
-#include "client_config.h"
+#include "tubemq/client_config.h"
 
 #include <sstream>
 #include <vector>
 
-#include "const_config.h"
-#include "const_rpc.h"
-#include "utils.h"
+#include "tubemq/const_config.h"
+#include "tubemq/const_rpc.h"
+#include "tubemq/utils.h"
 
 namespace tubemq {
 
@@ -42,9 +42,9 @@ BaseConfig::BaseConfig() {
   this->tls_trust_store_path_ = "";
   this->tls_trust_store_password_ = "";
   this->rpc_read_timeout_sec_ = rpc_config::kRpcTimoutDefSec;
-  this->heartbeat_period_sec_ = config::kHeartBeatPeriodDef;
-  this->max_heartbeat_retry_times_ = config::kHeartBeatFailRetryTimesDef;
-  this->heartbeat_period_afterfail_sec_ = config::kHeartBeatSleepPeriodDef;
+  this->heartbeat_period_sec_ = tb_config::kHeartBeatPeriodDef;
+  this->max_heartbeat_retry_times_ = tb_config::kHeartBeatFailRetryTimesDef;
+  this->heartbeat_period_afterfail_sec_ = tb_config::kHeartBeatSleepPeriodDef;
 }
 
 BaseConfig::~BaseConfig() {
@@ -75,10 +75,10 @@ bool BaseConfig::SetMasterAddrInfo(string& err_info, const string& master_addrin
     err_info = "Illegal parameter: master_addrinfo is blank!";
     return false;
   }
-  if (trimed_master_addr_info.length() > config::kMasterAddrInfoMaxLength) {
+  if (trimed_master_addr_info.length() > tb_config::kMasterAddrInfoMaxLength) {
     stringstream ss;
     ss << "Illegal parameter: over max ";
-    ss << config::kMasterAddrInfoMaxLength;
+    ss << tb_config::kMasterAddrInfoMaxLength;
     ss << " length of master_addrinfo parameter!";
     err_info = ss.str();
     return false;
@@ -226,11 +226,11 @@ ConsumerConfig::ConsumerConfig() {
   this->consume_position_ = kConsumeFromLatestOffset;
   this->is_confirm_in_local_ = false;
   this->is_rollback_if_confirm_timout_ = true;
-  this->max_subinfo_report_intvl_ = config::kSubInfoReportMaxIntervalTimes;
-  this->msg_notfound_wait_period_ms_ = config::kMsgNotfoundWaitPeriodMsDef;
-  this->reb_confirm_wait_period_ms_ = config::kRebConfirmWaitPeriodMsDef;
-  this->max_confirm_wait_period_ms_ = config::kConfirmWaitPeriodMsMax;
-  this->shutdown_reb_wait_period_ms_ = config::kRebWaitPeriodWhenShutdownMs;
+  this->max_subinfo_report_intvl_ = tb_config::kSubInfoReportMaxIntervalTimes;
+  this->msg_notfound_wait_period_ms_ = tb_config::kMsgNotfoundWaitPeriodMsDef;
+  this->reb_confirm_wait_period_ms_ = tb_config::kRebConfirmWaitPeriodMsDef;
+  this->max_confirm_wait_period_ms_ = tb_config::kConfirmWaitPeriodMsMax;
+  this->shutdown_reb_wait_period_ms_ = tb_config::kRebWaitPeriodWhenShutdownMs;
 }
 
 ConsumerConfig::~ConsumerConfig() {
@@ -278,7 +278,7 @@ bool ConsumerConfig::SetGroupConsumeTarget(string& err_info, const string& group
        ++it) {
     topic_name = Utils::Trim(*it);
     is_success =
-        Utils::ValidString(err_info, topic_name, false, true, true, config::kTopicNameMaxLength);
+        Utils::ValidString(err_info, topic_name, false, true, true, tb_config::kTopicNameMaxLength);
     if (!is_success) {
       err_info = "Illegal parameter: subscribed_topicset's item error, " + err_info;
       return false;
@@ -336,7 +336,7 @@ bool ConsumerConfig::setGroupConsumeTarget(
     set<string> tgt_filters;
     // check topic_name info
     is_success =
-        Utils::ValidString(err_info, it_map->first, false, true, true, config::kTopicNameMaxLength);
+        Utils::ValidString(err_info, it_map->first, false, true, true, tb_config::kTopicNameMaxLength);
     if (!is_success) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
@@ -364,12 +364,12 @@ bool ConsumerConfig::setGroupConsumeTarget(
       tgt_filters.insert(tmp_filteritem);
       count++;
     }
-    if (count > config::kFilterItemMaxCount) {
+    if (count > tb_config::kFilterItemMaxCount) {
       stringstream ss;
       ss << "Check parameter subscribed_topic_and_filter_map error: topic ";
       ss << it_map->first;
       ss << "'s filter item over max item count : ";
-      ss << config::kFilterItemMaxCount;
+      ss << tb_config::kFilterItemMaxCount;
       err_info = ss.str();
       return false;
     }
@@ -385,13 +385,13 @@ bool ConsumerConfig::setGroupConsumeTarget(
   }
   // check session_key
   string tgt_session_key = Utils::Trim(session_key);
-  if (tgt_session_key.length() == 0 || tgt_session_key.length() > config::kSessionKeyMaxLength) {
+  if (tgt_session_key.length() == 0 || tgt_session_key.length() > tb_config::kSessionKeyMaxLength) {
     if (tgt_session_key.length() == 0) {
       err_info = "Illegal parameter: session_key is empty!";
     } else {
       stringstream ss;
       ss << "Illegal parameter: session_key's length over max length ";
-      ss << config::kSessionKeyMaxLength;
+      ss << tb_config::kSessionKeyMaxLength;
       err_info = ss.str();
     }
     return false;
