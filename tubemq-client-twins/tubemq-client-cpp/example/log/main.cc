@@ -23,7 +23,7 @@
 #include <string>
 #include <thread>
 
-#include "logger.h"
+#include "tubemq/logger.h"
 
 using namespace std;
 using namespace tubemq;

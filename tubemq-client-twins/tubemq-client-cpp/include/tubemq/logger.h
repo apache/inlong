@@ -98,11 +98,7 @@ class Logger {
 
   static const char* Level2String(Level level) {
     static const char* level_names[] = {
-        "TRACE",
-        "DEBUG"
-        "INFO",
-        "WARN",
-        "ERROR",
+        "TRACE", "DEBUG", "INFO", "WARN", "ERROR",
     };
     return level_names[level];
   }
