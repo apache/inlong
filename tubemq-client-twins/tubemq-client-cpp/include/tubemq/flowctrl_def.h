@@ -91,7 +91,7 @@ class FlowCtrlRuleHandler {
   ~FlowCtrlRuleHandler();
   void UpdateDefFlowCtrlInfo(bool is_default, int32_t qrypriority_id, int64_t flowctrl_id,
                              const string& flowctrl_info);
-  bool GetCurDataLimit(int32_t last_datadlt, FlowCtrlResult& flowctrl_result);
+  bool GetCurDataLimit(int64_t last_datadlt, FlowCtrlResult& flowctrl_result);
   int32_t GetCurFreqLimitTime(int32_t msg_zero_cnt, int32_t received_limit);
   int32_t GetMinZeroCnt() { return this->min_zero_cnt_.Get(); }
   int32_t GetQryPriorityId() { return this->qrypriority_id_.Get(); }

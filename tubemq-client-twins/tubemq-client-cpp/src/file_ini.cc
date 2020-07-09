@@ -29,6 +29,10 @@
 
 namespace tubemq {
 
+using std::ifstream;
+
+
+
 Fileini::Fileini() {
   this->init_flag_ = false;
   this->ini_map_.clear();

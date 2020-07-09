@@ -31,6 +31,9 @@
 
 namespace tubemq {
 
+using std::stringstream;
+
+
 static const string kWhitespaceCharSet = " \n\r\t\f\v";
 
 string Utils::Trim(const string& source) {

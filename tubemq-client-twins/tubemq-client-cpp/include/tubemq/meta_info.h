@@ -141,6 +141,39 @@ class ConsumerEvent {
 class PartitionExt : public Partition {
  public:
   PartitionExt();
+  PartitionExt(const string& partition_info);
+  PartitionExt(const NodeInfo& broker_info, const string& part_str);
+  ~PartitionExt();
+  void BookConsumeData(int32_t errcode, int32_t msg_size, bool req_esc_limit,
+    int64_t rsp_dlt_limit, long last_datadlt, bool require_slow);
+  int64_t ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
+    const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed);
+  int64_t ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
+    const FlowCtrlRuleHandler& group_flowctrl_handler, bool filter_consume, bool last_consumed,
+    int32_t errcode, int32_t msg_size, bool req_esc_limit, int64_t rsp_dlt_limit,
+    int64_t last_datadlt, bool require_slow);
+  void SetLastConsumed(bool last_consumed);
+  bool IsLastConsumed();
+ private:
+  void resetParameters();
+
+ private:
+  bool is_last_consumed_;
+  FlowCtrlResult cur_flowctrl_;
+  FlowCtrlItem cur_freqctrl_;
+  int64_t next_stage_updtime_;
+  int64_t next_slice_updtime_;
+  int64_t limit_slice_msgsize_;
+  int64_t cur_stage_msgsize_;
+  int64_t cur_slice_msgsize_;
+  int32_t total_zero_cnt_;
+  int64_t booked_time_;
+  int32_t booked_errcode_;
+  bool    booked_esc_limit_;
+  int32_t booked_msgsize_;
+  int64_t booked_dlt_limit_;
+  int64_t booked_curdata_dlt_;
+  bool    booked_require_slow_;
 };
 
 }  // namespace tubemq
