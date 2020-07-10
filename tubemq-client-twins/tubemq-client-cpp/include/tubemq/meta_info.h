@@ -91,53 +91,6 @@ class Partition {
   string partition_info_;
 };
 
-class SubscribeInfo {
- public:
-  SubscribeInfo(const string& sub_info);
-  SubscribeInfo(const string& consumer_id, const string& group, const Partition& partition);
-  SubscribeInfo& operator=(const SubscribeInfo& target);
-  const string& GetConsumerId() const;
-  const string& GetGroup() const;
-  const Partition& GetPartition() const;
-  const uint32_t GgetBrokerId() const;
-  const string& GetBrokerHost() const;
-  const uint32_t GetBrokerPort() const;
-  const string& GetTopic() const;
-  const uint32_t GetPartitionId() const;
-  const string& ToString() const;
-
- private:
-  void buildSubInfo();
-
- private:
-  string consumer_id_;
-  string group_;
-  Partition partition_;
-  string sub_info_;
-};
-
-class ConsumerEvent {
- public:
-  ConsumerEvent();
-  ConsumerEvent(const ConsumerEvent& target);
-  ConsumerEvent(int64_t rebalance_id, int32_t event_type,
-                const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status);
-  ConsumerEvent& operator=(const ConsumerEvent& target);
-  const int64_t GetRebalanceId() const;
-  const int32_t GetEventType() const;
-  const int32_t GetEventStatus() const;
-  void SetEventType(int32_t event_type);
-  void SetEventStatus(int32_t event_status);
-  const list<SubscribeInfo>& GetSubscribeInfoList() const;
-  string ToString();
-
- private:
-  int64_t rebalance_id_;
-  int32_t event_type_;
-  int32_t event_status_;
-  list<SubscribeInfo> subscribe_list_;
-};
-
 class PartitionExt : public Partition {
  public:
   PartitionExt();
@@ -178,6 +131,53 @@ class PartitionExt : public Partition {
   int64_t booked_curdata_dlt_;
   bool    booked_require_slow_;
 };
+
+class SubscribeInfo {
+ public:
+  SubscribeInfo(const string& sub_info);
+  SubscribeInfo& operator=(const SubscribeInfo& target);
+  const string& GetConsumerId() const;
+  const string& GetGroup() const;
+  const PartitionExt& GetPartitionExt() const;
+  const uint32_t GgetBrokerId() const;
+  const string& GetBrokerHost() const;
+  const uint32_t GetBrokerPort() const;
+  const string& GetTopic() const;
+  const uint32_t GetPartitionId() const;
+  const string& ToString() const;
+
+ private:
+  void buildSubInfo();
+
+ private:
+  string consumer_id_;
+  string group_;
+  PartitionExt partitionext_;
+  string sub_info_;
+};
+
+class ConsumerEvent {
+ public:
+  ConsumerEvent();
+  ConsumerEvent(const ConsumerEvent& target);
+  ConsumerEvent(int64_t rebalance_id, int32_t event_type,
+                const list<SubscribeInfo>& subscribeInfo_lst, int32_t event_status);
+  ConsumerEvent& operator=(const ConsumerEvent& target);
+  const int64_t GetRebalanceId() const;
+  const int32_t GetEventType() const;
+  const int32_t GetEventStatus() const;
+  void SetEventType(int32_t event_type);
+  void SetEventStatus(int32_t event_status);
+  const list<SubscribeInfo>& GetSubscribeInfoList() const;
+  string ToString();
+
+ private:
+  int64_t rebalance_id_;
+  int32_t event_type_;
+  int32_t event_status_;
+  list<SubscribeInfo> subscribe_list_;
+};
+
 
 }  // namespace tubemq
 

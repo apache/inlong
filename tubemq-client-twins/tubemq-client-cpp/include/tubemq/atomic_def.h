@@ -24,7 +24,6 @@
 
 namespace tubemq {
 
-using namespace std;
 
 class AtomicInteger {
  public:
