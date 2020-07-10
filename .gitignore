@@ -7,3 +7,6 @@ target/
 !.gitignore
 !.gitkeep
 !.travis.yml
+venv/
+eggs/
+wheels/
