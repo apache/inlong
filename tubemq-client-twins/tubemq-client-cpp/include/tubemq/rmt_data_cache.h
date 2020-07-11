@@ -20,10 +20,9 @@
 #ifndef TUBEMQ_CLIENT_RMT_DATA_CACHE_H_
 #define TUBEMQ_CLIENT_RMT_DATA_CACHE_H_
 
-#include <stdint.h>
 #include <pthread.h>
+#include <stdint.h>
 
-#include <atomic>
 #include <list>
 #include <map>
 #include <set>
@@ -47,12 +46,26 @@ class RmtDataCacheCsm {
   RmtDataCacheCsm();
   ~RmtDataCacheCsm();
   void AddNewPartition(const PartitionExt& partition_ext);
+  bool SelectPartition(string &err_info,
+           PartitionExt& partition_ext, string& confirm_context);
+  void BookedPartionInfo(const string& partition_key, int64_t curr_offset,
+                            int32_t err_code, bool esc_limit, int32_t msg_size,
+                            int64_t limit_dlt, int64_t cur_data_dlt, bool require_slow);
+  bool RelPartition(string &err_info, bool is_filterconsume,
+                         const string& confirm_context, bool is_consumed);
+  void RemovePartition(const list<PartitionExt>& partition_list);
+  bool RemovePartition(string &err_info, const string& confirm_context);
   void OfferEvent(const ConsumerEvent& event);
   void TakeEvent(ConsumerEvent& event);
   void ClearEvent();
   void OfferEventResult(const ConsumerEvent& event);
   bool PollEventResult(ConsumerEvent& event);
 
+ private:
+  void buildConfirmContext(const string& partition_key,
+                    int64_t booked_time, string& confirm_context);
+  bool parseConfirmContext(string &err_info,
+    const string& confirm_context, string& partition_key, int64_t& booked_time);
 
  private:
   // timer begin
@@ -68,6 +81,8 @@ class RmtDataCacheCsm {
   map<string, set<string> > topic_partition_;
   // broker parition map
   map<NodeInfo, set<string> > broker_partition_;
+  // for idle partitions occupy
+  pthread_mutex_t  part_mutex_;
   // for partiton idle map
   list<string> index_partitions_;
   // for partition used map

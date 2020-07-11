@@ -443,7 +443,9 @@ const uint32_t SubscribeInfo::GetBrokerPort() const { return this->partitionext_
 
 const string& SubscribeInfo::GetTopic() const { return this->partitionext_.GetTopic(); }
 
-const uint32_t SubscribeInfo::GetPartitionId() const { return this->partitionext_.GetPartitionId(); }
+const uint32_t SubscribeInfo::GetPartitionId() const {
+  return this->partitionext_.GetPartitionId();
+}
 
 const string& SubscribeInfo::ToString() const { return this->sub_info_; }
 
