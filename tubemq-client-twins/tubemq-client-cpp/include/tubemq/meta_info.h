@@ -97,6 +97,7 @@ class PartitionExt : public Partition {
   PartitionExt(const string& partition_info);
   PartitionExt(const NodeInfo& broker_info, const string& part_str);
   ~PartitionExt();
+  PartitionExt& operator=(const PartitionExt& target);
   void BookConsumeData(int32_t errcode, int32_t msg_size, bool req_esc_limit,
     int64_t rsp_dlt_limit, int64_t last_datadlt, bool require_slow);
   int64_t ProcConsumeResult(const FlowCtrlRuleHandler& def_flowctrl_handler,
@@ -135,6 +136,8 @@ class PartitionExt : public Partition {
 class SubscribeInfo {
  public:
   SubscribeInfo(const string& sub_info);
+  SubscribeInfo(const string& consumer_id,
+        const string& group_name, const PartitionExt& partition_ext);
   SubscribeInfo& operator=(const SubscribeInfo& target);
   const string& GetConsumerId() const;
   const string& GetGroup() const;
