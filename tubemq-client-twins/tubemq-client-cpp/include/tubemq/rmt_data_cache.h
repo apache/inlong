@@ -43,7 +43,7 @@ using std::list;
 // consumer remote data cache
 class RmtDataCacheCsm {
  public:
-  RmtDataCacheCsm();
+  RmtDataCacheCsm(const string& client_id, const string& group_name);
   ~RmtDataCacheCsm();
   void AddNewPartition(const PartitionExt& partition_ext);
   bool SelectPartition(string &err_info,
@@ -51,10 +51,24 @@ class RmtDataCacheCsm {
   void BookedPartionInfo(const string& partition_key, int64_t curr_offset,
                             int32_t err_code, bool esc_limit, int32_t msg_size,
                             int64_t limit_dlt, int64_t cur_data_dlt, bool require_slow);
-  bool RelPartition(string &err_info, bool is_filterconsume,
+  bool RelPartition(string &err_info, bool filter_consume,
                          const string& confirm_context, bool is_consumed);
+  bool RelPartition(string &err_info, const string& confirm_context, bool is_consumed);
+  bool RelPartition(string &err_info, bool filter_consume, 
+                         const string& confirm_context, bool is_consumed,
+                         int64_t curr_offset, int32_t err_code, bool esc_limit,
+                         int32_t msg_size, int64_t limit_dlt, int64_t cur_data_dlt);
+  void FilterPartitions(const list<SubscribeInfo>& subscribe_info_lst,
+                    list<PartitionExt>& subscribed_partitions, list<PartitionExt>& unsub_partitions);
+  void GetSubscribedInfo(list<SubscribeInfo>& subscribe_info_lst);
+  bool GetPartitionExt(const string& part_key, PartitionExt& partition_ext);
+  void GetRegBrokers(list<NodeInfo>& brokers);
+  void GetCurPartitionOffsets(map<string, int64_t> part_offset_map);
+  void GetAllBrokerPartitions(map<NodeInfo, list<PartitionExt> >& broker_parts);
   void RemovePartition(const list<PartitionExt>& partition_list);
+  void RemovePartition(const set<string>& partition_keys);
   bool RemovePartition(string &err_info, const string& confirm_context);
+  bool BookPartition(const string& partition_key);
   void OfferEvent(const ConsumerEvent& event);
   void TakeEvent(ConsumerEvent& event);
   void ClearEvent();
@@ -62,15 +76,20 @@ class RmtDataCacheCsm {
   bool PollEventResult(ConsumerEvent& event);
 
  private:
+  void rmvMetaInfo(const string& partition_key);
   void buildConfirmContext(const string& partition_key,
                     int64_t booked_time, string& confirm_context);
   bool parseConfirmContext(string &err_info,
     const string& confirm_context, string& partition_key, int64_t& booked_time);
+  bool inRelPartition(string &err_info, bool need_delay_check,
+    bool filter_consume, const string& confirm_context, bool is_consumed);
 
  private:
   // timer begin
 
   // timer end
+  string consumer_id_;
+  string group_name_;  
   // flow ctrl
   FlowCtrlRuleHandler group_flowctrl_handler_;
   FlowCtrlRuleHandler def_flowctrl_handler_;
@@ -81,6 +100,7 @@ class RmtDataCacheCsm {
   map<string, set<string> > topic_partition_;
   // broker parition map
   map<NodeInfo, set<string> > broker_partition_;
+  map<string, SubscribeInfo>  part_subinfo_;
   // for idle partitions occupy
   pthread_mutex_t  part_mutex_;
   // for partiton idle map
