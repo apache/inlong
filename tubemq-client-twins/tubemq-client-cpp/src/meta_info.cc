@@ -261,6 +261,34 @@ PartitionExt::~PartitionExt() {
   //
 }
 
+PartitionExt& PartitionExt::operator=(const PartitionExt& target) {
+  if (this != &target) {
+    // parent class
+    Partition::operator=(target);
+    // child class    
+    this->is_last_consumed_ = target.is_last_consumed_;
+    this->cur_flowctrl_ = target.cur_flowctrl_;
+    this->cur_freqctrl_ = target.cur_freqctrl_;
+    this->next_stage_updtime_ = target.next_stage_updtime_;
+    this->next_slice_updtime_ = target.next_slice_updtime_;
+    this->limit_slice_msgsize_ = target.limit_slice_msgsize_;
+    this->cur_stage_msgsize_ = target.cur_stage_msgsize_;
+    this->cur_slice_msgsize_ = target.cur_slice_msgsize_;
+    this->total_zero_cnt_ = target.total_zero_cnt_;
+    this->booked_time_ = target.booked_time_;
+    this->booked_errcode_ = target.booked_errcode_;
+    this->booked_esc_limit_ = target.booked_esc_limit_;
+    this->booked_msgsize_ = target.booked_msgsize_;
+    this->booked_dlt_limit_ = target.booked_dlt_limit_;
+    this->booked_curdata_dlt_ = target.booked_curdata_dlt_;
+    this->booked_require_slow_ = target.booked_require_slow_;
+    this->booked_errcode_ = target.booked_errcode_;
+    this->booked_errcode_ = target.booked_errcode_;
+  }
+  return *this;
+}
+
+
 void PartitionExt::BookConsumeData(int32_t errcode, int32_t msg_size,
   bool req_esc_limit, int64_t rsp_dlt_limit, int64_t last_datadlt, bool require_slow) {
   this->booked_time_ = Utils::GetCurrentTimeMillis();
@@ -417,6 +445,14 @@ SubscribeInfo::SubscribeInfo(const string& sub_info) {
     this->group_ = consumer_info.substr(pos + at_key.size(), consumer_info.size());
     this->group_ = Utils::Trim(this->group_);
   }
+  buildSubInfo();
+}
+
+SubscribeInfo::SubscribeInfo(const string& consumer_id,
+        const string& group_name, const PartitionExt& partition_ext) {
+  this->consumer_id_ = consumer_id;
+  this->group_ = group_name;
+  this->partitionext_ = partition_ext;
   buildSubInfo();
 }
 
