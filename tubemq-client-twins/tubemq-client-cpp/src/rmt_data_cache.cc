@@ -38,6 +38,8 @@ RmtDataCacheCsm::RmtDataCacheCsm(const string& client_id,
                                       const string& group_name) {
   consumer_id_ = client_id;
   group_name_ = group_name;
+  under_groupctrl_.Set(false);
+  last_checktime_.Set(0);
   pthread_rwlock_init(&meta_rw_lock_, NULL);
   pthread_mutex_init(&part_mutex_, NULL);
   pthread_mutex_init(&data_book_mutex_, NULL);
@@ -54,6 +56,43 @@ RmtDataCacheCsm::~RmtDataCacheCsm() {
   pthread_mutex_destroy(&part_mutex_);
   pthread_rwlock_destroy(&meta_rw_lock_);
 }
+
+void RmtDataCacheCsm::UpdateDefFlowCtrlInfo(int64_t flowctrl_id,
+                                                 const string& flowctrl_info) {
+  if (flowctrl_id != def_flowctrl_handler_.GetFlowCtrlId()) {
+    def_flowctrl_handler_.UpdateDefFlowCtrlInfo(true, 
+      tb_config::kInvalidValue, flowctrl_id, flowctrl_info);
+  }
+}
+void RmtDataCacheCsm::UpdateGroupFlowCtrlInfo(int32_t qyrpriority_id,
+                             int64_t flowctrl_id, const string& flowctrl_info) {
+  if (flowctrl_id != group_flowctrl_handler_.GetFlowCtrlId()) {
+    group_flowctrl_handler_.UpdateDefFlowCtrlInfo(false, 
+                qyrpriority_id, flowctrl_id, flowctrl_info);
+  }
+  if (qyrpriority_id != group_flowctrl_handler_.GetQryPriorityId()) {
+    this->group_flowctrl_handler_.SetQryPriorityId(qyrpriority_id);
+
+  }
+  // update current if under group flowctrl 
+  int64_t cur_time = Utils::GetCurrentTimeMillis();
+  if (cur_time - last_checktime_.Get() > 10000) {
+    FlowCtrlResult flowctrl_result;
+    this->under_groupctrl_.Set(
+      group_flowctrl_handler_.GetCurDataLimit(
+        tb_config::kMaxLongValue, flowctrl_result));
+    last_checktime_.Set(cur_time);
+  }
+}
+
+const int64_t RmtDataCacheCsm::GetGroupQryPriorityId() const {
+  return this->group_flowctrl_handler_.GetQryPriorityId();
+}
+
+bool RmtDataCacheCsm::IsUnderGroupCtrl() {
+  return this->under_groupctrl_.Get();
+}
+
 
 void RmtDataCacheCsm::AddNewPartition(const PartitionExt& partition_ext) {
   //
@@ -119,7 +158,7 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
     } else {
       result = false;
       err_info = "No idle partition to consume data 2, please retry later!";
-      booked_time =Utils::GetCurrentTimeMillis();
+      booked_time = Utils::GetCurrentTimeMillis();
       partition_key = index_partitions_.front();
       index_partitions_.pop_front();
       buildConfirmContext(partition_key, booked_time, confirm_context);
@@ -138,7 +177,7 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
 }
 
 void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, int64_t curr_offset,
-                                             int32_t err_code, bool esc_limit, int32_t msg_size, 
+                                             int32_t err_code, bool esc_limit, int32_t msg_size,
                                              int64_t limit_dlt, int64_t cur_data_dlt, bool require_slow) {
   map<string, PartitionExt>::iterator it_part;
   // book partition offset info
@@ -150,7 +189,7 @@ void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, int64_t cur
   // book partition temp info
   pthread_rwlock_rdlock(&meta_rw_lock_);
   it_part = partitions_.find(partition_key);
-  if(it_part != partitions_.end()) {
+  if (it_part != partitions_.end()) {
     it_part->second.BookConsumeData(err_code, msg_size,
               esc_limit, limit_dlt, cur_data_dlt, require_slow);
   }
@@ -172,11 +211,11 @@ bool RmtDataCacheCsm::RelPartition(string &err_info,
 // release partiton with error response return
 bool RmtDataCacheCsm::RelPartition(string &err_info, bool filter_consume,
                               const string& confirm_context, bool is_consumed,
-                              int64_t curr_offset, int32_t err_code, bool esc_limit, 
+                              int64_t curr_offset, int32_t err_code, bool esc_limit,
                               int32_t msg_size, int64_t limit_dlt, int64_t cur_data_dlt) {
   int64_t booked_time;
   string  partition_key;
-  // parse confirm context  
+  // parse confirm context
   bool result = parseConfirmContext(err_info,
                       confirm_context, partition_key, booked_time);
   if (!result) {
@@ -184,12 +223,12 @@ bool RmtDataCacheCsm::RelPartition(string &err_info, bool filter_consume,
   }
   BookedPartionInfo(partition_key, curr_offset, err_code,
             esc_limit, msg_size, limit_dlt, cur_data_dlt, false);
-  return inRelPartition(err_info, true, 
+  return inRelPartition(err_info, true,
     filter_consume, confirm_context, is_consumed);
 }
 
 void RmtDataCacheCsm::FilterPartitions(const list<SubscribeInfo>& subscribe_info_lst,
-                    list<PartitionExt>& subscribed_partitions, list<PartitionExt>& unsub_partitions) {
+            list<PartitionExt>& subscribed_partitions, list<PartitionExt>& unsub_partitions) {
   //
   map<string, PartitionExt>::iterator it_part;
   list<SubscribeInfo>::const_iterator it_lst;
@@ -204,10 +243,10 @@ void RmtDataCacheCsm::FilterPartitions(const list<SubscribeInfo>& subscribe_info
   } else {
     for (it_lst = subscribe_info_lst.begin(); it_lst != subscribe_info_lst.end(); it_lst++) {
       it_part = partitions_.find(it_lst->GetPartitionExt().GetPartitionKey());
-    	if (it_part == partitions_.end()) {
+      if (it_part == partitions_.end()) {
         unsub_partitions.push_back(it_lst->GetPartitionExt());
-    	} else {
-    		subscribed_partitions.push_back(it_lst->GetPartitionExt());
+      } else {
+        subscribed_partitions.push_back(it_lst->GetPartitionExt());
       }
     }
   }
@@ -216,12 +255,12 @@ void RmtDataCacheCsm::FilterPartitions(const list<SubscribeInfo>& subscribe_info
 
 void RmtDataCacheCsm::GetSubscribedInfo(list<SubscribeInfo>& subscribe_info_lst) {
   map<string, SubscribeInfo>::iterator it_sub;
-  subscribe_info_lst.clear();                                             
-	pthread_rwlock_rdlock(&meta_rw_lock_);
-	for (it_sub = part_subinfo_.begin(); it_sub != part_subinfo_.end(); ++it_sub) {
+  subscribe_info_lst.clear();
+  pthread_rwlock_rdlock(&meta_rw_lock_);
+  for (it_sub = part_subinfo_.begin(); it_sub != part_subinfo_.end(); ++it_sub) {
     subscribe_info_lst.push_back(it_sub->second);
-	}
-	pthread_rwlock_unlock(&meta_rw_lock_);
+  }
+  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 void RmtDataCacheCsm::GetAllBrokerPartitions(
@@ -244,7 +283,6 @@ void RmtDataCacheCsm::GetAllBrokerPartitions(
   pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
-
 bool RmtDataCacheCsm::GetPartitionExt(const string& part_key, PartitionExt& partition_ext) {
   bool result = false;
   map<string, PartitionExt>::iterator it_map;
@@ -253,14 +291,14 @@ bool RmtDataCacheCsm::GetPartitionExt(const string& part_key, PartitionExt& part
   it_map = partitions_.find(part_key);
   if (it_map != partitions_.end()) {
     result = true;
-    partition_ext = it_map->second;  
+    partition_ext = it_map->second;
   }
   pthread_rwlock_unlock(&meta_rw_lock_);
   return result;
 }
 
 void RmtDataCacheCsm::GetRegBrokers(list<NodeInfo>& brokers) {
-  map<NodeInfo, set<string> >::iterator it;  
+  map<NodeInfo, set<string> >::iterator it;
 
   brokers.clear();
   pthread_rwlock_rdlock(&meta_rw_lock_);
@@ -269,6 +307,28 @@ void RmtDataCacheCsm::GetRegBrokers(list<NodeInfo>& brokers) {
   }
   pthread_rwlock_unlock(&meta_rw_lock_);
 }
+
+void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
+                                            list<PartitionExt>& partition_list) {
+  set<string>::iterator it_key;
+  map<NodeInfo, set<string> >::iterator it_broker;
+  map<string, PartitionExt>::iterator it_part;
+  
+  partition_list.clear();
+  pthread_rwlock_rdlock(&meta_rw_lock_);
+  it_broker = broker_partition_.find(broker_info);
+  if (it_broker != broker_partition_.end()) {
+    for (it_key = it_broker->second.begin();
+    it_key != it_broker->second.end(); it_key++) {
+      it_part = partitions_.find(*it_key);
+      if (it_part != partitions_.end()) {
+        partition_list.push_back(it_part->second);
+      }
+    }
+  }
+  pthread_rwlock_unlock(&meta_rw_lock_);
+}
+
 
 void RmtDataCacheCsm::GetCurPartitionOffsets(map<string, int64_t> part_offset_map) {
   map<string, int64_t>::iterator it;
@@ -290,7 +350,7 @@ bool RmtDataCacheCsm::RemovePartition(string &err_info,
   map<string, PartitionExt>::iterator it_part;
   map<string, set<string> >::iterator it_topic;
   map<NodeInfo, set<string> >::iterator it_broker;
-  // parse confirm context  
+  // parse confirm context
   bool result = parseConfirmContext(err_info,
                       confirm_context, partition_key, booked_time);
   if (!result) {
@@ -310,7 +370,9 @@ void RmtDataCacheCsm::RemovePartition(const list<PartitionExt>& partition_list) 
   for (it_lst = partition_list.begin(); it_lst != partition_list.end(); it_lst++) {
     partition_keys.insert(it_lst->GetPartitionKey());
   }
-  RemovePartition(partition_keys);
+  if (!partition_keys.empty()) {
+    RemovePartition(partition_keys);
+  }
 }
 
 void RmtDataCacheCsm::RemovePartition(const set<string>& partition_keys) {
@@ -330,6 +392,53 @@ void RmtDataCacheCsm::RemovePartition(const set<string>& partition_keys) {
   }
   pthread_rwlock_unlock(&meta_rw_lock_);
 }
+
+void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe_infos,
+        bool is_processing_rollback, map<NodeInfo, list<PartitionExt> >& broker_parts) {
+  //
+  string part_key;
+  list<SubscribeInfo>::const_iterator it;
+  map<string, PartitionExt>::iterator it_part;
+  map<NodeInfo, list<PartitionExt> >::iterator it_broker;
+
+  broker_parts.clear();
+  // check if empty
+  if (subscribe_infos.empty()) {
+    return;
+  }
+  pthread_rwlock_wrlock(&meta_rw_lock_);
+  pthread_mutex_lock(&part_mutex_);
+  for (it = subscribe_infos.begin(); it != subscribe_infos.end(); ++it) {
+    part_key = it->GetPartitionExt().GetPartitionKey();
+    it_part = partitions_.find(part_key);
+    if (it_part != partitions_.end()) {
+      if (partition_useds_.find(part_key) != partition_useds_.end()) {
+        if (is_processing_rollback) {
+          it_part->second.SetLastConsumed(false);
+        } else {
+          it_part->second.SetLastConsumed(true);
+        }
+      }
+      it_broker = broker_parts.find(it_part->second.GetBrokerInfo());
+      if (it_broker == broker_parts.end()) {
+        list<PartitionExt> tmp_part_list;
+        tmp_part_list.push_back(it_part->second);
+        broker_parts[it_part->second.GetBrokerInfo()] = tmp_part_list;
+      } else {
+        it_broker->second.push_back(it_part->second);
+      }
+      rmvMetaInfo(part_key);  
+    }
+    partition_useds_.erase(part_key);
+    index_partitions_.remove(part_key);
+    // todo need modify if timer build finished
+    partition_timeouts_.erase(part_key);
+    // end todo
+  }
+  pthread_mutex_unlock(&part_mutex_);
+  pthread_rwlock_unlock(&meta_rw_lock_);
+}
+
 
 
 bool RmtDataCacheCsm::BookPartition(const string& partition_key) {
@@ -397,8 +506,8 @@ bool RmtDataCacheCsm::parseConfirmContext(string &err_info,
      const string& confirm_context, string& partition_key, int64_t& booked_time) {
   //
   vector<string> result;
-  Utils::Split(confirm_context, result, delimiter::kDelimiterAt); 
-  if(result.empty()) {
+  Utils::Split(confirm_context, result, delimiter::kDelimiterAt);
+  if (result.empty()) {
     err_info = "Illegel confirmContext content: unregular value format!";
     return false;
   }
@@ -411,7 +520,7 @@ bool RmtDataCacheCsm::parseConfirmContext(string &err_info,
 void RmtDataCacheCsm::rmvMetaInfo(const string& partition_key) {
   map<string, PartitionExt>::iterator it_part;
   map<string, set<string> >::iterator it_topic;
-  map<NodeInfo, set<string> >::iterator it_broker;  
+  map<NodeInfo, set<string> >::iterator it_broker;
   it_part = partitions_.find(partition_key);
   if (it_part != partitions_.end()) {
     it_topic = topic_partition_.find(it_part->second.GetTopic());
@@ -472,7 +581,7 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
         if (need_delay_check) {
           wait_time = it_part->second.ProcConsumeResult(def_flowctrl_handler_,
                         group_flowctrl_handler_, filter_consume, is_consumed);
-        } 
+        }
         if (wait_time >= 10) {
           // todo add timer 
           // end todo
@@ -480,7 +589,7 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
           index_partitions_.push_back(partition_key);
         }
         err_info = "Ok";
-        result = true;    
+        result = true;
       } else {
         // partiton is used by other thread
         err_info = "Illegel confirmContext content: context not equal!";
