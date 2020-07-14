@@ -17,45 +17,39 @@
  * under the License.
  */
 
-#ifndef _TUBEMQ_SINGLETON_H
-#define _TUBEMQ_SINGLETON_H
-
-#include <assert.h>
-#include <stdlib.h>
-
-#include <mutex>
+#include <chrono>
+#include <exception>
+#include <functional>
+#include <iostream>
+#include <string>
 #include <thread>
 
-#include "tubemq/noncopyable.h"
+#include "tubemq/executor_pool.h"
 
-namespace tubemq {
+using namespace std;
+using namespace tubemq;
 
-template <typename T>
-class Singleton : noncopyable {
- public:
-  Singleton() = delete;
-  ~Singleton() = delete;
-
-  static T& Instance() {
-    std::call_once(once_, Singleton::init);
-    assert(value_ != nullptr);
-    return *value_;
+void handler(int a, const asio::error_code& error) {
+  if (!error) {
+    // Timer expired.
+    std::cout << "handlertimeout:" << a << endl;
   }
+}
 
- private:
-  static void init() { value_ = new T(); }
+int main() {
+  using namespace std::placeholders;  // for _1, _2, _3...
+  ExecutorPool pool(4);
+  auto timer = pool.Get()->CreateSteadyTimer();
+  timer->expires_after(std::chrono::seconds(5));
+  std::cout << "startwait" << endl;
+  timer->wait();
+  std::cout << "endwait" << endl;
 
- private:
-  static std::once_flag once_;
-  static T* value_;
-};
+  timer->expires_after(std::chrono::milliseconds(100));
+  std::cout << "startsyncwait" << endl;
+  timer->async_wait(std::bind(handler, 5, _1));
+  std::cout << "endsyncwait" << endl;
+  std::this_thread::sleep_for(5s);
+  return 0;
+}
 
-template <typename T>
-std::once_flag Singleton<T>::once_;
-
-template <typename T>
-T* Singleton<T>::value_ = nullptr;
-
-}  // namespace tubemq
-
-#endif  // _TUBEMQ_SINGLETON_H
