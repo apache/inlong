@@ -423,6 +423,12 @@ void PartitionExt::updateStrategyData(const FlowCtrlRuleHandler& def_flowctrl_ha
   }
 }
 
+SubscribeInfo::SubscribeInfo() {
+  this->consumer_id_ = " ";
+  this->group_ = " ";
+  this->partitionext_;
+  buildSubInfo();
+}
 
 // sub_info = consumerId@group#broker_info#topic:partitionId
 SubscribeInfo::SubscribeInfo(const string& sub_info) {
