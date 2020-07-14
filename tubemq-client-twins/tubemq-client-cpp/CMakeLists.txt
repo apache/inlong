@@ -22,6 +22,26 @@ cmake_minimum_required (VERSION 3.1)
 
 project (TubeMQ)
 
+set (CXX_FLAGS
+    -g
+    -fPIC
+    -Wall
+    -D__STDC_FORMAT_MACROS
+    -Wno-unused-parameter
+    -Wno-unused-function
+    -Wunused-variable
+    -Wunused-value
+    -Wshadow
+    -Wcast-qual
+    -Wcast-align
+    -Wwrite-strings
+    -Wsign-compare
+    -Winvalid-pch
+    -fms-extensions
+    -Wfloat-equal
+    -Wextra
+    -std=c++11
+    )
 
 INCLUDE_DIRECTORIES(include)
 
@@ -33,18 +53,5 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/log4cplus/lib)
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(third_party)
 ADD_SUBDIRECTORY(example)
-
-
-if (UNIX)
-    SET(CMAKE_CXX_FLAGS_DEBUG   "-O1 -g -ggdb -D_DEBUG")
-    SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -g -ggdb -DNDEBUG")
-    SET(DEPENDENT_LIBRARIES log4cplus pthread)
-else (UNIX)
-    SET(DEPENDENT_LIBRARIES log4cplus)
-endif (UNIX)
-
-
-
-
 
 

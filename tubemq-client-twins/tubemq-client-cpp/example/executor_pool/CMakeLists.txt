@@ -18,12 +18,4 @@
 #
 
 
-cmake_minimum_required (VERSION 3.1)
-
-
-AUX_SOURCE_DIRECTORY(. CURRENT_DIR_SRCS)                                        
-ADD_LIBRARY(tubemq STATIC ${CURRENT_DIR_SRCS})   
-TARGET_LINK_LIBRARIES (tubemq)
-
-
-
+tubemq_add_example(executor_pool main.cc)
