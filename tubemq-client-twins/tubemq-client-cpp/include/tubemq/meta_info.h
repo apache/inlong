@@ -135,6 +135,7 @@ class PartitionExt : public Partition {
 
 class SubscribeInfo {
  public:
+  SubscribeInfo();
   SubscribeInfo(const string& sub_info);
   SubscribeInfo(const string& consumer_id,
         const string& group_name, const PartitionExt& partition_ext);

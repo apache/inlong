@@ -26,9 +26,12 @@
 #include <list>
 #include <map>
 #include <set>
+#include <string>
 
+#include "tubemq/atomic_def.h"
 #include "tubemq/flowctrl_def.h"
 #include "tubemq/meta_info.h"
+
 
 
 
@@ -45,6 +48,12 @@ class RmtDataCacheCsm {
  public:
   RmtDataCacheCsm(const string& client_id, const string& group_name);
   ~RmtDataCacheCsm();
+  void UpdateDefFlowCtrlInfo(int64_t flowctrl_id, 
+                                     const string& flowctrl_info);
+  void UpdateGroupFlowCtrlInfo(int32_t qyrpriority_id,
+                 int64_t flowctrl_id, const string& flowctrl_info);
+  const int64_t GetGroupQryPriorityId() const;
+  bool IsUnderGroupCtrl();
   void AddNewPartition(const PartitionExt& partition_ext);
   bool SelectPartition(string &err_info,
            PartitionExt& partition_ext, string& confirm_context);
@@ -54,20 +63,24 @@ class RmtDataCacheCsm {
   bool RelPartition(string &err_info, bool filter_consume,
                          const string& confirm_context, bool is_consumed);
   bool RelPartition(string &err_info, const string& confirm_context, bool is_consumed);
-  bool RelPartition(string &err_info, bool filter_consume, 
+  bool RelPartition(string &err_info, bool filter_consume,
                          const string& confirm_context, bool is_consumed,
                          int64_t curr_offset, int32_t err_code, bool esc_limit,
                          int32_t msg_size, int64_t limit_dlt, int64_t cur_data_dlt);
   void FilterPartitions(const list<SubscribeInfo>& subscribe_info_lst,
-                    list<PartitionExt>& subscribed_partitions, list<PartitionExt>& unsub_partitions);
+          list<PartitionExt>& subscribed_partitions, list<PartitionExt>& unsub_partitions);
   void GetSubscribedInfo(list<SubscribeInfo>& subscribe_info_lst);
   bool GetPartitionExt(const string& part_key, PartitionExt& partition_ext);
   void GetRegBrokers(list<NodeInfo>& brokers);
+  void GetPartitionByBroker(const NodeInfo& broker_info,
+                                    list<PartitionExt>& partition_list);
   void GetCurPartitionOffsets(map<string, int64_t> part_offset_map);
   void GetAllBrokerPartitions(map<NodeInfo, list<PartitionExt> >& broker_parts);
   void RemovePartition(const list<PartitionExt>& partition_list);
   void RemovePartition(const set<string>& partition_keys);
   bool RemovePartition(string &err_info, const string& confirm_context);
+  void RemoveAndGetPartition(const list<SubscribeInfo>& subscribe_infos,
+        bool is_processing_rollback, map<NodeInfo, list<PartitionExt> >& broker_parts);
   bool BookPartition(const string& partition_key);
   void OfferEvent(const ConsumerEvent& event);
   void TakeEvent(ConsumerEvent& event);
@@ -84,15 +97,20 @@ class RmtDataCacheCsm {
   bool inRelPartition(string &err_info, bool need_delay_check,
     bool filter_consume, const string& confirm_context, bool is_consumed);
 
+
  private:
   // timer begin
 
   // timer end
   string consumer_id_;
-  string group_name_;  
+  string group_name_;
   // flow ctrl
   FlowCtrlRuleHandler group_flowctrl_handler_;
   FlowCtrlRuleHandler def_flowctrl_handler_;
+  AtomicBoolean under_groupctrl_;
+  AtomicLong last_checktime_;
+
+  // meta info
   pthread_rwlock_t meta_rw_lock_;
   // partiton allocated map
   map<string, PartitionExt> partitions_;
@@ -115,6 +133,7 @@ class RmtDataCacheCsm {
   map<string, int64_t> partition_offset_;
   // for partiton register booked
   map<string, bool> part_reg_booked_;
+
   // event
   pthread_mutex_t  event_read_mutex_;
   pthread_cond_t   event_read_cond_;
