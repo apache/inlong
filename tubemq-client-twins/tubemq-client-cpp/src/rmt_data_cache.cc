@@ -176,9 +176,10 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
   return result;
 }
 
-void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, int64_t curr_offset,
-                                             int32_t err_code, bool esc_limit, int32_t msg_size,
-                                             int64_t limit_dlt, int64_t cur_data_dlt, bool require_slow) {
+void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, 
+                     int64_t curr_offset, int32_t err_code, bool esc_limit,
+                     int32_t msg_size,int64_t limit_dlt, int64_t cur_data_dlt,
+                     bool require_slow) {
   map<string, PartitionExt>::iterator it_part;
   // book partition offset info
   if (curr_offset >= 0) {

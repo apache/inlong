@@ -29,7 +29,7 @@ class AtomicInteger {
  public:
   AtomicInteger() { this->counter_ = 0; }
 
-  AtomicInteger(int32_t initial_value) { this->counter_ = initial_value; }
+  explicit AtomicInteger(int32_t initial_value) { this->counter_ = initial_value; }
 
   int32_t Get() const { return this->counter_; }
 
@@ -118,7 +118,7 @@ class AtomicLong {
  public:
   AtomicLong() { this->counter_ = 0; }
 
-  AtomicLong(int64_t initial_value) { this->counter_ = initial_value; }
+  explicit AtomicLong(int64_t initial_value) { this->counter_ = initial_value; }
 
   int64_t Get() const { return this->counter_; }
 
@@ -207,7 +207,7 @@ class AtomicBoolean {
  public:
   AtomicBoolean() { this->counter_ = 0; }
 
-  AtomicBoolean(bool initial_value) { this->counter_ = initial_value ? 1 : 0; }
+  explicit AtomicBoolean(bool initial_value) { this->counter_ = initial_value ? 1 : 0; }
 
   bool Get() const { return this->counter_ != 0; }
 

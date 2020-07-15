@@ -65,7 +65,7 @@ class NodeInfo {
 class Partition {
  public:
   Partition();
-  Partition(const string& partition_info);
+  explicit Partition(const string& partition_info);
   Partition(const NodeInfo& broker_info, const string& part_str);
   Partition(const NodeInfo& broker_info, const string& topic, uint32_t partition_id);
   ~Partition();
@@ -94,7 +94,7 @@ class Partition {
 class PartitionExt : public Partition {
  public:
   PartitionExt();
-  PartitionExt(const string& partition_info);
+  explicit PartitionExt(const string& partition_info);
   PartitionExt(const NodeInfo& broker_info, const string& part_str);
   ~PartitionExt();
   PartitionExt& operator=(const PartitionExt& target);
@@ -136,7 +136,7 @@ class PartitionExt : public Partition {
 class SubscribeInfo {
  public:
   SubscribeInfo();
-  SubscribeInfo(const string& sub_info);
+  explicit SubscribeInfo(const string& sub_info);
   SubscribeInfo(const string& consumer_id,
         const string& group_name, const PartitionExt& partition_ext);
   SubscribeInfo& operator=(const SubscribeInfo& target);
