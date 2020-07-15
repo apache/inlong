@@ -28,6 +28,8 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <vector>
+
 
 #include "tubemq/noncopyable.h"
 
