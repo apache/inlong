@@ -85,6 +85,7 @@ class ExecutorPool : noncopyable {
 };
 
 typedef std::shared_ptr<ExecutorPool> ExecutorPoolPtr;
+
 }  // namespace tubemq
 
-#endif  //_TUBEMQ_EXECUTOR_POOL_
+#endif  // _TUBEMQ_EXECUTOR_POOL_

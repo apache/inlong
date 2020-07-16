@@ -76,20 +76,20 @@ static const int32_t kInvalidValue = -2;
 }  // namespace tb_config
 
 namespace delimiter {
-static const string kDelimiterDot = ".";
-static const string kDelimiterEqual = "=";
-static const string kDelimiterAnd = "&";
-static const string kDelimiterComma = ",";
-static const string kDelimiterColon = ":";
-static const string kDelimiterAt = "@";
-static const string kDelimiterPound = "#";
-static const string kDelimiterSemicolon = ";";
+static const char kDelimiterDot[] = ".";
+static const char kDelimiterEqual[] = "=";
+static const char kDelimiterAnd[] = "&";
+static const char kDelimiterComma[] = ",";
+static const char kDelimiterColon[] = ":";
+static const char kDelimiterAt[] = "@";
+static const char kDelimiterPound[] = "#";
+static const char kDelimiterSemicolon[] = ";";
 // Double slash
-static const string kDelimiterDbSlash = "//";
+static const char kDelimiterDbSlash[] = "//";
 // left square bracket
-static const string kDelimiterLftSB = "[";
+static const char kDelimiterLftSB[] = "[";
 // right square bracket
-static const string kDelimiterRgtSB = "]";
+static const char kDelimiterRgtSB[] = "]";
 
 }  // namespace delimiter
 
