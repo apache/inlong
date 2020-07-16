@@ -59,6 +59,9 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
   string sector = "";
   string key = "";
   string value = "";
+  string lftsb = delimiter::kDelimiterLftSB;
+  string rgtsb = delimiter::kDelimiterRgtSB;
+  string equal = delimiter::kDelimiterEqual;
   string::size_type lftsb_pos = 0;
   string::size_type rgtsb_pos = 0;
   string::size_type equal_pos = 0;
@@ -71,21 +74,20 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
       continue;
     }
     // check if a sector head
-    lftsb_pos = line_str.find(delimiter::kDelimiterLftSB);
-    rgtsb_pos = line_str.find(delimiter::kDelimiterRgtSB);
+    lftsb_pos = line_str.find(lftsb);
+    rgtsb_pos = line_str.find(rgtsb);
     if (lftsb_pos != string::npos && rgtsb_pos != string::npos) {
-      sector = line_str.substr(lftsb_pos + (delimiter::kDelimiterLftSB).size(),
-                               rgtsb_pos - (delimiter::kDelimiterRgtSB).size());
+      sector = line_str.substr(lftsb_pos + lftsb.size(), rgtsb_pos - rgtsb.size());
       sector = Utils::Trim(sector);
       continue;
     }
     // check if a key=value string
-    equal_pos = line_str.find(delimiter::kDelimiterEqual);
+    equal_pos = line_str.find(equal);
     if (equal_pos == string::npos) {
       continue;
     }
     key = line_str.substr(0, equal_pos);
-    value = line_str.substr(equal_pos + (delimiter::kDelimiterEqual).size(), line_str.size());
+    value = line_str.substr(equal_pos + equal.size(), line_str.size());
     key = Utils::Trim(key);
     value = Utils::Trim(value);
     // get data from file to memory

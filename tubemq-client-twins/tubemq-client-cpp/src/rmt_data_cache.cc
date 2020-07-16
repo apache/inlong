@@ -19,9 +19,8 @@
 
 #include "tubemq/rmt_data_cache.h"
 
-#include <string>
-
 #include <stdlib.h>
+#include <string>
 
 #include "tubemq/const_config.h"
 #include "tubemq/meta_info.h"
@@ -57,24 +56,24 @@ RmtDataCacheCsm::~RmtDataCacheCsm() {
   pthread_rwlock_destroy(&meta_rw_lock_);
 }
 
+
 void RmtDataCacheCsm::UpdateDefFlowCtrlInfo(int64_t flowctrl_id,
                                                  const string& flowctrl_info) {
   if (flowctrl_id != def_flowctrl_handler_.GetFlowCtrlId()) {
-    def_flowctrl_handler_.UpdateDefFlowCtrlInfo(true, 
+    def_flowctrl_handler_.UpdateDefFlowCtrlInfo(true,
       tb_config::kInvalidValue, flowctrl_id, flowctrl_info);
   }
 }
 void RmtDataCacheCsm::UpdateGroupFlowCtrlInfo(int32_t qyrpriority_id,
                              int64_t flowctrl_id, const string& flowctrl_info) {
   if (flowctrl_id != group_flowctrl_handler_.GetFlowCtrlId()) {
-    group_flowctrl_handler_.UpdateDefFlowCtrlInfo(false, 
+    group_flowctrl_handler_.UpdateDefFlowCtrlInfo(false,
                 qyrpriority_id, flowctrl_id, flowctrl_info);
   }
   if (qyrpriority_id != group_flowctrl_handler_.GetQryPriorityId()) {
     this->group_flowctrl_handler_.SetQryPriorityId(qyrpriority_id);
-
   }
-  // update current if under group flowctrl 
+  // update current if under group flowctrl
   int64_t cur_time = Utils::GetCurrentTimeMillis();
   if (cur_time - last_checktime_.Get() > 10000) {
     FlowCtrlResult flowctrl_result;
@@ -176,9 +175,9 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
   return result;
 }
 
-void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, 
+void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key,
                      int64_t curr_offset, int32_t err_code, bool esc_limit,
-                     int32_t msg_size,int64_t limit_dlt, int64_t cur_data_dlt,
+                  int32_t msg_size, int64_t limit_dlt, int64_t cur_data_dlt,
                      bool require_slow) {
   map<string, PartitionExt>::iterator it_part;
   // book partition offset info
@@ -287,7 +286,7 @@ void RmtDataCacheCsm::GetAllBrokerPartitions(
 bool RmtDataCacheCsm::GetPartitionExt(const string& part_key, PartitionExt& partition_ext) {
   bool result = false;
   map<string, PartitionExt>::iterator it_map;
-  
+
   pthread_rwlock_rdlock(&meta_rw_lock_);
   it_map = partitions_.find(part_key);
   if (it_map != partitions_.end()) {
@@ -314,7 +313,7 @@ void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
   set<string>::iterator it_key;
   map<NodeInfo, set<string> >::iterator it_broker;
   map<string, PartitionExt>::iterator it_part;
-  
+
   partition_list.clear();
   pthread_rwlock_rdlock(&meta_rw_lock_);
   it_broker = broker_partition_.find(broker_info);
