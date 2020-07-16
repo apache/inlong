@@ -265,7 +265,7 @@ PartitionExt& PartitionExt::operator=(const PartitionExt& target) {
   if (this != &target) {
     // parent class
     Partition::operator=(target);
-    // child class    
+    // child class
     this->is_last_consumed_ = target.is_last_consumed_;
     this->cur_flowctrl_ = target.cur_flowctrl_;
     this->cur_freqctrl_ = target.cur_freqctrl_;

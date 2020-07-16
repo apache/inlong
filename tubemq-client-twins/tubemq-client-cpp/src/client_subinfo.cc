@@ -62,7 +62,7 @@ void ClientSubInfo::SetConsumeTarget(bool bound_consume,
     } else {
       topic_filter_map_[it_topic->first] = true;
 
-      //build topic conditions
+      // build topic conditions
       count = 0;
       tmpstr = it_topic->first;
       tmpstr += delimiter::kDelimiterPound;
@@ -77,7 +77,7 @@ void ClientSubInfo::SetConsumeTarget(bool bound_consume,
     }
   }
 
-  //build bound_partition info
+  // build bound_partition info
   if (bound_consume) {
     session_key_ = session_key;
     source_count_ = source_count;

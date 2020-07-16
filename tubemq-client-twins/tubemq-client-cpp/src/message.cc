@@ -34,9 +34,9 @@ using std::stringstream;
 // message flag's properties settings
 static const int32_t kMsgFlagIncProperties = 0x01;
 // reserved property key Filter Item
-static const string kRsvPropKeyFilterItem = "$msgType$";
+static const char kRsvPropKeyFilterItem[] = "$msgType$";
 // reserved property key message send time
-static const string kRsvPropKeyMsgTime = "$msgTime$";
+static const char kRsvPropKeyMsgTime[] = "$msgTime$";
 
 Message::Message() {
   this->topic_ = "";
