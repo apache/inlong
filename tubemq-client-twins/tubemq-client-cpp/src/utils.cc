@@ -76,7 +76,7 @@ void Utils::Split(const string& source, vector<string>& result, const string& de
   }
 }
 
-void Utils::Split(const string& source, map<string, int>& result, const string& delimiter_step1,
+void Utils::Split(const string& source, map<string, int32_t>& result, const string& delimiter_step1,
                   const string& delimiter_step2) {
   string item_str;
   string key_str;

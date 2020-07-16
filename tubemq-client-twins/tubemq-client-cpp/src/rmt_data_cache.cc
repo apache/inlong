@@ -33,10 +33,7 @@ namespace tubemq {
 
 
 
-RmtDataCacheCsm::RmtDataCacheCsm(const string& client_id,
-                                      const string& group_name) {
-  consumer_id_ = client_id;
-  group_name_ = group_name;
+RmtDataCacheCsm::RmtDataCacheCsm() {
   under_groupctrl_.Set(false);
   last_checktime_.Set(0);
   pthread_rwlock_init(&meta_rw_lock_, NULL);
@@ -56,6 +53,11 @@ RmtDataCacheCsm::~RmtDataCacheCsm() {
   pthread_rwlock_destroy(&meta_rw_lock_);
 }
 
+void RmtDataCacheCsm::SetConsumerInfo(const string& client_id,
+                                            const string& group_name) {
+  consumer_id_ = client_id;
+  group_name_ = group_name;
+}
 
 void RmtDataCacheCsm::UpdateDefFlowCtrlInfo(int64_t flowctrl_id,
                                                  const string& flowctrl_info) {
@@ -129,11 +131,7 @@ void RmtDataCacheCsm::AddNewPartition(const PartitionExt& partition_ext) {
   }
   // check partition_key status
   pthread_mutex_lock(&part_mutex_);
-  if (partition_useds_.find(partition_key) == partition_useds_.end()
-    && partition_timeouts_.find(partition_key) == partition_timeouts_.end()) {
-    index_partitions_.remove(partition_key);
-    index_partitions_.push_back(partition_key);
-  }
+  resetIdlePartition(partition_key, true);
   pthread_mutex_unlock(&part_mutex_);
   pthread_rwlock_unlock(&meta_rw_lock_);
 }
@@ -347,9 +345,7 @@ bool RmtDataCacheCsm::RemovePartition(string &err_info,
                                   const string& confirm_context) {
   int64_t booked_time;
   string  partition_key;
-  map<string, PartitionExt>::iterator it_part;
-  map<string, set<string> >::iterator it_topic;
-  map<NodeInfo, set<string> >::iterator it_broker;
+  set<string> partition_keys;
   // parse confirm context
   bool result = parseConfirmContext(err_info,
                       confirm_context, partition_key, booked_time);
@@ -357,7 +353,6 @@ bool RmtDataCacheCsm::RemovePartition(string &err_info,
     return false;
   }
   // remove partiton
-  set<string> partition_keys;
   partition_keys.insert(partition_key);
   RemovePartition(partition_keys);
   err_info = "Ok";
@@ -381,11 +376,7 @@ void RmtDataCacheCsm::RemovePartition(const set<string>& partition_keys) {
   pthread_rwlock_wrlock(&meta_rw_lock_);
   for (it_lst = partition_keys.begin(); it_lst != partition_keys.end(); it_lst++) {
     pthread_mutex_lock(&part_mutex_);
-    partition_useds_.erase(*it_lst);
-    index_partitions_.remove(*it_lst);
-    // todo need modify if timer build finished
-    partition_timeouts_.erase(*it_lst);
-    // end todo
+    resetIdlePartition(*it_lst, false);
     pthread_mutex_unlock(&part_mutex_);
     // remove meta info set info
     rmvMetaInfo(*it_lst);
@@ -427,13 +418,9 @@ void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe
       } else {
         it_broker->second.push_back(it_part->second);
       }
-      rmvMetaInfo(part_key);  
+      rmvMetaInfo(part_key);
     }
-    partition_useds_.erase(part_key);
-    index_partitions_.remove(part_key);
-    // todo need modify if timer build finished
-    partition_timeouts_.erase(part_key);
-    // end todo
+    resetIdlePartition(part_key, false);
   }
   pthread_mutex_unlock(&part_mutex_);
   pthread_rwlock_unlock(&meta_rw_lock_);
@@ -494,6 +481,43 @@ bool RmtDataCacheCsm::PollEventResult(ConsumerEvent& event) {
   return result;
 }
 
+void RmtDataCacheCsm::HandleTimeout(const string partition_key,
+                                          const asio::error_code& error) {
+  if (!error) {
+    pthread_rwlock_rdlock(&meta_rw_lock_);
+    pthread_mutex_lock(&part_mutex_);
+    resetIdlePartition(partition_key, true);
+    pthread_mutex_unlock(&part_mutex_);    
+    pthread_rwlock_unlock(&meta_rw_lock_);
+  }
+}
+
+void RmtDataCacheCsm::addDelayTimer(const string& partition_key, int64_t delay_time) {
+  // add timer
+  tuple<int64_t, SteadyTimerPtr> timer = 
+      std::make_tuple(Utils::GetCurrentTimeMillis(), executor_.Get()->CreateSteadyTimer());
+  std::get<1>(timer)->expires_after(std::chrono::milliseconds(delay_time));
+  std::get<1>(timer)->async_wait(std::bind(&RmtDataCacheCsm::HandleTimeout, partition_key, _1));
+  partition_timeouts_.insert(std::make_pair(partition_key, timer));          
+}
+
+void RmtDataCacheCsm::resetIdlePartition(const string& partition_key, bool need_reuse) {
+  map<string, PartitionExt>::iterator it_map;
+  map<string, tuple<int64_t, SteadyTimerPtr> >::iterator it_timeout; 
+  partition_useds_.erase(partition_key);
+  it_timeout = partition_timeouts_.find(partition_key);
+  if (it_timeout != partition_timeouts_.end()) {
+    std::get<1>(it_timeout->second)->cancel();
+    partition_timeouts_.erase(partition_key);
+  }
+  index_partitions_.remove(partition_key);
+  if (need_reuse) {
+    if (partitions_.find(partition_key) != partitions_.end()) {
+      index_partitions_.push_back(partition_key);
+    }
+  }
+}
+
 void RmtDataCacheCsm::buildConfirmContext(const string& partition_key,
                                    int64_t booked_time, string& confirm_context) {
   confirm_context.clear();
@@ -544,7 +568,7 @@ void RmtDataCacheCsm::rmvMetaInfo(const string& partition_key) {
 
 bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
                      bool filter_consume, const string& confirm_context, bool is_consumed) {
-  int64_t wait_time;
+  int64_t delay_time;
   int64_t booked_time;
   string  partition_key;
   map<string, PartitionExt>::iterator it_part;
@@ -577,14 +601,13 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
         // wait release
         partition_useds_.erase(partition_key);
         index_partitions_.remove(partition_key);
-        wait_time = 0;
+        delay_time = 0;
         if (need_delay_check) {
-          wait_time = it_part->second.ProcConsumeResult(def_flowctrl_handler_,
+          delay_time = it_part->second.ProcConsumeResult(def_flowctrl_handler_,
                         group_flowctrl_handler_, filter_consume, is_consumed);
         }
-        if (wait_time >= 10) {
-          // todo add timer 
-          // end todo
+        if (delay_time > 10) {
+          addDelayTimer(partition_key, delay_time);
         } else {
           index_partitions_.push_back(partition_key);
         }
@@ -601,7 +624,6 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
   pthread_rwlock_unlock(&meta_rw_lock_);
   return result;
 }
-
 
 
 }  // namespace tubemq
