@@ -30,6 +30,7 @@ type PullConsumer struct {
 	config *Config
 }
 
+// New create a PullConsumer instance
 func New(config *Config) *PullConsumer {
 	if err := checkConfig(config); err != nil {
 		panic(err)
