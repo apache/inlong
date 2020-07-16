@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "tubemq/message.h"
+#include "tubemq/tubemq_message.h"
 
 #include <string.h>
 

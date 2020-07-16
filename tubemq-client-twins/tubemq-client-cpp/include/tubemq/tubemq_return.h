@@ -25,7 +25,7 @@
 #include <list>
 #include <string>
 
-#include "tubemq/message.h"
+#include "tubemq/tubemq_message.h"
 #include "tubemq/meta_info.h"
 
 

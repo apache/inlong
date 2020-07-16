@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "tubemq/client_config.h"
+#include "tubemq/tubemq_config.h"
 
 #include <sstream>
 #include <vector>
@@ -84,7 +84,7 @@ bool BaseConfig::SetMasterAddrInfo(string& err_info, const string& master_addrin
   }
   // parse and verify master address info
   // master_addrinfo's format like ip1:port1,ip2:port2,ip3:port3
-  map<string, int> tgt_address_map;
+  map<string, int32_t> tgt_address_map;
   Utils::Split(master_addrinfo, tgt_address_map, delimiter::kDelimiterComma,
                delimiter::kDelimiterColon);
   if (tgt_address_map.empty()) {
