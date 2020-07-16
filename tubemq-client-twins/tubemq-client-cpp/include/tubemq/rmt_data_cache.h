@@ -27,10 +27,13 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 
 #include "tubemq/atomic_def.h"
 #include "tubemq/flowctrl_def.h"
 #include "tubemq/meta_info.h"
+#include "tubemq/executor_pool.h"
+#include "tubemq/tubemq_errcode.h"
 
 
 
@@ -41,13 +44,17 @@ namespace tubemq {
 using std::map;
 using std::set;
 using std::list;
+using std::string;
+using std::tuple;
+
 
 
 // consumer remote data cache
 class RmtDataCacheCsm {
  public:
-  RmtDataCacheCsm(const string& client_id, const string& group_name);
+  RmtDataCacheCsm();
   ~RmtDataCacheCsm();
+  void SetConsumerInfo(const string& client_id, const string& group_name);
   void UpdateDefFlowCtrlInfo(int64_t flowctrl_id,
                                      const string& flowctrl_info);
   void UpdateGroupFlowCtrlInfo(int32_t qyrpriority_id,
@@ -87,8 +94,11 @@ class RmtDataCacheCsm {
   void ClearEvent();
   void OfferEventResult(const ConsumerEvent& event);
   bool PollEventResult(ConsumerEvent& event);
+  void HandleTimeout(const string partition_key, const asio::error_code& error);
 
  private:
+  void addDelayTimer(const string& part_key, int64_t delay_time);
+  void resetIdlePartition(const string& partition_key, bool need_reuse);
   void rmvMetaInfo(const string& partition_key);
   void buildConfirmContext(const string& partition_key,
                     int64_t booked_time, string& confirm_context);
@@ -99,9 +109,9 @@ class RmtDataCacheCsm {
 
 
  private:
-  // timer begin
-
-  // timer end
+  // timer executor
+  ExecutorPtr executor_;
+  // 
   string consumer_id_;
   string group_name_;
   // flow ctrl
@@ -125,7 +135,7 @@ class RmtDataCacheCsm {
   // for partition used map
   map<string, int64_t> partition_useds_;
   // for partiton timer map
-  map<string, int64_t> partition_timeouts_;
+  map<string, tuple<int64_t, SteadyTimerPtr> > partition_timeouts_;
   // data book
   pthread_mutex_t data_book_mutex_;
   // for partition offset cache
