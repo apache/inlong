@@ -26,6 +26,49 @@
 namespace tubemq {
 
 
+MasterAddrInfo::MasterAddrInfo() {
+  curr_master_addr_ = "";
+  master_addr_.clear();
+}
+
+bool MasterAddrInfo::InitMasterAddress(string& err_info, 
+                                       const string& master_info) {
+  master_addr_.clear();
+  Utils::Split(master_info, master_addr_, delimiter::kDelimiterComma,
+               delimiter::kDelimiterColon);
+  if (master_addr_.empty()) {
+    err_info = "Illegal parameter: master_info is blank!";
+    return false;
+  }
+
+  map<string, int32_t>::iterator it = master_addr_.begin();
+  curr_master_addr_ = it->first;
+  err_info = "Ok";
+  return true;
+}
+
+void MasterAddrInfo::GetNextMasterAddr(string& ipaddr, int32_t& port) {
+  map<string, int32_t>::iterator it;
+  it = master_addr_.find(curr_master_addr_);
+  if(it != master_addr_.end()) {
+    it++;
+    if (it == master_addr_.end()) {
+      it = master_addr_.begin();
+    }
+  } else {
+    it = master_addr_.begin();
+  }
+  port   = it->second;
+  ipaddr = it->first;
+  curr_master_addr_ = it->first;
+}
+
+void MasterAddrInfo::GetCurrentMasterAddr(string& ipaddr, int32_t& port) {
+   ipaddr = curr_master_addr_;
+   port = master_addr_[curr_master_addr_];
+}
+
+
 ClientSubInfo::ClientSubInfo() {
   bound_consume_ = false;
   select_big_ = false;

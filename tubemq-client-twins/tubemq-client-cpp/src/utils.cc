@@ -21,6 +21,7 @@
 
 #include <regex.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -271,6 +272,24 @@ int64_t Utils::GetCurrentTimeMillis() {
   gettimeofday(&tv, NULL);
   return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
+
+bool Utils::ValidConfigFile(string& err_info, const string& conf_file) {
+  FILE *fp = NULL;
+  
+  if (conf_file.length() == 0) {
+    err_info = "Configure file is blank";
+    return false;
+  }  
+  fp = fopen(configFile.c_str(),"r");
+  if(fp == NULL) {
+    err_info = "Open configure file Failed!";
+    return false;
+  }
+  fclose(fp);
+  err_info = "Ok";
+  return true;
+}
+
 
 }  // namespace tubemq
 
