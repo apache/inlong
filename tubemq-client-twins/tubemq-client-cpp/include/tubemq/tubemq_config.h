@@ -99,6 +99,11 @@ class ConsumerConfig : public BaseConfig {
                              const map<string, set<string> >& subscribed_topic_and_filter_map,
                              const string& session_key, uint32_t source_count, bool is_select_big,
                              const map<string, int64_t>& part_offset_map);
+  bool IsBoundConsume() { return is_bound_consume_; }
+  const string& GetSessionKey() const { return session_key_; }
+  const uint32_t GetSourceCount() const { return source_count_; }
+  bool IsSelectBig() { return is_select_big_; }
+  const map<string, int64_t>& GetPartOffsetInfo() const { return part_offset_map_; }
   const string& GetGroupName() const;
   const map<string, set<string> >& GetSubTopicAndFilterMap() const;
   void SetConsumePosition(ConsumePosition consume_from_where);

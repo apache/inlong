@@ -30,27 +30,18 @@
 
 namespace tubemq {
 
-
+using std::lock_guard;
+using std::unique_lock;
+using namespace std::placeholders;
 
 
 RmtDataCacheCsm::RmtDataCacheCsm() {
   under_groupctrl_.Set(false);
   last_checktime_.Set(0);
-  pthread_rwlock_init(&meta_rw_lock_, NULL);
-  pthread_mutex_init(&part_mutex_, NULL);
-  pthread_mutex_init(&data_book_mutex_, NULL);
-  pthread_mutex_init(&event_read_mutex_, NULL);
-  pthread_cond_init(&event_read_cond_, NULL);
-  pthread_mutex_init(&event_write_mutex_, NULL);
 }
 
 RmtDataCacheCsm::~RmtDataCacheCsm() {
-  pthread_mutex_destroy(&event_write_mutex_);
-  pthread_mutex_destroy(&event_read_mutex_);
-  pthread_mutex_destroy(&data_book_mutex_);
-  pthread_cond_destroy(&event_read_cond_);
-  pthread_mutex_destroy(&part_mutex_);
-  pthread_rwlock_destroy(&meta_rw_lock_);
+  // 
 }
 
 void RmtDataCacheCsm::SetConsumerInfo(const string& client_id,
@@ -103,7 +94,8 @@ void RmtDataCacheCsm::AddNewPartition(const PartitionExt& partition_ext) {
   //
   SubscribeInfo sub_info(consumer_id_, group_name_, partition_ext);
   string partition_key = partition_ext.GetPartitionKey();
-  pthread_rwlock_wrlock(&meta_rw_lock_);
+  // lock operate
+  lock_guard<mutex> lck(meta_lock_);
   it_map = partitions_.find(partition_key);
   if (it_map == partitions_.end()) {
     partitions_[partition_key] = partition_ext;
@@ -130,10 +122,7 @@ void RmtDataCacheCsm::AddNewPartition(const PartitionExt& partition_ext) {
     part_subinfo_[partition_key] = sub_info;
   }
   // check partition_key status
-  pthread_mutex_lock(&part_mutex_);
   resetIdlePartition(partition_key, true);
-  pthread_mutex_unlock(&part_mutex_);
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 bool RmtDataCacheCsm::SelectPartition(string &err_info,
@@ -142,13 +131,12 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
   int64_t booked_time = 0;
   string partition_key;
   map<string, PartitionExt>::iterator it_map;
-
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  // lock operate
+  lock_guard<mutex> lck(meta_lock_);
   if (partitions_.empty()) {
     err_info = "No partition info in local cache, please retry later!";
     result = false;
   } else {
-    pthread_mutex_lock(&part_mutex_);
     if (index_partitions_.empty()) {
       err_info = "No idle partition to consume, please retry later!";
       result = false;
@@ -167,9 +155,7 @@ bool RmtDataCacheCsm::SelectPartition(string &err_info,
         err_info = "Ok";
       }
     }
-    pthread_mutex_unlock(&part_mutex_);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
   return result;
 }
 
@@ -180,18 +166,16 @@ void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key,
   map<string, PartitionExt>::iterator it_part;
   // book partition offset info
   if (curr_offset >= 0) {
-    pthread_mutex_lock(&data_book_mutex_);
+    lock_guard<mutex> lck1(data_book_mutex_);
     partition_offset_[partition_key] = curr_offset;
-    pthread_mutex_unlock(&data_book_mutex_);
   }
   // book partition temp info
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck2(meta_lock_);
   it_part = partitions_.find(partition_key);
   if (it_part != partitions_.end()) {
     it_part->second.BookConsumeData(err_code, msg_size,
               esc_limit, limit_dlt, cur_data_dlt, require_slow);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 // success process release partition
@@ -233,7 +217,7 @@ void RmtDataCacheCsm::FilterPartitions(const list<SubscribeInfo>& subscribe_info
   // initial return;
   subscribed_partitions.clear();
   unsub_partitions.clear();
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   if (partitions_.empty()) {
     for (it_lst = subscribe_info_lst.begin(); it_lst != subscribe_info_lst.end(); it_lst++) {
       unsub_partitions.push_back(it_lst->GetPartitionExt());
@@ -248,17 +232,15 @@ void RmtDataCacheCsm::FilterPartitions(const list<SubscribeInfo>& subscribe_info
       }
     }
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 void RmtDataCacheCsm::GetSubscribedInfo(list<SubscribeInfo>& subscribe_info_lst) {
   map<string, SubscribeInfo>::iterator it_sub;
   subscribe_info_lst.clear();
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   for (it_sub = part_subinfo_.begin(); it_sub != part_subinfo_.end(); ++it_sub) {
     subscribe_info_lst.push_back(it_sub->second);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 void RmtDataCacheCsm::GetAllBrokerPartitions(
@@ -267,7 +249,7 @@ void RmtDataCacheCsm::GetAllBrokerPartitions(
   map<NodeInfo, list<PartitionExt> >::iterator it_broker;
 
   broker_parts.clear();
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   for (it_part = partitions_.begin(); it_part != partitions_.end(); ++it_part) {
     it_broker = broker_parts.find(it_part->second.GetBrokerInfo());
     if (it_broker == broker_parts.end()) {
@@ -278,20 +260,18 @@ void RmtDataCacheCsm::GetAllBrokerPartitions(
       it_broker->second.push_back(it_part->second);
     }
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 bool RmtDataCacheCsm::GetPartitionExt(const string& part_key, PartitionExt& partition_ext) {
   bool result = false;
   map<string, PartitionExt>::iterator it_map;
 
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   it_map = partitions_.find(part_key);
   if (it_map != partitions_.end()) {
     result = true;
     partition_ext = it_map->second;
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
   return result;
 }
 
@@ -299,11 +279,10 @@ void RmtDataCacheCsm::GetRegBrokers(list<NodeInfo>& brokers) {
   map<NodeInfo, set<string> >::iterator it;
 
   brokers.clear();
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   for (it = broker_partition_.begin(); it != broker_partition_.end(); ++it) {
     brokers.push_back(it->first);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
@@ -313,7 +292,7 @@ void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
   map<string, PartitionExt>::iterator it_part;
 
   partition_list.clear();
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   it_broker = broker_partition_.find(broker_info);
   if (it_broker != broker_partition_.end()) {
     for (it_key = it_broker->second.begin();
@@ -324,7 +303,6 @@ void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
       }
     }
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 
@@ -332,11 +310,10 @@ void RmtDataCacheCsm::GetCurPartitionOffsets(map<string, int64_t> part_offset_ma
   map<string, int64_t>::iterator it;
 
   part_offset_map.clear();
-  pthread_mutex_lock(&data_book_mutex_);
+  lock_guard<mutex> lck(data_book_mutex_);
   for (it = partition_offset_.begin(); it != partition_offset_.end(); ++it) {
     part_offset_map[it->first] = it->second;
   }
-  pthread_mutex_unlock(&data_book_mutex_);
 }
 
 
@@ -373,15 +350,12 @@ void RmtDataCacheCsm::RemovePartition(const list<PartitionExt>& partition_list) 
 void RmtDataCacheCsm::RemovePartition(const set<string>& partition_keys) {
   set<string>::const_iterator it_lst;
 
-  pthread_rwlock_wrlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   for (it_lst = partition_keys.begin(); it_lst != partition_keys.end(); it_lst++) {
-    pthread_mutex_lock(&part_mutex_);
     resetIdlePartition(*it_lst, false);
-    pthread_mutex_unlock(&part_mutex_);
     // remove meta info set info
     rmvMetaInfo(*it_lst);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe_infos,
@@ -397,8 +371,7 @@ void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe
   if (subscribe_infos.empty()) {
     return;
   }
-  pthread_rwlock_wrlock(&meta_rw_lock_);
-  pthread_mutex_lock(&part_mutex_);
+  lock_guard<mutex> lck(meta_lock_);
   for (it = subscribe_infos.begin(); it != subscribe_infos.end(); ++it) {
     part_key = it->GetPartitionExt().GetPartitionKey();
     it_part = partitions_.find(part_key);
@@ -422,8 +395,6 @@ void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe
     }
     resetIdlePartition(part_key, false);
   }
-  pthread_mutex_unlock(&part_mutex_);
-  pthread_rwlock_unlock(&meta_rw_lock_);
 }
 
 
@@ -431,64 +402,56 @@ void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe
 bool RmtDataCacheCsm::BookPartition(const string& partition_key) {
   bool result = false;
   map<string, bool>::iterator it;
-  pthread_mutex_lock(&data_book_mutex_);
+
+  lock_guard<mutex> lck(data_book_mutex_);
   it = part_reg_booked_.find(partition_key);
   if (it == part_reg_booked_.end()) {
     part_reg_booked_[partition_key] = true;
   }
-  pthread_mutex_unlock(&data_book_mutex_);
   return result;
 }
 
 void RmtDataCacheCsm::OfferEvent(const ConsumerEvent& event) {
-  pthread_mutex_lock(&event_read_mutex_);
+  unique_lock<mutex> lck(event_read_mutex_);
   this->rebalance_events_.push_back(event);
-  pthread_cond_broadcast(&event_read_cond_);
-  pthread_mutex_unlock(&event_read_mutex_);
+  event_read_cond_.notify_all();
 }
 
 void RmtDataCacheCsm::TakeEvent(ConsumerEvent& event) {
-  pthread_mutex_lock(&event_read_mutex_);
+  unique_lock<mutex> lck(event_read_mutex_);
   while (this->rebalance_events_.empty()) {
-    pthread_cond_wait(&event_read_cond_, &event_read_mutex_);
+    event_read_cond_.wait(lck);
   }
   event = rebalance_events_.front();
   rebalance_events_.pop_front();
-  pthread_mutex_unlock(&event_read_mutex_);
 }
 
 void RmtDataCacheCsm::ClearEvent() {
-  pthread_mutex_lock(&event_read_mutex_);
+  unique_lock<mutex> lck(event_read_mutex_);
   rebalance_events_.clear();
-  pthread_mutex_unlock(&event_read_mutex_);
 }
 
 void RmtDataCacheCsm::OfferEventResult(const ConsumerEvent& event) {
-  pthread_mutex_lock(&event_write_mutex_);
+  lock_guard<mutex> lck(event_write_mutex_);
   this->rebalance_events_.push_back(event);
-  pthread_mutex_unlock(&event_write_mutex_);
 }
 
 bool RmtDataCacheCsm::PollEventResult(ConsumerEvent& event) {
   bool result = false;
-  pthread_mutex_lock(&event_write_mutex_);
+  lock_guard<mutex> lck(event_write_mutex_);
   if (!rebalance_events_.empty()) {
     event = rebalance_events_.front();
     rebalance_events_.pop_front();
     result = true;
   }
-  pthread_mutex_unlock(&event_write_mutex_);
   return result;
 }
 
 void RmtDataCacheCsm::HandleTimeout(const string partition_key,
                                           const asio::error_code& error) {
   if (!error) {
-    pthread_rwlock_rdlock(&meta_rw_lock_);
-    pthread_mutex_lock(&part_mutex_);
+    lock_guard<mutex> lck(meta_lock_);
     resetIdlePartition(partition_key, true);
-    pthread_mutex_unlock(&part_mutex_);    
-    pthread_rwlock_unlock(&meta_rw_lock_);
   }
 }
 
@@ -579,18 +542,15 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
   if (!result) {
     return false;
   }
-  pthread_rwlock_rdlock(&meta_rw_lock_);
+  lock_guard<mutex> lck(meta_lock_);
   it_part = partitions_.find(partition_key);
   if (it_part == partitions_.end()) {
     // partition is unregister, release partition
-    pthread_mutex_lock(&part_mutex_);
     partition_useds_.erase(partition_key);
     index_partitions_.remove(partition_key);
-    pthread_mutex_unlock(&part_mutex_);
     err_info = "Not found the partition in Consume Partition set!";
     result = false;
   } else {
-    pthread_mutex_lock(&part_mutex_);
     it_used = partition_useds_.find(partition_key);
     if (it_used == partition_useds_.end()) {
       // partition is release but registered
@@ -619,9 +579,7 @@ bool RmtDataCacheCsm::inRelPartition(string &err_info, bool need_delay_check,
         result = false;
       }
     }
-    pthread_mutex_unlock(&part_mutex_);
   }
-  pthread_rwlock_unlock(&meta_rw_lock_);
   return result;
 }
 

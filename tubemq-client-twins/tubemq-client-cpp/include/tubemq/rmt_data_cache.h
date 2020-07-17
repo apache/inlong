@@ -20,11 +20,12 @@
 #ifndef TUBEMQ_CLIENT_RMT_DATA_CACHE_H_
 #define TUBEMQ_CLIENT_RMT_DATA_CACHE_H_
 
-#include <pthread.h>
 #include <stdint.h>
 
+#include <condition_variable>
 #include <list>
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <tuple>
@@ -41,9 +42,11 @@
 
 namespace tubemq {
 
+using std::condition_variable;
 using std::map;
 using std::set;
 using std::list;
+using std::mutex;
 using std::string;
 using std::tuple;
 
@@ -110,7 +113,7 @@ class RmtDataCacheCsm {
 
  private:
   // timer executor
-  ExecutorPtr executor_;
+  ExecutorPool executor_;
   // 
   string consumer_id_;
   string group_name_;
@@ -120,7 +123,7 @@ class RmtDataCacheCsm {
   AtomicBoolean under_groupctrl_;
   AtomicLong last_checktime_;
   // meta info
-  pthread_rwlock_t meta_rw_lock_;
+  mutable mutex meta_lock_;
   // partiton allocated map
   map<string, PartitionExt> partitions_;
   // topic partiton map
@@ -129,25 +132,23 @@ class RmtDataCacheCsm {
   map<NodeInfo, set<string> > broker_partition_;
   map<string, SubscribeInfo>  part_subinfo_;
   // for idle partitions occupy
-  pthread_mutex_t  part_mutex_;
-  // for partiton idle map
   list<string> index_partitions_;
   // for partition used map
   map<string, int64_t> partition_useds_;
   // for partiton timer map
   map<string, tuple<int64_t, SteadyTimerPtr> > partition_timeouts_;
   // data book
-  pthread_mutex_t data_book_mutex_;
+  mutable mutex data_book_mutex_;
   // for partition offset cache
   map<string, int64_t> partition_offset_;
   // for partiton register booked
   map<string, bool> part_reg_booked_;
 
   // event
-  pthread_mutex_t  event_read_mutex_;
-  pthread_cond_t   event_read_cond_;
+  mutable mutex event_read_mutex_;
+  condition_variable event_read_cond_;
   list<ConsumerEvent> rebalance_events_;
-  pthread_mutex_t  event_write_mutex_;
+  mutable mutex event_write_mutex_;
   list<ConsumerEvent> rebalance_results_;
 };
 
