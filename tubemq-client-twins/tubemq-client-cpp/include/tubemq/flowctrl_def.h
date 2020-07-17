@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <list>
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,7 @@
 namespace tubemq {
 
 using std::map;
+using std::mutex;
 using std::string;
 using std::vector;
 
@@ -94,12 +96,12 @@ class FlowCtrlRuleHandler {
                              const string& flowctrl_info);
   bool GetCurDataLimit(int64_t last_datadlt, FlowCtrlResult& flowctrl_result) const;
   int32_t GetCurFreqLimitTime(int32_t msg_zero_cnt, int32_t received_limit) const;
+  void GetFilterCtrlItem(FlowCtrlItem& result) const;
+  void GetFlowCtrlInfo(string& flowctrl_info) const;
   int32_t GetMinZeroCnt() const { return this->min_zero_cnt_.Get(); }
   int32_t GetQryPriorityId() const { return this->qrypriority_id_.Get(); }
   void SetQryPriorityId(int32_t qrypriority_id) { this->qrypriority_id_.Set(qrypriority_id); }
   int64_t GetFlowCtrlId() const { return this->flowctrl_id_.Get(); }
-  const FlowCtrlItem& GetFilterCtrlItem() const { return this->filter_ctrl_item_; }
-  const string& GetFlowCtrlInfo() const { return this->flowctrl_info_; }
 
  private:
   void initialStatisData();
@@ -124,17 +126,17 @@ class FlowCtrlRuleHandler {
                        int32_t& value);
 
  private:
+  mutable mutex config_lock_;
+  string flowctrl_info_;
+  FlowCtrlItem filter_ctrl_item_;
+  map<int32_t, vector<FlowCtrlItem> > flowctrl_rules_;
+  int64_t last_update_time_;
   AtomicLong flowctrl_id_;
   AtomicInteger qrypriority_id_;
-  string flowctrl_info_;
   AtomicInteger min_zero_cnt_;
   AtomicLong min_datadlt_limt_;
   AtomicInteger datalimit_start_time_;
   AtomicInteger datalimit_end_time_;
-  FlowCtrlItem filter_ctrl_item_;
-  map<int32_t, vector<FlowCtrlItem> > flowctrl_rules_;
-  pthread_rwlock_t configrw_lock_;
-  int64_t last_update_time_;
 };
 
 }  // namespace tubemq

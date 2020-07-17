@@ -32,6 +32,7 @@
 namespace tubemq {
 
 using std::stringstream;
+using std::lock_guard;
 
 FlowCtrlResult::FlowCtrlResult() {
   this->datasize_limit_ = tb_config::kMaxIntValue;
@@ -171,10 +172,11 @@ FlowCtrlRuleHandler::FlowCtrlRuleHandler() {
   this->datalimit_start_time_.Set(2500);
   this->datalimit_end_time_.Set(tb_config::kInvalidValue);
   this->last_update_time_ = Utils::GetCurrentTimeMillis();
-  pthread_rwlock_init(&configrw_lock_, NULL);
 }
 
-FlowCtrlRuleHandler::~FlowCtrlRuleHandler() { pthread_rwlock_destroy(&configrw_lock_); }
+FlowCtrlRuleHandler::~FlowCtrlRuleHandler() {
+  // 
+}
 
 void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qrypriority_id,
                                                 int64_t flowctrl_id, const string& flowctrl_info) {
@@ -186,7 +188,7 @@ void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qryprio
   if (flowctrl_info.length() > 0) {
     parseFlowCtrlInfo(flowctrl_info, tmp_flowctrl_map);
   }
-  pthread_rwlock_wrlock(&this->configrw_lock_);
+  lock_guard<mutex> lck(config_lock_);
   this->flowctrl_id_.Set(flowctrl_id);
   this->qrypriority_id_.Set(qrypriority_id);
   clearStatisData();
@@ -199,7 +201,6 @@ void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qryprio
     initialStatisData();
   }
   this->last_update_time_ = Utils::GetCurrentTimeMillis();
-  pthread_rwlock_unlock(&this->configrw_lock_);
   if (is_default) {
     LOG_INFO("[Flow Ctrl] Default FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
              flowctrl_id);
@@ -268,50 +269,68 @@ void FlowCtrlRuleHandler::clearStatisData() {
 bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt,
                                           FlowCtrlResult& flowctrl_result) const {
   struct tm utc_tm;
+  bool result = false;
   vector<FlowCtrlItem>::const_iterator it_vec;
   map<int, vector<FlowCtrlItem> >::const_iterator it_map;
+  // get current data limit
   time_t cur_time = time(NULL);
-
   gmtime_r(&cur_time, &utc_tm);
   int curr_time = (utc_tm.tm_hour + 8) % 24 * 100 + utc_tm.tm_min;
-  if ((last_datadlt < this->min_datadlt_limt_.Get()) ||
-      (curr_time < this->datalimit_start_time_.Get()) ||
-      (curr_time > this->datalimit_end_time_.Get())) {
+  if ((last_datadlt < this->min_datadlt_limt_.Get())
+      || (curr_time < this->datalimit_start_time_.Get())
+      || (curr_time > this->datalimit_end_time_.Get())) {
     return false;
   }
+  // search total flowctrl rule
+  lock_guard<mutex> lck(config_lock_);
   it_map = this->flowctrl_rules_.find(0);
-  if (it_map == this->flowctrl_rules_.end()) {
-    return false;
-  }
-  for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
-    if (it_vec->GetDataLimit(last_datadlt, curr_time, flowctrl_result)) {
-      return true;
+  if (it_map != this->flowctrl_rules_.end()) {
+    for (it_vec = it_map->second.begin();it_vec != it_map->second.end(); ++it_vec) {
+      if (it_vec->GetDataLimit(last_datadlt, curr_time, flowctrl_result)) {
+        result = true;
+        break;
+      }
     }
   }
-  return false;
+  return result;
 }
 
 int32_t FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt,
                                                  int32_t received_limit) const {
-  int32_t rule_val = -2;
+  int32_t limit_data = received_limit;
   vector<FlowCtrlItem>::const_iterator it_vec;
   map<int, vector<FlowCtrlItem> >::const_iterator it_map;
-
+  // check min zero count
   if (msg_zero_cnt < this->min_zero_cnt_.Get()) {
-    return received_limit;
+    return limit_data;
   }
+  // search rule allow value
+  lock_guard<mutex> lck(config_lock_);
   it_map = this->flowctrl_rules_.find(1);
-  if (it_map == this->flowctrl_rules_.end()) {
-    return received_limit;
-  }
-  for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
-    rule_val = it_vec->GetFreLimit(msg_zero_cnt);
-    if (rule_val >= 0) {
-      return rule_val;
+  if (it_map != this->flowctrl_rules_.end()) {
+    for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
+      limit_data = it_vec->GetFreLimit(msg_zero_cnt);
+      if (limit_data >= 0) {
+        break;
+      }
     }
   }
-  return received_limit;
+  return limit_data;
 }
+
+void FlowCtrlRuleHandler::GetFilterCtrlItem(FlowCtrlItem& result) const {
+  result.Clear();
+  lock_guard<mutex> lck(config_lock_);
+  result = this->filter_ctrl_item_;
+}
+
+void FlowCtrlRuleHandler::GetFlowCtrlInfo(string& flowctrl_info) const {
+  flowctrl_info.clear();
+  lock_guard<mutex> lck(config_lock_);
+  flowctrl_info = this->flowctrl_info_;
+}
+
+
 
 bool FlowCtrlRuleHandler::compareDataLimitQueue(const FlowCtrlItem& o1, const FlowCtrlItem& o2) {
   if (o1.GetStartTime() >= o2.GetStartTime()) {
