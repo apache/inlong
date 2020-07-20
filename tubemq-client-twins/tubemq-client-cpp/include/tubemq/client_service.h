@@ -48,6 +48,7 @@ class BaseClient {
  public:
   BaseClient(bool is_producer);
   virtual ~BaseClient();
+  virtual void ShutDown();
   void SetClientIndex(int32_t client_index) { client_index_ = client_index; }
   bool IsProducer() { return is_producer_; }
   const int32_t GetClientIndex() { return client_index_; }
@@ -58,26 +59,25 @@ class BaseClient {
 };
 
 
-enum ServiceStatus {
-  kServiceReady = 0,
-  kServiceRunning = 1,
-  kServiceStop = 2,
-};  // enum ServiceStatus
-
-
 class TubeMQService : public Singleton<TubeMQService> {
  public:
-  TubeMQService();
+  // TubeMQService();
+  // ~TubeMQService();
   bool Start(string& err_info, string conf_file = "../conf/tubemqclient.conf");
   bool Stop(string& err_info);
   bool IsRunning();
-  const int32_t  getServiceStatus() const { return service_status_.Get(); }
+  const int32_t  GetServiceStatus() const { return service_status_.Get(); }
+  int32_t GetClientObjCnt();
   bool AddClientObj(string& err_info,
          BaseClient* client_obj, int32_t& client_index);
   BaseClient* GetClientObj(int32_t client_index) const;
+  BaseClient* RmvClientObj(int32_t client_index);
+  const ExecutorPoolPtr& GetTimerExecutor() const { return timer_executor_; }
+  const ExecutorPoolPtr& GetNetWorkExecutor() const { return network_executor_; }
 
  private:
-  bool iniLogger(const Fileini& fileini, const string& sector);
+  void iniLogger(const Fileini& fileini, const string& sector);
+  void shutDownClinets() const;
 
  private:
   AtomicInteger service_status_;
