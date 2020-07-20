@@ -35,10 +35,10 @@ class Fileini {
   Fileini();
   ~Fileini();
   bool Loadini(string& err_info, const string& file_name);
-  bool GetValue(string& err_info, const string& sector, const string& key, string& value,
-                const string& def);
-  bool GetValue(string& err_info, const string& sector, const string& key, int32_t& value,
-                const int32_t def);
+  bool GetValue(string& err_info, const string& sector, const string& key,
+                    string& value, const string& def) const;
+  bool GetValue(string& err_info, const string& sector, const string& key,
+                   int32_t& value, int32_t def) const;
 
  private:
   bool init_flag_;

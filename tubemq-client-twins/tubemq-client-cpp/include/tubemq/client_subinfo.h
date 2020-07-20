@@ -35,6 +35,19 @@ using std::set;
 using std::string;
 
 
+class MasterAddrInfo {
+ public:
+  MasterAddrInfo();
+  bool InitMasterAddress(string& err_info, const string& master_info);
+  void GetNextMasterAddr(string& ipaddr, int32_t& port);
+  void GetCurrentMasterAddr(string& ipaddr, int32_t& port);
+  int32_t GetTotalMasterAddrCnt() { return master_addr_.size(); } 
+
+ private:
+   string curr_master_addr_;
+   map<string, int32_t> master_addr_;
+};
+
 class ClientSubInfo {
  public:
   ClientSubInfo();
