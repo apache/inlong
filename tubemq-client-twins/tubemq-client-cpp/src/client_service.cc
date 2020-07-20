@@ -41,6 +41,18 @@ BaseClient::~BaseClient() {
   // no code
 }
 
+/*
+TubeMQService::TubeMQService() {
+  service_status_.Set(0);
+  client_index_base_.Set(0);
+}
+
+TubeMQService::~TubeMQService() {
+  string err_info;
+  Stop(err_info);
+}
+*/
+
 bool TubeMQService::Start(string& err_info, string conf_file) {
   // check configure file
   bool result = false;
@@ -55,11 +67,29 @@ bool TubeMQService::Start(string& err_info, string conf_file) {
   if (!result) {
     return result;
   }
+  if (!service_status_.CompareAndSet(0,1)) {
+    err_info = "TubeMQ Service has startted or Stopped!";
+    return false;
+  }
   iniLogger(fileini, sector);
+  service_status_.set(2);
 }
 
+bool TubeMQService::Stop(string& err_info) {
+  if (service_status_.CompareAndSet(2, -1)) {
+    shutDownClinets();
+    timer_executor_->Close();
+    network_executor_->Close();
+  }
+  err_info = "OK!";
+  return true;
+}
 
-bool TubeMQService::iniLogger(const Fileini& fileini, const string& sector) {
+bool TubeMQService::IsRunning() {
+  return (service_status_.Get() == 2);
+}
+
+void TubeMQService::iniLogger(const Fileini& fileini, const string& sector) {
   string err_info;
   int32_t log_num = 10;
   int32_t log_size = 10;
@@ -71,8 +101,14 @@ bool TubeMQService::iniLogger(const Fileini& fileini, const string& sector) {
   fileini.GetValue(err_info, sector, "log_level", log_level, 4);
   log_level = TUBEMQ_MID(log_level, 0, 4);
   GetLogger().Init(log_path, Logger::Level(log_level), log_size, log_num);
-  return true;
 }
+
+
+int32_t TubeMQService::GetClientObjCnt() {
+  lock_guard<mutex> lck(mutex_);
+  return clients_map_.size();
+}
+
 
 bool TubeMQService::AddClientObj(string& err_info,
            BaseClient* client_obj, int32_t& client_index) {
@@ -99,6 +135,26 @@ BaseClient* TubeMQService::GetClientObj(int32_t client_index) const {
   return client_obj;
 }
 
+BaseClient* TubeMQService::RmvClientObj(int32_t client_index) {
+  BaseClient* client_obj = NULL;
+  map<int32_t, BaseClient*>::iterator it;
+  
+  lock_guard<mutex> lck(mutex_);
+  it = clients_map_.find(client_index);
+  if (it != clients_map_.end()) {
+    client_obj = it->second;
+    clients_map_.erase(client_index);
+  }
+  return client_obj;
+}
+
+void TubeMQService::shutDownClinets() const {
+  map<int32_t, BaseClient*>::const_iterator it;
+  lock_guard<mutex> lck(mutex_);
+  for (it = clients_map_.begin(); it != clients_map_.end(); it++) {
+    it->second->ShutDown();
+  }
+}
 
 
 }  // namespace tubemq
