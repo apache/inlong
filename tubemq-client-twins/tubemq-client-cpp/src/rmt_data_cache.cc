@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include "tubemq/client_service.h"
 #include "tubemq/const_config.h"
 #include "tubemq/meta_info.h"
 #include "tubemq/utils.h"
@@ -399,7 +400,7 @@ void RmtDataCacheCsm::RemoveAndGetPartition(const list<SubscribeInfo>& subscribe
 
 
 
-bool RmtDataCacheCsm::BookPartition(const string& partition_key) {
+bool RmtDataCacheCsm::IsPartitionFirstReg(const string& partition_key) {
   bool result = false;
   map<string, bool>::iterator it;
 
@@ -458,9 +459,10 @@ void RmtDataCacheCsm::HandleTimeout(const string partition_key,
 void RmtDataCacheCsm::addDelayTimer(const string& partition_key, int64_t delay_time) {
   // add timer
   tuple<int64_t, SteadyTimerPtr> timer = 
-      std::make_tuple(Utils::GetCurrentTimeMillis(), executor_.Get()->CreateSteadyTimer());
+      std::make_tuple(Utils::GetCurrentTimeMillis(),
+      TubeMQService::Instance().GetTimerExecutorPool().Get()->CreateSteadyTimer());
   std::get<1>(timer)->expires_after(std::chrono::milliseconds(delay_time));
-  std::get<1>(timer)->async_wait(std::bind(&RmtDataCacheCsm::HandleTimeout, partition_key, _1));
+  std::get<1>(timer)->async_wait(std::bind(&RmtDataCacheCsm::HandleTimeout, this, partition_key, _1));
   partition_timeouts_.insert(std::make_pair(partition_key, timer));          
 }
 

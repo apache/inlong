@@ -26,6 +26,7 @@
 #include <set>
 #include <string>
 #include "tubemq/atomic_def.h"
+#include "tubemq/tubemq_config.h"
 
 namespace tubemq {
 
@@ -51,14 +52,11 @@ class MasterAddrInfo {
 class ClientSubInfo {
  public:
   ClientSubInfo();
-  void SetConsumeTarget(bool bound_consume,
-                               const map<string, set<string> >& topic_and_filter_map,
-                               const string& session_key, uint32_t source_count,
-                               bool select_big, const map<string, int64_t>& part_offset_map);
+  void SetConsumeTarget(const ConsumerConfig& config);
   bool CompAndSetNotAllocated(bool expect, bool update);
   void BookFstRegistered() { first_registered_.Set(true); }
-  bool IsBoundConsume() { return bound_consume_; }
-  bool IsNotAllocated() { return not_allocated_.Get(); }
+  bool IsBoundConsume() const { return bound_consume_; }
+  bool IsNotAllocated() const { return not_allocated_.Get(); }
   const int64_t GetSubscribedTime() const { return subscribed_time_; }
   const string& GetSessionKey() const { return session_key_; }
   const uint32_t GetSourceCnt() const { return source_count_; }

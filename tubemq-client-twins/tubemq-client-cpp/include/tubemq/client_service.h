@@ -68,24 +68,25 @@ class TubeMQService : public Singleton<TubeMQService> {
   bool IsRunning();
   const int32_t  GetServiceStatus() const { return service_status_.Get(); }
   int32_t GetClientObjCnt();
-  bool AddClientObj(string& err_info,
-         BaseClient* client_obj, int32_t& client_index);
+  bool AddClientObj(string& err_info, BaseClient* client_obj);
   BaseClient* GetClientObj(int32_t client_index) const;
   BaseClient* RmvClientObj(int32_t client_index);
-  const ExecutorPoolPtr& GetTimerExecutor() const { return timer_executor_; }
-  const ExecutorPoolPtr& GetNetWorkExecutor() const { return network_executor_; }
+  const string& GetLocalHost() const { return local_host_; }
+  const ExecutorPool& GetTimerExecutorPool() const { return timer_executor_; }
+  const ExecutorPool& GetNetWorkExecutorPool() const { return network_executor_; }
 
  private:
   void iniLogger(const Fileini& fileini, const string& sector);
   void shutDownClinets() const;
 
  private:
+  string local_host_;  
   AtomicInteger service_status_;
   AtomicInteger client_index_base_;
   mutable mutex mutex_;
   map<int32_t, BaseClient*> clients_map_;
-  ExecutorPoolPtr timer_executor_;
-  ExecutorPoolPtr network_executor_;
+  ExecutorPool timer_executor_;
+  ExecutorPool network_executor_;
 };
 
 }  // namespace tubemq
