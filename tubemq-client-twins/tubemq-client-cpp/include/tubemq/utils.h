@@ -51,6 +51,7 @@ class Utils {
   static string Long2str(int64_t data);
   static uint32_t IpToInt(const string& ipv4_addr);
   static int64_t GetCurrentTimeMillis();
+  static bool ValidConfigFile(string& err_info, const string& conf_file);
 };
 
 }  // namespace tubemq

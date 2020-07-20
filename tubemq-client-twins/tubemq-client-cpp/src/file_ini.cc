@@ -115,7 +115,7 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
 }
 
 bool Fileini::GetValue(string& err_info, const string& sector, const string& key, string& value,
-                       const string& def) {
+                       const string& def) const {
   if (!this->init_flag_) {
     err_info = "Please load configure file first!";
     return false;
@@ -123,8 +123,8 @@ bool Fileini::GetValue(string& err_info, const string& sector, const string& key
   err_info = "Ok";
   value.clear();
   // search key's value in sector
-  map<string, map<string, string> >::iterator it_sec;
-  map<string, string>::iterator it_keyval;
+  map<string, map<string, string> >::const_iterator it_sec;
+  map<string, string>::const_iterator it_keyval;
   it_sec = this->ini_map_.find(sector);
   if (it_sec == this->ini_map_.end()) {
     value = def;
@@ -139,8 +139,8 @@ bool Fileini::GetValue(string& err_info, const string& sector, const string& key
   return true;
 }
 
-bool Fileini::GetValue(string& err_info, const string& sector, const string& key, int32_t& value,
-                       const int32_t def) {
+bool Fileini::GetValue(string& err_info, const string& sector, const string& key,
+                          int32_t& value, int32_t def) const {
   string val_str;
   string def_str = Utils::Int2str(def);
   bool result = GetValue(err_info, sector, key, val_str, def_str);
