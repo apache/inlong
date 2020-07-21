@@ -44,7 +44,7 @@ class Atomic {
 
   inline T GetAndSet(T new_value) { return counter_.exchange(new_value); }
 
-  inline bool CompareAndSet(T& expect, T update) {
+  inline bool CompareAndSet(T expect, T update) {
     return counter_.compare_exchange_strong(expect, update, std::memory_order_relaxed);
   }
 
