@@ -502,6 +502,8 @@ public class BrokerConfManager implements Server {
                     && bdbQueryEntity.getDftUnflushInterval() != entity.getDftUnflushInterval())
                     || (bdbQueryEntity.getDftUnflushThreshold() != TBaseConstants.META_VALUE_UNDEFINED
                     && bdbQueryEntity.getDftUnflushThreshold() != entity.getDftUnflushThreshold())
+                    || (bdbQueryEntity.getDftUnFlushDataHold() != TBaseConstants.META_VALUE_UNDEFINED
+                    && bdbQueryEntity.getDftUnFlushDataHold() != entity.getDftUnFlushDataHold())
                     || (bdbQueryEntity.getManageStatus() != TStatusConstants.STATUS_MANAGE_NOT_DEFINED
                     && bdbQueryEntity.getManageStatus() != entity.getManageStatus())) {
                 continue;
@@ -929,6 +931,8 @@ public class BrokerConfManager implements Server {
                         && bdbQueryEntity.getMemCacheFlushIntvl() != entity.getMemCacheFlushIntvl())
                         || (bdbQueryEntity.getTopicStatusId() != TBaseConstants.META_VALUE_UNDEFINED
                         && bdbQueryEntity.getTopicStatusId() != entity.getTopicStatusId())
+                        || (bdbQueryEntity.getUnflushDataHold() != TBaseConstants.META_VALUE_UNDEFINED
+                        && bdbQueryEntity.getUnflushDataHold() != entity.getUnflushDataHold())
                         || (bdbQueryEntity.getUnflushInterval() != TBaseConstants.META_VALUE_UNDEFINED
                         && bdbQueryEntity.getUnflushInterval() != entity.getUnflushInterval())
                         || (bdbQueryEntity.getUnflushThreshold() != TBaseConstants.META_VALUE_UNDEFINED

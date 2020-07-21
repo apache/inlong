@@ -122,10 +122,11 @@ public class MsgFileStore implements Closeable {
                 .append("Closed MessageStore for storeKey ")
                 .append(this.storeKey).toString());
         }
-        boolean isDataFlushed = false;
+        boolean isDataSegFlushed = false;
         boolean isIndexFlushed = false;
         boolean isMsgCntFlushed = false;
         boolean isMsgTimeFushed = false;
+        boolean isDataFlushed = false;
         final MsgFileStatisInfo msgFileStatisInfo = messageStore.getFileMsgSizeStatisInfo();
         this.writeLock.lock();
         try {
@@ -137,7 +138,7 @@ public class MsgFileStore implements Closeable {
             final long dataOffset = curDataSeg.append(dataBuffer);
             // judge whether need to create a new data segment.
             if (curDataSeg.getCachedSize() >= this.tubeConfig.getMaxSegmentSize()) {
-                isDataFlushed = true;
+                isDataSegFlushed = true;
                 final long newDataOffset = curDataSeg.flush(true);
                 final File newDataFile =
                     new File(this.dataDir,
@@ -169,12 +170,14 @@ public class MsgFileStore implements Closeable {
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
+            isDataFlushed = (messageStore.getUnflushDataHold() > 0) &&
+                    (curUnflushSize.get() >= messageStore.getUnflushDataHold());
             if ((isMsgCntFlushed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold())
                 || (isMsgTimeFushed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval())
-                || isDataFlushed || isIndexFlushed) {
-                boolean forceMetadata = (isDataFlushed || isIndexFlushed
+                || isDataFlushed || isDataSegFlushed || isIndexFlushed) {
+                boolean forceMetadata = (isDataSegFlushed || isIndexFlushed
                     || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
-                if (!isDataFlushed) {
+                if (!isDataSegFlushed) {
                     curDataSeg.flush(forceMetadata);
                 }
                 if (!isIndexFlushed) {
@@ -182,8 +185,8 @@ public class MsgFileStore implements Closeable {
                 }
                 // add statistics.
                 msgFileStatisInfo.addFullTypeCount(currTime,
-                    isDataFlushed, isIndexFlushed, isMsgCntFlushed, isMsgTimeFushed,
-                    this.curUnflushSize.get(), this.curUnflushed.get());
+                    isDataSegFlushed, isIndexFlushed, isMsgCntFlushed, isMsgTimeFushed,
+                        isDataFlushed, this.curUnflushSize.get(), this.curUnflushed.get());
                 this.curUnflushSize.set(0);
                 this.curUnflushed.set(0);
                 this.lastFlushTime.set(System.currentTimeMillis());
@@ -429,7 +432,7 @@ public class MsgFileStore implements Closeable {
                         this.lastMetaFlushTime.set(checkTimestamp);
                     }
                     msgFileStatisInfo.addFullTypeCount(checkTimestamp, false, false,
-                            false, false, curUnflushSize.get(), curUnflushed.get());
+                            false, false, false, curUnflushSize.get(), curUnflushed.get());
                     curUnflushSize.set(0);
                     curUnflushed.set(0);
                     lastFlushTime.set(checkTimestamp);

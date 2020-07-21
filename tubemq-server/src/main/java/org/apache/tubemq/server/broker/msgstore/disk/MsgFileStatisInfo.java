@@ -45,9 +45,10 @@ public class MsgFileStatisInfo {
             curCountSet.msgTotalCnt.set(0);
             curCountSet.maxFlushMsgSize.set(0);
             curCountSet.minFlushMsgSize.set(Long.MAX_VALUE);
-            curCountSet.dataFullCont.set(0);
+            curCountSet.dataSegFullCont.set(0);
             curCountSet.indexFullCont.set(0);
             curCountSet.countFullCont.set(0);
+            curCountSet.dataFullCont.set(0);
             curCountSet.timeFullCont.set(0);
             curCountSet.writeFailCont.set(0);
         }
@@ -72,14 +73,15 @@ public class MsgFileStatisInfo {
         }
     }
 
-    public void addFullTypeCount(long currTime, boolean isDataFull, boolean isIndexFull,
+    public void addFullTypeCount(long currTime,
+                                 boolean isDataSegFull, boolean isIndexFull,
                                  boolean isMsgCountFull, boolean isMsgTimeFull,
-                                 long msgTotalSize, long msgTotalCnt) {
+                                 boolean isDataFull, long msgTotalSize, long msgTotalCnt) {
         if (isStart.get()) {
             FileStatisItemSet putCountSet = countSets[index.get()];
             if (putCountSet != null) {
-                if (isDataFull) {
-                    putCountSet.dataFullCont.incrementAndGet();
+                if (isDataSegFull) {
+                    putCountSet.dataSegFullCont.incrementAndGet();
                 }
                 if (isIndexFull) {
                     putCountSet.indexFullCont.incrementAndGet();
@@ -89,6 +91,9 @@ public class MsgFileStatisInfo {
                 }
                 if (isMsgTimeFull) {
                     putCountSet.timeFullCont.incrementAndGet();
+                }
+                if (isDataFull) {
+                    putCountSet.dataFullCont.incrementAndGet();
                 }
                 if (msgTotalSize < putCountSet.minFlushMsgSize.get()) {
                     putCountSet.minFlushMsgSize.set(msgTotalSize);
@@ -125,10 +130,11 @@ public class MsgFileStatisInfo {
             }
             sBuilder.append("{\"startTime\":\"").append(sdf.format(new Date(oldCountSet.startTime)))
                     .append("\",\"msgTotalCnt\":").append(oldCountSet.msgTotalCnt.get());
-            sBuilder.append(",\"dataSegFullCont\":").append(oldCountSet.dataFullCont.get())
+            sBuilder.append(",\"dataSegFullCont\":").append(oldCountSet.dataSegFullCont.get())
                     .append(",\"indexSegFullCont\":").append(oldCountSet.indexFullCont.get());
             sBuilder.append(",\"countFullCont\":").append(oldCountSet.countFullCont.get())
-                    .append(",\"timeFullCont\":").append(oldCountSet.timeFullCont.get());
+                    .append(",\"timeFullCont\":").append(oldCountSet.timeFullCont.get())
+                    .append(",\"dataFullCont\":").append(oldCountSet.dataFullCont.get());
             sBuilder.append(",\"maxMsgTtlSize\":").append(oldCountSet.maxFlushMsgSize.get())
                     .append(",\"minMsgTtlSize\":").append(oldCountSet.minFlushMsgSize.get());
             sBuilder.append(",\"writeFailCont\":").append(oldCountSet.writeFailCont.get())
@@ -144,9 +150,10 @@ public class MsgFileStatisInfo {
             curCountSet.msgTotalCnt.set(0);
             curCountSet.maxFlushMsgSize.set(0);
             curCountSet.minFlushMsgSize.set(Long.MAX_VALUE);
-            curCountSet.dataFullCont.set(0);
+            curCountSet.dataSegFullCont.set(0);
             curCountSet.indexFullCont.set(0);
             curCountSet.countFullCont.set(0);
+            curCountSet.dataFullCont.set(0);
             curCountSet.timeFullCont.set(0);
             curCountSet.writeFailCont.set(0);
             if (index.compareAndSet(curIndex, (curIndex + 1) % 2)) {
@@ -162,10 +169,11 @@ public class MsgFileStatisInfo {
         public AtomicLong msgTotalCnt = new AtomicLong(0);
         public AtomicLong maxFlushMsgSize = new AtomicLong(0);
         public AtomicLong minFlushMsgSize = new AtomicLong(Long.MAX_VALUE);
-        public AtomicLong dataFullCont = new AtomicLong(0);
+        public AtomicLong dataSegFullCont = new AtomicLong(0);
         public AtomicLong indexFullCont = new AtomicLong(0);
         public AtomicLong countFullCont = new AtomicLong(0);
         public AtomicLong timeFullCont = new AtomicLong(0);
+        public AtomicLong dataFullCont = new AtomicLong(0);
         public AtomicLong writeFailCont = new AtomicLong(0);
         public long endTime = System.currentTimeMillis();
     }

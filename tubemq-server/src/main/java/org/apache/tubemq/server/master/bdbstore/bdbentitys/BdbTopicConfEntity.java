@@ -365,7 +365,7 @@ public class BdbTopicConfEntity implements Serializable {
                 .append("\",\"topicName\":\"").append(topicName)
                 .append("\",\"numPartitions\":").append(numPartitions)
                 .append(",\"unflushThreshold\":").append(unflushThreshold)
-                .append(",\"unFlushDataHold\":").append(getUnflushDataHold())
+                .append(",\"unflushDataHold\":").append(getUnflushDataHold())
                 .append(",\"unflushInterval\":").append(unflushInterval)
                 .append(",\"deleteWhen\":\"").append(deleteWhen)
                 .append("\",\"deletePolicy\":\"").append(deletePolicy)

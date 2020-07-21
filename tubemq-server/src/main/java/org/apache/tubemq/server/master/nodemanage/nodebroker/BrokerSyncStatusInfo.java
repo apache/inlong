@@ -654,7 +654,7 @@ public class BrokerSyncStatusInfo {
                 .append(",\"deleteWhen\":\"").append(deleteWhen)
                 .append("\",\"deletePolicy\":\"").append(deletePolicy)
                 .append("\",\"numTopicStores\":").append(numTopicStores)
-                .append(",\"unFlushDataHold\":").append(unFlushDataHold)
+                .append(",\"unflushDataHold\":").append(unFlushDataHold)
                 .append(",\"memCacheMsgSizeInMB\":").append(memCacheMsgSizeInMB)
                 .append(",\"memCacheMsgCntInK\":").append(memCacheMsgCntInK)
                 .append(",\"memCacheFlushIntvl\":").append(memCacheFlushIntvl)
@@ -726,7 +726,7 @@ public class BrokerSyncStatusInfo {
             if (!TStringUtils.isBlank(topicConfInfoArr[10])) {
                 tmpunFlushDataHold = Integer.parseInt(topicConfInfoArr[10]);
             }
-            strBuffer.append(",\"unFlushDataHold\":").append(tmpunFlushDataHold);
+            strBuffer.append(",\"unflushDataHold\":").append(tmpunFlushDataHold);
             int tmpmemCacheMsgSizeInMB = memCacheMsgSizeInMB;
             int tmpmemCacheMsgCntInK = memCacheMsgCntInK;
             int tmpmemCacheFlushIntvl = memCacheFlushIntvl;

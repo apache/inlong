@@ -239,6 +239,10 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.validIntDataParameter("unflushInterval",
                             req.getParameter("unflushInterval"),
                             false, 10000, 1);
+            int unFlushDataHold =
+                    WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"),
+                            false, 0, 0);
             int memCacheMsgCntInK =
                     WebParameterUtils.validIntDataParameter("memCacheMsgCntInK",
                             req.getParameter("memCacheMsgCntInK"),
@@ -264,7 +268,6 @@ public class WebBrokerDefConfHandler {
             int numTopicStores =
                     WebParameterUtils.validIntDataParameter("numTopicStores",
                             req.getParameter("numTopicStores"), false, 1, 1);
-            int unFlushDataHold = unflushThreshold;
             int brokerTlsPort =
                     WebParameterUtils.validIntDataParameter("brokerTLSPort",
                             req.getParameter("brokerTLSPort"), false,
@@ -403,6 +406,9 @@ public class WebBrokerDefConfHandler {
                     final int unflushInterval =
                             WebParameterUtils.validIntDataParameter("unflushInterval",
                                     jsonObject.get("unflushInterval"), false, 10000, 1);
+                    final int unFlushDataHold =
+                            WebParameterUtils.validIntDataParameter("unflushDataHold",
+                                    jsonObject.get("unflushDataHold"), false, 0, 0);
                     final boolean acceptPublish =
                             WebParameterUtils.validBooleanDataParameter("acceptPublish",
                                     jsonObject.get("acceptPublish"), false, true);
@@ -419,7 +425,6 @@ public class WebBrokerDefConfHandler {
                         itemCreateUser = createUser;
                         itemCreateDate = createDate;
                     }
-                    int unFlushDataHold = unflushThreshold;
                     int brokerTlsPort =
                             WebParameterUtils.validIntDataParameter("brokerTLSPort",
                                     jsonObject.get("brokerTLSPort"), false,
@@ -848,7 +853,12 @@ public class WebBrokerDefConfHandler {
                     foundChange = true;
                     newEntity.appendAttributes(TokenConstants.TOKEN_STORE_NUM, String.valueOf(numTopicStores));
                 }
-                int unFlushDataHold = unflushThreshold;
+                int unFlushDataHold = WebParameterUtils.validIntDataParameter("unflushDataHold",
+                        req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
+                if ((unFlushDataHold >= 0) && (unFlushDataHold != oldEntity.getDftUnFlushDataHold())) {
+                    foundChange = true;
+                    newEntity.setDftUnFlushDataHold(unFlushDataHold);
+                }
                 int brokerTlsPort = WebParameterUtils.validIntDataParameter("brokerTLSPort",
                         req.getParameter("brokerTLSPort"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
                 if (brokerTlsPort >= 0 && brokerTlsPort != oldEntity.getBrokerTLSPort()) {
@@ -1208,6 +1218,7 @@ public class WebBrokerDefConfHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
+            brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
             boolean withDetail =
                 WebParameterUtils.validBooleanDataParameter("withDetail",
                     req.getParameter("withDetail"), false, false);
@@ -1392,6 +1403,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminQueryBrokerDefConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
+        brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
         try {
             brokerConfEntity
                     .setRecordCreateUser(WebParameterUtils.validStringParameter("createUser",
@@ -1414,6 +1426,9 @@ public class WebBrokerDefConfHandler {
             brokerConfEntity
                     .setDftUnflushThreshold(WebParameterUtils.validIntDataParameter("unflushThreshold",
                             req.getParameter("unflushThreshold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
+            brokerConfEntity
+                    .setDftUnFlushDataHold(WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
             brokerConfEntity
                     .setBrokerIp(WebParameterUtils.checkParamCommonRequires("brokerIp",
                             req.getParameter("brokerIp"), false));
@@ -1488,7 +1503,7 @@ public class WebBrokerDefConfHandler {
                         .append(",\"numTopicStores\":").append(recordNumTopicStores)
                         .append(",\"unflushThreshold\":").append(entity.getDftUnflushThreshold())
                         .append(",\"unflushInterval\":").append(entity.getDftUnflushInterval())
-                        .append(",\"unFlushDataHold\":").append(entity.getDftUnFlushDataHold())
+                        .append(",\"unflushDataHold\":").append(entity.getDftUnFlushDataHold())
                         .append(",\"memCacheMsgCntInK\":").append(recordMemCacheMsgCntInK)
                         .append(",\"memCacheMsgSizeInMB\":").append(recordMemCacheMsgSizeInMB)
                         .append(",\"memCacheFlushIntvl\":").append(recordMemCacheFlushIntvl)
@@ -1605,7 +1620,7 @@ public class WebBrokerDefConfHandler {
                             .append(",\"numPartitions\":").append(topicEntity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(topicEntity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(topicEntity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(topicEntity.getUnflushDataHold())
+                            .append(",\"unflushDataHold\":").append(topicEntity.getUnflushDataHold())
                             .append(",\"memCacheMsgCntInK\":").append(topicEntity.getMemCacheMsgCntInK())
                             .append(",\"memCacheMsgSizeInMB\":").append(topicEntity.getMemCacheMsgSizeInMB())
                             .append(",\"memCacheFlushIntvl\":").append(topicEntity.getMemCacheFlushIntvl())

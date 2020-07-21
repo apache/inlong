@@ -159,6 +159,10 @@ public class WebBrokerTopicConfHandler {
                         WebParameterUtils.validIntDataParameter("unflushInterval",
                                 req.getParameter("unflushInterval"),
                                 false, oldEntity.getDftUnflushInterval(), 1);
+                int unFlushDataHold =
+                        WebParameterUtils.validIntDataParameter("unflushDataHold",
+                                req.getParameter("unflushDataHold"),
+                                false, oldEntity.getDftUnFlushDataHold(), 0);
                 boolean acceptPublish =
                         WebParameterUtils.validBooleanDataParameter("acceptPublish",
                                 req.getParameter("acceptPublish"),
@@ -184,7 +188,6 @@ public class WebBrokerTopicConfHandler {
                         WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                 req.getParameter("memCacheFlushIntvl"),
                                 false, defmemCacheFlushIntvl, 4000);
-                int unFlushDataHold = unflushThreshold;
                 String attributes = strBuffer.append(TokenConstants.TOKEN_STORE_NUM)
                         .append(TokenConstants.EQ).append(numTopicStores)
                         .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
@@ -303,6 +306,10 @@ public class WebBrokerTopicConfHandler {
                             WebParameterUtils.validIntDataParameter("unflushInterval",
                                     jsonObject.get("unflushInterval"),
                                     false, brokerConfEntity.getDftUnflushInterval(), 1);
+                    int unFlushDataHold =
+                            WebParameterUtils.validIntDataParameter("unflushDataHold",
+                                    jsonObject.get("unflushDataHold"),
+                                    false, brokerConfEntity.getDftUnFlushDataHold(), 0);
                     final boolean acceptPublish =
                             WebParameterUtils.validBooleanDataParameter("acceptPublish",
                                     jsonObject.get("acceptPublish"),
@@ -328,7 +335,6 @@ public class WebBrokerTopicConfHandler {
                             WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                     jsonObject.get("memCacheFlushIntvl"),
                                     false, brokerConfEntity.getDftMemCacheFlushIntvl(), 4000);
-                    int unFlushDataHold = unflushThreshold;
                     String itemCreateUser =
                             WebParameterUtils.validStringParameter("createUser",
                                     jsonObject.get("createUser"),
@@ -469,6 +475,10 @@ public class WebBrokerTopicConfHandler {
                             req.getParameter("unflushThreshold"),
                             false, TBaseConstants.META_VALUE_UNDEFINED, 0));
             webTopicEntity
+                    .setUnflushDataHold(WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"),
+                            false, TBaseConstants.META_VALUE_UNDEFINED, 0));
+            webTopicEntity
                     .setTopicStatusId(WebParameterUtils.validIntDataParameter("topicStatusId",
                             req.getParameter("topicStatusId"),
                             false, TBaseConstants.META_VALUE_UNDEFINED, TStatusConstants.STATUS_TOPIC_OK));
@@ -552,7 +562,7 @@ public class WebBrokerTopicConfHandler {
                             .append(",\"numPartitions\":").append(entity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(entity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(entity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(entity.getUnflushDataHold())
+                            .append(",\"unflushDataHold\":").append(entity.getUnflushDataHold())
                             .append(",\"deleteWhen\":\"").append(entity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(entity.getDeletePolicy())
                             .append("\",\"acceptPublish\":").append(entity.getAcceptPublish())
@@ -1041,6 +1051,7 @@ public class WebBrokerTopicConfHandler {
             webTopicEntity.setMemCacheMsgSizeInMB(TBaseConstants.META_VALUE_UNDEFINED);
             webTopicEntity.setMemCacheMsgCntInK(TBaseConstants.META_VALUE_UNDEFINED);
             webTopicEntity.setMemCacheFlushIntvl(TBaseConstants.META_VALUE_UNDEFINED);
+            webTopicEntity.setUnflushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
             Map<Integer, BdbBrokerConfEntity> totalBrokers =
                     brokerConfManager.getBrokerConfStoreMap();
             Map<Integer, BrokerSyncStatusInfo> brokerSyncStatusInfoMap =
@@ -1210,7 +1221,9 @@ public class WebBrokerTopicConfHandler {
             int memCacheFlushIntvl =
                     WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                             req.getParameter("memCacheFlushIntvl"), false, TBaseConstants.META_VALUE_UNDEFINED, 4000);
-            int unFlushDataHold = unflushThreshold;
+            int unFlushDataHold =
+                    WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
             List<BdbTopicConfEntity> batchModBdbTopicEntities = new ArrayList<>();
             for (BdbBrokerConfEntity tgtEntity : batchBrokerEntitySet) {
                 if (tgtEntity == null) {
