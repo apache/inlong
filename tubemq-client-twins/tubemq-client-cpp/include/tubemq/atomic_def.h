@@ -22,215 +22,73 @@
 
 #include <stdlib.h>
 
+#include <atomic>
+
 namespace tubemq {
 
-
-class AtomicInteger {
+template <class T>
+class Atomic {
  public:
-  AtomicInteger() { this->counter_ = 0; }
+  Atomic() : counter_(0) {}
+  explicit Atomic(T initial_value) : counter_(initial_value) {}
 
-  explicit AtomicInteger(int32_t initial_value) { this->counter_ = initial_value; }
+  inline T Get() const { return counter_.load(std::memory_order_relaxed); }
+  inline void Set(T new_value) { counter_.store(new_value, std::memory_order_relaxed); }
 
-  int32_t Get() const { return this->counter_; }
-
-  void Set(int32_t new_value) { this->counter_ = new_value; }
-
-  int64_t LongValue() const { return (int64_t)this->counter_; }
-
-  int32_t GetAndSet(int32_t new_value) {
-    for (;;) {
-      int32_t current = this->counter_;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
-        return current;
-      }
-    }
+  inline int64_t LongValue() const {
+    return static_cast<int64_t>(counter_.load(std::memory_order_relaxed));
+  }
+  inline int32_t IntValue() const {
+    return static_cast<int32_t>(counter_.load(std::memory_order_relaxed));
   }
 
-  bool CompareAndSet(int32_t expect, int32_t update) {
-    return __sync_bool_compare_and_swap(&this->counter_, expect, update);
+  inline T GetAndSet(T new_value) { return counter_.exchange(new_value); }
+
+  inline bool CompareAndSet(T expect, T update) {
+    return counter_.compare_exchange_strong(expect, update, std::memory_order_relaxed);
   }
 
-  int32_t GetAndIncrement() {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current + 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
+  // return old value
+  inline T GetAndIncrement() { return counter_.fetch_add(1, std::memory_order_relaxed); }
 
-  int32_t GetAndDecrement() {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current - 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
+  inline T GetAndDecrement() { return counter_.fetch_add(-1, std::memory_order_relaxed); }
 
-  int32_t GetAndAdd(int32_t delta) {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current + delta;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
+  inline T GetAndAdd(T delta) { return counter_.fetch_add(delta, std::memory_order_relaxed); }
 
-  int32_t IncrementAndGet() {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current + 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
-  }
+  // return new value
+  inline T IncrementAndGet() { return AddAndGet(1); }
 
-  int32_t DecrementAndGet() {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current - 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
-  }
+  inline T DecrementAndGet() { return AddAndGet(-1); }
 
-  int32_t AddAndGet(int32_t delta) {
-    for (;;) {
-      int32_t current = this->counter_;
-      int32_t next = current + delta;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
+  inline T AddAndGet(T delta) {
+    return counter_.fetch_add(delta, std::memory_order_relaxed) + delta;
   }
 
  private:
-  volatile int32_t counter_;
+  std::atomic<T> counter_;
 };
 
-class AtomicLong {
- public:
-  AtomicLong() { this->counter_ = 0; }
-
-  explicit AtomicLong(int64_t initial_value) { this->counter_ = initial_value; }
-
-  int64_t Get() const { return this->counter_; }
-
-  void Set(int64_t new_value) { this->counter_ = new_value; }
-
-  int32_t IntValue() const { return (int32_t)this->counter_; }
-
-  int64_t GetAndSet(int64_t new_value) {
-    for (;;) {
-      int64_t current = this->counter_;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, new_value)) {
-        return current;
-      }
-    }
-  }
-
-  bool CompareAndSet(int64_t expect, int64_t update) {
-    return __sync_bool_compare_and_swap(&this->counter_, expect, update);
-  }
-
-  int64_t GetAndIncrement() {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current + 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
-
-  int64_t GetAndDecrement() {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current - 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
-
-  int64_t GetAndAdd(int64_t delta) {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current + delta;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return current;
-      }
-    }
-  }
-
-  int64_t IncrementAndGet() {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current + 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
-  }
-
-  int64_t DecrementAndGet() {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current - 1;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
-  }
-
-  int64_t AddAndGet(int64_t delta) {
-    for (;;) {
-      int64_t current = this->counter_;
-      int64_t next = current + delta;
-      if (__sync_bool_compare_and_swap(&this->counter_, current, next)) {
-        return next;
-      }
-    }
-  }
-
- private:
-  volatile int64_t counter_;
-};
+using AtomicInteger = Atomic<int32_t>;
+using AtomicLong = Atomic<int64_t>;
 
 class AtomicBoolean {
  public:
-  AtomicBoolean() { this->counter_ = 0; }
+  AtomicBoolean() : counter_(false) {}
+  explicit AtomicBoolean(bool initial_value) : counter_(initial_value) {}
 
-  explicit AtomicBoolean(bool initial_value) { this->counter_ = initial_value ? 1 : 0; }
+  inline bool Get() const { return counter_.load(std::memory_order_relaxed); }
+  inline void Set(bool new_value) { counter_.store(new_value, std::memory_order_relaxed); }
 
-  bool Get() const { return this->counter_ != 0; }
+  // return old value
+  inline bool GetAndSet(bool new_value) { return counter_.exchange(new_value); }
 
-  void Set(bool new_value) { this->counter_ = new_value ? 1 : 0; }
-
-  bool GetAndSet(bool new_value) {
-    int32_t u = new_value ? 1 : 0;
-    for (;;) {
-      int32_t e = this->counter_ ? 1 : 0;
-      if (__sync_bool_compare_and_swap(&this->counter_, e, u)) {
-        return e != 0;
-      }
-    }
-  }
-
-  bool CompareAndSet(bool expect, bool update) {
-    int32_t e = expect ? 1 : 0;
-    int32_t u = update ? 1 : 0;
-    return __sync_bool_compare_and_swap(&this->counter_, e, u);
+  // CAS SET
+  inline bool CompareAndSet(bool& expect, bool update) {
+    return counter_.compare_exchange_strong(expect, update, std::memory_order_relaxed);
   }
 
  private:
-  volatile int32_t counter_;
+  std::atomic<bool> counter_;
 };
 
 }  // namespace tubemq
