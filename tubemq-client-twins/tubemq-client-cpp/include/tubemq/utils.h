@@ -52,6 +52,7 @@ class Utils {
   static uint32_t IpToInt(const string& ipv4_addr);
   static int64_t GetCurrentTimeMillis();
   static bool ValidConfigFile(string& err_info, const string& conf_file);
+  static bool GetLocalIPV4Address(string& err_info, string& localhost);
 };
 
 }  // namespace tubemq

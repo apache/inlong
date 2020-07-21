@@ -63,6 +63,8 @@ class RmtDataCacheCsm {
   void UpdateGroupFlowCtrlInfo(int32_t qyrpriority_id,
                  int64_t flowctrl_id, const string& flowctrl_info);
   const int64_t GetGroupQryPriorityId() const;
+  const int64_t GetDefFlowCtrlId() const { return def_flowctrl_handler_.GetFlowCtrlId(); }
+  const int64_t GetGroupFlowCtrlId() const { return group_flowctrl_handler_.GetFlowCtrlId(); }
   bool IsUnderGroupCtrl();
   void AddNewPartition(const PartitionExt& partition_ext);
   bool SelectPartition(string &err_info,
@@ -91,7 +93,7 @@ class RmtDataCacheCsm {
   bool RemovePartition(string &err_info, const string& confirm_context);
   void RemoveAndGetPartition(const list<SubscribeInfo>& subscribe_infos,
         bool is_processing_rollback, map<NodeInfo, list<PartitionExt> >& broker_parts);
-  bool BookPartition(const string& partition_key);
+  bool IsPartitionFirstReg(const string& partition_key);
   void OfferEvent(const ConsumerEvent& event);
   void TakeEvent(ConsumerEvent& event);
   void ClearEvent();
@@ -112,8 +114,6 @@ class RmtDataCacheCsm {
 
 
  private:
-  // timer executor
-  ExecutorPool executor_;
   // 
   string consumer_id_;
   string group_name_;

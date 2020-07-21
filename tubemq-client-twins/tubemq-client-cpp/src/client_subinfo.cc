@@ -80,25 +80,23 @@ ClientSubInfo::ClientSubInfo() {
   bound_partions_ = "";
 }
 
-void ClientSubInfo::SetConsumeTarget(bool bound_consume,
-         const map<string, set<string> >& topic_and_filter_map,
-         const string& session_key, uint32_t source_count,
-         bool select_big, const map<string, int64_t>& part_offset_map) {
+
+void ClientSubInfo::SetConsumeTarget(const ConsumerConfig& config) {
   int32_t count = 0;
   string tmpstr = "";
   // book register time
   subscribed_time_ = Utils::GetCurrentTimeMillis();
   //
   first_registered_.Set(false);
-  bound_consume_ = bound_consume;
-  topic_and_filter_map_ = topic_and_filter_map;
+  bound_consume_ = config.IsBoundConsume();
+  topic_and_filter_map_ = config.GetSubTopicAndFilterMap();
   // build topic filter info
   topics_.clear();
   topic_conds_.clear();
   set<string>::iterator it_set;
   map<string, set<string> >::const_iterator it_topic;
-  for (it_topic = topic_and_filter_map.begin();
-      it_topic != topic_and_filter_map.end(); it_topic++) {
+  for (it_topic = topic_and_filter_map_.begin();
+      it_topic != topic_and_filter_map_.end(); it_topic++) {
     topics_.push_back(it_topic->first);
     if (it_topic->second.empty()) {
       topic_filter_map_[it_topic->first] = false;
@@ -121,15 +119,16 @@ void ClientSubInfo::SetConsumeTarget(bool bound_consume,
   }
 
   // build bound_partition info
-  if (bound_consume) {
-    session_key_ = session_key;
-    source_count_ = source_count;
-    select_big_ = select_big;
-    assigned_part_map_ = part_offset_map;
+  if (bound_consume_) {
+    session_key_ = config.GetSessionKey();
+    source_count_ = config.GetSourceCount();
+    select_big_ = config.IsSelectBig();
+    assigned_part_map_ = config.GetPartOffsetInfo();
     count = 0;
     bound_partions_ = "";
     map<string, int64_t>::const_iterator it;
-    for (it = part_offset_map.begin(); it != part_offset_map.end(); it++) {
+    for (it = assigned_part_map_.begin();
+      it != assigned_part_map_.end(); it++) {
       if (count++ > 0) {
         bound_partions_ += delimiter::kDelimiterComma;
       }

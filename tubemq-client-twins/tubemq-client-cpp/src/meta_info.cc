@@ -426,7 +426,6 @@ void PartitionExt::updateStrategyData(const FlowCtrlRuleHandler& def_flowctrl_ha
 SubscribeInfo::SubscribeInfo() {
   this->consumer_id_ = " ";
   this->group_ = " ";
-  this->partitionext_;
   buildSubInfo();
 }
 
