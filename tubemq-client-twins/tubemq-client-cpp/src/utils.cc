@@ -19,9 +19,15 @@
 
 #include "tubemq/utils.h"
 
+#include <arpa/inet.h>
+#include <linux/if.h>
+#include <netinet/in.h>
 #include <regex.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -280,7 +286,7 @@ bool Utils::ValidConfigFile(string& err_info, const string& conf_file) {
     err_info = "Configure file is blank";
     return false;
   }  
-  fp = fopen(configFile.c_str(),"r");
+  fp = fopen(conf_file.c_str(),"r");
   if(fp == NULL) {
     err_info = "Open configure file Failed!";
     return false;
@@ -288,6 +294,54 @@ bool Utils::ValidConfigFile(string& err_info, const string& conf_file) {
   fclose(fp);
   err_info = "Ok";
   return true;
+}
+
+bool Utils::GetLocalIPV4Address(string& err_info, string& localhost) {
+  int32_t sockfd;
+  int32_t ip_num = 0;
+  char  buf[1024] = {0};
+  struct ifreq *ifreq;
+  struct ifreq if_flag;
+  struct ifconf ifconf;
+
+  ifconf.ifc_len = sizeof(buf);
+  ifconf.ifc_buf = buf;
+  if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    err_info = "Open the local socket(AF_INET, SOCK_DGRAM) failure!";
+    return false;
+  }
+
+  ioctl(sockfd, SIOCGIFCONF, &ifconf);
+  ifreq  = (struct ifreq *)buf;
+  ip_num = ifconf.ifc_len / sizeof(struct ifreq);
+  for (int32_t i = 0; i < ip_num; i++, ifreq++) {
+    if (ifreq->ifr_flags != AF_INET) {
+      continue;
+    }
+    if (0 == strncmp(&ifreq->ifr_name[0], "lo", sizeof("lo"))) {
+      continue;
+    }
+    memcpy(&if_flag.ifr_name[0],&ifreq->ifr_name[0],sizeof(ifreq->ifr_name));
+    if ((ioctl(sockfd, SIOCGIFFLAGS, (char *) &if_flag)) < 0) {
+      continue;
+    }
+    if ((if_flag.ifr_flags & IFF_LOOPBACK)
+      || !(if_flag.ifr_flags & IFF_UP)) {
+      continue;
+    }
+    
+    if (!strncmp(inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr), 
+      "127.0.0.1", 7)) {
+      continue;
+    }
+    localhost = inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr);
+    close(sockfd);
+    err_info = "Ok";
+    return true;
+  }
+  close(sockfd);
+  err_info = "Not found the localHost in local OS";
+  return false;
 }
 
 

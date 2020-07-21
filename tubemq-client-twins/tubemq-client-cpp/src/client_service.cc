@@ -67,19 +67,25 @@ bool TubeMQService::Start(string& err_info, string conf_file) {
   if (!result) {
     return result;
   }
+  result = Utils::GetLocalIPV4Address(err_info, local_host_);
+  if (!result) {
+    return result;
+  }
   if (!service_status_.CompareAndSet(0,1)) {
     err_info = "TubeMQ Service has startted or Stopped!";
     return false;
   }
   iniLogger(fileini, sector);
-  service_status_.set(2);
+  service_status_.Set(2);
+  err_info = "Ok!";
+  return true;
 }
 
 bool TubeMQService::Stop(string& err_info) {
   if (service_status_.CompareAndSet(2, -1)) {
     shutDownClinets();
-    timer_executor_->Close();
-    network_executor_->Close();
+    timer_executor_.Close();
+    network_executor_.Close();
   }
   err_info = "OK!";
   return true;
@@ -110,14 +116,14 @@ int32_t TubeMQService::GetClientObjCnt() {
 }
 
 
-bool TubeMQService::AddClientObj(string& err_info,
-           BaseClient* client_obj, int32_t& client_index) {
+bool TubeMQService::AddClientObj(string& err_info, BaseClient* client_obj) {
   if (service_status_.Get() != 0) {
     err_info = "Service not startted!";
     return false;
   }
-  client_index = client_index_base_.IncrementAndGet();
+  int32_t client_index = client_index_base_.IncrementAndGet();
   lock_guard<mutex> lck(mutex_);
+  client_obj->SetClientIndex(client_index);
   this->clients_map_[client_index] = client_obj;
   err_info = "Ok";
   return true;

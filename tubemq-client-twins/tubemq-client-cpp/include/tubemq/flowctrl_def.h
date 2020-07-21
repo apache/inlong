@@ -101,7 +101,7 @@ class FlowCtrlRuleHandler {
   int32_t GetMinZeroCnt() const { return this->min_zero_cnt_.Get(); }
   int32_t GetQryPriorityId() const { return this->qrypriority_id_.Get(); }
   void SetQryPriorityId(int32_t qrypriority_id) { this->qrypriority_id_.Set(qrypriority_id); }
-  int64_t GetFlowCtrlId() const { return this->flowctrl_id_.Get(); }
+  const int64_t GetFlowCtrlId() const { return this->flowctrl_id_.Get(); }
 
  private:
   void initialStatisData();
