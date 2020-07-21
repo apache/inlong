@@ -30,4 +30,9 @@
  * [Log4cplus](https://github.com/log4cplus/log4cplus.git)
  * [Rapidjson](https://github.com/Tencent/rapidjson.git)
 
+## Install ASIO
+  * ./autogen.sh
+  * ./configure CFLAGS=-std=c++11 CPPFLAGS=-std=c++11 CXXFLAGS=-std=c++11
+  * make && make install
+
 
