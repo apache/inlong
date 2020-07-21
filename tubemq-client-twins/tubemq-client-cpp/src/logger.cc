@@ -31,8 +31,6 @@
 
 namespace tubemq {
 
-Logger tubemq_logger;
-
 Logger& GetLogger() { return Singleton<Logger>::Instance(); }
 
 static const uint32_t kMBSize = 1024 * 1024;
