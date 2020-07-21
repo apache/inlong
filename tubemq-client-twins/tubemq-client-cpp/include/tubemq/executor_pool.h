@@ -74,6 +74,12 @@ class ExecutorPool : noncopyable {
 
   ExecutorPtr Get();
 
+  // Resize executor thread
+  void Resize(int nthreads) {
+    Lock lock(mutex_);
+    executors_.resize(nthreads);
+  }
+
   void Close();
 
  private:
