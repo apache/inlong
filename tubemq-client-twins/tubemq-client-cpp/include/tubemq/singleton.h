@@ -33,14 +33,15 @@ namespace tubemq {
 template <typename T>
 class Singleton : noncopyable {
  public:
-  Singleton() = delete;
-  ~Singleton() = delete;
-
   static T& Instance() {
     std::call_once(once_, Singleton::init);
     assert(value_ != nullptr);
     return *value_;
   }
+
+ protected:
+  Singleton() {}
+  ~Singleton() {}
 
  private:
   static void init() { value_ = new T(); }
