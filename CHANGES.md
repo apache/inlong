@@ -148,6 +148,9 @@
 |[TUBEMQ-246](https://issues.apache.org/jira/browse/TUBEMQ-246) | support register broker using hostname |  Major |
 |[TUBEMQ-295](https://issues.apache.org/jira/browse/TUBEMQ-295) | Modify CHANGES.md to add 0.5.0 version release modification |  Major |
 |[TUBEMQ-299](https://issues.apache.org/jira/browse/TUBEMQ-299) | Fix RAT check warnning |  Major |
+|[TUBEMQ-300](https://issues.apache.org/jira/browse/TUBEMQ-300) | Update LICENSE |  Major |
+
+
 
 ## Release 0.3.0-incubating - Released (as of 2020-06-08)
 
