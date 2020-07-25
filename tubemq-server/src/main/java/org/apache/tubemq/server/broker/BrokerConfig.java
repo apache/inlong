@@ -41,6 +41,8 @@ public class BrokerConfig extends AbstractFileConfig {
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
     private int brokerId = 0;
+    // default NetworkInterface
+    private String defEthName = "eth1";
     // broker hostname
     private String hostName;
     // broker port
@@ -50,7 +52,6 @@ public class BrokerConfig extends AbstractFileConfig {
     // master service address
     private String masterAddressList;
     private String primaryPath;
-    private String secondDataPath;
     // tcp write service thread count
     private int tcpWriteServiceThread =
             Runtime.getRuntime().availableProcessors() * 2;
@@ -75,10 +76,6 @@ public class BrokerConfig extends AbstractFileConfig {
     private int indexTransCount = 1000;
     // rpc read timeout in milliseconds
     private long rpcReadTimeoutMs = 10 * 1000;
-    // max ssd file count
-    private int maxSSDTotalFileCnt = 70;
-    // max ssd file size
-    private long maxSSDTotalFileSizes = 32212254720L;
     // consumer register timeout in milliseconds
     private int consumerRegTimeoutMs = 30000;
     private boolean updateConsumerOffsets = true;
@@ -89,7 +86,7 @@ public class BrokerConfig extends AbstractFileConfig {
     // netty write buffer low water mark
     private long nettyWriteBufferLowWaterMark = 5 * 1024 * 1024;
     // log cleanup interval in milliseconds
-    private long logClearupDurationMs = 30 * 60 * 1000;
+    private long logClearupDurationMs = 3 * 60 * 1000;
     // log flush to disk interval in milliseconds
     private long logFlushDiskDurMs = 20 * 1000;
     // memory flush to disk interval in milliseconds
@@ -144,7 +141,7 @@ public class BrokerConfig extends AbstractFileConfig {
     public int getBrokerId() {
         if (this.brokerId <= 0) {
             try {
-                brokerId = abs(AddressUtils.ipToInt(AddressUtils.getLocalAddress()));
+                brokerId = abs(AddressUtils.ipToInt(AddressUtils.getIPV4LocalAddress(this.defEthName)));
             } catch (Exception e) {
                 logger.error("Get brokerId error!", e);
             }
@@ -162,14 +159,6 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public int getMaxIndexSegmentSize() {
         return maxIndexSegmentSize;
-    }
-
-    public int getMaxSSDTotalFileCnt() {
-        return maxSSDTotalFileCnt;
-    }
-
-    public long getMaxSSDTotalFileSizes() {
-        return maxSSDTotalFileSizes;
     }
 
     public long getAuthValidTimeStampPeriodMs() {
@@ -210,19 +199,23 @@ public class BrokerConfig extends AbstractFileConfig {
             throw new IllegalArgumentException("Require primaryPath not Blank!");
         }
         this.primaryPath = brokerSect.get("primaryPath").trim();
-        if (TStringUtils.isNotBlank(brokerSect.get("secondDataPath"))) {
-            this.secondDataPath = brokerSect.get("secondDataPath");
-        }
         if (TStringUtils.isBlank(brokerSect.get("hostName"))) {
             throw new IllegalArgumentException(new StringBuilder(256).append("hostName is null or Blank in ")
                     .append(SECT_TOKEN_BROKER).append(" section!").toString());
         }
-        try {
+        if (TStringUtils.isNotBlank(brokerSect.get("defEthName"))) {
+            this.defEthName = brokerSect.get("defEthName").trim();
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("hostName"))) {
             this.hostName = brokerSect.get("hostName").trim();
-            AddressUtils.validLocalIp(this.hostName);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(new StringBuilder(256).append("Illegal hostName value in ")
-                    .append(SECT_TOKEN_BROKER).append(" section!").toString());
+        } else {
+            try {
+                this.hostName = AddressUtils.getIPV4LocalAddress(this.defEthName);
+            } catch (Throwable e) {
+                throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("Get default broker hostName failure : ")
+                    .append(e.getMessage()).toString());
+            }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
             throw new IllegalArgumentException(new StringBuilder(256).append("masterAddressList is null or Blank in ")
@@ -239,8 +232,8 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logClearupDurationMs"))) {
             this.logClearupDurationMs = getLong(brokerSect, "logClearupDurationMs");
-            if (this.logClearupDurationMs < 20 * 60 * 1000) {
-                this.logClearupDurationMs = 20 * 60 * 1000;
+            if (this.logClearupDurationMs < 1 * 60 * 1000) {
+                this.logClearupDurationMs = 1 * 60 * 1000;
             }
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logFlushDiskDurMs"))) {
@@ -273,12 +266,6 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("maxIndexSegmentSize"))) {
             this.maxIndexSegmentSize = getInt(brokerSect, "maxIndexSegmentSize");
-        }
-        if (TStringUtils.isNotBlank(brokerSect.get("maxSSDTotalFileCnt"))) {
-            this.maxSSDTotalFileCnt = getInt(brokerSect, "maxSSDTotalFileCnt");
-        }
-        if (TStringUtils.isNotBlank(brokerSect.get("maxSSDTotalFileSizes"))) {
-            this.maxSSDTotalFileSizes = getLong(brokerSect, "maxSSDTotalFileSizes");
         }
         if (!TStringUtils.isBlank(brokerSect.get("updateConsumerOffsets"))) {
             this.updateConsumerOffsets = getBoolean(brokerSect, "updateConsumerOffsets");
@@ -455,10 +442,6 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public String getPrimaryPath() {
         return this.primaryPath;
-    }
-
-    public String getSecondDataPath() {
-        return this.secondDataPath;
     }
 
     public int getWebPort() {

@@ -138,7 +138,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     }
                     consumerHolder.setCurConsumeBClientInfo(group, defAllowBClientRate,
                             confAllowBClientRate, curBClientRate, minClientCnt, false);
-                    if (consumerBandInfo.isRebalanCheckPrint()) {
+                    if (consumerBandInfo.isRebalanceCheckPrint()) {
                         logger.info(strBuffer.append("[UnBound Alloc 2] Not allocate partition :group(")
                                 .append(group).append(")'s consumer getCachedSize(")
                                 .append(consumerBandInfo.getGroupCnt())
@@ -539,7 +539,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 consumerHolder.setCurConsumeBClientInfo(group,
                         defAllowBClientRate, confAllowBClientRate,
                         curBClientRate, minClientCnt, false);
-                if (consumerBandInfo.isRebalanCheckPrint()) {
+                if (consumerBandInfo.isRebalanceCheckPrint()) {
                     logger.info(strBuffer.append("[UnBound Alloc 1] Not allocate partition :group(")
                             .append(group).append(")'s consumer getCachedSize(")
                             .append(consumerBandInfo.getGroupCnt())
@@ -719,12 +719,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 } else {
                     String[] partitionKeyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
                     BdbBrokerConfEntity bdbBrokerConfEntity = defaultBrokerConfManager
-                            .getBrokerDefaultConfigStoreInfo(Integer.valueOf(partitionKeyItems[0]));
+                            .getBrokerDefaultConfigStoreInfo(Integer.parseInt(partitionKeyItems[0]));
                     if (bdbBrokerConfEntity != null) {
                         if (partsOffsetMap.get(entry.getKey()) != null) {
                             offsetInfoList.add(new OffsetStorageInfo(partitionKeyItems[1],
                                     bdbBrokerConfEntity.getBrokerId(),
-                                    Integer.valueOf(partitionKeyItems[2]),
+                                    Integer.parseInt(partitionKeyItems[2]),
                                     partsOffsetMap.get(entry.getKey()), 0));
                         }
                     }

@@ -50,7 +50,7 @@ public class DataStoreUtils {
     //
     public static final int MAX_MSG_TRANSFER_SIZE = 1024 * 1024;
     public static final int MAX_MSG_DATA_STORE_SIZE =
-            TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE * 2;
+            TBaseConstants.META_MAX_MESSAGE_DATA_SIZE * 2;
     public static final int MAX_READ_BUFFER_ADJUST = MAX_MSG_DATA_STORE_SIZE * 10;
 
     public static final int STORE_DATA_PREFX_LEN = 48;
@@ -75,10 +75,17 @@ public class DataStoreUtils {
     // Index storage structure
     // partitionId         4
     // offset              8
-    // + getCachedSize              4
+    // + getCachedSize     4
     // + keyCode           4
     // + timeInMillSec     8
     public static final int STORE_INDEX_HEAD_LEN = 28;
+    public static final int INDEX_POS_PARTITIONID = 0;
+    public static final int INDEX_POS_DATAOFFSET = 4;
+    public static final int INDEX_POS_MSG_SIZE = 12;
+    public static final int INDEX_POS_KEY_CODE = 16;
+    public static final int INDEX_POS_TIME_RECV = 20;
+
+
     public static final int STORE_MAX_MESSAGE_STORE_LEN
             = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 

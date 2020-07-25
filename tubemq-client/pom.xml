@@ -21,13 +21,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>tubemq</artifactId>
         <groupId>org.apache.tubemq</groupId>
+        <artifactId>tubemq</artifactId>
         <version>0.5.0-incubating-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>tubemq-client</artifactId>
-    <name>tubemq-client</name>
-    <version>${tubemq-client-version}</version>
+    <name>Apache TubeMQ - Client</name>
+    <description>Client functionality for TubeMQ</description>
 
     <build>
         <plugins>
@@ -36,10 +37,11 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <finalName>tubemq-client-${tubemq-client-version}</finalName>
+                    <finalName>apache-tubemq-client-${project.version}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/assembly.xml</descriptor>
                     </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
                 <executions>
                     <execution>
@@ -50,6 +52,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -104,7 +110,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
@@ -116,7 +122,7 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>

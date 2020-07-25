@@ -26,19 +26,24 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fileconfig.AbstractFileConfig;
-import org.apache.tubemq.server.common.fileconfig.BDBConfig;
+import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Basic config for master service
  */
 public class MasterConfig extends AbstractFileConfig {
+    private static final Logger logger = LoggerFactory.getLogger(MasterConfig.class);
+
     private String hostName;
     private int port;
     private int webPort = 8080;
-    private BDBConfig bdbConfig = new BDBConfig();
+    private MasterReplicationConfig replicationConfig = new MasterReplicationConfig();
     private TLSConfig tlsConfig;
     private ZKConfig zkConfig;
     private int consumerBalancePeriodMs = 60 * 1000;
@@ -54,6 +59,7 @@ public class MasterConfig extends AbstractFileConfig {
     private long stepChgWaitPeriodMs = 12 * 1000;
     private String confModAuthToken = "ASDFGHJKL";
     private String webResourcePath = "../resources";
+    private String metaDataPath = "var/meta_data";
     private int maxGroupBrokerConsumeRate = 50;
     private int maxGroupRebalanceWaitPeriod = 2;
     private int maxAutoForbiddenCnt = 5;
@@ -69,6 +75,7 @@ public class MasterConfig extends AbstractFileConfig {
     private boolean startConsumeAuthorize = false;
     private long visitTokenValidPeriodMs = 5 * 60 * 1000;
     private boolean needBrokerVisitAuth = false;
+    private boolean useWebProxy = false;
     private String visitName = "";
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
@@ -137,6 +144,10 @@ public class MasterConfig extends AbstractFileConfig {
         return webResourcePath;
     }
 
+    public String getMetaDataPath() {
+        return metaDataPath;
+    }
+
     /**
      * Setter
      *
@@ -178,8 +189,8 @@ public class MasterConfig extends AbstractFileConfig {
         return maxAutoForbiddenCnt;
     }
 
-    public BDBConfig getBdbConfig() {
-        return this.bdbConfig;
+    public MasterReplicationConfig getReplicationConfig() {
+        return this.replicationConfig;
     }
 
     public TLSConfig getTlsConfig() {
@@ -218,6 +229,10 @@ public class MasterConfig extends AbstractFileConfig {
         return startConsumeAuthorize;
     }
 
+    public boolean isUseWebProxy() {
+        return useWebProxy;
+    }
+
     public long getSocketSendBuffer() {
         return socketSendBuffer;
     }
@@ -246,7 +261,7 @@ public class MasterConfig extends AbstractFileConfig {
     @Override
     protected void loadFileSectAttributes(final Ini iniConf) {
         this.loadSystemConf(iniConf);
-        this.loadBdbStoreSectConf(iniConf);
+        this.loadReplicationSectConf(iniConf);
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_MASTER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
@@ -276,20 +291,17 @@ public class MasterConfig extends AbstractFileConfig {
                 TBaseConstants.META_DEFAULT_MASTER_PORT);
 
         // hostname
-        if (TStringUtils.isBlank(masterConf.get("hostName"))) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("hostName is null or Blank in ").append(SECT_TOKEN_MASTER)
-                    .append(" section!").toString());
-        }
-        try {
+        if (TStringUtils.isNotBlank(masterConf.get("hostName"))) {
             this.hostName = masterConf.get("hostName").trim();
-            AddressUtils.validLocalIp(this.hostName);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Illegal hostName value in ").append(SECT_TOKEN_MASTER)
-                    .append(" section!").toString());
+        } else {
+            try {
+                this.hostName = AddressUtils.getIPV4LocalAddress();
+            } catch (Throwable e) {
+                throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("Get default master hostName failure : ")
+                    .append(e.getMessage()).toString());
+            }
         }
-
         // web port
         if (TStringUtils.isNotBlank(masterConf.get("webPort"))) {
             this.webPort = this.getInt(masterConf, "webPort");
@@ -302,6 +314,12 @@ public class MasterConfig extends AbstractFileConfig {
                     .append(" section!").toString());
         }
         this.webResourcePath = masterConf.get("webResourcePath").trim();
+
+        // meta data path
+        if (TStringUtils.isNotBlank(masterConf.get("metaDataPath"))) {
+            this.metaDataPath = masterConf.get("metaDataPath").trim();
+        }
+
         if (TStringUtils.isNotBlank(masterConf.get("consumerBalancePeriodMs"))) {
             this.consumerBalancePeriodMs =
                     this.getInt(masterConf, "consumerBalancePeriodMs");
@@ -408,6 +426,9 @@ public class MasterConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(masterConf.get("startProduceAuthorize"))) {
             this.startProduceAuthorize = this.getBoolean(masterConf, "startProduceAuthorize");
         }
+        if (TStringUtils.isNotBlank(masterConf.get("useWebProxy"))) {
+            this.useWebProxy = this.getBoolean(masterConf, "useWebProxy");
+        }
         if (!this.startProduceAuthenticate && this.startProduceAuthorize) {
             throw new IllegalArgumentException(
                     "startProduceAuthenticate must set true if startProduceAuthorize is true!");
@@ -442,15 +463,14 @@ public class MasterConfig extends AbstractFileConfig {
     }
 
     /**
-     * Load Berkeley DB store section config
-     *
+     * Deprecated: Load Berkeley DB store section config
+     * Just keep `loadBdbStoreSectConf` for backward compatibility
      * @param iniConf
      */
-    private void loadBdbStoreSectConf(final Ini iniConf) {
+    private boolean loadBdbStoreSectConf(final Ini iniConf) {
         final Profile.Section bdbSect = iniConf.get(SECT_TOKEN_BDB);
         if (bdbSect == null) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append(SECT_TOKEN_BDB).append(" configure section is required!").toString());
+            return false;
         }
         Set<String> configKeySet = bdbSect.keySet();
         if (configKeySet.isEmpty()) {
@@ -461,47 +481,99 @@ public class MasterConfig extends AbstractFileConfig {
         if (TStringUtils.isBlank(bdbSect.get("bdbRepGroupName"))) {
             getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbRepGroupName");
         } else {
-            bdbConfig.setBdbRepGroupName(bdbSect.get("bdbRepGroupName").trim());
+            replicationConfig.setRepGroupName(bdbSect.get("bdbRepGroupName").trim());
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbNodeName"))) {
             getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbNodeName");
         } else {
-            bdbConfig.setBdbNodeName(bdbSect.get("bdbNodeName").trim());
+            replicationConfig.setRepNodeName(bdbSect.get("bdbNodeName").trim());
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbNodePort"))) {
-            bdbConfig.setBdbNodePort(9001);
+            replicationConfig.setRepNodePort(9001);
         } else {
-            bdbConfig.setBdbNodePort(getInt(bdbSect, "bdbNodePort"));
+            replicationConfig.setRepNodePort(getInt(bdbSect, "bdbNodePort"));
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbEnvHome"))) {
             getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbEnvHome");
         } else {
-            bdbConfig.setBdbEnvHome(bdbSect.get("bdbEnvHome").trim());
+            this.metaDataPath = bdbSect.get("bdbEnvHome").trim();
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbHelperHost"))) {
             getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbHelperHost");
         } else {
-            bdbConfig.setBdbHelperHost(bdbSect.get("bdbHelperHost").trim());
+            replicationConfig.setRepHelperHost(bdbSect.get("bdbHelperHost").trim());
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbLocalSync"))) {
-            bdbConfig.setBdbLocalSync(1);
+            replicationConfig.setMetaLocalSyncPolicy(1);
         } else {
-            bdbConfig.setBdbLocalSync(getInt(bdbSect, "bdbLocalSync"));
+            replicationConfig.setMetaLocalSyncPolicy(getInt(bdbSect, "bdbLocalSync"));
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbReplicaSync"))) {
-            bdbConfig.setBdbReplicaSync(3);
+            replicationConfig.setMetaReplicaSyncPolicy(3);
         } else {
-            bdbConfig.setBdbReplicaSync(getInt(bdbSect, "bdbReplicaSync"));
+            replicationConfig.setMetaReplicaSyncPolicy(getInt(bdbSect, "bdbReplicaSync"));
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbReplicaAck"))) {
-            bdbConfig.setBdbReplicaAck(1);
+            replicationConfig.setRepReplicaAckPolicy(1);
         } else {
-            bdbConfig.setBdbReplicaAck(getInt(bdbSect, "bdbReplicaAck"));
+            replicationConfig.setRepReplicaAckPolicy(getInt(bdbSect, "bdbReplicaAck"));
         }
         if (TStringUtils.isBlank(bdbSect.get("bdbStatusCheckTimeoutMs"))) {
-            bdbConfig.setBdbStatusCheckTimeoutMs(10000);
+            replicationConfig.setRepStatusCheckTimeoutMs(10000);
         } else {
-            bdbConfig.setBdbStatusCheckTimeoutMs(getLong(bdbSect, "bdbStatusCheckTimeoutMs"));
+            replicationConfig.setRepStatusCheckTimeoutMs(getLong(bdbSect, "bdbStatusCheckTimeoutMs"));
+        }
+
+        return true;
+    }
+
+    /**
+     * Load Replication section config
+     *
+     * @param iniConf
+     */
+    private void loadReplicationSectConf(final Ini iniConf) {
+        final Profile.Section repSect = iniConf.get(SECT_TOKEN_REPLICATION);
+        if (repSect == null) {
+            if (!this.loadBdbStoreSectConf(iniConf)) { // read [bdbStore] for backward compatibility
+                throw new IllegalArgumentException(new StringBuilder(256)
+                        .append(SECT_TOKEN_REPLICATION).append(" configure section is required!").toString());
+            }
+            logger.warn("[bdbStore] section is deprecated. " +
+                    "Please config in [replication] section.");
+            return;
+        }
+        Set<String> configKeySet = repSect.keySet();
+        if (configKeySet.isEmpty()) {
+            throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("Empty configure item in ").append(SECT_TOKEN_REPLICATION)
+                    .append(" section!").toString());
+        }
+        if (TStringUtils.isNotBlank(repSect.get("repGroupName"))) {
+            replicationConfig.setRepGroupName(repSect.get("repGroupName").trim());
+        }
+        if (TStringUtils.isBlank(repSect.get("repNodeName"))) {
+            getSimilarConfigField(SECT_TOKEN_REPLICATION, configKeySet, "repNodeName");
+        } else {
+            replicationConfig.setRepNodeName(repSect.get("repNodeName").trim());
+        }
+        if (TStringUtils.isNotBlank(repSect.get("repNodePort"))) {
+            replicationConfig.setRepNodePort(getInt(repSect, "repNodePort"));
+        }
+        if (TStringUtils.isNotBlank(repSect.get("repHelperHost"))) {
+            replicationConfig.setRepHelperHost(repSect.get("repHelperHost").trim());
+        }
+        if (TStringUtils.isNotBlank(repSect.get("metaLocalSyncPolicy"))) {
+            replicationConfig.setMetaLocalSyncPolicy(getInt(repSect, "metaLocalSyncPolicy"));
+        }
+        if (TStringUtils.isNotBlank(repSect.get("metaReplicaSyncPolicy"))) {
+            replicationConfig.setMetaReplicaSyncPolicy(getInt(repSect, "metaReplicaSyncPolicy"));
+        }
+        if (TStringUtils.isNotBlank(repSect.get("repReplicaAckPolicy"))) {
+            replicationConfig.setRepReplicaAckPolicy(getInt(repSect, "repReplicaAckPolicy"));
+        }
+        if (TStringUtils.isNotBlank(repSect.get("repStatusCheckTimeoutMs"))) {
+            replicationConfig.setRepStatusCheckTimeoutMs(getLong(repSect, "repStatusCheckTimeoutMs"));
         }
     }
 
@@ -531,9 +603,10 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("startOffsetResetCheck", startOffsetResetCheck)
                 .append("rowLockWaitDurMs", rowLockWaitDurMs)
                 .append("needBrokerVisitAuth", needBrokerVisitAuth)
+                .append("useWebProxy", useWebProxy)
                 .append("visitName", visitName)
                 .append("visitPassword", visitPassword)
-                .append(",").append(bdbConfig.toString())
+                .append(",").append(replicationConfig.toString())
                 .append(",").append(tlsConfig.toString())
                 .append(",").append(zkConfig.toString())
                 .append("}").toString();

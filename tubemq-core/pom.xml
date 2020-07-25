@@ -21,16 +21,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>tubemq</artifactId>
         <groupId>org.apache.tubemq</groupId>
+        <artifactId>tubemq</artifactId>
         <version>0.5.0-incubating-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>tubemq-core</artifactId>
-    <name>tubemq-core</name>
-    <version>${tubemq-core-version}</version>
+    <name>Apache TubeMQ - Core</name>
+    <description>Core functionality for TubeMQ</description>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.0</version>
+            </extension>
+        </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -52,17 +65,25 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.github.igor-petruk.protobuf</groupId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.6.3</version>
+                <version>0.6.1</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -20,12 +20,19 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>19</version>
+    </parent>
+
     <groupId>org.apache.tubemq</groupId>
     <artifactId>tubemq</artifactId>
     <inceptionYear>2013</inceptionYear>
     <version>0.5.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>tubemq</name>
+    <name>Apache TubeMQ</name>
 
     <licenses>
         <license>
@@ -61,22 +68,22 @@
         <module>tubemq-client</module>
         <module>tubemq-server</module>
         <module>tubemq-example</module>
+        <module>tubemq-connectors</module>
+        <module>tubemq-docker</module>
     </modules>
 
     <properties>
-        <tubemq-core-version>0.5.0-incubating-SNAPSHOT</tubemq-core-version>
-        <tubemq-client-version>0.5.0-incubating-SNAPSHOT</tubemq-client-version>
-        <tubemq-server-version>0.5.0-incubating-SNAPSHOT</tubemq-server-version>
-        <tubemq-example-version>0.5.0-incubating-SNAPSHOT</tubemq-example-version>
         <junit.version>4.11</junit.version>
-        <mockito.version>2.0.2-beta</mockito.version>
-        <powermock.version>1.6.5</powermock.version>
+        <mockito.version>2.18.0</mockito.version>
+        <powermock.version>2.0.4</powermock.version>
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
         <checkstyle.version>6.19</checkstyle.version>
         <protobuf.version>2.5.0</protobuf.version>
         <je.version>7.3.7</je.version>
         <gson.version>2.8.5</gson.version>
+        <docker.organization>apachetubemq</docker.organization>
+        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
     </properties>
 
     <repositories>
@@ -117,7 +124,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.5</version>
                 <executions>
                     <execution>
                         <goals>
@@ -133,6 +140,30 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Make a jar and put the sources in the jar.
+            In the parent pom, so submodules will do the right thing. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includePom>true</includePom>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -229,8 +260,7 @@
                         <!-- Front-end -->
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
-                        <!-- manually installed version on travis -->
-                        <exclude>protobuf-2.5.0/**</exclude>
+                        <exclude>DISCLAIMER-WIP</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -241,17 +271,17 @@
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-core</artifactId>
-                <version>${tubemq-core-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-client</artifactId>
-                <version>${tubemq-client-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tubemq</groupId>
                 <artifactId>tubemq-example</artifactId>
-                <version>${tubemq-example-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

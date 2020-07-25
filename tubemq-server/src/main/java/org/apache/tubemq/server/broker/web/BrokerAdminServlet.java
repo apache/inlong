@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -165,18 +165,14 @@ public class BrokerAdminServlet extends HttpServlet {
                         .append(regTime).append(",\"isFilterConsume\":")
                         .append(ifFilterConsume);
             }
-            sBuilder.append(",\"needSSDProc\":").append(entry.getValue().getNeedSsdProc())
-                    .append(",\"ssdTransId\":").append(entry.getValue().getSsdTransId())
-                    .append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
+            sBuilder.append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
                     .append(",\"curDataLimitInM\":").append(entry.getValue().getCurFlowCtrlLimitSize())
                     .append(",\"curFreqLimit\":").append(entry.getValue().getCurFlowCtrlFreqLimit())
                     .append(",\"totalSentSec\":").append(entry.getValue().getSentMsgSize())
                     .append(",\"isSupportLimit\":").append(entry.getValue().isSupportLimit())
                     .append(",\"sentUnitSec\":").append(entry.getValue().getTotalUnitSec())
                     .append(",\"totalSentMin\":").append(entry.getValue().getTotalUnitMin())
-                    .append(",\"sentUnit\":").append(entry.getValue().getSentUnit())
-                    .append(",\"SSDDataDltStartInM\":").append(entry.getValue().getDataStartDltInM())
-                    .append(",\"SSDDataDltEndInM\":").append(entry.getValue().getSsdDataEndDltInM());
+                    .append(",\"sentUnit\":").append(entry.getValue().getSentUnit());
             MessageStoreManager storeManager = broker.getStoreManager();
             OffsetService offsetService = broker.getOffsetManager();
             MessageStore store = null;
@@ -207,7 +203,7 @@ public class BrokerAdminServlet extends HttpServlet {
     }
 
     /***
-     * Query broker's all messge store info.
+     * Query broker's all message store info.
      *
      * @param req
      * @return
@@ -285,7 +281,7 @@ public class BrokerAdminServlet extends HttpServlet {
         Set<String> batchTopicNames = new HashSet<>();
         String inputTopicName = req.getParameter("topicName");
         if (TStringUtils.isNotBlank(inputTopicName)) {
-            inputTopicName = String.valueOf(inputTopicName).trim();
+            inputTopicName = inputTopicName.trim();
             String[] strTopicNames =
                     inputTopicName.split(TokenConstants.ARRAY_SEP);
             for (int i = 0; i < strTopicNames.length; i++) {
@@ -417,7 +413,7 @@ public class BrokerAdminServlet extends HttpServlet {
                         topicName, partitionId, manualOffset, modifyUser);
         if (oldOffset < 0) {
             sBuilder.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
-                    .append("Manual update current Offset failue!")
+                    .append("Manual update current Offset failure!")
                     .append("\"}");
         } else {
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")

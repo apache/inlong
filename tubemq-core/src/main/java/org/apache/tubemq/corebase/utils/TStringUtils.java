@@ -581,7 +581,7 @@ public class TStringUtils {
     }
 
     /**
-     * 解析出下列语法所构成的<code>SENTENCE</code>。
+     * Parse the <code>SENTENCE</code> formed by the following grammar.
      * <p/>
      * <pre>
      *  SENTENCE = WORD (DELIMITER* WORD)*
@@ -837,12 +837,12 @@ public class TStringUtils {
             for (int index = 0; index < length; index++) {
                 char ch = str.charAt(index);
 
-                // 忽略空白。
+                // Ignore white space.
                 if (Character.isWhitespace(ch)) {
                     continue;
                 }
 
-                // 大写字母开始：UpperCaseWord或是TitleCaseWord。
+                // Start with capital letters: UpperCaseWord or TitleCaseWord.
                 if (Character.isUpperCase(ch)) {
                     int wordIndex = index + 1;
 

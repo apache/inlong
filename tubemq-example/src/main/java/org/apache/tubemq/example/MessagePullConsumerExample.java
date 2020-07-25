@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.consumer.ConsumeOffsetInfo;
+import org.apache.tubemq.client.consumer.ConsumePosition;
 import org.apache.tubemq.client.consumer.ConsumerResult;
 import org.apache.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.tubemq.client.exception.TubeClientException;
@@ -48,28 +49,23 @@ public final class MessagePullConsumerExample {
     private final PullMessageConsumer messagePullConsumer;
     private final MessageSessionFactory messageSessionFactory;
 
-    public MessagePullConsumerExample(
-        String localHost,
-        String masterHostAndPort,
-        String group
-    ) throws Exception {
-        ConsumerConfig consumerConfig = new ConsumerConfig(localHost, masterHostAndPort, group);
-        consumerConfig.setConsumeModel(0);
+    public MessagePullConsumerExample(String masterHostAndPort, String group) throws Exception {
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
+        consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
     }
 
     public static void main(String[] args) throws Throwable {
-        final String localHost = args[0];
-        final String masterHostAndPort = args[1];
-        final String topics = args[2];
-        final String group = args[3];
-        final int consumeCount = Integer.parseInt(args[4]);
+        final String masterHostAndPort = args[0];
+        final String topics = args[1];
+        final String group = args[2];
+        final int consumeCount = Integer.parseInt(args[3]);
 
         final MessagePullConsumerExample messageConsumer = new MessagePullConsumerExample(
-            localHost,
             masterHostAndPort,
-            group);
+            group
+        );
 
         final List<String> topicList = Arrays.asList(topics.split(","));
         messageConsumer.subscribe(topicList);

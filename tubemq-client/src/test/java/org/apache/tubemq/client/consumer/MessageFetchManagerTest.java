@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -43,7 +43,7 @@ public class MessageFetchManagerTest {
         PowerMockito.when(AddressUtils.getLocalAddress()).thenReturn("127.0.0.1");
 
         when(clientConfig.getMasterInfo()).thenReturn(new MasterInfo("192.168.1.1:18080"));
-        ConsumerConfig config = new ConsumerConfig("182.168.1.2:18080", "192.168.1.1:18080", "test");
+        ConsumerConfig config = new ConsumerConfig("192.168.1.1:18080", "test");
         ClientFactory clientFactory = new NettyClientFactory();
         TubeBaseSessionFactory factory = new TubeBaseSessionFactory(clientFactory, clientConfig);
         SimplePushMessageConsumer consumer = new SimplePushMessageConsumer(factory, config);

@@ -19,6 +19,7 @@ package org.apache.tubemq.corebase.utils;
 
 import java.io.Serializable;
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,7 +56,7 @@ public class MapBackedSet<E> extends AbstractSet<E> implements Serializable {
 
     @Override
     public Iterator<E> iterator() {
-        return map.keySet().iterator();
+        return new ArrayList<>(map.keySet()).iterator();
     }
 
     @Override

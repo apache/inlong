@@ -330,7 +330,7 @@ public class RecoverableZooKeeper {
     }
 
     /**
-     * getData is an idemnpotent operation. Retry before throwing exception
+     * getData is an idempotent operation. Retry before throwing exception
      *
      * @return Data
      */

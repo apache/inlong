@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -47,7 +47,9 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
@@ -413,11 +415,7 @@ public class ProducerManager {
                 if (e instanceof LocalConnException) {
                     logger.warn("register2Master error, retry... exception: ", e);
                 }
-                try {
-                    Thread.sleep(1200);
-                } catch (Throwable ee2) {
-                    //
-                }
+                ThreadUtils.sleep(1200);
                 if (remainingRetry <= 0) {
                     throw e;
                 }
@@ -432,6 +430,7 @@ public class ProducerManager {
         builder.addAllTopicList(publishTopics.keySet());
         builder.setBrokerCheckSum(this.brokerInfoCheckSum);
         builder.setHostName(AddressUtils.getLocalAddress());
+        builder.setJdkVersion(MixedUtils.getJavaVersion());
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
                 genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
@@ -452,8 +451,7 @@ public class ProducerManager {
             this.lastBrokerUpdatedTime = System.currentTimeMillis();
         }
         builder.setHostName(AddressUtils.getLocalAddress());
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
-                genMasterCertificateInfo(true);
+        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(false);
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
@@ -467,7 +465,7 @@ public class ProducerManager {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
                 genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder.build());
+            builder.setAuthInfo(authInfoBuilder);
         }
         return builder.build();
     }
@@ -577,6 +575,7 @@ public class ProducerManager {
         boolean needAdd = false;
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
         if (this.tubeClientConfig.isEnableUserAuthentic()) {
+            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
             if (force) {
                 needAdd = true;
                 nextWithAuthInfo2M.set(false);
@@ -585,12 +584,13 @@ public class ProducerManager {
                     needAdd = true;
                 }
             }
-        }
-        if (needAdd) {
-            authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
-            authInfoBuilder.setAuthInfo(authenticateHandler
+            if (needAdd) {
+                authInfoBuilder.setAuthInfo(authenticateHandler
                     .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
-                            tubeClientConfig.getUsrPassWord()).build());
+                        tubeClientConfig.getUsrPassWord()));
+            } else {
+                authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
+            }
         }
         return authInfoBuilder;
     }
@@ -601,11 +601,7 @@ public class ProducerManager {
         public void run() {
             StringBuilder sBuilder = new StringBuilder(512);
             while (!heartBeatStatus.compareAndSet(0, 1)) {
-                try {
-                    Thread.sleep(100);
-                } catch (Throwable e1) {
-                    //
-                }
+                ThreadUtils.sleep(100);
             }
             if (publishTopics.isEmpty()) {
                 return;
@@ -699,8 +695,7 @@ public class ProducerManager {
                 sBuilder.delete(0, sBuilder.length());
                 try {
                     Thread.sleep(tubeClientConfig.getHeartbeatPeriodAfterFail());
-                } catch (InterruptedException e1) {
-                    return;
+                } catch (InterruptedException ignored) {
                 }
             }
         }

@@ -75,12 +75,26 @@ function start_server() {
     config_files="-f $BASE_DIR/conf/master.ini"
     
 	echo "Starting Master server..."
+  pushd .
     
+    cd $BASE_DIR
    	echo "$JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files"
     sleep 1
     nohup $JAVA $MASTER_ARGS  org.apache.tubemq.server.tools.MasterStartup $config_files 2>&1 >>$LOG_FILE &
     echo $! > $PID_FILE
     chmod 755 $PID_FILE
+  
+  popd
+}
+
+function status_server() {
+	if running; then
+		echo "Master is running."
+		exit 0
+	else
+	  echo "Master is not running."
+	  exit 1
+	fi
 }
 
 function stop_server() {
@@ -107,7 +121,8 @@ function stop_server() {
 }
 
 function help() {
-    echo "Usage: master.sh {start|stop|restart}" >&2
+    echo "Usage: master.sh {status|start|stop|restart}" >&2
+    echo "       status:     the status of master server"
     echo "       start:      start the master server"
     echo "       stop:       stop the master server"
     echo "       restart:    restart the master server"
@@ -116,6 +131,9 @@ function help() {
 command=$1
 shift 1
 case $command in
+    status)
+        status_server $@;
+        ;;
     start)
         start_server $@;
         ;;    

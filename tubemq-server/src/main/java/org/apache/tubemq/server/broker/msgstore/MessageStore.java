@@ -44,7 +44,6 @@ import org.apache.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStatisInfo;
 import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStore;
-import org.apache.tubemq.server.broker.msgstore.ssd.SSDSegFound;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 /***
  * Topic's message storage. It's a logical topic storage. Contains multi types storage: data in memory,
- * data in disk, data in ssd, and statistics of produce and consume.
+ * data in disk, and statistics of produce and consume.
  */
 public class MessageStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MessageStore.class);
@@ -77,6 +76,7 @@ public class MessageStore implements Closeable {
     private volatile int partitionNum;
     private AtomicInteger unflushInterval = new AtomicInteger(0);
     private AtomicInteger unflushThreshold = new AtomicInteger(0);
+    private AtomicInteger unflushDataHold = new AtomicInteger(0);
     private volatile int writeCacheMaxSize;
     private volatile int writeCacheMaxCnt;
     private volatile int writeCacheFlushIntvl;
@@ -121,6 +121,7 @@ public class MessageStore implements Closeable {
         this.unflushInterval.set(topicMetadata.getUnflushInterval());
         this.maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         this.unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        this.unflushDataHold.set(topicMetadata.getUnflushDataHold());
         this.writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
         this.writeCacheMaxSize = topicMetadata.getMemCacheMsgSize();
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
@@ -261,36 +262,27 @@ public class MessageStore implements Closeable {
         indexRecordView.read(indexBuffer, reqNewOffset);
         indexBuffer.flip();
         indexRecordView.relViewRef();
-        //　judge whether read from ssd or disk.
-        if (consumerNodeInfo.processFromSsdFile()) {
-            return msgStoreMgr.getSsdMessage(storeKey, consumerNodeInfo.getPartStr(),
-                    consumerNodeInfo.getStartSsdDataOffset(),
-                    consumerNodeInfo.getLastDataRdOffset(),
-                    partitionId, reqNewOffset, indexBuffer,
-                    msgSizeLimit, statisKeyBase);
-        } else {
-            if ((msgFileStore.getDataHighMaxOffset() - consumerNodeInfo.getLastDataRdOffset()
-                    >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
-                    && msgSizeLimit > this.maxAllowRdSize) {
-                msgSizeLimit = this.maxAllowRdSize;
-            }
-            GetMessageResult retResult =
-                    msgFileStore.getMessages(partitionId,
-                            consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
-                            indexBuffer, consumerNodeInfo.isFilterConsume(),
-                            consumerNodeInfo.getFilterCondCodeSet(),
-                            statisKeyBase, msgSizeLimit);
-            if (consumerNodeInfo.isFilterConsume()
-                    && retResult.isSuccess
-                    && retResult.getLastReadOffset() > 0) {
-                if ((msgFileStore.getIndexMaxHighOffset()
-                        - reqNewOffset - retResult.getLastReadOffset())
-                        < fileLowReqMaxFilterIndexReadSize.get()) {
-                    retResult.setSlowFreq(true);
-                }
-            }
-            return retResult;
+        if ((msgFileStore.getDataHighMaxOffset() - consumerNodeInfo.getLastDataRdOffset()
+            >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
+            && msgSizeLimit > this.maxAllowRdSize) {
+            msgSizeLimit = this.maxAllowRdSize;
         }
+        GetMessageResult retResult =
+            msgFileStore.getMessages(partitionId,
+                consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
+                indexBuffer, consumerNodeInfo.isFilterConsume(),
+                consumerNodeInfo.getFilterCondCodeSet(),
+                statisKeyBase, msgSizeLimit);
+        if (consumerNodeInfo.isFilterConsume()
+            && retResult.isSuccess
+            && retResult.getLastReadOffset() > 0) {
+            if ((msgFileStore.getIndexMaxHighOffset()
+                - reqNewOffset - retResult.getLastReadOffset())
+                < fileLowReqMaxFilterIndexReadSize.get()) {
+                retResult.setSlowFreq(true);
+            }
+        }
+        return retResult;
     }
 
     /***
@@ -393,6 +385,7 @@ public class MessageStore implements Closeable {
         partitionNum = topicMetadata.getNumPartitions();
         unflushInterval.set(topicMetadata.getUnflushInterval());
         unflushThreshold.set(topicMetadata.getUnflushThreshold());
+        unflushDataHold.set(topicMetadata.getUnflushDataHold());
         maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
@@ -497,6 +490,10 @@ public class MessageStore implements Closeable {
         return this.unflushThreshold.get();
     }
 
+    public int getUnflushDataHold() {
+        return this.unflushDataHold.get();
+    }
+
     public long getIndexMaxOffset() {
         long lastOffset = 0L;
         this.writeCacheMutex.readLock().lock();
@@ -544,11 +541,6 @@ public class MessageStore implements Closeable {
         return totalSize;
     }
 
-    public SSDSegFound getSourceSegment(final long offset,
-                                        final int rate) throws IOException {
-        return this.msgFileStore.getSourceSegment(offset, rate);
-    }
-
     public long getDataStoreSize() {
         long totalSize = 0L;
         this.writeCacheMutex.readLock().lock();
@@ -574,13 +566,13 @@ public class MessageStore implements Closeable {
         String validValStr = tmpStrs[1];
         try {
             if (validValStr.endsWith("m")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (validValStr.endsWith("s")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
             } else if (validValStr.endsWith("h")) {
-                return Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+                return Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                return Long.valueOf(validValStr) * 3600000;
+                return Long.parseLong(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             return DataStoreUtils.MAX_FILE_VALID_DURATION;
@@ -716,7 +708,7 @@ public class MessageStore implements Closeable {
                 writeCacheMutex.writeLock().unlock();
             }
         }
-        msgMemStoreBeingFlush.flush(msgFileStore, strBuffer);
+        msgMemStoreBeingFlush.batchFlush(msgFileStore, strBuffer);
     }
 
 }

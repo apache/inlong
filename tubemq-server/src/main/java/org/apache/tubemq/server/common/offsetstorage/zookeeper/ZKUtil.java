@@ -50,7 +50,7 @@ public class ZKUtil {
     private static final int RETRY_TIMES = 3;
     private static final int RETRY_INTERVAL = 1000;
     private static final int SOCKET_RETRY_WAIT_MS = 200;
-    private static final int DEFAULT_ZOOKEPER_CLIENT_PORT = 2181;
+    private static final int DEFAULT_ZOOKEEPER_CLIENT_PORT = 2181;
 
     // Replace this with ZooKeeper constant when ZOOKEEPER-277 is resolved.
     private static final char ZNODE_PATH_SEPARATOR = '/';

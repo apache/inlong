@@ -44,7 +44,7 @@ AS_USER=`whoami`
 LOG_DIR="$BASE_DIR/logs"
 LOG_FILE="$LOG_DIR/broker.log"
 PID_DIR="$BASE_DIR/logs"
-PID_FILE="$PID_DIR/.run.pid"
+PID_FILE="$PID_DIR/.broker.run.pid"
 
 function running(){
 	if [ -f "$PID_FILE" ]; then
@@ -83,6 +83,16 @@ function start_server() {
     chmod 755 $PID_FILE
 }
 
+function status_server() {
+	if running; then
+		echo "Broker is running."
+		exit 0
+	else
+    echo "Broker is not running."
+		exit 1
+	fi
+}
+
 function stop_server() {
 	if ! running; then
 		echo "Broker is not running."
@@ -107,7 +117,8 @@ function stop_server() {
 }
 
 function help() {
-    echo "Usage: broker.sh {start|stop|restart}" >&2
+    echo "Usage: broker.sh {status|start|stop|restart}" >&2
+    echo "       status:            the status of broker server"
     echo "       start:             start the broker server"
     echo "       stop:              stop the broker server"
     echo "       restart:           restart the broker server"
@@ -116,6 +127,9 @@ function help() {
 command=$1
 shift 1
 case $command in
+    status)
+        status_server $@;
+        ;;
     start)
         start_server $@;
         ;;    

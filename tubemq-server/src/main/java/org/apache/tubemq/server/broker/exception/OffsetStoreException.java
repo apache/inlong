@@ -21,8 +21,7 @@ package org.apache.tubemq.server.broker.exception;
  * Save offset occur error throw this Exception.
  */
 public class OffsetStoreException extends Exception {
-    // Offset存储异常包装类，
-    // 在存储数据到zk时的异常封装
+
     static final long serialVersionUID = -1L;
 
     public OffsetStoreException() {

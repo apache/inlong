@@ -289,7 +289,7 @@ public class BdbTopicConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
     }
@@ -299,7 +299,7 @@ public class BdbTopicConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 10;
     }
@@ -316,7 +316,7 @@ public class BdbTopicConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 2;
     }
@@ -333,7 +333,7 @@ public class BdbTopicConfEntity implements Serializable {
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TokenConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
-            return Integer.valueOf(atrVal);
+            return Integer.parseInt(atrVal);
         }
         return 20000;
     }
@@ -365,7 +365,7 @@ public class BdbTopicConfEntity implements Serializable {
                 .append("\",\"topicName\":\"").append(topicName)
                 .append("\",\"numPartitions\":").append(numPartitions)
                 .append(",\"unflushThreshold\":").append(unflushThreshold)
-                .append(",\"unFlushDataHold\":").append(getUnflushDataHold())
+                .append(",\"unflushDataHold\":").append(getUnflushDataHold())
                 .append(",\"unflushInterval\":").append(unflushInterval)
                 .append(",\"deleteWhen\":\"").append(deleteWhen)
                 .append("\",\"deletePolicy\":\"").append(deletePolicy)

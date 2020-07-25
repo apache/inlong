@@ -40,12 +40,8 @@ import sun.nio.ch.DirectBuffer;
  */
 public class MsgMemStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MsgMemStore.class);
-    //　used for align
-    private static final int MASK_64_ALIGN = ~(64 - 1);
     //　statistics of memory store
-    private final AtomicInteger cacheDataSize = new AtomicInteger(0);
     private final AtomicInteger cacheDataOffset = new AtomicInteger(0);
-    private final AtomicInteger cacheIndexSize = new AtomicInteger(0);
     private final AtomicInteger cacheIndexOffset = new AtomicInteger(0);
     private final AtomicInteger curMessageCount = new AtomicInteger(0);
     private final ReentrantLock writeLock = new ReentrantLock();
@@ -56,19 +52,19 @@ public class MsgMemStore implements Closeable {
     private final ConcurrentHashMap<Integer, Integer> keysMap =
             new ConcurrentHashMap<>(100);
     //　where messages in memory will sink to disk
+    private int maxDataCacheSize;
     private long writeDataStartPos = -1;
     private ByteBuffer cacheDataSegment;
-    private int maxDataCacheSize;
+    private int maxIndexCacheSize;
     private long writeIndexStartPos = -1;
     private ByteBuffer cachedIndexSegment;
-    private int maxIndexCacheSize;
     private int maxAllowedMsgCount;
-    private int indexUnitLength = 32;
+
 
     public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;
-        this.maxIndexCacheSize = this.maxAllowedMsgCount * this.indexUnitLength;
+        this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
         this.cacheDataSegment = ByteBuffer.allocateDirect(this.maxDataCacheSize);
         this.cachedIndexSegment = ByteBuffer.allocateDirect(this.maxIndexCacheSize);
     }
@@ -83,40 +79,34 @@ public class MsgMemStore implements Closeable {
                              final int partitionId, final int keyCode,
                              final long timeRecv, final int entryLength,
                              final ByteBuffer entry) {
-        int alignedSize = (entryLength + 64 - 1) & MASK_64_ALIGN;
         boolean fullDataSize = false;
         boolean fullIndexSize = false;
         boolean fullCount = false;
         this.writeLock.lock();
         try {
             //　judge whether can write to memory or not.
-            int dataOffset = this.cacheDataOffset.get();
-            int indexOffset = this.cacheIndexOffset.get();
-            if ((fullDataSize = (dataOffset + alignedSize > this.maxDataCacheSize))
-                    || (fullIndexSize = (indexOffset + this.indexUnitLength > this.maxIndexCacheSize))
-                    || (fullCount = (this.curMessageCount.get() + 1 > this.maxAllowedMsgCount))) {
+            if ((fullDataSize = (this.cacheDataOffset.get() + entryLength > this.maxDataCacheSize))
+                || (fullIndexSize =
+                (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
+                || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))) {
                 msgMemStatisInfo.addFullTypeCount(timeRecv, fullDataSize, fullIndexSize, fullCount);
                 return false;
             }
             // conduct message with filling process
             entry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF,
-                    this.writeIndexStartPos + this.cacheIndexSize.get());
-            this.cacheDataSegment.position(dataOffset);
+                this.writeIndexStartPos + this.cacheIndexOffset.get());
+            this.cacheDataSegment.position(this.cacheDataOffset.get());
             this.cacheDataSegment.put(entry.array());
-            this.cachedIndexSegment.position(indexOffset);
+            this.cachedIndexSegment.position(this.cacheIndexOffset.get());
             this.cachedIndexSegment.putInt(partitionId);
-            this.cachedIndexSegment.putInt(keyCode);
-            this.cachedIndexSegment.putInt(dataOffset);
+            this.cachedIndexSegment.putLong(this.writeDataStartPos + this.cacheDataOffset.get());
             this.cachedIndexSegment.putInt(entryLength);
+            this.cachedIndexSegment.putInt(keyCode);
             this.cachedIndexSegment.putLong(timeRecv);
-            this.cachedIndexSegment
-                    .putLong(this.writeDataStartPos + this.cacheDataSize.getAndAdd(entryLength));
-            Integer indexSizePos =
-                    this.cacheIndexSize.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+            this.cacheDataOffset.getAndAdd(entryLength);
+            Integer indexSizePos = this.cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             this.queuesMap.put(partitionId, indexSizePos);
             this.keysMap.put(keyCode, indexSizePos);
-            this.cacheDataOffset.getAndAdd(alignedSize);
-            this.cacheIndexOffset.getAndAdd(this.indexUnitLength);
             this.curMessageCount.getAndAdd(1);
             msgMemStatisInfo.addMsgSizeStatis(timeRecv, entryLength);
         } finally {
@@ -128,8 +118,8 @@ public class MsgMemStore implements Closeable {
     /***
      * Read from memory, read index, then data.
      *
-     * @param lastRdOffset
-     * @param lastOffset
+     * @param lstRdDataOffset
+     * @param lstRdIndexOffset
      * @param maxReadSize
      * @param maxReadCount
      * @param partitionId
@@ -138,7 +128,7 @@ public class MsgMemStore implements Closeable {
      * @param filterKeySet
      * @return
      */
-    public GetCacheMsgResult getMessages(final long lastRdOffset, final long lastOffset,
+    public GetCacheMsgResult getMessages(final long lstRdDataOffset, final long lstRdIndexOffset,
                                          final int maxReadSize, final int maxReadCount,
                                          final int partitionId, final boolean isSecond,
                                          final boolean isFilterConsume,
@@ -148,20 +138,19 @@ public class MsgMemStore implements Closeable {
         boolean hasMsg = false;
         //　judge memory contains the given offset or not.
         List<ByteBuffer> cacheMsgList = new ArrayList<>();
-        if (lastOffset < this.writeIndexStartPos) {
+        if (lstRdIndexOffset < this.writeIndexStartPos) {
             return new GetCacheMsgResult(false, TErrCodeConstants.MOVED,
-                    lastOffset, "Request offset lower than cache minOffset");
+                    lstRdIndexOffset, "Request offset lower than cache minOffset");
         }
-        if (lastOffset >= this.writeIndexStartPos + this.cacheIndexSize.get()) {
+        if (lstRdIndexOffset >= this.writeIndexStartPos + this.cacheIndexOffset.get()) {
             return new GetCacheMsgResult(false, TErrCodeConstants.NOT_FOUND,
-                    lastOffset, "Request offset reached cache maxOffset");
+                    lstRdIndexOffset, "Request offset reached cache maxOffset");
         }
         int totalReadSize = 0;
         int currIndexOffset;
         int currDataOffset;
-        int currIndexSize;
-        long lastDataRdOff = lastRdOffset;
-        int startReadSize = (int) (lastOffset - this.writeIndexStartPos);
+        long lastDataRdOff = lstRdDataOffset;
+        int startReadOff = (int) (lstRdIndexOffset - this.writeIndexStartPos);
         this.writeLock.lock();
         try {
             if (isFilterConsume) {
@@ -169,7 +158,7 @@ public class MsgMemStore implements Closeable {
                 for (Integer keyCode : filterKeySet) {
                     if (keyCode != null) {
                         lastWritePos = this.keysMap.get(keyCode);
-                        if ((lastWritePos != null) && (lastWritePos >= startReadSize)) {
+                        if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
                             hasMsg = true;
                             break;
                         }
@@ -178,83 +167,77 @@ public class MsgMemStore implements Closeable {
             } else {
                 // orderly consume by partition id.
                 lastWritePos = this.queuesMap.get(partitionId);
-                if ((lastWritePos != null) && (lastWritePos >= startReadSize)) {
+                if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
                     hasMsg = true;
                 }
             }
-            lastDataRdOff = this.writeDataStartPos + this.cacheDataSize.get();
-            currIndexSize = this.cacheIndexSize.get();
-            currIndexOffset = this.cacheIndexOffset.get();
             currDataOffset = this.cacheDataOffset.get();
+            currIndexOffset = this.cacheIndexOffset.get();
+            lastDataRdOff = this.writeDataStartPos + currDataOffset;
         } finally {
             this.writeLock.unlock();
         }
-        int usedPos = 0;
-        int limitReadSize = currIndexSize - startReadSize;
+        int limitReadSize = currIndexOffset - startReadOff;
         // cannot find message, return not found
         if (!hasMsg) {
             if (isSecond && !isFilterConsume) {
                 return new GetCacheMsgResult(true, 0, "Ok2",
-                        lastOffset, limitReadSize, lastDataRdOff, totalReadSize, cacheMsgList);
+                        lstRdIndexOffset, limitReadSize, lastDataRdOff, totalReadSize, cacheMsgList);
             } else {
                 return new GetCacheMsgResult(false, TErrCodeConstants.NOT_FOUND,
-                        "Can't found Message by index!", lastOffset,
+                        "Can't found Message by index!", lstRdIndexOffset,
                         limitReadSize, lastDataRdOff, totalReadSize, cacheMsgList);
             }
         }
         //　fetch data by index.
+        int readedSize = 0;
         int cPartitionId = 0;
-        int cKeyCode = 0;
-        int cDataOffset = 0;
-        int cDataSize = 0;
-        long cTimeRecv = 0L;
         long cDataPos = 0L;
-        int readedOff = 0;
+        int cDataSize = 0;
+        int cKeyCode = 0;
+        long cTimeRecv = 0L;
+        int cDataOffset = 0;
         ByteBuffer tmpIndexRdBuf = this.cachedIndexSegment.asReadOnlyBuffer();
         ByteBuffer tmpDataRdBuf = this.cacheDataSegment.asReadOnlyBuffer();
-        int startReadOff = (int) (startReadSize / DataStoreUtils.STORE_INDEX_HEAD_LEN * this.indexUnitLength);
         //　loop read by index
         for (int count = 0; count < maxReadCount;
-             count++, startReadOff += this.indexUnitLength,
-                     usedPos += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+             count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
             //　cannot find matched message, return
-            if ((usedPos >= limitReadSize)
-                    || (usedPos + DataStoreUtils.STORE_INDEX_HEAD_LEN > limitReadSize)
-                    || (startReadOff >= currIndexOffset)
-                    || (startReadOff + this.indexUnitLength > currIndexOffset)) {
+            if ((startReadOff >= currIndexOffset)
+                || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
                 break;
             }
             // read index content.
             tmpIndexRdBuf.position(startReadOff);
             cPartitionId = tmpIndexRdBuf.getInt();
-            cKeyCode = tmpIndexRdBuf.getInt();
-            cDataOffset = tmpIndexRdBuf.getInt();
-            cDataSize = tmpIndexRdBuf.getInt();
-            cTimeRecv = tmpIndexRdBuf.getLong();
             cDataPos = tmpIndexRdBuf.getLong();
+            cDataSize = tmpIndexRdBuf.getInt();
+            cKeyCode = tmpIndexRdBuf.getInt();
+            cTimeRecv = tmpIndexRdBuf.getLong();
+            cDataOffset = (int) (cDataPos - this.writeDataStartPos);
             //　skip when mismatch condition
             if ((cDataOffset < 0)
                     || (cDataSize <= 0)
                     || (cDataOffset >= currDataOffset)
-                    || (cDataSize > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024)
+                    || (cDataSize > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024)
                     || (cDataOffset + cDataSize > currDataOffset)) {
-                readedOff = usedPos + DataStoreUtils.STORE_INDEX_HEAD_LEN;
+                readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
             if ((cPartitionId != partitionId)
                     || (isFilterConsume && (!filterKeySet.contains(cKeyCode)))) {
-                readedOff = usedPos + DataStoreUtils.STORE_INDEX_HEAD_LEN;
+                readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
             //　read data file.
-            lastDataRdOff = cDataPos + cDataSize;
-            readedOff = usedPos + DataStoreUtils.STORE_INDEX_HEAD_LEN;
             byte[] tmpArray = new byte[cDataSize];
             final ByteBuffer buffer = ByteBuffer.wrap(tmpArray);
             tmpDataRdBuf.position(cDataOffset);
             tmpDataRdBuf.get(tmpArray);
             buffer.rewind();
             cacheMsgList.add(buffer);
+            lastDataRdOff = cDataPos + cDataSize;
+            readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
             totalReadSize += cDataSize;
             // break when exceed the max transfer size.
             if (totalReadSize >= maxReadSize) {
@@ -263,60 +246,28 @@ public class MsgMemStore implements Closeable {
         }
         // return result
         return new GetCacheMsgResult(true, 0, "Ok1",
-                lastOffset, readedOff, lastDataRdOff, totalReadSize, cacheMsgList);
+                lstRdIndexOffset, readedSize, lastDataRdOff, totalReadSize, cacheMsgList);
     }
 
     /***
-     * Flush memory to disk.
+     * Batch flush memory data to disk.
      *
      * @param msgFileStore
      * @param strBuffer
      * @return
      * @throws IOException
      */
-    public boolean flush(MsgFileStore msgFileStore, final StringBuilder strBuffer) throws Throwable {
+    public boolean batchFlush(MsgFileStore msgFileStore,
+                              final StringBuilder strBuffer) throws Throwable {
         if (this.curMessageCount.get() == 0) {
             return true;
         }
-        int count = 0;
-        int readPos = 0;
-        int cPartitionId = 0;
-        int cKeyCode = 0;
-        int cDataOffset = 0;
-        int cDataSize = 0;
-        long cTimeRecv = 0;
-        long cDataPos = 0;
-        ByteBuffer tmpBuffer = this.cachedIndexSegment.asReadOnlyBuffer();
-        final ByteBuffer tmpReadBuf = this.cacheDataSegment.asReadOnlyBuffer();
-        // flush one by one.
-        while (count++ < this.curMessageCount.get()) {
-            tmpBuffer.position(readPos);
-            cPartitionId = tmpBuffer.getInt();
-            cKeyCode = tmpBuffer.getInt();
-            cDataOffset = tmpBuffer.getInt();
-            cDataSize = tmpBuffer.getInt();
-            cTimeRecv = tmpBuffer.getLong();
-            cDataPos = tmpBuffer.getLong();
-            readPos += this.indexUnitLength;
-            if (cDataOffset >= this.cacheDataOffset.get()
-                    || cDataSize > this.cacheDataSize.get()
-                    || cDataSize > TBaseConstants.META_MAX_MESSAGEG_DATA_SIZE + 1024
-                    || cDataOffset + cDataSize > this.cacheDataOffset.get()) {
-                logger.error(strBuffer
-                        .append("[Mem Cache] flush Message found error data: cDataOffset=")
-                        .append(cDataOffset).append(",cDataSize=").append(cDataSize)
-                        .append(",cacheDataOffset=").append(this.cacheDataOffset.get())
-                        .append(",cacheDataSize=").append(this.cacheDataSize.get()).toString());
-                strBuffer.delete(0, strBuffer.length());
-                continue;
-            }
-            byte[] tmpArray = new byte[cDataSize];
-            final ByteBuffer buffer = ByteBuffer.wrap(tmpArray);
-            tmpReadBuf.position(cDataOffset);
-            tmpReadBuf.get(tmpArray);
-            msgFileStore.appendMsg(cPartitionId, cKeyCode,
-                    cTimeRecv, cDataPos, cDataSize, buffer, strBuffer);
-        }
+        ByteBuffer tmpIndexBuffer = this.cachedIndexSegment.asReadOnlyBuffer();
+        final ByteBuffer tmpDataReadBuf = this.cacheDataSegment.asReadOnlyBuffer();
+        tmpIndexBuffer.flip();
+        tmpDataReadBuf.flip();
+        msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
+            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(), tmpDataReadBuf);
         return true;
     }
 
@@ -325,11 +276,11 @@ public class MsgMemStore implements Closeable {
     }
 
     public int getCurDataCacheSize() {
-        return this.cacheDataSize.get();
+        return this.cacheDataOffset.get();
     }
 
     public int getIndexCacheSize() {
-        return this.cacheIndexSize.get();
+        return this.cacheIndexOffset.get();
     }
 
     public int getMaxDataCacheSize() {
@@ -343,26 +294,24 @@ public class MsgMemStore implements Closeable {
     public int isOffsetInHold(long requestOffset) {
         if (requestOffset < this.writeIndexStartPos) {
             return -1;
-        } else if (requestOffset >= this.writeIndexStartPos + this.cacheIndexSize.get()) {
+        } else if (requestOffset >= this.writeIndexStartPos + this.cacheIndexOffset.get()) {
             return 1;
         }
         return 0;
     }
 
     public long getDataLastWritePos() {
-        return this.writeDataStartPos + this.cacheDataSize.get();
+        return this.writeDataStartPos + this.cacheDataOffset.get();
     }
 
     public long getIndexLastWritePos() {
-        return this.writeIndexStartPos + this.cacheIndexSize.get();
+        return this.writeIndexStartPos + this.cacheIndexOffset.get();
     }
 
     public void clear() {
         this.writeDataStartPos = -1;
         this.writeIndexStartPos = -1;
-        this.cacheDataSize.set(0);
         this.cacheDataOffset.set(0);
-        this.cacheIndexSize.set(0);
         this.cacheIndexOffset.set(0);
         this.curMessageCount.set(0);
         this.queuesMap.clear();

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -67,7 +67,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -149,7 +149,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -261,7 +261,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -349,7 +349,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -464,7 +464,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
@@ -519,7 +519,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String groupName =
                 WebParameterUtils.validGroupParameter("groupName",
@@ -543,7 +543,7 @@ public class WebAdminGroupCtrlHandler {
             Set<String> batchOpConsumerIds = new HashSet<>();
             String inputConsumerId = req.getParameter("consumerId");
             if (TStringUtils.isNotBlank(inputConsumerId)) {
-                inputConsumerId = String.valueOf(inputConsumerId).trim();
+                inputConsumerId = inputConsumerId.trim();
                 String[] strInputConsumerIds =
                         inputConsumerId.split(TokenConstants.ARRAY_SEP);
                 for (int i = 0; i < strInputConsumerIds.length; i++) {
@@ -592,7 +592,7 @@ public class WebAdminGroupCtrlHandler {
                         .append(groupName).append(", consumerIds=")
                         .append(batchOpConsumerIds.toString())
                         .append(", reJoinWait=").append(reJoinWait)
-                        .append(", creater=").append(modifyUser).toString());
+                        .append(", creator=").append(modifyUser).toString());
                 sBuilder.delete(0, sBuilder.length());
                 consumerInfoHolder.addRebConsumerInfo(groupName, batchOpConsumerIds, reJoinWait);
                 sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
@@ -701,7 +701,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -759,7 +759,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -778,7 +778,7 @@ public class WebAdminGroupCtrlHandler {
             if ((jsonArray == null) || (jsonArray.isEmpty())) {
                 throw new Exception("Null value of groupNameJsonSet, please set the value first!");
             }
-            Set<String> confgiuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
+            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
             HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
                     new HashMap<>();
             for (int j = 0; j < jsonArray.size(); j++) {
@@ -809,7 +809,7 @@ public class WebAdminGroupCtrlHandler {
                         groupCreateUser = createUser;
                         groupCreateDate = createDate;
                     }
-                    if (!confgiuredTopicSet.contains(groupTopicName)) {
+                    if (!configuredTopicSet.contains(groupTopicName)) {
                         throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
                                 .append(" not configure in master configure, please configure first!").toString());
                     }
@@ -918,7 +918,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             Set<String> batchOpTopicNames =
                     WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
@@ -982,7 +982,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -1027,7 +1027,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -1173,7 +1173,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
@@ -1218,7 +1218,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -1266,7 +1266,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser",
@@ -1417,7 +1417,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1492,7 +1492,7 @@ public class WebAdminGroupCtrlHandler {
     public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             Set<String> batchOpGroupNames =
                     WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),

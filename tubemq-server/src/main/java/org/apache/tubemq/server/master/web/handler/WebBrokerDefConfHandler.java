@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -45,9 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Broker的缺省配置操作类,包括新增broker配置记录,变更配置,删除配置,以及修改broker的线上管理状态
- * 需要注意的是每个IP只能部署一个Broker,每个brokerId必须要唯一
- * 相关逻辑比较简单,API代码里有对应要求,代码只是做对应的处理
  * <p>
  * The class to handle the default config of broker, including:
  * - Add config
@@ -81,13 +78,13 @@ public class WebBrokerDefConfHandler {
      *
      * @param webMaster
      * @param brokeId
-     * @param oldManagStatus
+     * @param oldManageStatus
      * @param newManageStatus
      * @return
      */
     public static boolean isBrokerStartNeedFast(BrokerConfManager webMaster,
                                                 int brokeId,
-                                                int oldManagStatus,
+                                                int oldManageStatus,
                                                 int newManageStatus) {
         ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntMap =
                 webMaster.getBrokerTopicConfEntitySet(brokeId);
@@ -106,12 +103,12 @@ public class WebBrokerDefConfHandler {
         if (isNeedFastStart) {
             switch (newManageStatus) {
                 case TStatusConstants.STATUS_MANAGE_ONLINE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_APPLY)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_APPLY)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ)) {
                         isNeedFastStart = false;
                     }
-                    if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
+                    if (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
                         if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
@@ -120,11 +117,11 @@ public class WebBrokerDefConfHandler {
                 }
                 break;
                 case TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_APPLY)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_APPLY)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)) {
                         isNeedFastStart = false;
                     }
-                    if (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
+                    if (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
                         if ((brokerSyncStatusInfo.isBrokerConfChanged())
                                 || (!brokerSyncStatusInfo.isBrokerLoaded())) {
                             isNeedFastStart = false;
@@ -133,8 +130,8 @@ public class WebBrokerDefConfHandler {
                 }
                 break;
                 case TStatusConstants.STATUS_MANAGE_OFFLINE: {
-                    if ((oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE)
-                            || (oldManagStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE)) {
+                    if ((oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE)
+                            || (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE)) {
                         isNeedFastStart = false;
                     }
                 }
@@ -158,13 +155,11 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String brokerIp =
-                    WebParameterUtils.validAddressParameter("brokerIp",
-                            req.getParameter("brokerIp"),
-                            TBaseConstants.META_MAX_BROKER_IP_LENGTH,
-                            true, "");
+                    WebParameterUtils.checkParamCommonRequires("brokerIp",
+                            req.getParameter("brokerIp"), true);
             int brokerPort =
                     WebParameterUtils.validIntDataParameter("brokerPort",
                             req.getParameter("brokerPort"),
@@ -244,6 +239,10 @@ public class WebBrokerDefConfHandler {
                     WebParameterUtils.validIntDataParameter("unflushInterval",
                             req.getParameter("unflushInterval"),
                             false, 10000, 1);
+            int unFlushDataHold =
+                    WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"),
+                            false, 0, 0);
             int memCacheMsgCntInK =
                     WebParameterUtils.validIntDataParameter("memCacheMsgCntInK",
                             req.getParameter("memCacheMsgCntInK"),
@@ -269,7 +268,6 @@ public class WebBrokerDefConfHandler {
             int numTopicStores =
                     WebParameterUtils.validIntDataParameter("numTopicStores",
                             req.getParameter("numTopicStores"), false, 1, 1);
-            int unFlushDataHold = unflushThreshold;
             int brokerTlsPort =
                     WebParameterUtils.validIntDataParameter("brokerTLSPort",
                             req.getParameter("brokerTLSPort"), false,
@@ -314,7 +312,7 @@ public class WebBrokerDefConfHandler {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String createUser =
                     WebParameterUtils.validStringParameter("createUser", req.getParameter("createUser"),
@@ -328,15 +326,15 @@ public class WebBrokerDefConfHandler {
             if ((brokerJsonArray == null) || (brokerJsonArray.isEmpty())) {
                 throw new Exception("Null value of brokerJsonSet, please set the value first!");
             }
-            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntiyMap = new HashMap<>();
+            HashMap<String, BdbBrokerConfEntity> inBrokerConfEntityMap = new HashMap<>();
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
                     brokerConfManager.getBrokerConfStoreMap();
             for (int count = 0; count < brokerJsonArray.size(); count++) {
                 Map<String, String> jsonObject = brokerJsonArray.get(count);
                 try {
                     String brokerIp =
-                            WebParameterUtils.validAddressParameter("brokerIp", jsonObject.get("brokerIp"),
-                                    TBaseConstants.META_MAX_BROKER_IP_LENGTH, false, "");
+                            WebParameterUtils.checkParamCommonRequires("brokerIp",
+                                    jsonObject.get("brokerIp"), false);
                     int brokerPort =
                             WebParameterUtils.validIntDataParameter("brokerPort",
                                     jsonObject.get("brokerPort"), false, 8123, 0);
@@ -345,8 +343,8 @@ public class WebBrokerDefConfHandler {
                                     jsonObject.get("brokerId"), false, 0, 0);
                     if (brokerId <= 0) {
                         brokerIp =
-                                WebParameterUtils.validAddressParameter("brokerIp", jsonObject.get("brokerIp"),
-                                        TBaseConstants.META_MAX_BROKER_IP_LENGTH, true, "");
+                                WebParameterUtils.checkParamCommonRequires("brokerIp",
+                                        jsonObject.get("brokerIp"), true);
                         try {
                             brokerId = abs(AddressUtils.ipToInt(brokerIp));
                         } catch (Exception e) {
@@ -375,7 +373,7 @@ public class WebBrokerDefConfHandler {
                             throw new Exception(strBuffer.toString());
                         }
                     }
-                    for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntiyMap.values()) {
+                    for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntityMap.values()) {
                         if (brokerConfEntity.getBrokerIp().equals(brokerIp)
                                 && brokerConfEntity.getBrokerPort() == brokerPort) {
                             throw new Exception(strBuffer
@@ -408,6 +406,9 @@ public class WebBrokerDefConfHandler {
                     final int unflushInterval =
                             WebParameterUtils.validIntDataParameter("unflushInterval",
                                     jsonObject.get("unflushInterval"), false, 10000, 1);
+                    final int unFlushDataHold =
+                            WebParameterUtils.validIntDataParameter("unflushDataHold",
+                                    jsonObject.get("unflushDataHold"), false, 0, 0);
                     final boolean acceptPublish =
                             WebParameterUtils.validBooleanDataParameter("acceptPublish",
                                     jsonObject.get("acceptPublish"), false, true);
@@ -424,7 +425,6 @@ public class WebBrokerDefConfHandler {
                         itemCreateUser = createUser;
                         itemCreateDate = createDate;
                     }
-                    int unFlushDataHold = unflushThreshold;
                     int brokerTlsPort =
                             WebParameterUtils.validIntDataParameter("brokerTLSPort",
                                     jsonObject.get("brokerTLSPort"), false,
@@ -456,7 +456,7 @@ public class WebBrokerDefConfHandler {
                             .append(TokenConstants.TOKEN_TLS_PORT).append(TokenConstants.EQ)
                             .append(brokerTlsPort).toString();
                     strBuffer.delete(0, strBuffer.length());
-                    inBrokerConfEntiyMap.put(inputKey, new BdbBrokerConfEntity(brokerId, brokerIp,
+                    inBrokerConfEntityMap.put(inputKey, new BdbBrokerConfEntity(brokerId, brokerIp,
                             brokerPort, numPartitions, unflushThreshold, unflushInterval, deleteWhen,
                             deletePolicy, manageStatus, acceptPublish, acceptSubscribe, attributes,
                             true, false, itemCreateUser, itemCreateDate, itemCreateUser, itemCreateDate));
@@ -467,7 +467,7 @@ public class WebBrokerDefConfHandler {
                             .append(ee.getMessage()).toString());
                 }
             }
-            for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntiyMap.values()) {
+            for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntityMap.values()) {
                 brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
             }
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
@@ -490,7 +490,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -573,7 +573,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminSetReadOrWriteBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -596,8 +596,6 @@ public class WebBrokerDefConfHandler {
             Map<Integer, BrokerInfo> oldBrokerInfoMap =
                     master.getBrokerHolder().getBrokerInfoMap();
 
-            // 确认待修改broker状态的broker当前状态与预期状态信息,确认是否有修改
-            // 如果有修改则检查当前broker状态是否满足修改,如果都满足则形成修改记录
             // Check the current status and status after the change, to see if there are changes.
             // If yes, check if the current status complies with the change.
             // If it complies, record the change.
@@ -739,7 +737,7 @@ public class WebBrokerDefConfHandler {
             HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -785,7 +783,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminUpdateBrokerConf(HttpServletRequest req) throws Throwable {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser = WebParameterUtils.validStringParameter("modifyUser",
                     req.getParameter("modifyUser"), TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
@@ -855,7 +853,12 @@ public class WebBrokerDefConfHandler {
                     foundChange = true;
                     newEntity.appendAttributes(TokenConstants.TOKEN_STORE_NUM, String.valueOf(numTopicStores));
                 }
-                int unFlushDataHold = unflushThreshold;
+                int unFlushDataHold = WebParameterUtils.validIntDataParameter("unflushDataHold",
+                        req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
+                if ((unFlushDataHold >= 0) && (unFlushDataHold != oldEntity.getDftUnFlushDataHold())) {
+                    foundChange = true;
+                    newEntity.setDftUnFlushDataHold(unFlushDataHold);
+                }
                 int brokerTlsPort = WebParameterUtils.validIntDataParameter("brokerTLSPort",
                         req.getParameter("brokerTLSPort"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
                 if (brokerTlsPort >= 0 && brokerTlsPort != oldEntity.getBrokerTLSPort()) {
@@ -946,7 +949,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminReloadBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1009,7 +1012,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminOfflineBrokerConf(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1093,7 +1096,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminDeleteBrokerConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
-            WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager,
+            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
                     req.getParameter("confModAuthToken"));
             String modifyUser =
                     WebParameterUtils.validStringParameter("modifyUser",
@@ -1215,6 +1218,7 @@ public class WebBrokerDefConfHandler {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
             BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
+            brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
             boolean withDetail =
                 WebParameterUtils.validBooleanDataParameter("withDetail",
                     req.getParameter("withDetail"), false, false);
@@ -1399,6 +1403,7 @@ public class WebBrokerDefConfHandler {
     public StringBuilder adminQueryBrokerDefConfEntityInfo(HttpServletRequest req) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         BdbBrokerConfEntity brokerConfEntity = new BdbBrokerConfEntity();
+        brokerConfEntity.setDftUnFlushDataHold(TBaseConstants.META_VALUE_UNDEFINED);
         try {
             brokerConfEntity
                     .setRecordCreateUser(WebParameterUtils.validStringParameter("createUser",
@@ -1422,8 +1427,11 @@ public class WebBrokerDefConfHandler {
                     .setDftUnflushThreshold(WebParameterUtils.validIntDataParameter("unflushThreshold",
                             req.getParameter("unflushThreshold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
             brokerConfEntity
-                    .setBrokerIp(WebParameterUtils.validAddressParameter("brokerIp",
-                            req.getParameter("brokerIp"), TBaseConstants.META_MAX_BROKER_IP_LENGTH, false, ""));
+                    .setDftUnFlushDataHold(WebParameterUtils.validIntDataParameter("unflushDataHold",
+                            req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0));
+            brokerConfEntity
+                    .setBrokerIp(WebParameterUtils.checkParamCommonRequires("brokerIp",
+                            req.getParameter("brokerIp"), false));
             boolean withTopic =
                     WebParameterUtils.validBooleanDataParameter("withTopic",
                             req.getParameter("withTopic"), false, false);
@@ -1495,14 +1503,14 @@ public class WebBrokerDefConfHandler {
                         .append(",\"numTopicStores\":").append(recordNumTopicStores)
                         .append(",\"unflushThreshold\":").append(entity.getDftUnflushThreshold())
                         .append(",\"unflushInterval\":").append(entity.getDftUnflushInterval())
-                        .append(",\"unFlushDataHold\":").append(entity.getDftUnFlushDataHold())
+                        .append(",\"unflushDataHold\":").append(entity.getDftUnFlushDataHold())
                         .append(",\"memCacheMsgCntInK\":").append(recordMemCacheMsgCntInK)
                         .append(",\"memCacheMsgSizeInMB\":").append(recordMemCacheMsgSizeInMB)
                         .append(",\"memCacheFlushIntvl\":").append(recordMemCacheFlushIntvl)
                         .append(",\"deleteWhen\":\"").append(entity.getDftDeleteWhen())
                         .append("\",\"deletePolicy\":\"").append(entity.getDftDeletePolicy())
-                        .append("\",\"acceptPublish\":").append(String.valueOf(entity.isAcceptPublish()))
-                        .append(",\"acceptSubscribe\":").append(String.valueOf(entity.isAcceptSubscribe()))
+                        .append("\",\"acceptPublish\":").append(entity.isAcceptPublish())
+                        .append(",\"acceptSubscribe\":").append(entity.isAcceptSubscribe())
                         .append(",\"createUser\":\"").append(entity.getRecordCreateUser())
                         .append("\",\"createDate\":\"").append(formatter.format(entity.getRecordCreateDate()))
                         .append("\",\"modifyUser\":\"").append(entity.getRecordModifyUser())
@@ -1537,7 +1545,8 @@ public class WebBrokerDefConfHandler {
      */
     private boolean isValidRecord(final Set<String> batchTopicNames, int topicStatusId, Boolean isInclude,
                                   ConcurrentHashMap<String, BdbTopicConfEntity> bdbTopicConfEntityMap) {
-        // 首先检查指定了topic并且要求进行topic区分,并且broker有topic记录时,按照业务指定的topic区分要求进行过滤
+        // First check the difference between specified topic and request topic, and then when the broker
+        // has a topic record, filter according to the topic requirements specified by the business
         if (!batchTopicNames.isEmpty() && isInclude != null) {
             if ((bdbTopicConfEntityMap == null) || (bdbTopicConfEntityMap.isEmpty())) {
                 if (isInclude) {
@@ -1567,8 +1576,6 @@ public class WebBrokerDefConfHandler {
                 }
             }
         }
-        // 然后按照指定的topic状态进行过滤
-        // 符合状态要求的才会被认为有效
         // Filter according to the topic status
         if (topicStatusId == TBaseConstants.META_VALUE_UNDEFINED) {
             return true;
@@ -1613,14 +1620,14 @@ public class WebBrokerDefConfHandler {
                             .append(",\"numPartitions\":").append(topicEntity.getNumPartitions())
                             .append(",\"unflushThreshold\":").append(topicEntity.getUnflushThreshold())
                             .append(",\"unflushInterval\":").append(topicEntity.getUnflushInterval())
-                            .append(",\"unFlushDataHold\":").append(topicEntity.getUnflushDataHold())
+                            .append(",\"unflushDataHold\":").append(topicEntity.getUnflushDataHold())
                             .append(",\"memCacheMsgCntInK\":").append(topicEntity.getMemCacheMsgCntInK())
                             .append(",\"memCacheMsgSizeInMB\":").append(topicEntity.getMemCacheMsgSizeInMB())
                             .append(",\"memCacheFlushIntvl\":").append(topicEntity.getMemCacheFlushIntvl())
                             .append(",\"deleteWhen\":\"").append(topicEntity.getDeleteWhen())
                             .append("\",\"deletePolicy\":\"").append(topicEntity.getDeletePolicy())
-                            .append("\",\"acceptPublish\":").append(String.valueOf(topicEntity.getAcceptPublish()))
-                            .append(",\"acceptSubscribe\":").append(String.valueOf(topicEntity.getAcceptSubscribe()))
+                            .append("\",\"acceptPublish\":").append(topicEntity.getAcceptPublish())
+                            .append(",\"acceptSubscribe\":").append(topicEntity.getAcceptSubscribe())
                             .append(",\"createUser\":\"").append(topicEntity.getCreateUser())
                             .append("\",\"createDate\":\"").append(formatter.format(topicEntity.getCreateDate()))
                             .append("\",\"modifyUser\":\"").append(topicEntity.getModifyUser())

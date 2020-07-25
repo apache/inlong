@@ -289,7 +289,7 @@ public class WebParameterUtils {
      * @param reqToken         the token for checking
      * @throws Exception if authorization failed
      */
-    public static void reqAuthorizenCheck(TMaster master,
+    public static void reqAuthorizeCheck(TMaster master,
                                           BrokerConfManager brokerConfManager,
                                           String reqToken) throws Exception {
         if (brokerConfManager.isPrimaryNodeActive()) {
@@ -364,13 +364,13 @@ public class WebParameterUtils {
         long validDuration = 0;
         try {
             if (timeUnit.endsWith("s")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
             } else if (timeUnit.endsWith("m")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
             } else if (timeUnit.endsWith("h")) {
-                validDuration = Long.valueOf(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+                validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
             } else {
-                validDuration = Long.valueOf(validValStr) * 3600000;
+                validDuration = Long.parseLong(validValStr) * 3600000;
             }
         } catch (Throwable e) {
             throw new Exception(new StringBuilder(512)
@@ -631,8 +631,7 @@ public class WebParameterUtils {
                 continue;
             }
             String brokerIp =
-                    validAddressParameter("brokerIp", strBrokerIps[i],
-                            TBaseConstants.META_MAX_BROKER_IP_LENGTH, true, "");
+                    checkParamCommonRequires("brokerIp", strBrokerIps[i], true);
             if (batchBrokerIps.contains(brokerIp)) {
                 continue;
             }
@@ -879,7 +878,7 @@ public class WebParameterUtils {
         return sdf.format(date);
     }
 
-    private static String checkParamCommonRequires(final String paramName, final String paramValue,
+    public static String checkParamCommonRequires(final String paramName, final String paramValue,
                                                    boolean required) throws Exception {
         String temParamValue = null;
         if (paramValue == null) {

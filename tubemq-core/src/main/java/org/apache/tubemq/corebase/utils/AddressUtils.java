@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,14 +17,19 @@
 
 package org.apache.tubemq.corebase.utils;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
+
+import org.apache.tubemq.corebase.exception.AddressException;
 import org.jboss.netty.channel.Channel;
 
 public class AddressUtils {
+
     private static String localIPAddress = null;
 
     public static synchronized String getLocalAddress() throws Exception {
@@ -34,23 +39,22 @@ public class AddressUtils {
         return localIPAddress;
     }
 
-    public static boolean validLocalIp(String currLocalHost) throws Exception {
+    @Deprecated
+    public static boolean validLocalIp(String currLocalHost) {
         if (TStringUtils.isNotEmpty(localIPAddress)
                 && localIPAddress.equals(currLocalHost)) {
             return true;
         }
-        Enumeration<NetworkInterface> allInterface = NetworkInterface.getNetworkInterfaces();
-        if (allInterface == null) {
-            throw new Exception("Get NetworkInterfaces is null");
-        }
+
+        Enumeration<NetworkInterface> allInterface = listNetworkInterface();
+
         return checkValidIp(allInterface, currLocalHost);
     }
 
-    private static boolean checkValidIp(Enumeration<NetworkInterface> allInterface,
-                                        String currLocalHost) throws Exception {
-        String localIp = null;
+    private static boolean checkValidIp(Enumeration<NetworkInterface> allInterface, String currLocalHost) {
+        String localIp;
         try {
-            for (; allInterface.hasMoreElements(); ) {
+            while (allInterface.hasMoreElements()) {
                 NetworkInterface oneInterface = allInterface.nextElement();
                 if (oneInterface == null
                         || oneInterface.isLoopback()
@@ -58,7 +62,7 @@ public class AddressUtils {
                     continue;
                 }
                 Enumeration<InetAddress> allAddress = oneInterface.getInetAddresses();
-                for (; allAddress.hasMoreElements(); ) {
+                while (allAddress.hasMoreElements()) {
                     InetAddress oneAddress = allAddress.nextElement();
                     localIp = oneAddress.getHostAddress();
                     if (TStringUtils.isBlank(localIp)
@@ -72,9 +76,9 @@ public class AddressUtils {
                 }
             }
         } catch (SocketException e) {
-            throw new Exception("error get local ip, ex {}", e);
+            throw new AddressException("error get local ip, ex {}", e);
         }
-        throw new Exception(new StringBuilder(256).append("Illegal parameter: not found the ip(")
+        throw new AddressException(new StringBuilder(256).append("Illegal parameter: not found the ip(")
                 .append(currLocalHost).append(") in local networkInterfaces!").toString());
     }
 
@@ -130,4 +134,116 @@ public class AddressUtils {
         }
         return strRemoteIP;
     }
+
+    public static Enumeration<NetworkInterface> listNetworkInterface() {
+        try {
+            return NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            throw new AddressException(e);
+        }
+    }
+
+    public static String getIPV4LocalAddress() {
+        String tmpAdress = null;
+        try {
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
+            if (enumeration == null) {
+                throw new AddressException("Get NetworkInterfaces is null");
+            }
+            while (enumeration.hasMoreElements()) {
+                try {
+                    tmpAdress = getValidIPV4Address(enumeration.nextElement());
+                    if (tmpAdress != null) {
+                        break;
+                    }
+                } catch (Throwable e) {
+                    //
+                }
+            }
+            if (tmpAdress == null) {
+                tmpAdress = InetAddress.getLocalHost().getHostAddress();
+            }
+            if (tmpAdress != null) {
+                localIPAddress = tmpAdress;
+                return tmpAdress;
+            }
+        } catch (SocketException | UnknownHostException e) {
+            throw new AddressException("Call getIPV4LocalAddress throw exception", e);
+        }
+        throw new AddressException(new StringBuilder(256)
+            .append("Illegal parameter: not found the default ip")
+            .append(" in local networkInterfaces!").toString());
+    }
+
+    public static String getIPV4LocalAddress(String defEthName) {
+        boolean foundNetInter = false;
+        String tmpAdress = null;
+        try {
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
+            if (enumeration == null) {
+                throw new AddressException("Get NetworkInterfaces is null");
+            }
+            while (enumeration.hasMoreElements()) {
+                NetworkInterface oneInterface = enumeration.nextElement();
+                if (oneInterface == null
+                    || oneInterface.isLoopback()
+                    || !oneInterface.isUp()
+                    || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
+                    continue;
+                }
+                foundNetInter = true;
+                try {
+                    tmpAdress = getValidIPV4Address(oneInterface);
+                    if (tmpAdress != null) {
+                        localIPAddress = tmpAdress;
+                        return tmpAdress;
+                    }
+                } catch (Throwable e) {
+                    //
+                }
+            }
+        } catch (Throwable e) {
+            throw new AddressException("Call getDefNetworkAddress throw exception", e);
+        }
+        if (foundNetInter) {
+            throw new AddressException(new StringBuilder(256)
+                .append("Illegal parameter: not found valid ip")
+                .append(" in networkInterfaces ").append(defEthName).toString());
+        } else {
+            throw new AddressException(new StringBuilder(256)
+                .append("Illegal parameter: ").append(defEthName)
+                .append(" does not exist or is not in a valid state!").toString());
+        }
+    }
+
+    public static String getValidIPV4Address(NetworkInterface networkInterface) {
+        try {
+            if (networkInterface == null ||
+                !networkInterface.isUp() ||
+                networkInterface.isLoopback() ||
+                "docker0".equals(networkInterface.getName())) {
+                return null;
+            }
+            Enumeration<InetAddress> addrs = networkInterface.getInetAddresses();
+            while (addrs.hasMoreElements()) {
+                InetAddress address = addrs.nextElement();
+                if (address == null ||
+                    address.isLoopbackAddress() ||
+                    address instanceof Inet6Address) {
+                    continue;
+                }
+                String localIP = address.getHostAddress();
+                if (TStringUtils.isEmpty(localIP) || localIP.startsWith("127.0")) {
+                    continue;
+                }
+                return localIP;
+            }
+            return null;
+        } catch (Throwable e) {
+            throw new AddressException(new StringBuilder(256)
+                .append("Illegal parameter: ").append("unable to obtain valid IP from network card ")
+                .append(networkInterface).toString(), e);
+        }
+    }
+
 }

@@ -335,14 +335,16 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(authorizeResult.errInfo);
             return builder.build();
         }
+        String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
                 new HashSet<>(transTopicSet), hostName, overtls);
         builder.setBrokerCheckSum(this.defaultBrokerConfManager.getBrokerInfoCheckSum());
         builder.addAllBrokerInfos(this.defaultBrokerConfManager.getBrokersMap(overtls).values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
-        logger.info(strBuffer.append("[Producer Register] ")
-                .append(producerId).append(", isOverTLS=").append(overtls).toString());
+        logger.info(strBuffer.append("[Producer Register] ").append(producerId)
+            .append(", isOverTLS=").append(overtls)
+            .append(", clientJDKVer=").append(clientJdkVer).toString());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -536,14 +538,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         boolean isReqConsumeBand = (request.hasRequireBound() && request.getRequireBound());
-        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand, reqTopicSet, requiredParts,
-                strBuffer);
+        String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
+        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand,
+                reqTopicSet, requiredParts, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
             return builder.build();
         }
-        Map<String, Long> requredPartMap = (Map<String, Long>) paramCheckResult.checkData;
+        Map<String, Long> requiredPartMap = (Map<String, Long>) paramCheckResult.checkData;
         Map<String, TreeSet<String>> reqTopicConditions =
                 DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         String sessionKey = request.hasSessionKey() ? request.getSessionKey() : "";
@@ -551,15 +554,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ? request.getSessionTime() : System.currentTimeMillis();
         int sourceCount = request.hasTotalCount()
                 ? request.getTotalCount() : -1;
-        long ssdStoreId = request.hasSsdStoreId()
-                ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
         int reqQryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         boolean isSelectBig = (!request.hasSelectBig() || request.getSelectBig());
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
                         reqTopicSet, reqTopicConditions, isReqConsumeBand,
-                        sessionKey, sessionTime, sourceCount, requredPartMap);
+                        sessionKey, sessionTime, sourceCount, requiredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defaultBrokerConfManager, topicPSInfoManager, strBuffer);
@@ -650,7 +651,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         logger.info(strBuffer.append("[Consumer Register] ")
-                .append(consumerId).append(", isOverTLS=").append(overtls).toString());
+            .append(consumerId).append(", isOverTLS=").append(overtls)
+            .append(", clientJDKVer=").append(clientJdkVer).toString());
         strBuffer.delete(0, strBuffer.length());
         if (request.hasDefFlowCheckId() || request.hasGroupFlowCheckId()) {
             builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
@@ -676,12 +678,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 builder.setQryPriorityId(bdbGroupFlowCtrlEntity.getQryPriorityId());
                 if (request.getGroupFlowCheckId() != bdbGroupFlowCtrlEntity.getSerialId()) {
                     builder.setGroupFlowControlInfo(bdbGroupFlowCtrlEntity.getFlowCtrlInfo());
-                }
-                if (bdbGroupFlowCtrlEntity.isNeedSSDProc()
-                        && defFlowCtrlEntity != null
-                        && defFlowCtrlEntity.isValidStatus()
-                        && defFlowCtrlEntity.isNeedSSDProc()) {
-                    builder.setSsdStoreId(defFlowCtrlEntity.getSsdTranslateId());
                 }
             }
         }
@@ -859,12 +855,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 if (request.getGroupFlowCheckId() != bdbGroupFlowCtrlEntity.getSerialId()) {
                     builder.setGroupFlowControlInfo(bdbGroupFlowCtrlEntity.getFlowCtrlInfo());
                 }
-                if (bdbGroupFlowCtrlEntity.isNeedSSDProc()
-                        && defFlowCtrlEntity != null
-                        && defFlowCtrlEntity.isValidStatus()
-                        && defFlowCtrlEntity.isNeedSSDProc()) {
-                    builder.setSsdStoreId(defFlowCtrlEntity.getSsdTranslateId());
-                }
             }
         }
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
@@ -1009,8 +999,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         boolean needFastStart = false;
         final long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
-        final long reqSsdTranslateId = request.hasSsdStoreId()
-                ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
         final int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
@@ -1050,7 +1038,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             .append(",isTlsEnable=").append(brokerInfo.isEnableTLS())
             .append(",TLSport=").append(brokerInfo.getTlsPort())
             .append(",FlowCtrlId=").append(reFlowCtrlId)
-            .append(",ssdTranslateId=").append(reqSsdTranslateId)
             .append(",qryPriorityId=").append(qryPriorityId)
             .append(",checksumId=").append(request.getConfCheckSumId()).toString());
         strBuffer.delete(0, strBuffer.length());
@@ -1077,11 +1064,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setConfCheckSumId(brokerStatusInfo.getLastPushBrokerCheckSumId());
         builder.setBrokerDefaultConfInfo(brokerStatusInfo.getLastPushBrokerDefaultConfInfo());
         builder.addAllBrokerTopicSetConfInfo(brokerStatusInfo.getLastPushBrokerTopicSetConfInfo());
+        builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         if (request.hasFlowCheckId()) {
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
                     defaultBrokerConfManager.getBdbDefFlowCtrl();
             if (bdbGroupFlowCtrlEntity == null) {
-                builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
                 builder.setFlowCheckId(TBaseConstants.META_VALUE_UNDEFINED);
                 builder.setQryPriorityId(TBaseConstants.META_VALUE_UNDEFINED);
                 if (request.getFlowCheckId() != TBaseConstants.META_VALUE_UNDEFINED) {
@@ -1096,11 +1083,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     } else {
                         builder.setFlowControlInfo(" ");
                     }
-                }
-                if (bdbGroupFlowCtrlEntity.isNeedSSDProc()) {
-                    builder.setSsdStoreId(bdbGroupFlowCtrlEntity.getSsdTranslateId());
-                } else {
-                    builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
                 }
             }
         }
@@ -1225,8 +1207,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 request.getReadStatusRpt(), request.getWriteStatusRpt());
         long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
-        long reqSsdTranslateId = request.hasSsdStoreId()
-                ? request.getSsdStoreId() : TBaseConstants.META_VALUE_UNDEFINED;
         int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         if (request.getTakeConfInfo()) {
@@ -1238,7 +1218,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",checksumId=").append(request.getConfCheckSumId())
                 .append(",hasFlowCheckId=").append(request.hasFlowCheckId())
                 .append(",reFlowCtrlId=").append(reFlowCtrlId)
-                .append(",reqSsdTranslateId=").append(reqSsdTranslateId)
                 .append(",qryPriorityId=").append(qryPriorityId)
                 .append(",brokerOnline=").append(request.getBrokerOnline())
                 .append(",default broker configure is ").append(request.getBrokerDefaultConfInfo())
@@ -1251,12 +1230,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setNeedReportData(brokerSyncStatusInfo.needReportData());
         builder.setCurBrokerConfId(brokerSyncStatusInfo.getLastPushBrokerConfId());
         builder.setConfCheckSumId(brokerSyncStatusInfo.getLastPushBrokerCheckSumId());
+        builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         if (request.hasFlowCheckId()) {
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
                     defaultBrokerConfManager.getBdbDefFlowCtrl();
             if (bdbGroupFlowCtrlEntity == null) {
                 builder.setFlowCheckId(TBaseConstants.META_VALUE_UNDEFINED);
-                builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
                 builder.setQryPriorityId(TBaseConstants.META_VALUE_UNDEFINED);
                 if (request.getFlowCheckId() != TBaseConstants.META_VALUE_UNDEFINED) {
                     builder.setFlowControlInfo(" ");
@@ -1270,11 +1249,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     } else {
                         builder.setFlowControlInfo(" ");
                     }
-                }
-                if (bdbGroupFlowCtrlEntity.isNeedSSDProc()) {
-                    builder.setSsdStoreId(bdbGroupFlowCtrlEntity.getSsdTranslateId());
-                } else {
-                    builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
                 }
             }
         }
@@ -1295,7 +1269,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",set flowCtrlId=").append(builder.getFlowCheckId())
                 .append(",stopWrite=").append(builder.getStopWrite())
                 .append(",stopRead=").append(builder.getStopRead())
-                .append(",ssdTranslateId=").append(builder.getSsdStoreId())
                 .append(",qryPriorityId=").append(builder.getQryPriorityId())
                 .append(",checksumId=").append(brokerSyncStatusInfo.getLastPushBrokerCheckSumId())
                 .append(",default configure is ")
@@ -2202,7 +2175,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     }
 
     /**
-     * get neet balance group list
+     * get need balance group list
      *
      * @param strBuffer
      * @return
@@ -2378,7 +2351,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @throws Exception
      */
     private void checkAndCreateBdbDataPath() throws Exception {
-        String bdbEnvPath = this.masterConfig.getBdbConfig().getBdbEnvHome();
+        String bdbEnvPath = this.masterConfig.getMetaDataPath();
         final File dir = new File(bdbEnvPath);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new Exception(new StringBuilder(256)

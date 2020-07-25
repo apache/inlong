@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -92,23 +92,25 @@ public class TubeClientConfig {
     // TLS configuration.
     private TLSConfig tlsConfig = new TLSConfig();
 
-
-    public TubeClientConfig(final String localHostIP, final String masterAddrInfo) throws Exception {
-        if (TStringUtils.isBlank(localHostIP)) {
-            throw new IllegalArgumentException("Illegal parameter: localHostIP is blank!");
-        }
-        // Not allow to set local host ip to 127.0.0.1.
-        if ("127.0.0.1".equals(localHostIP)) {
-            throw new IllegalArgumentException("Illegal parameter: localHostIP can't set to 127.0.0.1");
-        }
-        if (TStringUtils.isBlank(masterAddrInfo)) {
-            throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is Blank!");
-        }
-        this.masterInfo = new MasterInfo(masterAddrInfo);
-        AddressUtils.validLocalIp(localHostIP.trim());
+    public TubeClientConfig(String masterAddrInfo) {
+        this(new MasterInfo(masterAddrInfo));
     }
 
-    public TubeClientConfig(final String localHostIP, final MasterInfo masterInfo) throws Exception {
+    public TubeClientConfig(MasterInfo masterInfo) {
+        if (masterInfo == null) {
+            throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is null!");
+        }
+        this.masterInfo = masterInfo.clone();
+        String iPv4LocalAddress = AddressUtils.getIPV4LocalAddress();
+    }
+
+    @Deprecated
+    public TubeClientConfig(final String localHostIP, final String masterAddrInfo) {
+        this(localHostIP, new MasterInfo(masterAddrInfo));
+    }
+
+    @Deprecated
+    public TubeClientConfig(final String localHostIP, final MasterInfo masterInfo) {
         if (TStringUtils.isBlank(localHostIP)) {
             throw new IllegalArgumentException("Illegal parameter: localHostIP is blank!");
         }
@@ -536,7 +538,7 @@ public class TubeClientConfig {
         if (!usrPassWord.equals(that.usrPassWord)) {
             return false;
         }
-        if (this.tlsConfig.equals(that.tlsConfig)) {
+        if (!this.tlsConfig.equals(that.tlsConfig)) {
             return false;
         }
         return masterInfo.equals(that.masterInfo);

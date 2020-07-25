@@ -271,7 +271,7 @@ public class Webapi implements Action {
             strBuffer = webGroupCtrlHandler.adminRebalanceGroupAllocateInfo(req);
         } else if ("admin_transfer_current_master".equals(method)) {
             try {
-                WebParameterUtils.reqAuthorizenCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
+                WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
                 brokerConfManager.transferMaster();
                 strBuffer.append("{\"result\":true,\"errCode\":0," +
                         "\"errMsg\":\"TransferMaster method called, please wait 20 seconds!\"}");
@@ -421,7 +421,7 @@ public class Webapi implements Action {
             String sessionKey = "";
             int reqSourceCount = -1;
             int curSourceCount = -1;
-            long rebanceCheckTime = -1;
+            long rebalanceCheckTime = -1;
             int defBClientRate = -2;
             int confBClientRate = -2;
             int curBClientRate = -2;
@@ -430,7 +430,7 @@ public class Webapi implements Action {
             Set<String> topicSet = new HashSet<>();
             List<ConsumerInfo> consumerList = new ArrayList<>();
             Map<String, NodeRebInfo> nodeRebInfoMap = new ConcurrentHashMap<>();
-            Map<String, TreeSet<String>> existedTopicCondtions = new HashMap<>();
+            Map<String, TreeSet<String>> existedTopicConditions = new HashMap<>();
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
             ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(strConsumeGroup);
             if (consumerBandInfo != null) {
@@ -441,7 +441,7 @@ public class Webapi implements Action {
                     consumerList = consumerBandInfo.getConsumerInfoList();
                 }
                 if (consumerBandInfo.getTopicConditions() != null) {
-                    existedTopicCondtions = consumerBandInfo.getTopicConditions();
+                    existedTopicConditions = consumerBandInfo.getTopicConditions();
                 }
                 nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
                 isBandConsume = consumerBandInfo.isBandConsume();
@@ -456,7 +456,7 @@ public class Webapi implements Action {
                     sessionKey = consumerBandInfo.getSessionKey();
                     reqSourceCount = consumerBandInfo.getSourceCount();
                     curSourceCount = consumerBandInfo.getGroupCnt();
-                    rebanceCheckTime = consumerBandInfo.getCurCheckCycle();
+                    rebalanceCheckTime = consumerBandInfo.getCurCheckCycle();
                 }
             }
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
@@ -485,7 +485,7 @@ public class Webapi implements Action {
                         .append("\",\"isSelectBig\":").append(isSelectBig)
                         .append(",\"reqSourceCount\":").append(reqSourceCount)
                         .append(",\"curSourceCount\":").append(curSourceCount)
-                        .append(",\"rebanceCheckTime\":").append(rebanceCheckTime);
+                        .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
             }
             strBuffer.append(",\"rebInfo\":{");
             if (rebalanceStatus == -2) {
@@ -503,9 +503,9 @@ public class Webapi implements Action {
                         .append(",\"curBClientRate\":").append(curBClientRate);
             }
             strBuffer.append("},\"filterConds\":{");
-            if (existedTopicCondtions != null) {
+            if (existedTopicConditions != null) {
                 int keyCount = 0;
-                for (Map.Entry<String, TreeSet<String>> entry : existedTopicCondtions.entrySet()) {
+                for (Map.Entry<String, TreeSet<String>> entry : existedTopicConditions.entrySet()) {
                     if (keyCount++ > 0) {
                         strBuffer.append(",");
                     }

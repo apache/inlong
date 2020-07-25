@@ -16,25 +16,22 @@
  */
 package org.apache.tubemq.corerpc.codec;
 
-import static org.junit.Assert.assertTrue;
-import com.googlecode.protobuf.format.JsonFormat;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.junit.Test;
 
 public class PbEnDecoderTest {
 
-
     @Test
     public void testPbEncodeAndDecoder() throws Exception {
         // mock a pb object
-        JsonFormat jsonFormat = new JsonFormat();
         ClientMaster.RegisterRequestP2M.Builder builder = ClientMaster.RegisterRequestP2M.newBuilder();
         builder.setClientId("10001");
         builder.setBrokerCheckSum(99);
         builder.setHostName("tube-test");
         ClientMaster.RegisterRequestP2M object = builder.build();
-        final String jsonOject = jsonFormat.printToString(object);
         // encode pb
         byte[] data = PbEnDecoder.pbEncode(object);
 
@@ -42,10 +39,9 @@ public class PbEnDecoderTest {
         ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M)
                 PbEnDecoder.pbDecode(true, RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
 
-        assertTrue(decodeObject.getClientId().equals(object.getClientId()));
-        assertTrue(decodeObject.getBrokerCheckSum() == object.getBrokerCheckSum());
-        assertTrue(decodeObject.getHostName().equals(object.getHostName()));
-        assertTrue(jsonOject.equals(jsonFormat.printToString(decodeObject)));
+        assertEquals(decodeObject.getClientId(), object.getClientId());
+        assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());
+        assertEquals(decodeObject.getHostName(), object.getHostName());
     }
 
 }
