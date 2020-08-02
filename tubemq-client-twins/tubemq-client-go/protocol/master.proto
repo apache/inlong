@@ -1,0 +1,182 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+package protocol;
+option go_package = "git.code.oa.com/tdbank/tubemq-client-go/protocol";
+
+message EventProto{
+    int64 rebalanceId = 1;
+    int32 opType = 2;
+    int32 status = 3;
+    /* consumerId@group-brokerId:host:port-topic:partitionId */
+    repeated string subscribeInfo = 4;
+}
+
+message EnableBrokerFunInfo {
+    bool enableConsumeAuthenticate = 1;
+    bool enableConsumeAuthorize = 2;
+    bool enableProduceAuthenticate = 3;
+    bool enableProduceAuthorize = 4;
+    bool enableVisitTokenCheck = 5;
+}
+
+message AuthenticateInfo {
+    string userName = 1;
+    int64 timestamp = 2;
+    int32 nonce = 3;
+    string othParams = 4;
+    string signature = 5;
+}
+
+message MasterCertificateInfo {
+    AuthenticateInfo authInfo = 1;
+    string authorizedToken = 2;
+}
+
+message MasterAuthorizedInfo {
+    int64 visitAuthorizedToken = 1;
+    string authAuthorizedToken = 2;
+}
+
+message MasterBrokerAuthorizedInfo {
+    string visitAuthorizedToken = 1;
+    string authAuthorizedToken = 2;
+}
+
+message DataStorePath {
+    int32 recordId = 1;
+    bool isActive = 2;
+    bool isDefPath = 3;
+    string dataPath = 4;
+}
+
+message TopicRmvInfo {
+    string topicName = 1;
+    int32 statusId = 2;
+}
+
+message DefaultConfigInfo {
+    int32 numTopicStores = 1;
+    int32 numPartitions = 2;
+    int32 unflushMsgCnt = 3;
+    int32 unflushInterval = 4;
+    int32 unflushDataSize = 5;
+    int32 memCacheBlockSize = 6;
+    int32 numMemCacheBlock = 7;
+    int32 bathDiskWriteUnit = 8;
+    int32 bathDiskReadUnit = 9;
+    bool acceptPublish = 10;
+    bool acceptSubscribe = 11;
+    string deletePolicy = 12;
+}
+
+message TopicConfigInfo {
+    string topicName = 1;
+    int32 statusId = 2;
+    int32 numTopicStores = 3;
+    int32 numPartitions = 4;
+    int32 unflushMsgCnt = 5;
+    int32 unflushInterval = 6;
+    int32 unflushDataSize = 7;
+    int32 memCacheBlockSize = 8;
+    int32 numMemCacheBlock = 9;
+    bool acceptPublish = 10;
+    bool acceptSubscribe = 11;
+    string deletePolicy = 12;
+    repeated DataStorePath dataPath = 13;
+}
+
+message BrokerConfigInfo {
+    int64 brokerConfId = 1;
+    int32 confCheckSumId = 2;
+    DefaultConfigInfo defConfigInfo = 3;
+    repeated TopicConfigInfo topicConfigInfos = 4;
+    bool enableTls = 5;
+    int32 tlsPort = 6;
+    int32 webPort = 7;
+}
+
+message BrokerPolicyInfo {
+    int64 policyId = 1;
+    int32 qryPriorityId = 2;
+    string policyInfo = 3;
+}
+
+message BrokerStatusInfo {
+    bool  isOnline = 1;
+    int32 readStatusRpt = 2;
+    int32 writeStatusRpt = 3;
+    int32 lastOperateId = 4;
+}
+
+message BrokerOperateInfo {
+    int32 operateId = 1;
+    // 00:normal, 01:stop read, 10:stop write, 11:stop read and write
+    int32 frcServiceStatus = 2;
+    bool  frcRptConfig = 3;
+    bool  enableConsumeAuthenticate = 4;
+    bool  enableConsumeAuthorize = 5;
+    bool  enableProduceAuthenticate = 6;
+    bool  enableProduceAuthorize = 7;
+    bool  enableVisitTokenCheck = 8;
+    repeated TopicRmvInfo rmvTopicsInfo = 9;
+}
+
+message RegisterRequestB2M {
+    string clientId = 1;
+    BrokerStatusInfo statusRptInfo = 2;
+    BrokerConfigInfo configInfo = 3;
+    BrokerPolicyInfo policyInfo = 4;
+    MasterCertificateInfo authInfo = 5;
+}
+
+message RegisterResponseM2B {
+    int32 errCode = 1;
+    string errMsg = 2;
+    BrokerConfigInfo configInfo = 3;
+    BrokerOperateInfo operateInfo = 4;
+    BrokerPolicyInfo policyInfo = 5;
+    MasterBrokerAuthorizedInfo authorizedInfo = 6;
+}
+
+message HeartRequestB2M {
+    string brokerId = 1;
+    BrokerStatusInfo statusRptInfo = 2;
+    BrokerConfigInfo configInfo = 3;
+    BrokerPolicyInfo policyInfo = 4;
+    MasterCertificateInfo authInfo = 5;
+}
+
+message HeartResponseM2B {
+    int32 errCode = 1;
+    string errMsg = 2;
+    BrokerConfigInfo configInfo = 3;
+    BrokerOperateInfo operateInfo = 4;
+    BrokerPolicyInfo policyInfo = 5;
+    MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 6;
+}
+
+message CloseRequestB2M {
+    string brokerId = 1;
+    MasterCertificateInfo authInfo = 2;
+}
+
+message CloseResponseM2B {
+    int32 errCode = 1;
+    string errMsg = 2;
+}

@@ -1,0 +1,134 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+package protocol;
+option go_package = "git.code.oa.com/tdbank/tubemq-client-go/protocol";
+
+
+message TransferedMessage {
+    int64 messageId = 1;
+    int32 checkSum = 2;
+    bytes payLoadData = 3;
+    int32 flag = 4;
+}
+
+message AuthorizedInfo {
+    int64 visitAuthorizedToken = 1;
+    string authAuthorizedToken = 2;
+}
+
+message SendMessageRequestP2B {
+    string clientId = 1;
+    string topicName = 2;
+    int32 partitionId = 3;
+    bytes data = 4;
+    int32 flag = 5;
+    int32 checkSum = 6;
+    int32 sentAddr = 7;
+    string msgType = 8;
+    string msgTime = 9;
+    AuthorizedInfo authInfo = 10;
+}
+
+message SendMessageResponseB2P {
+    bool success = 1;
+    int32 errCode = 2;
+    string errMsg = 3;
+    bool requireAuth = 4;
+}
+
+message RegisterRequestC2B {
+    int32 opType = 1;
+    string clientId = 2;
+    string groupName = 3;
+    string topicName = 4;
+    int32 partitionId = 5;
+    int32 readStatus = 6;
+    repeated string filterCondStr = 7;
+    int64 currOffset = 8;
+    string sessionKey = 9;
+    int64 sessionTime = 10;
+    int64 ssdStoreId = 11;  /* Deprecated  */
+    int32 qryPriorityId = 12;
+    AuthorizedInfo authInfo = 13;
+}
+
+message RegisterResponseB2C {
+    bool success = 1;
+    int32 errCode = 2;
+    string errMsg = 3;
+    int64 currOffset = 4;
+}
+
+message HeartBeatRequestC2B {
+    string clientId = 1;
+    string groupName = 2;
+    int32 readStatus = 3;
+    /* brokerId:host:port:topic:partitionId:delayTimeStamp */
+    repeated string partitionInfo = 4;
+    int64 ssdStoreId = 5;   /* Deprecated  */
+    int32 qryPriorityId = 6;
+    AuthorizedInfo authInfo = 7;
+}
+
+message HeartBeatResponseB2C {
+    bool success = 1;
+    int32 errCode = 2;
+    string errMsg = 3;
+    bool hasPartFailure = 4;
+    /* failCode:brokerId:host:port:topic:partitionId:delayTimeStamp */
+    repeated string failureInfo = 5;
+    bool requireAuth = 6;
+}
+
+message GetMessageRequestC2B {
+    string clientId = 1;
+    int32 partitionId = 2;
+    string groupName = 3;
+    string topicName = 4;
+    bool lastPackConsumed = 5;
+    bool manualCommitOffset = 6;
+    bool escFlowCtrl = 7;
+}
+
+message GetMessageResponseB2C {
+    bool success = 1;
+    int32 errCode = 2;
+    string errMsg = 3;
+    repeated TransferedMessage messages = 4;
+    int64 currOffset = 5;
+    int32 minLimitTime = 6;
+    bool escFlowCtrl = 7;
+    int64 currDataDlt = 8;
+    bool requireSlow = 9;
+}
+
+message CommitOffsetRequestC2B {
+    string clientId = 1;
+    string topicName = 2;
+    int32 partitionId = 3;
+    string groupName = 4;
+    bool lastPackConsumed = 5;
+}
+
+message CommitOffsetResponseB2C {
+    bool success = 1;
+    int32 errCode = 2;
+    string errMsg = 3;
+    int64 currOffset=4;
+}
