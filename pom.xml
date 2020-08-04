@@ -30,7 +30,7 @@
     <groupId>org.apache.tubemq</groupId>
     <artifactId>tubemq</artifactId>
     <inceptionYear>2013</inceptionYear>
-    <version>0.5.0-incubating-SNAPSHOT</version>
+    <version>0.6.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache TubeMQ</name>
 
