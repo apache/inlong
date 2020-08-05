@@ -229,41 +229,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 Open Source Software Licensed under the Apache License Version 2.0
 -----------------------------------------------------------------------------------------------------------
-1. tubemq-server/src/main/java/com/tencent/tubemq/server/common/utils/Bytes.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/utils/HashedBytes.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/utils/HasThread.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
-   tubemq-core/src/main/java/com/tencent/tubemq/corebase/utils/ThreadUtils.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/master/utils/Chore.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
-   tubemq-server/src/main/java/com/tencent/tubemq/server/common/utils/RowLock.java
+1. tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
+   tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
 hbase 0.94.27 (Please note that the software have been modified.)
 Copyrighy (C)  The Apache Software Foundation
 License: https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
 
-2. tubemq-core/src/main/java/com/tencent/tubemq/corebase/utils/MapBackedSet.java
-   tubemq-core/src/main/java/com/tencent/tubemq/corebase/utils/ConcurrentHashSet.java
+2. tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/MapBackedSet.java
+   tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ConcurrentHashSet.java
 mina 2.0.12
 Copyright 2007-2012 The Apache Software Foundation.
 License: https://github.com/apache/mina/blob/2.0.12/LICENSE.txt
 
-3. tubemq-core/src/main/java/com/tencent/tubemq/corerpc/netty/ByteBufferInputStream.java
-   tubemq-core/src/main/java/com/tencent/tubemq/corerpc/netty/ByteBufferOutputStream.java
+3. tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
+   tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
 Apache Avro 1.7.6
 Copyright 2010 The Apache Software Foundation
 License: https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
 
-4. tubemq-core/src/main/java/com/tencent/tubemq/corebase/utils/TStringUtils.java
+4. tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/TStringUtils.java
 citrus	r3.1.4 (Please note that the software have been modified.)
 Copyrighy (C) Alibaba Group Holding Limited.
 License: https://github.com/webx/citrus/blob/r3.1.4/pom.xml
 
 5. bin/broker.sh
    bin/master.sh
-   tubemq-server/src/main/java/com/tencent/tubemq/server/tools/ToolUtils.java
+   tubemq-server/src/main/java/org/apache/tubemq/server/tools/ToolUtils.java
 Metamorphosis  metamorphosis-all-1.4.4 (Please note that the software have been modified.)
 Copyrighy (C) Alibaba Group Holding Limited.
 License: https://github.com/killme2008/Metamorphosis/blob/metamorphosis-all-1.4.4/COPYING.txt
