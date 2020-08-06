@@ -17,6 +17,11 @@
 
 package org.apache.tubemq.server.master.web;
 
+import static javax.servlet.DispatcherType.ASYNC;
+import static javax.servlet.DispatcherType.REQUEST;
+
+import java.util.EnumSet;
+
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
@@ -34,16 +39,15 @@ import org.apache.tubemq.server.master.web.simplemvc.WebFilter;
 import org.apache.tubemq.server.master.web.simplemvc.conf.WebConfig;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.NumberTool;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.servlet.ServletHolder;
-
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public class WebServer implements Server {
 
     private final MasterConfig masterConfig;
-    private org.mortbay.jetty.Server srv;
+    private org.eclipse.jetty.server.Server srv;
     private TMaster master;
 
     public WebServer(final MasterConfig masterConfig, TMaster master) {
@@ -60,17 +64,15 @@ public class WebServer implements Server {
         webConfig.setStandalone(true);
         registerActions(webConfig);
         registerTools(webConfig);
-        srv = new org.mortbay.jetty.Server(masterConfig.getWebPort());
-        org.mortbay.jetty.servlet.Context servletContext =
-                new org.mortbay.jetty.servlet.Context(srv,
-                        "/", org.mortbay.jetty.servlet.Context.SESSIONS);
+        srv = new org.eclipse.jetty.server.Server(masterConfig.getWebPort());
+        ServletContextHandler servletContext = new ServletContextHandler(srv,
+                        "/", ServletContextHandler.SESSIONS);
         servletContext.addFilter(new FilterHolder(
-                new MasterStatusCheckFilter(master)), "/*", Handler.REQUEST);
+                new MasterStatusCheckFilter(master)), "/*", EnumSet.of(REQUEST, ASYNC));
         servletContext.addFilter(new FilterHolder(
-                new UserAuthFilter()), "/*", Handler.REQUEST);
-        FilterHolder filterHolder =
-                new FilterHolder(new WebFilter(webConfig));
-        servletContext.addFilter(filterHolder, "/*", Handler.REQUEST);
+                new UserAuthFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
+        FilterHolder filterHolder = new FilterHolder(new WebFilter(webConfig));
+        servletContext.addFilter(filterHolder, "/*", EnumSet.of(REQUEST, ASYNC));
         DefaultServlet defaultServlet = new DefaultServlet();
         ServletHolder servletHolder = new ServletHolder(defaultServlet);
         servletHolder.setInitParameter("dirAllowed", "false");

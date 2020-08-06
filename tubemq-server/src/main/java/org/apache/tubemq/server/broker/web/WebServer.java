@@ -20,7 +20,8 @@ package org.apache.tubemq.server.broker.web;
 import static com.google.common.base.Preconditions.checkArgument;
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.broker.TubeBroker;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 /***
  * Broker's http server.
@@ -29,7 +30,7 @@ public class WebServer implements Server {
 
     private String hostname = "0.0.0.0";
     private int port = 8080;
-    private org.mortbay.jetty.Server srv;
+    private org.eclipse.jetty.server.Server srv;
     private TubeBroker broker;
 
     public WebServer(String hostname, int port, TubeBroker broker) {
@@ -40,9 +41,9 @@ public class WebServer implements Server {
 
     @Override
     public void start() throws Exception {
-        srv = new org.mortbay.jetty.Server(this.port);
-        org.mortbay.jetty.servlet.Context servletContext =
-                new org.mortbay.jetty.servlet.Context(srv, "/", org.mortbay.jetty.servlet.Context.SESSIONS);
+        srv = new org.eclipse.jetty.server.Server(this.port);
+        ServletContextHandler servletContext =
+                new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
 
         servletContext.addServlet(new ServletHolder(new BrokerAdminServlet(broker)), "/*");
         srv.start();
