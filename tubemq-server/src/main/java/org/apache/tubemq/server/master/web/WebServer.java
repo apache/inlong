@@ -35,11 +35,11 @@ import org.apache.tubemq.server.master.web.action.screen.config.BrokerList;
 import org.apache.tubemq.server.master.web.action.screen.config.TopicDetail;
 import org.apache.tubemq.server.master.web.action.screen.config.TopicList;
 import org.apache.tubemq.server.master.web.action.screen.consume.Detail;
+import org.apache.tubemq.server.master.web.simplemvc.WebApiServlet;
 import org.apache.tubemq.server.master.web.simplemvc.WebFilter;
 import org.apache.tubemq.server.master.web.simplemvc.conf.WebConfig;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.NumberTool;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -71,10 +71,9 @@ public class WebServer implements Server {
                 new MasterStatusCheckFilter(master)), "/*", EnumSet.of(REQUEST, ASYNC));
         servletContext.addFilter(new FilterHolder(
                 new UserAuthFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
-        FilterHolder filterHolder = new FilterHolder(new WebFilter(webConfig));
-        servletContext.addFilter(filterHolder, "/*", EnumSet.of(REQUEST, ASYNC));
-        DefaultServlet defaultServlet = new DefaultServlet();
-        ServletHolder servletHolder = new ServletHolder(defaultServlet);
+        servletContext.addFilter(new FilterHolder(
+                new WebFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
+        ServletHolder servletHolder = new ServletHolder(new WebApiServlet(webConfig));
         servletHolder.setInitParameter("dirAllowed", "false");
         servletContext.addServlet(servletHolder, "/*");
         servletContext.setResourceBase(masterConfig.getWebResourcePath());
