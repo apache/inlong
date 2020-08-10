@@ -31,6 +31,7 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStore;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.tubemq.server.common.utils.AppendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.DirectBuffer;
@@ -78,10 +79,12 @@ public class MsgMemStore implements Closeable {
     public boolean appendMsg(final MsgMemStatisInfo msgMemStatisInfo,
                              final int partitionId, final int keyCode,
                              final long timeRecv, final int entryLength,
-                             final ByteBuffer entry) {
+                             final ByteBuffer entry, final AppendResult appendResult) {
         boolean fullDataSize = false;
         boolean fullIndexSize = false;
         boolean fullCount = false;
+        long indexOffset = TBaseConstants.META_VALUE_UNDEFINED;
+        long dataOffset = TBaseConstants.META_VALUE_UNDEFINED;
         this.writeLock.lock();
         try {
             //　judge whether can write to memory or not.
@@ -93,13 +96,14 @@ public class MsgMemStore implements Closeable {
                 return false;
             }
             // conduct message with filling process
-            entry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF,
-                this.writeIndexStartPos + this.cacheIndexOffset.get());
+            indexOffset = this.writeIndexStartPos + this.cacheIndexOffset.get();
+            dataOffset = this.writeDataStartPos + this.cacheDataOffset.get();
+            entry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, indexOffset);
             this.cacheDataSegment.position(this.cacheDataOffset.get());
             this.cacheDataSegment.put(entry.array());
             this.cachedIndexSegment.position(this.cacheIndexOffset.get());
             this.cachedIndexSegment.putInt(partitionId);
-            this.cachedIndexSegment.putLong(this.writeDataStartPos + this.cacheDataOffset.get());
+            this.cachedIndexSegment.putLong(dataOffset);
             this.cachedIndexSegment.putInt(entryLength);
             this.cachedIndexSegment.putInt(keyCode);
             this.cachedIndexSegment.putLong(timeRecv);
@@ -112,6 +116,7 @@ public class MsgMemStore implements Closeable {
         } finally {
             this.writeLock.unlock();
         }
+        appendResult.putAppendResult(indexOffset, dataOffset);
         return true;
     }
 

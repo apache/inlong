@@ -74,7 +74,7 @@ import org.apache.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 import org.apache.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.tubemq.server.common.paramcheck.ParamCheckResult;
-import org.apache.tubemq.server.common.utils.IdWorker;
+import org.apache.tubemq.server.common.utils.AppendResult;
 import org.apache.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,8 +98,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private final MessageStoreManager storeManager;
     // heartbeat manager.
     private final HeartbeatManager heartbeatManager;
-    // sequencer id generator.
-    private final IdWorker idWorker;
     // row lock.
     private final RowLock brokerRowLock;
     // statistics of produce.
@@ -125,7 +123,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.serverAuthHandler = tubeBroker.getServerAuthHandler();
         ServiceStatusHolder.setStatisParameters(tubeConfig.getAllowedReadIOExcptCnt(),
                 tubeConfig.getAllowedWriteIOExcptCnt(), tubeConfig.getIoExcptStatsDurationMs());
-        this.idWorker = new IdWorker(0);
         this.putCounterGroup = new GroupCountService("PutCounterGroup", "Producer", 60 * 1000);
         this.getCounterGroup = new GroupCountService("GetCounterGroup", "Consumer", 60 * 1000);
         this.heartbeatManager = new HeartbeatManager();
@@ -666,8 +663,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         try {
             final MessageStore store =
                     this.storeManager.getOrCreateMessageStore(reqTopic, partition);
-            final long messageId = this.idWorker.nextId();
-            if (store.appendMsg(messageId, dataLength, checkSum, msgData,
+            final AppendResult appendResult = new AppendResult();
+            if (store.appendMsg(appendResult, dataLength, checkSum, msgData,
                     msgTypeCode, request.getFlag(), partition, request.getSentAddr())) {
                 String baseKey = strBuffer.append(reqTopic)
                         .append("#").append(AddressUtils.intToIp(request.getSentAddr()))
@@ -678,7 +675,12 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 builder.setSuccess(true);
                 builder.setRequireAuth(certResult.reAuth);
                 builder.setErrCode(TErrCodeConstants.SUCCESS);
-                builder.setErrMsg(String.valueOf(messageId));
+                // begin Deprecated, after 1.0, the ErrMsg set "Ok" or ""
+                builder.setErrMsg(String.valueOf(appendResult.getMsgId()));
+                // end Deprecated, after 1.0, the ErrMsg set "Ok" or ""
+                builder.setMessageId(appendResult.getMsgId());
+                builder.setAppendTime(appendResult.getAppendTime());
+                builder.setAppendOffset(appendResult.getAppendIndexOffset());
                 return builder.build();
             } else {
                 builder.setErrCode(TErrCodeConstants.SERVER_RECEIVE_OVERFLOW);
