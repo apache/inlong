@@ -52,6 +52,9 @@ message SendMessageResponseB2P {
     required int32 errCode = 2;
     required string errMsg = 3;
     optional bool requireAuth = 4;
+    optional int64 messageId = 5;
+    optional int64 appendTime = 6;
+    optional int64 appendOffset = 7;
 }
 
 message RegisterRequestC2B {

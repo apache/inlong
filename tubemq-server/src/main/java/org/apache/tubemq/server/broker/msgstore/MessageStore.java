@@ -47,6 +47,8 @@ import org.apache.tubemq.server.broker.msgstore.mem.MsgMemStore;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.tubemq.server.common.utils.AppendResult;
+import org.apache.tubemq.server.common.utils.IdWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +61,8 @@ public class MessageStore implements Closeable {
     private final ReentrantLock flushMutex = new ReentrantLock();
     private final AtomicBoolean hasFlushBeenTriggered = new AtomicBoolean(false);
     private final TopicMetadata topicMetadata;
+    // sequencer id generator.
+    private final IdWorker idWorker;
     private final int storeId;
     private final String storeKey;
     private final BrokerConfig tubeConfig;
@@ -116,6 +120,7 @@ public class MessageStore implements Closeable {
         this.msgStoreMgr = messageStoreManager;
         this.maxAllowRdSize = (int) (maxMsgRDSize * 0.5);
         this.storeKey = topicMetadata.getTopic() + "-" + this.storeId;
+        this.idWorker = new IdWorker(0);
         this.primStorePath = this.tubeConfig.getPrimaryPath();
         this.partitionNum = topicMetadata.getNumPartitions();
         this.unflushInterval.set(topicMetadata.getUnflushInterval());
@@ -299,7 +304,7 @@ public class MessageStore implements Closeable {
      * @return
      * @throws IOException
      */
-    public boolean appendMsg(final long msgId, final int dataLength,
+    public boolean appendMsg(final AppendResult appendResult, final int dataLength,
                              final int dataCheckSum, final byte[] data,
                              final int msgTypeCode, final int msgFlag,
                              final int partitionId, final int sentAddr) throws IOException {
@@ -308,6 +313,7 @@ public class MessageStore implements Closeable {
                     .append("[Data Store] Closed MessageStore for storeKey ")
                     .append(this.storeKey).toString());
         }
+        long messageId = this.idWorker.nextId();
         int msgBufLen = DataStoreUtils.STORE_DATA_HEADER_LEN + dataLength;
         final long receivedTime = System.currentTimeMillis();
         final ByteBuffer buffer = ByteBuffer.allocate(msgBufLen);
@@ -319,23 +325,26 @@ public class MessageStore implements Closeable {
         buffer.putLong(receivedTime);
         buffer.putInt(sentAddr);
         buffer.putInt(msgTypeCode);
-        buffer.putLong(msgId);
+        buffer.putLong(messageId);
         buffer.putInt(msgFlag);
         buffer.put(data);
         buffer.flip();
+        appendResult.putReceivedInfo(messageId, receivedTime);
         int count = 3;
         do {
             this.writeCacheMutex.readLock().lock();
             try {
                 if (this.msgMemStore.appendMsg(msgMemStatisInfo,
-                        partitionId, msgTypeCode, receivedTime, msgBufLen, buffer)) {
+                        partitionId, msgTypeCode, receivedTime,
+                        msgBufLen, buffer, appendResult)) {
                     return true;
                 }
             } finally {
                 this.writeCacheMutex.readLock().unlock();
             }
             if (triggerFlushAndAddMsg(partitionId, msgTypeCode,
-                    receivedTime, msgBufLen, true, buffer, false)) {
+                    receivedTime, msgBufLen, true,
+                    buffer, false, appendResult)) {
                 return true;
             }
             ThreadUtils.sleep(1);
@@ -436,7 +445,8 @@ public class MessageStore implements Closeable {
         }
         if (msgMemStore.getCurMsgCount() > 0
                 && (System.currentTimeMillis() - this.lastMemFlushTime.get()) >= this.writeCacheFlushIntvl) {
-            triggerFlushAndAddMsg(-1, 0, 0, 0, false, null, true);
+
+            triggerFlushAndAddMsg(-1, 0, 0, 0, false, null, true, null);
         }
     }
 
@@ -595,7 +605,8 @@ public class MessageStore implements Closeable {
     private boolean triggerFlushAndAddMsg(final int partitionId, final int keyCode,
                                           final long receivedTime, final int entryLength,
                                           final boolean needAdd, final ByteBuffer entry,
-                                          final boolean isTimeTrigger) throws IOException {
+                                          final boolean isTimeTrigger,
+                                          final AppendResult appendResult) throws IOException {
         writeCacheMutex.writeLock().lock();
         try {
             if (!isFlushOngoing.get() && hasFlushBeenTriggered.compareAndSet(false, true)) {
@@ -626,7 +637,8 @@ public class MessageStore implements Closeable {
             }
             if (needAdd) {
                 return msgMemStore.appendMsg(msgMemStatisInfo,
-                        partitionId, keyCode, receivedTime, entryLength, entry);
+                        partitionId, keyCode, receivedTime,
+                        entryLength, entry, appendResult);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -354,8 +354,15 @@ public class SimpleMessageProducer implements MessageProducer {
                                                  final ClientBroker.SendMessageResponseB2P response) {
         final String resultStr = response.getErrMsg();
         if (response.getErrCode() == TErrCodeConstants.SUCCESS) {
-            return new MessageSentResult(true, response.getErrCode(), "Ok!",
-                    message, Long.parseLong(resultStr), partition);
+            if (response.hasMessageId()) {
+                return new MessageSentResult(true,
+                        response.getErrCode(), "Ok!",
+                        message, response.getMessageId(), partition,
+                        response.getAppendTime(), response.getAppendOffset());
+            } else {
+                return new MessageSentResult(true, response.getErrCode(), "Ok!",
+                        message, Long.parseLong(resultStr), partition);
+            }
         } else {
             return new MessageSentResult(false, response.getErrCode(), resultStr,
                     message, TBaseConstants.META_VALUE_UNDEFINED, partition);
