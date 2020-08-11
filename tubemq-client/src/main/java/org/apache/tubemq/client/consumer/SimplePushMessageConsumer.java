@@ -194,7 +194,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
         baseConsumer.rmtDataCache.succRspRelease(taskContext.getPartition().getPartitionKey(),
                 taskContext.getPartition().getTopic(), taskContext.getUsedToken(),
                 isConsumed, isFilterConsume(taskContext.getPartition().getTopic()),
-                taskContext.getCurrOffset());
+                taskContext.getCurrOffset(), taskContext.getMaxOffset());
 
         // Warning if the process time is too long
         long cost = System.currentTimeMillis() - startTime;
@@ -241,7 +241,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                 if (msgListener instanceof MessageV2Listener) {
                     MessageV2Listener msgV2Listener = (MessageV2Listener) msgListener;
                     msgV2Listener.receiveMessages(new PeerInfo(request.getPartition(),
-                                    request.getCurrOffset()), request.getMessageList());
+                            request.getCurrOffset(), request.getMaxOffset()), request.getMessageList());
                 } else {
                     msgListener.receiveMessages(request.getMessageList());
                 }

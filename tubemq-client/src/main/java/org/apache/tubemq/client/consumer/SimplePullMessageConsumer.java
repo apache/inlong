@@ -128,6 +128,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         }
         StringBuilder sBuilder = new StringBuilder(512);
         long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
+        long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
         // Verify if the confirmContext is valid
         if (TStringUtils.isBlank(confirmContext)) {
             throw new TubeClientException("ConfirmContext is null !");
@@ -164,28 +165,29 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         }
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
+                timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
             return new ConsumerResult(true, TErrCodeConstants.SUCCESS,
-                    "OK!", topicName, curPartition, currOffset);
+                    "OK!", topicName, curPartition, currOffset, maxOffset);
         } else {
             try {
                 ClientBroker.CommitOffsetResponseB2C commitResponse =
-                        baseConsumer.getBrokerService(curPartition.getBroker())
-                                .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
-                                        AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
+                    baseConsumer.getBrokerService(curPartition.getBroker())
+                        .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
+                            AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
                 if (commitResponse == null) {
-                    return new ConsumerResult(TErrCodeConstants.BAD_REQUEST, sBuilder
-                            .append("Confirm ").append(confirmContext)
-                            .append("'s offset failed!").toString());
+                    return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
+                            sBuilder.append("Confirm ").append(confirmContext)
+                                    .append("'s offset failed!").toString());
                 } else {
-                    if (commitResponse.hasCurrOffset()) {
-                        if (commitResponse.getCurrOffset() >= 0) {
-                            currOffset = commitResponse.getCurrOffset();
-                        }
+                    if (commitResponse.hasCurrOffset() && commitResponse.getCurrOffset() >= 0) {
+                        currOffset = commitResponse.getCurrOffset();
+                    }
+                    if (commitResponse.hasMaxOffset() && commitResponse.getMaxOffset() >= 0) {
+                        maxOffset = commitResponse.getMaxOffset();
                     }
                     return new ConsumerResult(commitResponse.getSuccess(),
                             commitResponse.getErrCode(), commitResponse.getErrMsg(),
-                            topicName, curPartition, currOffset);
+                            topicName, curPartition, currOffset, maxOffset);
                 }
             } catch (Throwable e) {
                 sBuilder.delete(0, sBuilder.length());
@@ -193,7 +195,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                         .append(confirmContext).append("'s offset failed.").toString(), e);
             } finally {
                 baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                        timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
+                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
             }
         }
     }

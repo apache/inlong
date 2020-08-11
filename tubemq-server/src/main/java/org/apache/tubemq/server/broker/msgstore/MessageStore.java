@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
@@ -185,9 +186,11 @@ public class MessageStore implements Closeable {
                 ? 0 : (consumerNodeInfo.isFilterConsume() ? (reqSwitch % 100) : (reqSwitch / 100));
         if (reqSwitch > 1) {
             //　in read memory situation, read main memory or backup memory by consumer's config.
+            long maxIndexOffset = TBaseConstants.META_VALUE_UNDEFINED;
             if (requestOffset >= this.msgFileStore.getIndexMaxOffset()) {
                 this.writeCacheMutex.readLock().lock();
                 try {
+                    maxIndexOffset = this.msgMemStore.getIndexLastWritePos();
                     result = this.msgMemStoreBeingFlush.isOffsetInHold(requestOffset);
                     if (result >= 0) {
                         inMemCache = true;
@@ -234,9 +237,12 @@ public class MessageStore implements Closeable {
                             }
                         }
                     }
-                    return new GetMessageResult(true, 0, memMsgRlt.errInfo, requestOffset,
+                    GetMessageResult getResult =
+                        new GetMessageResult(true, 0, memMsgRlt.errInfo, requestOffset,
                             memMsgRlt.dltOffset, memMsgRlt.lastRdDataOff,
                             memMsgRlt.totalMsgSize, countMap, transferedMessageList);
+                    getResult.setMaxOffset(maxIndexOffset);
+                    return getResult;
                 } else {
                     return new GetMessageResult(false, memMsgRlt.retCode, requestOffset,
                             memMsgRlt.dltOffset, memMsgRlt.errInfo);
@@ -246,7 +252,7 @@ public class MessageStore implements Closeable {
         // before read from file, adjust request's offset.
         long reqNewOffset = requestOffset < this.msgFileStore.getIndexMinOffset()
                 ? this.msgFileStore.getIndexMinOffset() : requestOffset;
-        if (reqSwitch <= 1 && reqNewOffset >= this.msgFileStore.getIndexMaxHighOffset()) {
+        if (reqSwitch <= 1 && reqNewOffset >= getFileIndexMaxOffset()) {
             return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
                     reqNewOffset, 0, "current offset is exceed max file offset");
         }
@@ -278,10 +284,15 @@ public class MessageStore implements Closeable {
                 indexBuffer, consumerNodeInfo.isFilterConsume(),
                 consumerNodeInfo.getFilterCondCodeSet(),
                 statisKeyBase, msgSizeLimit);
+        if (reqSwitch <= 1) {
+            retResult.setMaxOffset(getFileIndexMaxOffset());
+        } else {
+            retResult.setMaxOffset(getIndexMaxOffset());
+        }
         if (consumerNodeInfo.isFilterConsume()
             && retResult.isSuccess
             && retResult.getLastReadOffset() > 0) {
-            if ((msgFileStore.getIndexMaxHighOffset()
+            if ((getFileIndexMaxOffset()
                 - reqNewOffset - retResult.getLastReadOffset())
                 < fileLowReqMaxFilterIndexReadSize.get()) {
                 retResult.setSlowFreq(true);
@@ -293,7 +304,7 @@ public class MessageStore implements Closeable {
     /***
      * Append msg to store.
      *
-     * @param msgId
+     * @param appendResult
      * @param dataLength
      * @param dataCheckSum
      * @param data
@@ -502,6 +513,10 @@ public class MessageStore implements Closeable {
 
     public int getUnflushDataHold() {
         return this.unflushDataHold.get();
+    }
+
+    public long getFileIndexMaxOffset() {
+        return this.msgFileStore.getIndexMaxHighOffset();
     }
 
     public long getIndexMaxOffset() {

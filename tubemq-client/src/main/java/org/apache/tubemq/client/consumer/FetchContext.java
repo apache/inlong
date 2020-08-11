@@ -35,6 +35,7 @@ public class FetchContext {
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
     private String confirmContext = "";
     private List<Message> messageList = new ArrayList<>();
+    private long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public FetchContext(PartitionSelectResult selectResult) {
         this.partition = selectResult.getPartition();
@@ -50,7 +51,8 @@ public class FetchContext {
 
     public void setSuccessProcessResult(long currOffset,
                                         String confirmContext,
-                                        List<Message> messageList) {
+                                        List<Message> messageList,
+                                        long maxOffset) {
         this.success = true;
         this.errCode = TErrCodeConstants.SUCCESS;
         this.errMsg = "Ok!";
@@ -59,6 +61,9 @@ public class FetchContext {
         }
         this.confirmContext = confirmContext;
         this.messageList = messageList;
+        if (maxOffset >= 0) {
+            this.maxOffset = maxOffset;
+        }
     }
 
     public Partition getPartition() {
@@ -95,5 +100,9 @@ public class FetchContext {
 
     public String getConfirmContext() {
         return confirmContext;
+    }
+
+    public long getMaxOffset() {
+        return maxOffset;
     }
 }

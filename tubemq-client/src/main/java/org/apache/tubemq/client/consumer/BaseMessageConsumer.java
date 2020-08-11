@@ -787,8 +787,12 @@ public class BaseMessageConsumer implements MessageConsumer {
                                     AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                         if (responseB2C != null && responseB2C.getSuccess()) {
                             long currOffset =
-                                responseB2C.hasCurrOffset() ? responseB2C.getCurrOffset() : -1L;
-                            rmtDataCache.addPartition(partition, currOffset);
+                                responseB2C.hasCurrOffset() ? responseB2C.getCurrOffset()
+                                        : TBaseConstants.META_VALUE_UNDEFINED;
+                            long maxOffset =
+                                    responseB2C.hasMaxOffset() ? responseB2C.getMaxOffset()
+                                            : TBaseConstants.META_VALUE_UNDEFINED;
+                            rmtDataCache.addPartition(partition, currOffset, maxOffset);
                             unRegPartitions.remove(partition);
                             logger.info(strBuffer.append("Registered partition: consumer is ")
                                 .append(consumerId).append(", partition is:")
@@ -1276,15 +1280,17 @@ public class BaseMessageConsumer implements MessageConsumer {
                             ? msgRspB2C.getCurrDataDlt() : -1;
                     long currOffset = msgRspB2C.hasCurrOffset()
                             ? msgRspB2C.getCurrOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                    long maxOffset = msgRspB2C.hasMaxOffset()
+                            ? msgRspB2C.getMaxOffset() : TBaseConstants.META_VALUE_UNDEFINED;
                     boolean isRequireSlow =
                             (msgRspB2C.hasRequireSlow() && msgRspB2C.getRequireSlow());
                     rmtDataCache
-                            .setPartitionContextInfo(partitionKey, currOffset, 1,
-                                    msgRspB2C.getErrCode(), isEscLimit, msgSize, 0,
-                                    dataDltVal, isRequireSlow);
+                        .setPartitionContextInfo(partitionKey, currOffset, 1,
+                            msgRspB2C.getErrCode(), isEscLimit, msgSize, 0,
+                            dataDltVal, isRequireSlow, maxOffset);
                     taskContext.setSuccessProcessResult(currOffset,
-                            strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
-                                    .append(taskContext.getUsedToken()).toString(), messageList);
+                        strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
+                            .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
                     strBuffer.delete(0, strBuffer.length());
                     break;
                 }
@@ -1302,9 +1308,10 @@ public class BaseMessageConsumer implements MessageConsumer {
                             msgRspB2C.hasMinLimitTime()
                                     ? msgRspB2C.getMinLimitTime() : consumerConfig.getMsgNotFoundWaitPeriodMs();
                     rmtDataCache.errRspRelease(partitionKey, topic,
-                            taskContext.getUsedToken(), false, -1,
+                            taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
                             0, msgRspB2C.getErrCode(), false, 0,
-                            defDltTime, isFilterConsume(topic), -1);
+                            defDltTime, isFilterConsume(topic), TBaseConstants.META_VALUE_UNDEFINED,
+                            TBaseConstants.META_VALUE_UNDEFINED);
                     taskContext.setFailProcessResult(msgRspB2C.getErrCode(), msgRspB2C.getErrMsg());
                     break;
                 }
@@ -1337,9 +1344,9 @@ public class BaseMessageConsumer implements MessageConsumer {
                         }
                     }
                     rmtDataCache.errRspRelease(partitionKey, topic,
-                        taskContext.getUsedToken(), false, -1,
+                        taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
                         0, msgRspB2C.getErrCode(), false, 0,
-                        limitDlt, isFilterConsume(topic), -1);
+                        limitDlt, isFilterConsume(topic), -1, TBaseConstants.META_VALUE_UNDEFINED);
                     taskContext.setFailProcessResult(msgRspB2C.getErrCode(), msgRspB2C.getErrMsg());
                     break;
                 }
@@ -1348,7 +1355,8 @@ public class BaseMessageConsumer implements MessageConsumer {
         } catch (Throwable ee) {
             logger.error("Process response code error", ee);
             rmtDataCache.succRspRelease(partitionKey, topic,
-                    taskContext.getUsedToken(), false, isFilterConsume(topic), -1);
+                    taskContext.getUsedToken(), false, isFilterConsume(topic),
+                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED);
             taskContext.setFailProcessResult(500, strBuffer
                     .append("Get message failed,topic=")
                     .append(topic).append(",partition=").append(partition)

@@ -383,6 +383,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 builder.setCurrDataDlt(msgResult.waitTime);
                 builder.setErrMsg("OK!");
                 builder.addAllMessages(msgResult.transferedMessageList);
+                builder.setMaxOffset(msgResult.getMaxOffset());
                 return builder.build();
             } else {
                 builder.setErrCode(msgResult.getRetCode());
@@ -443,11 +444,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     -requestOffset, 0, "The request offset reached maxOffset!");
         }
         final long maxDataOffset = msgStore.getDataMaxOffset();
-        int reqSwitch = consumerNodeInfo.getQryPriorityId() <= 0
-                ? (metadataManager.getFlowCtrlRuleHandler().getQryPriorityId() <= 0
-                ? TServerConstants.CFG_DEFAULT_CONSUME_RULE
-                : metadataManager.getFlowCtrlRuleHandler().getQryPriorityId())
-                : consumerNodeInfo.getQryPriorityId();
+        int reqSwitch = getRealQryPriorityId(consumerNodeInfo);
         int msgDataSizeLimit = consumerNodeInfo.getCurrentAllowedSize(msgStore.getStoreKey(),
                 metadataManager.getFlowCtrlRuleHandler(), maxDataOffset,
                 this.storeManager.getMaxMsgTransferSize(), isEscFlowCtrl);
@@ -751,7 +748,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-
         boolean isRegister = (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER);
         Set<String> filterCondSet = new HashSet<>();
         if (request.getFilterCondStrList() != null && !request.getFilterCondStrList().isEmpty()) {
@@ -874,6 +870,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrCode(TErrCodeConstants.SUCCESS);
             builder.setErrMsg("OK!");
             builder.setCurrOffset(offsetInfo.getOffset());
+            if (getRealQryPriorityId(consumerNodeInfo) <= 1) {
+                builder.setMaxOffset(dataStore.getFileIndexMaxOffset());
+            } else {
+                builder.setMaxOffset(dataStore.getIndexMaxOffset());
+            }
             return builder.build();
         } else {
             TimeoutInfo timeoutInfo =
@@ -1147,10 +1148,24 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             try {
                 long currOffset =
                         offsetManager.commitOffset(groupName, topicName, partitionId, isConsumed);
+                MessageStore dataStore =
+                        storeManager.getOrCreateMessageStore(topicName, partitionId);
+                if (dataStore == null) {
+                    builder.setErrCode(TErrCodeConstants.FORBIDDEN);
+                    builder.setErrMsg(strBuffer.append("Topic ").append(topicName).append("-")
+                            .append(request.getPartitionId())
+                            .append(" not existed, please check your configure").toString());
+                    return builder.build();
+                }
                 builder.setSuccess(true);
                 builder.setErrCode(TErrCodeConstants.SUCCESS);
                 builder.setErrMsg("OK!");
                 builder.setCurrOffset(currOffset);
+                if (getRealQryPriorityId(consumerNodeInfo) <= 1) {
+                    builder.setMaxOffset(dataStore.getFileIndexMaxOffset());
+                } else {
+                    builder.setMaxOffset(dataStore.getIndexMaxOffset());
+                }
             } catch (Exception e) {
                 builder.setErrMsg(e.getMessage());
                 builder.setErrCode(TErrCodeConstants.INTERNAL_SERVER_ERROR);
@@ -1180,6 +1195,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return new StringBuilder(512).append(consumerId)
                 .append(TokenConstants.SEGMENT_SEP).append(partStr).toString();
 
+    }
+
+    private int getRealQryPriorityId(final ConsumerNodeInfo consumerNodeInfo) {
+        return consumerNodeInfo.getQryPriorityId() <= 0
+                ? (metadataManager.getFlowCtrlRuleHandler().getQryPriorityId() <= 0
+                ? TServerConstants.CFG_DEFAULT_CONSUME_RULE
+                : metadataManager.getFlowCtrlRuleHandler().getQryPriorityId())
+                : consumerNodeInfo.getQryPriorityId();
     }
 
     /***
