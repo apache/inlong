@@ -27,13 +27,14 @@ public class PeerInfo {
     private String brokerHost = "";
     private String partitionKey = "";
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public PeerInfo() {
 
     }
 
-    public PeerInfo(Partition partition, long newOffset) {
-        setMsgSourceInfo(partition, newOffset);
+    public PeerInfo(Partition partition, long newOffset, long maxOffset) {
+        setMsgSourceInfo(partition, newOffset, maxOffset);
     }
 
     public int getPartitionId() {
@@ -52,13 +53,17 @@ public class PeerInfo {
         return currOffset;
     }
 
-    public void setMsgSourceInfo(Partition partition, long newOffset) {
+    public void setMsgSourceInfo(Partition partition, long newOffset, long maxOffset) {
         if (partition != null) {
             partitionId = partition.getPartitionId();
             brokerHost = partition.getHost();
             partitionKey = partition.getPartitionKey();
         }
         this.currOffset = newOffset;
+        this.maxOffset = maxOffset;
     }
 
+    public long getMaxOffset() {
+        return maxOffset;
+    }
 }

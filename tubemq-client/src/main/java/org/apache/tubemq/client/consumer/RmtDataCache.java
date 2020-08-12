@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
@@ -61,7 +62,7 @@ public class RmtDataCache implements Closeable {
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, Long> partitionUsedMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String /* index */, Long> partitionOffsetMap =
+    private final ConcurrentHashMap<String /* index */, ConsumeOffsetInfo> partitionOffsetMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* topic */, ConcurrentLinkedQueue<Partition>> topicPartitionConMap =
             new ConcurrentHashMap<>();
@@ -88,10 +89,13 @@ public class RmtDataCache implements Closeable {
         }
         this.defFlowCtrlRuleHandler = defFlowCtrlRuleHandler;
         this.groupFlowCtrlRuleHandler = groupFlowCtrlRuleHandler;
-        Map<Partition, Long> tmpPartOffsetMap = new HashMap<>();
+        Map<Partition, ConsumeOffsetInfo> tmpPartOffsetMap = new HashMap<>();
         if (partitionList != null) {
             for (Partition partition : partitionList) {
-                tmpPartOffsetMap.put(partition, -1L);
+                tmpPartOffsetMap.put(partition,
+                        new ConsumeOffsetInfo(partition.getPartitionKey(),
+                                TBaseConstants.META_VALUE_UNDEFINED,
+                                TBaseConstants.META_VALUE_UNDEFINED));
             }
         }
         addPartitionsInfo(tmpPartOffsetMap);
@@ -109,21 +113,18 @@ public class RmtDataCache implements Closeable {
      * @param limitDlt      max offset of the data fetch
      * @param curDataDlt    the offset of current data fetch
      * @param isRequireSlow if the server requires slow down
+     * @param maxOffset partiton current max offset
      */
     public void setPartitionContextInfo(String partitionKey, long currOffset,
                                         int reqProcType, int errCode,
                                         boolean isEscLimit, int msgSize,
                                         long limitDlt, long curDataDlt,
-                                        boolean isRequireSlow) {
+                                        boolean isRequireSlow, long maxOffset) {
         PartitionExt partitionExt = partitionMap.get(partitionKey);
         if (partitionExt != null) {
-            if (currOffset >= 0) {
-                partitionOffsetMap.put(partitionKey, currOffset);
-            }
-            partitionExt
-                    .setPullTempData(reqProcType, errCode,
-                            isEscLimit, msgSize, limitDlt,
-                            curDataDlt, isRequireSlow);
+            updateOffsetCache(partitionKey, currOffset, maxOffset);
+            partitionExt.setPullTempData(reqProcType, errCode,
+                    isEscLimit, msgSize, limitDlt, curDataDlt, isRequireSlow);
         }
     }
 
@@ -304,13 +305,15 @@ public class RmtDataCache implements Closeable {
      *
      * @param partition  partition to be added
      * @param currOffset current offset of the partition
+     * @param maxOffset current max offset of the partition
      */
-    public void addPartition(Partition partition, long currOffset) {
+    public void addPartition(Partition partition, long currOffset, long maxOffset) {
         if (partition == null) {
             return;
         }
-        Map<Partition, Long> tmpPartOffsetMap = new HashMap<>();
-        tmpPartOffsetMap.put(partition, currOffset);
+        Map<Partition, ConsumeOffsetInfo> tmpPartOffsetMap = new HashMap<>();
+        tmpPartOffsetMap.put(partition,
+                new ConsumeOffsetInfo(partition.getPartitionKey(), currOffset, maxOffset));
         addPartitionsInfo(tmpPartOffsetMap);
     }
 
@@ -346,15 +349,14 @@ public class RmtDataCache implements Closeable {
 
     protected void succRspRelease(String partitionKey, String topicName,
                                   long usedToken, boolean isLastPackConsumed,
-                                  boolean isFilterConsume, long currOffset) {
+                                  boolean isFilterConsume, long currOffset,
+                                  long maxOffset) {
         PartitionExt partitionExt = this.partitionMap.get(partitionKey);
         if (partitionExt != null) {
             if (!indexPartition.contains(partitionKey) && !isTimeWait(partitionKey)) {
                 Long oldUsedToken = partitionUsedMap.get(partitionKey);
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
-                    if (currOffset >= 0) {
-                        partitionOffsetMap.put(partitionKey, currOffset);
-                    }
+                    updateOffsetCache(partitionKey, currOffset, maxOffset);
                     partitionUsedMap.remove(partitionKey);
                     partitionExt.setLastPackConsumed(isLastPackConsumed);
                     long waitDlt =
@@ -369,15 +371,13 @@ public class RmtDataCache implements Closeable {
                               long usedToken, boolean isLastPackConsumed,
                               long currOffset, int reqProcType, int errCode,
                               boolean isEscLimit, int msgSize, long limitDlt,
-                              boolean isFilterConsume, long curDataDlt) {
+                              boolean isFilterConsume, long curDataDlt, long maxOffset) {
         PartitionExt partitionExt = this.partitionMap.get(partitionKey);
         if (partitionExt != null) {
             if (!indexPartition.contains(partitionKey) && !isTimeWait(partitionKey)) {
                 Long oldUsedToken = partitionUsedMap.get(partitionKey);
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
-                    if (currOffset >= 0) {
-                        partitionOffsetMap.put(partitionKey, currOffset);
-                    }
+                    updateOffsetCache(partitionKey, currOffset, maxOffset);
                     partitionUsedMap.remove(partitionKey);
                     partitionExt.setLastPackConsumed(isLastPackConsumed);
                     long waitDlt =
@@ -546,8 +546,10 @@ public class RmtDataCache implements Closeable {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            Long currOffset = partitionOffsetMap.get(entry.getKey());
-            tmpPartitionMap.put(entry.getKey(), new ConsumeOffsetInfo(entry.getKey(), currOffset));
+            ConsumeOffsetInfo offsetInfo = partitionOffsetMap.get(entry.getKey());
+            tmpPartitionMap.put(entry.getKey(),
+                new ConsumeOffsetInfo(entry.getKey(), offsetInfo.getCurrOffset(),
+                        offsetInfo.getMaxOffset(), offsetInfo.getUpdateTime()));
         }
         return tmpPartitionMap;
     }
@@ -699,11 +701,27 @@ public class RmtDataCache implements Closeable {
 
     }
 
-    private void addPartitionsInfo(Map<Partition, Long> partOffsetMap) {
+    private void updateOffsetCache(String partitionKey, long currOffset, long maxOffset) {
+        if (currOffset >= 0) {
+            ConsumeOffsetInfo currOffsetInfo = partitionOffsetMap.get(partitionKey);
+            if (currOffsetInfo == null) {
+                currOffsetInfo =
+                    new ConsumeOffsetInfo(partitionKey, currOffset, maxOffset);
+                ConsumeOffsetInfo tmpOffsetInfo =
+                    partitionOffsetMap.putIfAbsent(partitionKey, currOffsetInfo);
+                if (tmpOffsetInfo != null) {
+                    currOffsetInfo = tmpOffsetInfo;
+                }
+            }
+            currOffsetInfo.updateOffsetInfo(currOffset, maxOffset);
+        }
+    }
+
+    private void addPartitionsInfo(Map<Partition, ConsumeOffsetInfo> partOffsetMap) {
         if (partOffsetMap == null || partOffsetMap.isEmpty()) {
             return;
         }
-        for (Map.Entry<Partition, Long> entry : partOffsetMap.entrySet()) {
+        for (Map.Entry<Partition, ConsumeOffsetInfo> entry : partOffsetMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -737,7 +755,8 @@ public class RmtDataCache implements Closeable {
             if (!brokerPartitionQue.contains(partition)) {
                 brokerPartitionQue.add(partition);
             }
-            partitionOffsetMap.put(partition.getPartitionKey(), entry.getValue());
+            updateOffsetCache(partition.getPartitionKey(),
+                    entry.getValue().getCurrOffset(), entry.getValue().getMaxOffset());
             partitionMap.put(partition.getPartitionKey(),
                     new PartitionExt(this.groupFlowCtrlRuleHandler,
                             this.defFlowCtrlRuleHandler, partition.getBroker(),

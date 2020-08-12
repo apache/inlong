@@ -24,11 +24,38 @@ import org.apache.tubemq.corebase.TokenConstants;
 public class ConsumeOffsetInfo {
     private String partitionKey;
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private long updateTime = TBaseConstants.META_VALUE_UNDEFINED;
 
-    public ConsumeOffsetInfo(String partitionKey, Long currOffset) {
+    public ConsumeOffsetInfo(String partitionKey, long currOffset, long maxOffset) {
         this.partitionKey = partitionKey;
-        if (currOffset != null) {
+        this.currOffset = currOffset;
+        this.maxOffset = maxOffset;
+        this.updateTime = System.currentTimeMillis();
+    }
+
+    public ConsumeOffsetInfo(String partitionKey,
+                             long currOffset,
+                             long maxOffset,
+                             long updateTime) {
+        this.partitionKey = partitionKey;
+        this.currOffset = currOffset;
+        this.maxOffset = maxOffset;
+        this.updateTime = updateTime;
+    }
+
+    public void updateOffsetInfo(long currOffset, long maxOffset) {
+        boolean updated = false;
+        if (currOffset >= 0) {
             this.currOffset = currOffset;
+            updated = true;
+        }
+        if (maxOffset >= 0) {
+            this.maxOffset = maxOffset;
+            updated = true;
+        }
+        if (updated) {
+            this.updateTime = System.currentTimeMillis();
         }
     }
 
@@ -40,8 +67,18 @@ public class ConsumeOffsetInfo {
         return currOffset;
     }
 
+    public long getMaxOffset() {
+        return maxOffset;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
     @Override
     public String toString() {
-        return this.partitionKey + TokenConstants.SEGMENT_SEP + this.currOffset;
+        return this.partitionKey
+            + TokenConstants.SEGMENT_SEP + this.currOffset
+            + TokenConstants.ATTR_SEP + this.maxOffset;
     }
 }

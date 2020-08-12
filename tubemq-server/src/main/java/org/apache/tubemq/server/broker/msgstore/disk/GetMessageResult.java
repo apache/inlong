@@ -20,6 +20,7 @@ package org.apache.tubemq.server.broker.msgstore.disk;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
 import org.apache.tubemq.server.broker.stats.CountItem;
 
@@ -39,6 +40,7 @@ public class GetMessageResult {
     public boolean isFromSsdFile = false;
     public HashMap<String, CountItem> tmpCounters = new HashMap<>();
     public List<TransferedMessage> transferedMessageList = new ArrayList<>();
+    public long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
@@ -170,5 +172,13 @@ public class GetMessageResult {
 
     public void setReqOffset(long reqOffset) {
         this.reqOffset = reqOffset;
+    }
+
+    public long getMaxOffset() {
+        return maxOffset;
+    }
+
+    public void setMaxOffset(long maxOffset) {
+        this.maxOffset = maxOffset;
     }
 }
