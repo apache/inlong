@@ -66,7 +66,7 @@ public class FileSegmentList implements SegmentList {
     @Override
     public Segment getRecordSeg(final long offset) throws IOException {
         Segment tmpSeg = this.findSegment(offset);
-        if (tmpSeg.isExpired()) {
+        if (tmpSeg != null && tmpSeg.isExpired()) {
             return null;
         }
         return tmpSeg;
