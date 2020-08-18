@@ -40,6 +40,7 @@ import org.apache.tubemq.server.master.web.simplemvc.WebFilter;
 import org.apache.tubemq.server.master.web.simplemvc.conf.WebConfig;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.NumberTool;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -73,9 +74,14 @@ public class WebServer implements Server {
                 new UserAuthFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
         servletContext.addFilter(new FilterHolder(
                 new WebFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
+        // This Servlet processes WebAPI requests
         ServletHolder servletHolder = new ServletHolder(new WebApiServlet(webConfig));
         servletHolder.setInitParameter("dirAllowed", "false");
-        servletContext.addServlet(servletHolder, "/*");
+        servletContext.addServlet(servletHolder, "/");
+        // This is Pass-Through for static resources requests
+        ServletHolder staticHolder = new ServletHolder(new DefaultServlet());
+        staticHolder.setInitParameter("dirAllowed", "false");
+        servletContext.addServlet(staticHolder, "/assets/*");
         servletContext.setResourceBase(masterConfig.getWebResourcePath());
         srv.start();
         if (!srv.getHandler().equals(servletContext)) {
