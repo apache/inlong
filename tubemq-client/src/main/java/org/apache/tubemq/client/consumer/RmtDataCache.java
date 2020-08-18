@@ -64,6 +64,8 @@ public class RmtDataCache implements Closeable {
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, ConsumeOffsetInfo> partitionOffsetMap =
             new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String /* index */, Long> partitionFrozenMap =
+            new ConcurrentHashMap<String, Long>();
     private final ConcurrentHashMap<String /* topic */, ConcurrentLinkedQueue<Partition>> topicPartitionConMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<BrokerInfo/* broker */, ConcurrentLinkedQueue<Partition>> brokerPartitionConMap =
@@ -174,10 +176,14 @@ public class RmtDataCache implements Closeable {
                 return new PartitionSelectResult(false,
                         TErrCodeConstants.BAD_REQUEST,
                         "All partition in waiting, retry later!");
-            } else {
+            } else if (!partitionUsedMap.isEmpty()) {
                 return new PartitionSelectResult(false,
                         TErrCodeConstants.BAD_REQUEST,
                         "No idle partition to consume, please wait and try later");
+            } else {
+                return new PartitionSelectResult(false,
+                    TErrCodeConstants.ALL_PARTITION_FROZEN,
+                    "All partition are frozen to consume, please unfreeze partition(s) or wait");
             }
         }
         waitCont.incrementAndGet();
@@ -339,9 +345,11 @@ public class RmtDataCache implements Closeable {
             if (!indexPartition.contains(partitionKey) && !isTimeWait(partitionKey)) {
                 Long oldUsedToken = partitionUsedMap.get(partitionKey);
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
-                    partitionUsedMap.remove(partitionKey);
-                    partitionExt.setLastPackConsumed(isLastPackConsumed);
-                    releaseIdlePartition(-1, partitionKey);
+                    oldUsedToken = partitionUsedMap.remove(partitionKey);
+                    if (oldUsedToken != null) {
+                        partitionExt.setLastPackConsumed(isLastPackConsumed);
+                        releaseIdlePartition(partitionKey);
+                    }
                 }
             }
         }
@@ -357,11 +365,13 @@ public class RmtDataCache implements Closeable {
                 Long oldUsedToken = partitionUsedMap.get(partitionKey);
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
                     updateOffsetCache(partitionKey, currOffset, maxOffset);
-                    partitionUsedMap.remove(partitionKey);
-                    partitionExt.setLastPackConsumed(isLastPackConsumed);
-                    long waitDlt =
-                            partitionExt.procConsumeResult(isFilterConsume);
-                    releaseIdlePartition(waitDlt, partitionKey);
+                    oldUsedToken = partitionUsedMap.remove(partitionKey);
+                    if (oldUsedToken != null) {
+                        partitionExt.setLastPackConsumed(isLastPackConsumed);
+                        long waitDlt =
+                                partitionExt.procConsumeResult(isFilterConsume);
+                        releaseIdlePartition(waitDlt, partitionKey);
+                    }
                 }
             }
         }
@@ -378,23 +388,48 @@ public class RmtDataCache implements Closeable {
                 Long oldUsedToken = partitionUsedMap.get(partitionKey);
                 if (oldUsedToken != null && oldUsedToken == usedToken) {
                     updateOffsetCache(partitionKey, currOffset, maxOffset);
-                    partitionUsedMap.remove(partitionKey);
-                    partitionExt.setLastPackConsumed(isLastPackConsumed);
-                    long waitDlt =
-                            partitionExt.procConsumeResult(isFilterConsume, reqProcType,
-                                    errCode, msgSize, isEscLimit, limitDlt, curDataDlt, false);
-                    releaseIdlePartition(waitDlt, partitionKey);
+                    oldUsedToken = partitionUsedMap.remove(partitionKey);
+                    if (oldUsedToken != null) {
+                        partitionExt.setLastPackConsumed(isLastPackConsumed);
+                        long waitDlt =
+                                partitionExt.procConsumeResult(isFilterConsume, reqProcType,
+                                        errCode, msgSize, isEscLimit, limitDlt, curDataDlt, false);
+                        releaseIdlePartition(waitDlt, partitionKey);
+                    }
                 }
             }
         }
     }
 
     private void releaseIdlePartition(long waitDlt, String partitionKey) {
-        if (waitDlt > 10) {
-            TimeoutTask timeoutTask = new TimeoutTask(partitionKey);
-            timeouts.put(partitionKey,
-                timer.newTimeout(timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
-        } else {
+        Long frozenTime = partitionFrozenMap.get(partitionKey);
+        if (frozenTime == null) {
+            if (waitDlt > 10) {
+                TimeoutTask timeoutTask = new TimeoutTask(partitionKey);
+                timeouts.put(partitionKey,
+                        timer.newTimeout(timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
+            } else {
+                try {
+                    indexPartition.offer(partitionKey);
+                } catch (Throwable e) {
+                    //
+                }
+            }
+        }
+    }
+
+    private void releaseIdlePartition(String partitionKey) {
+        Long frozenTime = partitionFrozenMap.get(partitionKey);
+        PartitionExt partitionExt = partitionMap.get(partitionKey);
+        Timeout timeout = timeouts.get(partitionKey);
+        Long usedTime = partitionUsedMap.get(partitionKey);
+        if (partitionExt == null
+                || frozenTime != null
+                || timeout != null
+                || usedTime != null) {
+            return;
+        }
+        if (!indexPartition.contains(partitionKey)) {
             try {
                 indexPartition.offer(partitionKey);
             } catch (Throwable e) {
@@ -635,16 +670,12 @@ public class RmtDataCache implements Closeable {
             for (String keyId : partKeys) {
                 Long oldTime = partitionUsedMap.get(keyId);
                 if (oldTime != null && System.currentTimeMillis() - oldTime > allowedPeriodTimes) {
-                    partitionUsedMap.remove(keyId);
-                    PartitionExt partitionExt = partitionMap.get(keyId);
-                    if (partitionExt != null) {
-                        partitionExt.setLastPackConsumed(false);
-                        if (!indexPartition.contains(keyId)) {
-                            try {
-                                indexPartition.offer(keyId);
-                            } catch (Throwable e) {
-                                //
-                            }
+                    oldTime = partitionUsedMap.remove(keyId);
+                    if (oldTime != null) {
+                        PartitionExt partitionExt = partitionMap.get(keyId);
+                        if (partitionExt != null) {
+                            partitionExt.setLastPackConsumed(false);
+                            releaseIdlePartition(keyId);
                         }
                     }
                 }
@@ -652,29 +683,68 @@ public class RmtDataCache implements Closeable {
         }
         // add timeout expired check
         if (!timeouts.isEmpty()) {
-            List<String> partKeys = new ArrayList<String>();
-            partKeys.addAll(timeouts.keySet());
             Timeout timeout1 = null;
+            List<String> partKeys = new ArrayList<>(timeouts.keySet());
             for (String keyId : partKeys) {
                 timeout1 = timeouts.get(keyId);
                 if (timeout1 != null && timeout1.isExpired()) {
                     timeout1 = timeouts.remove(keyId);
                     if (timeout1 != null) {
-                        PartitionExt partitionExt = partitionMap.get(keyId);
-                        if (partitionExt != null) {
-                            if (!indexPartition.contains(keyId)) {
-                                try {
-                                    indexPartition.offer(keyId);
-                                } catch (Throwable e) {
-                                    //
-                                }
-                            }
-                        }
+                        releaseIdlePartition(keyId);
                     }
                 }
             }
-
         }
+    }
+
+    public void freezeOrUnFreezeParts(List<String> partitionKeys, boolean isFreeze) {
+        if (partitionKeys == null || partitionKeys.isEmpty()) {
+            return;
+        }
+        for (String partitionKey : partitionKeys) {
+            if (partitionKey == null) {
+                continue;
+            }
+            if (isFreeze) {
+                partitionFrozenMap.put(partitionKey, System.currentTimeMillis());
+                logger.info(new StringBuilder(512)
+                        .append("[Freeze Partition] Partition : ")
+                        .append(partitionKey).append(" is frozen by caller!").toString());
+            } else {
+                Long frozenTime = partitionFrozenMap.remove(partitionKey);
+                if (frozenTime != null) {
+                    releaseIdlePartition(partitionKey);
+                    logger.info(new StringBuilder(512)
+                            .append("[UnFreeze Partition] Partition : ")
+                            .append(partitionKey).append(" is unFreeze by caller!").toString());
+                }
+            }
+        }
+    }
+
+    public void relAllFrozenPartitions() {
+        Long frozenTime = null;
+        List<String> partKeys = new ArrayList<>(partitionFrozenMap.keySet());
+        for (String partKey : partKeys) {
+            frozenTime = partitionFrozenMap.remove(partKey);
+            if (frozenTime != null) {
+                releaseIdlePartition(partKey);
+                logger.info(new StringBuilder(512)
+                        .append("[UnFreeze Partition] Partition : ")
+                        .append(partKey).append(" is unFreeze by caller-2!").toString());
+            }
+        }
+    }
+
+    public Map<String, Long> getFrozenPartInfo() {
+        Map<String, Long> tmpPartKeyMap = new HashMap<String, Long>();
+        for (Map.Entry<String, Long> entry : partitionFrozenMap.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            tmpPartKeyMap.put(entry.getKey(), entry.getValue());
+        }
+        return tmpPartKeyMap;
     }
 
     private void waitPartitions(List<String> partitionKeys, long inUseWaitPeriodMs) {
@@ -762,13 +832,7 @@ public class RmtDataCache implements Closeable {
                             this.defFlowCtrlRuleHandler, partition.getBroker(),
                             partition.getTopic(), partition.getPartitionId()));
             partitionUsedMap.remove(partition.getPartitionKey());
-            if (!indexPartition.contains(partition.getPartitionKey())) {
-                try {
-                    indexPartition.offer(partition.getPartitionKey());
-                } catch (Throwable e) {
-                    //
-                }
-            }
+            releaseIdlePartition(partition.getPartitionKey());
         }
     }
 
@@ -831,16 +895,7 @@ public class RmtDataCache implements Closeable {
         public void run(Timeout timeout) throws Exception {
             Timeout timeout1 = timeouts.remove(indexId);
             if (timeout1 != null) {
-                PartitionExt partitionExt = partitionMap.get(indexId);
-                if (partitionExt != null) {
-                    if (!indexPartition.contains(this.indexId)) {
-                        try {
-                            indexPartition.offer(this.indexId);
-                        } catch (Throwable e) {
-                            //
-                        }
-                    }
-                }
+                releaseIdlePartition(indexId);
             }
         }
     }

@@ -27,6 +27,7 @@ public class TErrCodeConstants {
     public static final int UNAUTHORIZED = 401;
     public static final int FORBIDDEN = 403;
     public static final int NOT_FOUND = 404;
+    public static final int ALL_PARTITION_FROZEN = 405;
     public static final int PARTITION_OCCUPIED = 410;
     public static final int HB_NO_NODE = 411;
     public static final int DUPLICATE_PARTITION = 412;
