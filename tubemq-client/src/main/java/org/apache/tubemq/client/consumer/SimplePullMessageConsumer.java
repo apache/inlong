@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.client.consumer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import org.apache.tubemq.client.config.ConsumerConfig;
@@ -81,6 +82,26 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
     @Override
     public Map<String, ConsumeOffsetInfo> getCurConsumedPartitions() throws TubeClientException {
         return baseConsumer.getCurConsumedPartitions();
+    }
+
+    @Override
+    public void freezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.freezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void unfreezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.unfreezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void relAllFrozenPartitions() {
+        this.baseConsumer.relAllFrozenPartitions();
+    }
+
+    @Override
+    public Map<String, Long> getFrozenPartInfo() {
+        return baseConsumer.getFrozenPartInfo();
     }
 
     @Override

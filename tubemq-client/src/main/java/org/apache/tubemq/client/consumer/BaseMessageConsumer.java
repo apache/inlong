@@ -322,32 +322,15 @@ public class BaseMessageConsumer implements MessageConsumer {
             if (sourceCount <= 0) {
                 throw new TubeClientException("Parameter error: sourceCount must over zero!");
             }
+            StringBuilder sBuilder = new StringBuilder(256);
             for (Map.Entry<String, Long> entry : partOffsetMap.entrySet()) {
                 if (entry.getKey() != null) {
-                    String[] partitionKeyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
-                    if (partitionKeyItems.length != 3) {
-                        throw new TubeClientException(new StringBuilder(256)
-                                .append("Parameter error: partOffsetMap's key ")
-                                .append(entry.getKey())
-                                .append(" format error: value must be aaaa:bbbb:cccc !").toString());
-                    }
-                    if (!consumeSubInfo.isSubscribedTopicContain(partitionKeyItems[1].trim())) {
-                        throw new TubeClientException(new StringBuilder(256)
-                                .append("Parameter error: not included in subscribed topic list: ")
-                                .append("partOffsetMap's key is ")
-                                .append(entry.getKey()).append(", subscribed topics are ")
-                                .append(consumeSubInfo.getSubscribedTopics().toString()).toString());
-                    }
-                    if (entry.getKey().contains(TokenConstants.ARRAY_SEP)) {
-                        throw new TubeClientException(new StringBuilder(256)
-                                .append("Parameter error: illegal format error of ")
-                                .append(entry.getKey()).append(" : value must not include ',' char!").toString());
-                    }
+                    validPartitionKey(sBuilder, entry.getKey());
                     if (entry.getValue() != null) {
                         if (entry.getValue() < 0) {
-                            throw new TubeClientException(new StringBuilder(256)
-                                    .append("Parameter error: Offset must over or equal zero of partOffsetMap  key ")
-                                    .append(entry.getKey()).append(", value is ").append(entry.getValue()).toString());
+                            throw new TubeClientException(sBuilder
+                                .append("Parameter error: Offset must over or equal zero of partOffsetMap  key ")
+                                .append(entry.getKey()).append(", value is ").append(entry.getValue()).toString());
                         }
                     }
                 }
@@ -514,6 +497,72 @@ public class BaseMessageConsumer implements MessageConsumer {
     @Override
     public Map<String, ConsumeOffsetInfo> getCurConsumedPartitions() {
         return this.rmtDataCache.getCurPartitionInfoMap();
+    }
+
+    @Override
+    public void freezePartitions(List<String> partitionKeys) throws TubeClientException {
+        freezeOrUnFreezeParts(partitionKeys, true);
+    }
+
+    @Override
+    public void unfreezePartitions(List<String> partitionKeys) throws TubeClientException {
+        freezeOrUnFreezeParts(partitionKeys, false);
+    }
+
+    @Override
+    public void relAllFrozenPartitions() {
+        this.rmtDataCache.relAllFrozenPartitions();
+    }
+
+    @Override
+    public Map<String, Long> getFrozenPartInfo() {
+        return this.rmtDataCache.getFrozenPartInfo();
+    }
+
+    private void freezeOrUnFreezeParts(List<String> partitionKeys,
+                                       boolean isFreeze) throws TubeClientException {
+        if (partitionKeys == null || partitionKeys.isEmpty()) {
+            return;
+        }
+        StringBuilder sBuilder = new StringBuilder(256);
+        List<String> validPartKeys = new ArrayList<String>();
+        for (String partKey : partitionKeys) {
+            String tmpKey = validPartitionKey(sBuilder, partKey);
+            validPartKeys.add(tmpKey);
+        }
+        this.rmtDataCache.freezeOrUnFreezeParts(validPartKeys, isFreeze);
+    }
+
+    private String validPartitionKey(StringBuilder sBuilder,
+                                     String partitionKey) throws TubeClientException {
+        if (partitionKey == null) {
+            throw new TubeClientException(sBuilder
+                .append("Parameter error: partitionKey is null!").toString());
+        }
+        String[] keyItems = partitionKey.split(TokenConstants.ATTR_SEP);
+        if (keyItems.length != 3) {
+            throw new TubeClientException(sBuilder
+                .append("Parameter error: partitionKey ")
+                .append(partitionKey)
+                .append(" format error: value must be aaaa:bbbb:cccc !").toString());
+        }
+        if (!consumeSubInfo.isSubscribedTopicContain(keyItems[1].trim())) {
+            throw new TubeClientException(sBuilder
+                .append("Parameter error: not included in subcribed topic list: ")
+                .append("partitionKey is ")
+                .append(partitionKey).append(", subscribed topics are ")
+                .append(consumeSubInfo.getSubscribedTopics().toString()).toString());
+        }
+        if (partitionKey.contains(TokenConstants.ARRAY_SEP)) {
+            throw new TubeClientException(sBuilder
+                .append("Parameter error: illegal format error of ")
+                .append(partitionKey).append(" : value must not include ',' char!").toString());
+        }
+        String tmpKey = sBuilder.append(keyItems[0].trim())
+                .append(TokenConstants.ATTR_SEP).append(keyItems[1].trim())
+                .append(TokenConstants.ATTR_SEP).append(keyItems[2].trim()).toString();
+        sBuilder.delete(0, sBuilder.length());
+        return tmpKey;
     }
 
     /**

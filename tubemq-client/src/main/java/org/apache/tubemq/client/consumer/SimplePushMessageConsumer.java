@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.client.consumer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
@@ -111,6 +112,26 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     @Override
     public Map<String, ConsumeOffsetInfo> getCurConsumedPartitions() throws TubeClientException {
         return baseConsumer.getCurConsumedPartitions();
+    }
+
+    @Override
+    public void freezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.freezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void unfreezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.unfreezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void relAllFrozenPartitions() {
+        this.baseConsumer.relAllFrozenPartitions();
+    }
+
+    @Override
+    public Map<String, Long> getFrozenPartInfo() {
+        return baseConsumer.getFrozenPartInfo();
     }
 
     protected BaseMessageConsumer getBaseConsumer() {
