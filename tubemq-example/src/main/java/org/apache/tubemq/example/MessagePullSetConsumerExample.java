@@ -136,7 +136,11 @@ public final class MessagePullSetConsumerExample {
                                     confirmResult.getErrMsg());
                             }
                         } else {
-                            if (result.getErrCode() == 400) {
+                            if (result.getErrCode() == 400
+                                    || result.getErrCode() == 405
+                                    || result.getErrCode() == 406
+                                    || result.getErrCode() == 407
+                                    || result.getErrCode() == 408) {
                                 ThreadUtils.sleep(400);
                             } else {
                                 if (result.getErrCode() != 404) {

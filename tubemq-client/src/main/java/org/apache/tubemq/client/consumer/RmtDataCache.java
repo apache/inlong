@@ -156,7 +156,7 @@ public class RmtDataCache implements Closeable {
      * @return pull result
      */
     public PartitionSelectResult pullSelect() {
-        int count = 2;
+        int count = 6;
         do {
             if (this.isClosed.get()) {
                 break;
@@ -166,19 +166,24 @@ public class RmtDataCache implements Closeable {
             }
             ThreadUtils.sleep(350);
         } while (--count > 0);
-        if (partitionMap.isEmpty()) {
+        if (this.isClosed.get()) {
             return new PartitionSelectResult(false,
                     TErrCodeConstants.BAD_REQUEST,
+                    "Client instance has been shutdown!");
+        }
+        if (partitionMap.isEmpty()) {
+            return new PartitionSelectResult(false,
+                    TErrCodeConstants.NO_PARTITION_ASSIGNED,
                     "No partition info in local, please wait and try later");
         }
         if (indexPartition.isEmpty()) {
             if (hasPartitionWait()) {
                 return new PartitionSelectResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
+                        TErrCodeConstants.ALL_PARTITION_WAITING,
                         "All partition in waiting, retry later!");
             } else if (!partitionUsedMap.isEmpty()) {
                 return new PartitionSelectResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
+                        TErrCodeConstants.ALL_PARTITION_INUSE,
                         "No idle partition to consume, please wait and try later");
             } else {
                 return new PartitionSelectResult(false,
@@ -194,16 +199,25 @@ public class RmtDataCache implements Closeable {
                         TErrCodeConstants.BAD_REQUEST,
                         "Client instance has been shutdown!");
             }
+            if (partitionMap.isEmpty()) {
+                return new PartitionSelectResult(false,
+                        TErrCodeConstants.NO_PARTITION_ASSIGNED,
+                        "No partition info in local, please wait and try later");
+            }
             String key = indexPartition.poll();
             if (key == null) {
                 if (hasPartitionWait()) {
                     return new PartitionSelectResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
+                            TErrCodeConstants.ALL_PARTITION_WAITING,
                             "All partition in waiting, retry later!");
+                } else if (!partitionUsedMap.isEmpty()) {
+                    return new PartitionSelectResult(false,
+                            TErrCodeConstants.ALL_PARTITION_INUSE,
+                            "No idle partition to consume, please wait and try later");
                 } else {
                     return new PartitionSelectResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            "No idle partition to consume, retry later");
+                            TErrCodeConstants.ALL_PARTITION_FROZEN,
+                            "All partition are frozen to consume, please unfreeze partition(s) or wait");
                 }
             }
             PartitionExt partitionExt = partitionMap.get(key);
@@ -409,11 +423,7 @@ public class RmtDataCache implements Closeable {
                 timeouts.put(partitionKey,
                         timer.newTimeout(timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
             } else {
-                try {
-                    indexPartition.offer(partitionKey);
-                } catch (Throwable e) {
-                    //
-                }
+                releaseIdlePartition(partitionKey);
             }
         }
     }
@@ -451,8 +461,12 @@ public class RmtDataCache implements Closeable {
                 timer.stop();
                 timer = null;
             }
-            for (int i = this.waitCont.get() + 1; i > 0; i--) {
-                releaseIdlePartition(-1, "------");
+            int cnt = 5;
+            while (this.waitCont.get() > 0) {
+                ThreadUtils.sleep(200);
+                if (--cnt <= 0) {
+                    break;
+                }
             }
         }
     }
