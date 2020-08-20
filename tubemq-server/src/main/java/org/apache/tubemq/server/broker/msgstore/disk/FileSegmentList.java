@@ -316,20 +316,37 @@ public class FileSegmentList implements SegmentList {
         if (minStart >= curViews.length) {
             minStart = curViews.length - 1;
         }
+        int high = curViews.length - 1;
         final Segment startSeg = curViews[minStart];
-        if (timestamp < startSeg.getLeftAppendTime()) {
+        if (minStart == high ||
+                timestamp <= startSeg.getLeftAppendTime()) {
             return startSeg;
         }
-        final Segment last = curViews[curViews.length - 1];
-        if (last.getCachedSize() > 0 && timestamp >= last.getLeftAppendTime()) {
-            return last;
+        Segment last = curViews[high];
+        Segment before = curViews[high - 1];
+        if (last.getCachedSize() > 0) {
+            if (timestamp > last.getLeftAppendTime()) {
+                return last;
+            }
         }
-        int high = curViews.length - 1;
+        if(timestamp > before.getRightAppendTime()) {
+            return last;
+        } else if (timestamp > before.getLeftAppendTime()) {
+            return before;
+        }
+        int mid = 0;
+        Segment found = null;
         while (minStart <= high) {
-            final int mid = high + minStart >>> 1;
-            final Segment found = curViews[mid];
+            mid = high + minStart >>> 1;
+            found = curViews[mid];
             if (found.containTime(timestamp)) {
-                return found;
+                before = curViews[mid - 1];
+                if(timestamp > before.getRightAppendTime()) {
+                    return found;
+                } else if (timestamp > before.getLeftAppendTime()) {
+                    return before;
+                }
+                high = mid - 1;
             } else if (timestamp < found.getLeftAppendTime()) {
                 high = mid - 1;
             } else {
