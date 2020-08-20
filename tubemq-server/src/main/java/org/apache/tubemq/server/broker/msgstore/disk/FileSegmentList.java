@@ -299,4 +299,44 @@ public class FileSegmentList implements SegmentList {
         return null;
     }
 
+    @Override
+    public Segment findSegmentByTimeStamp(long timestamp) {
+        final Segment[] curViews = segmentList.get();
+        if (curViews.length == 0) {
+            return null;
+        }
+        int minStart  = 0;
+        for (minStart = 0; minStart < curViews.length; minStart++) {
+            if (curViews[minStart] == null
+                    || curViews[minStart].isExpired()) {
+                continue;
+            }
+            break;
+        }
+        if (minStart >= curViews.length) {
+            minStart = curViews.length - 1;
+        }
+        final Segment startSeg = curViews[minStart];
+        if (timestamp < startSeg.getLeftAppendTime()) {
+            return startSeg;
+        }
+        final Segment last = curViews[curViews.length - 1];
+        if (last.getCachedSize() > 0 && timestamp >= last.getLeftAppendTime()) {
+            return last;
+        }
+        int high = curViews.length - 1;
+        while (minStart <= high) {
+            final int mid = high + minStart >>> 1;
+            final Segment found = curViews[mid];
+            if (found.containTime(timestamp)) {
+                return found;
+            } else if (timestamp < found.getLeftAppendTime()) {
+                high = mid - 1;
+            } else {
+                minStart = mid + 1;
+            }
+        }
+        return null;
+    }
+
 }

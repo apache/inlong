@@ -52,4 +52,5 @@ public interface SegmentList {
 
     Segment getRecordSeg(final long offset) throws IOException;
 
+    Segment findSegmentByTimeStamp(long timestamp);
 }
