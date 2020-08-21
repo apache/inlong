@@ -123,9 +123,14 @@ public class FileSegment implements Segment {
                 }
             }
         }
-        if (this.segmentType == SegmentType.INDEX && this.cachedSize.get() > 0) {
-            this.leftAppendTime.set(getRecordTime(this.start));
-            if (!this.mutable.get()) {
+        if (this.segmentType == SegmentType.INDEX) {
+            if (this.cachedSize.get() == 0) {
+                if (this.mutable.get()) {
+                    this.leftAppendTime.set(System.currentTimeMillis());
+                    this.rightAppendTime.set(System.currentTimeMillis());
+                }
+            } else {
+                this.leftAppendTime.set(getRecordTime(this.start));
                 this.rightAppendTime.set(getRecordTime(this.start
                         + this.cachedSize.get() - DataStoreUtils.STORE_INDEX_HEAD_LEN));
             }
@@ -179,11 +184,13 @@ public class FileSegment implements Segment {
      * Messages can only be appended to the last FileSegment. The last FileSegment is writable, the others are mutable.
      *
      * @param buf
+     * @param leftTime
+     * @param rightTime
      * @return
      * @throws IOException
      */
     @Override
-    public long append(final ByteBuffer buf) throws IOException {
+    public long append(final ByteBuffer buf, final long leftTime, final long rightTime) throws IOException {
         if (!this.mutable.get()) {
             if (this.segmentType == SegmentType.DATA) {
                 throw new UnsupportedOperationException("[File Store] Data Segment is immutable!");
@@ -201,8 +208,11 @@ public class FileSegment implements Segment {
             sizeInBytes += this.channel.write(buf);
         }
         this.cachedSize.addAndGet(sizeInBytes);
-        if (offset == 0 && this.segmentType == SegmentType.INDEX) {
-            this.leftAppendTime.set(getRecordTime(this.start));
+        if (segmentType == SegmentType.INDEX) {
+            this.rightAppendTime.set(rightTime);
+            if (offset == 0) {
+                this.leftAppendTime.set(leftTime);
+            }
         }
         return this.start + offset;
     }
@@ -284,12 +294,8 @@ public class FileSegment implements Segment {
      * @param mutable
      */
     @Override
-    public void setMutable(boolean mutable) throws IOException {
+    public void setMutable(boolean mutable) {
         this.mutable.set(mutable);
-        if (this.segmentType == SegmentType.INDEX && !this.mutable.get()) {
-            this.rightAppendTime.set(getRecordTime(this.start
-                    + this.cachedSize.get() - DataStoreUtils.STORE_INDEX_HEAD_LEN));
-        }
     }
 
     @Override

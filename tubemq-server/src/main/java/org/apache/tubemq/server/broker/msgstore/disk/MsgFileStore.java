@@ -112,10 +112,13 @@ public class MsgFileStore implements Closeable {
      * @param indexBuffer
      * @param dataSize
      * @param dataBuffer
+     * @param leftTime
+     * @param rightTime
      */
     public void batchAppendMsg(final StringBuilder sb, final int msgCnt,
                                final int indexSize, final ByteBuffer indexBuffer,
-                               final int dataSize, final ByteBuffer dataBuffer) throws Throwable {
+                               final int dataSize, final ByteBuffer dataBuffer,
+                               final long leftTime, final long rightTime) throws Throwable {
         //　append message, put in data file first, then index file.
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
@@ -135,7 +138,7 @@ public class MsgFileStore implements Closeable {
             // filling data segment.
             final Segment curDataSeg = this.dataSegments.last();
             this.curUnflushSize.addAndGet(dataSize);
-            final long dataOffset = curDataSeg.append(dataBuffer);
+            final long dataOffset = curDataSeg.append(dataBuffer, leftTime, rightTime);
             // judge whether need to create a new data segment.
             if (curDataSeg.getCachedSize() >= this.tubeConfig.getMaxSegmentSize()) {
                 isDataSegFlushed = true;
@@ -152,7 +155,7 @@ public class MsgFileStore implements Closeable {
             // filling index data.
             final long inDataOffset = indexBuffer.getLong(DataStoreUtils.INDEX_POS_DATAOFFSET);
             final Segment curIndexSeg = this.indexSegments.last();
-            final long indexOffset = curIndexSeg.append(indexBuffer);
+            final long indexOffset = curIndexSeg.append(indexBuffer, leftTime, rightTime);
             // judge whether need to create a new index segment.
             if (curIndexSeg.getCachedSize()
                 >= this.tubeConfig.getMaxIndexSegmentSize()) {

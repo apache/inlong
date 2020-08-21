@@ -28,7 +28,7 @@ public interface Segment {
 
     void close();
 
-    long append(final ByteBuffer buf) throws IOException;
+    long append(final ByteBuffer buf, final long leftTime, final long rightTime) throws IOException;
 
     long flush(boolean force) throws IOException;
 
@@ -58,7 +58,7 @@ public interface Segment {
 
     boolean isMutable();
 
-    void setMutable(boolean mutable) throws IOException;
+    void setMutable(boolean mutable);
 
     void relViewRef();
 

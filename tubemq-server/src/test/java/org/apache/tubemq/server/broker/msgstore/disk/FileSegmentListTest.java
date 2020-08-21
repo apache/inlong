@@ -43,7 +43,8 @@ public class FileSegmentListTest {
             Segment fileSegment = fileSegmentList.last();
             String data = "abc";
             // append data to last FileSegment.
-            fileSegment.append(ByteBuffer.wrap(data.getBytes()));
+            long appendTime = System.currentTimeMillis();
+            fileSegment.append(ByteBuffer.wrap(data.getBytes()), appendTime, appendTime);
             fileSegment.flush(true);
             // get view
             Segment[] segmentList = fileSegmentList.getView();
@@ -70,7 +71,8 @@ public class FileSegmentListTest {
             Segment fileSegment = new FileSegment(100L, file, true, SegmentType.DATA);
             String data = "abc";
             // append data to last FileSegment.
-            fileSegment.append(ByteBuffer.wrap(data.getBytes()));
+            long appendTime = System.currentTimeMillis();
+            fileSegment.append(ByteBuffer.wrap(data.getBytes()), appendTime, appendTime);
             fileSegment.flush(true);
             fileSegmentList.append(fileSegment);
             Segment[] segmentList = fileSegmentList.getView();
