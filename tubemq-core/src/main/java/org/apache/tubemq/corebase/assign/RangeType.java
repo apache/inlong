@@ -18,7 +18,7 @@ package org.apache.tubemq.corebase.assign;
 
 public enum RangeType {
     //[-∞，+∞), in other words [last consume offset，last produce position)
-    RANGE_SET_UNDEFINED(0, "RANGE_SET_LEFT_DEFINED",
+    RANGE_SET_UNDEFINED(0, "RANGE_SET_UNDEFINED",
             "Undefined interval, no range value set."),
     //[left offset，+∞), in other words [left offset，last produce position)
     RANGE_SET_LEFT_DEFINED(1, "RANGE_SET_LEFT_DEFINED",

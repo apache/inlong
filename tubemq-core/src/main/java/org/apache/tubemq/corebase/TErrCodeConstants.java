@@ -39,6 +39,8 @@ public class TErrCodeConstants {
     public static final int CONSUME_GROUP_FORBIDDEN = 450;
     public static final int SERVER_CONSUME_SPEED_LIMIT = 452;
     public static final int CONSUME_CONTENT_FORBIDDEN = 455;
+    public static final int DATA_UNREACH_LEFT_BOUNDARY = 456;
+    public static final int CONSUME_REACHED_RIGHT_BOUNDARY = 457;
 
     public static final int INTERNAL_SERVER_ERROR = 500;
     public static final int SERVICE_UNAVAILABLE = 503;
