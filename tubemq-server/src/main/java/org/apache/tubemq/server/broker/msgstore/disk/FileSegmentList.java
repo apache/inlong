@@ -299,4 +299,61 @@ public class FileSegmentList implements SegmentList {
         return null;
     }
 
+    @Override
+    public Segment findSegmentByTimeStamp(long timestamp) {
+        final Segment[] curViews = segmentList.get();
+        if (curViews.length == 0) {
+            return null;
+        }
+        int minStart  = 0;
+        for (minStart = 0; minStart < curViews.length; minStart++) {
+            if (curViews[minStart] == null
+                    || curViews[minStart].isExpired()) {
+                continue;
+            }
+            break;
+        }
+        if (minStart >= curViews.length) {
+            minStart = curViews.length - 1;
+        }
+        int high = curViews.length - 1;
+        final Segment startSeg = curViews[minStart];
+        if (minStart == high ||
+                timestamp <= startSeg.getLeftAppendTime()) {
+            return startSeg;
+        }
+        Segment last = curViews[high];
+        Segment before = curViews[high - 1];
+        if (last.getCachedSize() > 0) {
+            if (timestamp > last.getLeftAppendTime()) {
+                return last;
+            }
+        }
+        if (timestamp > before.getRightAppendTime()) {
+            return last;
+        } else if (timestamp > before.getLeftAppendTime()) {
+            return before;
+        }
+        int mid = 0;
+        Segment found = null;
+        while (minStart <= high) {
+            mid = high + minStart >>> 1;
+            found = curViews[mid];
+            if (found.containTime(timestamp)) {
+                before = curViews[mid - 1];
+                if (timestamp > before.getRightAppendTime()) {
+                    return found;
+                } else if (timestamp > before.getLeftAppendTime()) {
+                    return before;
+                }
+                high = mid - 1;
+            } else if (timestamp < found.getLeftAppendTime()) {
+                high = mid - 1;
+            } else {
+                minStart = mid + 1;
+            }
+        }
+        return null;
+    }
+
 }

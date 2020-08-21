@@ -58,10 +58,17 @@ public interface Segment {
 
     boolean isMutable();
 
-    void setMutable(boolean mutable);
+    void setMutable(boolean mutable) throws IOException;
 
     void relViewRef();
 
     void read(final ByteBuffer bf, final long offset) throws IOException;
 
+    long getLeftAppendTime();
+
+    long getRightAppendTime();
+
+    boolean containTime(final long timestamp);
+
+    long getRecordTime(long reqOffset) throws IOException;
 }
