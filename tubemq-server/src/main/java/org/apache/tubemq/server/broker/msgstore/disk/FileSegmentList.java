@@ -329,7 +329,7 @@ public class FileSegmentList implements SegmentList {
                 return last;
             }
         }
-        if(timestamp > before.getRightAppendTime()) {
+        if (timestamp > before.getRightAppendTime()) {
             return last;
         } else if (timestamp > before.getLeftAppendTime()) {
             return before;
@@ -341,7 +341,7 @@ public class FileSegmentList implements SegmentList {
             found = curViews[mid];
             if (found.containTime(timestamp)) {
                 before = curViews[mid - 1];
-                if(timestamp > before.getRightAppendTime()) {
+                if (timestamp > before.getRightAppendTime()) {
                     return found;
                 } else if (timestamp > before.getLeftAppendTime()) {
                     return before;
