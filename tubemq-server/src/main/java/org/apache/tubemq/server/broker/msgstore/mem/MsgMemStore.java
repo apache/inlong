@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
@@ -60,7 +61,10 @@ public class MsgMemStore implements Closeable {
     private long writeIndexStartPos = -1;
     private ByteBuffer cachedIndexSegment;
     private int maxAllowedMsgCount;
-
+    private AtomicLong leftAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private AtomicLong rightAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
         this.maxDataCacheSize = maxCacheSize;
@@ -68,6 +72,8 @@ public class MsgMemStore implements Closeable {
         this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
         this.cacheDataSegment = ByteBuffer.allocateDirect(this.maxDataCacheSize);
         this.cachedIndexSegment = ByteBuffer.allocateDirect(this.maxIndexCacheSize);
+        this.leftAppendTime.set(System.currentTimeMillis());
+        this.rightAppendTime.set(System.currentTimeMillis());
     }
 
     public void resetStartPos(long writeDataStartPos, long writeIndexStartPos) {
@@ -113,6 +119,10 @@ public class MsgMemStore implements Closeable {
             this.keysMap.put(keyCode, indexSizePos);
             this.curMessageCount.getAndAdd(1);
             msgMemStatisInfo.addMsgSizeStatis(timeRecv, entryLength);
+            this.rightAppendTime.set(timeRecv);
+            if (indexSizePos == 0) {
+                this.leftAppendTime.set(timeRecv);
+            }
         } finally {
             this.writeLock.unlock();
         }
@@ -272,7 +282,8 @@ public class MsgMemStore implements Closeable {
         tmpIndexBuffer.flip();
         tmpDataReadBuf.flip();
         msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
-            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(), tmpDataReadBuf);
+            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
+                tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         return true;
     }
 
@@ -313,6 +324,23 @@ public class MsgMemStore implements Closeable {
         return this.writeIndexStartPos + this.cacheIndexOffset.get();
     }
 
+    public long getLeftAppendTime() {
+        return leftAppendTime.get();
+    }
+
+    public long getRightAppendTime() {
+        return rightAppendTime.get();
+    }
+
+    public int isTimestampInHold(long timestamp) {
+        if (timestamp < this.leftAppendTime.get()) {
+            return -1;
+        } else if (timestamp > rightAppendTime.get()) {
+            return 1;
+        }
+        return 0;
+    }
+
     public void clear() {
         this.writeDataStartPos = -1;
         this.writeIndexStartPos = -1;
@@ -321,6 +349,8 @@ public class MsgMemStore implements Closeable {
         this.curMessageCount.set(0);
         this.queuesMap.clear();
         this.keysMap.clear();
+        this.leftAppendTime.set(System.currentTimeMillis());
+        this.rightAppendTime.set(System.currentTimeMillis());
     }
 
     @Override
