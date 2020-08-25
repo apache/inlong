@@ -17,10 +17,14 @@
 package org.apache.tubemq.corebase.assign;
 
 public enum TupleType {
-    TUPLE_VALUE_TYPE_OFFSET(0, "TUPLE_VALUE_TYPE_OFFSET",
-            "Range-tuple value is offset"),
-    TUPLE_VALUE_TYPE_TIME(1, "TUPLE_VALUE_TYPE_TIME",
-            "Range-tuple value is message append time.");
+    TUPLE_VALUE_TYPE_ALL_OFFSET(0, "TUPLE_VALUE_TYPE_ALL_OFFSET",
+            "Range-tuple value are all offset"),
+    TUPLE_VALUE_TYPE_ALL_TIME(1, "TUPLE_VALUE_TYPE_ALL_TIME",
+            "Range-tuple value are all message append time."),
+    TUPLE_VALUE_TYPE_LOFFSET_RTIME(2, "TUPLE_VALUE_TYPE_LOFFSET_RTIME",
+                                    "Range-tuple left value left is offset, right is time."),
+    TUPLE_VALUE_TYPE_LTIME_ROFFSET(3, "TUPLE_VALUE_TYPE_LTIME_ROFFSET",
+                                  "Range-tuple left value is time, right is offset.");
 
     private int code;
     private String token;
