@@ -140,3 +140,29 @@ message CommitOffsetResponseB2C {
     optional int64 currOffset=4;
     optional int64 maxOffset = 5;
 }
+
+message RegisterV2RequestC2B {
+    required int32 opType = 1;
+    required string clientId = 2;
+    required string groupName = 3;
+    required string topicName = 4;
+    required int32 partitionId = 5;
+    required int32 readStatus = 6;
+    repeated string filterCondStr = 7;
+    optional int64 rebalanceId = 8;
+    optional string sessionKey = 9;
+    optional int32 rangeType = 10;
+    optional int32 tupleType = 11;
+    optional int64 leftValue = 12;
+    optional int64 rightValue = 13;
+    optional int32 qryPriorityId = 14;
+    optional AuthorizedInfo authInfo = 15;
+}
+
+message RegisterV2ResponseB2C {
+    required bool success = 1;
+    required int32 errCode = 2;
+    required string errMsg = 3;
+    optional int64 currOffset = 4;
+    optional int64 maxOffset = 5;
+}
