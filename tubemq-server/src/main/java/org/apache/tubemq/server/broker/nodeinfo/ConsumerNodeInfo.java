@@ -21,114 +21,92 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.policies.FlowCtrlResult;
-import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
-import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
-import org.apache.tubemq.server.common.TServerConstants;
+import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.server.broker.metadata.MetadataManager;
 
 /***
  * Consumer node info, which broker contains.
  */
 public class ConsumerNodeInfo {
-
     // partition string format
-    private final String partStr;
-    private final MessageStoreManager storeManager;
+    private String partStr = "";
     // consumer id
-    private String consumerId;
-    private String sessionKey;
-    private long sessionTime;
+    private String consumerId = "";
+    private String groupName = "";
+    private String topicName = "";
+    private String offsetCacheKey;
+    private String heartbeatNodeId;
+    private String rmtAddrInfo;
+    private boolean overTls = false;
+    private int partitionId
+            = TBaseConstants.META_VALUE_UNDEFINED;
     // is filter consumer or not
     private boolean isFilterConsume = false;
     // filter conditions in string format
-    private Set<String> filterCondStrs = new HashSet<>(10);
+    private Set<String> filterCondStrs
+            = new HashSet<>(10);
     // filter conditions in int format
-    private Set<Integer> filterCondCode = new HashSet<>(10);
-    // consumer's address
-    private String rmtAddrInfo;
-    private boolean isSupportLimit = false;
-    private long nextStatTime = 0L;
-    private long lastGetTime = 0L;
-    private long lastDataRdOffset = TBaseConstants.META_VALUE_UNDEFINED;
-    private int sentMsgSize = 0;
-    private int sentUnit = TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT;
-    private long totalUnitSec = 0L;
-    private long totalUnitMin = 0L;
-    private FlowCtrlResult curFlowCtrlVal =
-            new FlowCtrlResult(Long.MAX_VALUE, 0);
-    private long nextLimitUpdateTime = 0;
+    private Set<Integer> filterCondCode
+            = new HashSet<>(10);
+    // consume priority
     private AtomicInteger qryPriorityId =
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
-    private long createTime = System.currentTimeMillis();
+    // registered subscribe info
+    private AssignInfo assignInfo = new AssignInfo();
+    // flow controller
+    private FlowLimitInfo flowLimitInfo;
 
 
-    public ConsumerNodeInfo(final MessageStoreManager storeManager,
-                            final String consumerId, Set<String> filterCodes,
-                            final String sessionKey, long sessionTime, final String partStr) {
-        this(storeManager, TBaseConstants.META_VALUE_UNDEFINED, consumerId,
-            filterCodes, sessionKey, sessionTime, false, partStr);
-    }
-
-    public ConsumerNodeInfo(final MessageStoreManager storeManager,
-                            final int qryPriorityId, final String consumerId,
-                            Set<String> filterCodes, final String sessionKey,
-                            long sessionTime, boolean isSupportLimit,
-                            final String partStr) {
-        setConsumerId(consumerId);
+    public ConsumerNodeInfo(final MetadataManager metaManager,
+                            int maxXfeSize, Set<String> filterCodes) {
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
                 this.filterCondStrs.add(filterItem);
                 this.filterCondCode.add(filterItem.hashCode());
             }
+            if (!filterCodes.isEmpty()) {
+                this.isFilterConsume = true;
+            }
         }
-        this.sessionKey = sessionKey;
-        this.sessionTime = sessionTime;
-        this.qryPriorityId.set(qryPriorityId);
-        this.storeManager = storeManager;
-        this.partStr = partStr;
-        this.createTime = System.currentTimeMillis();
-        if (filterCodes != null && !filterCodes.isEmpty()) {
-            this.isFilterConsume = true;
-        }
-        this.isSupportLimit = isSupportLimit;
+        this.qryPriorityId.set(TBaseConstants.META_VALUE_UNDEFINED);
+        this.flowLimitInfo =
+                new FlowLimitInfo(metaManager, false, maxXfeSize);
     }
 
-    // #lizard forgives
-    public int getCurrentAllowedSize(final String storeKey,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler,
-                                     final long currMaxDataOffset, int maxMsgTransferSize,
-                                     boolean isEscFlowCtrl) {
-        if (lastDataRdOffset >= 0) {
-            long curDataDlt = currMaxDataOffset - lastDataRdOffset;
-            long currTime = System.currentTimeMillis();
-            recalcMsgLimitValue(curDataDlt,
-                    currTime, maxMsgTransferSize, flowCtrlRuleHandler);
-            if (isEscFlowCtrl
-                    || (totalUnitSec > sentMsgSize
-                    && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
-                return this.sentUnit;
-            } else {
-                if (this.isSupportLimit) {
-                    return -this.curFlowCtrlVal.freqLtInMs;
-                } else {
-                    return 0;
-                }
+    public ConsumerNodeInfo(String partStr, boolean isRegister,
+                            String consumerId, String groupName, String topicName,
+                            int partitionId, Set<String> filterCodes, boolean overTls) {
+        this.partStr = partStr;
+        this.consumerId = consumerId;
+        this.groupName = groupName;
+        this.topicName = topicName;
+        this.partitionId = partitionId;
+        this.overTls = overTls;
+        buildSearchKeyInfo();
+        if (isRegister && filterCodes != null) {
+            for (String filterItem : filterCodes) {
+                this.filterCondStrs.add(filterItem);
+                this.filterCondCode.add(filterItem.hashCode());
             }
-        } else {
-            return this.sentUnit;
+            if (!filterCodes.isEmpty()) {
+                this.isFilterConsume = true;
+            }
         }
+    }
+
+    public void setConsumeInfo(final MetadataManager metaManager, int maxXfeSize,
+                               boolean spLimit, AssignInfo assignInfo, int qryPriorityId) {
+        this.assignInfo = assignInfo;
+        this.qryPriorityId.set(qryPriorityId);
+        this.flowLimitInfo = new FlowLimitInfo(metaManager, spLimit, maxXfeSize);
+    }
+
+    public long getLeftOffset() {
+        return assignInfo.getLeftOffset();
     }
 
     public String getPartStr() {
         return partStr;
-    }
-
-    public int getSentMsgSize() {
-        return sentMsgSize;
-    }
-
-    public boolean isSupportLimit() {
-        return isSupportLimit;
     }
 
     public int getQryPriorityId() {
@@ -139,48 +117,32 @@ public class ConsumerNodeInfo {
         this.qryPriorityId.set(qryPriorityId);
     }
 
-    public long getNextStatTime() {
-        return nextStatTime;
-    }
-
-    public long getLastDataRdOffset() {
-        return lastDataRdOffset;
-    }
-
-    public int getSentUnit() {
-        return sentUnit;
-    }
-
-    public long getTotalUnitSec() {
-        return totalUnitSec;
-    }
-
-    public long getTotalUnitMin() {
-        return totalUnitMin;
-    }
-
-    public FlowCtrlResult getCurFlowCtrlVal() {
-        return curFlowCtrlVal;
-    }
-
-    public long getNextLimitUpdateTime() {
-        return nextLimitUpdateTime;
-    }
-
     public String getConsumerId() {
         return consumerId;
     }
 
-    public void setConsumerId(String consumerId) {
-        this.consumerId = consumerId;
-        if (consumerId.lastIndexOf("_") != -1) {
-            String targetStr = consumerId.substring(consumerId.lastIndexOf("_") + 1);
-            String[] strInfos = targetStr.split("-");
-            if (strInfos.length > 2) {
-                this.rmtAddrInfo = new StringBuilder(256)
-                        .append(strInfos[0]).append("#").append(strInfos[1]).toString();
-            }
-        }
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public String getTopicName() {
+        return topicName;
+    }
+
+    public int getPartitionId() {
+        return partitionId;
+    }
+
+    public boolean isOverTls() {
+        return overTls;
+    }
+
+    public String getOffsetCacheKey() {
+        return offsetCacheKey;
+    }
+
+    public String getHeartbeatNodeId() {
+        return heartbeatNodeId;
     }
 
     public Set<Integer> getFilterCondCodeSet() {
@@ -191,71 +153,61 @@ public class ConsumerNodeInfo {
         return filterCondStrs;
     }
 
-    public long getCurFlowCtrlLimitSize() {
-        return this.curFlowCtrlVal.dataLtInSize / 1024 / 1024;
-    }
-
-    public int getCurFlowCtrlFreqLimit() {
-        return this.curFlowCtrlVal.freqLtInMs;
+    public String getRmtAddrInfo() {
+        return this.rmtAddrInfo;
     }
 
     public boolean isFilterConsume() {
         return isFilterConsume;
     }
 
-    public long getLastGetTime() {
-        return lastGetTime;
+    public FlowLimitInfo getFlowLimitInfo() {
+        return flowLimitInfo;
     }
 
-    public String getSessionKey() {
-        return sessionKey;
+    public void recordConsumeInfo(long lastDataOffset, int msgSize) {
+        flowLimitInfo.recordConsumeInfo(lastDataOffset, msgSize);
     }
 
-    public long getSessionTime() {
-        return sessionTime;
+    public int getAllowedQuota(long maxDataOffset, boolean escFlowCtrl) {
+        return this.flowLimitInfo.getAllowedQuota(maxDataOffset, escFlowCtrl);
     }
 
-    public void setLastProcInfo(long lastGetTime, long lastRdDataOffset, int totalMsgSize) {
-        this.lastGetTime = lastGetTime;
-        this.lastDataRdOffset = lastRdDataOffset;
-        this.sentMsgSize += totalMsgSize;
-        this.totalUnitMin += totalMsgSize;
-
+    public boolean isSpLimit() {
+        return this.flowLimitInfo.isSpLimit();
     }
 
-    public String getRmtAddrInfo() {
-        return this.rmtAddrInfo;
+    public long getLastRecordTime() {
+        return this.flowLimitInfo.getLastRecordTime();
     }
 
-    /***
-     * Recalculate message limit value.
-     *
-     * @param curDataDlt
-     * @param currTime
-     * @param maxMsgTransferSize
-     * @param flowCtrlRuleHandler
-     */
-    private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTransferSize,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler) {
-        if (currTime > nextLimitUpdateTime) {
-            this.curFlowCtrlVal = flowCtrlRuleHandler.getCurDataLimit(curDataDlt);
-            if (this.curFlowCtrlVal == null) {
-                this.curFlowCtrlVal = new FlowCtrlResult(Long.MAX_VALUE, 0);
+    public long getNextStatTime() {
+        return this.flowLimitInfo.getNextSegUpdTime();
+    }
+
+    public long getNextLimitUpdateTime() {
+        return this.flowLimitInfo.getNextStageUpdTime();
+    }
+
+    public long getLastDataRdOffset() {
+        return this.flowLimitInfo.getLastDataOffset();
+    }
+
+    private void buildSearchKeyInfo() {
+        StringBuilder sBuilder = new StringBuilder(512);
+        this.offsetCacheKey = sBuilder.append(topicName)
+                .append(TokenConstants.HYPHEN).append(partitionId).toString();
+        sBuilder.delete(0, sBuilder.length());
+        this.heartbeatNodeId = sBuilder.append(consumerId)
+                .append(TokenConstants.SEGMENT_SEP).append(partStr).toString();
+        sBuilder.delete(0, sBuilder.length());
+        if (consumerId.lastIndexOf("_") != -1) {
+            String targetStr = consumerId.substring(consumerId.lastIndexOf("_") + 1);
+            String[] strInfos = targetStr.split("-");
+            if (strInfos.length > 2) {
+                this.rmtAddrInfo = sBuilder.append(strInfos[0])
+                        .append("#").append(strInfos[1]).toString();
             }
-            currTime = System.currentTimeMillis();
-            this.sentMsgSize = 0;
-            this.totalUnitMin = 0;
-            this.nextStatTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
-            this.nextLimitUpdateTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_LIMITING_DURATION;
-            this.totalUnitSec = this.curFlowCtrlVal.dataLtInSize / 12;
-            this.sentUnit =
-                    totalUnitSec > maxMsgTransferSize ? maxMsgTransferSize : (int) totalUnitSec;
-        } else if (currTime > nextStatTime) {
-            sentMsgSize = 0;
-            nextStatTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
         }
     }
 

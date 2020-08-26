@@ -357,8 +357,7 @@ public class MessageStoreManager implements StoreService {
         try {
             final long maxOffset = msgStore.getIndexMaxOffset();
             ConsumerNodeInfo consumerNodeInfo =
-                    new ConsumerNodeInfo(tubeBroker.getStoreManager(),
-                            "visit", filterCondSet, "", System.currentTimeMillis(), "");
+                    new ConsumerNodeInfo(metadataManager, maxMsgTransferSize, filterCondSet);
             int maxIndexReadSize = (msgCount + 1)
                     * DataStoreUtils.STORE_INDEX_HEAD_LEN * msgStore.getPartitionNum();
             if (filterCondSet != null && !filterCondSet.isEmpty()) {

@@ -35,6 +35,7 @@ import org.apache.tubemq.server.broker.TubeBroker;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.tubemq.server.broker.nodeinfo.FlowLimitInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 
@@ -165,14 +166,15 @@ public class BrokerAdminServlet extends HttpServlet {
                         .append(regTime).append(",\"isFilterConsume\":")
                         .append(ifFilterConsume);
             }
+            FlowLimitInfo limitInfo = entry.getValue().getFlowLimitInfo();
             sBuilder.append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
-                    .append(",\"curDataLimitInM\":").append(entry.getValue().getCurFlowCtrlLimitSize())
-                    .append(",\"curFreqLimit\":").append(entry.getValue().getCurFlowCtrlFreqLimit())
-                    .append(",\"totalSentSec\":").append(entry.getValue().getSentMsgSize())
-                    .append(",\"isSupportLimit\":").append(entry.getValue().isSupportLimit())
-                    .append(",\"sentUnitSec\":").append(entry.getValue().getTotalUnitSec())
-                    .append(",\"totalSentMin\":").append(entry.getValue().getTotalUnitMin())
-                    .append(",\"sentUnit\":").append(entry.getValue().getSentUnit());
+                    .append(",\"curDataLimitInM\":").append(limitInfo.getPolicySizeLimit())
+                    .append(",\"curFreqLimit\":").append(limitInfo.getPolicyFreqLimit())
+                    .append(",\"totalSentSec\":").append(limitInfo.getCurSegCumCnt())
+                    .append(",\"isSupportLimit\":").append(limitInfo.isSpLimit())
+                    .append(",\"sentUnitSec\":").append(limitInfo.getSegLimit())
+                    .append(",\"totalSentMin\":").append(limitInfo.getCurStageCumCnt())
+                    .append(",\"sentUnit\":").append(limitInfo.getSliceLimit());
             MessageStoreManager storeManager = broker.getStoreManager();
             OffsetService offsetService = broker.getOffsetManager();
             MessageStore store = null;
