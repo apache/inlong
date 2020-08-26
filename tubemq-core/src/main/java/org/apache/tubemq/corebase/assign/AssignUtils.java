@@ -27,6 +27,7 @@ public class AssignUtils {
 
     public static void checkResetValue(String partKey,
                                        RangeType rangeType,
+                                       TupleType tupleType,
                                        RangeTuple tuple) throws Exception {
         if (tuple == null) {
             throw new Exception(new StringBuilder(256)
@@ -85,13 +86,16 @@ public class AssignUtils {
                         .append(partKey).append(", right-value=").append(tuple.getRightValue())
                         .toString());
                 }
-                if (tuple.getLeftValue() > tuple.getRightValue()) {
-                    throw new Exception(new StringBuilder(256)
-                        .append("left-value must less than or equal to right-value for ")
-                        .append(rangeType.getToken()).append(" type, partitionKey = ")
-                        .append(partKey).append(", left-value=").append(tuple.getLeftValue())
-                        .append(", right-value=").append(tuple.getRightValue())
-                        .toString());
+                if (tupleType == TupleType.TUPLE_VALUE_TYPE_ALL_OFFSET
+                        || tupleType == TupleType.TUPLE_VALUE_TYPE_ALL_TIME) {
+                    if (tuple.getLeftValue() > tuple.getRightValue()) {
+                        throw new Exception(new StringBuilder(256)
+                                .append("left-value must less than or equal to right-value for ")
+                                .append(rangeType.getToken()).append(" type, partitionKey = ")
+                                .append(partKey).append(", left-value=").append(tuple.getLeftValue())
+                                .append(", right-value=").append(tuple.getRightValue())
+                                .toString());
+                    }
                 }
                 break;
             }

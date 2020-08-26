@@ -23,7 +23,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 
 public class AssignInfo {
     private TupleType valueType =
-            TupleType.TUPLE_VALUE_TYPE_OFFSET;
+            TupleType.TUPLE_VALUE_TYPE_ALL_OFFSET;
     private RangeType rangeType =
             RangeType.RANGE_SET_UNDEFINED;
     private ConflictSelect confSelect =
