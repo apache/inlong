@@ -59,6 +59,7 @@ import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
+import org.apache.tubemq.server.broker.nodeinfo.AssignInfo;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
 import org.apache.tubemq.server.broker.stats.CountService;
@@ -75,6 +76,7 @@ import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 import org.apache.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.tubemq.server.common.utils.AppendResult;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -371,7 +373,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                             request.getLastPackConsumed(), request.getManualCommitOffset(),
                             clientId, this.tubeConfig.getHostName(), rmtAddrInfo, isEscFlowCtrl, strBuffer);
             if (msgResult.isSuccess) {
-                consumerNodeInfo.setLastProcInfo(System.currentTimeMillis(),
+                consumerNodeInfo.recordConsumeInfo(
                         msgResult.lastRdDataOffset,
                         msgResult.totalMsgSize);
                 getCounterGroup.add(msgResult.tmpCounters);
@@ -445,11 +447,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         final long maxDataOffset = msgStore.getDataMaxOffset();
         int reqSwitch = getRealQryPriorityId(consumerNodeInfo);
-        int msgDataSizeLimit = consumerNodeInfo.getCurrentAllowedSize(msgStore.getStoreKey(),
-                metadataManager.getFlowCtrlRuleHandler(), maxDataOffset,
-                this.storeManager.getMaxMsgTransferSize(), isEscFlowCtrl);
+        int msgDataSizeLimit =
+                consumerNodeInfo.getAllowedQuota(maxDataOffset, isEscFlowCtrl);
         if (msgDataSizeLimit <= 0) {
-            if (consumerNodeInfo.isSupportLimit()) {
+            if (consumerNodeInfo.isSpLimit()) {
                 return new GetMessageResult(false, TErrCodeConstants.SERVER_CONSUME_SPEED_LIMIT,
                         requestOffset, 0, (-msgDataSizeLimit), "RpcServer consume speed limit!");
             } else {
@@ -765,25 +766,40 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(authorizeResult.errInfo);
             return builder.build();
         }
+        String partStr = getPartStr(groupName, topicName, request.getPartitionId());
+        ConsumerNodeInfo nodeInfo =
+                new ConsumerNodeInfo(partStr, isRegister, clientId,
+                        groupName, topicName, request.getPartitionId(), filterCondSet, overtls);
         Integer lid = null;
         Integer partLock = null;
-        String partStr = getPartStr(groupName, topicName, request.getPartitionId());
         try {
             lid = brokerRowLock.getLock(null, StringUtils.getBytesUtf8(clientId), true);
             try {
                 partLock = brokerRowLock.getLock(null, StringUtils.getBytesUtf8(partStr), true);
-                if (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER) {
-                    return inProcessConsumerRegister(clientId, groupName,
-                            topicName, partStr, filterCondSet, overtls, request, builder, strBuffer);
-                } else if (request.getOpType() == RpcConstants.MSG_OPTYPE_UNREGISTER) {
-                    return inProcessConsumerUnregister(clientId, groupName,
-                            topicName, partStr, request, overtls, builder, strBuffer);
-                } else {
-                    String message = strBuffer.append("Invalid request:").append(request.getOpType()).toString();
-                    logger.info(message);
-                    builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-                    builder.setErrMsg(message);
-                    return builder.build();
+                switch (request.getOpType()) {
+                    case RpcConstants.MSG_OPTYPE_REGISTER: {
+                        return inProcessConsumerRegister(nodeInfo, request, builder, strBuffer);
+                    }
+
+                    case RpcConstants.MSG_OPTYPE_UNREGISTER: {
+                        ProcessResult processResult =
+                                inProcessConsumerUnregister(nodeInfo,
+                                    (request.getReadStatus() == 0), strBuffer);
+                        builder.setSuccess(processResult.success);
+                        builder.setErrCode(processResult.errCode);
+                        builder.setErrMsg(processResult.errInfo);
+                        return builder.build();
+                    }
+
+                    default: {
+                        String message = strBuffer
+                                .append("Invalid request:")
+                                .append(request.getOpType()).toString();
+                        logger.info(message);
+                        builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
+                        builder.setErrMsg(message);
+                        return builder.build();
+                    }
                 }
             } finally {
                 if (partLock != null) {
@@ -807,44 +823,40 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's register request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param filterCondSet
-     * @param overtls
+     * @param newNodeInfo
      * @param request
      * @param builder
      * @param strBuffer
      * @return
      */
-    private RegisterResponseB2C inProcessConsumerRegister(final String clientId, final String groupName,
-                                                          final String topicName, final String partStr,
-                                                          final Set<String> filterCondSet, boolean overtls,
+    private RegisterResponseB2C inProcessConsumerRegister(ConsumerNodeInfo newNodeInfo,
                                                           RegisterRequestC2B request,
                                                           RegisterResponseB2C.Builder builder,
                                                           StringBuilder strBuffer) {
         String consumerId = null;
-        ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
-        if (consumerNodeInfo != null) {
-            consumerId = consumerNodeInfo.getConsumerId();
+        ConsumerNodeInfo curNodeInfo
+                = consumerRegisterMap.get(newNodeInfo.getPartStr());
+        if (curNodeInfo != null) {
+            consumerId = curNodeInfo.getConsumerId();
         }
-        if (TStringUtils.isEmpty(consumerId) || consumerId.equals(clientId)) {
-            final long reqOffset = request.hasCurrOffset() ? request.getCurrOffset() : -1;
-            long reqSessionTime = request.hasSessionTime() ? request.getSessionTime() : -1;
-            String reqSessionKey = request.hasSessionKey() ? request.getSessionKey() : null;
+        if (TStringUtils.isEmpty(consumerId)
+                || consumerId.equals(newNodeInfo.getConsumerId())) {
+            AssignInfo assignInfo = new AssignInfo(request);
             int reqQryPriorityId = request.hasQryPriorityId()
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
-            consumerRegisterMap.put(partStr, new ConsumerNodeInfo(storeManager, reqQryPriorityId,
-                    clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr));
-            heartbeatManager.regConsumerNode(getHeartbeatNodeId(clientId, partStr), clientId, partStr);
+            newNodeInfo.setConsumeInfo(metadataManager,
+                    storeManager.getMaxMsgTransferSize(), true, assignInfo, reqQryPriorityId);
+            consumerRegisterMap.put(newNodeInfo.getPartStr(), newNodeInfo);
+            heartbeatManager.regConsumerNode(newNodeInfo.getHeartbeatNodeId(),
+                    newNodeInfo.getConsumerId(), newNodeInfo.getPartStr());
             MessageStore dataStore = null;
             try {
-                dataStore = this.storeManager.getOrCreateMessageStore(topicName, request.getPartitionId());
+                dataStore = this.storeManager.getOrCreateMessageStore(
+                        newNodeInfo.getTopicName(), request.getPartitionId());
                 if (dataStore == null) {
                     builder.setErrCode(TErrCodeConstants.FORBIDDEN);
-                    builder.setErrMsg(strBuffer.append("Topic ").append(topicName).append("-")
-                            .append(request.getPartitionId())
+                    builder.setErrMsg(strBuffer.append("topic-partition=")
+                            .append(newNodeInfo.getOffsetCacheKey())
                             .append(" not existed, please check your configure").toString());
                     return builder.build();
                 }
@@ -858,19 +870,23 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 return builder.build();
             }
             OffsetStorageInfo offsetInfo =
-                    offsetManager.loadOffset(dataStore, groupName, topicName,
-                            request.getPartitionId(), request.getReadStatus(), reqOffset, strBuffer);
-            logger.info(strBuffer.append("[Consumer Register]").append(clientId)
-                    .append(TokenConstants.SEGMENT_SEP).append(partStr)
+                    offsetManager.loadOffset(dataStore, newNodeInfo.getGroupName(),
+                            newNodeInfo.getTopicName(), request.getPartitionId(),
+                            request.getReadStatus(), newNodeInfo.getLeftOffset(),
+                            strBuffer);
+            logger.info(strBuffer.append("[Consumer Register]")
+                    .append(newNodeInfo.getConsumerId())
+                    .append(TokenConstants.SEGMENT_SEP).append(newNodeInfo.getPartStr())
                     .append(TokenConstants.SEGMENT_SEP).append(offsetInfo)
-                    .append(", reqOffset=").append(reqOffset)
+                    .append(", reqOffset=").append(newNodeInfo.getLeftOffset())
                     .append(", reqQryPriorityId=").append(reqQryPriorityId)
-                    .append(", isOverTLS=").append(overtls).toString());
+                    .append(", isOverTLS=").append(newNodeInfo.isOverTls())
+                    .toString());
             builder.setSuccess(true);
             builder.setErrCode(TErrCodeConstants.SUCCESS);
             builder.setErrMsg("OK!");
             builder.setCurrOffset(offsetInfo.getOffset());
-            if (getRealQryPriorityId(consumerNodeInfo) <= 1) {
+            if (getRealQryPriorityId(newNodeInfo) <= 1) {
                 builder.setMaxOffset(dataStore.getFileIndexMaxOffset());
             } else {
                 builder.setMaxOffset(dataStore.getIndexMaxOffset());
@@ -878,14 +894,15 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             return builder.build();
         } else {
             TimeoutInfo timeoutInfo =
-                    heartbeatManager.getConsumerRegMap().get(getHeartbeatNodeId(consumerId, partStr));
+                    heartbeatManager.getConsumerRegMap().get(curNodeInfo.getHeartbeatNodeId());
             if (timeoutInfo == null || System.currentTimeMillis() >= timeoutInfo.getTimeoutTime()) {
-                consumerRegisterMap.remove(partStr);
+                consumerRegisterMap.remove(newNodeInfo.getPartStr());
                 strBuffer.append("[Duplicated Register] Remove Invalid Consumer Register ")
-                        .append(consumerId).append(TokenConstants.SEGMENT_SEP).append(partStr);
+                        .append(consumerId).append(TokenConstants.SEGMENT_SEP)
+                        .append(newNodeInfo.getPartStr());
             } else {
                 strBuffer.append("[Duplicated Register] Partition ").append(tubeConfig.getBrokerId())
-                        .append(TokenConstants.SEGMENT_SEP).append(partStr)
+                        .append(TokenConstants.SEGMENT_SEP).append(newNodeInfo.getPartStr())
                         .append(" has been registered by ").append(consumerId);
             }
             logger.warn(strBuffer.toString());
@@ -898,68 +915,65 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's unregister request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param request
-     * @param overtls
-     * @param builder
+     * @param inNodeInfo
+     * @param isConsumed
      * @param strBuffer
      * @return
      */
-    private RegisterResponseB2C inProcessConsumerUnregister(final String clientId, final String groupName,
-                                                            final String topicName, final String partStr,
-                                                            RegisterRequestC2B request, boolean overtls,
-                                                            RegisterResponseB2C.Builder builder,
-                                                            StringBuilder strBuffer) {
-        logger.info(strBuffer.append("[Consumer Unregister]").append(clientId)
-                .append(", isOverTLS=").append(overtls).toString());
-        strBuffer.delete(0, strBuffer.length());
-        ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
-        if (consumerNodeInfo == null) {
-            logger.warn(strBuffer.append("[UnRegistered Consumer2]").append(clientId)
-                    .append(TokenConstants.SEGMENT_SEP).append(partStr).toString());
+    private ProcessResult inProcessConsumerUnregister(ConsumerNodeInfo inNodeInfo,
+                                                      boolean isConsumed,
+                                                      StringBuilder strBuffer) {
+        ConsumerNodeInfo curNodeInfo =
+                consumerRegisterMap.get(inNodeInfo.getPartStr());
+        if (curNodeInfo == null) {
+            logger.warn(strBuffer.append("[Consumer Unregister] UnRegistered consumer ")
+                    .append(inNodeInfo.getConsumerId()).append(" request unregister ")
+                    .append(" topic-partition=").append(inNodeInfo.getOffsetCacheKey())
+                    .append(" failure!").toString());
             strBuffer.delete(0, strBuffer.length());
-            builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("UnRegistered Consumer ")
-                    .append(clientId).append(", you have to register firstly!").toString());
-            return builder.build();
+            return new ProcessResult(TErrCodeConstants.HB_NO_NODE,
+                    strBuffer.append("UnRegistered Consumer ")
+                            .append(inNodeInfo.getConsumerId())
+                            .append(", you have to register firstly!").toString());
         }
-        if (!clientId.equals(consumerNodeInfo.getConsumerId())) {
-            String message = strBuffer.append("[Duplicated Request]").append("Partition ").append(partStr)
-                    .append(" has been consumed by ").append(consumerNodeInfo.getConsumerId())
-                    .append(";Current consumer ").append(clientId).toString();
-            logger.warn(message);
-            builder.setErrCode(TErrCodeConstants.DUPLICATE_PARTITION);
-            builder.setErrMsg(strBuffer.append(", broker=").append(tubeConfig.getHostName()).toString());
-            return builder.build();
+        if (!inNodeInfo.getConsumerId().equals(curNodeInfo.getConsumerId())) {
+            logger.warn(strBuffer.append("[Consumer Unregister] Duplicated Request,")
+                    .append(" topic-partition=").append(inNodeInfo.getOffsetCacheKey())
+                    .append(" has been registered by ").append(curNodeInfo.getConsumerId())
+                    .append(", current consumer ").append(inNodeInfo.getConsumerId()).toString());
+            strBuffer.delete(0, strBuffer.length());
+            return new ProcessResult(TErrCodeConstants.DUPLICATE_PARTITION,
+                    strBuffer.append("Duplicated Request, topic-partition=")
+                            .append(inNodeInfo.getOffsetCacheKey())
+                            .append("has been registered by ")
+                            .append(curNodeInfo.getConsumerId()).append(", broker=")
+                            .append(tubeConfig.getHostName()).toString());
         }
         try {
-            int readStatus = request.getReadStatus();
             long updatedOffset =
-                    offsetManager.commitOffset(groupName, topicName,
-                            request.getPartitionId(), readStatus == 0);
-            logger.info(strBuffer.append("[Unregister Offset] update lastOffset, ")
-                    .append(groupName).append(" topic:").append(topicName).append(" partition:")
-                    .append(request.getPartitionId()).append(" updatedOffset:").append(updatedOffset).toString());
-            strBuffer.delete(0, strBuffer.length());
-            consumerRegisterMap.remove(partStr);
+                    offsetManager.commitOffset(curNodeInfo.getGroupName(),
+                            curNodeInfo.getTopicName(), curNodeInfo.getPartitionId(), isConsumed);
+            consumerRegisterMap.remove(curNodeInfo.getPartStr());
             heartbeatManager.unRegConsumerNode(
-                    getHeartbeatNodeId(clientId, partStr));
+                    getHeartbeatNodeId(curNodeInfo.getConsumerId(), curNodeInfo.getPartStr()));
+            logger.info(strBuffer.append("[Consumer Unregister]")
+                    .append(curNodeInfo.getConsumerId()).append(" unregistered topic-partition=")
+                    .append(curNodeInfo.getOffsetCacheKey()).append(", updated Offset=")
+                    .append(updatedOffset).toString());
+            strBuffer.delete(0, strBuffer.length());
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
-            String message = strBuffer.append("Unregister consumer:")
-                    .append(clientId).append(" failed.").toString();
+            String message = strBuffer.append("[Consumer Unregister]")
+                    .append(curNodeInfo.getConsumerId()).append(" unregistered topic-partition=")
+                    .append(curNodeInfo.getOffsetCacheKey()).append(" failure!").toString();
             logger.warn(message, e);
-            builder.setErrCode(TErrCodeConstants.INTERNAL_SERVER_ERROR);
-            builder.setErrMsg(strBuffer.append(" exception is ").append(e.getMessage()).toString());
-            return builder.build();
+            strBuffer.delete(0, strBuffer.length());
+            return new ProcessResult(TErrCodeConstants.INTERNAL_SERVER_ERROR,
+                    strBuffer.append("Consumer unregister topic-partition=")
+                            .append(inNodeInfo.getOffsetCacheKey())
+                            .append(" throw exception ").append(e.getMessage()).toString());
         }
-        builder.setSuccess(true);
-        builder.setErrCode(TErrCodeConstants.SUCCESS);
-        builder.setErrMsg("OK!");
-        return builder.build();
+        return new ProcessResult();
     }
 
     /***
