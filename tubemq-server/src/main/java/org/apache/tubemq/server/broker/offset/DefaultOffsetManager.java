@@ -24,6 +24,7 @@ import org.apache.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
@@ -86,27 +87,26 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      * Load offset.
      *
      * @param msgStore
-     * @param group
-     * @param topic
-     * @param partitionId
+     * @param nodeInfo
      * @param readStatus
-     * @param reqOffset
      * @param sBuilder
      * @return
      */
     @Override
-    public OffsetStorageInfo loadOffset(final MessageStore msgStore, final String group,
-                                        final String topic, int partitionId, int readStatus,
-                                        long reqOffset, final StringBuilder sBuilder) {
+    public OffsetStorageInfo loadOffset(final MessageStore msgStore,
+                                        final ConsumerNodeInfo nodeInfo,
+                                        int readStatus, final StringBuilder sBuilder) {
         OffsetStorageInfo regInfo;
+        long reqOffset = nodeInfo.getLeftOffset();
         long indexMaxOffset = msgStore.getIndexMaxOffset();
         long indexMinOffset = msgStore.getIndexMinOffset();
         long defOffset =
                 (readStatus == TBaseConstants.CONSUME_MODEL_READ_NORMAL)
                         ? indexMinOffset : indexMaxOffset;
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
-        regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, defOffset);
-        getAndResetTmpOffset(group, offsetCacheKey);
+        regInfo = loadOrCreateOffset(nodeInfo.getGroupName(),
+                nodeInfo.getTopicName(), nodeInfo.getPartitionId(),
+                nodeInfo.getOffsetCacheKey(), defOffset);
+        getAndResetTmpOffset(nodeInfo.getGroupName(), nodeInfo.getOffsetCacheKey());
         final long curOffset = regInfo.getOffset();
         final boolean isFirstCreate = regInfo.isFirstCreate();
         if ((reqOffset >= 0)
@@ -138,8 +138,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 .append(",current offset=").append(regInfo.getOffset())
                 .append(",maxOffset=").append(indexMaxOffset)
                 .append(",offset delta=").append(indexMaxOffset - regInfo.getOffset())
-                .append(",group=").append(group).append(",topic=").append(topic)
-                .append(",partitionId=").append(partitionId).toString());
+                .append(",part_str=").append(nodeInfo.getPartStr()).toString());
         sBuilder.delete(0, sBuilder.length());
         return regInfo;
     }
@@ -148,28 +147,29 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      * Get offset by parameters.
      *
      * @param msgStore
-     * @param group
-     * @param topic
-     * @param partitionId
+     * @param nodeInfo
      * @param isManCommit
      * @param lastConsumed
      * @param sb
      * @return
      */
     @Override
-    public long getOffset(final MessageStore msgStore, final String group,
-                          final String topic, int partitionId,
+    public long getOffset(final MessageStore msgStore,
+                          final ConsumerNodeInfo nodeInfo,
                           boolean isManCommit, boolean lastConsumed,
                           final StringBuilder sb) {
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
         OffsetStorageInfo regInfo =
-                loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
+                loadOrCreateOffset(nodeInfo.getGroupName(),
+                        nodeInfo.getTopicName(), nodeInfo.getPartitionId(),
+                        nodeInfo.getOffsetCacheKey(), 0);
         long requestOffset = regInfo.getOffset();
         if (isManCommit) {
-            requestOffset = requestOffset + getTmpOffset(group, topic, partitionId);
+            requestOffset = requestOffset + getTmpOffset(nodeInfo.getGroupName(),
+                    nodeInfo.getTopicName(), nodeInfo.getPartitionId());
         } else {
             if (lastConsumed) {
-                requestOffset = commitOffset(group, topic, partitionId, true);
+                requestOffset = commitOffset(nodeInfo.getGroupName(),
+                        nodeInfo.getTopicName(), nodeInfo.getPartitionId(), true);
             }
         }
         final long maxOffset = msgStore.getIndexMaxOffset();
@@ -179,12 +179,12 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 logger.warn(sb
                         .append("[Offset Manager] Offset is bigger than current max offset, reset! requestOffset=")
                         .append(requestOffset).append(",maxOffset=").append(maxOffset)
-                        .append(",group=").append(group).append(",topic=").append(topic)
-                        .append(",partitionId=").append(partitionId).toString());
+                        .append(", part_str=").append(nodeInfo.getPartStr()).toString());
                 sb.delete(0, sb.length());
-                setTmpOffset(group, offsetCacheKey, maxOffset - requestOffset);
+                setTmpOffset(nodeInfo.getGroupName(), nodeInfo.getOffsetCacheKey(), maxOffset - requestOffset);
                 if (!isManCommit) {
-                    requestOffset = commitOffset(group, topic, partitionId, true);
+                    requestOffset = commitOffset(nodeInfo.getGroupName(),
+                            nodeInfo.getTopicName(), nodeInfo.getPartitionId(), true);
                 }
             }
             return -requestOffset;
@@ -192,11 +192,12 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             logger.warn(sb
                     .append("[Offset Manager] Offset is lower than current min offset, reset! requestOffset=")
                     .append(requestOffset).append(",minOffset=").append(minOffset)
-                    .append(",group=").append(group).append(",topic=").append(topic)
-                    .append(",partitionId=").append(partitionId).toString());
+                    .append(", part_str=").append(nodeInfo.getPartStr()).toString());
             sb.delete(0, sb.length());
-            setTmpOffset(group, offsetCacheKey, minOffset - requestOffset);
-            requestOffset = commitOffset(group, topic, partitionId, true);
+            setTmpOffset(nodeInfo.getGroupName(),
+                    nodeInfo.getOffsetCacheKey(), minOffset - requestOffset);
+            requestOffset = commitOffset(nodeInfo.getGroupName(),
+                    nodeInfo.getTopicName(), nodeInfo.getPartitionId(), true);
         }
         return requestOffset;
     }
@@ -210,20 +211,22 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     @Override
-    public void bookOffset(final String group, final String topic, int partitionId,
-                           int readDalt, boolean isManCommit, boolean isMsgEmpty,
-                           final StringBuilder sb) {
+    public void bookOffset(final ConsumerNodeInfo nodeInfo,
+                           int readDalt, boolean isManCommit,
+                           boolean isMsgEmpty, final StringBuilder sb) {
         if (readDalt == 0) {
             return;
         }
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
         if (isManCommit) {
-            long tmpOffset = getTmpOffset(group, topic, partitionId);
-            setTmpOffset(group, offsetCacheKey, readDalt + tmpOffset);
+            long tmpOffset = getTmpOffset(nodeInfo.getGroupName(),
+                    nodeInfo.getTopicName(), nodeInfo.getPartitionId());
+            setTmpOffset(nodeInfo.getGroupName(),
+                    nodeInfo.getOffsetCacheKey(), readDalt + tmpOffset);
         } else {
-            setTmpOffset(group, offsetCacheKey, readDalt);
+            setTmpOffset(nodeInfo.getGroupName(), nodeInfo.getOffsetCacheKey(), readDalt);
             if (isMsgEmpty) {
-                commitOffset(group, topic, partitionId, true);
+                commitOffset(nodeInfo.getGroupName(),
+                        nodeInfo.getTopicName(), nodeInfo.getPartitionId(), true);
             }
         }
     }
