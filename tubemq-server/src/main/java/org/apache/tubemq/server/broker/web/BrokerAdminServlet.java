@@ -154,7 +154,8 @@ public class BrokerAdminServlet extends HttpServlet {
                     .append(groupName).append("\",\"topicName\":\"").append(topicName)
                     .append("\",\"partitionId\":").append(partitionId);
             Long regTime =
-                    broker.getBrokerServiceServer().getConsumerRegisterTime(consumerId, entry.getKey());
+                    broker.getBrokerServiceServer()
+                            .getConsumerRegisterTime(entry.getValue().getHeartbeatNodeId());
             if (regTime == null || regTime <= 0) {
                 sBuilder.append(",\"consumerId\":\"").append(consumerId)
                         .append("\",\"isRegOk\":false")

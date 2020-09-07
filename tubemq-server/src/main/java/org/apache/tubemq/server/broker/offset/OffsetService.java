@@ -18,6 +18,7 @@
 package org.apache.tubemq.server.broker.offset;
 
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 
 /***
@@ -27,20 +28,19 @@ public interface OffsetService {
 
     void close(long waitTimeMs);
 
-    OffsetStorageInfo loadOffset(final MessageStore store, final String group,
-                                 final String topic, int partitionId,
-                                 int readStatus, long reqOffset,
-                                 final StringBuilder sb);
+    OffsetStorageInfo loadOffset(final MessageStore store,
+                                 final ConsumerNodeInfo nodeInfo,
+                                 int readStatus, final StringBuilder sb);
 
-    long getOffset(final MessageStore msgStore, final String group,
-                   final String topic, int partitionId,
+    long getOffset(final MessageStore msgStore,
+                   final ConsumerNodeInfo nodeInfo,
                    boolean isManCommit, boolean lastConsumed,
                    final StringBuilder sb);
 
     long getOffset(String group, String topic, int partitionId);
 
-    void bookOffset(final String group, final String topic, int partitionId,
-                    int readDalt, boolean isManCommit, boolean isMsgEmpty,
+    void bookOffset(final ConsumerNodeInfo nodeInfo, int readDalt,
+                    boolean isManCommit, boolean isMsgEmpty,
                     final StringBuilder sb);
 
     long commitOffset(final String group, final String topic,

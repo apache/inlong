@@ -245,14 +245,13 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Get consumer's register time.
      *
-     * @param consumerId
-     * @param partitionStr
+     * @param heartbeatNodeId
      * @return
      */
-    public Long getConsumerRegisterTime(String consumerId, String partitionStr) {
+    public Long getConsumerRegisterTime(String heartbeatNodeId) {
         TimeoutInfo timeoutInfo =
                 heartbeatManager.getConsumerRegMap()
-                        .get(getHeartbeatNodeId(consumerId, partitionStr));
+                        .get(heartbeatNodeId);
         if (timeoutInfo == null) {
             return null;
         }
@@ -342,7 +341,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         String rmtAddrInfo = consumerNodeInfo.getRmtAddrInfo();
         try {
-            heartbeatManager.updConsumerNode(getHeartbeatNodeId(clientId, partStr));
+            heartbeatManager.updConsumerNode(consumerNodeInfo.getHeartbeatNodeId());
         } catch (HeartbeatException e) {
             logger.warn(strBuffer.append("[Invalid Request]").append(clientId)
                     .append(TokenConstants.SEGMENT_SEP).append(topicName)
@@ -417,7 +416,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * Query offset, then read data.
      *
      * @param msgStore
-     * @param consumerNodeInfo
+     * @param nodeInfo
      * @param group
      * @param topic
      * @param partitionId
@@ -432,25 +431,25 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @throws IOException
      */
     private GetMessageResult getMessages(final MessageStore msgStore,
-                                         final ConsumerNodeInfo consumerNodeInfo,
+                                         final ConsumerNodeInfo nodeInfo,
                                          final String group, final String topic,
                                          final int partitionId, final boolean lastConsumed,
                                          final boolean isManualCommitOffset, final String sentAddr,
                                          final String brokerAddr, final String rmtAddrInfo,
                                          boolean isEscFlowCtrl, final StringBuilder sb) throws IOException {
         long requestOffset =
-                offsetManager.getOffset(msgStore, group, topic,
-                        partitionId, isManualCommitOffset, lastConsumed, sb);
+                offsetManager.getOffset(msgStore, nodeInfo,
+                        isManualCommitOffset, lastConsumed, sb);
         if (requestOffset < 0) {
             return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
                     -requestOffset, 0, "The request offset reached maxOffset!");
         }
         final long maxDataOffset = msgStore.getDataMaxOffset();
-        int reqSwitch = getRealQryPriorityId(consumerNodeInfo);
+        int reqSwitch = getRealQryPriorityId(nodeInfo);
         int msgDataSizeLimit =
-                consumerNodeInfo.getAllowedQuota(maxDataOffset, isEscFlowCtrl);
+                nodeInfo.getAllowedQuota(maxDataOffset, isEscFlowCtrl);
         if (msgDataSizeLimit <= 0) {
-            if (consumerNodeInfo.isSpLimit()) {
+            if (nodeInfo.isSpLimit()) {
                 return new GetMessageResult(false, TErrCodeConstants.SERVER_CONSUME_SPEED_LIMIT,
                         requestOffset, 0, (-msgDataSizeLimit), "RpcServer consume speed limit!");
             } else {
@@ -465,8 +464,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             sb.delete(0, sb.length());
             GetMessageResult msgQueryResult =
                     msgStore.getMessages(reqSwitch, requestOffset,
-                            partitionId, consumerNodeInfo, baseKey, msgDataSizeLimit);
-            offsetManager.bookOffset(group, topic, partitionId,
+                            partitionId, nodeInfo, baseKey, msgDataSizeLimit);
+            offsetManager.bookOffset(nodeInfo,
                     msgQueryResult.lastReadOffset, isManualCommitOffset,
                     msgQueryResult.transferedMessageList.isEmpty(), sb);
             msgQueryResult.setWaitTime(maxDataOffset - msgQueryResult.lastRdDataOffset);
@@ -870,10 +869,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 return builder.build();
             }
             OffsetStorageInfo offsetInfo =
-                    offsetManager.loadOffset(dataStore, newNodeInfo.getGroupName(),
-                            newNodeInfo.getTopicName(), request.getPartitionId(),
-                            request.getReadStatus(), newNodeInfo.getLeftOffset(),
-                            strBuffer);
+                    offsetManager.loadOffset(dataStore, newNodeInfo,
+                            request.getReadStatus(), strBuffer);
             logger.info(strBuffer.append("[Consumer Register]")
                     .append(newNodeInfo.getConsumerId())
                     .append(TokenConstants.SEGMENT_SEP).append(newNodeInfo.getPartStr())
@@ -954,8 +951,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     offsetManager.commitOffset(curNodeInfo.getGroupName(),
                             curNodeInfo.getTopicName(), curNodeInfo.getPartitionId(), isConsumed);
             consumerRegisterMap.remove(curNodeInfo.getPartStr());
-            heartbeatManager.unRegConsumerNode(
-                    getHeartbeatNodeId(curNodeInfo.getConsumerId(), curNodeInfo.getPartStr()));
+            heartbeatManager.unRegConsumerNode(curNodeInfo.getHeartbeatNodeId());
             logger.info(strBuffer.append("[Consumer Unregister]")
                     .append(curNodeInfo.getConsumerId()).append(" unregistered topic-partition=")
                     .append(curNodeInfo.getOffsetCacheKey()).append(", updated Offset=")
@@ -1067,8 +1063,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 isAuthorized = true;
             }
             try {
-                heartbeatManager.updConsumerNode(
-                        getHeartbeatNodeId(clientId, partStr));
+                heartbeatManager.updConsumerNode(consumerNodeInfo.getHeartbeatNodeId());
             } catch (HeartbeatException e) {
                 failureInfo.add(strBuffer.append(TErrCodeConstants.HB_NO_NODE)
                         .append(TokenConstants.ATTR_SEP)
