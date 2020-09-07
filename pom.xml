@@ -70,7 +70,6 @@
         <module>tubemq-example</module>
         <module>tubemq-connectors</module>
         <module>tubemq-docker</module>
-        <module>tubemq-manager</module>
     </modules>
 
     <properties>
