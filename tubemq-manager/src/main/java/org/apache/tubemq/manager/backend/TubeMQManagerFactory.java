@@ -15,30 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager;
+package org.apache.tubemq.manager.backend;
 
-import org.apache.tubemq.manager.backend.AbstractDaemon;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@SpringBootApplication
-public class TubeMQManager extends AbstractDaemon {
-    public static void main(String[] args) throws Exception {
-        TubeMQManager manager = new TubeMQManager();
-        manager.startThreads();
-        SpringApplication.run(TubeMQManager.class);
-        // web application stopped, then stop working threads.
-        manager.stopThreads();
-        manager.join();
+/**
+ * Thread factory for tubeMQ manager.
+ */
+public class TubeMQManagerFactory implements ThreadFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TubeMQManagerFactory.class);
+
+    private final AtomicInteger mThreadNum = new AtomicInteger(1);
+
+    private final String threadType;
+
+    public TubeMQManagerFactory(String threadType) {
+        this.threadType = threadType;
     }
 
     @Override
-    public void startThreads() throws Exception {
-
-    }
-
-    @Override
-    public void stopThreads() throws Exception {
-
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(r, threadType + "-running-thread-" + mThreadNum.getAndIncrement());
+        LOGGER.info("{} created", t.getName());
+        return t;
     }
 }

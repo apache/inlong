@@ -14,31 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.tubemq.manager.backend;
 
-package org.apache.tubemq.manager;
+/**
+ * Interface for starting and stopping backend threads.
+ */
+public interface ThreadStartAndStop {
+    /**
+     * start all threads.
+     */
+    void startThreads() throws Exception;
 
-import org.apache.tubemq.manager.backend.AbstractDaemon;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+    /**
+     * stop all threads.
+     */
+    void stopThreads() throws Exception;
 
-@SpringBootApplication
-public class TubeMQManager extends AbstractDaemon {
-    public static void main(String[] args) throws Exception {
-        TubeMQManager manager = new TubeMQManager();
-        manager.startThreads();
-        SpringApplication.run(TubeMQManager.class);
-        // web application stopped, then stop working threads.
-        manager.stopThreads();
-        manager.join();
-    }
-
-    @Override
-    public void startThreads() throws Exception {
-
-    }
-
-    @Override
-    public void stopThreads() throws Exception {
-
-    }
+    /**
+     * wait for all thread finishing.
+     */
+    void join() throws Exception;
 }
