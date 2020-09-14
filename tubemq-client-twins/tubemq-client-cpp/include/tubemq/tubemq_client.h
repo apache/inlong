@@ -17,35 +17,43 @@
  * under the License.
  */
 
-#ifndef TUBEMQ_CLIENT_FILE_INI_H_
-#define TUBEMQ_CLIENT_FILE_INI_H_
+#ifndef TUBEMQ_CLIENT_HEADER_H_
+#define TUBEMQ_CLIENT_HEADER_H_
 
 #include <stdint.h>
-
 #include <map>
 #include <string>
+#include "tubemq/tubemq_atomic.h"
+#include "tubemq/tubemq_config.h"
+#include "tubemq/tubemq_message.h"
+#include "tubemq/tubemq_return.h"
+
 
 namespace tubemq {
 
-using std::map;
-using std::string;
+bool StartTubeMQService(string& err_info,
+  const string& conf_file = "../conf/client.conf");
+bool StopTubeMQService(string& err_info);
 
-class Fileini {
+
+class TubeMQConsumer {
  public:
-  Fileini();
-  ~Fileini();
-  bool Loadini(string& err_info, const string& file_name);
-  bool GetValue(string& err_info, const string& sector, const string& key,
-                    string& value, const string& def) const;
-  bool GetValue(string& err_info, const string& sector, const string& key,
-                   int32_t& value, int32_t def) const;
+  TubeMQConsumer();
+  ~TubeMQConsumer();
+  bool Start(string& err_info, const ConsumerConfig& config);
+  virtual void ShutDown();
+  const int32_t GetClientId() const { return client_id_; }
+  bool GetMessage(ConsumerResult& result);
+  bool Confirm(const string& confirm_context, bool is_consumed, ConsumerResult& result);
+  bool GetCurConsumedInfo(map<string, ConsumeOffsetInfo>& consume_info_map);
 
  private:
-  bool init_flag_;
-  // sector        key    value
-  map<string, map<string, string> > ini_map_;
+  int32_t client_id_;
+  AtomicInteger status_;
 };
+
 
 }  // namespace tubemq
 
-#endif  // TUBEMQ_CLIENT_FILE_INI_H_
+#endif  // TUBEMQ_CLIENT_HEADER_H_
+
