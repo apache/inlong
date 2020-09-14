@@ -87,7 +87,7 @@ public abstract class AbstractDaemon implements ThreadStartAndStop {
      * @param timeUnit - time unit
      */
     public void waitForTerminate(long timeout, TimeUnit timeUnit) throws Exception {
-        // 停止正在执行的线程
+        // stopping working threads.
         if (isRunnable()) {
             stopRunningThreads();
             workerServices.shutdown();
