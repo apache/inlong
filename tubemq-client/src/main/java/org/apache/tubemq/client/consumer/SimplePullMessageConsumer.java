@@ -30,6 +30,7 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 
 /**
  * An implementation of PullMessageConsumer
@@ -130,9 +131,27 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         if (!baseConsumer.isSubscribed()) {
             throw new TubeClientException("Please complete topic's Subscribe call first!");
         }
+        PartitionSelectResult selectResult = null;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            if (baseConsumer.isShutdown()) {
+                return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
+                        "Client instance has been shutdown!");
+            }
+            selectResult = baseConsumer.rmtDataCache.getCurrPartsStatus();
+            if (selectResult.isSuccess()) {
+                break;
+            }
+            if ((baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs() >= 0)
+                && (System.currentTimeMillis() - startTime >=
+                    baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs())) {
+                return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
+            }
+            ThreadUtils.sleep(baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs());
+        }
         StringBuilder sBuilder = new StringBuilder(512);
         // Check the data cache first
-        PartitionSelectResult selectResult = baseConsumer.rmtDataCache.pullSelect();
+        selectResult = baseConsumer.rmtDataCache.pullSelect();
         if (!selectResult.isSuccess()) {
             return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
         }

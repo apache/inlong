@@ -29,7 +29,6 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
 import org.apache.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.tubemq.corebase.Message;
-import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,13 +76,6 @@ public final class MessagePullConsumerExample {
             fetchRunners[i].setName("_fetch_runner_" + i);
         }
 
-        // wait for client to join the exact consumer queue that consumer group allocated
-        while (!messageConsumer.isCurConsumeReady(1000)) {
-            ThreadUtils.sleep(1000);
-        }
-
-        logger.info("Wait and get partitions use time " + (System.currentTimeMillis() - startTime));
-
         for (Thread thread : fetchRunners) {
             thread.start();
         }
@@ -98,10 +90,6 @@ public final class MessagePullConsumerExample {
         }
 
         messagePullConsumer.completeSubscribe();
-    }
-
-    public boolean isCurConsumeReady(long waitTime) {
-        return messagePullConsumer.isPartitionsReady(waitTime);
     }
 
     public ConsumerResult getMessage() throws TubeClientException {
@@ -139,19 +127,16 @@ public final class MessagePullConsumerExample {
                         }
                         messageConsumer.confirmConsume(result.getConfirmContext(), true);
                     } else {
-                        if (result.getErrCode() == 400
+                        if (!(result.getErrCode() == 400
+                                || result.getErrCode() == 404
                                 || result.getErrCode() == 405
                                 || result.getErrCode() == 406
                                 || result.getErrCode() == 407
-                                || result.getErrCode() == 408) {
-                            ThreadUtils.sleep(400);
-                        } else {
-                            if (result.getErrCode() != 404) {
-                                logger.info(
+                                || result.getErrCode() == 408)) {
+                            logger.info(
                                     "Receive messages errorCode is {}, Error message is {}",
                                     result.getErrCode(),
                                     result.getErrMsg());
-                            }
                         }
                     }
                     if (consumeCount > 0) {

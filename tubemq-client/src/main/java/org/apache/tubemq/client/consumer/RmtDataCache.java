@@ -151,22 +151,11 @@ public class RmtDataCache implements Closeable {
     }
 
     /**
-     * Pull the selected partitions.
-     *
-     * @return pull result
+     * Get current partition's consume status.
+     * @return current status
      */
-    public PartitionSelectResult pullSelect() {
-        int count = 6;
-        do {
-            if (this.isClosed.get()) {
-                break;
-            }
-            if (!partitionMap.isEmpty()) {
-                break;
-            }
-            ThreadUtils.sleep(350);
-        } while (--count > 0);
-        if (this.isClosed.get()) {
+    public PartitionSelectResult getCurrPartsStatus() {
+        if (isClosed.get()) {
             return new PartitionSelectResult(false,
                     TErrCodeConstants.BAD_REQUEST,
                     "Client instance has been shutdown!");
@@ -177,7 +166,7 @@ public class RmtDataCache implements Closeable {
                     "No partition info in local, please wait and try later");
         }
         if (indexPartition.isEmpty()) {
-            if (hasPartitionWait()) {
+            if (!timeouts.isEmpty()) {
                 return new PartitionSelectResult(false,
                         TErrCodeConstants.ALL_PARTITION_WAITING,
                         "All partition in waiting, retry later!");
@@ -187,9 +176,23 @@ public class RmtDataCache implements Closeable {
                         "No idle partition to consume, please wait and try later");
             } else {
                 return new PartitionSelectResult(false,
-                    TErrCodeConstants.ALL_PARTITION_FROZEN,
-                    "All partition are frozen to consume, please unfreeze partition(s) or wait");
+                        TErrCodeConstants.ALL_PARTITION_FROZEN,
+                        "All partition are frozen to consume, please unfreeze partition(s) or wait");
             }
+        }
+        return new PartitionSelectResult(true,
+                TErrCodeConstants.SUCCESS, "OK");
+    }
+
+    /**
+     * Pull the selected partitions.
+     *
+     * @return pull result
+     */
+    public PartitionSelectResult pullSelect() {
+        PartitionSelectResult result = getCurrPartsStatus();
+        if (!result.isSuccess()) {
+            return result;
         }
         waitCont.incrementAndGet();
         try {
