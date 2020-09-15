@@ -23,7 +23,7 @@ cmake_minimum_required (VERSION 3.1)
 
 AUX_SOURCE_DIRECTORY(. CURRENT_DIR_SRCS)                                        
 ADD_LIBRARY(tubemq STATIC ${CURRENT_DIR_SRCS})   
-TARGET_LINK_LIBRARIES (tubemq)
+TARGET_LINK_LIBRARIES (tubemq libprotobuf.a liblog4cplus.a tubemq_proto)
 
 
 

@@ -40,6 +40,9 @@
 #include "transport.h"
 
 namespace tubemq {
+
+using std::string;
+
 class ConnectionPool : noncopyable {
  public:
   explicit ConnectionPool(ExecutorPoolPtr& executor_pool)
@@ -70,8 +73,8 @@ class ConnectionPool : noncopyable {
       }
       if (it->second->GetRecvTime() + rpc_config::kRpcInvalidConnectOverTime < std::time(nullptr)) {
         it->second->Close();
-        it = connection_pool_.erase(it);
         LOG_ERROR("connection pool clear overtime connect:%s", it->second->ToString().c_str());
+        it = connection_pool_.erase(it);
         continue;
       }
       ++it;

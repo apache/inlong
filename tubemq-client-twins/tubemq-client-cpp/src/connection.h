@@ -50,7 +50,6 @@ class Connection : noncopyable {
       : connect_id_(unique_id_.Next()),
         status_(kConnecting),
         recv_time_(std::time(nullptr)),
-        package_length_(0),
         create_time_(std::time(nullptr)) {
     formatContextString();
   }
@@ -60,7 +59,6 @@ class Connection : noncopyable {
         connect_id_(unique_id_.Next()),
         status_(kConnecting),
         recv_time_(std::time(nullptr)),
-        package_length_(0),
         create_time_(std::time(nullptr)) {
     formatContextString();
   }
@@ -82,7 +80,13 @@ class Connection : noncopyable {
 
   inline std::time_t GetRecvTime() const { return recv_time_; }
 
-  inline const std::string& ToString() const { return context_string_; }
+  inline const std::string ToString() const {
+    std::stringstream stream;
+    stream << "[recvtime:" << recv_time_ << "]"
+           << "[read_package:" << read_package_number_ << "]"
+           << "[write_package:" << write_package_number_ << "]";
+    return context_string_ + stream.str();
+  }
 
  private:
   void formatContextString() {
@@ -101,7 +105,9 @@ class Connection : noncopyable {
   std::atomic<Status> status_;
   std::string context_string_;  // for log
   std::time_t recv_time_;
-  size_t package_length_;
+  size_t package_length_ = 0;
+  size_t read_package_number_ = 0;
+  size_t write_package_number_ = 0;
 
  private:
   std::time_t create_time_;
