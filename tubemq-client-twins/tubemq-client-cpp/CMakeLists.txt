@@ -31,8 +31,8 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/proto)
 INCLUDE_DIRECTORIES(include)
 INCLUDE_DIRECTORIES(src)
 
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/rapidjson/src/rapidjson/include)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/include)
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/rapidjson_proj-prefix/src/rapidjson_proj/include/)
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/lib)
 
 ADD_SUBDIRECTORY(third_party)
