@@ -41,6 +41,10 @@ public class ConsumerConfig extends TubeClientConfig {
             TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
     private long msgNotFoundWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS;
+    private long pullConsumeReadyWaitPeriodMs =
+            TClientConstants.CFG_DEFAULT_CONSUME_READ_WAIT_PERIOD_MS;
+    private long pullConsumeReadyChkSliceMs =
+            TClientConstants.CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS;
     private long shutDownRebalanceWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
     private int pushFetchThreadCnt =
@@ -114,6 +118,25 @@ public class ConsumerConfig extends TubeClientConfig {
 
     public void setMsgNotFoundWaitPeriodMs(long msgNotFoundWaitPeriodMs) {
         this.msgNotFoundWaitPeriodMs = msgNotFoundWaitPeriodMs;
+    }
+
+    public long getPullConsumeReadyWaitPeriodMs() {
+        return pullConsumeReadyWaitPeriodMs;
+    }
+
+    public void setPullConsumeReadyWaitPeriodMs(long pullConsumeReadyWaitPeriodMs) {
+        this.pullConsumeReadyWaitPeriodMs = pullConsumeReadyWaitPeriodMs;
+    }
+
+    public long getPullConsumeReadyChkSliceMs() {
+        return pullConsumeReadyChkSliceMs;
+    }
+
+    public void setPullConsumeReadyChkSliceMs(long pullConsumeReadyChkSliceMs) {
+        if (pullConsumeReadyChkSliceMs >= 0
+                && pullConsumeReadyChkSliceMs <= 1000) {
+            this.pullConsumeReadyChkSliceMs = pullConsumeReadyChkSliceMs;
+        }
     }
 
     public long getShutDownRebalanceWaitPeriodMs() {
