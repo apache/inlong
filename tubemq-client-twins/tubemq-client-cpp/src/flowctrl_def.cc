@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "tubemq/flowctrl_def.h"
+#include "flowctrl_def.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -25,9 +25,9 @@
 
 #include <sstream>
 
-#include "tubemq/const_config.h"
-#include "tubemq/logger.h"
-#include "tubemq/utils.h"
+#include "const_config.h"
+#include "logger.h"
+#include "utils.h"
 
 namespace tubemq {
 
@@ -35,172 +35,172 @@ using std::stringstream;
 using std::lock_guard;
 
 FlowCtrlResult::FlowCtrlResult() {
-  this->datasize_limit_ = tb_config::kMaxIntValue;
-  this->freqms_limit_ = 0;
+  datasize_limit_ = tb_config::kMaxIntValue;
+  freqms_limit_ = 0;
 }
 
 FlowCtrlResult::FlowCtrlResult(int64_t datasize_limit, int32_t freqms_limit) {
-  this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_ = freqms_limit;
+  datasize_limit_ = datasize_limit;
+  freqms_limit_ = freqms_limit;
 }
 
 FlowCtrlResult& FlowCtrlResult::operator=(const FlowCtrlResult& target) {
   if (this == &target) return *this;
-  this->datasize_limit_ = target.datasize_limit_;
-  this->freqms_limit_ = target.freqms_limit_;
+  datasize_limit_ = target.datasize_limit_;
+  freqms_limit_ = target.freqms_limit_;
   return *this;
 }
 
 void FlowCtrlResult::SetDataDltAndFreqLimit(int64_t datasize_limit, int32_t freqms_limit) {
-  this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_ = freqms_limit;
+  datasize_limit_ = datasize_limit;
+  freqms_limit_ = freqms_limit;
 }
 
 void FlowCtrlResult::SetDataSizeLimit(int64_t datasize_limit) {
-  this->datasize_limit_ = datasize_limit;
+  datasize_limit_ = datasize_limit;
 }
 
-void FlowCtrlResult::SetFreqMsLimit(int32_t freqms_limit) { this->freqms_limit_ = freqms_limit; }
+void FlowCtrlResult::SetFreqMsLimit(int32_t freqms_limit) { freqms_limit_ = freqms_limit; }
 
-int64_t FlowCtrlResult::GetDataSizeLimit() { return this->datasize_limit_; }
+int64_t FlowCtrlResult::GetDataSizeLimit() { return datasize_limit_; }
 
-int32_t FlowCtrlResult::GetFreqMsLimit() { return this->freqms_limit_; }
+int32_t FlowCtrlResult::GetFreqMsLimit() { return freqms_limit_; }
 
 FlowCtrlItem::FlowCtrlItem() {
-  this->type_ = 0;
-  this->start_time_ = 2500;
-  this->end_time_ = tb_config::kInvalidValue;
-  this->datadlt_m_ = tb_config::kInvalidValue;
-  this->datasize_limit_ = tb_config::kInvalidValue;
-  this->freqms_limit_ = tb_config::kInvalidValue;
-  this->zero_cnt_ = tb_config::kInvalidValue;
+  type_ = 0;
+  start_time_ = 2500;
+  end_time_ = tb_config::kInvalidValue;
+  datadlt_m_ = tb_config::kInvalidValue;
+  datasize_limit_ = tb_config::kInvalidValue;
+  freqms_limit_ = tb_config::kInvalidValue;
+  zero_cnt_ = tb_config::kInvalidValue;
 }
 
 FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t zero_cnt, int32_t freqms_limit) {
-  this->type_ = type;
-  this->start_time_ = 2500;
-  this->end_time_ = tb_config::kInvalidValue;
-  this->datadlt_m_ = tb_config::kInvalidValue;
-  this->datasize_limit_ = tb_config::kInvalidValue;
-  this->freqms_limit_ = freqms_limit;
-  this->zero_cnt_ = zero_cnt;
+  type_ = type;
+  start_time_ = 2500;
+  end_time_ = tb_config::kInvalidValue;
+  datadlt_m_ = tb_config::kInvalidValue;
+  datasize_limit_ = tb_config::kInvalidValue;
+  freqms_limit_ = freqms_limit;
+  zero_cnt_ = zero_cnt;
 }
 
 FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t datasize_limit, int32_t freqms_limit,
                            int32_t min_data_filter_freqms) {
-  this->type_ = type;
-  this->start_time_ = 2500;
-  this->end_time_ = tb_config::kInvalidValue;
-  this->datadlt_m_ = tb_config::kInvalidValue;
-  this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_ = freqms_limit;
-  this->zero_cnt_ = min_data_filter_freqms;
+  type_ = type;
+  start_time_ = 2500;
+  end_time_ = tb_config::kInvalidValue;
+  datadlt_m_ = tb_config::kInvalidValue;
+  datasize_limit_ = datasize_limit;
+  freqms_limit_ = freqms_limit;
+  zero_cnt_ = min_data_filter_freqms;
 }
 
 FlowCtrlItem::FlowCtrlItem(int32_t type, int32_t start_time, int32_t end_time, int64_t datadlt_m,
                            int64_t datasize_limit, int32_t freqms_limit) {
-  this->type_ = type;
-  this->start_time_ = start_time;
-  this->end_time_ = end_time;
-  this->datadlt_m_ = datadlt_m;
-  this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_ = freqms_limit;
-  this->zero_cnt_ = tb_config::kInvalidValue;
+  type_ = type;
+  start_time_ = start_time;
+  end_time_ = end_time;
+  datadlt_m_ = datadlt_m;
+  datasize_limit_ = datasize_limit;
+  freqms_limit_ = freqms_limit;
+  zero_cnt_ = tb_config::kInvalidValue;
 }
 
 FlowCtrlItem& FlowCtrlItem::operator=(const FlowCtrlItem& target) {
   if (this == &target) return *this;
-  this->type_ = target.type_;
-  this->start_time_ = target.start_time_;
-  this->end_time_ = target.end_time_;
-  this->datadlt_m_ = target.datadlt_m_;
-  this->datasize_limit_ = target.datasize_limit_;
-  this->freqms_limit_ = target.freqms_limit_;
-  this->zero_cnt_ = target.zero_cnt_;
+  type_ = target.type_;
+  start_time_ = target.start_time_;
+  end_time_ = target.end_time_;
+  datadlt_m_ = target.datadlt_m_;
+  datasize_limit_ = target.datasize_limit_;
+  freqms_limit_ = target.freqms_limit_;
+  zero_cnt_ = target.zero_cnt_;
   return *this;
 }
 
 int32_t FlowCtrlItem::GetFreLimit(int32_t msg_zero_cnt) const {
-  if (this->type_ != 1) {
+  if (type_ != 1) {
     return -1;
   }
-  if (msg_zero_cnt >= this->zero_cnt_) {
-    return this->freqms_limit_;
+  if (msg_zero_cnt >= zero_cnt_) {
+    return freqms_limit_;
   }
   return -1;
 }
 
 void FlowCtrlItem::ResetFlowCtrlValue(int32_t type, int32_t datasize_limit, int32_t freqms_limit,
                                       int32_t min_data_filter_freqms) {
-  this->type_ = type;
-  this->start_time_ = 2500;
-  this->end_time_ = tb_config::kInvalidValue;
-  this->datadlt_m_ = tb_config::kInvalidValue;
-  this->datasize_limit_ = datasize_limit;
-  this->freqms_limit_ = freqms_limit;
-  this->zero_cnt_ = min_data_filter_freqms;
+  type_ = type;
+  start_time_ = 2500;
+  end_time_ = tb_config::kInvalidValue;
+  datadlt_m_ = tb_config::kInvalidValue;
+  datasize_limit_ = datasize_limit;
+  freqms_limit_ = freqms_limit;
+  zero_cnt_ = min_data_filter_freqms;
 }
 
 void FlowCtrlItem::Clear() {
-  this->type_ = 0;
-  this->start_time_ = 2500;
-  this->end_time_ = tb_config::kInvalidValue;
-  this->datadlt_m_ = tb_config::kInvalidValue;
-  this->datasize_limit_ = tb_config::kInvalidValue;
-  this->freqms_limit_ = tb_config::kInvalidValue;
-  this->zero_cnt_ = tb_config::kInvalidValue;
+  type_ = 0;
+  start_time_ = 2500;
+  end_time_ = tb_config::kInvalidValue;
+  datadlt_m_ = tb_config::kInvalidValue;
+  datasize_limit_ = tb_config::kInvalidValue;
+  freqms_limit_ = tb_config::kInvalidValue;
+  zero_cnt_ = tb_config::kInvalidValue;
 }
 
 bool FlowCtrlItem::GetDataLimit(int64_t datadlt_m, int32_t curr_time,
                                 FlowCtrlResult& flowctrl_result) const {
-  if (this->type_ != 0 || datadlt_m <= this->datadlt_m_) {
+  if (type_ != 0 || datadlt_m <= datadlt_m_) {
     return false;
   }
-  if (curr_time < this->start_time_ || curr_time > this->end_time_) {
+  if (curr_time < start_time_ || curr_time > end_time_) {
     return false;
   }
-  flowctrl_result.SetDataDltAndFreqLimit(this->datasize_limit_, this->freqms_limit_);
+  flowctrl_result.SetDataDltAndFreqLimit(datasize_limit_, freqms_limit_);
   return true;
 }
 
 FlowCtrlRuleHandler::FlowCtrlRuleHandler() {
-  this->flowctrl_id_.GetAndSet(tb_config::kInvalidValue);
-  this->flowctrl_info_ = "";
-  this->min_zero_cnt_.Set(tb_config::kMaxIntValue);
-  this->qrypriority_id_.Set(tb_config::kInvalidValue);
-  this->min_datadlt_limt_.Set(tb_config::kMaxLongValue);
-  this->datalimit_start_time_.Set(2500);
-  this->datalimit_end_time_.Set(tb_config::kInvalidValue);
-  this->last_update_time_ = Utils::GetCurrentTimeMillis();
+  flowctrl_id_.GetAndSet(tb_config::kInvalidValue);
+  flowctrl_info_ = "";
+  min_zero_cnt_.Set(tb_config::kMaxIntValue);
+  qrypriority_id_.Set(tb_config::kInvalidValue);
+  min_datadlt_limt_.Set(tb_config::kMaxLongValue);
+  datalimit_start_time_.Set(2500);
+  datalimit_end_time_.Set(tb_config::kInvalidValue);
+  last_update_time_ = Utils::GetCurrentTimeMillis();
 }
 
 FlowCtrlRuleHandler::~FlowCtrlRuleHandler() {
-  // 
+  //
 }
 
 void FlowCtrlRuleHandler::UpdateDefFlowCtrlInfo(bool is_default, int32_t qrypriority_id,
                                                 int64_t flowctrl_id, const string& flowctrl_info) {
   map<int32_t, vector<FlowCtrlItem> > tmp_flowctrl_map;
-  if (flowctrl_id == this->flowctrl_id_.Get()) {
+  if (flowctrl_id == flowctrl_id_.Get()) {
     return;
   }
-  int64_t curr_flowctrl_id = this->flowctrl_id_.Get();
+  int64_t curr_flowctrl_id = flowctrl_id_.Get();
   if (flowctrl_info.length() > 0) {
     parseFlowCtrlInfo(flowctrl_info, tmp_flowctrl_map);
   }
   lock_guard<mutex> lck(config_lock_);
-  this->flowctrl_id_.Set(flowctrl_id);
-  this->qrypriority_id_.Set(qrypriority_id);
+  flowctrl_id_.Set(flowctrl_id);
+  qrypriority_id_.Set(qrypriority_id);
   clearStatisData();
   if (tmp_flowctrl_map.empty()) {
-    this->flowctrl_rules_.clear();
-    this->flowctrl_info_ = "";
+    flowctrl_rules_.clear();
+    flowctrl_info_ = "";
   } else {
-    this->flowctrl_rules_ = tmp_flowctrl_map;
-    this->flowctrl_info_ = flowctrl_info;
+    flowctrl_rules_ = tmp_flowctrl_map;
+    flowctrl_info_ = flowctrl_info;
     initialStatisData();
   }
-  this->last_update_time_ = Utils::GetCurrentTimeMillis();
+  last_update_time_ = Utils::GetCurrentTimeMillis();
   if (is_default) {
     LOG_INFO("[Flow Ctrl] Default FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
              flowctrl_id);
@@ -215,55 +215,55 @@ void FlowCtrlRuleHandler::initialStatisData() {
   vector<FlowCtrlItem>::iterator it_vec;
   map<int, vector<FlowCtrlItem> >::iterator it_map;
 
-  it_map = this->flowctrl_rules_.find(0);
-  if (it_map != this->flowctrl_rules_.end()) {
+  it_map = flowctrl_rules_.find(0);
+  if (it_map != flowctrl_rules_.end()) {
     for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       if (it_vec->GetType() != 0) {
         continue;
       }
 
-      if (it_vec->GetDltInM() < this->min_datadlt_limt_.Get()) {
-        this->min_datadlt_limt_.Set(it_vec->GetDltInM());
+      if (it_vec->GetDltInM() < min_datadlt_limt_.Get()) {
+        min_datadlt_limt_.Set(it_vec->GetDltInM());
       }
-      if (it_vec->GetStartTime() < this->datalimit_start_time_.Get()) {
-        this->datalimit_start_time_.Set(it_vec->GetStartTime());
+      if (it_vec->GetStartTime() < datalimit_start_time_.Get()) {
+        datalimit_start_time_.Set(it_vec->GetStartTime());
       }
-      if (it_vec->GetEndTime() > this->datalimit_end_time_.Get()) {
-        this->datalimit_end_time_.Set(it_vec->GetEndTime());
+      if (it_vec->GetEndTime() > datalimit_end_time_.Get()) {
+        datalimit_end_time_.Set(it_vec->GetEndTime());
       }
     }
   }
-  it_map = this->flowctrl_rules_.find(1);
-  if (it_map != this->flowctrl_rules_.end()) {
+  it_map = flowctrl_rules_.find(1);
+  if (it_map != flowctrl_rules_.end()) {
     for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       if (it_vec->GetType() != 1) {
         continue;
       }
-      if (it_vec->GetZeroCnt() < this->min_zero_cnt_.Get()) {
-        this->min_zero_cnt_.Set(it_vec->GetZeroCnt());
+      if (it_vec->GetZeroCnt() < min_zero_cnt_.Get()) {
+        min_zero_cnt_.Set(it_vec->GetZeroCnt());
       }
     }
   }
-  it_map = this->flowctrl_rules_.find(3);
-  if (it_map != this->flowctrl_rules_.end()) {
+  it_map = flowctrl_rules_.find(3);
+  if (it_map != flowctrl_rules_.end()) {
     for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       if (it_vec->GetType() != 3) {
         continue;
       }
       it_vec->GetDataSizeLimit();
-      this->filter_ctrl_item_.ResetFlowCtrlValue(3, (int)(it_vec->GetDataSizeLimit()),
+      filter_ctrl_item_.ResetFlowCtrlValue(3, (int32_t)(it_vec->GetDataSizeLimit()),
                                                  it_vec->GetFreqMsLimit(), it_vec->GetZeroCnt());
     }
   }
 }
 
 void FlowCtrlRuleHandler::clearStatisData() {
-  this->min_zero_cnt_.GetAndSet(tb_config::kMaxIntValue);
-  this->min_datadlt_limt_.GetAndSet(tb_config::kMaxLongValue);
-  this->qrypriority_id_.Set(tb_config::kInvalidValue);
-  this->datalimit_start_time_.Set(2500);
-  this->datalimit_end_time_.Set(tb_config::kInvalidValue);
-  this->filter_ctrl_item_.Clear();
+  min_zero_cnt_.GetAndSet(tb_config::kMaxIntValue);
+  min_datadlt_limt_.GetAndSet(tb_config::kMaxLongValue);
+  qrypriority_id_.Set(tb_config::kInvalidValue);
+  datalimit_start_time_.Set(2500);
+  datalimit_end_time_.Set(tb_config::kInvalidValue);
+  filter_ctrl_item_.Clear();
 }
 
 bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt,
@@ -276,16 +276,16 @@ bool FlowCtrlRuleHandler::GetCurDataLimit(int64_t last_datadlt,
   time_t cur_time = time(NULL);
   gmtime_r(&cur_time, &utc_tm);
   int curr_time = (utc_tm.tm_hour + 8) % 24 * 100 + utc_tm.tm_min;
-  if ((last_datadlt < this->min_datadlt_limt_.Get())
-      || (curr_time < this->datalimit_start_time_.Get())
-      || (curr_time > this->datalimit_end_time_.Get())) {
+  if ((last_datadlt < min_datadlt_limt_.Get())
+      || (curr_time < datalimit_start_time_.Get())
+      || (curr_time > datalimit_end_time_.Get())) {
     return false;
   }
   // search total flowctrl rule
   lock_guard<mutex> lck(config_lock_);
-  it_map = this->flowctrl_rules_.find(0);
-  if (it_map != this->flowctrl_rules_.end()) {
-    for (it_vec = it_map->second.begin();it_vec != it_map->second.end(); ++it_vec) {
+  it_map = flowctrl_rules_.find(0);
+  if (it_map != flowctrl_rules_.end()) {
+    for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       if (it_vec->GetDataLimit(last_datadlt, curr_time, flowctrl_result)) {
         result = true;
         break;
@@ -301,13 +301,13 @@ int32_t FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt,
   vector<FlowCtrlItem>::const_iterator it_vec;
   map<int, vector<FlowCtrlItem> >::const_iterator it_map;
   // check min zero count
-  if (msg_zero_cnt < this->min_zero_cnt_.Get()) {
+  if (msg_zero_cnt < min_zero_cnt_.Get()) {
     return limit_data;
   }
   // search rule allow value
   lock_guard<mutex> lck(config_lock_);
-  it_map = this->flowctrl_rules_.find(1);
-  if (it_map != this->flowctrl_rules_.end()) {
+  it_map = flowctrl_rules_.find(1);
+  if (it_map != flowctrl_rules_.end()) {
     for (it_vec = it_map->second.begin(); it_vec != it_map->second.end(); ++it_vec) {
       limit_data = it_vec->GetFreLimit(msg_zero_cnt);
       if (limit_data >= 0) {
@@ -321,16 +321,14 @@ int32_t FlowCtrlRuleHandler::GetCurFreqLimitTime(int32_t msg_zero_cnt,
 void FlowCtrlRuleHandler::GetFilterCtrlItem(FlowCtrlItem& result) const {
   result.Clear();
   lock_guard<mutex> lck(config_lock_);
-  result = this->filter_ctrl_item_;
+  result = filter_ctrl_item_;
 }
 
 void FlowCtrlRuleHandler::GetFlowCtrlInfo(string& flowctrl_info) const {
   flowctrl_info.clear();
   lock_guard<mutex> lck(config_lock_);
-  flowctrl_info = this->flowctrl_info_;
+  flowctrl_info = flowctrl_info_;
 }
-
-
 
 bool FlowCtrlRuleHandler::compareDataLimitQueue(const FlowCtrlItem& o1, const FlowCtrlItem& o2) {
   if (o1.GetStartTime() >= o2.GetStartTime()) {
