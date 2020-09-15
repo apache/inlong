@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "tubemq/logger.h"
+#include "logger.h"
 
 #include <log4cplus/fileappender.h>
 #include <log4cplus/layout.h>
@@ -27,13 +27,13 @@
 
 #include <string>
 
-#include "tubemq/singleton.h"
+#include "singleton.h"
 
 namespace tubemq {
 
-Logger& GetLogger() { return Singleton<Logger>::Instance(); }
-
 static const uint32_t kMBSize = 1024 * 1024;
+
+Logger& GetLogger() { return Singleton<Logger>::Instance(); }
 
 bool Logger::Init(const std::string& path, Logger::Level level, uint32_t file_max_size,
                   uint32_t file_num) {
@@ -67,6 +67,7 @@ void Logger::setup() {
   bool immediate_fush = true;
   std::string pattern = "[%D{%Y-%m-%d %H:%M:%S.%q}][tid:%t]%m%n";
   auto logger_d = log4cplus::Logger::getInstance(instance_);
+  logger_d.removeAllAppenders();
   logger_d.setLogLevel(log4cplus::TRACE_LOG_LEVEL);
   log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> append_d(
       new log4cplus::RollingFileAppender(base_path_ + ".log", file_max_size_ * kMBSize, file_num_,

@@ -17,11 +17,13 @@
  * under the License.
  */
 
-#include "tubemq/executor_pool.h"
+#include "executor_pool.h"
 
-#include <asio.hpp>
 #include <functional>
 #include <memory>
+#include <asio.hpp>
+
+
 
 namespace tubemq {
 
@@ -39,19 +41,20 @@ Executor::~Executor() {
 
 void Executor::StartWorker(std::shared_ptr<asio::io_context> io_context) { io_context_->run(); }
 
-SocketPtr Executor::CreateSocket() { return SocketPtr(new asio::ip::tcp::socket(*io_context_)); }
+TcpSocketPtr Executor::CreateTcpSocket() {
+  return std::make_shared<asio::ip::tcp::socket>(*io_context_);
+}
 
-TlsSocketPtr Executor::CreateTlsSocket(SocketPtr &socket, asio::ssl::context &ctx) {
-  return std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket &> >(
-      new asio::ssl::stream<asio::ip::tcp::socket &>(*socket, ctx));
+TlsSocketPtr Executor::CreateTlsSocket(TcpSocketPtr &socket, asio::ssl::context &ctx) {
+  return std::make_shared<asio::ssl::stream<asio::ip::tcp::socket &>>(*socket, ctx);
 }
 
 TcpResolverPtr Executor::CreateTcpResolver() {
-  return TcpResolverPtr(new asio::ip::tcp::resolver(*io_context_));
+  return std::make_shared<asio::ip::tcp::resolver>(*io_context_);
 }
 
 SteadyTimerPtr Executor::CreateSteadyTimer() {
-  return SteadyTimerPtr(new asio::steady_timer(*io_context_));
+  return std::make_shared<asio::steady_timer>(*io_context_);
 }
 
 void Executor::Close() {
@@ -60,8 +63,6 @@ void Executor::Close() {
     worker_.join();
   }
 }
-
-void Executor::Post(Executor::func task) { io_context_->post(task); }
 
 ExecutorPool::ExecutorPool(int nthreads) : executors_(nthreads), executorIdx_(0), mutex_() {}
 

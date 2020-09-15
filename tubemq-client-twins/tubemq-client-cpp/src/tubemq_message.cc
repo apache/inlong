@@ -20,89 +20,88 @@
 #include "tubemq/tubemq_message.h"
 
 #include <string.h>
-
 #include <sstream>
 
-#include "tubemq/const_config.h"
-#include "tubemq/utils.h"
+#include "const_config.h"
+#include "utils.h"
 
 namespace tubemq {
 
 using std::stringstream;
 
-
-// message flag's properties settings
-static const int32_t kMsgFlagIncProperties = 0x01;
-// reserved property key Filter Item
-static const char kRsvPropKeyFilterItem[] = "$msgType$";
-// reserved property key message send time
-static const char kRsvPropKeyMsgTime[] = "$msgTime$";
-
 Message::Message() {
-  this->topic_ = "";
-  this->flag_ = 0;
-  this->message_id_ = tb_config::kInvalidValue;
-  this->data_ = NULL;
-  this->datalen_ = 0;
-  this->properties_.clear();
+  flag_ = 0;
+  message_id_ = tb_config::kInvalidValue;
+  data_ = NULL;
+  datalen_ = 0;
 }
 
 Message::Message(const Message& target) {
-  this->topic_ = target.topic_;
-  this->message_id_ = target.message_id_;
+  topic_ = target.topic_;
+  message_id_ = target.message_id_;
   copyData(target.data_, target.datalen_);
   copyProperties(target.properties_);
-  this->flag_ = target.flag_;
+  flag_ = target.flag_;
 }
 
 Message::Message(const string& topic, const char* data, uint32_t datalen) {
-  this->topic_ = topic;
-  this->flag_ = 0;
-  this->message_id_ = tb_config::kInvalidValue;
+  topic_ = topic;
+  flag_ = 0;
+  message_id_ = tb_config::kInvalidValue;
   copyData(data, datalen);
-  this->properties_.clear();
+  properties_.clear();
+}
+
+Message::Message(const string& topic, int32_t flag,
+  int64_t message_id, const char* data, uint32_t datalen,
+  const map<string, string>& properties) {
+  topic_ = topic;
+  flag_ = flag;
+  message_id_ = message_id;
+  copyData(data, datalen);
+  copyProperties(properties);
 }
 
 Message::~Message() { clearData(); }
 
 Message& Message::operator=(const Message& target) {
   if (this == &target) return *this;
-  this->topic_ = target.topic_;
-  this->message_id_ = target.message_id_;
+  topic_ = target.topic_;
+  message_id_ = target.message_id_;
   clearData();
   copyData(target.data_, target.datalen_);
   copyProperties(target.properties_);
-  this->flag_ = target.flag_;
+  flag_ = target.flag_;
   return *this;
 }
 
-const int64_t Message::GetMessageId() const { return this->message_id_; }
+const int64_t Message::GetMessageId() const { return message_id_; }
 
-void Message::SetMessageId(int64_t message_id) { this->message_id_ = message_id; }
+void Message::SetMessageId(int64_t message_id) { message_id_ = message_id; }
 
-const string& Message::GetTopic() const { return this->topic_; }
+const string& Message::GetTopic() const { return topic_; }
 
-void Message::SetTopic(const string& topic) { this->topic_ = topic; }
+void Message::SetTopic(const string& topic) { topic_ = topic; }
 
-const char* Message::GetData() const { return this->data_; }
+const char* Message::GetData() const { return data_; }
 
-uint32_t Message::GetDataLength() const { return this->datalen_; }
+uint32_t Message::GetDataLength() const { return datalen_; }
 
 void Message::setData(const char* data, uint32_t datalen) {
   clearData();
   copyData(data, datalen);
 }
 
-const int32_t Message::GetFlag() const { return this->flag_; }
+const int32_t Message::GetFlag() const { return flag_; }
 
-void Message::SetFlag(int32_t flag) { this->flag_ = flag; }
+void Message::SetFlag(int32_t flag) { flag_ = flag; }
 
-const map<string, string>& Message::GetProperties() const { return this->properties_; }
+const map<string, string>& Message::GetProperties() const { return properties_; }
 
 int32_t Message::GetProperties(string& attribute) {
   attribute.clear();
   map<string, string>::iterator it_map;
-  for (it_map = this->properties_.begin(); it_map != this->properties_.end(); ++it_map) {
+  for (it_map = properties_.begin(); it_map != properties_.end(); ++it_map) {
     if (!attribute.empty()) {
       attribute += delimiter::kDelimiterComma;
     }
@@ -117,8 +116,8 @@ bool Message::HasProperty(const string& key) {
   map<string, string>::iterator it_map;
   string trimed_key = Utils::Trim(key);
   if (!trimed_key.empty()) {
-    it_map = this->properties_.find(trimed_key);
-    if (it_map != this->properties_.end()) {
+    it_map = properties_.find(trimed_key);
+    if (it_map != properties_.end()) {
       return true;
     }
   }
@@ -129,8 +128,8 @@ bool Message::GetProperty(const string& key, string& value) {
   map<string, string>::iterator it_map;
   string trimed_key = Utils::Trim(key);
   if (!trimed_key.empty()) {
-    it_map = this->properties_.find(trimed_key);
-    if (it_map != this->properties_.end()) {
+    it_map = properties_.find(trimed_key);
+    if (it_map != properties_.end()) {
       value = it_map->second;
       return true;
     }
@@ -138,7 +137,9 @@ bool Message::GetProperty(const string& key, string& value) {
   return false;
 }
 
-bool Message::GetFilterItem(string& value) { return GetProperty(kRsvPropKeyFilterItem, value); }
+bool Message::GetFilterItem(string& value) {
+  return GetProperty(tb_config::kRsvPropKeyFilterItem, value);
+}
 
 bool Message::AddProperty(string& err_info, const string& key, const string& value) {
   string trimed_key = Utils::Trim(key);
@@ -169,53 +170,54 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
     err_info = ss.str();
     return false;
   }
-  if (trimed_key == kRsvPropKeyFilterItem || trimed_key == kRsvPropKeyMsgTime) {
+  if (trimed_key == tb_config::kRsvPropKeyFilterItem
+    || trimed_key == tb_config::kRsvPropKeyMsgTime) {
     stringstream ss;
     ss << "Reserved token '";
-    ss << kRsvPropKeyFilterItem;
+    ss << tb_config::kRsvPropKeyFilterItem;
     ss << "' or '";
-    ss << kRsvPropKeyMsgTime;
+    ss << tb_config::kRsvPropKeyMsgTime;
     ss << "' must not be used in parmeter key!";
     err_info = ss.str();
     return false;
   }
   // add key and value
-  this->properties_[trimed_key] = trimed_value;
-  if (!this->properties_.empty()) {
-    this->flag_ |= kMsgFlagIncProperties;
+  properties_[trimed_key] = trimed_value;
+  if (!properties_.empty()) {
+    flag_ |= tb_config::kMsgFlagIncProperties;
   }
   err_info = "Ok";
   return true;
 }
 
 void Message::clearData() {
-  if (this->data_ != NULL) {
-    delete[] this->data_;
-    this->data_ = NULL;
-    this->datalen_ = 0;
+  if (data_ != NULL) {
+    delete[] data_;
+    data_ = NULL;
+    datalen_ = 0;
   }
 }
 
 void Message::copyData(const char* data, uint32_t datalen) {
   if (data == NULL) {
-    this->data_ = NULL;
-    this->datalen_ = 0;
+    data_ = NULL;
+    datalen_ = 0;
   } else {
-    this->datalen_ = datalen;
-    this->data_ = new char[datalen];
-    memset(this->data_, 0, datalen);
-    memcpy(this->data_, data, datalen);
+    datalen_ = datalen;
+    data_ = new char[datalen];
+    memset(data_, 0, datalen);
+    memcpy(data_, data, datalen);
   }
 }
 
 void Message::copyProperties(const map<string, string>& properties) {
-  this->properties_.clear();
+  properties_.clear();
   map<string, string>::const_iterator it_map;
   for (it_map = properties.begin(); it_map != properties.end(); ++it_map) {
-    this->properties_[it_map->first] = it_map->second;
+    properties_[it_map->first] = it_map->second;
   }
-  if (!this->properties_.empty()) {
-    this->flag_ |= kMsgFlagIncProperties;
+  if (!properties_.empty()) {
+    flag_ |= tb_config::kMsgFlagIncProperties;
   }
 }
 

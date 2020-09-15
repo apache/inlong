@@ -17,280 +17,105 @@
  * under the License.
  */
 
-#include "client_service.h"
 
-#include <sstream>
+#ifndef TUBEMQ_CLIENT_BASE_CLIENT_H_
+#define TUBEMQ_CLIENT_BASE_CLIENT_H_
 
-#include "const_config.h"
-#include "logger.h"
-#include "utils.h"
+#include <stdint.h>
+
+#include <map>
+#include <mutex>
+#include <string>
+#include <thread>
+
+#include "connection_pool.h"
+#include "file_ini.h"
+#include "noncopyable.h"
+#include "rmt_data_cache.h"
+#include "thread_pool.h"
+#include "tubemq/tubemq_atomic.h"
+#include "tubemq/tubemq_config.h"
+#include "tubemq/tubemq_message.h"
+#include "tubemq/tubemq_return.h"
 
 namespace tubemq {
 
-using std::lock_guard;
-using std::stringstream;
+using std::map;
+using std::mutex;
+using std::string;
+using std::thread;
 
-BaseClient::BaseClient(bool is_producer) {
-  is_producer_ = is_producer;
-  client_index_ = tb_config::kInvalidValue;
-}
+class BaseClient {
+ public:
+  explicit BaseClient(bool is_producer);
+  virtual ~BaseClient();
+  virtual void ShutDown() {}
+  void SetClientIndex(int32_t client_index) { client_index_ = client_index; }
+  bool IsProducer() { return is_producer_; }
+  const int32_t GetClientIndex() { return client_index_; }
 
-BaseClient::~BaseClient() {
-  // no code
-}
+ protected:
+  bool is_producer_;
+  int32_t client_index_;
+};
 
-TubeMQService* TubeMQService::_instance = NULL;
-
-static mutex tubemq_mutex_service_;
-
-TubeMQService* TubeMQService::Instance() {
-  if (NULL == _instance) {
-    lock_guard<mutex> lck(tubemq_mutex_service_);
-    if (NULL == _instance) {
-      _instance = new TubeMQService;
+class TubeMQService : public noncopyable {
+ public:
+  static TubeMQService* Instance();
+  bool Start(string& err_info, string conf_file = "../conf/tubemqclient.conf");
+  bool Stop(string& err_info);
+  bool IsRunning();
+  const int32_t GetServiceStatus() const { return service_status_.Get(); }
+  int32_t GetClientObjCnt();
+  bool AddClientObj(string& err_info, BaseClient* client_obj);
+  BaseClient* GetClientObj(int32_t client_index) const;
+  void RmvClientObj(BaseClient* client_obj);
+  const string& GetLocalHost() const { return local_host_; }
+  ExecutorPoolPtr GetTimerExecutorPool() { return timer_executor_; }
+  SteadyTimerPtr CreateTimer() { return timer_executor_->Get()->CreateSteadyTimer(); }
+  ExecutorPoolPtr GetNetWorkExecutorPool() { return network_executor_; }
+  ConnectionPoolPtr GetConnectionPool() { return connection_pool_; }
+  template <class function>
+  void Post(function f) {
+    if (thread_pool_ != nullptr) {
+      thread_pool_->Post(f);
     }
   }
-  return _instance;
-}
+  bool AddMasterAddress(string& err_info, const string& master_info);
+  void GetXfsMasterAddress(const string& source, string& target);
 
-TubeMQService::TubeMQService()
-    : timer_executor_(std::make_shared<ExecutorPool>(2)),
-      network_executor_(std::make_shared<ExecutorPool>(4)) {
-  service_status_.Set(0);
-  client_index_base_.Set(0);
-  last_check_time_ = 0;
-}
+ protected:
+  void updMasterAddrByDns();
 
-TubeMQService::~TubeMQService() {
-  string err_info;
-  Stop(err_info);
-}
+ private:
+  TubeMQService();
+  ~TubeMQService();
+  void iniLogger(const Fileini& fileini, const string& sector);
+  void iniPoolThreads(const Fileini& fileini, const string& sector);
+  void iniXfsThread(const Fileini& fileini, const string& sector);
+  void thread_task_dnsxfs(int dns_xfs_period_ms);
+  void shutDownClinets() const;
+  bool hasXfsTask(map<string, int32_t>& src_addr_map);
+  bool addNeedDnsXfsAddr(map<string, int32_t>& src_addr_map);
 
-bool TubeMQService::Start(string& err_info, string conf_file) {
-  // check configure file
-  bool result = false;
-  Fileini fileini;
-  string sector = "TubeMQ";
-
-  result = Utils::ValidConfigFile(err_info, conf_file);
-  if (!result) {
-    return result;
-  }
-  result = fileini.Loadini(err_info, conf_file);
-  if (!result) {
-    return result;
-  }
-  result = Utils::GetLocalIPV4Address(err_info, local_host_);
-  if (!result) {
-    return result;
-  }
-  if (!service_status_.CompareAndSet(0, 1)) {
-    err_info = "TubeMQ Service has startted or Stopped!";
-    return false;
-  }
-  iniLogger(fileini, sector);
-  iniPoolThreads(fileini, sector);
-  iniXfsThread(fileini, sector);
-  service_status_.Set(2);
-  err_info = "Ok!";
-  LOG_INFO("[TubeMQService] TubeMQ service startted!");
-
-  return true;
-}
-
-bool TubeMQService::Stop(string& err_info) {
-  if (service_status_.CompareAndSet(2, -1)) {
-    LOG_INFO("[TubeMQService] TubeMQ service begin to stop!");
-    if (dns_xfs_thread_.joinable()) {
-      dns_xfs_thread_.join();
-    }
-    shutDownClinets();
-    timer_executor_->Close();
-    network_executor_->Close();
-    connection_pool_ = nullptr;
-    thread_pool_ = nullptr;
-    LOG_INFO("[TubeMQService] TubeMQ service stopped!");
-  }
-  err_info = "OK!";
-  return true;
-}
-
-bool TubeMQService::IsRunning() { return (service_status_.Get() == 2); }
-
-void TubeMQService::iniLogger(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t log_num = 10;
-  int32_t log_size = 10;
-  int32_t log_level = 4;
-  string log_path = "../log/tubemq";
-  fileini.GetValue(err_info, sector, "log_num", log_num, 10);
-  fileini.GetValue(err_info, sector, "log_size", log_size, 100);
-  fileini.GetValue(err_info, sector, "log_path", log_path, "../log/tubemq");
-  fileini.GetValue(err_info, sector, "log_level", log_level, 4);
-  log_level = TUBEMQ_MID(log_level, 4, 0);
-  GetLogger().Init(log_path, Logger::Level(log_level), log_size, log_num);
-}
-
-void TubeMQService::iniXfsThread(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t dns_xfs_period_ms = 30 * 1000;
-  fileini.GetValue(err_info, sector, "dns_xfs_period_ms", dns_xfs_period_ms, 30 * 1000);
-  TUBEMQ_MID(dns_xfs_period_ms, tb_config::kMaxIntValue, 10000);
-  dns_xfs_thread_ = std::thread(&TubeMQService::thread_task_dnsxfs, this, dns_xfs_period_ms);
-}
-
-void TubeMQService::iniPoolThreads(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t timer_threads = 2;
-  int32_t network_threads = 4;
-  int32_t signal_threads = 8;
-  fileini.GetValue(err_info, sector, "timer_threads", timer_threads, 2);
-  TUBEMQ_MID(timer_threads, 50, 2);
-  fileini.GetValue(err_info, sector, "network_threads", network_threads, 4);
-  TUBEMQ_MID(network_threads, 50, 4);
-  fileini.GetValue(err_info, sector, "signal_threads", signal_threads, 8);
-  TUBEMQ_MID(signal_threads, 50, 4);
-  timer_executor_->Resize(timer_threads);
-  network_executor_->Resize(network_threads);
-  thread_pool_ = std::make_shared<ThreadPool>(signal_threads);
-  connection_pool_ = std::make_shared<ConnectionPool>(network_executor_);
-}
-
-int32_t TubeMQService::GetClientObjCnt() {
-  lock_guard<mutex> lck(mutex_);
-  return clients_map_.size();
-}
-
-bool TubeMQService::AddClientObj(string& err_info, BaseClient* client_obj) {
-  if (!IsRunning()) {
-    err_info = "Service not startted!";
-    return false;
-  }
-  int32_t client_index = client_index_base_.IncrementAndGet();
-  lock_guard<mutex> lck(mutex_);
-  clients_map_[client_index] = client_obj;
-  client_obj->SetClientIndex(client_index);
-  err_info = "Ok";
-  return true;
-}
-
-BaseClient* TubeMQService::GetClientObj(int32_t client_index) const {
-  BaseClient* client_obj = NULL;
-  map<int32_t, BaseClient*>::const_iterator it;
-
-  lock_guard<mutex> lck(mutex_);
-  it = clients_map_.find(client_index);
-  if (it != clients_map_.end()) {
-    client_obj = it->second;
-  }
-  return client_obj;
-}
-
-void TubeMQService::RmvClientObj(BaseClient* client_obj) {
-  map<int32_t, BaseClient*>::iterator it;
-  if (client_obj != NULL) {
-    lock_guard<mutex> lck(mutex_);
-    int32_t client_index = client_obj->GetClientIndex();
-    clients_map_.erase(client_index);
-    client_obj->SetClientIndex(tb_config::kInvalidValue);
-  }
-}
-
-void TubeMQService::shutDownClinets() const {
-  map<int32_t, BaseClient*>::const_iterator it;
-  lock_guard<mutex> lck(mutex_);
-  for (it = clients_map_.begin(); it != clients_map_.end(); it++) {
-    it->second->ShutDown();
-  }
-}
-
-bool TubeMQService::AddMasterAddress(string& err_info, const string& master_info) {
-  map<string, int32_t>::iterator it;
-  map<string, int32_t> tmp_addr_map;
-  Utils::Split(master_info, tmp_addr_map, delimiter::kDelimiterComma, delimiter::kDelimiterColon);
-  if (tmp_addr_map.empty()) {
-    err_info = "Illegal parameter: master_info is blank!";
-    return false;
-  }
-  for (it = tmp_addr_map.begin(); it != tmp_addr_map.end();) {
-    if (!Utils::NeedDnsXfs(it->first)) {
-      tmp_addr_map.erase(it++);
-    }
-  }
-  if (tmp_addr_map.empty()) {
-    err_info = "Ok";
-    return true;
-  }
-  if (addNeedDnsXfsAddr(tmp_addr_map)) {
-    updMasterAddrByDns();
-  }
-  err_info = "Ok";
-  return true;
-}
-
-void TubeMQService::GetXfsMasterAddress(const string& source, string& target) {
-  target = source;
-  lock_guard<mutex> lck(mutex_);
-  if (master_source_.find(source) != master_source_.end()) {
-    target = master_target_[source];
-  }
-}
-
-void TubeMQService::thread_task_dnsxfs(int dns_xfs_period_ms) {
-  LOG_INFO("[TubeMQService] DSN transfer thread startted!");
-  while (true) {
-    if (TubeMQService::Instance()->GetServiceStatus() <= 0) {
-      break;
-    }
-    if ((Utils::GetCurrentTimeMillis() - last_check_time_) >= dns_xfs_period_ms) {
-      TubeMQService::Instance()->updMasterAddrByDns();
-      last_check_time_ = Utils::GetCurrentTimeMillis();
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  }
-  LOG_INFO("[TubeMQService] DSN transfer thread stopped!");
-}
-
-bool TubeMQService::hasXfsTask(map<string, int32_t>& src_addr_map) {
-  lock_guard<mutex> lck(mutex_);
-  if (!master_source_.empty()) {
-    src_addr_map = master_source_;
-    return true;
-  }
-  return false;
-}
-
-bool TubeMQService::addNeedDnsXfsAddr(map<string, int32_t>& src_addr_map) {
-  bool added = false;
-  map<string, int32_t>::iterator it;
-  if (!src_addr_map.empty()) {
-    lock_guard<mutex> lck(mutex_);
-    for (it = src_addr_map.begin(); it != src_addr_map.end(); it++) {
-      if (master_source_.find(it->first) == master_source_.end()) {
-        added = true;
-        master_source_[it->first] = it->second;
-      }
-    }
-  }
-  return added;
-}
-
-void TubeMQService::updMasterAddrByDns() {
-  map<string, int32_t> tmp_src_addr_map;
-  map<string, string> tmp_tgt_addr_map;
-  map<string, int32_t>::iterator it;
-  if (!hasXfsTask(tmp_src_addr_map)) {
-    return;
-  }
-  Utils::XfsAddrByDns(tmp_src_addr_map, tmp_tgt_addr_map);
-  lock_guard<mutex> lck(mutex_);
-  if (tmp_tgt_addr_map.empty()) {
-    for (it = tmp_src_addr_map.begin(); it != tmp_src_addr_map.end(); it++) {
-      master_target_[it->first] = it->first;
-    }
-  } else {
-    master_target_ = tmp_tgt_addr_map;
-  }
-}
+ private:
+  static TubeMQService* _instance;
+  string local_host_;
+  AtomicInteger service_status_;
+  AtomicInteger client_index_base_;
+  mutable mutex mutex_;
+  map<int32_t, BaseClient*> clients_map_;
+  ExecutorPoolPtr timer_executor_;
+  ExecutorPoolPtr network_executor_;
+  ConnectionPoolPtr connection_pool_;
+  std::shared_ptr<ThreadPool> thread_pool_;
+  thread dns_xfs_thread_;
+  mutable mutex dns_mutex_;
+  int64_t last_check_time_;
+  map<string, int32_t> master_source_;
+  map<string, string> master_target_;
+};
 
 }  // namespace tubemq
+
+#endif  // TUBEMQ_CLIENT_BASE_CLIENT_H_

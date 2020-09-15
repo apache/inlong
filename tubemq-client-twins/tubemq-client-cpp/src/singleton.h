@@ -17,53 +17,46 @@
  * under the License.
  */
 
-#ifndef _TUBEMQ_THREAD_POOL_
-#define _TUBEMQ_THREAD_POOL_
+#ifndef _TUBEMQ_SINGLETON_H
+#define _TUBEMQ_SINGLETON_H
 
+#include <assert.h>
 #include <stdlib.h>
 
-
-#include <chrono>
-#include <functional>
-#include <memory>
 #include <mutex>
 #include <thread>
-#include <vector>
 
-#include <asio.hpp>
-#include <asio/ssl.hpp>
 #include "noncopyable.h"
 
 namespace tubemq {
-// ThreadPool use one io_context for thread pool
-class ThreadPool : noncopyable {
+
+template <typename T>
+class Singleton : noncopyable {
  public:
-  explicit ThreadPool(std::size_t size)
-      : io_context_(size), work_(asio::make_work_guard(io_context_)) {
-    for (size_t i = 0; i < size; ++i) {
-      workers_.emplace_back([this] { io_context_.run(); });
-    }
+  static T& Instance() {
+    std::call_once(once_, Singleton::init);
+    assert(value_ != nullptr);
+    return *value_;
   }
 
-  ~ThreadPool() {
-    work_.reset();
-    io_context_.stop();
-    for (std::thread &worker : workers_) {
-      worker.join();
-    }
-    workers_.clear();
-  }
-
-  template <class function>
-  void Post(function f) {
-    io_context_.post(f);
-  }
+ protected:
+  Singleton() {}
+  ~Singleton() {}
 
  private:
-  asio::io_context io_context_;
-  using io_context_work = asio::executor_work_guard<asio::io_context::executor_type>;
-  io_context_work work_;
-  std::vector<std::thread> workers_;
-};  // namespace tubemq
+  static void init() { value_ = new T(); }
+
+ private:
+  static std::once_flag once_;
+  static T* value_;
+};
+
+template <typename T>
+std::once_flag Singleton<T>::once_;
+
+template <typename T>
+T* Singleton<T>::value_ = nullptr;
+
 }  // namespace tubemq
-#endif  // _TUBEMQ_THREAD_POOL_
+
+#endif  // _TUBEMQ_SINGLETON_H

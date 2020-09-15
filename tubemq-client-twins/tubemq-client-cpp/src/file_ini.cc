@@ -17,15 +17,15 @@
  * under the License.
  */
 
-#include "tubemq/file_ini.h"
+#include "file_ini.h"
 
 #include <stdlib.h>
 
 #include <fstream>
 #include <sstream>
 
-#include "tubemq/const_config.h"
-#include "tubemq/utils.h"
+#include "const_config.h"
+#include "utils.h"
 
 namespace tubemq {
 
@@ -34,13 +34,13 @@ using std::ifstream;
 
 
 Fileini::Fileini() {
-  this->init_flag_ = false;
-  this->ini_map_.clear();
+  init_flag_ = false;
+  ini_map_.clear();
 }
 
 Fileini::~Fileini() {
-  this->init_flag_ = false;
-  this->ini_map_.clear();
+  init_flag_ = false;
+  ini_map_.clear();
 }
 
 bool Fileini::Loadini(string& err_info, const string& file_name) {
@@ -95,8 +95,8 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
       continue;
     }
     map<string, map<string, string> >::iterator it_sec;
-    it_sec = this->ini_map_.find(sector);
-    if (it_sec == this->ini_map_.end()) {
+    it_sec = ini_map_.find(sector);
+    if (it_sec == ini_map_.end()) {
       map<string, string> tmp_key_val_map;
       tmp_key_val_map[key] = value;
       ini_map_[sector] = tmp_key_val_map;
@@ -108,7 +108,7 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
   conf_file.close();
   conf_file.clear();
   // set parser status
-  this->init_flag_ = true;
+  init_flag_ = true;
   // end
   err_info = "Ok";
   return true;
@@ -116,7 +116,7 @@ bool Fileini::Loadini(string& err_info, const string& file_name) {
 
 bool Fileini::GetValue(string& err_info, const string& sector, const string& key, string& value,
                        const string& def) const {
-  if (!this->init_flag_) {
+  if (!init_flag_) {
     err_info = "Please load configure file first!";
     return false;
   }
@@ -125,8 +125,8 @@ bool Fileini::GetValue(string& err_info, const string& sector, const string& key
   // search key's value in sector
   map<string, map<string, string> >::const_iterator it_sec;
   map<string, string>::const_iterator it_keyval;
-  it_sec = this->ini_map_.find(sector);
-  if (it_sec == this->ini_map_.end()) {
+  it_sec = ini_map_.find(sector);
+  if (it_sec == ini_map_.end()) {
     value = def;
     return true;
   }

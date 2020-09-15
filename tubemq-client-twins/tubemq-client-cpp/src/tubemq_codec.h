@@ -185,9 +185,10 @@ class TubeMQCodec final : public CodecProtocol {
   // return code: -1 failed; 0-Unfinished; > 0 package buffer size
   virtual int32_t Check(BufferPtr &in, Any &out, uint32_t &request_id, bool &has_request_id,
                         size_t &package_length) {
+    LOG_TRACE("check in:%s", in->String().c_str());
     // check package is valid
     if (in->length() < 12) {
-      package_length = 12;
+      // package_length = 12;
       LOG_TRACE("Check: data's length < 12, is %ld, out", in->length());
       return 0;
     }
@@ -206,13 +207,11 @@ class TubeMQCodec final : public CodecProtocol {
     }
     // check data list
     uint32_t item_len = 0;
+    // package_length = 12;
     auto check_buf = in->Slice();
     for (uint32_t i = 0; i < list_size; i++) {
+      // package_length += 4;
       if (check_buf->length() < 4) {
-        package_length += 4;
-        if (i > 0) {
-          package_length += i * rpc_config::kRpcMaxBufferSize;
-        }
         LOG_TRACE("Check: buffer Remaining length < 4, is %ld, out", check_buf->length());
         return 0;
       }
@@ -226,11 +225,8 @@ class TubeMQCodec final : public CodecProtocol {
                   rpc_config::kRpcMaxBufferSize);
         return -1;
       }
+      // package_length += item_len;
       if (item_len > check_buf->length()) {
-        package_length += 4 + item_len;
-        if (i > 0) {
-          package_length += i * rpc_config::kRpcMaxBufferSize;
-        }
         LOG_TRACE("Check: item_len(%d) > remaining length(%ld), out", item_len,
                   check_buf->length());
         return 0;
@@ -248,8 +244,8 @@ class TubeMQCodec final : public CodecProtocol {
       in->Skip(item_len);
     }
     out = buf;
-    LOG_TRACE("Check: received message check finished, request_id=%d, readed_len:%d",
-      request_id, readed_len);
+    LOG_TRACE("Check: received message check finished, request_id=%d, readed_len:%d", request_id,
+              readed_len);
     return readed_len;
   }
 
@@ -310,8 +306,7 @@ class TubeMQCodec final : public CodecProtocol {
     }
     return block_cnt;
   }
-
- };
+};
 }  // namespace tubemq
 #endif
 
