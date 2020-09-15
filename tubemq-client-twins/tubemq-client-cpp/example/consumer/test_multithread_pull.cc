@@ -109,12 +109,23 @@ void thread_task_pull(int32_t thread_no) {
 int main(int argc, char* argv[]) {
   bool result;
   string err_info;
+
+  if (argc < 4) {
+    printf("\n must ./comd master_addr group_name topic_name [config_file_path]");
+    return -1;
+  }
+  // set parameters
+  string master_addr = argv[1];
+  string group_name = argv[2];
+  string topic_name = argv[3];
   string conf_file = "../conf/client.conf";
-  string group_name = "test_c_v8";
-  string master_addr = "10.215.128.83:8000,10.215.128.83:8000";
+  if (argc > 4) {
+    conf_file = argv[4];
+  }
+
   int32_t thread_num = 15;
   set<string> topic_list;
-  topic_list.insert("test_1");
+  topic_list.insert(topic_name);
   ConsumerConfig consumer_config;
 
   consumer_config.SetRpcReadTimeoutMs(20000);
