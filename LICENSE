@@ -204,6 +204,47 @@
 -----------------------------------------------------------------------------------------------------------
 
 
+Open Source Software Licensed under the BSD 3-Clause License 
+--------------------------------------------------------------------
+
+1. tubemq-client-twins/tubemq-client-cpp/src/any.h
+   tubemq-client-twins/tubemq-client-cpp/src/buffer.h
+evpp, Reference Version: https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
+                         https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7  
+Copyright (c) 2017, Qihoo 360
+License: https://github.com/Qihoo360/evpp/blob/master/LICENSE
+
+
+Terms of the BSD 3-Clause License:
+--------------------------------------------------------------------
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
 Open Source Software Licensed under the MIT License 
 --------------------------------------------------------------------
 
@@ -224,7 +265,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
 
 Open Source Software Licensed under the Apache License Version 2.0
@@ -272,6 +312,11 @@ License: https://github.com/killme2008/Metamorphosis/blob/metamorphosis-all-1.4.
 1. openmct v0.9.0
 Copyright (c) 2014-2015, United States Government as represented by the Administrator of the National Aeronautics and Space Administration. 
 License: https://gitee.com/ford25v6/openmct/blob/v0.9.0/LICENSES.md
+
+7. tubemq-client-twins/tubemq-client-cpp/src/future.h
+Apache Pulsar, Reference Version: https://github.com/apache/pulsar/blob/master/pulsar-client-cpp/lib/Future.h b3596c4
+License: https://github.com/apache/pulsar/blob/master/LICENSE
+
 
 Terms of the Apache License Version 2.0:
 --------------------------------------------------------------------
