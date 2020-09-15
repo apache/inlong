@@ -26,26 +26,28 @@
 #include <string>
 
 #include "tubemq/tubemq_message.h"
-#include "tubemq/meta_info.h"
 
 
 
 
 namespace tubemq {
 
+using std::list;
 using std::string;
+
 
 
 class PeerInfo {
  public:
   PeerInfo();
-  PeerInfo(const Partition& partition, int64_t offset);
+  PeerInfo(const string& broker_host, uint32_t partition_id,
+    const string& partiton_key, int64_t offset);
   PeerInfo& operator=(const PeerInfo& target);
-  void SetMsgSourceInfo(const Partition& partition, int64_t offset);
   const uint32_t GetPartitionId() const { return partition_id_; }
   const string& GetBrokerHost() const { return broker_host_; }
   const string& GetPartitionKey() const { return partition_key_; }
   const int64_t GetCurrOffset() const { return curr_offset_; }
+  void SetCurrOffset(int64_t offset) { curr_offset_ = offset; }
 
  private:
   uint32_t partition_id_;
@@ -55,18 +57,34 @@ class PeerInfo {
 };
 
 
+class ConsumeOffsetInfo {
+ public:
+  ConsumeOffsetInfo();
+  ConsumeOffsetInfo(const string& part_key, int64_t curr_offset);
+  void SetConsumeOffsetInfo(const string& part_key, int64_t curr_offset);
+  ConsumeOffsetInfo& operator=(const ConsumeOffsetInfo& target);
+  const string& GetPartitonKey() const { return partition_key_; }
+  const int64_t& GetCurrOffset() const { return curr_offset_; }
+
+ private:
+  string partition_key_;
+  int64_t curr_offset_;
+};
+
 
 class ConsumerResult {
  public:
   ConsumerResult();
   ConsumerResult(const ConsumerResult& target);
-  ConsumerResult(int32_t err_code, string err_msg);
+  ConsumerResult(int32_t error_code, string err_msg);
   ~ConsumerResult();
   ConsumerResult& operator=(const ConsumerResult& target);
-  void SetFailureResult(int32_t err_code, string err_msg);
-  void SetFailureResult(int32_t err_code, string err_msg,
-              const string& topic_name, const PeerInfo& peer_info);
-  void SetSuccessResult(int32_t err_code, const string& topic_name,
+  void SetFailureResult(int32_t error_code, string err_msg);
+  void SetFailureResult(int32_t error_code, string err_msg,
+    const string& topic_name, const PeerInfo& peer_info);
+  void SetSuccessResult(int32_t error_code,
+    const string& topic_name, const PeerInfo& peer_info);
+  void SetSuccessResult(int32_t error_code, const string& topic_name,
                   const PeerInfo& peer_info, const string& confirm_context,
                   const list<Message>& message_list);
   bool IsSuccess() { return success_; }
@@ -89,7 +107,7 @@ class ConsumerResult {
   list<Message> message_list_;
 };
 
-}
+}  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_RETURN_H_
 

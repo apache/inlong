@@ -83,7 +83,7 @@ class AtomicBoolean {
   inline bool GetAndSet(bool new_value) { return counter_.exchange(new_value); }
 
   // CAS SET
-  inline bool CompareAndSet(bool& expect, bool update) {
+  inline bool CompareAndSet(bool expect, bool update) {
     return counter_.compare_exchange_strong(expect, update, std::memory_order_relaxed);
   }
 
