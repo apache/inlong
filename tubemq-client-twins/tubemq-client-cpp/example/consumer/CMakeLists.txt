@@ -18,4 +18,5 @@
 #
 
 
-tubemq_add_example(executor_pool main.cc)
+tubemq_add_example(consumer test_consumer.cc)
+tubemq_add_example(multi_pull test_multithread_pull.cc)

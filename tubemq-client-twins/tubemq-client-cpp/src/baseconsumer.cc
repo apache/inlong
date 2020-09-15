@@ -146,9 +146,7 @@ bool BaseConsumer::GetMessage(ConsumerResult& result) {
     result.SetFailureResult(error_code, err_info);
     return false;
   }
-
   int64_t curr_offset = tb_config::kInvalidValue;
-
   bool filter_consume = sub_info_.IsFilterConsume(partition_ext.GetTopic());
   PeerInfo peer_info(partition_ext.GetBrokerHost(), partition_ext.GetPartitionId(),
     partition_ext.GetPartitionKey(), curr_offset);
@@ -208,11 +206,9 @@ bool BaseConsumer::IsConsumeReady(ConsumerResult& result) {
     if (err_code::kErrSuccess == ret_code) {
       return true;
     }
-
     if ((config_.GetMaxPartCheckPeriodMs() >= 0)
       && (Utils::GetCurrentTimeMillis() - start_time
       >= config_.GetMaxPartCheckPeriodMs())) {
-
       switch (ret_code) {
         case err_code::kErrNoPartAssigned: {
           result.SetFailureResult(ret_code,
@@ -281,9 +277,7 @@ bool BaseConsumer::Confirm(const string& confirm_context, bool is_consumed,
   string part_key = Utils::Trim(confirm_context.substr(0, pos1));
   string booked_time_str =
       Utils::Trim(confirm_context.substr(pos1 + token1.size(), confirm_context.size()));
-
   int64_t booked_time = atol(booked_time_str.c_str());
-
   pos1 = part_key.find(token2);
   if (string::npos == pos1) {
     result.SetFailureResult(err_code::kErrBadRequest,
@@ -311,9 +305,7 @@ bool BaseConsumer::Confirm(const string& confirm_context, bool is_consumed,
                             "Not found the partition by confirm_context!");
     return false;
   }
-
   int64_t curr_offset = tb_config::kInvalidValue;
-
   PeerInfo peer_info(partition_ext.GetBrokerHost(), partition_ext.GetPartitionId(),
     partition_ext.GetPartitionKey(), curr_offset);
   auto request = std::make_shared<RequestContext>();
@@ -352,9 +344,7 @@ bool BaseConsumer::Confirm(const string& confirm_context, bool is_consumed,
     if (rsp->success_) {
       CommitOffsetResponseB2C rsp_b2c;
       ret_result = rsp_b2c.ParseFromArray(rsp->rsp_body_.data().c_str(),
-
                                           (int32_t)(rsp->rsp_body_.data().length()));
-
       if (ret_result) {
         if (rsp_b2c.success()) {
           curr_offset = rsp_b2c.curroffset();
@@ -449,7 +439,6 @@ bool BaseConsumer::register2Master(int32_t& error_code, string& err_info, bool n
       error_code = error.Value();
       err_info = error.Message();
     }
-
     if (error_code == err_code::kErrConsumeGroupForbidden
       || error_code == err_code::kErrConsumeContentForbidden) {
       // set regist process status to existed
@@ -816,8 +805,7 @@ void BaseConsumer::processHeartBeat2Broker(NodeInfo broker_info) {
           if (rsp->success_) {
             HeartBeatResponseB2C rsp_b2c;
             bool result = rsp_b2c.ParseFromArray(rsp->rsp_body_.data().c_str(),
-                                                (int32_t)(rsp->rsp_body_.data().length()));
-
+                                                 (int32_t)(rsp->rsp_body_.data().length()));
             if (result) {
               set<string> partition_keys;
               if (rsp_b2c.success()) {
@@ -1079,7 +1067,6 @@ bool BaseConsumer::processRegisterResponseM2C(int32_t& error_code, string& err_i
   RegisterResponseM2C rsp_m2c;
   bool result = rsp_m2c.ParseFromArray(rsp_protocol->rsp_body_.data().c_str(),
                                        (int32_t)(rsp_protocol->rsp_body_.data().length()));
-
   if (!result) {
     error_code = err_code::kErrParseFailure;
     err_info = "Parse RegisterResponseM2C response failure!";
@@ -1237,7 +1224,6 @@ bool BaseConsumer::processRegResponseB2C(int32_t& error_code, string& err_info,
   RegisterResponseB2C rsp_b2c;
   bool result = rsp_b2c.ParseFromArray(rsp_protocol->rsp_body_.data().c_str(),
                                        (int32_t)(rsp_protocol->rsp_body_.data().length()));
-
   if (!result) {
     error_code = err_code::kErrParseFailure;
     err_info = "Parse RegisterResponseB2C response failure!";
@@ -1332,7 +1318,6 @@ bool BaseConsumer::processGetMessageRspB2C(ConsumerResult& result, PeerInfo& pee
                                              bool filter_consume, const PartitionExt& partition_ext,
                                              const string& confirm_context,
                                              const TubeMQCodec::RspProtocolPtr& rsp) {
-
   // #lizard forgives
   string err_info;
 
@@ -1348,13 +1333,11 @@ bool BaseConsumer::processGetMessageRspB2C(ConsumerResult& result, PeerInfo& pee
   GetMessageResponseB2C rsp_b2c;
   bool ret_result = rsp_b2c.ParseFromArray(
     rsp->rsp_body_.data().c_str(), (int32_t)(rsp->rsp_body_.data().length()));
-
   if (!ret_result) {
     rmtdata_cache_.RelPartition(err_info, filter_consume, confirm_context, false);
     result.SetFailureResult(err_code::kErrServerError,
                             "Parse GetMessageResponseB2C response failure!",
                             partition_ext.GetTopic(), peer_info);
-
     LOG_TRACE("[CONSUMER] processGetMessageRspB2C parse failure, client=%s", client_uuid_.c_str());
     return false;
   }
@@ -1362,12 +1345,10 @@ bool BaseConsumer::processGetMessageRspB2C(ConsumerResult& result, PeerInfo& pee
   switch (rsp_b2c.errcode()) {
     case err_code::kErrSuccess: {
       bool esc_limit = (rsp_b2c.has_escflowctrl() && rsp_b2c.escflowctrl());
-
       int64_t data_dltval =
           rsp_b2c.has_currdatadlt() ? rsp_b2c.currdatadlt() : tb_config::kInvalidValue;
       int64_t curr_offset = rsp_b2c.has_curroffset() ?
         rsp_b2c.curroffset() : tb_config::kInvalidValue;
-
       bool req_slow = rsp_b2c.has_requireslow() ? rsp_b2c.requireslow() : false;
       int msg_size = 0;
       list<Message> message_list;
@@ -1392,7 +1373,6 @@ bool BaseConsumer::processGetMessageRspB2C(ConsumerResult& result, PeerInfo& pee
 
     case err_code::kErrConsumeSpeedLimit: {
       // Process with server side speed limit
-
       int64_t def_dlttime = rsp_b2c.has_minlimittime() ? rsp_b2c.minlimittime()
                                                     : config_.GetMsgNotFoundWaitPeriodMs();
       rmtdata_cache_.RelPartition(err_info, filter_consume, confirm_context, false,

@@ -22,36 +22,23 @@ cmake_minimum_required (VERSION 3.1)
 
 project (TubeMQ)
 
-set (CXX_FLAGS
-    -g
-    -fPIC
-    -Wall
-    -D__STDC_FORMAT_MACROS
-    -Wno-unused-parameter
-    -Wno-unused-function
-    -Wunused-variable
-    -Wunused-value
-    -Wshadow
-    -Wcast-qual
-    -Wcast-align
-    -Wwrite-strings
-    -Wsign-compare
-    -Winvalid-pch
-    -fms-extensions
-    -Wfloat-equal
-    -Wextra
-    -std=c++11
-    )
+find_package(Protobuf REQUIRED)
+
+SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall -Werror -Wsign-compare -Wfloat-equal -fno-strict-aliasing -fPIC -DASIO_STANDALONE")
+
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/proto)
 
 INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(src)
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/third_party/rapidjson/include)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/third_party/log4cplus/include)
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/log4cplus/include)
-LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/log4cplus/lib)
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/rapidjson/src/rapidjson/include)
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/include)
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/third_party/lib)
 
-ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(third_party)
+ADD_SUBDIRECTORY(proto)
+ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(example)
+ADD_SUBDIRECTORY(tests)
 
 

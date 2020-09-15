@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 #ifndef TUBEMQ_CLIENT_BASE_CLIENT_H_
 #define TUBEMQ_CLIENT_BASE_CLIENT_H_
 
@@ -119,3 +118,4 @@ class TubeMQService : public noncopyable {
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_BASE_CLIENT_H_
+

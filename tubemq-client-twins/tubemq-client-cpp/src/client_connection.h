@@ -78,7 +78,7 @@ class ClientConnection : public Connection, public std::enable_shared_from_this<
   void checkDeadline(const std::error_code& ec);
   void contextString();
   void asyncRead();
-  void checkPackageDone();
+  int checkPackageDone();
   void requestCallback(uint32_t request_id, ErrorCode* err = nullptr, Any* check_out = nullptr);
   TransportRequest* nextTransportRequest();
   void asyncWrite();
