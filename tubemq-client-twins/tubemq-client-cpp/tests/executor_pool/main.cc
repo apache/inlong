@@ -24,7 +24,7 @@
 #include <string>
 #include <thread>
 
-#include "tubemq/executor_pool.h"
+#include "executor_pool.h"
 
 using namespace std;
 using namespace tubemq;
@@ -40,7 +40,7 @@ int main() {
   using namespace std::placeholders;  // for _1, _2, _3...
   ExecutorPool pool(4);
   auto timer = pool.Get()->CreateSteadyTimer();
-  timer->expires_after(std::chrono::seconds(5));
+  timer->expires_after(std::chrono::seconds(1));
   std::cout << "startwait" << endl;
   timer->wait();
   std::cout << "endwait" << endl;
@@ -49,7 +49,10 @@ int main() {
   std::cout << "startsyncwait" << endl;
   timer->async_wait(std::bind(handler, 5, _1));
   std::cout << "endsyncwait" << endl;
-  std::this_thread::sleep_for(5s);
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  timer->expires_after(std::chrono::milliseconds(100));
+  timer->async_wait(std::bind(handler, 6, _1));
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   return 0;
 }
 
