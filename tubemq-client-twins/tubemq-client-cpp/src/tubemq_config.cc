@@ -88,7 +88,7 @@ bool BaseConfig::SetMasterAddrInfo(string& err_info, const string& master_addrin
   Utils::Split(master_addrinfo, tgt_address_map, delimiter::kDelimiterComma,
                delimiter::kDelimiterColon);
   if (tgt_address_map.empty()) {
-    err_info = "Illegal parameter: master_addrinfo is blank!";
+    err_info = "Illegal parameter: unrecognized master_addrinfo address information!";
     return false;
   }
   master_addrinfo_ = trimed_master_addr_info;
