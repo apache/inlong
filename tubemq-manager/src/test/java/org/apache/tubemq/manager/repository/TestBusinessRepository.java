@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.tubemq.manager.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,13 +36,32 @@ public class TestBusinessRepository {
 
     @Test
     public void whenFindByNameThenReturnBusiness() {
-        BusinessEntry businessEntry = new BusinessEntry();
-        businessEntry.setName("alex");
-
+        String demoName = "alex";
+        BusinessEntry businessEntry = new BusinessEntry(demoName, demoName,
+                demoName, demoName, demoName, demoName);
         entityManager.persist(businessEntry);
         entityManager.flush();
 
-        BusinessEntry businessEntry1 = businessRepository.findByName("alex");
-        assertThat(businessEntry1.getName()).isEqualTo(businessEntry.getName());
+        BusinessEntry businessEntry1 = businessRepository.findByBusinessName("alex");
+        assertThat(businessEntry1.getBusinessName()).isEqualTo(businessEntry.getBusinessName());
+    }
+
+    @Test
+    public void checkValidation() throws Exception {
+        String demoName = "a";
+        BusinessEntry businessEntry = new BusinessEntry(demoName, demoName, demoName,
+                demoName, demoName, demoName);
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < 512; i ++) {
+            builder.append("a");
+        }
+        businessEntry.setBusinessName(builder.toString());
+        try {
+            entityManager.persist(businessEntry);
+            entityManager.flush();
+        } catch (Exception ex) {
+            assertThat(ex.getMessage()).contains("size must be between");
+        }
     }
 }

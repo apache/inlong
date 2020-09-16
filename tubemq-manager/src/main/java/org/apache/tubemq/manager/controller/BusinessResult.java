@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.tubemq.manager.controller;
 
-package org.apache.tubemq.manager.repository;
+import lombok.Data;
 
-import java.util.List;
-import org.apache.tubemq.manager.entry.BusinessEntry;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface BusinessRepository extends JpaRepository<BusinessEntry, Long> {
-   List<BusinessEntry> findAllByBusinessName(String businessName);
-   BusinessEntry findByBusinessName(String businessName);
+/**
+ * rest result for business controller
+ */
+@Data
+public class BusinessResult {
+    private int state;
+    private String msg;
 }
-
