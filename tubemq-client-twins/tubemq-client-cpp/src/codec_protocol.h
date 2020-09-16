@@ -37,7 +37,7 @@ class CodecProtocol {
 
   virtual std::string Name() const = 0;
 
-  virtual bool Decode(const BufferPtr &buff, uint32_t request_id, Any &out) = 0;
+  virtual bool Decode(const BufferPtr &buff, Any &out) = 0;
 
   virtual bool Encode(const Any &in, BufferPtr &buff) = 0;
 

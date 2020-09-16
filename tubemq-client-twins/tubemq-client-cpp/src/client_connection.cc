@@ -168,14 +168,21 @@ void ClientConnection::asyncRead() {
         recv_buffer_->WriteBytes(len);
         std::error_code error;
         size_t availsize = socket_->available(error);
+        LOG_TRACE("[%s]async read done, len:%ld, package_length_:%ld, availsize:%ld, recvbuffer:%s",
+                  ToString().c_str(), len, package_length_, availsize,
+                  recv_buffer_->String().c_str());
         if (availsize > 0 && !error) {
           recv_buffer_->EnsureWritableBytes(availsize);
           size_t rlen = socket_->receive(asio::buffer(recv_buffer_->WriteBegin(), availsize));
           if (rlen > 0) {
             recv_buffer_->WriteBytes(rlen);
           }
+          LOG_TRACE("[%s]syncread done, receivelen:%ld, recvbuffer:%s", ToString().c_str(), rlen,
+                    recv_buffer_->String().c_str());
         }
         while (checkPackageDone() > 0 && recv_buffer_->length() > 0) {
+          LOG_TRACE("[%s]recheck packagedone package_length_:%ld, recvbuffer:%s",
+                    ToString().c_str(), package_length_, recv_buffer_->String().c_str());
         }
         asyncRead();
       });
@@ -241,7 +248,7 @@ void ClientConnection::requestCallback(uint32_t request_id, ErrorCode* err, Any*
     ResponseContext rsp;
     BufferPtr* buff = any_cast<BufferPtr>(check_out);
     if (buff != nullptr) {
-      req->req_->codec_->Decode(*buff, request_id, rsp.rsp_);
+      req->req_->codec_->Decode(*buff, rsp.rsp_);
     } else {
       rsp.rsp_ = *check_out;
     }
