@@ -1486,11 +1486,8 @@ public class BaseMessageConsumer implements MessageConsumer {
         public void run() {
             StringBuilder strBuffer = new StringBuilder(256);
             try {
-                if (isPullConsume) {
-                    // For pull consume, do timeout check on partitions pulled without confirm
-                    rmtDataCache.resumeTimeoutConsumePartitions(
-                            consumerConfig.getPullProtectConfirmTimeoutMs());
-                }
+                rmtDataCache.resumeTimeoutConsumePartitions(isPullConsume,
+                        consumerConfig.getPullProtectConfirmTimeoutMs());
                 // Fetch the rebalance result, construct message adn return it.
                 ConsumerEvent event = rebalanceResults.poll();
                 List<SubscribeInfo> subInfoList = null;
