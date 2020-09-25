@@ -22,7 +22,84 @@
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
 
-## Release 0.5.0-incubating - Unreleased (as of 2020-07-22)
+## Release 0.6.0-incubating - Unreleased (as of 2020-09-25)
+
+### New Features:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-319](https://issues.apache.org/jira/browse/TUBEMQ-319) | In the pull mode, consumers support the  suspension of consumption for a certain partition | Major    |
+| [TUBEMQ-3](https://issues.apache.org/jira/browse/TUBEMQ-3)   | C++ SDK support in TubeMQ                                    | Normal   |
+
+### IMPROVEMENTS:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-311](https://issues.apache.org/jira/browse/TUBEMQ-311) | Feedback more production information                 | Major    |
+| [TUBEMQ-312](https://issues.apache.org/jira/browse/TUBEMQ-312) | Feedback more consumption information                | Major    |
+| [TUBEMQ-325](https://issues.apache.org/jira/browse/TUBEMQ-325) | Add 406 ~ 408 error code to pullSelect call          | Major    |
+| [TUBEMQ-345](https://issues.apache.org/jira/browse/TUBEMQ-345) | Optimize the call logic of getMessage() in Pull mode | Major    |
+| [TUBEMQ-352](https://issues.apache.org/jira/browse/TUBEMQ-352) | Set the parameters of the example at startup         | Major    |
+| [TUBEMQ-353](https://issues.apache.org/jira/browse/TUBEMQ-353) | Update LICENSE about C/C++ SDK's code reference      | Major    |
+| [TUBEMQ-356](https://issues.apache.org/jira/browse/TUBEMQ-356) | C++ SDK Codec decode add requestid                   | Major    |
+| [TUBEMQ-327](https://issues.apache.org/jira/browse/TUBEMQ-327) | Fix the concurrency problem in the example           | Normal   |
+
+### BUG FIXES:
+
+| JIRA                                                         | Summary                                                      | Priority |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :------- |
+| [TUBEMQ-316](https://issues.apache.org/jira/browse/TUBEMQ-316) | Where the port the port is aleady used, the  process throw the exception, but not exit | Major    |
+| [TUBEMQ-317](https://issues.apache.org/jira/browse/TUBEMQ-317) | The Store Manager throws java.lang.NullPointerException      | Major    |
+| [TUBEMQ-320](https://issues.apache.org/jira/browse/TUBEMQ-320) | Request for static web contents would get responses with no content | Major    |
+| [TUBEMQ-354](https://issues.apache.org/jira/browse/TUBEMQ-354) | Found a dns translate bug in C/C++ sdk                       | Major    |
+| [TUBEMQ-306](https://issues.apache.org/jira/browse/TUBEMQ-306) | Raise Nullpointer Exception when create tubemq instance      | Low      |
+| [TUBEMQ-359](https://issues.apache.org/jira/browse/TUBEMQ-359) | TubeMQ consume speed dropped to 0 in some partitions, it is a very serious bug | Blocker  |
+
+### SUB-TASK:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-250](https://issues.apache.org/jira/browse/TUBEMQ-250) | Create C/C++ configure files                                 | Major    |
+| [TUBEMQ-251](https://issues.apache.org/jira/browse/TUBEMQ-251) | Create C/C++ Codec utils                                     | Major    |
+| [TUBEMQ-252](https://issues.apache.org/jira/browse/TUBEMQ-252) | Create C/C++ Metadata classes                                | Major    |
+| [TUBEMQ-262](https://issues.apache.org/jira/browse/TUBEMQ-262) | Create C++ flow control handler                              | Major    |
+| [TUBEMQ-263](https://issues.apache.org/jira/browse/TUBEMQ-263) | Create C/C++ ini file read utils                             | Major    |
+| [TUBEMQ-266](https://issues.apache.org/jira/browse/TUBEMQ-266) | [TUBEMQ-266] Add Tencent/rapidjson as submodule              | Major    |
+| [TUBEMQ-267](https://issues.apache.org/jira/browse/TUBEMQ-267) | Create C/C++ Message class                                   | Major    |
+| [TUBEMQ-269](https://issues.apache.org/jira/browse/TUBEMQ-269) | Create C/C++ RmtDataCache class                              | Major    |
+| [TUBEMQ-272](https://issues.apache.org/jira/browse/TUBEMQ-272) | Unified C/C++ files's code style                             | Major    |
+| [TUBEMQ-274](https://issues.apache.org/jira/browse/TUBEMQ-274) | Support CMake compilation                                    | Major    |
+| [TUBEMQ-275](https://issues.apache.org/jira/browse/TUBEMQ-275) | Thread Pool & Timer                                          | Major    |
+| [TUBEMQ-280](https://issues.apache.org/jira/browse/TUBEMQ-280) | Create C/C++ subscribe info class                            | Major    |
+| [TUBEMQ-281](https://issues.apache.org/jira/browse/TUBEMQ-281) | atomic_def.h use C++11 stdlib class                          | Major    |
+| [TUBEMQ-282](https://issues.apache.org/jira/browse/TUBEMQ-282) | Create C/C++ return result class                             | Major    |
+| [TUBEMQ-283](https://issues.apache.org/jira/browse/TUBEMQ-283) | Adjust C/C++ some file names: add "tubemq_" prefix           | Major    |
+| [TUBEMQ-285](https://issues.apache.org/jira/browse/TUBEMQ-285) | Replace C/C++ pthread's mutex to std::mutex                  | Major    |
+| [TUBEMQ-286](https://issues.apache.org/jira/browse/TUBEMQ-286) | Create C/C++ SDK's manager class                             | Major    |
+| [TUBEMQ-287](https://issues.apache.org/jira/browse/TUBEMQ-287) | C++ SDK io buffer                                            | Major    |
+| [TUBEMQ-288](https://issues.apache.org/jira/browse/TUBEMQ-288) | C++ SDK Codec interface                                      | Major    |
+| [TUBEMQ-289](https://issues.apache.org/jira/browse/TUBEMQ-289) | C++ SDK Codec TubeMQ proto support                           | Major    |
+| [TUBEMQ-290](https://issues.apache.org/jira/browse/TUBEMQ-290) | C++ SDK TCP Connect                                          | Major    |
+| [TUBEMQ-291](https://issues.apache.org/jira/browse/TUBEMQ-291) | C++ SDK Connect Pool                                         | Major    |
+| [TUBEMQ-293](https://issues.apache.org/jira/browse/TUBEMQ-293) | C++ SDK Create Future class                                  | Major    |
+| [TUBEMQ-296](https://issues.apache.org/jira/browse/TUBEMQ-296) | Adjust the version information of all pom.xml                | Major    |
+| [TUBEMQ-300](https://issues.apache.org/jira/browse/TUBEMQ-300) | Update LICENSE                                               | Major    |
+| [TUBEMQ-308](https://issues.apache.org/jira/browse/TUBEMQ-308) | Upgrade Jetty 6 (mortbay) => Jetty 9 (eclipse)               | Major    |
+| [TUBEMQ-309](https://issues.apache.org/jira/browse/TUBEMQ-309) | Add POST support to WebAPI                                   | Major    |
+| [TUBEMQ-326](https://issues.apache.org/jira/browse/TUBEMQ-326) | [website] Added 405 ~ 408 error code definition              | Major    |
+| [TUBEMQ-347](https://issues.apache.org/jira/browse/TUBEMQ-347) | C++ SDK Create client API                                    | Major    |
+| [TUBEMQ-348](https://issues.apache.org/jira/browse/TUBEMQ-348) | C++SDK Client handler detail                                 | Major    |
+| [TUBEMQ-349](https://issues.apache.org/jira/browse/TUBEMQ-349) | C++ SDK Create Thread Pool                                   | Major    |
+| [TUBEMQ-350](https://issues.apache.org/jira/browse/TUBEMQ-350) | C++ SDK client code adj                                      | Major    |
+| [TUBEMQ-351](https://issues.apache.org/jira/browse/TUBEMQ-351) | C++ SDK example&tests                                        | Major    |
+| [TUBEMQ-358](https://issues.apache.org/jira/browse/TUBEMQ-358) | Adjust tubemq-manager, remove it from master, and develop with TUBEMQ-336  branch | Major    |
+| [TUBEMQ-268](https://issues.apache.org/jira/browse/TUBEMQ-268) | C++ SDK log module                                           | Normal   |
+| [TUBEMQ-292](https://issues.apache.org/jira/browse/TUBEMQ-292) | C++ SDK singleton & executor_pool optimization               | Normal   |
+| [TUBEMQ-270](https://issues.apache.org/jira/browse/TUBEMQ-270) | this point c++ SDK class                                     | Minor    |
+| [TUBEMQ-271](https://issues.apache.org/jira/browse/TUBEMQ-271) | C++ SDK copy constructor and  assignment constructor         | Minor    |
+| [TUBEMQ-273](https://issues.apache.org/jira/browse/TUBEMQ-273) | C++ SDK dir name change inc -> include/tubemq/               | Minor    |
+
+## Release 0.5.0-incubating - released (as of 2020-07-22)
 
 ### NEW FEATURES:
 | JIRA | Summary | Priority |
