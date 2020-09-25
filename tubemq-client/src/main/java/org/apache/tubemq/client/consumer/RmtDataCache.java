@@ -681,18 +681,21 @@ public class RmtDataCache implements Closeable {
         return this.brokerPartitionConMap.get(brokerInfo);
     }
 
-    public void resumeTimeoutConsumePartitions(long allowedPeriodTimes) {
-        if (!partitionUsedMap.isEmpty()) {
-            List<String> partKeys = new ArrayList<>(partitionUsedMap.keySet());
-            for (String keyId : partKeys) {
-                Long oldTime = partitionUsedMap.get(keyId);
-                if (oldTime != null && System.currentTimeMillis() - oldTime > allowedPeriodTimes) {
-                    oldTime = partitionUsedMap.remove(keyId);
-                    if (oldTime != null) {
-                        PartitionExt partitionExt = partitionMap.get(keyId);
-                        if (partitionExt != null) {
-                            partitionExt.setLastPackConsumed(false);
-                            releaseIdlePartition(keyId);
+    public void resumeTimeoutConsumePartitions(boolean isPullConsume, long allowedPeriodTimes) {
+        if (isPullConsume) {
+            // For pull consume, do timeout check on partitions pulled without confirm
+            if (!partitionUsedMap.isEmpty()) {
+                List<String> partKeys = new ArrayList<>(partitionUsedMap.keySet());
+                for (String keyId : partKeys) {
+                    Long oldTime = partitionUsedMap.get(keyId);
+                    if (oldTime != null && System.currentTimeMillis() - oldTime > allowedPeriodTimes) {
+                        oldTime = partitionUsedMap.remove(keyId);
+                        if (oldTime != null) {
+                            PartitionExt partitionExt = partitionMap.get(keyId);
+                            if (partitionExt != null) {
+                                partitionExt.setLastPackConsumed(false);
+                                releaseIdlePartition(keyId);
+                            }
                         }
                     }
                 }
