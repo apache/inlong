@@ -17,7 +17,10 @@
 package org.apache.tubemq.manager.controller;
 
 import java.net.URI;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tubemq.manager.controller.business.BusinessController;
+import org.apache.tubemq.manager.controller.business.BusinessResult;
 import org.apache.tubemq.manager.entry.BusinessEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +82,18 @@ public class TestBusinessController {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<BusinessEntry> request = new HttpEntity<>(entry, headers);
 
-        ResponseEntity<?> responseEntity =
-                client.postForEntity(uri, request, ResponseEntity.class);
+        ResponseEntity<BusinessResult> responseEntity =
+                client.postForEntity(uri, request, BusinessResult.class);
         assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isEqualTo(true);
+    }
+
+    @Test
+    public void testControllerException() throws Exception {
+        final String baseUrl = "http://localhost:" + randomServerPort + "/business/throwException";
+        URI uri = new URI(baseUrl);
+        ResponseEntity<BusinessResult> responseEntity =
+                client.getForEntity(uri, BusinessResult.class);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).getCode()).isEqualTo(-1);
+        assertThat(responseEntity.getBody().getMessage()).isEqualTo("exception for test");
     }
 }

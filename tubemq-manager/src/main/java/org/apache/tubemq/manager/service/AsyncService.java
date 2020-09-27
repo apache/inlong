@@ -14,15 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.manager.controller;
 
-import lombok.Data;
+package org.apache.tubemq.manager.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
- * rest result for business controller
+ * Service for running async tasks.
+ * https://howtodoinjava.com/spring-boot2/rest/enableasync-async-controller/
  */
-@Data
-public class BusinessResult {
-    private int state;
-    private String msg;
+@Service
+@Slf4j
+public class AsyncService {
+
 }

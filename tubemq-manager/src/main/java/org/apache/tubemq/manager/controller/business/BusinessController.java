@@ -14,14 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.manager.controller;
+package org.apache.tubemq.manager.controller.business;
 
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.entry.BusinessEntry;
+import org.apache.tubemq.manager.exceptions.TubeMQManagerException;
 import org.apache.tubemq.manager.repository.BusinessRepository;
+import org.apache.tubemq.manager.service.AsyncService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,10 +34,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/business")
+@Slf4j
 public class BusinessController {
 
     @Autowired
     private BusinessRepository businessRepository;
+
+    @Autowired
+    private AsyncService asyncService;
 
     /**
      * add new business.
@@ -44,9 +50,9 @@ public class BusinessController {
      * @throws Exception - exception
      */
     @PostMapping("/add")
-    public ResponseEntity<?> addBusiness(@RequestBody BusinessEntry entry) throws Exception {
-        // businessRepository.saveAndFlush(entry);
-        return ResponseEntity.ok().build();
+    public BusinessResult addBusiness(@RequestBody BusinessEntry entry) {
+        businessRepository.saveAndFlush(entry);
+        return new BusinessResult();
     }
 
     /**
@@ -56,8 +62,8 @@ public class BusinessController {
      * @throws Exception
      */
     @PostMapping("/update")
-    public ResponseEntity<?> updateBusiness(@RequestBody BusinessEntry entry) throws Exception {
-        return ResponseEntity.ok().build();
+    public BusinessResult updateBusiness(@RequestBody BusinessEntry entry) {
+        return new BusinessResult();
     }
 
     /**
@@ -67,10 +73,10 @@ public class BusinessController {
      * @throws Exception
      */
     @GetMapping("/check")
-    public ResponseEntity<?> checkBusinessByName(
-            @RequestParam String businessName) throws Exception {
+    public BusinessResult checkBusinessByName(
+            @RequestParam String businessName) {
         List<BusinessEntry> result = businessRepository.findAllByBusinessName(businessName);
-        return ResponseEntity.ok().build();
+        return new BusinessResult();
     }
 
     /**
@@ -81,13 +87,20 @@ public class BusinessController {
      * @throws Exception
      */
     @GetMapping("/get/{id}")
-    public ResponseEntity<BusinessEntry> getBusinessByID(
-            @PathVariable Long id) throws Exception {
+    public BusinessResult getBusinessByID(
+            @PathVariable Long id) {
         Optional<BusinessEntry> businessEntry = businessRepository.findById(id);
-        if (businessEntry.isPresent()) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        BusinessResult result = new BusinessResult();
+        if (!businessEntry.isPresent()) {
+            result.setCode(-1);
+            result.setMessage("business not found");
         }
+        return result;
+    }
+
+
+    @GetMapping("/throwException")
+    public BusinessResult throwException() {
+        throw new TubeMQManagerException("exception for test");
     }
 }
