@@ -14,24 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.manager.backend;
+package org.apache.tubemq.manager.controller.business;
+
+import lombok.Data;
 
 /**
- * Interface for starting and stopping backend threads.
+ * rest result for business controller
  */
-public interface ThreadStartAndStop {
-    /**
-     * start all threads.
-     */
-    void startThreads() throws Exception;
-
-    /**
-     * stop all threads.
-     */
-    void stopThreads() throws Exception;
-
-    /**
-     * wait for all thread finishing.
-     */
-    void join() throws Exception;
+@Data
+public class BusinessResult {
+    private String message;
+    private int code = 0;
 }

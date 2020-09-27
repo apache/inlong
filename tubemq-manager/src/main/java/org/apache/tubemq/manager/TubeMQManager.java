@@ -16,30 +16,44 @@
  */
 package org.apache.tubemq.manager;
 
-import org.apache.tubemq.manager.backend.AbstractDaemon;
+import java.util.concurrent.Executor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @SpringBootApplication
 @EnableJpaAuditing
-public class TubeMQManager extends AbstractDaemon {
+@EnableAsync
+public class TubeMQManager {
+
+    @Value("${manager.async.core.pool.size:2}")
+    private int asyncCorePoolSize;
+
+    @Value("${manager.async.max.pool.size:20}")
+    private int asyncMaxPoolSize;
+
+    @Value("${manager.async.queue.capacity:100}")
+    private int asyncQueueCapacity;
+
+    @Value("${manager.async.thread.prefix:AsyncThread-}")
+    private String threadPrefix;
+
     public static void main(String[] args) throws Exception {
-        TubeMQManager manager = new TubeMQManager();
-        manager.startThreads();
         SpringApplication.run(TubeMQManager.class);
-        // web application stopped, then stop working threads.
-        manager.stopThreads();
-        manager.join();
     }
 
-    @Override
-    public void startThreads() throws Exception {
-
-    }
-
-    @Override
-    public void stopThreads() throws Exception {
-
+    @Bean(name = "asyncExecutor")
+    public Executor asyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(asyncCorePoolSize);
+        executor.setMaxPoolSize(asyncMaxPoolSize);
+        executor.setQueueCapacity(asyncQueueCapacity);
+        executor.setThreadNamePrefix(threadPrefix);
+        executor.initialize();
+        return executor;
     }
 }

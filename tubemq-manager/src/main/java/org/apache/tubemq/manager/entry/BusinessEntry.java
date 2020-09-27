@@ -120,9 +120,6 @@ public class BusinessEntry {
     @Size(max = 32)
     private String issueMethod;
 
-    private BusinessEntry() {
-
-    }
 
     public BusinessEntry(String businessName, String schemaName,
             String username, String passwd, String topic, String encodingType) {
@@ -132,5 +129,9 @@ public class BusinessEntry {
         this.passwd = passwd;
         this.topic = topic;
         this.encodingType = encodingType;
+    }
+
+    public BusinessEntry() {
+
     }
 }
