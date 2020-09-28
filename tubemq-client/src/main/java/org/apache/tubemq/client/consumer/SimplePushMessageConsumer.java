@@ -207,7 +207,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                     isConsumed = notifyListener(taskContext, topicProcessor, sBuilder);
                 } catch (Throwable e) {
                     isConsumed =
-                            baseConsumer.consumerConfig.isPushListenerThrowedRollBack();
+                            (!baseConsumer.consumerConfig.isPushListenerThrowedRollBack());
                     logMessageProcessFailed(taskContext, e);
                 }
             }
