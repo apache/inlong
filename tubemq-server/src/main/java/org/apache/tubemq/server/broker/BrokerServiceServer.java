@@ -835,8 +835,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             String reqSessionKey = request.hasSessionKey() ? request.getSessionKey() : null;
             int reqQryPriorityId = request.hasQryPriorityId()
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
-            consumerRegisterMap.put(partStr, new ConsumerNodeInfo(storeManager, reqQryPriorityId,
-                    clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr));
+            consumerNodeInfo = new ConsumerNodeInfo(storeManager, reqQryPriorityId,
+                    clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr);
+            consumerRegisterMap.put(partStr, consumerNodeInfo);
             heartbeatManager.regConsumerNode(getHeartbeatNodeId(clientId, partStr), clientId, partStr);
             MessageStore dataStore = null;
             try {
