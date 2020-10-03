@@ -57,6 +57,7 @@ class BaseClient {
   bool is_producer_;
   int32_t client_index_;
 };
+using BaseClientPtr = std::shared_ptr<BaseClient>;
 
 class TubeMQService : public noncopyable {
  public:
@@ -66,9 +67,9 @@ class TubeMQService : public noncopyable {
   bool IsRunning();
   const int32_t GetServiceStatus() const { return service_status_.Get(); }
   int32_t GetClientObjCnt();
-  bool AddClientObj(string& err_info, BaseClient* client_obj);
-  BaseClient* GetClientObj(int32_t client_index) const;
-  void RmvClientObj(BaseClient* client_obj);
+  bool AddClientObj(string& err_info, BaseClientPtr client_obj);
+  BaseClientPtr GetClientObj(int32_t client_index) const;
+  void RmvClientObj(BaseClientPtr client_obj);
   const string& GetLocalHost() const { return local_host_; }
   ExecutorPoolPtr GetTimerExecutorPool() { return timer_executor_; }
   SteadyTimerPtr CreateTimer() { return timer_executor_->Get()->CreateSteadyTimer(); }
@@ -103,7 +104,7 @@ class TubeMQService : public noncopyable {
   AtomicInteger service_status_;
   AtomicInteger client_index_base_;
   mutable mutex mutex_;
-  map<int32_t, BaseClient*> clients_map_;
+  map<int32_t, BaseClientPtr> clients_map_;
   ExecutorPoolPtr timer_executor_;
   ExecutorPoolPtr network_executor_;
   ConnectionPoolPtr connection_pool_;
