@@ -33,18 +33,16 @@
 #include "client_subinfo.h"
 #include "meta_info.h"
 #include "rmt_data_cache.h"
-#include "tubemq_codec.h"
 #include "tubemq/tubemq_atomic.h"
 #include "tubemq/tubemq_config.h"
 #include "tubemq/tubemq_message.h"
 #include "tubemq/tubemq_return.h"
-
+#include "tubemq_codec.h"
 
 namespace tubemq {
 
 using std::mutex;
 using std::string;
-
 
 class BaseConsumer : public BaseClient, public std::enable_shared_from_this<BaseConsumer> {
  public:
@@ -82,32 +80,31 @@ class BaseConsumer : public BaseClient, public std::enable_shared_from_this<Base
   void buidHeartRequestC2M(TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buidCloseRequestC2M(TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buidRegisterRequestC2B(const PartitionExt& partition,
-    TubeMQCodec::ReqProtocolPtr& req_protocol);
+                              TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buidUnRegRequestC2B(const PartitionExt& partition,
-    TubeMQCodec::ReqProtocolPtr& req_protocol);
+                           TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buidHeartBeatC2B(const list<PartitionExt>& partitions,
-    TubeMQCodec::ReqProtocolPtr& req_protocol);
-  void buidGetMessageC2B(const PartitionExt& partition,
-    TubeMQCodec::ReqProtocolPtr& req_protocol);
+                        TubeMQCodec::ReqProtocolPtr& req_protocol);
+  void buidGetMessageC2B(const PartitionExt& partition, TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buidCommitC2B(const PartitionExt& partition, bool is_last_consumed,
-    TubeMQCodec::ReqProtocolPtr& req_protocol);
-  void genMasterAuthenticateToken(AuthenticateInfo* pauthinfo,
-    const string& username, const string usrpassword);
+                     TubeMQCodec::ReqProtocolPtr& req_protocol);
+  void genMasterAuthenticateToken(AuthenticateInfo* pauthinfo, const string& username,
+                                  const string usrpassword);
   bool processRegisterResponseM2C(int32_t& error_code, string& err_info,
-    const TubeMQCodec::RspProtocolPtr& rsp_protocol);
+                                  const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   bool processHBResponseM2C(int32_t& error_code, string& err_info,
-    const TubeMQCodec::RspProtocolPtr& rsp_protocol);
+                            const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   void processDisConnect2Broker(ConsumerEvent& event);
   void processConnect2Broker(ConsumerEvent& event);
   void unregister2Brokers(map<NodeInfo, list<PartitionExt> >& unreg_partitions, bool wait_rsp);
   bool processRegResponseB2C(int32_t& error_code, string& err_info,
-    const TubeMQCodec::RspProtocolPtr& rsp_protocol);
+                             const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   void processHeartBeat2Broker(NodeInfo broker_info);
-  bool processGetMessageRspB2C(ConsumerResult& result, PeerInfo& peer_info,
-    bool filter_consume, const PartitionExt& partition_ext, const string& confirm_context,
-    const TubeMQCodec::RspProtocolPtr& rsp_protocol);
-  void convertMessages(int32_t& msg_size, list<Message>& message_list,
-    bool filter_consume, const string& topic_name, GetMessageResponseB2C& rsp_b2c);
+  bool processGetMessageRspB2C(ConsumerResult& result, PeerInfo& peer_info, bool filter_consume,
+                               const PartitionExt& partition_ext, const string& confirm_context,
+                               const TubeMQCodec::RspProtocolPtr& rsp_protocol);
+  void convertMessages(int32_t& msg_size, list<Message>& message_list, bool filter_consume,
+                       const string& topic_name, GetMessageResponseB2C& rsp_b2c);
   inline int32_t nextHeartBeatPeriodms();
   void asyncRegister2Master(bool need_change);
 
@@ -138,8 +135,7 @@ class BaseConsumer : public BaseClient, public std::enable_shared_from_this<Base
   mutable mutex broker_timer_lock_;
   map<NodeInfo, SteadyTimerPtr> broker_timer_map_;
 };
-
-
+using BaseConsumerPtr = std::shared_ptr<BaseConsumer>;
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_IMP_CONSUMER_API_H_
