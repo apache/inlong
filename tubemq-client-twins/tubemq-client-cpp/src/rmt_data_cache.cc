@@ -178,7 +178,6 @@ bool RmtDataCacheCsm::SelectPartition(int32_t& error_code, string& err_info,
 }
 
 void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, int64_t curr_offset) {
-  map<string, PartitionExt>::iterator it_part;
   // book partition offset info
   if (curr_offset >= 0) {
     lock_guard<mutex> lck1(data_book_mutex_);
@@ -192,10 +191,7 @@ void RmtDataCacheCsm::BookedPartionInfo(const string& partition_key, int64_t cur
                                         bool require_slow) {
   map<string, PartitionExt>::iterator it_part;
   // book partition offset info
-  if (curr_offset >= 0) {
-    lock_guard<mutex> lck1(data_book_mutex_);
-    partition_offset_[partition_key] = curr_offset;
-  }
+  BookedPartionInfo(partition_key, curr_offset);
   // book partition temp info
   lock_guard<mutex> lck2(meta_lock_);
   it_part = partitions_.find(partition_key);
@@ -339,14 +335,10 @@ void RmtDataCacheCsm::GetPartitionByBroker(const NodeInfo& broker_info,
   }
 }
 
-void RmtDataCacheCsm::GetCurPartitionOffsets(map<string, int64_t> part_offset_map) {
-  map<string, int64_t>::iterator it;
-
+void RmtDataCacheCsm::GetCurPartitionOffsets(map<string, int64_t>& part_offset_map) {
   part_offset_map.clear();
   lock_guard<mutex> lck(data_book_mutex_);
-  for (it = partition_offset_.begin(); it != partition_offset_.end(); ++it) {
-    part_offset_map[it->first] = it->second;
-  }
+  part_offset_map = partition_offset_;
 }
 
 //
