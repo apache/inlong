@@ -91,7 +91,7 @@ class RmtDataCacheCsm {
   void GetRegBrokers(list<NodeInfo>& brokers);
   void GetPartitionByBroker(const NodeInfo& broker_info,
                                     list<PartitionExt>& partition_list);
-  void GetCurPartitionOffsets(map<string, int64_t> part_offset_map);
+  void GetCurPartitionOffsets(map<string, int64_t>& part_offset_map);
   void GetAllClosedBrokerParts(map<NodeInfo, list<PartitionExt> >& broker_parts);
   void RemovePartition(const list<PartitionExt>& partition_list);
   void RemovePartition(const set<string>& partition_keys);
