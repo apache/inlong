@@ -57,8 +57,8 @@ bool Logger::Write(const char* format, ...) {
 
 bool Logger::writeStream(const char* log) {
   auto logger = log4cplus::Logger::getInstance(instance_);
-  // log4cplus::tostringstream _log4cplus_buf;
-  //_log4cplus_buf << log;
+  // log4cplus::tostringstream log4cplus_buf;
+  // log4cplus_buf << log;
   logger.forcedLog(log4cplus::TRACE_LOG_LEVEL, log);
   return true;
 }
