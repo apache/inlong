@@ -105,10 +105,10 @@ bool TubeMQService::Stop(string& err_info) {
       dns_xfs_thread_.join();
     }
     shutDownClinets();
-    timer_executor_->Close();
-    network_executor_->Close();
     connection_pool_ = nullptr;
     thread_pool_ = nullptr;
+    timer_executor_->Close();
+    network_executor_->Close();
     LOG_INFO("[TubeMQService] TubeMQ service stopped!");
   }
   err_info = "OK!";
