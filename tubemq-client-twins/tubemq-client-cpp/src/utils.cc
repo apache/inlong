@@ -144,51 +144,15 @@ void Utils::Split(const string& source, vector<string>& result, const string& de
   }
 }
 
-void Utils::Split(const string& source, map<string, int32_t>& result, const string& delimiter_step1,
-                  const string& delimiter_step2) {
-  string item_str;
-  string key_str;
-  string val_str;
-  string::size_type pos1 = 0;
-  string::size_type pos2 = 0;
-  string::size_type pos3 = 0;
-  if (!source.empty()) {
-    pos1 = 0;
-    pos2 = source.find(delimiter_step1);
-    while (string::npos != pos2) {
-      item_str = source.substr(pos1, pos2 - pos1);
-      item_str = Utils::Trim(item_str);
-      pos1 = pos2 + delimiter_step1.length();
-      pos2 = source.find(delimiter_step1, pos1);
-      if (item_str.empty()) {
-        continue;
-      }
-      pos3 = item_str.find(delimiter_step2);
-      if (string::npos == pos3) {
-        continue;
-      }
-      key_str = item_str.substr(0, pos3);
-      val_str = item_str.substr(pos3 + delimiter_step2.length());
-      key_str = Utils::Trim(key_str);
-      val_str = Utils::Trim(val_str);
-      if (key_str.empty()) {
-        continue;
-      }
-      result[key_str] = atoi(val_str.c_str());
-    }
-    if (pos1 != source.length()) {
-      item_str = source.substr(pos1);
-      item_str = Utils::Trim(item_str);
-      pos3 = item_str.find(delimiter_step2);
-      if (string::npos != pos3) {
-        key_str = item_str.substr(0, pos3);
-        val_str = item_str.substr(pos3 + delimiter_step2.length());
-        key_str = Utils::Trim(key_str);
-        val_str = Utils::Trim(val_str);
-        if (!key_str.empty()) {
-          result[key_str] = atoi(val_str.c_str());
-        }
-      }
+void Utils::Split(const string& source, map<string, int32_t>& result,
+  const string& delimiter_step1, const string& delimiter_step2) {
+  map<string, string> tmp_result;
+  map<string, string>::iterator it;
+  result.clear();
+  Split(source, tmp_result, delimiter_step1, delimiter_step2);
+  if (!tmp_result.empty()) {
+    for (it = tmp_result.begin(); it != tmp_result.end(); ++it) {
+      result[it->first] = atoi(it->second.c_str());
     }
   }
 }
