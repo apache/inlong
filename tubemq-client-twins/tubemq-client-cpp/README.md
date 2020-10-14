@@ -33,5 +33,8 @@
 ## Step to build
   * install protobuf
   * ./build_linux.sh
+  * cd release/
+  * chmod +x release_linux.sh
+  * ./release_linux.sh
 
 

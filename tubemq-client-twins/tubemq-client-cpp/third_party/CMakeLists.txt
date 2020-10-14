@@ -9,9 +9,7 @@ include(ExternalProject)
 ExternalProject_Add(
     rapidjson
     PREFIX "rapidjson"
-    GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
-    GIT_TAG f54b0e47a08782a6131cc3d60f94d038fa6e0a51
-    TIMEOUT 20
+    URL "https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz"
     CMAKE_ARGS
     -DRAPIDJSON_BUILD_TESTS=OFF
     -DRAPIDJSON_BUILD_DOC=OFF
