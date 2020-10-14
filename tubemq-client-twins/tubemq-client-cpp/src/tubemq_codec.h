@@ -140,7 +140,8 @@ class TubeMQCodec final : public CodecProtocol {
         4 + rpc_header.ByteSizeLong() + 4 + req_header.ByteSizeLong() + 4 + req_body.ByteSizeLong();
     std::string step_buff;
     step_buff.resize(serial_len);
-    google::protobuf::io::ArrayOutputStream rawOutput((void *)step_buff.data(), serial_len);
+    google::protobuf::io::ArrayOutputStream rawOutput(
+      static_cast<void*>(const_cast<char*>(step_buff.data())), serial_len);
     bool result = writeDelimitedTo(rpc_header, &rawOutput);
     if (!result) {
       return result;
