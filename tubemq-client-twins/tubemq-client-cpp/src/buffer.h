@@ -123,7 +123,6 @@ class Buffer {
       return;
     }
 
-    // TODO add the implementation logic here
     grow(len + reserved_prepend_size_);
   }
 

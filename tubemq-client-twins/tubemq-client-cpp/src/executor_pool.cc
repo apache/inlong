@@ -19,11 +19,9 @@
 
 #include "executor_pool.h"
 
+#include <asio.hpp>
 #include <functional>
 #include <memory>
-#include <asio.hpp>
-
-
 
 namespace tubemq {
 

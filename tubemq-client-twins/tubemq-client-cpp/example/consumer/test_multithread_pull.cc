@@ -66,7 +66,6 @@ void calc_message_count(int64_t msg_count) {
   }
 }
 
-
 void thread_task_pull(int32_t thread_no) {
   bool result;
   int64_t msg_count = 0;
@@ -106,6 +105,8 @@ void thread_task_pull(int32_t thread_no) {
 }
 
 
+
+
 int main(int argc, char* argv[]) {
   bool result;
   string err_info;
@@ -122,7 +123,6 @@ int main(int argc, char* argv[]) {
   if (argc > 4) {
     conf_file = argv[4];
   }
-
   int32_t thread_num = 15;
   set<string> topic_list;
   topic_list.insert(topic_name);

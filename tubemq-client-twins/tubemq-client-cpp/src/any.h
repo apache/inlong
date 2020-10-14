@@ -20,8 +20,8 @@
 // Copy from evpp project
 // @see https://github.com/Qihoo360/evpp/blob/master/evpp/any.h
 
-#ifndef _TUBEMQ_ANY_H_
-#define _TUBEMQ_ANY_H_
+#ifndef TUBEMQ_CLIENT_CPP_SRC_ANY_H_
+#define TUBEMQ_CLIENT_CPP_SRC_ANY_H_
 
 #include <assert.h>
 
@@ -65,7 +65,7 @@ class Any {
   template <typename ValueType>
   explicit Any(const ValueType& value) : content_(new Holder<ValueType>(value)) {}
 
-  Any(const Any& other) : content_(other.content_ ? other.content_->clone() : nullptr) {}
+  explicit Any(const Any& other) : content_(other.content_ ? other.content_->clone() : nullptr) {}
 
  public:
   Any& swap(Any& rhs) {
@@ -115,7 +115,7 @@ class Any {
   template <typename ValueType>
   class Holder : public PlaceHolder {
    public:
-    Holder(const ValueType& value) : held_(value) {}
+    explicit Holder(const ValueType& value) : held_(value) {}
 
     virtual const std::type_info& GetType() const { return typeid(ValueType); }
 
@@ -157,4 +157,4 @@ ValueType any_cast(const Any& any) {
 }
 }  // namespace tubemq
 
-#endif /* _TUBEMQ_ANY_H_ */
+#endif /* TUBEMQ_CLIENT_CPP_SRC_ANY_H_ */
