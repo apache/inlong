@@ -250,7 +250,7 @@ public class WebBrokerDefConfHandler {
             int memCacheMsgSizeInMB =
                     WebParameterUtils.validIntDataParameter("memCacheMsgSizeInMB",
                             req.getParameter("memCacheMsgSizeInMB"),
-                            false, 2, 2);
+                            false, 3, 2);
             memCacheMsgSizeInMB = memCacheMsgSizeInMB >= 2048 ? 2048 : memCacheMsgSizeInMB;
             int memCacheFlushIntvl =
                     WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
@@ -438,7 +438,7 @@ public class WebBrokerDefConfHandler {
                                     jsonObject.get("memCacheMsgCntInK"), false, 10, 1);
                     int memCacheMsgSizeInMB =
                             WebParameterUtils.validIntDataParameter("memCacheMsgSizeInMB",
-                                    jsonObject.get("memCacheMsgSizeInMB"), false, 2, 2);
+                                    jsonObject.get("memCacheMsgSizeInMB"), false, 3, 2);
                     memCacheMsgSizeInMB = memCacheMsgSizeInMB >= 2048 ? 2048 : memCacheMsgSizeInMB;
                     int memCacheFlushIntvl =
                             WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
