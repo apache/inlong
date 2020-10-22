@@ -83,7 +83,7 @@ public class BrokerSyncStatusInfo {
     private int unFlushDataHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
     private int unflushThreshold = 1000;        //flush threshold
     private int unflushInterval = 10000;        //flush interval
-    private int memCacheMsgSizeInMB = 2;        //memory cache size
+    private int memCacheMsgSizeInMB = 3;        //memory cache size
     private int memCacheMsgCntInK = 10;         //memory cache message count
     private int memCacheFlushIntvl = 20000;     //memory cache flush interval
     private String deletePolicy = "delete,168h";    //data delete policy
@@ -494,7 +494,7 @@ public class BrokerSyncStatusInfo {
                 this.acceptSubscribe = true;
                 this.memCacheFlushIntvl = 20000;
                 this.memCacheMsgCntInK = 10;
-                this.memCacheMsgSizeInMB = 2;
+                this.memCacheMsgSizeInMB = 3;
             } else {
                 String[] brokerDefaultConfInfoArr =
                         brokerDefaultConfInfo.split(TokenConstants.ATTR_SEP);
@@ -622,7 +622,7 @@ public class BrokerSyncStatusInfo {
         final String deletePolicy = brokerDefaultConfInfoArr[6];
         int numTopicStores = 1;
         int unFlushDataHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
-        int memCacheMsgSizeInMB = 2;
+        int memCacheMsgSizeInMB = 3;
         int memCacheMsgCntInK = 10;
         int memCacheFlushIntvl = 20000;
         if (!TStringUtils.isBlank(brokerDefaultConfInfoArr[7])) {
