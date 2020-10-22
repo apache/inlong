@@ -21,6 +21,8 @@
 
 using namespace tubemq;
 
+const uint32_t ClientConnection::kConnnectMaxTimeMs;
+
 void ClientConnection::AsyncWrite(RequestContextPtr& req) {
   auto self = shared_from_this();
   executor_->Post([self, this, req]() {
