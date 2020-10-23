@@ -30,6 +30,8 @@ namespace tubemq {
 using std::lock_guard;
 using std::stringstream;
 
+const uint32_t ConnectionPool::kRegularTimerSecond;
+
 BaseClient::BaseClient(bool is_producer) {
   is_producer_ = is_producer;
   client_index_ = tb_config::kInvalidValue;
