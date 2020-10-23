@@ -23,7 +23,7 @@
   <parent>
     <artifactId>tubemq-docker</artifactId>
     <groupId>org.apache.tubemq</groupId>
-    <version>0.6.0-incubating-SNAPSHOT</version>
+    <version>0.7.0-incubating-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>Apache TubeMQ - Docker All</name>
