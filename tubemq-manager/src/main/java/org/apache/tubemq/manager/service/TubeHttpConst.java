@@ -14,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.manager.controller.business;
 
-import lombok.Data;
+package org.apache.tubemq.manager.service;
 
-/**
- * rest result for business controller
- */
-@Data
-public class BusinessResult {
-    private String message;
-    private int code = 0;
+public class TubeHttpConst {
+    public static final String SCHEMA = "http://";
+    public static final String BROKER_RUN_STATUS =
+            "/webapi.htm?type=op_query&method=admin_query_broker_run_status";
+    public static final String TOPIC_CONFIG_INFO =
+            "/webapi.htm?type=op_query&method=admin_query_topic_info";
+    public static final String ADD_TUBE_TOPIC =
+            "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
+    public static final String RELOAD_BROKER =
+            "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
 }

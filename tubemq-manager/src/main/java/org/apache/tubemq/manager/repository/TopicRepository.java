@@ -15,17 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service;
+package org.apache.tubemq.manager.repository;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import java.util.List;
+import org.apache.tubemq.manager.entry.TopicEntry;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-/**
- * Service for running async tasks.
- * https://howtodoinjava.com/spring-boot2/rest/enableasync-async-controller/
- */
-@Service
-@Slf4j
-public class AsyncService {
+@Repository
+public interface TopicRepository extends JpaRepository<TopicEntry, Long> {
+
+   /**
+    * get all topicEntry list by business name
+    * @param businessName
+    * @return
+    */
+   List<TopicEntry> findAllByBusinessName(String businessName);
+
+   /**
+    * get one topicEntry by business name
+    * @param businessName
+    * @return
+    */
+   TopicEntry findByBusinessName(String businessName);
 
 }
+

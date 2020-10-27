@@ -19,9 +19,9 @@ package org.apache.tubemq.manager.controller;
 import java.net.URI;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tubemq.manager.controller.business.BusinessController;
-import org.apache.tubemq.manager.controller.business.BusinessResult;
-import org.apache.tubemq.manager.entry.BusinessEntry;
+import org.apache.tubemq.manager.controller.topic.TopicController;
+import org.apache.tubemq.manager.controller.topic.TopicResult;
+import org.apache.tubemq.manager.entry.TopicEntry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +59,7 @@ public class TestBusinessController {
 
     @Before
     public void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(new BusinessController()).build();
+        mvc = MockMvcBuilders.standaloneSetup(new TopicController()).build();
     }
 
     @Test
@@ -76,14 +76,14 @@ public class TestBusinessController {
         final String baseUrl = "http://localhost:" + randomServerPort + "/business/add";
         URI uri = new URI(baseUrl);
         String demoName = "test";
-        BusinessEntry entry = new BusinessEntry(demoName, demoName, demoName,
+        TopicEntry entry = new TopicEntry(demoName, demoName, demoName,
                 demoName, demoName, demoName);
 
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<BusinessEntry> request = new HttpEntity<>(entry, headers);
+        HttpEntity<TopicEntry> request = new HttpEntity<>(entry, headers);
 
-        ResponseEntity<BusinessResult> responseEntity =
-                client.postForEntity(uri, request, BusinessResult.class);
+        ResponseEntity<TopicResult> responseEntity =
+                client.postForEntity(uri, request, TopicResult.class);
         assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isEqualTo(true);
     }
 
@@ -91,8 +91,8 @@ public class TestBusinessController {
     public void testControllerException() throws Exception {
         final String baseUrl = "http://localhost:" + randomServerPort + "/business/throwException";
         URI uri = new URI(baseUrl);
-        ResponseEntity<BusinessResult> responseEntity =
-                client.getForEntity(uri, BusinessResult.class);
+        ResponseEntity<TopicResult> responseEntity =
+                client.getForEntity(uri, TopicResult.class);
         assertThat(Objects.requireNonNull(responseEntity.getBody()).getCode()).isEqualTo(-1);
         assertThat(responseEntity.getBody().getMessage()).isEqualTo("exception for test");
     }

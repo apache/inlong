@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.manager.controller;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.tubemq.manager.controller.business.BusinessResult;
+import org.apache.tubemq.manager.controller.topic.TopicResult;
 import org.apache.tubemq.manager.exceptions.TubeMQManagerException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -36,9 +36,9 @@ public class ManagerControllerAdvice {
      * @return entity
      */
     @ExceptionHandler(TubeMQManagerException.class)
-    public BusinessResult handlingBusinessException(HttpServletRequest request,
+    public TopicResult handlingBusinessException(HttpServletRequest request,
             TubeMQManagerException ex) {
-        BusinessResult result = new BusinessResult();
+        TopicResult result = new TopicResult();
         result.setMessage(ex.getMessage());
         result.setCode(-1);
         return result;

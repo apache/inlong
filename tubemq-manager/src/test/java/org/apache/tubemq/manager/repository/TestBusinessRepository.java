@@ -17,7 +17,7 @@
 package org.apache.tubemq.manager.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.apache.tubemq.manager.entry.BusinessEntry;
+import org.apache.tubemq.manager.entry.TopicEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,24 +32,24 @@ public class TestBusinessRepository {
     private TestEntityManager entityManager;
 
     @Autowired
-    private BusinessRepository businessRepository;
+    private TopicRepository businessRepository;
 
     @Test
     public void whenFindByNameThenReturnBusiness() {
         String demoName = "alex";
-        BusinessEntry businessEntry = new BusinessEntry(demoName, demoName,
+        TopicEntry businessEntry = new TopicEntry(demoName, demoName,
                 demoName, demoName, demoName, demoName);
         entityManager.persist(businessEntry);
         entityManager.flush();
 
-        BusinessEntry businessEntry1 = businessRepository.findByBusinessName("alex");
+        TopicEntry businessEntry1 = businessRepository.findByBusinessName("alex");
         assertThat(businessEntry1.getBusinessName()).isEqualTo(businessEntry.getBusinessName());
     }
 
     @Test
     public void checkValidation() throws Exception {
         String demoName = "a";
-        BusinessEntry businessEntry = new BusinessEntry(demoName, demoName, demoName,
+        TopicEntry businessEntry = new TopicEntry(demoName, demoName, demoName,
                 demoName, demoName, demoName);
         StringBuilder builder = new StringBuilder();
 
