@@ -28,5 +28,5 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/p
     && ./configure CXXFLAGS=-fPIC && make \
     && make install && cd /usr/local/lib \
     && ln -snf libprotobuf.so libprotobuf.so.24
-ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64/
 WORKDIR /tubemq-cpp/
