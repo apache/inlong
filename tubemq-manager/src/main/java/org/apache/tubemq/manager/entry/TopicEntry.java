@@ -32,10 +32,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "business")
+@Table(name = "topic")
 @Data
 @EntityListeners(AuditingEntityListener.class) // support CreationTimestamp annotation
-public class BusinessEntry {
+public class TopicEntry {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long businessId;
@@ -121,7 +121,7 @@ public class BusinessEntry {
     private String issueMethod;
 
 
-    public BusinessEntry(String businessName, String schemaName,
+    public TopicEntry(String businessName, String schemaName,
             String username, String passwd, String topic, String encodingType) {
         this.businessName = businessName;
         this.schemaName = schemaName;
@@ -131,7 +131,7 @@ public class BusinessEntry {
         this.encodingType = encodingType;
     }
 
-    public BusinessEntry() {
+    public TopicEntry() {
 
     }
 }

@@ -15,16 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.repository;
+package org.apache.tubemq.manager.entry;
 
-import java.util.List;
-import org.apache.tubemq.manager.entry.BusinessEntry;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import lombok.Data;
 
-@Repository
-public interface BusinessRepository extends JpaRepository<BusinessEntry, Long> {
-   List<BusinessEntry> findAllByBusinessName(String businessName);
-   BusinessEntry findByBusinessName(String businessName);
+/**
+ * node machine for tube cluster. broker/master/standby
+ */
+@Entity
+@Table(name = "node")
+@Data
+public class NodeEntry {
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    private long brokerId;
+
+    private boolean master;
+
+    private boolean standby;
+
+    private boolean broker;
+
+    private String ip;
+
+    private int port;
+
+    private int webPort;
+
+    private int clusterId;
 }
-

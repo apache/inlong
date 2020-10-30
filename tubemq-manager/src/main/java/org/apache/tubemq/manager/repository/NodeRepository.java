@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service;
+package org.apache.tubemq.manager.repository;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.apache.tubemq.manager.entry.NodeEntry;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-/**
- * Service for running async tasks.
- * https://howtodoinjava.com/spring-boot2/rest/enableasync-async-controller/
- */
-@Service
-@Slf4j
-public class AsyncService {
+@Repository
+public interface NodeRepository extends JpaRepository<NodeEntry, Long> {
 
+    NodeEntry findNodeEntryByClusterIdIsAndMasterIsTrue(int clusterId);
 }
