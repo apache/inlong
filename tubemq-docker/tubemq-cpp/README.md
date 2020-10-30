@@ -1,0 +1,15 @@
+### Docker image for building TubeMQ C++ SDK Client
+##### Pull Image
+```
+docker pull apachetubemq/tubemq-cpp
+```
+
+#### Build TubeMQ C++ SDK Client
+```
+docker run -it --net=host -v REPLACE_BY_CPP_SOURCE_DIR_PATH:/tubemq-cpp/  apachetubemq/tubemq-cpp /bin/bash
+sh build_linux.sh
+./build_linux.sh
+cd release/
+chmod +x release_linux.sh
+./release_linux.sh
+```
