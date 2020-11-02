@@ -32,17 +32,69 @@ import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
-public class WebAdminFlowRuleHandler {
 
-    private TMaster master;
-    private BrokerConfManager brokerConfManager;
+
+public class WebAdminFlowRuleHandler extends AbstractWebHandler {
+
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
 
     public WebAdminFlowRuleHandler(TMaster master) {
-        this.master = master;
-        this.brokerConfManager = this.master.getMasterTopicManager();
+        super(master);
+    }
+
+    @Override
+    public void registerWebApiMethod() {
+        // register query method
+        registerQueryWebMethod("admin_query_def_flow_control_rule",
+                "adminQueryDefGroupFlowCtrlRule");
+        registerQueryWebMethod("admin_query_group_flow_control_rule",
+                "adminQuerySpecGroupFlowCtrlRule");
+        // register modify method
+        registerModifyWebMethod("admin_set_def_flow_control_rule",
+                "adminSetDefGroupFlowCtrlRule");
+        registerModifyWebMethod("admin_set_group_flow_control_rule",
+                "adminSetSpecGroupFlowCtrlRule");
+        registerModifyWebMethod("admin_rmv_def_flow_control_rule",
+                "adminDelDefGroupFlowCtrlRuleStatus");
+        registerModifyWebMethod("admin_rmv_group_flow_control_rule",
+                "adminDelSpecGroupFlowCtrlRuleStatus");
+        registerModifyWebMethod("admin_upd_def_flow_control_rule",
+                "adminModDefGroupFlowCtrlRuleStatus");
+        registerModifyWebMethod("admin_upd_group_flow_control_rule",
+                "adminModSpecGroupFlowCtrlRuleStatus");
+    }
+
+    public StringBuilder adminQueryDefGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
+        return innQueryGroupFlowCtrlRule(req, 1);
+    }
+
+    public StringBuilder adminQuerySpecGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
+        return innQueryGroupFlowCtrlRule(req, 2);
+    }
+
+    public StringBuilder adminSetDefGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
+        return innSetFlowControlRule(req, 1);
+    }
+
+    public StringBuilder adminSetSpecGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
+        return innSetFlowControlRule(req, 2);
+    }
+
+    public StringBuilder adminDelDefGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
+        return innDelGroupFlowCtrlRuleStatus(req, 1);
+    }
+
+    public StringBuilder adminDelSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
+        return innDelGroupFlowCtrlRuleStatus(req, 2);
+    }
+
+    public StringBuilder adminModDefGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
+        return innModGroupFlowCtrlRuleStatus(req, 1);
+    }
+
+    public StringBuilder adminModSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
+        return innModGroupFlowCtrlRuleStatus(req, 2);
     }
 
     /**
@@ -53,7 +105,7 @@ public class WebAdminFlowRuleHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminSetFlowControlRule(HttpServletRequest req,
+    private StringBuilder innSetFlowControlRule(HttpServletRequest req,
                                                  int opType) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
@@ -128,7 +180,7 @@ public class WebAdminFlowRuleHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminDelGroupFlowCtrlRuleStatus(HttpServletRequest req,
+    private StringBuilder innDelGroupFlowCtrlRuleStatus(HttpServletRequest req,
                                                          int opType) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         try {
@@ -173,7 +225,7 @@ public class WebAdminFlowRuleHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminModGroupFlowCtrlRuleStatus(HttpServletRequest req,
+    private StringBuilder innModGroupFlowCtrlRuleStatus(HttpServletRequest req,
                                                          int opType) throws Exception {
         // #lizard forgives
         StringBuilder strBuffer = new StringBuilder(512);
@@ -270,7 +322,7 @@ public class WebAdminFlowRuleHandler {
      * @return
      * @throws Exception
      */
-    public StringBuilder adminQueryGroupFlowCtrlRule(HttpServletRequest req,
+    private StringBuilder innQueryGroupFlowCtrlRule(HttpServletRequest req,
                                                      int opType) throws Exception {
         StringBuilder strBuffer = new StringBuilder(512);
         BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity = new BdbGroupFlowCtrlEntity();

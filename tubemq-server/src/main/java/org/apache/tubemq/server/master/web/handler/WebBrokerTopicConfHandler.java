@@ -40,18 +40,15 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntit
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebBrokerTopicConfHandler {
+public class WebBrokerTopicConfHandler extends AbstractWebHandler {
 
     private static final Logger logger =
             LoggerFactory.getLogger(WebBrokerTopicConfHandler.class);
-    private TMaster master;
-    private BrokerConfManager brokerConfManager;
 
     /**
      * Constructor
@@ -59,8 +56,29 @@ public class WebBrokerTopicConfHandler {
      * @param master tube master
      */
     public WebBrokerTopicConfHandler(TMaster master) {
-        this.master = master;
-        this.brokerConfManager = this.master.getMasterTopicManager();
+        super(master);
+    }
+
+    @Override
+    public void registerWebApiMethod() {
+        // register query method
+        registerQueryWebMethod("admin_query_topic_info",
+                "adminQueryTopicCfgEntityAndRunInfo");
+        registerQueryWebMethod("admin_query_broker_topic_config_info",
+                "adminQueryBrokerTopicCfgAndRunInfo");
+        // register modify method
+        registerModifyWebMethod("admin_add_new_topic_record",
+                "adminAddTopicEntityInfo");
+        registerModifyWebMethod("admin_bath_add_new_topic_record",
+                "adminBatchAddTopicEntityInfo");
+        registerModifyWebMethod("admin_modify_topic_info",
+                "adminModifyTopicEntityInfo");
+        registerModifyWebMethod("admin_delete_topic_info",
+                "adminDeleteTopicEntityInfo");
+        registerModifyWebMethod("admin_redo_deleted_topic_info",
+                "adminRedoDeleteTopicEntityInfo");
+        registerModifyWebMethod("admin_remove_topic_info",
+                "adminRemoveTopicEntityInfo");
     }
 
     /**

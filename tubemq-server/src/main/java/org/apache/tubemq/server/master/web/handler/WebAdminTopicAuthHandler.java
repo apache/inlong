@@ -18,7 +18,6 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,17 +33,28 @@ import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
-public class WebAdminTopicAuthHandler {
 
-    private final JsonParser jsonParser = new JsonParser();
-    private TMaster master;
-    private BrokerConfManager brokerConfManager;
+
+
+public class WebAdminTopicAuthHandler extends AbstractWebHandler {
 
     public WebAdminTopicAuthHandler(TMaster master) {
-        this.master = master;
-        this.brokerConfManager = this.master.getMasterTopicManager();
+        super(master);
+    }
+
+    @Override
+    public void registerWebApiMethod() {
+        // register query method
+        registerQueryWebMethod("admin_query_topic_authorize_control",
+                "adminQueryTopicAuthControl");
+        // register modify method
+        registerModifyWebMethod("admin_set_topic_authorize_control",
+                "adminEnableDisableTopicAuthControl");
+        registerModifyWebMethod("admin_delete_topic_authorize_control",
+                "adminDeleteTopicAuthControl");
+        registerModifyWebMethod("admin_bath_add_topic_authorize_control",
+                "adminBatchAddTopicAuthControl");
     }
 
     /**
