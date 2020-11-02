@@ -37,7 +37,6 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettin
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
@@ -45,16 +44,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class WebAdminGroupCtrlHandler {
+public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
 
     private static final Logger logger =
             LoggerFactory.getLogger(WebAdminGroupCtrlHandler.class);
-    private TMaster master;
-    private BrokerConfManager brokerConfManager;
+
 
     public WebAdminGroupCtrlHandler(TMaster master) {
-        this.master = master;
-        this.brokerConfManager = this.master.getMasterTopicManager();
+        super(master);
+    }
+
+    @Override
+    public void registerWebApiMethod() {
+        // register query method
+        registerQueryWebMethod("admin_query_black_consumer_group_info",
+                "adminQueryBlackGroupInfo");
+        registerQueryWebMethod("admin_query_allowed_consumer_group_info",
+                "adminQueryConsumerGroupInfo");
+        registerQueryWebMethod("admin_query_group_filtercond_info",
+                "adminQueryGroupFilterCondInfo");
+        registerQueryWebMethod("admin_query_consume_group_setting",
+                "adminQueryConsumeGroupSetting");
+        // register modify method
+        registerModifyWebMethod("admin_add_new_topic_record",
+                "adminAddTopicEntityInfo");
+        registerModifyWebMethod("admin_add_black_consumergroup_info",
+                "adminAddBlackGroupInfo");
+        registerModifyWebMethod("admin_bath_add_black_consumergroup_info",
+                "adminBatchAddBlackGroupInfo");
+        registerModifyWebMethod("admin_delete_black_consumergroup_info",
+                "adminDeleteBlackGroupInfo");
+        registerModifyWebMethod("admin_add_authorized_consumergroup_info",
+                "adminAddConsumerGroupInfo");
+        registerModifyWebMethod("admin_delete_allowed_consumer_group_info",
+                "adminDeleteConsumerGroupInfo");
+        registerModifyWebMethod("admin_bath_add_authorized_consumergroup_info",
+                "adminBatchAddConsumerGroupInfo");
+        registerModifyWebMethod("admin_add_group_filtercond_info",
+                "adminAddGroupFilterCondInfo");
+        registerModifyWebMethod("admin_bath_add_group_filtercond_info",
+                "adminBatchAddGroupFilterCondInfo");
+        registerModifyWebMethod("admin_mod_group_filtercond_info",
+                "adminModGroupFilterCondInfo");
+        registerModifyWebMethod("admin_bath_mod_group_filtercond_info",
+                "adminBatchModGroupFilterCondInfo");
+        registerModifyWebMethod("admin_del_group_filtercond_info",
+                "adminDeleteGroupFilterCondInfo");
+        registerModifyWebMethod("admin_add_consume_group_setting",
+                "adminAddConsumeGroupSettingInfo");
+        registerModifyWebMethod("admin_bath_add_consume_group_setting",
+                "adminBatchAddConsumeGroupSetting");
+        registerModifyWebMethod("admin_upd_consume_group_setting",
+                "adminUpdConsumeGroupSetting");
+        registerModifyWebMethod("admin_del_consume_group_setting",
+                "adminDeleteConsumeGroupSetting");
+        registerModifyWebMethod("admin_rebalance_group_allocate",
+                "adminRebalanceGroupAllocateInfo");
     }
 
     /**
