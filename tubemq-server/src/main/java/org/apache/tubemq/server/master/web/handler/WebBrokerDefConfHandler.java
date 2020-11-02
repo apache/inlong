@@ -54,12 +54,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Please note that one IP could only host one broker, and brokerId must be unique
  */
-public class WebBrokerDefConfHandler {
+public class WebBrokerDefConfHandler extends AbstractWebHandler {
 
     private static final Logger logger =
             LoggerFactory.getLogger(WebBrokerDefConfHandler.class);
-    private TMaster master;
-    private BrokerConfManager brokerConfManager;
 
     /**
      * Constructor
@@ -67,12 +65,38 @@ public class WebBrokerDefConfHandler {
      * @param master tube master
      */
     public WebBrokerDefConfHandler(TMaster master) {
-        this.master = master;
-        this.brokerConfManager = this.master.getMasterTopicManager();
+        super(master);
+    }
+
+    @Override
+    public void registerWebApiMethod() {
+        // register query method
+        registerQueryWebMethod("admin_query_broker_run_status",
+                "adminQueryBrokerRunStatusInfo");
+        registerQueryWebMethod("admin_query_broker_configure",
+                "adminQueryBrokerDefConfEntityInfo");
+        // register modify method
+        registerModifyWebMethod("admin_add_broker_configure",
+                "adminAddBrokerDefConfEntityInfo");
+        registerModifyWebMethod("admin_bath_add_broker_configure",
+                "adminBatchAddBrokerDefConfEntityInfo");
+        registerModifyWebMethod("admin_online_broker_configure",
+                "adminOnlineBrokerConf");
+        registerModifyWebMethod("admin_update_broker_configure",
+                "adminUpdateBrokerConf");
+        registerModifyWebMethod("admin_reload_broker_configure",
+                "adminReloadBrokerConf");
+        registerModifyWebMethod("admin_set_broker_read_or_write",
+                "adminSetReadOrWriteBrokerConf");
+        registerModifyWebMethod("admin_release_broker_autoforbidden_status",
+                "adminRelBrokerAutoForbiddenStatus");
+        registerModifyWebMethod("admin_offline_broker_configure",
+                "adminOfflineBrokerConf");
+        registerModifyWebMethod("admin_delete_broker_configure",
+                "adminDeleteBrokerConfEntityInfo");
     }
 
     // #lizard forgives
-
     /**
      * Fast start a broker?
      *
@@ -1526,7 +1550,6 @@ public class WebBrokerDefConfHandler {
             }
             strBuffer.append("],\"count\":").append(count).append("}");
         } catch (Exception e) {
-            logger.error(" adminQueryBrokerDefConfEntityInfo exception", e);
             strBuffer.delete(0, strBuffer.length());
             strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
