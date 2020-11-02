@@ -17,14 +17,32 @@
 # under the License.
 #
 
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from glob import glob
 from setuptools import setup
 
+import sys
+
+__version__ = "0.0.1"
+
+ext_modules = [
+    Pybind11Extension("tubemq_client",
+        sorted(glob("src/cpp/*.cc")),
+        cxx_std=11,
+        define_macros=[('VERSION_INFO', __version__)],
+        )
+]
+
 setup(
-        name='tubemq-client-python',
-        version='0.1.0',
-        description='TubeMQ Python SDK Client',
-        author='dockerzhang',
-        author_email='dockerzhang@tencent.com',
-        url='https://tubemq.apache.org/',
-        packages=['tubemq-client-python'],
+    name="tubemq-client",
+    version=__version__,
+    author="dockerzhang",
+    author_email="dockerzhang@apache.org",
+    url="https://github.com/apache/incubator-tubemq/tree/tubemq-client-python",
+    description="TubeMq Python SDK Client project built with pybind11",
+    long_description="",
+    ext_modules=ext_modules,
+    extras_require={"test": "pytest"},
+    cmdclass={"build_ext": build_ext},
+    zip_safe=False,
 )

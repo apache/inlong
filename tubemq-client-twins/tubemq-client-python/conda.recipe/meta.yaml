@@ -17,33 +17,37 @@
 # under the License.
 #
 
-import socket
+package:
+  name: tubemq-client
+  version: 0.0.1
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: python -m pip install . -vvv
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+
+  host:
+    - python
+    - pip
+    - pybind11 >=2.6.0
+
+  run:
+    - python
 
 
-class SocketChannelFactory(object):
-	def open_channel(self, host, port):
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sock.connect((host, port))
-		return SocketChannel(sock)
+test:
+  imports:
+    - tubemq-client
+  source_files:
+    - tests
+  commands:
+    - python tests/test_comsumer.py
 
-
-class SocketChannel(object):
-	def __init__(self, sock):
-		self.sock = sock
-		self.connected = True
-
-	def write_bytes(self, bytes_stream):
-		try:
-			self.sock.sendall(bytes_stream)
-		except socket.error:
-			self.close()
-			raise Exception("Socked send failed. Closing.")
-
-	def read_bytes(self, n):
-		data = self.sock.recv(n)
-		return data
-
-	def close(self):
-		if self.connected:
-			self.sock.close()
-			self.connected = False
+about:
+  summary: TubeMQ Python SDK Client project built with pybind11.

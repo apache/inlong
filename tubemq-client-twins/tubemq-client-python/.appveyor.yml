@@ -17,25 +17,28 @@
 # under the License.
 #
 
-import logging
-import sys
-
-
-class logger:
-    def __init__(self):
-        self.log = logging.getLogger('TubeMQ_Python_Client')
-        self.log.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s %(filename)s %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S")
-        handler.setFormatter(formatter)
-        self.log.addHandler(handler)
-
-    def info(self, msg):
-        self.log.info(msg)
-
-    def error(self, msg):
-        self.log.error(msg)
-
-    def debug(self, msg):
-        self.log.debug(msg)
+version: '{build}'
+image: Visual Studio 2015
+platform:
+- x86
+- x64
+environment:
+  global:
+    DISTUTILS_USE_SDK: 1
+    PYTHONWARNINGS: ignore:DEPRECATION
+    MSSdk: 1
+  matrix:
+  - PYTHON: 27
+  - PYTHON: 36
+install:
+- cmd: '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" %PLATFORM%'
+- ps: |
+    if ($env:PLATFORM -eq "x64") { $env:PYTHON = "$env:PYTHON-x64" }
+    $env:PATH = "C:\Python$env:PYTHON\;C:\Python$env:PYTHON\Scripts\;$env:PATH"
+    python -m pip install --disable-pip-version-check --upgrade --no-warn-script-location pip build
+build_script:
+- ps: |
+    python -m build -s
+    cd dist
+    python -m pip install --verbose tubemq-client-0.0.1.tar.gz
+    cd ..
