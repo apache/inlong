@@ -4,6 +4,7 @@ TubeMQ Python Client library is a wrapper over the existing [C++ client library]
 #### Install from source
 ##### install python-devel
 - build and install C++ client SDK
+
 build C++ client SDK from source, and install:
 1, copy `tubemq` include directory  to `/usr/local/include/`
 2, copy `libtubemq_rel.a` to `/usr/local/lib`
@@ -26,4 +27,4 @@ pip install ./
 #### Examples
 ##### Producer example
 ##### Consumer example
-Consumer example is [available](https://github.com/apache/incubator-tubemq/tree/master/tubemq-client-twins/tubemq-client-python/src/python/example/consumer).
+Consumer example is [available](https://github.com/apache/incubator-tubemq/tree/tubemq-client-python/tubemq-client-twins/tubemq-client-python/src/python/example/consumer).
