@@ -18,6 +18,8 @@
 package org.apache.tubemq.server.broker.msgstore.mem;
 
 import java.nio.ByteBuffer;
+
+import org.apache.tubemq.server.common.utils.AppendResult;
 import org.junit.Test;
 
 /***
@@ -33,8 +35,10 @@ public class MsgMemStoreTest {
         MsgMemStatisInfo msgMemStatisInfo = new MsgMemStatisInfo();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
+        AppendResult appendResult = new AppendResult();
         // append data
-        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0, System.currentTimeMillis(), 3, bf);
+        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
+                System.currentTimeMillis(), 3, bf, appendResult);
     }
 
     @Test
@@ -45,7 +49,9 @@ public class MsgMemStoreTest {
         MsgMemStatisInfo msgMemStatisInfo = new MsgMemStatisInfo();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
-        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0, System.currentTimeMillis(), 3, bf);
+        AppendResult appendResult = new AppendResult();
+        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
+                System.currentTimeMillis(), 3, bf, appendResult);
         // get messages
         GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(0, 2, 1024, 1000, 0, false, false, null);
     }

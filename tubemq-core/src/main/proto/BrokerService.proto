@@ -52,6 +52,9 @@ message SendMessageResponseB2P {
     required int32 errCode = 2;
     required string errMsg = 3;
     optional bool requireAuth = 4;
+    optional int64 messageId = 5;
+    optional int64 appendTime = 6;
+    optional int64 appendOffset = 7;
 }
 
 message RegisterRequestC2B {
@@ -75,6 +78,7 @@ message RegisterResponseB2C {
     required int32 errCode = 2;
     required string errMsg = 3;
     optional int64 currOffset = 4;
+    optional int64 maxOffset = 5;
 }
 
 message HeartBeatRequestC2B {
@@ -118,6 +122,7 @@ message GetMessageResponseB2C {
     optional bool escFlowCtrl = 7;
     optional int64 currDataDlt = 8;
     optional bool requireSlow = 9;
+    optional int64 maxOffset = 10;
 }
 
 message CommitOffsetRequestC2B {
@@ -133,4 +138,5 @@ message CommitOffsetResponseB2C {
     required int32 errCode = 2;
     required string errMsg = 3;
     optional int64 currOffset=4;
+    optional int64 maxOffset = 5;
 }

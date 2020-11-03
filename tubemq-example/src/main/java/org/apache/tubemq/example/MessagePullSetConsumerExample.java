@@ -34,7 +34,6 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
 import org.apache.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.tubemq.corebase.Message;
-import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,16 +81,6 @@ public final class MessagePullSetConsumerExample {
                     MessagePullSetConsumerExample messageConsumer =
                         new MessagePullSetConsumerExample(masterHostAndPort, group);
                     messageConsumer.subscribe(topicList, partOffsetMap);
-
-                    // wait until the consumer is allocated parts
-                    Map<String, ConsumeOffsetInfo> curPartsMap = null;
-                    while (curPartsMap == null || curPartsMap.isEmpty()) {
-                        ThreadUtils.sleep(1000);
-                        curPartsMap = messageConsumer.getCurrPartitionOffsetMap();
-                    }
-
-                    logger.info("Get allocated partitions are " + curPartsMap.toString());
-
                     // main logic of consuming
                     do {
                         ConsumerResult result = messageConsumer.getMessage();
@@ -136,15 +125,16 @@ public final class MessagePullSetConsumerExample {
                                     confirmResult.getErrMsg());
                             }
                         } else {
-                            if (result.getErrCode() == 400) {
-                                ThreadUtils.sleep(400);
-                            } else {
-                                if (result.getErrCode() != 404) {
-                                    logger.info(
+                            if (!(result.getErrCode() == 400
+                                    || result.getErrCode() == 404
+                                    || result.getErrCode() == 405
+                                    || result.getErrCode() == 406
+                                    || result.getErrCode() == 407
+                                    || result.getErrCode() == 408)) {
+                                logger.info(
                                         "Receive messages errorCode is {}, Error message is {}",
                                         result.getErrCode(),
                                         result.getErrMsg());
-                                }
                             }
                         }
                         if (consumeCount >= 0) {

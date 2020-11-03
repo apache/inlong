@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.common.offsetstorage;
 
+import java.net.BindException;
 import java.util.Collection;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.server.broker.exception.OffsetStoreException;
@@ -39,6 +40,10 @@ public class ZkOffsetStorage implements OffsetStorage {
             Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 @Override
                 public void uncaughtException(Thread t, Throwable e) {
+                    if (e instanceof BindException) {
+                        logger.error("Bind failed.", e);
+                        System.exit(1);
+                    }
                     if (e instanceof IllegalStateException
                             && e.getMessage().contains("Shutdown in progress")) {
                         return;

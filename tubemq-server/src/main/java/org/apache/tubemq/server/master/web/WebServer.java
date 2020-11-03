@@ -17,6 +17,11 @@
 
 package org.apache.tubemq.server.master.web;
 
+import static javax.servlet.DispatcherType.ASYNC;
+import static javax.servlet.DispatcherType.REQUEST;
+
+import java.util.EnumSet;
+
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
@@ -30,20 +35,20 @@ import org.apache.tubemq.server.master.web.action.screen.config.BrokerList;
 import org.apache.tubemq.server.master.web.action.screen.config.TopicDetail;
 import org.apache.tubemq.server.master.web.action.screen.config.TopicList;
 import org.apache.tubemq.server.master.web.action.screen.consume.Detail;
+import org.apache.tubemq.server.master.web.simplemvc.WebApiServlet;
 import org.apache.tubemq.server.master.web.simplemvc.WebFilter;
 import org.apache.tubemq.server.master.web.simplemvc.conf.WebConfig;
 import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.NumberTool;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.servlet.ServletHolder;
-
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public class WebServer implements Server {
 
     private final MasterConfig masterConfig;
-    private org.mortbay.jetty.Server srv;
+    private org.eclipse.jetty.server.Server srv;
     private TMaster master;
 
     public WebServer(final MasterConfig masterConfig, TMaster master) {
@@ -60,21 +65,23 @@ public class WebServer implements Server {
         webConfig.setStandalone(true);
         registerActions(webConfig);
         registerTools(webConfig);
-        srv = new org.mortbay.jetty.Server(masterConfig.getWebPort());
-        org.mortbay.jetty.servlet.Context servletContext =
-                new org.mortbay.jetty.servlet.Context(srv,
-                        "/", org.mortbay.jetty.servlet.Context.SESSIONS);
+        srv = new org.eclipse.jetty.server.Server(masterConfig.getWebPort());
+        ServletContextHandler servletContext = new ServletContextHandler(srv,
+                        "/", ServletContextHandler.SESSIONS);
         servletContext.addFilter(new FilterHolder(
-                new MasterStatusCheckFilter(master)), "/*", Handler.REQUEST);
+                new MasterStatusCheckFilter(master)), "/*", EnumSet.of(REQUEST, ASYNC));
         servletContext.addFilter(new FilterHolder(
-                new UserAuthFilter()), "/*", Handler.REQUEST);
-        FilterHolder filterHolder =
-                new FilterHolder(new WebFilter(webConfig));
-        servletContext.addFilter(filterHolder, "/*", Handler.REQUEST);
-        DefaultServlet defaultServlet = new DefaultServlet();
-        ServletHolder servletHolder = new ServletHolder(defaultServlet);
+                new UserAuthFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
+        servletContext.addFilter(new FilterHolder(
+                new WebFilter()), "/*", EnumSet.of(REQUEST, ASYNC));
+        // This Servlet processes WebAPI requests
+        ServletHolder servletHolder = new ServletHolder(new WebApiServlet(webConfig));
         servletHolder.setInitParameter("dirAllowed", "false");
-        servletContext.addServlet(servletHolder, "/*");
+        servletContext.addServlet(servletHolder, "/");
+        // This is Pass-Through for static resources requests
+        ServletHolder staticHolder = new ServletHolder(new DefaultServlet());
+        staticHolder.setInitParameter("dirAllowed", "false");
+        servletContext.addServlet(staticHolder, "/assets/*");
         servletContext.setResourceBase(masterConfig.getWebResourcePath());
         srv.start();
         if (!srv.getHandler().equals(servletContext)) {

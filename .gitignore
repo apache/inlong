@@ -10,3 +10,4 @@ target/
 venv/
 eggs/
 wheels/
+tubemq-client-twins/tubemq-client-cpp/build/

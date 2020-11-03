@@ -29,6 +29,8 @@ public class MessageSentResult {
     private final Message message;
     private long messageId = TBaseConstants.META_VALUE_UNDEFINED;
     private Partition partition = null;
+    private long appendTime = TBaseConstants.META_VALUE_UNDEFINED;
+    private long appendOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public MessageSentResult(boolean success, int errCode, String errMsg,
                              Message message, long messageId, Partition partition) {
@@ -40,6 +42,18 @@ public class MessageSentResult {
         this.partition = partition;
     }
 
+    public MessageSentResult(boolean success, int errCode, String errMsg,
+                             Message message, long messageId, Partition partition,
+                             long appendTime, long appendOffset) {
+        this.success = success;
+        this.errCode = errCode;
+        this.errMsg = errMsg;
+        this.message = message;
+        this.messageId = messageId;
+        this.partition = partition;
+        this.appendTime = appendTime;
+        this.appendOffset = appendOffset;
+    }
     public boolean isSuccess() {
         return this.success;
     }
@@ -62,5 +76,13 @@ public class MessageSentResult {
 
     public Partition getPartition() {
         return this.partition;
+    }
+
+    public long getAppendTime() {
+        return appendTime;
+    }
+
+    public long getAppendOffset() {
+        return appendOffset;
     }
 }

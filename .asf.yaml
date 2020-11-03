@@ -28,7 +28,7 @@ github:
 notifications:
   commits:      commits@tubemq.apache.org
   issues:       commits@tubemq.apache.org
-  pullrequests_status: dev@tubemq.apache.org
+  pullrequests_status: commits@tubemq.apache.org
   pullrequests_comment: commits@tubemq.apache.org
   issues_status: dev@tubemq.apache.org
   issues_comment: commits@tubemq.apache.org

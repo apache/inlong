@@ -37,8 +37,8 @@ public class TopicMetadata {
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushInterval = 10000;
-    @Deprecated
-    private int unflushDataHold = 10000;
+    // data will be flushed to disk when unflushed data size reach this threshold, 0=disabled.
+    private int unflushDataHold = 0;
     // enable produce data to topic.
     private boolean acceptPublish = true;
     // enable consume data from topic.
@@ -137,8 +137,8 @@ public class TopicMetadata {
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, String dataPath,
-                          String deleteWhen, String deletePolicy,
+                          int unflushInterval, int unflushDataHold,
+                          String dataPath, String deleteWhen, String deletePolicy,
                           int numPartitions, boolean acceptPublish,
                           boolean acceptSubscribe, int statusId,
                           int numTopicStores, int memCacheMsgSize,
@@ -146,6 +146,7 @@ public class TopicMetadata {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
+        this.unflushDataHold = unflushDataHold;
         this.dataPath = dataPath;
         this.deleteWhen = deleteWhen;
         this.deletePolicy = deletePolicy;
@@ -162,8 +163,8 @@ public class TopicMetadata {
     @Override
     public TopicMetadata clone() {
         return new TopicMetadata(this.topic, this.unflushThreshold,
-                this.unflushInterval, this.dataPath,
-                this.deleteWhen, this.deletePolicy,
+                this.unflushInterval, this.unflushDataHold,
+                this.dataPath, this.deleteWhen, this.deletePolicy,
                 this.numPartitions, this.acceptPublish,
                 this.acceptSubscribe, this.statusId,
                 this.numTopicStores, this.memCacheMsgSize,
@@ -218,6 +219,14 @@ public class TopicMetadata {
         this.unflushThreshold = unflushThreshold;
     }
 
+    public int getUnflushDataHold() {
+        return this.unflushDataHold;
+    }
+
+    public void setUnflushDataHold(final int unflushDataHold) {
+        this.unflushDataHold = unflushDataHold;
+    }
+
     public int getUnflushInterval() {
         return this.unflushInterval;
     }
@@ -264,6 +273,7 @@ public class TopicMetadata {
         result = prime * result + (this.topic == null ? 0 : this.topic.hashCode());
         result = prime * result + this.unflushInterval;
         result = prime * result + this.unflushThreshold;
+        result = prime * result + this.unflushDataHold;
         result = prime * result + this.statusId;
         result = prime * result + this.memCacheMsgSize;
         result = prime * result + this.memCacheMsgCnt;
@@ -327,6 +337,9 @@ public class TopicMetadata {
         if (this.unflushThreshold != other.unflushThreshold) {
             return false;
         }
+        if (this.unflushDataHold != other.unflushDataHold) {
+            return false;
+        }
         if (this.statusId != other.statusId) {
             return false;
         }
@@ -356,6 +369,7 @@ public class TopicMetadata {
         return (this.numPartitions == other.numPartitions
                 && this.unflushInterval == other.unflushInterval
                 && this.unflushThreshold == other.unflushThreshold
+                && this.unflushDataHold == other.unflushDataHold
                 && this.memCacheMsgSize == other.memCacheMsgSize
                 && this.memCacheMsgCnt == other.memCacheMsgCnt
                 && this.memCacheFlushIntvl == other.memCacheFlushIntvl
@@ -367,6 +381,7 @@ public class TopicMetadata {
         return new StringBuilder(512).append("TopicMetadata [topic=").append(this.topic)
                 .append(", unflushThreshold=").append(this.unflushThreshold)
                 .append(", unflushInterval=").append(this.unflushInterval)
+                .append(", unflushDataHold=").append(this.unflushDataHold)
                 .append(", dataPath=").append(this.dataPath)
                 .append(", deleteWhen=").append(this.deleteWhen)
                 .append(", deletePolicy=").append(this.deletePolicy)

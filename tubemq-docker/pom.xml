@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.tubemq</groupId>
         <artifactId>tubemq</artifactId>
-        <version>0.5.0-incubating-SNAPSHOT</version>
+        <version>0.7.0-incubating-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -54,6 +54,18 @@
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/README.md</exclude>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/.helmignore</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

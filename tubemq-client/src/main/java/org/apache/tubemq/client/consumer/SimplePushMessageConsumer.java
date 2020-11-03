@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.client.consumer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
@@ -113,6 +114,26 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
         return baseConsumer.getCurConsumedPartitions();
     }
 
+    @Override
+    public void freezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.freezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void unfreezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.unfreezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void relAllFrozenPartitions() {
+        this.baseConsumer.relAllFrozenPartitions();
+    }
+
+    @Override
+    public Map<String, Long> getFrozenPartInfo() {
+        return baseConsumer.getFrozenPartInfo();
+    }
+
     protected BaseMessageConsumer getBaseConsumer() {
         return this.baseConsumer;
     }
@@ -186,7 +207,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                     isConsumed = notifyListener(taskContext, topicProcessor, sBuilder);
                 } catch (Throwable e) {
                     isConsumed =
-                            baseConsumer.consumerConfig.isPushListenerThrowedRollBack();
+                            (!baseConsumer.consumerConfig.isPushListenerThrowedRollBack());
                     logMessageProcessFailed(taskContext, e);
                 }
             }
@@ -194,7 +215,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
         baseConsumer.rmtDataCache.succRspRelease(taskContext.getPartition().getPartitionKey(),
                 taskContext.getPartition().getTopic(), taskContext.getUsedToken(),
                 isConsumed, isFilterConsume(taskContext.getPartition().getTopic()),
-                taskContext.getCurrOffset());
+                taskContext.getCurrOffset(), taskContext.getMaxOffset());
 
         // Warning if the process time is too long
         long cost = System.currentTimeMillis() - startTime;
@@ -241,7 +262,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                 if (msgListener instanceof MessageV2Listener) {
                     MessageV2Listener msgV2Listener = (MessageV2Listener) msgListener;
                     msgV2Listener.receiveMessages(new PeerInfo(request.getPartition(),
-                                    request.getCurrOffset()), request.getMessageList());
+                            request.getCurrOffset(), request.getMaxOffset()), request.getMessageList());
                 } else {
                     msgListener.receiveMessages(request.getMessageList());
                 }

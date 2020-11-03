@@ -96,25 +96,24 @@ public final class MessageConsumerExample {
             topicTidsMap.put(topicTidStr[0], tids);
         }
         final int startFetchCount = fetchCount;
-        final ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    for (int i = 0; i < consumerCount; i++) {
+        final ExecutorService executorService = Executors.newFixedThreadPool(fetchCount);
+        for (int i = 0; i < consumerCount; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
                         MessageConsumerExample messageConsumer = new MessageConsumerExample(
                                 masterHostAndPort,
                                 group,
                                 startFetchCount
                         );
                         messageConsumer.subscribe(topicTidsMap);
+                    } catch (Exception e) {
+                        logger.error("Create consumer failed!", e);
                     }
-                } catch (Exception e) {
-                    logger.error("Create consumer failed!", e);
                 }
-            }
-        });
-
+            });
+        }
         final Thread statisticThread = new Thread(msgRecvStats, "Received Statistic Thread");
         statisticThread.start();
 

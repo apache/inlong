@@ -46,7 +46,8 @@ public class ConsumerResult {
         this.errCode = taskContext.getErrCode();
         this.errMsg = taskContext.getErrMsg();
         this.topicName = taskContext.getPartition().getTopic();
-        peerInfo.setMsgSourceInfo(taskContext.getPartition(), taskContext.getCurrOffset());
+        peerInfo.setMsgSourceInfo(taskContext.getPartition(),
+                taskContext.getCurrOffset(), taskContext.getMaxOffset());
         if (this.success) {
             this.messageList = taskContext.getMessageList();
             this.confirmContext = taskContext.getConfirmContext();
@@ -54,12 +55,13 @@ public class ConsumerResult {
     }
 
     public ConsumerResult(boolean isSuccess, int errCode, String errMsg,
-                          String topicName, Partition partition, long currOffset) {
+                          String topicName, Partition partition,
+                          long currOffset, long maxOffset) {
         this.success = isSuccess;
         this.errCode = errCode;
         this.errMsg = errMsg;
         this.topicName = topicName;
-        this.peerInfo.setMsgSourceInfo(partition, currOffset);
+        this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
     public boolean isSuccess() {
@@ -96,5 +98,9 @@ public class ConsumerResult {
 
     public final List<Message> getMessageList() {
         return messageList;
+    }
+
+    public long getMaxOffset() {
+        return peerInfo.getMaxOffset();
     }
 }

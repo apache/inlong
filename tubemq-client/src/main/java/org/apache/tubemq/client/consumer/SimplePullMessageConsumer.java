@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.client.consumer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import org.apache.tubemq.client.config.ConsumerConfig;
@@ -29,6 +30,7 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.ThreadUtils;
 
 /**
  * An implementation of PullMessageConsumer
@@ -84,6 +86,26 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
     }
 
     @Override
+    public void freezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.freezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void unfreezePartitions(List<String> partitionKeys) throws TubeClientException {
+        baseConsumer.unfreezePartitions(partitionKeys);
+    }
+
+    @Override
+    public void relAllFrozenPartitions() {
+        this.baseConsumer.relAllFrozenPartitions();
+    }
+
+    @Override
+    public Map<String, Long> getFrozenPartInfo() {
+        return baseConsumer.getFrozenPartInfo();
+    }
+
+    @Override
     public PullMessageConsumer subscribe(String topic,
                                          TreeSet<String> filterConds) throws TubeClientException {
         baseConsumer.subscribe(topic, filterConds, null);
@@ -109,9 +131,27 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         if (!baseConsumer.isSubscribed()) {
             throw new TubeClientException("Please complete topic's Subscribe call first!");
         }
+        PartitionSelectResult selectResult = null;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            if (baseConsumer.isShutdown()) {
+                return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
+                        "Client instance has been shutdown!");
+            }
+            selectResult = baseConsumer.rmtDataCache.getCurrPartsStatus();
+            if (selectResult.isSuccess()) {
+                break;
+            }
+            if ((baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs() >= 0)
+                && (System.currentTimeMillis() - startTime >=
+                    baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs())) {
+                return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
+            }
+            ThreadUtils.sleep(baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs());
+        }
         StringBuilder sBuilder = new StringBuilder(512);
         // Check the data cache first
-        PartitionSelectResult selectResult = baseConsumer.rmtDataCache.pullSelect();
+        selectResult = baseConsumer.rmtDataCache.pullSelect();
         if (!selectResult.isSuccess()) {
             return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
         }
@@ -128,6 +168,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         }
         StringBuilder sBuilder = new StringBuilder(512);
         long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
+        long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
         // Verify if the confirmContext is valid
         if (TStringUtils.isBlank(confirmContext)) {
             throw new TubeClientException("ConfirmContext is null !");
@@ -164,28 +205,29 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         }
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
+                timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
             return new ConsumerResult(true, TErrCodeConstants.SUCCESS,
-                    "OK!", topicName, curPartition, currOffset);
+                    "OK!", topicName, curPartition, currOffset, maxOffset);
         } else {
             try {
                 ClientBroker.CommitOffsetResponseB2C commitResponse =
-                        baseConsumer.getBrokerService(curPartition.getBroker())
-                                .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
-                                        AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
+                    baseConsumer.getBrokerService(curPartition.getBroker())
+                        .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
+                            AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
                 if (commitResponse == null) {
-                    return new ConsumerResult(TErrCodeConstants.BAD_REQUEST, sBuilder
-                            .append("Confirm ").append(confirmContext)
-                            .append("'s offset failed!").toString());
+                    return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
+                            sBuilder.append("Confirm ").append(confirmContext)
+                                    .append("'s offset failed!").toString());
                 } else {
-                    if (commitResponse.hasCurrOffset()) {
-                        if (commitResponse.getCurrOffset() >= 0) {
-                            currOffset = commitResponse.getCurrOffset();
-                        }
+                    if (commitResponse.hasCurrOffset() && commitResponse.getCurrOffset() >= 0) {
+                        currOffset = commitResponse.getCurrOffset();
+                    }
+                    if (commitResponse.hasMaxOffset() && commitResponse.getMaxOffset() >= 0) {
+                        maxOffset = commitResponse.getMaxOffset();
                     }
                     return new ConsumerResult(commitResponse.getSuccess(),
                             commitResponse.getErrCode(), commitResponse.getErrMsg(),
-                            topicName, curPartition, currOffset);
+                            topicName, curPartition, currOffset, maxOffset);
                 }
             } catch (Throwable e) {
                 sBuilder.delete(0, sBuilder.length());
@@ -193,7 +235,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                         .append(confirmContext).append("'s offset failed.").toString(), e);
             } finally {
                 baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                        timeStamp, isConsumed, isFilterConsume(topicName), currOffset);
+                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
             }
         }
     }

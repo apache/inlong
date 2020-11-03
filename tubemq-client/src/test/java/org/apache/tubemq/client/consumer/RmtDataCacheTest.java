@@ -55,7 +55,7 @@ public class RmtDataCacheTest {
         assertTrue(brokerInfos.contains(brokerInfo));
 
         assertEquals(expectPartition.getPartitionId(), cache.getPartitionByKey("1:test:1").getBrokerId());
-        cache.addPartition(new Partition(brokerInfo, "test", 2), 10);
+        cache.addPartition(new Partition(brokerInfo, "test", 2), 10, 20);
         assertEquals(2, cache.getBrokerPartitionList(brokerInfo).size());
 
         assertTrue(cache.isPartitionsReady(1000));
@@ -65,12 +65,12 @@ public class RmtDataCacheTest {
         assertEquals(1, cache.getBrokerPartitionList(brokerInfo).size());
         assertEquals(1, cache.getCurPartitionInfoMap().size());
         assertEquals(1, cache.getAllPartitionListWithStatus().size());
-        cache.resumeTimeoutConsumePartitions(1000);
+        cache.resumeTimeoutConsumePartitions(true, 1000);
         Map<BrokerInfo, List<Partition>> infoMap = new HashMap<>();
         cache.removeAndGetPartition(infoMap, new ArrayList<String>(), 1000, true);
         cache.getSubscribeInfoList("test", "test");
         cache.errReqRelease("1:test:2", 1000, true);
-        cache.succRspRelease("1:test:2", "test", 1000, true, true, 1000);
+        cache.succRspRelease("1:test:2", "test", 1000, true, true, 1000, 2000);
         cache.close();
     }
 }

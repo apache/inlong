@@ -8,7 +8,7 @@ docker pull apachetubemq/tubemq-all:latest
 
 ##### Start Standalone Container
 ```
-docker run -p 8080:8080 -p 8000:8000 --name tubemq -d apachetubemq/tubemq-all:latest
+docker run -p 8080:8080 -p 8000:8000 -p 8123:8123 --name tubemq -d apachetubemq/tubemq-all:latest
 ```
 this command will start zookeeper/master/broker service in one container.
 #### Add Topic

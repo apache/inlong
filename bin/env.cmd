@@ -28,4 +28,4 @@ set JAVA="%JAVA_HOME%\bin\java"
 
 REM One may add extra Java runtime flags in addition to each role: Master or Broker
 set MASTER_JVM_OPTS=-Xmx1g -Xms256m -server
-set BROKER_JVM_OPTS=-Xmx1g -Xms512g -server
+set BROKER_JVM_OPTS=-Xmx1g -Xms512m -server
