@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tubemq.manager.controller.TubeResult;
 import org.apache.tubemq.manager.entry.TopicEntry;
 import org.apache.tubemq.manager.entry.TopicStatus;
 import org.apache.tubemq.manager.exceptions.TubeMQManagerException;
@@ -53,7 +54,7 @@ public class TopicController {
      * @throws Exception - exception
      */
     @PostMapping("/add")
-    public TopicResult addTopic(@RequestBody TopicEntry entry) {
+    public TubeResult addTopic(@RequestBody TopicEntry entry) {
         // entry in adding status
         entry.setStatus(TopicStatus.ADDING.value());
         topicRepository.saveAndFlush(entry);
@@ -68,7 +69,7 @@ public class TopicController {
             }
             topicRepository.saveAndFlush(entry1);
         });
-        return new TopicResult();
+        return new TubeResult();
     }
 
     /**
@@ -78,8 +79,8 @@ public class TopicController {
      * @throws Exception
      */
     @PostMapping("/update")
-    public TopicResult updateTopic(@RequestBody TopicEntry entry) {
-        return new TopicResult();
+    public TubeResult updateTopic(@RequestBody TopicEntry entry) {
+        return new TubeResult();
     }
 
     /**
@@ -89,10 +90,10 @@ public class TopicController {
      * @throws Exception
      */
     @GetMapping("/check")
-    public TopicResult checkTopicByBusinessName(
+    public TubeResult checkTopicByBusinessName(
             @RequestParam String businessName) {
         List<TopicEntry> result = topicRepository.findAllByBusinessName(businessName);
-        return new TopicResult();
+        return new TubeResult();
     }
 
     /**
@@ -103,13 +104,13 @@ public class TopicController {
      * @throws Exception
      */
     @GetMapping("/get/{id}")
-    public TopicResult getBusinessByID(
+    public TubeResult getBusinessByID(
             @PathVariable Long id) {
         Optional<TopicEntry> businessEntry = topicRepository.findById(id);
-        TopicResult result = new TopicResult();
+        TubeResult result = new TubeResult();
         if (!businessEntry.isPresent()) {
-            result.setCode(-1);
-            result.setMessage("business not found");
+            result.setErrCode(-1);
+            result.setErrMsg("business not found");
         }
         return result;
     }
@@ -119,7 +120,7 @@ public class TopicController {
      * @return
      */
     @GetMapping("/throwException")
-    public TopicResult throwException() {
+    public TubeResult throwException() {
         throw new TubeMQManagerException("exception for test");
     }
 }
