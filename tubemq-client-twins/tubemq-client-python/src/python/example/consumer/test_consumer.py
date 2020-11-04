@@ -17,6 +17,8 @@
 # under the License.
 #
 
+from __future__ import print_function
+
 import tubemq_client
 import tubemq_config
 import tubemq_errcode
@@ -38,24 +40,24 @@ consumer_config.setRpcReadTimeoutMs(20000)
 # set master addr
 result = consumer_config.setMasterAddrInfo(err_info, master_addr)
 if not result:
-    print "Set Master AddrInfo failure:", err_info
+    print("Set Master AddrInfo failure:", err_info)
     exit(1)
 
 # set master addr
 result = consumer_config.setGroupConsumeTarget(err_info, group_name, topic_list)
 if not result:
-    print "Set GroupConsume Target failure:", err_info
+    print("Set GroupConsume Target failure:", err_info)
     exit(1)
 
 # StartTubeMQService
 result = tubemq_client.startTubeMQService(err_info, conf_file)
 if not result:
-    print "StartTubeMQService failure:", err_info
+    print("StartTubeMQService failure:", err_info)
     exit(1)
 
 result = py_consumer.start(err_info, consumer_config)
 if not result:
-    print "Initial consumer failure, error is:", err_info
+    print("Initial consumer failure, error is:", err_info)
     exit(1)
 
 gentRet = tubemq_return.ConsumerResult()
@@ -65,7 +67,7 @@ while True:
     result = py_consumer.getMessage(gentRet)
     if result:
         msgs = gentRet.getMessageList()
-        print "GetMessage success, msssage count =", len(msgs)
+        print("GetMessage success, msssage count =", len(msgs))
         result = py_consumer.confirm(gentRet.getConfirmContext(), True, confirm_result)
     else:
         # 2.2.1 if failure, check error code
@@ -76,7 +78,7 @@ while True:
                 or not gentRet.getErrCode() == tubemq_errcode.Result.kErrNoPartAssigned \
                 or not gentRet.getErrCode() == tubemq_errcode.Result.kErrAllPartInUse \
                 or not gentRet.getErrCode() == tubemq_errcode.Result.kErrAllPartWaiting:
-            print 'GetMessage failure, err_code=%d, err_msg is:%s', gentRet.getErrCode(), gentRet.getErrMessage()
+            print('GetMessage failure, err_code=%d, err_msg is:%s', gentRet.getErrCode(), gentRet.getErrMessage())
 
     # used for test, consume 10 minutes only
     stop_time = time.time()
@@ -87,5 +89,5 @@ while True:
 result = py_consumer.shutDown()
 result = tubemq_client.stopTubeMQService(err_info)
 if not result:
-    print "StopTubeMQService failure, reason is:" + err_info
+    print("StopTubeMQService failure, reason is:" + err_info)
     exit(1)
