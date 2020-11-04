@@ -25,12 +25,42 @@ import sys
 
 __version__ = "0.0.1"
 
+# The main interface is through Pybind11Extension.
+# the include dir of TubeMQ C++ installed in /usr/local/include/
+# include_dirs=["/usr/local/include/"], runtime_library_dirs=["/usr/local/lib"],
+# yum install python-devel
+
 ext_modules = [
     Pybind11Extension("tubemq_client",
-        sorted(glob("src/cpp/*.cc")),
+        sorted(glob("src/cpp/tubemq_client.cc")),
         cxx_std=11,
+        extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
         define_macros=[('VERSION_INFO', __version__)],
-        )
+        ),
+    Pybind11Extension("tubemq_config",
+                      sorted(glob("src/cpp/tubemq_config.cc")),
+                      cxx_std=11,
+                      extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
+                      define_macros=[('VERSION_INFO', __version__)],
+                      ),
+    Pybind11Extension("tubemq_errcode",
+                      sorted(glob("src/cpp/tubemq_errcode.cc")),
+                      cxx_std=11,
+                      extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
+                      define_macros=[('VERSION_INFO', __version__)],
+                      ),
+    Pybind11Extension("tubemq_message",
+                      sorted(glob("src/cpp/tubemq_message.cc")),
+                      cxx_std=11,
+                      extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
+                      define_macros=[('VERSION_INFO', __version__)],
+                      ),
+    Pybind11Extension("tubemq_return",
+                      sorted(glob("src/cpp/tubemq_return.cc")),
+                      cxx_std=11,
+                      extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
+                      define_macros=[('VERSION_INFO', __version__)],
+                      )
 ]
 
 setup(
