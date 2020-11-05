@@ -37,6 +37,7 @@ import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -94,6 +95,33 @@ public class ClusterController {
         String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
                 + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(queryBody);
         return queryMaster(url);
+    }
+
+    /**
+     * modify cluster info, need to check token and
+     * make sure user has authorization to modify it.
+     */
+    @RequestMapping(value = "/modify", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String modifyClusterInfo(
+            @RequestBody Map<String, String> requestBody) throws Exception {
+        String token = requestBody.get("confModAuthToken");
+        log.info("token is {}, request body size is {}", token, requestBody.keySet());
+        int clusterId = Integer.parseInt(requestBody.get("clusterId"));
+        if (StringUtils.isNotBlank(token)) {
+            requestBody.remove("clusterId");
+            NodeEntry nodeEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+                    clusterId);
+            String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
+                    + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(requestBody);
+            return queryMaster(url);
+        } else {
+            TubeResult result = new TubeResult();
+            result.setErrCode(-1);
+            result.setResult(false);
+            result.setErrMsg("token is not correct");
+            return gson.toJson(result);
+        }
     }
 
 
