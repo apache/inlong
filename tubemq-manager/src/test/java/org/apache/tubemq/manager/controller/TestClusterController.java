@@ -20,6 +20,7 @@ package org.apache.tubemq.manager.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -59,7 +61,7 @@ public class TestClusterController {
     private NodeEntry getNodeEntry() {
         NodeEntry nodeEntry = new NodeEntry();
         nodeEntry.setMaster(true);
-        nodeEntry.setIp("10.215.128.83");
+        nodeEntry.setIp("127.0.0.1");
         nodeEntry.setWebPort(8080);
         return nodeEntry;
     }
@@ -117,5 +119,32 @@ public class TestClusterController {
                 result.getResponse().getContentType());
     }
 
-
+    @Test
+    public void testTopicAdd() throws Exception {
+        String jsonStr = "{\n"
+                + "  \"type\": \"op_modify\",\n"
+                + "  \"method\": \"admin_add_new_topic_record\",\n"
+                + "  \"confModAuthToken\": \"test\",\n"
+                + "  \"clusterId\": 1,\n"
+                + "  \"createUser\": \"webapi\",\n"
+                + "  \"topicName\": \"test\",\n"
+                + "  \"deleteWhen\": \"0 0 0 0 0\",\n"
+                + "  \"unflushThreshold\": 1000,\n"
+                + "  \"acceptPublish\": true,\n"
+                + "  \"numPartitions\": 3,\n"
+                + "  \"deletePolicy\": \"\",\n"
+                + "  \"unflushInterval\": 1000,\n"
+                + "  \"acceptSubscribe\": true,\n"
+                + "  \"brokerId\": 12323\n"
+                + "}\n";
+        NodeEntry nodeEntry = getNodeEntry();
+        when(nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(any(Integer.class)))
+                .thenReturn(nodeEntry);
+        RequestBuilder request = post("/v1/cluster/modify")
+                .contentType(MediaType.APPLICATION_JSON).content(jsonStr);
+        MvcResult result = mockMvc.perform(request).andReturn();
+        String resultStr = result.getResponse().getContentAsString();
+        log.info("result json string is {}, response type is {}", resultStr,
+                result.getResponse().getContentType());
+    }
 }
