@@ -14,15 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.manager.controller.topic;
+
+package org.apache.tubemq.manager.controller;
 
 import lombok.Data;
 
-/**
- * rest result for business controller
- */
 @Data
-public class TopicResult {
-    private String message;
-    private int code = 0;
+public class TubeResult {
+    private String errMsg;
+    private int errCode = 0;
+    private boolean result = true;
 }

@@ -16,9 +16,6 @@
  */
 
 package org.apache.tubemq.manager.controller;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.tubemq.manager.controller.topic.TopicResult;
-import org.apache.tubemq.manager.exceptions.TubeMQManagerException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -29,18 +26,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ManagerControllerAdvice {
 
     /**
-     * handling business TubeMQManagerException, and return json format string.
+     * handling exception, and return json format string.
      *
-     * @param request - http request
-     * @param ex - exception
-     * @return entity
+     * @param ex
+     * @return
      */
-    @ExceptionHandler(TubeMQManagerException.class)
-    public TopicResult handlingBusinessException(HttpServletRequest request,
-            TubeMQManagerException ex) {
-        TopicResult result = new TopicResult();
-        result.setMessage(ex.getMessage());
-        result.setCode(-1);
+    @ExceptionHandler(Exception.class)
+    public TubeResult handlingParameterException(Exception ex) {
+        TubeResult result = new TubeResult();
+        result.setErrMsg(ex.getClass().getName() + " " + ex.getMessage());
+        result.setErrCode(-1);
         return result;
     }
 }

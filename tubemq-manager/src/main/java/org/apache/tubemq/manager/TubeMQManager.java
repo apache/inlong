@@ -42,7 +42,7 @@ public class TubeMQManager {
     @Value("${manager.async.thread.prefix:AsyncThread-}")
     private String threadPrefix;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication.run(TubeMQManager.class);
     }
 

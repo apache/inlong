@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.controller.topic.TopicController;
-import org.apache.tubemq.manager.controller.topic.TopicResult;
 import org.apache.tubemq.manager.entry.TopicEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +39,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -82,8 +82,8 @@ public class TestBusinessController {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<TopicEntry> request = new HttpEntity<>(entry, headers);
 
-        ResponseEntity<TopicResult> responseEntity =
-                client.postForEntity(uri, request, TopicResult.class);
+        ResponseEntity<TubeResult> responseEntity =
+                client.postForEntity(uri, request, TubeResult.class);
         assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isEqualTo(true);
     }
 
@@ -91,9 +91,9 @@ public class TestBusinessController {
     public void testControllerException() throws Exception {
         final String baseUrl = "http://localhost:" + randomServerPort + "/business/throwException";
         URI uri = new URI(baseUrl);
-        ResponseEntity<TopicResult> responseEntity =
-                client.getForEntity(uri, TopicResult.class);
-        assertThat(Objects.requireNonNull(responseEntity.getBody()).getCode()).isEqualTo(-1);
-        assertThat(responseEntity.getBody().getMessage()).isEqualTo("exception for test");
+        ResponseEntity<TubeResult> responseEntity =
+                client.getForEntity(uri, TubeResult.class);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).getErrCode()).isEqualTo(-1);
+        assertTrue(responseEntity.getBody().getErrMsg().contains("exception for test"));
     }
 }
