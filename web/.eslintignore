@@ -1,0 +1,5 @@
+node_modules/**
+dist/**
+public/**
+src/serviceWorker.ts
+mock
