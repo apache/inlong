@@ -45,22 +45,22 @@ We always welcome new contributions, whether for trivial cleanups, new features 
 
 ### Build Distribution Tarball
 
-- Compile and Package
+- Compile and Package:
 ```bash
 mvn clean package -DskipTests
 ```
-- (Optional) Build Using Docker：
+- (Optional) Build Using Docker:
 ```bash
 docker run -v REPLACE_WITH_SOURCE_PATH:/tubemq  apachetubemq/tubemq-build clean package -DskipTests
 ```
-- Run Unit Tests：
+- Run Unit Tests:
 ```bash
 mvn test
 ```
-- Build Individual Module：
+- Build Individual Module:
 ```bash
 mvn clean install
-cd module-name (比如: tubemq-client)
+cd module-name (e.g. tubemq-client)
 mvn test
 ```
 After the build, please go to `tubemq-server/target`. You can find the
@@ -89,13 +89,13 @@ This command will generate the Java source files from the `protoc` files, the ge
 ## Deploy and Start
 
 ### Deploy TubeMQ Standalone
-Standalone mode starts zookeeper/master/broker services in one docker container：
+Standalone mode starts zookeeper/master/broker services in one docker container:
 ```
 docker run -p 8080:8080 -p 8000:8000 -p 8123:8123 --name tubemq -d apachetubemq/tubemq-all:latest
 ```
-Afater container is running, you can access ` http://127.0.0.1:8080`, and reference to next `Quick Start` chapter for experience.
+After container is running, you can access ` http://127.0.0.1:8080`, and reference to next `Quick Start` chapter for experience.
 
-**Tips**：Standalone Mode is only available for development and experience, it's not designed for production environment.
+**Tips**: Standalone Mode is only available for development and experience, it's not designed for production environment.
 
 
 ### Deploy TubeMQ Cluster
