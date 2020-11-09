@@ -32,7 +32,7 @@ It offers a variety of features:
 
 ## Contributing
 
-We always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [here](https://tubemq.apache.org/en-us/docs/development/how-to-contribute.html) 
+We always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [here](https://tubemq.apache.org/en-us/docs/development/how-to-contribute.html).
 
 
 
@@ -99,7 +99,7 @@ After container is running, you can access ` http://127.0.0.1:8080`, and referen
 
 
 ### Deploy TubeMQ Cluster
-For the detail deployment and configuration of TubeMQ cluster nodes, please refer to the introduction of "Deploy TubeMQ Cluster" (https://tubemq.apache.org/en-us/docs/quick_start.html)
+For the detail deployment and configuration of TubeMQ cluster nodes, please refer to the introduction of [Deploy TubeMQ Cluster](https://tubemq.apache.org/en-us/docs/quick_start.html).
 
 
 
