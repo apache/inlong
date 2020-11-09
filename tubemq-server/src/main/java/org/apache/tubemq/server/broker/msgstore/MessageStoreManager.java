@@ -341,7 +341,6 @@ public class MessageStoreManager implements StoreService {
      * Get message from store.
      *
      * @param msgStore
-     * @param topic
      * @param partitionId
      * @param msgCount
      * @param filterCondSet
@@ -349,7 +348,6 @@ public class MessageStoreManager implements StoreService {
      * @throws IOException
      */
     public GetMessageResult getMessages(final MessageStore msgStore,
-                                        final String topic,
                                         final int partitionId,
                                         final int msgCount,
                                         final Set<String> filterCondSet) throws IOException {
@@ -357,15 +355,16 @@ public class MessageStoreManager implements StoreService {
         try {
             final long maxOffset = msgStore.getIndexMaxOffset();
             ConsumerNodeInfo consumerNodeInfo =
-                    new ConsumerNodeInfo(metadataManager, maxMsgTransferSize, filterCondSet);
+                    new ConsumerNodeInfo(metadataManager,
+                            partitionId, maxMsgTransferSize, filterCondSet);
             int maxIndexReadSize = (msgCount + 1)
                     * DataStoreUtils.STORE_INDEX_HEAD_LEN * msgStore.getPartitionNum();
             if (filterCondSet != null && !filterCondSet.isEmpty()) {
                 maxIndexReadSize *= 5;
             }
             requestOffset = maxOffset - maxIndexReadSize < 0 ? 0L : maxOffset - maxIndexReadSize;
-            return msgStore.getMessages(303, requestOffset, partitionId,
-                    consumerNodeInfo, topic, this.maxMsgTransferSize);
+            return msgStore.getMessages(303,
+                    requestOffset, consumerNodeInfo, this.maxMsgTransferSize);
         } catch (Throwable e1) {
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, "Get message failure, errMsg=" + e1.getMessage());

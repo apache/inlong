@@ -315,9 +315,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         boolean isEscFlowCtrl = request.hasEscFlowCtrl() && request.getEscFlowCtrl();
         String partStr = getPartStr(groupName, topicName, partitionId);
         String consumerId = null;
-        ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
-        if (consumerNodeInfo != null) {
-            consumerId = consumerNodeInfo.getConsumerId();
+        ConsumerNodeInfo nodeInfo = consumerRegisterMap.get(partStr);
+        if (nodeInfo != null) {
+            consumerId = nodeInfo.getConsumerId();
         }
         if (consumerId == null) {
             logger.warn(strBuffer.append("[UnRegistered Consumer]").append(clientId)
@@ -339,9 +339,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(strBuffer.toString());
             return builder.build();
         }
-        String rmtAddrInfo = consumerNodeInfo.getRmtAddrInfo();
         try {
-            heartbeatManager.updConsumerNode(consumerNodeInfo.getHeartbeatNodeId());
+            heartbeatManager.updConsumerNode(nodeInfo.getHeartbeatNodeId());
         } catch (HeartbeatException e) {
             logger.warn(strBuffer.append("[Invalid Request]").append(clientId)
                     .append(TokenConstants.SEGMENT_SEP).append(topicName)
@@ -368,11 +367,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             dataStore = this.storeManager.getOrCreateMessageStore(topicName, partitionId);
             isGetStore = true;
             GetMessageResult msgResult =
-                    getMessages(dataStore, consumerNodeInfo, groupName, topicName, partitionId,
-                            request.getLastPackConsumed(), request.getManualCommitOffset(),
-                            clientId, this.tubeConfig.getHostName(), rmtAddrInfo, isEscFlowCtrl, strBuffer);
+                    getMessages(dataStore, nodeInfo, request.getLastPackConsumed(),
+                            request.getManualCommitOffset(), isEscFlowCtrl, strBuffer);
             if (msgResult.isSuccess) {
-                consumerNodeInfo.recordConsumeInfo(
+                nodeInfo.recordConsumeInfo(
                         msgResult.lastRdDataOffset,
                         msgResult.totalMsgSize);
                 getCounterGroup.add(msgResult.tmpCounters);
@@ -417,14 +415,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      *
      * @param msgStore
      * @param nodeInfo
-     * @param group
-     * @param topic
-     * @param partitionId
      * @param lastConsumed
      * @param isManualCommitOffset
-     * @param sentAddr
-     * @param brokerAddr
-     * @param rmtAddrInfo
      * @param isEscFlowCtrl
      * @param sb
      * @return
@@ -432,10 +424,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     private GetMessageResult getMessages(final MessageStore msgStore,
                                          final ConsumerNodeInfo nodeInfo,
-                                         final String group, final String topic,
-                                         final int partitionId, final boolean lastConsumed,
-                                         final boolean isManualCommitOffset, final String sentAddr,
-                                         final String brokerAddr, final String rmtAddrInfo,
+                                         final boolean lastConsumed,
+                                         final boolean isManualCommitOffset,
                                          boolean isEscFlowCtrl, final StringBuilder sb) throws IOException {
         long requestOffset =
                 offsetManager.getOffset(msgStore, nodeInfo,
@@ -458,13 +448,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             }
         }
         try {
-            String baseKey = sb.append(topic).append("#").append(brokerAddr)
-                    .append("#").append(sentAddr).append("#").append(rmtAddrInfo)
-                    .append("#").append(group).append("#").append(partitionId).toString();
-            sb.delete(0, sb.length());
             GetMessageResult msgQueryResult =
-                    msgStore.getMessages(reqSwitch, requestOffset,
-                            partitionId, nodeInfo, baseKey, msgDataSizeLimit);
+                    msgStore.getMessages(reqSwitch,
+                            requestOffset, nodeInfo, msgDataSizeLimit);
             offsetManager.bookOffset(nodeInfo,
                     msgQueryResult.lastReadOffset, isManualCommitOffset,
                     msgQueryResult.transferedMessageList.isEmpty(), sb);
@@ -473,8 +459,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         } catch (Throwable e1) {
             sb.delete(0, sb.length());
             logger.warn(sb.append("[Store Manager] get message failure, requestOffset=")
-                    .append(requestOffset).append(",group=").append(group).append(",topic=").append(topic)
-                    .append(",partitionId=").append(partitionId).toString(), e1);
+                    .append(requestOffset).append(", partstr=")
+                    .append(nodeInfo.getPartStr()).toString(), e1);
             sb.delete(0, sb.length());
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, sb.append("Get message failure, errMsg=")
@@ -537,7 +523,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 }
             }
             GetMessageResult getMessageResult =
-                    storeManager.getMessages(dataStore, topicName, partitionId, msgCount, filterCondSet);
+                    storeManager.getMessages(dataStore, partitionId, msgCount, filterCondSet);
             if ((getMessageResult.transferedMessageList == null)
                     || (getMessageResult.transferedMessageList.isEmpty())) {
                 sb.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
@@ -765,16 +751,16 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(authorizeResult.errInfo);
             return builder.build();
         }
-        String partStr = getPartStr(groupName, topicName, request.getPartitionId());
         ConsumerNodeInfo nodeInfo =
-                new ConsumerNodeInfo(partStr, isRegister, clientId,
-                        groupName, topicName, request.getPartitionId(), filterCondSet, overtls);
+                new ConsumerNodeInfo(tubeConfig, isRegister, clientId, groupName,
+                        topicName, request.getPartitionId(), filterCondSet, rmtAddress, overtls);
         Integer lid = null;
         Integer partLock = null;
         try {
             lid = brokerRowLock.getLock(null, StringUtils.getBytesUtf8(clientId), true);
             try {
-                partLock = brokerRowLock.getLock(null, StringUtils.getBytesUtf8(partStr), true);
+                partLock = brokerRowLock.getLock(null,
+                        StringUtils.getBytesUtf8(nodeInfo.getPartStr()), true);
                 switch (request.getOpType()) {
                     case RpcConstants.MSG_OPTYPE_REGISTER: {
                         return inProcessConsumerRegister(nodeInfo, request, builder, strBuffer);

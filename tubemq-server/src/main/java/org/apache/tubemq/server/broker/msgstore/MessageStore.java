@@ -157,18 +157,14 @@ public class MessageStore implements Closeable {
      *
      * @param reqSwitch
      * @param requestOffset
-     * @param partitionId
-     * @param consumerNodeInfo
-     * @param statisKeyBase
+     * @param nodeInfo
      * @param msgSizeLimit
      * @return
      * @throws IOException
      */
     public GetMessageResult getMessages(int reqSwitch,
                                         final long requestOffset,
-                                        final int partitionId,
-                                        final ConsumerNodeInfo consumerNodeInfo,
-                                        final String statisKeyBase,
+                                        final ConsumerNodeInfo nodeInfo,
                                         int msgSizeLimit) throws IOException {
         // #lizard forgives
         if (this.closed.get()) {
@@ -183,7 +179,7 @@ public class MessageStore implements Closeable {
                 requestOffset, "Can't found Message by index in cache");
         // determine position to read.
         reqSwitch = (reqSwitch <= 0)
-                ? 0 : (consumerNodeInfo.isFilterConsume() ? (reqSwitch % 100) : (reqSwitch / 100));
+                ? 0 : (nodeInfo.isFilterConsume() ? (reqSwitch % 100) : (reqSwitch / 100));
         if (reqSwitch > 1) {
             //　in read memory situation, read main memory or backup memory by consumer's config.
             long maxIndexOffset = TBaseConstants.META_VALUE_UNDEFINED;
@@ -198,20 +194,20 @@ public class MessageStore implements Closeable {
                             if (reqSwitch > 2) {
                                 memMsgRlt =
                                         // read from main memory.
-                                        msgMemStore.getMessages(consumerNodeInfo.getLastDataRdOffset(),
+                                        msgMemStore.getMessages(nodeInfo.getLastDataRdOffset(),
                                                 requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                                maxIndexReadLength, partitionId, false,
-                                                consumerNodeInfo.isFilterConsume(),
-                                                consumerNodeInfo.getFilterCondCodeSet());
+                                                maxIndexReadLength, nodeInfo.getPartitionId(), false,
+                                                nodeInfo.isFilterConsume(),
+                                                nodeInfo.getFilterCondCodeSet());
                             }
                         } else {
                             // read from backup memory.
                             memMsgRlt =
-                                    msgMemStoreBeingFlush.getMessages(consumerNodeInfo.getLastDataRdOffset(),
+                                    msgMemStoreBeingFlush.getMessages(nodeInfo.getLastDataRdOffset(),
                                             requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                            maxIndexReadLength, partitionId, true,
-                                            consumerNodeInfo.isFilterConsume(),
-                                            consumerNodeInfo.getFilterCondCodeSet());
+                                            maxIndexReadLength, nodeInfo.getPartitionId(), true,
+                                            nodeInfo.isFilterConsume(),
+                                            nodeInfo.getFilterCondCodeSet());
                         }
                     }
                 } finally {
@@ -231,7 +227,7 @@ public class MessageStore implements Closeable {
                             ClientBroker.TransferedMessage transferedMessage =
                                     DataStoreUtils.getTransferMsg(dataBuffer,
                                             dataBuffer.array().length,
-                                            countMap, statisKeyBase, strBuffer);
+                                            countMap, nodeInfo.getStatisKey(), strBuffer);
                             if (transferedMessage != null) {
                                 transferedMessageList.add(transferedMessage);
                             }
@@ -256,7 +252,7 @@ public class MessageStore implements Closeable {
             return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
                     reqNewOffset, 0, "current offset is exceed max file offset");
         }
-        maxIndexReadLength = consumerNodeInfo.isFilterConsume()
+        maxIndexReadLength = nodeInfo.isFilterConsume()
                 ? fileMaxFilterIndexReadSize.get() : fileMaxIndexReadSize.get();
         final ByteBuffer indexBuffer = ByteBuffer.allocate(maxIndexReadLength);
         Segment indexRecordView =
@@ -273,23 +269,23 @@ public class MessageStore implements Closeable {
         indexRecordView.read(indexBuffer, reqNewOffset);
         indexBuffer.flip();
         indexRecordView.relViewRef();
-        if ((msgFileStore.getDataHighMaxOffset() - consumerNodeInfo.getLastDataRdOffset()
+        if ((msgFileStore.getDataHighMaxOffset() - nodeInfo.getLastDataRdOffset()
             >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
             && msgSizeLimit > this.maxAllowRdSize) {
             msgSizeLimit = this.maxAllowRdSize;
         }
         GetMessageResult retResult =
-            msgFileStore.getMessages(partitionId,
-                consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
-                indexBuffer, consumerNodeInfo.isFilterConsume(),
-                consumerNodeInfo.getFilterCondCodeSet(),
-                statisKeyBase, msgSizeLimit);
+            msgFileStore.getMessages(nodeInfo.getPartitionId(),
+                    nodeInfo.getLastDataRdOffset(), reqNewOffset,
+                    indexBuffer, nodeInfo.isFilterConsume(),
+                    nodeInfo.getFilterCondCodeSet(),
+                    nodeInfo.getStatisKey(), msgSizeLimit);
         if (reqSwitch <= 1) {
             retResult.setMaxOffset(getFileIndexMaxOffset());
         } else {
             retResult.setMaxOffset(getIndexMaxOffset());
         }
-        if (consumerNodeInfo.isFilterConsume()
+        if (nodeInfo.isFilterConsume()
             && retResult.isSuccess
             && retResult.getLastReadOffset() > 0) {
             if ((getFileIndexMaxOffset()
