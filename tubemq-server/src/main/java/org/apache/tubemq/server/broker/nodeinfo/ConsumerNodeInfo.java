@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
 
 /***
@@ -36,7 +37,9 @@ public class ConsumerNodeInfo {
     private String topicName = "";
     private String offsetCacheKey;
     private String heartbeatNodeId;
+    private String statisKey;
     private String rmtAddrInfo;
+    private BrokerConfig tubeConfig;
     private boolean overTls = false;
     private int partitionId
             = TBaseConstants.META_VALUE_UNDEFINED;
@@ -58,7 +61,7 @@ public class ConsumerNodeInfo {
 
 
     public ConsumerNodeInfo(final MetadataManager metaManager,
-                            int maxXfeSize, Set<String> filterCodes) {
+                            int partitionId, int maxXfeSize, Set<String> filterCodes) {
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
                 this.filterCondStrs.add(filterItem);
@@ -68,19 +71,22 @@ public class ConsumerNodeInfo {
                 this.isFilterConsume = true;
             }
         }
+        this.partitionId = partitionId;
         this.qryPriorityId.set(TBaseConstants.META_VALUE_UNDEFINED);
         this.flowLimitInfo =
                 new FlowLimitInfo(metaManager, false, maxXfeSize);
     }
 
-    public ConsumerNodeInfo(String partStr, boolean isRegister,
+    public ConsumerNodeInfo(BrokerConfig tubeConfig, boolean isRegister,
                             String consumerId, String groupName, String topicName,
-                            int partitionId, Set<String> filterCodes, boolean overTls) {
-        this.partStr = partStr;
+                            int partitionId, Set<String> filterCodes, String rmtAddress,
+                            boolean overTls) {
+        this.tubeConfig = tubeConfig;
         this.consumerId = consumerId;
         this.groupName = groupName;
         this.topicName = topicName;
         this.partitionId = partitionId;
+        this.rmtAddrInfo = rmtAddress;
         this.overTls = overTls;
         buildSearchKeyInfo();
         if (isRegister && filterCodes != null) {
@@ -103,6 +109,10 @@ public class ConsumerNodeInfo {
 
     public long getLeftOffset() {
         return assignInfo.getLeftOffset();
+    }
+
+    public long getRightOffset() {
+        return assignInfo.getRightOffset();
     }
 
     public String getPartStr() {
@@ -131,6 +141,10 @@ public class ConsumerNodeInfo {
 
     public int getPartitionId() {
         return partitionId;
+    }
+
+    public String getStatisKey() {
+        return statisKey;
     }
 
     public boolean isOverTls() {
@@ -195,11 +209,21 @@ public class ConsumerNodeInfo {
 
     private void buildSearchKeyInfo() {
         StringBuilder sBuilder = new StringBuilder(512);
+        this.partStr = sBuilder.append(groupName).append(TokenConstants.ATTR_SEP)
+                .append(topicName).append(TokenConstants.ATTR_SEP).append(partitionId).toString();
+        sBuilder.delete(0, sBuilder.length());
         this.offsetCacheKey = sBuilder.append(topicName)
                 .append(TokenConstants.HYPHEN).append(partitionId).toString();
         sBuilder.delete(0, sBuilder.length());
         this.heartbeatNodeId = sBuilder.append(consumerId)
                 .append(TokenConstants.SEGMENT_SEP).append(partStr).toString();
+        sBuilder.delete(0, sBuilder.length());
+        this.statisKey =  sBuilder.append(topicName).append(TokenConstants.SEGMENT_SEP)
+                .append(tubeConfig.getHostName()).append(TokenConstants.SEGMENT_SEP)
+                .append(consumerId).append(TokenConstants.SEGMENT_SEP)
+                .append(rmtAddrInfo).append(TokenConstants.SEGMENT_SEP)
+                .append(groupName).append(TokenConstants.SEGMENT_SEP)
+                .append(partitionId).toString();
         sBuilder.delete(0, sBuilder.length());
         if (consumerId.lastIndexOf("_") != -1) {
             String targetStr = consumerId.substring(consumerId.lastIndexOf("_") + 1);
