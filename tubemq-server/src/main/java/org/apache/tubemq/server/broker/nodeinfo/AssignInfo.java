@@ -28,9 +28,8 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
  * Consumer request's consume task assign info
  */
 public class AssignInfo {
-    private boolean spAssign = false;
+    private boolean spAssign = false; // support assign partition
     private long taskId = TBaseConstants.META_VALUE_UNDEFINED;
-    private long rebalanceId = TBaseConstants.META_VALUE_UNDEFINED;
     private RangeType rangeType = RangeType.RANGE_SET_UNDEFINED;
     private TupleType tupleType = TupleType.TUPLE_VALUE_TYPE_ALL_OFFSET;
     private RangeTuple origTuple = new RangeTuple();
@@ -59,13 +58,12 @@ public class AssignInfo {
 
     public AssignInfo(ClientBroker.RegisterV2RequestC2B request) {
         this.spAssign = true;
-        ClientBroker.AssignTask assignTask =
-                request.hasAssignTask() ? request.getAssignTask() : null;
+        ClientBroker.InitRegTask assignTask =
+                request.hasInitRegTask() ? request.getInitRegTask() : null;
         if (assignTask == null) {
             return;
         }
         this.taskId = assignTask.getTaskId();
-        this.rebalanceId = assignTask.getRebalanceId();
         this.rangeType = RangeType.valueOf(assignTask.getRangeType());
         if (assignTask.hasTupleValueType()) {
             this.tupleType = TupleType.valueOf(assignTask.getTupleValueType());
@@ -76,8 +74,8 @@ public class AssignInfo {
         if (assignTask.hasRightValue()) {
             this.origTuple.setRightValue(assignTask.getRightValue());
         }
-        if (assignTask.hasAssignOpStatus()) {
-            rcvStatus = TupleOpStatus.valueOf(assignTask.getAssignOpStatus());
+        if (assignTask.hasOpStatus()) {
+            rcvStatus = TupleOpStatus.valueOf(assignTask.getOpStatus());
         }
     }
 
@@ -89,4 +87,11 @@ public class AssignInfo {
         return targetTuple.getLeftValue();
     }
 
+    public long getRightOffset() {
+        if (spAssign && (rangeType == RangeType.RANGE_SET_RIGHT_DEFINED
+                || rangeType == RangeType.RANGE_SET_BOTH_DEFINED)) {
+            return targetTuple.getRightValue();
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
 }
