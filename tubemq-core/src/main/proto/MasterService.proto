@@ -290,6 +290,83 @@ message CloseResponseM2B {
 
 /*************************** v2  ****************************/
 
+message ConsumeTarget {
+    required bool    requireAssign = 1;
+    repeated string  topicFilterInfo = 2;
+    optional string  sessionKey = 3;
+    optional int32   totalCount = 4;
+    optional int32   rangeType = 5;
+    optional int32   tupleValueType = 6;
+    optional int32   confSelect = 7;
+    optional string  assignPartitions = 8;
+}
+
+message PartInitInfo {
+    required string partitionKey = 1;
+    optional int32  rangeType = 2;
+    optional int32  tupleValueType = 3;
+    optional int64  leftValue = 4;
+    optional int64  rightValue = 5;
+    optional int32  opStatus = 6;
+}
+
+message RegInitInfo {
+    required int64 taskId = 1;
+    repeated PartInitInfo partInitInfo = 2;
+}
+
+message PolicyInfo {
+    optional int32 qryPriorityId = 1;
+    optional int64 defFlowCheckId = 2;
+    optional int64 groupFlowCheckId = 3;
+    optional string defFlowControlInfo = 4;
+    optional string groupFlowControlInfo = 5;
+}
+
+message RegisterV2RequestC2M {
+    required string clientId = 1;
+    required string groupName = 2;
+    required string hostName = 3;
+    required int64 sessionTime = 4;
+    required ConsumeTarget consumeTarget = 5;
+    /* consumerId@group-brokerId:host:port-topic:partitionId */
+    repeated string subscribeInfo = 6;
+    optional PolicyInfo policyInfo = 7;
+    optional RegInitInfo regInitInfo = 8;
+    optional MasterCertificateInfo authInfo = 9;
+    optional string jdkVersion = 10;
+}
+
+message RegisterV2ResponseM2C {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional RegInitInfo regInitInfo = 3;
+    optional PolicyInfo policyInfo = 4;
+    optional MasterAuthorizedInfo authorizedInfo = 5;
+}
+
+message HeartV2RequestC2M {
+    required string clientId = 1;
+    required string groupName = 2;
+    required bool reportSubscribeInfo = 3;
+    repeated string subscribeInfo = 4;
+    optional EventProto event = 5;
+    optional RegInitInfo regInitInfo = 6;
+    optional PolicyInfo policyInfo = 7;
+    optional MasterCertificateInfo authInfo = 8;
+}
+
+message HeartV2ResponseM2C {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional EventProto event = 3;
+    optional RegInitInfo regInitInfo = 4;
+    optional PolicyInfo policyInfo = 5;
+    optional bool requireAuth = 6;
+    optional MasterAuthorizedInfo authorizedInfo = 7;
+}
+
+
 message DataStorePath {
     required int32 recordId = 1;
     required bool isActive = 2;

@@ -141,22 +141,28 @@ message CommitOffsetResponseB2C {
     optional int64 maxOffset = 5;
 }
 
-message AssignTask {
-    required int64 taskId = 1;
-    required int64 rebalanceId = 2;
-    required int32 rangeType = 3;
-    optional int32 tupleValueType = 4;
-    optional int64 leftValue = 5;
-    optional int64 rightValue = 6;
-    optional int32 assignOpStatus = 7;
+/*************************** v2  ****************************/
+
+
+message PartOpStatus {
+    required string partitionKey = 1;
+    optional int32 opStatus = 2;
+    optional int64 leftProcessTime = 3;
+    optional int64 rightProcessTime = 4;
 }
 
-message AssignStatus {
+message InitRegTask {
     required int64 taskId = 1;
-    required int64 rebalanceId = 2;
-    optional int32 assignOpStatus = 3;
-    optional int64 leftProcessTime = 4;
-    optional int64 rightProcessTime = 5;
+    required int32 rangeType = 2;
+    optional int32 tupleValueType = 3;
+    optional int64 leftValue = 4;
+    optional int64 rightValue = 5;
+    optional int32 opStatus = 6;
+}
+
+message InitStatus {
+    required int64 taskId = 1;
+    repeated PartOpStatus partOpStatus = 2;
 }
 
 message RegisterV2RequestC2B {
@@ -168,15 +174,34 @@ message RegisterV2RequestC2B {
     required int32 readStatus = 6;
     repeated string filterCondStr = 7;
     optional int32 qryPriorityId = 8;
-    optional AssignTask assignTask = 9;
+    optional InitRegTask initRegTask = 9;
     optional AuthorizedInfo authInfo = 10;
 }
 
 message RegisterV2ResponseB2C {
-    required bool success = 1;
-    required int32 errCode = 2;
-    required string errMsg = 3;
-    optional AssignStatus assignStatus = 4;
-    optional int64 currOffset = 5;
-    optional int64 maxOffset = 6;
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional InitStatus initStatus = 3;
+    optional int64 currOffset = 4;
+    optional int64 maxOffset = 5;
+}
+
+message HeartBeatV2RequestC2B {
+    required string clientId = 1;
+    required string groupName = 2;
+    required int32 readStatus = 3;
+    /* brokerId:host:port:topic:partitionId:delayTimeStamp */
+    repeated string partitionInfo = 4;
+    optional int32 qryPriorityId = 5;
+    optional AuthorizedInfo authInfo = 6;
+}
+
+message HeartBeatV2ResponseB2C {
+    required int32 errCode = 1;
+    optional string errMsg = 2;
+    optional bool hasPartFailure = 3;
+    /* failCode:brokerId:host:port:topic:partitionId:delayTimeStamp */
+    repeated string failureInfo = 4;
+    optional InitStatus initStatus = 5;
+    optional bool requireAuth = 6;
 }
