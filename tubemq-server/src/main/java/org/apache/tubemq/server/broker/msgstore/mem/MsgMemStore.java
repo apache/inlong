@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,6 +30,7 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStore;
+import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.utils.AppendResult;
 import org.slf4j.Logger;
@@ -133,21 +133,17 @@ public class MsgMemStore implements Closeable {
     /***
      * Read from memory, read index, then data.
      *
-     * @param lstRdDataOffset
      * @param lstRdIndexOffset
      * @param maxReadSize
      * @param maxReadCount
-     * @param partitionId
      * @param isSecond
-     * @param isFilterConsume
-     * @param filterKeySet
      * @return
      */
-    public GetCacheMsgResult getMessages(final long lstRdDataOffset, final long lstRdIndexOffset,
-                                         final int maxReadSize, final int maxReadCount,
-                                         final int partitionId, final boolean isSecond,
-                                         final boolean isFilterConsume,
-                                         final Set<Integer> filterKeySet) {
+    public GetCacheMsgResult getMessages(final ConsumerNodeInfo nodeInfo,
+                                         final long lstRdIndexOffset,
+                                         final int maxReadSize,
+                                         final int maxReadCount,
+                                         final boolean isSecond) {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
@@ -161,16 +157,20 @@ public class MsgMemStore implements Closeable {
             return new GetCacheMsgResult(false, TErrCodeConstants.NOT_FOUND,
                     lstRdIndexOffset, "Request offset reached cache maxOffset");
         }
+        if (lstRdIndexOffset >= nodeInfo.getRightOffset()) {
+            return new GetCacheMsgResult(false, TErrCodeConstants.CONSUME_REACHED_RIGHT_BOUNDARY,
+                    lstRdIndexOffset, "The request offset reached right boundary!");
+        }
         int totalReadSize = 0;
         int currIndexOffset;
         int currDataOffset;
-        long lastDataRdOff = lstRdDataOffset;
+        long lastDataRdOff = nodeInfo.getLastDataRdOffset();
         int startReadOff = (int) (lstRdIndexOffset - this.writeIndexStartPos);
         this.writeLock.lock();
         try {
-            if (isFilterConsume) {
+            if (nodeInfo.isFilterConsume()) {
                 //　filter conduct. accelerate by keysMap.
-                for (Integer keyCode : filterKeySet) {
+                for (Integer keyCode : nodeInfo.getFilterCondCodeSet()) {
                     if (keyCode != null) {
                         lastWritePos = this.keysMap.get(keyCode);
                         if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
@@ -181,7 +181,7 @@ public class MsgMemStore implements Closeable {
                 }
             } else {
                 // orderly consume by partition id.
-                lastWritePos = this.queuesMap.get(partitionId);
+                lastWritePos = this.queuesMap.get(nodeInfo.getPartitionId());
                 if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
                     hasMsg = true;
                 }
@@ -195,7 +195,7 @@ public class MsgMemStore implements Closeable {
         int limitReadSize = currIndexOffset - startReadOff;
         // cannot find message, return not found
         if (!hasMsg) {
-            if (isSecond && !isFilterConsume) {
+            if (isSecond && !nodeInfo.isFilterConsume()) {
                 return new GetCacheMsgResult(true, 0, "Ok2",
                         lstRdIndexOffset, limitReadSize, lastDataRdOff, totalReadSize, cacheMsgList);
             } else {
@@ -212,6 +212,7 @@ public class MsgMemStore implements Closeable {
         int cKeyCode = 0;
         long cTimeRecv = 0L;
         int cDataOffset = 0;
+        long rightBoundary = nodeInfo.getRightOffset();
         ByteBuffer tmpIndexRdBuf = this.cachedIndexSegment.asReadOnlyBuffer();
         ByteBuffer tmpDataRdBuf = this.cacheDataSegment.asReadOnlyBuffer();
         //　loop read by index
@@ -219,7 +220,8 @@ public class MsgMemStore implements Closeable {
              count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
             //　cannot find matched message, return
             if ((startReadOff >= currIndexOffset)
-                || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
+                    || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)
+                    || (startReadOff + this.writeIndexStartPos >= rightBoundary)) {
                 break;
             }
             // read index content.
@@ -239,8 +241,9 @@ public class MsgMemStore implements Closeable {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
-            if ((cPartitionId != partitionId)
-                    || (isFilterConsume && (!filterKeySet.contains(cKeyCode)))) {
+            if ((cPartitionId != nodeInfo.getPartitionId())
+                    || (nodeInfo.isFilterConsume()
+                    && (!nodeInfo.getFilterCondCodeSet().contains(cKeyCode)))) {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }

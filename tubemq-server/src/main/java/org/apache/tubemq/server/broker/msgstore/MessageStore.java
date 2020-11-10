@@ -172,6 +172,10 @@ public class MessageStore implements Closeable {
                     .append("[Data Store] Closed MessageStore for storeKey ")
                     .append(this.storeKey).toString());
         }
+        if (requestOffset >= nodeInfo.getRightOffset()) {
+            return new GetMessageResult(false, TErrCodeConstants.CONSUME_REACHED_RIGHT_BOUNDARY,
+                    requestOffset, 0, "The request offset reached right boundary!");
+        }
         int result = 0;
         boolean inMemCache = false;
         int maxIndexReadLength = memMaxIndexReadCnt.get();
@@ -194,20 +198,16 @@ public class MessageStore implements Closeable {
                             if (reqSwitch > 2) {
                                 memMsgRlt =
                                         // read from main memory.
-                                        msgMemStore.getMessages(nodeInfo.getLastDataRdOffset(),
-                                                requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                                maxIndexReadLength, nodeInfo.getPartitionId(), false,
-                                                nodeInfo.isFilterConsume(),
-                                                nodeInfo.getFilterCondCodeSet());
+                                        msgMemStore.getMessages(nodeInfo, requestOffset,
+                                                msgStoreMgr.getMaxMsgTransferSize(),
+                                                maxIndexReadLength, false);
                             }
                         } else {
                             // read from backup memory.
                             memMsgRlt =
-                                    msgMemStoreBeingFlush.getMessages(nodeInfo.getLastDataRdOffset(),
-                                            requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                            maxIndexReadLength, nodeInfo.getPartitionId(), true,
-                                            nodeInfo.isFilterConsume(),
-                                            nodeInfo.getFilterCondCodeSet());
+                                    msgMemStoreBeingFlush.getMessages(nodeInfo, requestOffset,
+                                            msgStoreMgr.getMaxMsgTransferSize(),
+                                            maxIndexReadLength, true);
                         }
                     }
                 } finally {
@@ -246,8 +246,7 @@ public class MessageStore implements Closeable {
             }
         }
         // before read from file, adjust request's offset.
-        long reqNewOffset = requestOffset < this.msgFileStore.getIndexMinOffset()
-                ? this.msgFileStore.getIndexMinOffset() : requestOffset;
+        long reqNewOffset = Math.max(requestOffset, this.msgFileStore.getIndexMinOffset());
         if (reqSwitch <= 1 && reqNewOffset >= getFileIndexMaxOffset()) {
             return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
                     reqNewOffset, 0, "current offset is exceed max file offset");
@@ -266,6 +265,10 @@ public class MessageStore implements Closeable {
                         reqNewOffset, 0, "current offset is exceed max offset!");
             }
         }
+        if (reqNewOffset >= nodeInfo.getRightOffset()) {
+            return new GetMessageResult(false, TErrCodeConstants.CONSUME_REACHED_RIGHT_BOUNDARY,
+                    requestOffset, 0, "The request offset reached right boundary!");
+        }
         indexRecordView.read(indexBuffer, reqNewOffset);
         indexBuffer.flip();
         indexRecordView.relViewRef();
@@ -275,11 +278,7 @@ public class MessageStore implements Closeable {
             msgSizeLimit = this.maxAllowRdSize;
         }
         GetMessageResult retResult =
-            msgFileStore.getMessages(nodeInfo.getPartitionId(),
-                    nodeInfo.getLastDataRdOffset(), reqNewOffset,
-                    indexBuffer, nodeInfo.isFilterConsume(),
-                    nodeInfo.getFilterCondCodeSet(),
-                    nodeInfo.getStatisKey(), msgSizeLimit);
+                msgFileStore.getMessages(nodeInfo, reqNewOffset, indexBuffer, msgSizeLimit);
         if (reqSwitch <= 1) {
             retResult.setMaxOffset(getFileIndexMaxOffset());
         } else {

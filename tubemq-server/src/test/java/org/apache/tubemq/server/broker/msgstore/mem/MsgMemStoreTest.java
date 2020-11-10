@@ -19,6 +19,7 @@ package org.apache.tubemq.server.broker.msgstore.mem;
 
 import java.nio.ByteBuffer;
 
+import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.common.utils.AppendResult;
 import org.junit.Test;
 
@@ -52,7 +53,8 @@ public class MsgMemStoreTest {
         AppendResult appendResult = new AppendResult();
         msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
                 System.currentTimeMillis(), 3, bf, appendResult);
+        ConsumerNodeInfo nodeInfo = new ConsumerNodeInfo(null, 0, 1024, null);
         // get messages
-        GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(0, 2, 1024, 1000, 0, false, false, null);
+        GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(nodeInfo, 0, 1024, 1000, false);
     }
 }

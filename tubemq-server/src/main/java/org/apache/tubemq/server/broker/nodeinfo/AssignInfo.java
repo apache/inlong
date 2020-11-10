@@ -92,6 +92,6 @@ public class AssignInfo {
                 || rangeType == RangeType.RANGE_SET_BOTH_DEFINED)) {
             return targetTuple.getRightValue();
         }
-        return TBaseConstants.META_VALUE_UNDEFINED;
+        return Long.MAX_VALUE;
     }
 }

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,6 +35,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.broker.utils.DiskSamplePrint;
@@ -223,21 +223,14 @@ public class MsgFileStore implements Closeable {
     /***
      * Get message from index and data files.
      *
-     * @param partitionId
-     * @param lastRdOffset
      * @param reqOffset
      * @param indexBuffer
-     * @param isFilterConsume
-     * @param filterKeySet
-     * @param statisKeyBase
      * @param maxMsgTransferSize
      * @return
      */
-    public GetMessageResult getMessages(final int partitionId, final long lastRdOffset,
-                                        final long reqOffset, final ByteBuffer indexBuffer,
-                                        final boolean isFilterConsume,
-                                        final Set<Integer> filterKeySet,
-                                        final String statisKeyBase,
+    public GetMessageResult getMessages(final ConsumerNodeInfo nodeInfo,
+                                        final long reqOffset,
+                                        final ByteBuffer indexBuffer,
                                         final int maxMsgTransferSize) {
         // #lizard forgives
         //　Orderly read from index file, then random read from data file.
@@ -259,6 +252,7 @@ public class MsgFileStore implements Closeable {
         final StringBuilder sBuilder = new StringBuilder(512);
         final long curDataMaxOffset = getDataMaxOffset();
         final long curDataMinOffset = getDataMinOffset();
+        long rightBoundary = nodeInfo.getRightOffset();
         HashMap<String, CountItem> countMap = new HashMap<>();
         ByteBuffer dataBuffer =
                 ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
@@ -267,6 +261,9 @@ public class MsgFileStore implements Closeable {
         // read data file by index.
         for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
              curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+            if (curIndexOffset + reqOffset >= rightBoundary) {
+                break;
+            }
             curIndexPartitionId = indexBuffer.getInt();
             curIndexDataOffset = indexBuffer.getLong();
             curIndexDataSize = indexBuffer.getInt();
@@ -288,9 +285,9 @@ public class MsgFileStore implements Closeable {
                 break;
             }
             // conduct filter operation.
-            if (curIndexPartitionId != partitionId
-                    || (isFilterConsume
-                    && !filterKeySet.contains(curIndexKeyCode))) {
+            if (curIndexPartitionId != nodeInfo.getPartitionId()
+                    || (nodeInfo.isFilterConsume()
+                    && !nodeInfo.getFilterCondCodeSet().contains(curIndexKeyCode))) {
                 lastRdDataOffset = maxDataLimitOffset;
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
@@ -330,7 +327,7 @@ public class MsgFileStore implements Closeable {
                     ServiceStatusHolder.addReadIOErrCnt();
                 }
                 samplePrintCtrl.printExceptionCaught(e2,
-                    messageStore.getStoreKey(), String.valueOf(partitionId));
+                    messageStore.getStoreKey(), String.valueOf(nodeInfo.getPartitionId()));
                 retCode = TErrCodeConstants.INTERNAL_SERVER_ERROR;
                 sBuilder.delete(0, sBuilder.length());
                 errInfo = sBuilder.append("Get message from file failure : ")
@@ -344,7 +341,7 @@ public class MsgFileStore implements Closeable {
             lastRdDataOffset = maxDataLimitOffset;
             ClientBroker.TransferedMessage transferedMessage =
                     DataStoreUtils.getTransferMsg(dataBuffer,
-                            curIndexDataSize, countMap, statisKeyBase, sBuilder);
+                            curIndexDataSize, countMap, nodeInfo.getStatisKey(), sBuilder);
             if (transferedMessage == null) {
                 continue;
             }
@@ -366,7 +363,7 @@ public class MsgFileStore implements Closeable {
             }
         }
         if (lastRdDataOffset <= 0L) {
-            lastRdDataOffset = lastRdOffset;
+            lastRdDataOffset = nodeInfo.getLastDataRdOffset();
         }
         // return result.
         return new GetMessageResult(result, retCode, errInfo,
