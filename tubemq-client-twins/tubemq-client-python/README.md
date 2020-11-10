@@ -30,7 +30,7 @@ pip install ./
 ##### Producer example
 ##### Consumer example
 
-wing example creates a TubeMQ consumer with a master IP address, a group name, and a subscribed topic list. The consumer receives incoming messages, prints the length of messages that arrive, and acknowledges each message to the TubeMQ broker.
+The following example creates a TubeMQ consumer with a master IP address, a group name, and a subscribed topic list. The consumer receives incoming messages, prints the length of messages that arrive, and acknowledges each message to the TubeMQ broker.
 ```
 import time
 import tubemq
