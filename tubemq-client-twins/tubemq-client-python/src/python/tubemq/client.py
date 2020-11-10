@@ -18,22 +18,22 @@
 #
 
 from __future__ import print_function
-
+import os
 import tubemq_client
 import tubemq_config
 import tubemq_errcode
 import tubemq_return
 import tubemq_message
 
-class tubemq_consumer(tubemq_client.TubeMQConsumer):
+class consumer(tubemq_client.TubeMQConsumer):
     def __init__(self,
                  master_addr,
                  group_name,
                  topic_list,
                  RpcReadTimeoutMs=20000,
-                 conf_file='./client.conf'):
+                 conf_file=os.path.join(os.path.dirname(__file__),'client.conf')):
 
-        super(tubemq_consumer, self).__init__()
+        super(consumer, self).__init__()
 
         consumer_config = tubemq_config.ConsumerConfig()
         consumer_config.setRpcReadTimeoutMs(RpcReadTimeoutMs)

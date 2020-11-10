@@ -64,7 +64,7 @@ ext_modules = [
 ]
 
 setup(
-    name="tubemq-client",
+    name="tubemq",
     version=__version__,
     author="dockerzhang",
     author_email="dockerzhang@apache.org",
@@ -75,4 +75,7 @@ setup(
     extras_require={"test": "pytest"},
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
+    packages=['tubemq'],
+    package_dir={'tubemq': 'src/python/tubemq'},
+    package_data={'tubemq': ['client.conf']}
 )

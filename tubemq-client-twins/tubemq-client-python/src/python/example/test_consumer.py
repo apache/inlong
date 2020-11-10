@@ -18,14 +18,14 @@
 #
 
 import time
-from tubemq_consumer import tubemq_consumer
+import tubemq
 
 topic_list = ['demo']
 master_addr = '127.0.0.1:8000'
 group_name = 'test_group'
 
 # Start consumer
-consumer = tubemq_consumer(master_addr, group_name, topic_list)
+consumer = tubemq.consumer(master_addr, group_name, topic_list)
 
 # Test consumer
 start_time = time.time()
