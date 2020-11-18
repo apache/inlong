@@ -15,11 +15,11 @@ SIGNAL=${SIGNAL:-TERM}
 
 if [[ $(uname -s) == "OS/390" ]]; then
     if [ -z $JOBNAME ]; then
-        JOBNAME="tubemq-manager"
+        JOBNAME="TubeMQManager"
     fi
     PIDS=$(ps -A -o pid,jobname,comm | grep -i $JOBNAME | grep java | grep -v grep | awk '{print $1}')
 else
-    PIDS=$(jcmd  | grep -i 'tubemq-manager'  | awk '{print $1}')
+    PIDS=$(jcmd  | grep -i 'TubeMQManager'  | awk '{print $1}')
 fi
 
 if [ -z "$PIDS" ]; then

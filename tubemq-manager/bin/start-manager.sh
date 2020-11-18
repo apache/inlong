@@ -12,19 +12,19 @@
 # limitations under the License.
 
 base_dir=$(dirname $0)
-if [ $# -lt 1 ];
-then
-  echo "USAGE: $0 [-start] [-stop] [-restart]"
-  exit 1
-fi
 
-
+DAEMON_NAME=${DAEMON_NAME:-"tubemq-manager"}
 LOG_DIR=${LOG_DIR:-"$base_dir/../logs"}
 CONF_DIR=${CONF_DIR:-"$base_dir/../conf"}
 LIB_DIR=${LIB_DIR:-"$base_dir/../lib"}
 CONSOLE_OUTPUT_FILE=$LOG_DIR/$DAEMON_NAME.out
 MANAGER_HEAP_OPTS="-Xmx16G -Xms16G"
 MANAGER_GC_OPTS="-XX:+UseG1GC -verbose:gc -verbose:sizes -Xloggc:${LOG_DIR}/gc.log.`date +%Y-%m-%d-%H-%M-%S` -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution"
+
+# create logs directory
+if [ ! -d "$LOG_DIR" ]; then
+  mkdir -p "$LOG_DIR"
+fi
 
 # Exclude jars not necessary for running commands.
 regex="(-(test|test-sources|src|scaladoc|javadoc)\.jar|jar.asc)$"
@@ -47,6 +47,7 @@ do
   fi
 done
 
+CLASSPATH="${CONF_DIR}":$CLASSPATH
 export MANAGER_JVM_OPTS="${MANAGER_HEAP_OPTS} ${MANAGER_GC_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOG_DIR}"
 
 # Which java to use
@@ -56,15 +57,4 @@ else
   JAVA="$JAVA_HOME/bin/java"
 fi
 
-while [ $# -gt 0 ]; do
-  COMMAND=$1
-  case $COMMAND in
-    start)
-      shift
-      nohup "$JAVA" $MANAGER_JVM_OPTS -cp "$CLASSPATH" org.apache.tubemq.manager.TubeMQManager "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
-      ;;
-    *)
-      break
-      ;;
-  esac
-done
+nohup "$JAVA" $MANAGER_JVM_OPTS -cp "$CLASSPATH" org.apache.tubemq.manager.TubeMQManager "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
