@@ -29,6 +29,12 @@ using std::set;
 using std::string;
 
 PYBIND11_MODULE(tubemq_config, m) {
+    py::enum_<ConsumePosition>(m, "ConsumePosition")
+        .value("kConsumeFromFirstOffset", ConsumePosition::kConsumeFromFirstOffset)
+        .value("kConsumeFromLatestOffset", ConsumePosition::kConsumeFromLatestOffset)
+        .value("kComsumeFromMaxOffsetAlways", ConsumePosition::kComsumeFromMaxOffsetAlways)
+        .export_values();
+        
     py::class_<ConsumerConfig>(m, "ConsumerConfig")
         .def(py::init<>())
         .def("setRpcReadTimeoutMs", &ConsumerConfig::SetRpcReadTimeoutMs)
@@ -38,5 +44,6 @@ PYBIND11_MODULE(tubemq_config, m) {
         .def("setGroupConsumeTarget", static_cast<bool (ConsumerConfig::*)\
         (string&, const string&, const map<string, set<string>>&)>(&ConsumerConfig::SetGroupConsumeTarget), "")
         .def("getRpcReadTimeoutMs", &ConsumerConfig::GetRpcReadTimeoutMs)
+        .def("setConsumePosition", &ConsumerConfig::SetConsumePosition)
         .def("getMasterAddrInfo", &ConsumerConfig::GetMasterAddrInfo);
 }
