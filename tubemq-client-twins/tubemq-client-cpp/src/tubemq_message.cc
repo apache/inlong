@@ -85,6 +85,11 @@ void Message::SetTopic(const string& topic) { topic_ = topic; }
 
 const char* Message::GetData() const { return data_; }
 
+vector<char> Message::GetVectorData() const {
+  vector<char> vector_data(data_, data_ + datalen_);
+  return vector_data;
+}
+
 uint32_t Message::GetDataLength() const { return datalen_; }
 
 void Message::setData(const char* data, uint32_t datalen) {
@@ -98,7 +103,7 @@ void Message::SetFlag(int32_t flag) { flag_ = flag; }
 
 const map<string, string>& Message::GetProperties() const { return properties_; }
 
-int32_t Message::GetProperties(string& attribute) {
+int32_t Message::GetPropertie(string& attribute) {
   attribute.clear();
   map<string, string>::iterator it_map;
   for (it_map = properties_.begin(); it_map != properties_.end(); ++it_map) {
