@@ -60,6 +60,12 @@ ext_modules = [
                       cxx_std=11,
                       extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
                       define_macros=[('VERSION_INFO', __version__)],
+                      ),
+    Pybind11Extension("tubemq_tdmsg",
+                      sorted(glob("src/cpp/tubemq_tdmsg.cc")),
+                      cxx_std=11,
+                      extra_link_args=["-ltubemq_rel", "-lssl", "-lcrypto", "-lpthread", "-lrt"],
+                      define_macros=[('VERSION_INFO', __version__)],
                       )
 ]
 

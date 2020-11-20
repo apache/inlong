@@ -18,3 +18,4 @@
 #
 
 from .client import consumer
+from .TubeMsg import TubeMsg
