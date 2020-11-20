@@ -31,12 +31,14 @@ class consumer(tubemq_client.TubeMQConsumer):
                  group_name,
                  topic_list,
                  RpcReadTimeoutMs=20000,
-                 conf_file=os.path.join(os.path.dirname(__file__),'client.conf')):
+                 consume_osition=tubemq_config.ConsumePosition.kConsumeFromLatestOffset,
+                 conf_file=os.path.join(os.path.dirname(__file__), 'client.conf')):
 
         super(consumer, self).__init__()
 
         consumer_config = tubemq_config.ConsumerConfig()
         consumer_config.setRpcReadTimeoutMs(RpcReadTimeoutMs)
+        consumer_config.setConsumePosition(consume_osition)
 
         err_info = ''
         result = consumer_config.setMasterAddrInfo(err_info, master_addr)
