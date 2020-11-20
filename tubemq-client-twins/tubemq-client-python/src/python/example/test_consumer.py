@@ -30,10 +30,19 @@ consumer = tubemq.consumer(master_addr, group_name, topic_list)
 # Test consumer
 start_time = time.time()
 while True:
-    msgs = consumer.receive()
-    if msgs:
-        print("GetMessage success, msssage count =", len(msgs))
-        consumer.acknowledge()
+    messageList = consumer.receive()
+    if messageList:
+        print("GetMessage success, msssage count =", len(messageList))
+        for message in messageList:
+            attributeMap = message.getProperties()
+            attribute = ''
+            for (key, value) in attributeMap.items():
+                attribute = attribute + key + '=' + value + ','
+            attribute = attribute[:-1]
+            rawMsgList = message.getVectorData()
+            print("GetMessage success, raw message byte count =", len(rawMsgList))
+            msgLen = message.getDataLength()
+            print("GetMessage success, raw message length =", len(rawMsgList))
 
     # used for test, consume 10 minutes only
     stop_time = time.time()
