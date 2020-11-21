@@ -18,13 +18,17 @@
  */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <stdint.h>
+#include <stdio.h>
+
 #include "tubemq/tubemq_message.h"
 
 namespace py = pybind11;
 
 using namespace tubemq;
 using std::string;
+using std::map;
 
 PYBIND11_MODULE(tubemq_message, m) {
     py::class_<Message>(m, "Message")
@@ -36,5 +40,13 @@ PYBIND11_MODULE(tubemq_message, m) {
         .def("getTopic", &Message::GetTopic)
         .def("setTopic", &Message::SetTopic)
         .def("getData", &Message::GetData)
-        .def("getDataLength", &Message::GetDataLength);
+        .def("getDataLength", &Message::GetDataLength)
+        .def("getVectorData", &Message::GetVectorData)
+        .def("getFlag", &Message::GetFlag)
+        .def("setFlag", &Message::SetFlag)
+        .def("getProperties", &Message::GetProperties)
+        .def("hasProperty", &Message::HasProperty)
+        .def("getProperty", &Message::GetProperty)
+        .def("getFilterItem", &Message::GetFilterItem)
+        .def("addProperty", &Message::AddProperty);
 }
