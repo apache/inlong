@@ -111,11 +111,23 @@ class ConsumerConfig : public BaseConfig {
   void SetConsumePosition(ConsumePosition consume_from_where);
   const ConsumePosition GetConsumePosition() const;
   const int32_t GetMsgNotFoundWaitPeriodMs() const;
+  // SetMaxPartCheckPeriodMs() use note:
+  // The value range is [negative value, 0, positive value] and the value directly determines
+  // the behavior of the TubeMQConsumer.GetMessage() function:
+  // 1. if it is set to a negative value, it means that the GetMessage() calling thread will
+  //    be blocked forever and will not return until the consumption conditions are met;
+  // 2. if If it is set to 0, it means that the GetMessage() calling thread will only block
+  //    the ConsumerConfig.GetPartCheckSliceMs() interval when the consumption conditions
+  //    are not met and then return; 
+  // 3. if it is set to a positive number, it will not meet the current user usage (including
+  //    unused partitions or allocated partitions, but these partitions do not meet the usage
+  //    conditions), the GetMessage() calling thread will be blocked until the total time of
+  //    ConsumerConfig.GetMaxPartCheckPeriodMs expires
+  void SetMaxPartCheckPeriodMs(int32_t max_part_check_period_ms);
   const int32_t GetMaxPartCheckPeriodMs() const;
+  void SetPartCheckSliceMs(uint32_t part_check_slice_ms);
   const uint32_t GetPartCheckSliceMs() const;
   void SetMsgNotFoundWaitPeriodMs(int32_t msg_notfound_wait_period_ms);
-  void SetMaxPartCheckPeriodMs(int32_t max_part_check_period_ms);
-  void SetPartCheckSliceMs(uint32_t part_check_slice_ms);
   const int32_t GetMaxSubinfoReportIntvl() const;
   void SetMaxSubinfoReportIntvl(int32_t max_subinfo_report_intvl);
   bool IsRollbackIfConfirmTimeout();
