@@ -43,6 +43,13 @@ class TubeMQConsumer {
   bool Start(string& err_info, const ConsumerConfig& config);
   virtual void ShutDown();
   const int32_t GetClientId() const { return client_id_; }
+  // GetMessage() use note:
+  // This GetMessage have a blocking situation: when the current
+  // consumer consumption situation is not satisfied (including
+  // without partitions to consumption, or allocated partitions but
+  // the partitions do not meet the consumption situation),
+  // the call will sleep at intervals of ConsumerConfig.GetPartCheckSliceMs(),
+  // until the total time of ConsumerConfig.GetMaxPartCheckPeriodMs
   bool GetMessage(ConsumerResult& result);
   bool Confirm(const string& confirm_context, bool is_consumed, ConsumerResult& result);
   bool GetCurConsumedInfo(map<string, ConsumeOffsetInfo>& consume_info_map);
