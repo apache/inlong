@@ -21,8 +21,74 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
+## Release 0.7.0-incubating - Released (as of 2020-11-25)
 
-## Release 0.6.0-incubating - Unreleased (as of 2020-09-25)
+### New Features:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-162](https://issues.apache.org/jira/browse/TUBEMQ-162) | Python SDK support in TubeMQ | High |
+| [TUBEMQ-336](https://issues.apache.org/jira/browse/TUBEMQ-336) | Propose web portal to manage tube cluster Phase-I | Major |
+| [TUBEMQ-390](https://issues.apache.org/jira/browse/TUBEMQ-390)   | support build C++ SDK with docker image | Normal |
+
+### IMPROVEMENTS:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-369](https://issues.apache.org/jira/browse/TUBEMQ-369) | hope to add an option in the compilation script (like `make lib` etc...)                 | Major    |
+| [TUBEMQ-373](https://issues.apache.org/jira/browse/TUBEMQ-373) | Reduce the redundant code of Utils::Split functions             | Major    |
+| [TUBEMQ-374](https://issues.apache.org/jira/browse/TUBEMQ-374) | Adjust some coding style issues     | Major    |
+| [TUBEMQ-375](https://issues.apache.org/jira/browse/TUBEMQ-375) | Add a section to the README file about how to compile the project| Major    |
+| [TUBEMQ-385](https://issues.apache.org/jira/browse/TUBEMQ-385) | update docker images     | Major    |
+| [TUBEMQ-393](https://issues.apache.org/jira/browse/TUBEMQ-393) | Optimize the mapping code of WEB API     | Major    |
+| [TUBEMQ-406](https://issues.apache.org/jira/browse/TUBEMQ-406) | test_consumer.py works for both Python 2 and 3   | Minor |
+| [TUBEMQ-410](https://issues.apache.org/jira/browse/TUBEMQ-410) | install python package and simplify test_consumer.py    | Major    |
+| [TUBEMQ-416](https://issues.apache.org/jira/browse/TUBEMQ-416) | support consume from specified position   | Major    |
+| [TUBEMQ-417](https://issues.apache.org/jira/browse/TUBEMQ-417) | C++ Client support parse message from binary data for Python SDK    | Major    |
+| [TUBEMQ-419](https://issues.apache.org/jira/browse/TUBEMQ-419) | SetMaxPartCheckPeriodMs() negative number, getMessage() still  | Major    |
+
+### BUG FIXES:
+
+| JIRA                                                         | Summary                                                      | Priority |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :------- |
+| [TUBEMQ-365](https://issues.apache.org/jira/browse/TUBEMQ-365) | Whether the consumption setting is wrong after the processRequest exception | Major    |
+| [TUBEMQ-370](https://issues.apache.org/jira/browse/TUBEMQ-370) | Calling GetCurConsumedInfo API always returns failure      | Major    |
+| [TUBEMQ-376](https://issues.apache.org/jira/browse/TUBEMQ-376) | Move pullrequests_status notifications commits mail list | Major    |
+| [TUBEMQ-366](https://issues.apache.org/jira/browse/TUBEMQ-366) | Found a nullpointerexception bug in broker | Normal |
+| [TUBEMQ-379](https://issues.apache.org/jira/browse/TUBEMQ-379) | Modify the memory cache size default to 3M | Normal |
+| [TUBEMQ-380](https://issues.apache.org/jira/browse/TUBEMQ-380) | Cpp client link error when gcc optimization is disabled   | Major    |
+| [TUBEMQ-405](https://issues.apache.org/jira/browse/TUBEMQ-405) | python sdk install files lack of the whole cpp configuration | Major |
+| [TUBEMQ-401](https://issues.apache.org/jira/browse/TUBEMQ-401) | python sdk readme bug | Minor |
+| [TUBEMQ-407](https://issues.apache.org/jira/browse/TUBEMQ-407) | Fix some content in README.md | Trivial |
+| [TUBEMQ-418](https://issues.apache.org/jira/browse/TUBEMQ-418) | C++ SDK function SetMaxPartCheckPeriodMs() can't work | Major |
+
+### SUB-TASK:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-276](https://issues.apache.org/jira/browse/TUBEMQ-276) | add python client encode/decode protobuf message for TubeMQ RPC Protocol                                 | Major    |
+| [TUBEMQ-338](https://issues.apache.org/jira/browse/TUBEMQ-338) | web pages for tubemq manager                                     | Major    |
+| [TUBEMQ-341](https://issues.apache.org/jira/browse/TUBEMQ-341) | open independent sub-project for tubemq                                | Major    |
+| [TUBEMQ-342](https://issues.apache.org/jira/browse/TUBEMQ-342) | abstract backend threads for routine management                              | Major    |
+| [TUBEMQ-346](https://issues.apache.org/jira/browse/TUBEMQ-346) | remove chinese comments                                          | Minor |
+| [TUBEMQ-355](https://issues.apache.org/jira/browse/TUBEMQ-355) | Add business entity for topic manager                            | Major    |
+| [TUBEMQ-361](https://issues.apache.org/jira/browse/TUBEMQ-361) | create topic when getting request             | Major    |
+| [TUBEMQ-364](https://issues.apache.org/jira/browse/TUBEMQ-364) | uniform response format for exception state                              | Major    |
+| [TUBEMQ-383](https://issues.apache.org/jira/browse/TUBEMQ-383) | document about Installation/API Reference/Example                                   | Major    |
+| [TUBEMQ-387](https://issues.apache.org/jira/browse/TUBEMQ-387) | add manager web pages                                       | Major    |
+| [TUBEMQ-392](https://issues.apache.org/jira/browse/TUBEMQ-392) | add query rest api for clusters| Major    |
+| [TUBEMQ-394](https://issues.apache.org/jira/browse/TUBEMQ-394) | Creating Mapper class from web api to inner handler | Major    |
+| [TUBEMQ-395](https://issues.apache.org/jira/browse/TUBEMQ-395) | Create Abstract WebHandler class                            | Major    |
+| [TUBEMQ-396](https://issues.apache.org/jira/browse/TUBEMQ-396) | Adjust the WebXXXHandler classes implementation  | Major    |
+| [TUBEMQ-397](https://issues.apache.org/jira/browse/TUBEMQ-397) | Add master info and other info web handler   | Major    |
+| [TUBEMQ-398](https://issues.apache.org/jira/browse/TUBEMQ-398) | reinit project for using pybind11                            | Major    |
+| [TUBEMQ-399](https://issues.apache.org/jira/browse/TUBEMQ-399) | expose C++ SDK method by Pybind11                                         | Major    |
+| [TUBEMQ-400](https://issues.apache.org/jira/browse/TUBEMQ-400) | add example for consume message by bypind11                                 | Major    |
+| [TUBEMQ-402](https://issues.apache.org/jira/browse/TUBEMQ-402) | add modify rest api for clusters                           | Major    |
+| [TUBEMQ-412](https://issues.apache.org/jira/browse/TUBEMQ-402) | tube manager start stop scrrpts                           | Major    |
+| [TUBEMQ-415](https://issues.apache.org/jira/browse/TUBEMQ-415) | exclude apache license for front end code  | Major    |
+
+## Release 0.6.0-incubating - Released (as of 2020-09-25)
 
 ### New Features:
 
