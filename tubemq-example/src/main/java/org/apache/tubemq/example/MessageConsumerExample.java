@@ -26,6 +26,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.consumer.ConsumePosition;
@@ -59,7 +63,6 @@ public final class MessageConsumerExample {
     private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
 
     private final PushMessageConsumer messageConsumer;
-    private final MessageSessionFactory messageSessionFactory;
 
     public MessageConsumerExample(String masterHostAndPort, String group, int fetchCount) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
@@ -67,21 +70,31 @@ public final class MessageConsumerExample {
         if (fetchCount > 0) {
             consumerConfig.setPushFetchThreadCnt(fetchCount);
         }
-        this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
+        MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messageConsumer = messageSessionFactory.createPushConsumer(consumerConfig);
     }
 
-    public static void main(String[] args) {
-        final String masterHostAndPort = args[0];
-        final String topics = args[1];
-        final String group = args[2];
-        final int consumerCount = Integer.parseInt(args[3]);
-        int fetchCount = -1;
-        if (args.length > 5) {
-            fetchCount = Integer.parseInt(args[4]);
-        }
-        final Map<String, TreeSet<String>> topicTidsMap = new HashMap<>();
+    /**
+     * Init options
+     * @return options
+     */
+    public static Options initOptions() {
 
+        Options options = ArgsParserHelper.initCommonOptions();
+        options.addOption("count", false, "fetch count");
+        options.addOption("thread", false, "thread number of consumers");
+        options.addOption("group", true, "consumer group");
+        return options;
+
+    }
+
+    /**
+     * init topic->set(tid) map
+     * @param topics - topics string
+     * @return - map of topic->set(tid)
+     */
+    private static Map<String, TreeSet<String>> initTopicList(String topics) {
+        Map<String, TreeSet<String>> topicTidsMap = new HashMap<>();
         String[] topicTidsList = topics.split(",");
         for (String topicTids : topicTidsList) {
             String[] topicTidStr = topicTids.split(":");
@@ -95,35 +108,59 @@ public final class MessageConsumerExample {
             }
             topicTidsMap.put(topicTidStr[0], tids);
         }
-        final int startFetchCount = fetchCount;
-        final ExecutorService executorService = Executors.newFixedThreadPool(fetchCount);
-        for (int i = 0; i < consumerCount; i++) {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        MessageConsumerExample messageConsumer = new MessageConsumerExample(
-                                masterHostAndPort,
-                                group,
-                                startFetchCount
-                        );
-                        messageConsumer.subscribe(topicTidsMap);
-                    } catch (Exception e) {
-                        logger.error("Create consumer failed!", e);
-                    }
-                }
-            });
-        }
-        final Thread statisticThread = new Thread(msgRecvStats, "Received Statistic Thread");
-        statisticThread.start();
+        return topicTidsMap;
+    }
 
-        executorService.shutdown();
+    public static void main(String[] args) {
+        Options options = null;
         try {
-            executorService.awaitTermination(60 * 1000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            logger.error("Thread Pool shutdown has been interrupted!");
+            CommandLineParser parser = new PosixParser();
+            options = initOptions();
+            CommandLine cl = parser.parse(options, args);
+            if (cl != null) {
+                final String masterHostAndPort = cl.getOptionValue("master");
+                final Map<String, TreeSet<String>> topicTidsMap = initTopicList(
+                        cl.getOptionValue("topics"));
+                final String group = cl.getOptionValue("group");
+                int threadNum = Integer.parseInt(cl.getOptionValue("thread", "1"));
+                final int fetchCount = Integer.parseInt(cl.getOptionValue("count", "-1"));
+
+                ExecutorService executorService = Executors.newFixedThreadPool(threadNum);
+                for (int i = 0; i < threadNum; i++) {
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                MessageConsumerExample messageConsumer = new MessageConsumerExample(
+                                        masterHostAndPort,
+                                        group,
+                                        fetchCount
+                                );
+                                messageConsumer.subscribe(topicTidsMap);
+                            } catch (Exception e) {
+                                logger.error("Create consumer failed!", e);
+                            }
+                        }
+                    });
+                }
+                final Thread statisticThread = new Thread(msgRecvStats,
+                        "Received Statistic Thread");
+                statisticThread.start();
+
+                executorService.shutdown();
+                try {
+                    executorService.awaitTermination(60 * 1000, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    logger.error("Thread Pool shutdown has been interrupted!");
+                }
+                msgRecvStats.stopStats();
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            if (options != null) {
+                ArgsParserHelper.help("./tubemq-console-consumer.sh", options);
+            }
         }
-        msgRecvStats.stopStats();
     }
 
     public void subscribe(Map<String, TreeSet<String>> topicTidsMap) throws TubeClientException {

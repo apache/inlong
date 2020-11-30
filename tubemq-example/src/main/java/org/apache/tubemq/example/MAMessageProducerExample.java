@@ -30,8 +30,13 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.client.config.TubeClientConfig;
 import org.apache.tubemq.client.exception.TubeClientException;
@@ -89,45 +94,70 @@ public class MAMessageProducerExample {
         }
     }
 
+    /**
+     * Init options
+     *
+     * @return options
+     */
+    public static Options initOptions() {
+        Options options = ArgsParserHelper.initCommonOptions();
+        options.addOption("count", false, "producer count");
+        options.addOption("thread", false, "thread number of producers");
+        return options;
+    }
+
     public static void main(String[] args) {
-        final String masterHostAndPort = args[0];
-
-        final String topics = args[1];
-        final List<String> topicList = Arrays.asList(topics.split(","));
-
-        topicSet = new TreeSet<>(topicList);
-
-        msgCount = Integer.parseInt(args[2]);
-        producerCount = Math.min(args.length > 4 ? Integer.parseInt(args[3]) : 10, MAX_PRODUCER_NUM);
-
-        logger.info("MAMessageProducerExample.main started...");
-
-        final byte[] transmitData = StringUtils.getBytesUtf8("This is a test message from multi-session factory.");
-        final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
-
-        while (dataBuffer.hasRemaining()) {
-            int offset = dataBuffer.arrayOffset();
-            dataBuffer.put(transmitData, offset, Math.min(dataBuffer.remaining(), transmitData.length));
-        }
-
-        dataBuffer.flip();
-        sendData = dataBuffer.array();
-
+        Options options = null;
         try {
-            MAMessageProducerExample messageProducer = new MAMessageProducerExample(masterHostAndPort);
+            CommandLineParser parser = new PosixParser();
+            options = initOptions();
+            CommandLine cl = parser.parse(options, args);
+            if (cl != null) {
+                final String masterHostAndPort = cl.getOptionValue("master");
+                final String topics = cl.getOptionValue("topics");
+                final List<String> topicList = Arrays.asList(topics.split(","));
+                topicSet = new TreeSet<>(topicList);
 
-            messageProducer.startService();
+                msgCount = Integer.parseInt(cl.getOptionValue("count"));
+                producerCount = Math.min(Integer.parseInt(cl.getOptionValue(
+                        "thread", "1")), MAX_PRODUCER_NUM);
+                logger.info("MAMessageProducerExample.main started...");
+                final byte[] transmitData = StringUtils
+                        .getBytesUtf8("This is a test message from multi-session factory.");
+                final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
 
-            while (SENT_SUCC_COUNTER.get() < msgCount * producerCount * topicSet.size()) {
-                Thread.sleep(1000);
+                while (dataBuffer.hasRemaining()) {
+                    int offset = dataBuffer.arrayOffset();
+                    dataBuffer.put(transmitData, offset,
+                            Math.min(dataBuffer.remaining(), transmitData.length));
+                }
+
+                dataBuffer.flip();
+                sendData = dataBuffer.array();
+
+                try {
+                    MAMessageProducerExample messageProducer = new MAMessageProducerExample(
+                            masterHostAndPort);
+
+                    messageProducer.startService();
+
+                    while (SENT_SUCC_COUNTER.get() < msgCount * producerCount * topicSet.size()) {
+                        TimeUnit.MILLISECONDS.sleep(1000);
+                    }
+                    messageProducer.producerMap.clear();
+                    messageProducer.shutdown();
+
+                } catch (TubeClientException e) {
+                    logger.error("TubeClientException: ", e);
+                } catch (Throwable e) {
+                    logger.error("Throwable: ", e);
+                }
             }
-            messageProducer.producerMap.clear();
-            messageProducer.shutdown();
-
-        } catch (TubeClientException e) {
-            logger.error("TubeClientException: ", e);
-        } catch (Throwable e) {
-            logger.error("Throwable: ", e);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            if (options != null) {
+                ArgsParserHelper.help("./tubemq-console-consumer.sh", options);
+            }
         }
     }
 
