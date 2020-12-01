@@ -61,7 +61,7 @@ public class TestBusinessRepository {
             entityManager.persist(businessEntry);
             entityManager.flush();
         } catch (Exception ex) {
-            assertThat(ex.getMessage()).contains("size must be between");
+            assertThat(ex.getMessage()).contains("30");
         }
     }
 }
