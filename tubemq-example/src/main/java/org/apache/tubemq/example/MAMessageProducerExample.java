@@ -156,7 +156,7 @@ public class MAMessageProducerExample {
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             if (options != null) {
-                ArgsParserHelper.help("./tubemq-console-consumer.sh", options);
+                ArgsParserHelper.help("./tubemq-console-producer.sh", options);
             }
         }
     }
