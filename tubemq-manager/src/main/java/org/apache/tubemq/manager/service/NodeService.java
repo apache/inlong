@@ -18,11 +18,11 @@
 package org.apache.tubemq.manager.service;
 
 
-import static org.apache.tubemq.manager.service.TubeHttpConst.ADD_TUBE_TOPIC;
-import static org.apache.tubemq.manager.service.TubeHttpConst.BROKER_RUN_STATUS;
-import static org.apache.tubemq.manager.service.TubeHttpConst.RELOAD_BROKER;
-import static org.apache.tubemq.manager.service.TubeHttpConst.SCHEMA;
-import static org.apache.tubemq.manager.service.TubeHttpConst.TOPIC_CONFIG_INFO;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD_TUBE_TOPIC;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD_BROKER;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.TOPIC_CONFIG_INFO;
 
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -31,24 +31,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
+import org.apache.tubemq.manager.service.tube.TubeHttpClusterInfoList;
 import org.apache.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
  */
 @Slf4j
+@Component
 public class NodeService {
 
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -265,6 +271,26 @@ public class NodeService {
             log.error("cannot get master ip by clusterId {}, please check it", clusterId);
         }
     }
+
+    public String queryClusterInfo(Integer clusterId) {
+        TubeHttpClusterInfoList clusterInfoList;
+        try {
+            // find all nodes by given clusterIds, show all nodes if clusterIds not provided
+            List<NodeEntry> nodeEntries = clusterId == null ?
+                    nodeRepository.findAll() : nodeRepository.findNodeEntriesByClusterIdIs(clusterId);
+            // divide all entries by clusterId
+            Map<Integer, List<NodeEntry>> nodeEntriesPerCluster =
+                    nodeEntries.parallelStream().collect(Collectors.groupingBy(NodeEntry::getClusterId));
+
+            clusterInfoList = TubeHttpClusterInfoList.getClusterInfoList(nodeEntriesPerCluster);
+        } catch (Exception e) {
+            log.error("query cluster info error", e);
+            return gson.toJson(TubeMQResult.getErrorResult(""));
+        }
+
+        return gson.toJson(clusterInfoList);
+    }
+
 
     public void close() throws IOException {
         httpclient.close();

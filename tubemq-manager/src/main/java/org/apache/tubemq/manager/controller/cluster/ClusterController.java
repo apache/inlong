@@ -18,7 +18,7 @@
 package org.apache.tubemq.manager.controller.cluster;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.tubemq.manager.service.TubeHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 
 import com.google.gson.Gson;
 import java.net.URLEncoder;
@@ -32,7 +32,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.tubemq.manager.controller.TubeResult;
+import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class ClusterController {
     private String queryMaster(String url) {
         log.info("start to request {}", url);
         HttpGet httpGet = new HttpGet(url);
-        TubeResult defaultResult = new TubeResult();
+        TubeMQResult defaultResult = new TubeMQResult();
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             // return result json to response
             return EntityUtils.toString(response.getEntity());
@@ -116,7 +116,7 @@ public class ClusterController {
                     + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(requestBody);
             return queryMaster(url);
         } else {
-            TubeResult result = new TubeResult();
+            TubeMQResult result = new TubeMQResult();
             result.setErrCode(-1);
             result.setResult(false);
             result.setErrMsg("token is not correct");

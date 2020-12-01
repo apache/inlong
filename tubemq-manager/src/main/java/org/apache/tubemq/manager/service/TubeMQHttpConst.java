@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.manager.service;
 
-public class TubeHttpConst {
+public class TubeMQHttpConst {
     public static final String SCHEMA = "http://";
     public static final String BROKER_RUN_STATUS =
             "/webapi.htm?type=op_query&method=admin_query_broker_run_status";

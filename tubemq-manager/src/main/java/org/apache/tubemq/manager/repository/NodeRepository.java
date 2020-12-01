@@ -21,8 +21,16 @@ import org.apache.tubemq.manager.entry.NodeEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface NodeRepository extends JpaRepository<NodeEntry, Long> {
 
     NodeEntry findNodeEntryByClusterIdIsAndMasterIsTrue(int clusterId);
+
+    List<NodeEntry> findNodeEntriesByClusterIdIs(int clusterId);
+
+    List<NodeEntry> findNodeEntriesByClusterIdIn(List<Integer> custerIds);
+
+    List<NodeEntry> findAll();
 }

@@ -17,11 +17,22 @@
 
 package org.apache.tubemq.manager.controller;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class TubeResult {
-    private String errMsg;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TubeMQResult {
+    private String errMsg = "";
     private int errCode = 0;
     private boolean result = true;
+
+    public static TubeMQResult getErrorResult(String errorMsg) {
+        return TubeMQResult.builder().errCode(1)
+                .errMsg(errorMsg).result(false).build();
+    }
 }

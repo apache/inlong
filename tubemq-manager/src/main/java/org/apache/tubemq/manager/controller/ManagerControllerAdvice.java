@@ -32,8 +32,8 @@ public class ManagerControllerAdvice {
      * @return
      */
     @ExceptionHandler(Exception.class)
-    public TubeResult handlingParameterException(Exception ex) {
-        TubeResult result = new TubeResult();
+    public TubeMQResult handlingParameterException(Exception ex) {
+        TubeMQResult result = new TubeMQResult();
         result.setErrMsg(ex.getClass().getName() + " " + ex.getMessage());
         result.setErrCode(-1);
         return result;
