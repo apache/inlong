@@ -17,18 +17,12 @@
 
 package org.apache.tubemq.server.broker.web;
 
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.TubeBroker;
@@ -36,83 +30,44 @@ import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.common.webbase.WebFieldDef;
 
 /***
  * Broker's web servlet. Used for admin operation, like query consumer's status etc.
  */
-public class BrokerAdminServlet extends HttpServlet {
-    private final TubeBroker broker;
+public class BrokerAdminServlet extends AbstractWebHandler {
+
 
     public BrokerAdminServlet(TubeBroker broker) {
-        this.broker = broker;
+        super(broker);
+        registerWebApiMethod();
     }
 
     @Override
-    protected void doGet(HttpServletRequest req,
-                         HttpServletResponse resp) throws ServletException, IOException {
-        doPost(req, resp);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req,
-                          HttpServletResponse resp) throws ServletException, IOException {
-        StringBuilder sBuilder = new StringBuilder(1024);
-        try {
-            String method = req.getParameter("method");
-            if ("admin_manual_set_current_offset".equals(method)) {
-                // manual set offset
-                sBuilder = this.adminManualSetCurrentOffSet(req);
-            } else if ("admin_query_group_offset".equals(method)) {
-                // query consumer group's offset
-                sBuilder = this.adminQueryCurrentGroupOffSet(req);
-            } else if ("admin_snapshot_message".equals(method)) {
-                // query snapshot message
-                sBuilder = this.adminQuerySnapshotMessageSet(req);
-            } else if ("admin_query_broker_all_consumer_info".equals(method)) {
-                // query broker's all consumer info
-                sBuilder = this.adminQueryBrokerAllConsumerInfo(req);
-            } else if ("admin_query_broker_memstore_info".equals(method)) {
-                // get memory store status info
-                sBuilder = this.adminGetMemStoreStatisInfo(req);
-            } else if ("admin_query_broker_all_store_info".equals(method)) {
-                // query broker's all message store info
-                sBuilder = this.adminQueryBrokerAllMessageStoreInfo(req);
-            } else if ("admin_query_consumer_regmap".equals(method)) {
-                Map<String, ConsumerNodeInfo> map =
-                        broker.getBrokerServiceServer().getConsumerRegisterMap();
-                int totalCnt = 0;
-                sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",")
-                        .append(",\"dataSet\":[");
-                for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
-                    if (entry.getKey() == null || entry.getValue() == null) {
-                        continue;
-                    }
-                    if (totalCnt > 0) {
-                        sBuilder.append(",");
-                    }
-                    sBuilder.append("{\"Partition\":\"").append(entry.getKey())
-                            .append("\",\"Consumer\":\"")
-                            .append(entry.getValue().getConsumerId())
-                            .append("\",\"index\":").append(++totalCnt).append("}");
-                }
-                sBuilder.append("],\"totalCnt\":").append(totalCnt).append("}");
-            } else {
-                sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                        .append("Invalid request: Unsupported method!")
-                        .append("\"}");
-            }
-
-        } catch (Exception e) {
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append("Bad request from server: ")
-                    .append(e.getMessage())
-                    .append("\"}");
-        }
-        resp.getWriter().write(sBuilder.toString());
-        resp.setCharacterEncoding(req.getCharacterEncoding());
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.flushBuffer();
+    public void registerWebApiMethod() {
+        // query consumer group's offset
+        innRegisterWebMethod("admin_query_group_offset",
+                "adminQueryCurrentGroupOffSet");
+        // query snapshot message
+        innRegisterWebMethod("admin_snapshot_message",
+                "adminQuerySnapshotMessageSet");
+        // query broker's all consumer info
+        innRegisterWebMethod("admin_query_broker_all_consumer_info",
+                "adminQueryBrokerAllConsumerInfo");
+        // get memory store status info
+        innRegisterWebMethod("admin_query_broker_memstore_info",
+                "adminGetMemStoreStatisInfo");
+        // query broker's all message store info
+        innRegisterWebMethod("admin_query_broker_all_store_info",
+                "adminQueryBrokerAllMessageStoreInfo");
+        // query consumer register info
+        innRegisterWebMethod("admin_query_consumer_regmap",
+                "adminQueryConsumerRegisterInfo");
+        // manual set offset
+        innRegisterWebMethod("admin_manual_set_current_offset",
+                "adminManualSetCurrentOffSet");
     }
 
     /***
@@ -122,13 +77,16 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminQueryBrokerAllConsumerInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminQueryBrokerAllConsumerInfo(HttpServletRequest req) throws Exception {
         int index = 0;
         StringBuilder sBuilder = new StringBuilder(1024);
-        String groupNameInput =
-                WebParameterUtils.validGroupParameter("groupName",
-                        req.getParameter("groupName"),
-                        TBaseConstants.META_MAX_GROUPNAME_LENGTH, false, null);
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        Set<String> groupNameSet = (Set<String>) result.retData1;
+
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
         Map<String, ConsumerNodeInfo> map =
                 broker.getBrokerServiceServer().getConsumerRegisterMap();
@@ -139,7 +97,7 @@ public class BrokerAdminServlet extends HttpServlet {
             String[] partitionIdArr =
                     entry.getKey().split(TokenConstants.ATTR_SEP);
             String groupName = partitionIdArr[0];
-            if (!TStringUtils.isBlank(groupNameInput) && (!groupNameInput.equals(groupName))) {
+            if (!groupNameSet.isEmpty() && !groupNameSet.contains(groupName)) {
                 continue;
             }
             String topicName = partitionIdArr[1];
@@ -209,22 +167,23 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminQueryBrokerAllMessageStoreInfo(HttpServletRequest req)
+    public StringBuilder adminQueryBrokerAllMessageStoreInfo(HttpServletRequest req)
             throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        Set<String> topicNameSet = (Set<String>) result.retData1;
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        String topicNameInput =
-                WebParameterUtils.validStringParameter("topicName",
-                        req.getParameter("topicName"),
-                        TBaseConstants.META_MAX_TOPICNAME_LENGTH, false, null);
         Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
                 broker.getStoreManager().getMessageStores();
         int index = 0;
         int recordId = 0;
         for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
-            if (TStringUtils.isBlank(entry.getKey()) ||
-                    (TStringUtils.isNotBlank(topicNameInput)
-                            && !topicNameInput.equals(entry.getKey()))) {
+            if (TStringUtils.isBlank(entry.getKey())
+                    || (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey()))) {
                 continue;
             }
             if (recordId > 0) {
@@ -276,47 +235,27 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminGetMemStoreStatisInfo(HttpServletRequest req) throws Exception {
+    public StringBuilder adminGetMemStoreStatisInfo(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
-        Set<String> batchTopicNames = new HashSet<>();
-        String inputTopicName = req.getParameter("topicName");
-        if (TStringUtils.isNotBlank(inputTopicName)) {
-            inputTopicName = inputTopicName.trim();
-            String[] strTopicNames =
-                    inputTopicName.split(TokenConstants.ARRAY_SEP);
-            for (int i = 0; i < strTopicNames.length; i++) {
-                if (TStringUtils.isBlank(strTopicNames[i])) {
-                    continue;
-                }
-                String topicName = strTopicNames[i].trim();
-                if (topicName.length() > TBaseConstants.META_MAX_TOPICNAME_LENGTH) {
-                    sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                            .append("Invalid parameter: the max length of ")
-                            .append(topicName).append(" in topicName parameter over ")
-                            .append(TBaseConstants.META_MAX_TOPICNAME_LENGTH)
-                            .append(" characters\"}");
-                    return sBuilder;
-                }
-                if (!topicName.matches(TBaseConstants.META_TMP_STRING_VALUE)) {
-                    sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                            .append("Invalid parameter: the value of ").append(topicName)
-                            .append(" in topicName parameter must begin with a letter,")
-                            .append(" can only contain characters,numbers,and underscores!\"}");
-                    return sBuilder;
-                }
-                batchTopicNames.add(topicName);
-            }
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
         }
-        boolean requireRefresh =
-                WebParameterUtils.validBooleanDataParameter("needRefresh",
-                        req.getParameter("needRefresh"), false, false);
+        Set<String> topicNameSet = (Set<String>) result.retData1;
+        result = WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.NEEDREFRESH, false, false);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        boolean requireRefresh = (boolean) result.retData1;
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"detail\":[");
         Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
                 broker.getStoreManager().getMessageStores();
         int recordId = 0, index = 0;
         for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey())
-                    || (!batchTopicNames.isEmpty() && !batchTopicNames.contains(entry.getKey()))) {
+                    || (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey()))) {
                 continue;
             }
             String topicName = entry.getKey();
@@ -354,25 +293,38 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminManualSetCurrentOffSet(HttpServletRequest req) throws Exception {
+    public StringBuilder adminManualSetCurrentOffSet(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(512);
-        final String topicName =
-                WebParameterUtils.validStringParameter("topicName",
-                        req.getParameter("topicName"),
-                        TBaseConstants.META_MAX_TOPICNAME_LENGTH, true, "");
-        final String groupName =
-                WebParameterUtils.validGroupParameter("groupName",
-                        req.getParameter("groupName"),
-                        TBaseConstants.META_MAX_GROUPNAME_LENGTH, true, "");
-        final String modifyUser =
-                WebParameterUtils.validStringParameter("modifyUser",
-                        req.getParameter("modifyUser"), 64, true, "");
-        int partitionId =
-                WebParameterUtils.validIntDataParameter("partitionId",
-                        req.getParameter("partitionId"), true, -1, 0);
-        long manualOffset =
-                WebParameterUtils.validLongDataParameter("manualOffset",
-                        req.getParameter("manualOffset"), true, -1);
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String topicName = (String) result.retData1;
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String groupName = (String) result.retData1;
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String modifyUser = (String) result.retData1;
+        result = WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        int partitionId = (Integer) result.retData1;
+        result = WebParameterUtils.getLongParamValue(req,
+                WebFieldDef.MANUALOFFSET, true, -1);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        long manualOffset = (Long) result.retData1;
         List<String> topicList = broker.getMetadataManager().getTopics();
         if (!topicList.contains(topicName)) {
             sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
@@ -430,28 +382,39 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminQuerySnapshotMessageSet(HttpServletRequest req) throws Exception {
+    public StringBuilder adminQuerySnapshotMessageSet(HttpServletRequest req) throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
-        final String topicName =
-                WebParameterUtils.validStringParameter("topicName",
-                        req.getParameter("topicName"),
-                        TBaseConstants.META_MAX_TOPICNAME_LENGTH, true, "");
-        final int partitionId =
-                WebParameterUtils.validIntDataParameter("partitionId",
-                        req.getParameter("partitionId"), false, -1, 0);
-        int msgCount =
-                WebParameterUtils.validIntDataParameter("msgCount",
-                        req.getParameter("msgCount"), false, 3, 3);
-        msgCount = msgCount < 1 ? 1 : msgCount;
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String topicName = (String) result.retData1;
+        result = WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        int partitionId = (Integer) result.retData1;
+        result = WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.MSGCOUNT, false, 3, 3);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        int msgCount = (Integer) result.retData1;
+        msgCount = Math.max(msgCount, 1);
         if (msgCount > 50) {
             sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append("Over max allowed msgCount value, allowed count is 50!")
                     .append("\"}");
             return sBuilder;
         }
-        Set<String> filterCondStrSet =
-                WebParameterUtils.checkAndGetFilterCondSet(req.getParameter("filterConds"),
-                        false, true, sBuilder);
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.FILTERCONDS, false, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        Set<String> filterCondStrSet = (Set<String>) result.retData1;
         sBuilder = broker.getBrokerServiceServer()
                 .getMessageSnapshot(topicName, partitionId, msgCount, filterCondStrSet, sBuilder);
         return sBuilder;
@@ -464,20 +427,34 @@ public class BrokerAdminServlet extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private StringBuilder adminQueryCurrentGroupOffSet(HttpServletRequest req)
+    public StringBuilder adminQueryCurrentGroupOffSet(HttpServletRequest req)
             throws Exception {
         StringBuilder sBuilder = new StringBuilder(1024);
-        String topicName =
-                WebParameterUtils.validStringParameter("topicName",
-                        req.getParameter("topicName"),
-                        TBaseConstants.META_MAX_TOPICNAME_LENGTH, true, "");
-        String groupName =
-                WebParameterUtils.validGroupParameter("groupName",
-                        req.getParameter("groupName"),
-                        TBaseConstants.META_MAX_GROUPNAME_LENGTH, true, "");
-        int partitionId =
-                WebParameterUtils.validIntDataParameter("partitionId",
-                        req.getParameter("partitionId"), true, -1, 0);
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String topicName = (String) result.retData1;
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        final String groupName = (String) result.retData1;
+        result = WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        int partitionId = (Integer) result.retData1;
+
+        result = WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.REQUIREREALOFFSET, false, false);
+        if (!result.success) {
+            return WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+        }
+        boolean requireRealOffset = (Boolean) result.retData1;
         List<String> topicList = broker.getMetadataManager().getTopics();
         if (!topicList.contains(topicName)) {
             sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
@@ -499,9 +476,6 @@ public class BrokerAdminServlet extends HttpServlet {
                     .append("\"}");
             return sBuilder;
         }
-        boolean requireRealOffset =
-                WebParameterUtils.validBooleanDataParameter("requireRealOffset",
-                        req.getParameter("requireRealOffset"), false, false);
         long tmpOffset = offsetService.getTmpOffset(groupName, topicName, partitionId);
         long minDataOffset = store.getDataMinOffset();
         long maxDataOffset = store.getDataMaxOffset();
@@ -535,6 +509,29 @@ public class BrokerAdminServlet extends HttpServlet {
             }
         }
         sBuilder.append("}");
+        return sBuilder;
+    }
+
+    public StringBuilder adminQueryConsumerRegisterInfo(HttpServletRequest req) {
+        StringBuilder sBuilder = new StringBuilder(1024);
+        Map<String, ConsumerNodeInfo> map =
+                broker.getBrokerServiceServer().getConsumerRegisterMap();
+        int totalCnt = 0;
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",")
+                .append(",\"dataSet\":[");
+        for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            if (totalCnt > 0) {
+                sBuilder.append(",");
+            }
+            sBuilder.append("{\"Partition\":\"").append(entry.getKey())
+                    .append("\",\"Consumer\":\"")
+                    .append(entry.getValue().getConsumerId())
+                    .append("\",\"index\":").append(++totalCnt).append("}");
+        }
+        sBuilder.append("],\"totalCnt\":").append(totalCnt).append("}");
         return sBuilder;
     }
 
