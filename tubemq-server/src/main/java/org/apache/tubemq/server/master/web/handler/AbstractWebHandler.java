@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.server.master.web.handler;
 
-import static org.apache.tubemq.server.master.web.handler.WebApiMapper.registerWebMethod;
+import static org.apache.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
