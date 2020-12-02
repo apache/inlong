@@ -35,8 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.client.config.TubeClientConfig;
 import org.apache.tubemq.client.exception.TubeClientException;
@@ -64,7 +64,7 @@ public class MAMessageProducerExample {
     private static final int SESSION_FACTORY_NUM = 10;
 
     private static Set<String> topicSet;
-    private static int msgCount;
+    private static int batchCount;
     private static int producerCount;
     private static byte[] sendData;
 
@@ -101,30 +101,32 @@ public class MAMessageProducerExample {
      */
     public static Options initOptions() {
         Options options = ArgsParserHelper.initCommonOptions();
-        options.addOption("count", false, "producer count");
-        options.addOption("thread", false, "thread number of producers");
+        options.addOption(null, "batch-size", true, "number of messages in single batch, default is 100000");
+        options.addOption(null, "max-batch", true, "max batch number, default is 1024");
+        options.addOption(null, "thread-num", true, "thread number of producers, default is 1, max is 100");
         return options;
     }
 
     public static void main(String[] args) {
         Options options = null;
         try {
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             options = initOptions();
             CommandLine cl = parser.parse(options, args);
             if (cl != null) {
-                final String masterHostAndPort = cl.getOptionValue("master");
-                final String topics = cl.getOptionValue("topics");
+                final String masterHostAndPort = cl.getOptionValue("master-list");
+                final String topics = cl.getOptionValue("topic");
                 final List<String> topicList = Arrays.asList(topics.split(","));
                 topicSet = new TreeSet<>(topicList);
 
-                msgCount = Integer.parseInt(cl.getOptionValue("count"));
+                batchCount = Integer.parseInt(cl.getOptionValue("max-batch", "100000"));
+                int batchSize = Integer.parseInt(cl.getOptionValue("batch-size", "1024"));
                 producerCount = Math.min(Integer.parseInt(cl.getOptionValue(
-                        "thread", "1")), MAX_PRODUCER_NUM);
+                        "thread-num", "1")), MAX_PRODUCER_NUM);
                 logger.info("MAMessageProducerExample.main started...");
                 final byte[] transmitData = StringUtils
                         .getBytesUtf8("This is a test message from multi-session factory.");
-                final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
+                final ByteBuffer dataBuffer = ByteBuffer.allocate(batchSize);
 
                 while (dataBuffer.hasRemaining()) {
                     int offset = dataBuffer.arrayOffset();
@@ -141,7 +143,7 @@ public class MAMessageProducerExample {
 
                     messageProducer.startService();
 
-                    while (SENT_SUCC_COUNTER.get() < msgCount * producerCount * topicSet.size()) {
+                    while (SENT_SUCC_COUNTER.get() < (long) batchCount * producerCount * topicSet.size()) {
                         TimeUnit.MILLISECONDS.sleep(1000);
                     }
                     messageProducer.producerMap.clear();
@@ -156,7 +158,7 @@ public class MAMessageProducerExample {
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             if (options != null) {
-                ArgsParserHelper.help("./tubemq-console-producer.sh", options);
+                ArgsParserHelper.help("./tubemq-producer-perf-test.sh", options);
             }
         }
     }
@@ -203,7 +205,7 @@ public class MAMessageProducerExample {
             } catch (Throwable t) {
                 logger.error("publish exception: ", t);
             }
-            for (int i = 0; i < msgCount; i++) {
+            for (int i = 0; i < batchCount; i++) {
                 long millis = System.currentTimeMillis();
                 for (String topic : topicSet) {
                     try {

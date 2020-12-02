@@ -28,8 +28,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.apache.tubemq.client.common.PeerInfo;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.consumer.ConsumePosition;
@@ -64,9 +64,14 @@ public final class MessageConsumerExample {
 
     private final PushMessageConsumer messageConsumer;
 
-    public MessageConsumerExample(String masterHostAndPort, String group, int fetchCount) throws Exception {
+    public MessageConsumerExample(String masterHostAndPort, String group,
+            int fetchCount, boolean isFromBegin) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
-        consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
+        if (isFromBegin) {
+            consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_FIRST_OFFSET);
+        } else {
+            consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
+        }
         if (fetchCount > 0) {
             consumerConfig.setPushFetchThreadCnt(fetchCount);
         }
@@ -81,9 +86,11 @@ public final class MessageConsumerExample {
     public static Options initOptions() {
 
         Options options = ArgsParserHelper.initCommonOptions();
-        options.addOption("count", false, "fetch count");
-        options.addOption("thread", false, "thread number of consumers");
-        options.addOption("group", true, "consumer group");
+        options.addOption(null, "batch-size", true, "max number of fetching message in one batch");
+        options.addOption(null, "thread-num", true, "thread number of consumers");
+        options.addOption(null, "group", true, "consumer group");
+        options.addOption(null, "from-begin", false, "default is consuming from latest, "
+                + "if option is clarified, then consume from begin");
         return options;
 
     }
@@ -114,17 +121,17 @@ public final class MessageConsumerExample {
     public static void main(String[] args) {
         Options options = null;
         try {
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             options = initOptions();
             CommandLine cl = parser.parse(options, args);
             if (cl != null) {
-                final String masterHostAndPort = cl.getOptionValue("master");
+                final String masterHostAndPort = cl.getOptionValue("master-list");
                 final Map<String, TreeSet<String>> topicTidsMap = initTopicList(
-                        cl.getOptionValue("topics"));
+                        cl.getOptionValue("topic"));
                 final String group = cl.getOptionValue("group");
-                int threadNum = Integer.parseInt(cl.getOptionValue("thread", "1"));
-                final int fetchCount = Integer.parseInt(cl.getOptionValue("count", "-1"));
-
+                int threadNum = Integer.parseInt(cl.getOptionValue("thread-num", "1"));
+                final int fetchCount = Integer.parseInt(cl.getOptionValue("batch-size", "-1"));
+                final boolean isFromBegin = cl.hasOption("from-begin");
                 ExecutorService executorService = Executors.newFixedThreadPool(threadNum);
                 for (int i = 0; i < threadNum; i++) {
                     executorService.submit(new Runnable() {
@@ -134,7 +141,8 @@ public final class MessageConsumerExample {
                                 MessageConsumerExample messageConsumer = new MessageConsumerExample(
                                         masterHostAndPort,
                                         group,
-                                        fetchCount
+                                        fetchCount,
+                                        isFromBegin
                                 );
                                 messageConsumer.subscribe(topicTidsMap);
                             } catch (Exception e) {
@@ -156,9 +164,9 @@ public final class MessageConsumerExample {
                 msgRecvStats.stopStats();
             }
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            logger.error(ex.getMessage(), ex.getMessage());
             if (options != null) {
-                ArgsParserHelper.help("./tubemq-console-consumer.sh", options);
+                ArgsParserHelper.help("./tubemq-consumer-perf-test.sh", options);
             }
         }
     }

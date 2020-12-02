@@ -39,9 +39,9 @@ public class ArgsParserHelper {
      */
     public static Options initCommonOptions() {
         Options options = new Options();
-        options.addOption("help", false, "show help");
-        options.addOption("master", true, "master address like: 127.0.0.1:8000");
-        options.addOption("topics", true, "topic list, topic1,topic2 or "
+        options.addOption(null, "help", false, "show help");
+        options.addOption(null, "master-list", true, "master address like: host1:8000,host2:8000");
+        options.addOption(null, "topic", true, "topic list, topic1,topic2 or "
                 + "topic1:tid11;tid12,topic2:tid21;tid22(consumer only)");
         return options;
     }
