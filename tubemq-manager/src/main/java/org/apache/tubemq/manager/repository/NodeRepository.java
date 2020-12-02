@@ -30,7 +30,5 @@ public interface NodeRepository extends JpaRepository<NodeEntry, Long> {
 
     List<NodeEntry> findNodeEntriesByClusterIdIs(int clusterId);
 
-    List<NodeEntry> findNodeEntriesByClusterIdIn(List<Integer> custerIds);
-
     List<NodeEntry> findAll();
 }
