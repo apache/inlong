@@ -82,8 +82,8 @@ public class TestBusinessController {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<TopicEntry> request = new HttpEntity<>(entry, headers);
 
-        ResponseEntity<TubeResult> responseEntity =
-                client.postForEntity(uri, request, TubeResult.class);
+        ResponseEntity<TubeMQResult> responseEntity =
+                client.postForEntity(uri, request, TubeMQResult.class);
         assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isEqualTo(true);
     }
 
@@ -91,8 +91,8 @@ public class TestBusinessController {
     public void testControllerException() throws Exception {
         final String baseUrl = "http://localhost:" + randomServerPort + "/business/throwException";
         URI uri = new URI(baseUrl);
-        ResponseEntity<TubeResult> responseEntity =
-                client.getForEntity(uri, TubeResult.class);
+        ResponseEntity<TubeMQResult> responseEntity =
+                client.getForEntity(uri, TubeMQResult.class);
         assertThat(Objects.requireNonNull(responseEntity.getBody()).getErrCode()).isEqualTo(-1);
         assertTrue(responseEntity.getBody().getErrMsg().contains("exception for test"));
     }

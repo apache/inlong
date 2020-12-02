@@ -62,7 +62,7 @@ public class TestClusterController {
         NodeEntry nodeEntry = new NodeEntry();
         nodeEntry.setMaster(true);
         nodeEntry.setIp("127.0.0.1");
-        nodeEntry.setWebPort(8080);
+        nodeEntry.setWebPort(8014);
         return nodeEntry;
     }
 
@@ -75,7 +75,7 @@ public class TestClusterController {
                 "/v1/cluster/query?method=admin_query_topic_info&type=op_query");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        TubeResult clusterResult = gson.fromJson(resultStr, TubeResult.class);
+        TubeMQResult clusterResult = gson.fromJson(resultStr, TubeMQResult.class);
         Assert.assertEquals(-1, clusterResult.getErrCode());
         Assert.assertTrue(clusterResult.getErrMsg().contains("NumberFormatException"));
     }

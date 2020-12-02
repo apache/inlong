@@ -48,4 +48,6 @@ public class NodeEntry {
     private int webPort;
 
     private int clusterId;
+
+    private String clusterName;
 }
