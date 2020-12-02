@@ -15,16 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.webbase;
+package org.apache.tubemq.server.common.fielddef;
 
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.RegexDef;
 import org.apache.tubemq.server.common.TServerConstants;
-
+import org.apache.tubemq.server.common.webbase.WebFieldType;
 
 
 public enum WebFieldDef {
+
+    // Note: Due to compatibility considerations,
+    //      the defined fields in the scheme are forbidden to be modified,
+    //      only new fields can be added
 
     TOPICNAME(0, "topicName", "topic", WebFieldType.STRING,
             "Topic name", TBaseConstants.META_MAX_TOPICNAME_LENGTH,

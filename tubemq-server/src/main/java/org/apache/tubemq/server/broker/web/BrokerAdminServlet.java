@@ -30,9 +30,9 @@ import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
-import org.apache.tubemq.server.common.webbase.WebFieldDef;
 
 /***
  * Broker's web servlet. Used for admin operation, like query consumer's status etc.
