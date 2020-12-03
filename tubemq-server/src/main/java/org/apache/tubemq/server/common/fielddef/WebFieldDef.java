@@ -15,21 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.webbase;
+package org.apache.tubemq.server.common.fielddef;
 
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.RegexDef;
 import org.apache.tubemq.server.common.TServerConstants;
-
+import org.apache.tubemq.server.common.webbase.WebFieldType;
 
 
 public enum WebFieldDef {
 
+    // Note: Due to compatibility considerations,
+    //      the defined fields in the scheme are forbidden to be modified,
+    //      only new fields can be added
+
     TOPICNAME(0, "topicName", "topic", WebFieldType.STRING,
             "Topic name", TBaseConstants.META_MAX_TOPICNAME_LENGTH,
             RegexDef.TMP_STRING),
-    GROUPNAME(1, "groupName", "grp", WebFieldType.STRING,
+    GROUPNAME(1, "groupName", "group", WebFieldType.STRING,
             "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
             RegexDef.TMP_GROUP),
     PARTITIONID(2, "partitionId", "pid", WebFieldType.INT,
@@ -40,18 +44,18 @@ public enum WebFieldDef {
     MODIFYUSER(4, "modifyUser", "mur", WebFieldType.STRING,
             "Record modifier", TBaseConstants.META_MAX_USERNAME_LENGTH,
             RegexDef.TMP_STRING),
-    MANUALOFFSET(5, "manualOffset", "ofs", WebFieldType.LONG,
+    MANUALOFFSET(5, "manualOffset", "offset", WebFieldType.LONG,
             "Reset offset value", RegexDef.TMP_NUMBER),
     MSGCOUNT(6, "msgCount", "cnt", WebFieldType.INT,
             "Number of returned messages", RegexDef.TMP_NUMBER),
-    FILTERCONDS(7, "filterConds", "fls", WebFieldType.COMPSTRING,
+    FILTERCONDS(7, "filterConds", "flts", WebFieldType.COMPSTRING,
             "Filter condition items", TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_LENGTH,
             TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT, RegexDef.TMP_FILTER),
     REQUIREREALOFFSET(8, "requireRealOffset", "dko", WebFieldType.BOOLEAN,
             "Require return disk offset details"),
     NEEDREFRESH(9, "needRefresh", "nrf", WebFieldType.BOOLEAN,
             "Require refresh data"),
-    COMPSGROUPNAME(10, "groupName", "grp", WebFieldType.COMPSTRING,
+    COMPSGROUPNAME(10, "groupName", "group", WebFieldType.COMPSTRING,
             "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
                    RegexDef.TMP_GROUP),
     COMPSTOPICNAME(11, "topicName", "topic", WebFieldType.COMPSTRING,

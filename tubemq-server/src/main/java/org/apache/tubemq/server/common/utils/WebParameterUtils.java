@@ -37,7 +37,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
-import org.apache.tubemq.server.common.webbase.WebFieldDef;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
