@@ -32,6 +32,9 @@
             <directory>../</directory>
             <includes>
                 <include>./conf/tools.log4j.properties</include>
+                <include>./bin/tubemq-consumer-perf-test.sh</include>
+                <include>./bin/tubemq-producer-perf-test.sh</include>
+                <include>./bin/env.sh</include>
                 <include>LICENSE</include>
                 <include>NOTICE</include>
                 <include>DISCLAIMER-WIP</include>
