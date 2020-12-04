@@ -35,7 +35,7 @@ if [ -z "$MASTER_JVM_SIZE" ]; then
 fi
 MASTER_JVM_ARGS="$MASTER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Broker jvm args
-if [ -z "$MASTER_JVM_SIZE" ]; then
+if [ -z "$BROKER_JVM_SIZE" ]; then
   BROKER_JVM_SIZE="-Xmx16g -Xms8g"
 fi
 BROKER_JVM_ARGS="$BROKER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
