@@ -69,7 +69,7 @@ public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Ro
 
     private static final String SPLIT_COMMA = ",";
 
-    private TubemqTableSourceSinkFactory() {
+    public TubemqTableSourceSinkFactory() {
     }
 
     @Override
