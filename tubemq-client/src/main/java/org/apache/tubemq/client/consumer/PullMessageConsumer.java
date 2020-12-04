@@ -28,6 +28,13 @@ public interface PullMessageConsumer extends MessageConsumer {
     PullMessageConsumer subscribe(String topic,
                                   TreeSet<String> filterConds) throws TubeClientException;
 
+    // getMessage() use note:
+    // This getMessage have a blocking situation: when the current
+    // consumer consumption situation is not satisfied (including
+    // without partitions to consumption, or allocated partitions but
+    // the partitions do not meet the consumption situation),
+    // the call will sleep at intervals of ConsumerConfig.getPullConsumeReadyChkSliceMs(),
+    // until the total time of ConsumerConfig.getPullConsumeReadyWaitPeriodMs
     ConsumerResult getMessage() throws TubeClientException;
 
     ConsumerResult confirmConsume(final String confirmContext,
