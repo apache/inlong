@@ -41,6 +41,9 @@ import org.apache.flink.table.descriptors.DescriptorProperties;
 public class Tubemq extends ConnectorDescriptor {
 
     @Nullable
+    private boolean consumerRole = true;
+
+    @Nullable
     private String topic;
 
     @Nullable
@@ -70,6 +73,16 @@ public class Tubemq extends ConnectorDescriptor {
         checkNotNull(topic);
 
         this.topic = topic;
+        return this;
+    }
+
+    /**
+     * Sets the client role to be used.
+     *
+     * @param isConsumer The client role if consumer.
+     */
+    public Tubemq asConsumer(boolean isConsumer) {
+        this.consumerRole = isConsumer;
         return this;
     }
 
@@ -133,13 +146,14 @@ public class Tubemq extends ConnectorDescriptor {
         if (master != null) {
             descriptorProperties.putString(CONNECTOR_MASTER, master);
         }
+        if (consumerRole) {
+            if (group != null) {
+                descriptorProperties.putString(CONNECTOR_GROUP, group);
+            }
 
-        if (group != null) {
-            descriptorProperties.putString(CONNECTOR_GROUP, group);
-        }
-
-        if (tids != null) {
-            descriptorProperties.putString(CONNECTOR_TIDS, tids);
+            if (tids != null) {
+                descriptorProperties.putString(CONNECTOR_TIDS, tids);
+            }
         }
 
         descriptorProperties.putPropertiesWithPrefix(CONNECTOR_PROPERTIES, properties);
