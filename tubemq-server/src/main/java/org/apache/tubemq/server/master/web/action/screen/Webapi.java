@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.server.master.web.action.screen;
 
-import static org.apache.tubemq.server.master.web.handler.WebApiMapper.getWebApiRegInfo;
+import static org.apache.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +25,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.exception.StandbyException;
+import org.apache.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.web.handler.AbstractWebHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminFlowRuleHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminTopicAuthHandler;
-import org.apache.tubemq.server.master.web.handler.WebApiMapper;
 import org.apache.tubemq.server.master.web.handler.WebBrokerDefConfHandler;
 import org.apache.tubemq.server.master.web.handler.WebBrokerTopicConfHandler;
 import org.apache.tubemq.server.master.web.handler.WebMasterInfoHandler;
@@ -102,7 +102,7 @@ public class Webapi implements Action {
                             "DesignatedPrimary happened...please check if the other member is down");
                 }
             }
-            WebApiMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(isQuery, method);
+            WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(isQuery, method);
             if (webApiRegInfo == null) {
                 strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Unsupported method: ")
                         .append(method).append("}");

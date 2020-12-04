@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.master.web.handler;
+package org.apache.tubemq.server.common.webbase;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class WebApiMapper {
+public class WebMethodMapper {
     // log printer
     private static final Logger logger =
-            LoggerFactory.getLogger(WebApiMapper.class);
+            LoggerFactory.getLogger(WebMethodMapper.class);
     // The query methods map
     public static final Map<String, WebApiRegInfo> WEB_QRY_METHOD_MAP =
             new HashMap<>();
@@ -47,7 +47,7 @@ public class WebApiMapper {
     public static void registerWebMethod(boolean isQryApi,
                                          String webMethodName,
                                          String clsMethodName,
-                                         AbstractWebHandler webHandler) {
+                                         Object webHandler) {
         Method[] methods = webHandler.getClass().getMethods();
         for (Method item : methods) {
             if (item.getName().equals(clsMethodName)) {
@@ -71,10 +71,10 @@ public class WebApiMapper {
 
     public static class WebApiRegInfo {
         public Method method;
-        public AbstractWebHandler webHandler;
+        public Object webHandler;
 
         public WebApiRegInfo(Method method,
-                             AbstractWebHandler webHandler) {
+                             Object webHandler) {
             this.method = method;
             this.webHandler = webHandler;
         }

@@ -30,16 +30,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
+
 
 
 public class WebParameterUtils {
@@ -153,6 +156,24 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an object value to string value
      *
+     * @param req          http servlet request
+     * @param paramName    the parameter name
+     * @param paramMaxLen  the max length of string to return
+     * @param required     a boolean value represent whether the parameter is must required
+     * @param defaultValue a default value returned if failed to parse value from the given object
+     * @return a string value of parameter
+     * @throws Exception if failed to parse the object
+     */
+    public static String validStringParameter(HttpServletRequest req, String paramName,
+                                              int paramMaxLen, boolean required,
+                                              String defaultValue) throws Exception {
+        return validStringParameter(paramName,
+                req.getParameter(paramName), paramMaxLen, required, defaultValue);
+    }
+
+    /**
+     * Parse the parameter value from an object value to string value
+     *
      * @param paramName    the parameter name
      * @param paramValue   the parameter value which is an object for parsing
      * @param paramMaxLen  the max length of string to return
@@ -161,9 +182,11 @@ public class WebParameterUtils {
      * @return a string value of parameter
      * @throws Exception if failed to parse the object
      */
-    public static String validStringParameter(String paramName, String paramValue, int paramMaxLen,
-                                              boolean required, String defaultValue) throws Exception {
-        String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
+    public static String validStringParameter(String paramName, String paramValue,
+                                              int paramMaxLen, boolean required,
+                                              String defaultValue) throws Exception {
+        String tmpParamValue =
+                checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue)) {
             return defaultValue;
         }
@@ -212,6 +235,297 @@ public class WebParameterUtils {
                 .append("can only contain characters,numbers,hyphen,and underscores").toString());
         }
         return tmpParamValue;
+    }
+
+    public static StringBuilder buildFailResult(StringBuilder strBuffer, String errMsg) {
+        return strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                .append(errMsg).append("\"}");
+    }
+
+    /**
+     * Parse the parameter value from an object value to a long value
+     *
+     * @param req        Http Servlet Request
+     * @param fieldDef   the parameter field definition
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if failed to parse value from the given object
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getLongParamValue(HttpServletRequest req,
+                                                  WebFieldDef fieldDef,
+                                                  boolean required,
+                                                  long defValue) {
+        ProcessResult procResult =
+                getStringParamValue(req, fieldDef, required, null);
+        if (!procResult.success) {
+            return procResult;
+        }
+        String paramValue = (String) procResult.retData1;
+        if (paramValue == null) {
+            procResult.setSuccResult(defValue);
+            return procResult;
+        }
+        try {
+            long paramIntVal = Long.parseLong(paramValue);
+            procResult.setSuccResult(paramIntVal);
+        } catch (Throwable e) {
+            procResult.setFailResult(400,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(fieldDef.name).append(" parse error: ")
+                            .append(e.getMessage()).toString());
+        }
+        return procResult;
+    }
+
+    /**
+     * Parse the parameter value from an object value to a integer value
+     *
+     * @param req        Http Servlet Request
+     * @param fieldDef   the parameter field definition
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if failed to parse value from the given object
+     * @param minValue   min value required
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getIntParamValue(HttpServletRequest req,
+                                                 WebFieldDef fieldDef,
+                                                 boolean required,
+                                                 int defValue,
+                                                 int minValue) {
+        ProcessResult procResult =
+                getStringParamValue(req, fieldDef, required, null);
+        if (!procResult.success) {
+            return procResult;
+        }
+        if (fieldDef.isCompFieldType()) {
+            Set<Integer> tgtValueSet = new HashSet<Integer>();
+            Set<String> valItemSet = (Set<String>) procResult.retData1;
+            if (valItemSet.isEmpty()) {
+                tgtValueSet.add(defValue);
+                procResult.setSuccResult(tgtValueSet);
+                return procResult;
+            }
+            ProcessResult procRet = new ProcessResult();
+            for (String itemVal : valItemSet) {
+                if (!checkIntValueNorms(procRet, fieldDef, itemVal, minValue)) {
+                    return procRet;
+                }
+                tgtValueSet.add((Integer) procRet.retData1);
+            }
+            procResult.setSuccResult(tgtValueSet);
+        } else {
+            String paramValue = (String) procResult.retData1;
+            if (paramValue == null) {
+                procResult.setSuccResult(defValue);
+                return procResult;
+            }
+            checkIntValueNorms(procResult, fieldDef, paramValue, minValue);
+        }
+        return procResult;
+    }
+
+    /**
+     * Parse the parameter value from an object value to a boolean value
+     *
+     * @param req         Http Servlet Request
+     * @param fieldDef    the parameter field definition
+     * @param required    a boolean value represent whether the parameter is must required
+     * @param defValue    a default value returned if failed to parse value from the given object
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getBooleanParamValue(HttpServletRequest req,
+                                                     WebFieldDef fieldDef,
+                                                     boolean required,
+                                                     boolean defValue) {
+        ProcessResult procResult =
+                getStringParamValue(req, fieldDef, required, null);
+        if (!procResult.success) {
+            return procResult;
+        }
+        String paramValue = (String) procResult.retData1;
+        if (paramValue == null) {
+            procResult.setSuccResult(defValue);
+            return procResult;
+        }
+        procResult.setSuccResult(Boolean.parseBoolean(paramValue));
+        return procResult;
+    }
+
+    /**
+     * Parse the parameter value from an object value
+     *
+     * @param req         Http Servlet Request
+     * @param fieldDef    the parameter field definition
+     * @param required     a boolean value represent whether the parameter is must required
+     * @param defValue     a default value returned if failed to parse value from the given object
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getStringParamValue(HttpServletRequest req,
+                                                    WebFieldDef fieldDef,
+                                                    boolean required,
+                                                    String defValue) {
+        ProcessResult procResult = new ProcessResult();
+        // get parameter value
+        String paramValue = req.getParameter(fieldDef.name);
+        if (paramValue == null) {
+            paramValue = req.getParameter(fieldDef.shortName);
+        }
+        if (TStringUtils.isNotBlank(paramValue)) {
+            // Cleanup value extra characters
+            paramValue = escDoubleQuotes(paramValue.trim());
+        }
+        // Check if the parameter exists
+        if (TStringUtils.isBlank(paramValue)) {
+            if (required) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name)
+                                .append(" is missing or value is null or blank!").toString());
+            } else {
+                procStringDefValue(procResult, fieldDef.isCompFieldType(), defValue);
+            }
+            return procResult;
+        }
+        // check if value is norm;
+        if (fieldDef.isCompFieldType()) {
+            // split original value to items
+            Set<String> valItemSet = new HashSet<>();
+            String[] strParamValueItems = paramValue.split(fieldDef.splitToken);
+            for (String strParamValueItem : strParamValueItems) {
+                if (TStringUtils.isBlank(strParamValueItem)) {
+                    continue;
+                }
+                if (!checkStrValueNorms(procResult, fieldDef, strParamValueItem)) {
+                    return procResult;
+                }
+                valItemSet.add((String) procResult.retData1);
+            }
+            // check if is empty result
+            if (valItemSet.isEmpty()) {
+                if (required) {
+                    procResult.setFailResult(fieldDef.id,
+                            new StringBuilder(512).append("Parameter ")
+                                    .append(fieldDef.name)
+                                    .append(" is missing or value is null or blank!").toString());
+                } else {
+                    procStringDefValue(procResult, fieldDef.isCompFieldType(), defValue);
+                }
+                return procResult;
+            }
+            // check max item count
+            if (fieldDef.itemMaxCnt != TBaseConstants.META_VALUE_UNDEFINED) {
+                if (valItemSet.size() > fieldDef.itemMaxCnt) {
+                    procResult.setFailResult(fieldDef.id,
+                            new StringBuilder(512).append("Parameter ")
+                                    .append(fieldDef.name)
+                                    .append("'s item count over max allowed count (")
+                                    .append(fieldDef.itemMaxCnt).append(")!").toString());
+                }
+            }
+            procResult.setSuccResult(valItemSet);
+        } else {
+            if (!checkStrValueNorms(procResult, fieldDef, paramValue)) {
+                return procResult;
+            }
+            procResult.setSuccResult(paramValue);
+        }
+        return procResult;
+    }
+
+    /**
+     * process string default value
+     *
+     * @param procResult process result
+     * @param isCompFieldType   the parameter if compound field type
+     * @param defValue   the parameter default value
+     * @return process result for default value of parameter
+     */
+    private static ProcessResult procStringDefValue(ProcessResult procResult,
+                                                    boolean isCompFieldType,
+                                                    String defValue) {
+        if (isCompFieldType) {
+            Set<String> valItemSet = new HashSet<>();
+            if (TStringUtils.isNotBlank(defValue)) {
+                valItemSet.add(defValue);
+            }
+            procResult.setSuccResult(valItemSet);
+        } else {
+            procResult.setSuccResult(defValue);
+        }
+        return procResult;
+    }
+
+    /**
+     * Parse the parameter string value by regex define
+     *
+     * @param procResult   process result
+     * @param fieldDef     the parameter field definition
+     * @param paramVal     the parameter value
+     * @return check result for string value of parameter
+     */
+    private static boolean checkStrValueNorms(ProcessResult procResult,
+                                              WebFieldDef fieldDef,
+                                              String paramVal) {
+        paramVal = paramVal.trim();
+        if (TStringUtils.isBlank(paramVal)) {
+            procResult.setSuccResult(null);
+            return true;
+        }
+        // check value's max length
+        if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
+            if (paramVal.length() > fieldDef.valMaxLen) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("over max length for ")
+                                .append(fieldDef.name).append(", only allow ")
+                                .append(fieldDef.valMaxLen).append(" length").toString());
+                return false;
+            }
+        }
+        // check value's pattern
+        if (fieldDef.regexCheck) {
+            if (!paramVal.matches(fieldDef.regexDef.getPattern())) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("illegal value for ")
+                                .append(fieldDef.name).append(", value ")
+                                .append(fieldDef.regexDef.getErrMsgTemp()).toString());
+                return false;
+            }
+        }
+        procResult.setSuccResult(paramVal);
+        return true;
+    }
+
+    /**
+     * Parse the parameter string value by regex define
+     *
+     * @param procResult   process result
+     * @param fieldDef     the parameter field definition
+     * @param paramValue   the parameter value
+     * param minValue      the parameter min value
+     * @return check result for string value of parameter
+     */
+    private static boolean checkIntValueNorms(ProcessResult procResult,
+                                              WebFieldDef fieldDef,
+                                              String paramValue,
+                                              int minValue) {
+        try {
+            int paramIntVal = Integer.parseInt(paramValue);
+            if (paramIntVal < minValue) {
+                procResult.setFailResult(400,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name).append(" value must >= ")
+                                .append(minValue).toString());
+                return false;
+            }
+            procResult.setSuccResult(paramIntVal);
+        } catch (Throwable e) {
+            procResult.setFailResult(400,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(fieldDef.name).append(" parse error: ")
+                            .append(e.getMessage()).toString());
+            return false;
+        }
+        return true;
     }
 
     /**
