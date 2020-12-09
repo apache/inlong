@@ -37,4 +37,4 @@ if [ -z "$BASE_DIR" ] ; then
   #echo "TubeMQ master is at $BASE_DIR"
 fi
 source $BASE_DIR/bin/env.sh
-$JAVA $TOOLS_ARGS org.apache.tubemq.example.MessageConsumerExample $@
+$JAVA $TOOLS_ARGS org.apache.tubemq.server.tools.cli.CliProducer $@
