@@ -147,7 +147,9 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                     baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs())) {
                 return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
             }
-            ThreadUtils.sleep(baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs());
+            if (baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs() > 10) {
+                ThreadUtils.sleep(baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs());
+            }
         }
         StringBuilder sBuilder = new StringBuilder(512);
         // Check the data cache first
