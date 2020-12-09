@@ -79,7 +79,7 @@ public enum CliArgDef {
             "Integer: count, [1,100]",
             "Number of fetch threads, default: num of cpu count."),
     SENDTHREADS(null, "num-send-threads",
-            "Integer: count, [1,100]",
+            "Integer: count, [1,200]",
             "Number of send message threads, default: num of cpu count."),
     CONSUMEPOS(null, "consume-position",
             "Integer: [-1,0, 1]",

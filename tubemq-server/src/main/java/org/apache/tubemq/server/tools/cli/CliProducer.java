@@ -56,7 +56,6 @@ public class CliProducer extends CliAbstractBase {
 
     private static final Logger logger =
             LoggerFactory.getLogger(CliProducer.class);
-    private static final int MAX_PRODUCER_NUM = 100;
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
     private static final AtomicLong SENT_SUCC_COUNTER = new AtomicLong(0);
@@ -78,17 +77,12 @@ public class CliProducer extends CliAbstractBase {
     private long rpcTimeoutMs = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean reuseConn = false;
     private int clientCount = 1;
+    private int sendThreadCnt = 100;
     private long printIntervalMs = 5000;
     private boolean syncProduction = false;
     private boolean withoutDelay = false;
     private boolean isStarted = false;
-    private final ExecutorService sendExecutorService =
-            Executors.newFixedThreadPool(MAX_PRODUCER_NUM, new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "sender_" + producerMap.size());
-                }
-            });
+    private ExecutorService sendExecutorService = null;
 
 
     public CliProducer() {
@@ -112,6 +106,7 @@ public class CliProducer extends CliAbstractBase {
         addCommandOption(CliArgDef.CLIENTCOUNT);
         addCommandOption(CliArgDef.OUTPUTINTERVAL);
         addCommandOption(CliArgDef.SYNCPRODUCE);
+        addCommandOption(CliArgDef.SENDTHREADS);
         addCommandOption(CliArgDef.WITHOUTDELAY);
     }
 
@@ -150,6 +145,12 @@ public class CliProducer extends CliAbstractBase {
         String reuseConnStr = cli.getOptionValue(CliArgDef.CONNREUSE.longOpt);
         if (TStringUtils.isNotBlank(reuseConnStr)) {
             reuseConn = Boolean.parseBoolean(reuseConnStr);
+        }
+        String sendThreadCntStr = cli.getOptionValue(CliArgDef.SENDTHREADS.longOpt);
+        if (TStringUtils.isNotBlank(sendThreadCntStr)) {
+            int tmpThreadCnt = Integer.parseInt(sendThreadCntStr);
+            tmpThreadCnt = (tmpThreadCnt < 1) ? 1 : Math.min(tmpThreadCnt, 200);
+            sendThreadCnt = tmpThreadCnt;
         }
         String rpcTimeoutStr = cli.getOptionValue(CliArgDef.RPCTIMEOUT.longOpt);
         if (TStringUtils.isNotBlank(rpcTimeoutStr)) {
@@ -193,6 +194,14 @@ public class CliProducer extends CliAbstractBase {
                 }
             }
         }
+        // initial send thread service
+        sendExecutorService =
+                Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
+                    @Override
+                    public Thread newThread(Runnable runnable) {
+                        return new Thread(runnable, "sender_" + producerMap.size());
+                    }
+                });
         // initial producer object
         if (reuseConn) {
             // if resue connection, use TubeSingleSessionFactory class
@@ -224,7 +233,9 @@ public class CliProducer extends CliAbstractBase {
 
     public void shutdown() throws Throwable {
         // stop process
-        sendExecutorService.shutdownNow();
+        if (sendExecutorService != null) {
+            sendExecutorService.shutdownNow();
+        }
         ThreadUtils.sleep(20);
         for (MessageProducer producer : producerMap.keySet()) {
             producer.shutdown();
