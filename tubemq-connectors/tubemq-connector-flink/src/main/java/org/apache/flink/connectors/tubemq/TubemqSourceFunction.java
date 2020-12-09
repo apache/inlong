@@ -254,9 +254,12 @@ public class TubemqSourceFunction<T>
 
             ConsumerResult consumeResult = messagePullConsumer.getMessage();
             if (!consumeResult.isSuccess()) {
-                LOG.info("Could not consume messages from tubemq (errcode: {}, " +
-                        "errmsg: {}).", consumeResult.getErrCode(),
-                    consumeResult.getErrMsg());
+                if (!(consumeResult.getErrCode() == 400 || consumeResult.getErrCode() == 404 ||
+                        consumeResult.getErrCode() == 405 || consumeResult.getErrCode() == 406 ||
+                        consumeResult.getErrCode() == 407 || consumeResult.getErrCode() == 408)) {
+                    LOG.info("Could not consume messages from tubemq (errcode: {}, " + "errmsg: {}).",
+                            consumeResult.getErrCode(), consumeResult.getErrMsg());
+                }
 
                 Duration idleTime =
                     Duration.between(lastConsumeInstant, Instant.now());
@@ -297,9 +300,12 @@ public class TubemqSourceFunction<T>
                 messagePullConsumer
                     .confirmConsume(consumeResult.getConfirmContext(), true);
             if (!confirmResult.isSuccess()) {
-                LOG.warn("Could not confirm messages to tubemq (errcode: {}, " +
-                        "errmsg: {}).", confirmResult.getErrCode(),
-                    confirmResult.getErrMsg());
+                if (!(confirmResult.getErrCode() == 400 || confirmResult.getErrCode() == 404 ||
+                        confirmResult.getErrCode() == 405 || confirmResult.getErrCode() == 406 ||
+                        confirmResult.getErrCode() == 407 || confirmResult.getErrCode() == 408)) {
+                    LOG.warn("Could not confirm messages to tubemq (errcode: {}, " + "errmsg: {}).",
+                            confirmResult.getErrCode(), confirmResult.getErrMsg());
+                }
             }
         }
     }
