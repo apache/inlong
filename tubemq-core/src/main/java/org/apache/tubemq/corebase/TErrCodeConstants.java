@@ -18,6 +18,9 @@
 package org.apache.tubemq.corebase;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 public class TErrCodeConstants {
     public static final int SUCCESS = 200;
     public static final int NOT_READY = 201;
@@ -44,4 +47,7 @@ public class TErrCodeConstants {
     public static final int SERVICE_UNAVAILABLE = 503;
     public static final int INTERNAL_SERVER_ERROR_MSGSET_NULL = 510;
 
+    public static final List<Integer> IGNORE_ERROR_SET =
+            Arrays.asList(BAD_REQUEST, NOT_FOUND, ALL_PARTITION_FROZEN,
+                    NO_PARTITION_ASSIGNED, ALL_PARTITION_WAITING, ALL_PARTITION_INUSE);
 }
