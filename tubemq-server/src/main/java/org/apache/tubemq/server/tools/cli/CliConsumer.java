@@ -103,7 +103,6 @@ public class CliConsumer extends CliAbstractBase {
         addCommandOption(CliArgDef.FETCHTHREADS);
         addCommandOption(CliArgDef.CLIENTCOUNT);
         addCommandOption(CliArgDef.OUTPUTINTERVAL);
-        addCommandOption(CliArgDef.WITHOUTDELAY);
     }
 
     public boolean parseParams(String[] args) throws Exception {

@@ -144,6 +144,9 @@ public class AddressUtils {
     }
 
     public static String getIPV4LocalAddress() {
+        if (localIPAddress != null) {
+            return localIPAddress;
+        }
         String tmpAdress = null;
         try {
             Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
