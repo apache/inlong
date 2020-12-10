@@ -96,7 +96,7 @@ public final class MessageConsumerExample {
             topicTidsMap.put(topicTidStr[0], tids);
         }
         final int startFetchCount = fetchCount;
-        final ExecutorService executorService = Executors.newFixedThreadPool(fetchCount);
+        final ExecutorService executorService = Executors.newCachedThreadPool();
         for (int i = 0; i < consumerCount; i++) {
             executorService.submit(new Runnable() {
                 @Override
