@@ -90,6 +90,7 @@ public class CliConsumer extends CliAbstractBase {
     /**
      * Init command options
      */
+    @Override
     protected void initCommandOptions() {
         // add the cli required parameters
         addCommandOption(CliArgDef.MASTERSERVER);
@@ -105,7 +106,8 @@ public class CliConsumer extends CliAbstractBase {
         addCommandOption(CliArgDef.OUTPUTINTERVAL);
     }
 
-    public boolean parseParams(String[] args) throws Exception {
+    @Override
+    public boolean processParams(String[] args) throws Exception {
         // parse parameters and check value
         CommandLine cli = parser.parse(options, args);
         if (cli == null) {
@@ -364,7 +366,7 @@ public class CliConsumer extends CliAbstractBase {
     public static void main(String[] args) {
         CliConsumer cliConsumer = new CliConsumer();
         try {
-            boolean result = cliConsumer.parseParams(args);
+            boolean result = cliConsumer.processParams(args);
             if (!result) {
                 throw new Exception("Parse parameters failure!");
             }

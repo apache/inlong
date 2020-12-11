@@ -62,7 +62,11 @@ public enum WebFieldDef {
             "Topic name", TBaseConstants.META_MAX_TOPICNAME_LENGTH,
             RegexDef.TMP_STRING),
     COMPSPARTITIONID(12, "partitionId", "pid", WebFieldType.COMPINT,
-            "Partition id", RegexDef.TMP_NUMBER);
+            "Partition id", RegexDef.TMP_NUMBER),
+    CALLERIP(13, "callerIp", "cip", WebFieldType.STRING,
+            "Caller ip address", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH);
+
+
 
 
 
@@ -82,6 +86,12 @@ public enum WebFieldDef {
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type, String desc) {
         this(id, name, shortName, type, desc, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, false, null);
+    }
+
+    WebFieldDef(int id, String name, String shortName, WebFieldType type,
+                String desc, int valMaxLen) {
+        this(id, name, shortName, type, desc, valMaxLen,
                 TBaseConstants.META_VALUE_UNDEFINED, false, null);
     }
 

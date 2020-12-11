@@ -335,6 +335,11 @@
                 <version>2.6</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.2</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.1</version>
@@ -434,6 +439,16 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.31.v20200723</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>9.4.31.v20200723</version>
             </dependency>
             <dependency>
                 <groupId>org.ini4j</groupId>
