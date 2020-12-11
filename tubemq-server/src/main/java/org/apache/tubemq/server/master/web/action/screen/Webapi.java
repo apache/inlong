@@ -105,7 +105,7 @@ public class Webapi implements Action {
             WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(isQuery, method);
             if (webApiRegInfo == null) {
                 strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Unsupported method: ")
-                        .append(method).append("}");
+                        .append(method).append("\"}");
                 requestContext.put("sb", strBuffer.toString());
             } else {
 
@@ -120,8 +120,8 @@ public class Webapi implements Action {
                 }
             }
         } catch (Throwable e) {
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client :")
-                    .append(e.getMessage()).append("}");
+            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
+                    .append(e.getMessage()).append("\"}");
             requestContext.put("sb", strBuffer.toString());
         }
     }

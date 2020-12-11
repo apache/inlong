@@ -30,12 +30,12 @@ public enum CliArgDef {
     MASTERSERVER(null, "master-servers",
             "String: format is master1_ip:port[,master2_ip:port]",
             "The master address(es) to connect to."),
-    MASTERURL(null, "master-url",
-            "String: format is http://master_ip:master_webport/",
-            "Master Service URL to which to connect.(default: http://localhost:8080/)"),
-    BROKERURL(null, "broker-url",
-            "String: format is http://broker_ip:broker_webport/",
-            "Broker Service URL to which to connect.(default: http://localhost:8081/)"),
+    MASTERPORTAL(null, "master-portal",
+            "String: format is master_ip:master_webport",
+            "Master Service portal to which to connect.(default: 127.0.0.1:8080)"),
+    BROKERPORTAL(null, "broker-portal",
+            "String: format is broker_ip:broker_webport",
+            "Broker Service URL to which to connect.(default: 127.0.0.1:8081)"),
     MESSAGES(null, "messages",
             "Long: count",
             "The number of messages to send or consume, If not set, production or consumption is continual."),
@@ -95,7 +95,13 @@ public enum CliArgDef {
     SYNCPRODUCE(null, "sync-produce",
             "Synchronous production. (default: false)"),
     WITHOUTDELAY(null, "without-delay",
-                        "Production without delay. (default: false)");
+            "Production without delay. (default: false)"),
+    METHOD(null, "method",
+            "String: http call method",
+            "Http call method"),
+    ADMINMETHOD(null, "show-methods",
+            "Return http's methods.");
+
 
 
 

@@ -71,6 +71,6 @@ public abstract class CliAbstractBase {
     protected abstract void initCommandOptions();
 
 
-    public abstract boolean parseParams(String[] args) throws Exception;
+    public abstract boolean processParams(String[] args) throws Exception;
 
 }
