@@ -18,7 +18,9 @@
 package org.apache.tubemq.server.common.webbase;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,13 @@ public class WebMethodMapper {
                 .append("registerWebMethod failure, not found Method by clsMethodName")
                 .append(clsMethodName).append(" in WebHandler class ")
                 .append(webHandler.getClass().getName()).toString());
+    }
+
+    public static List<String> getRegisteredWebMethod() {
+        List<String> methods = new ArrayList<>();
+        methods.addAll(WEB_QRY_METHOD_MAP.keySet());
+        methods.addAll(WEB_MDY_METHOD_MAP.keySet());
+        return methods;
     }
 
 

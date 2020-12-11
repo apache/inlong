@@ -68,6 +68,25 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // manual set offset
         innRegisterWebMethod("admin_manual_set_current_offset",
                 "adminManualSetCurrentOffSet");
+        // get all registered methods
+        innRegisterWebMethod("admin_get_methods",
+                "adminQueryAllMethods");
+    }
+
+    public StringBuilder adminQueryAllMethods(HttpServletRequest req) throws Exception {
+        int index = 0;
+        List<String> methods = getSupportedMethod();
+        StringBuilder sBuilder = new StringBuilder(1024);
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        for (index = 0; index < methods.size(); index++) {
+            if (index > 0) {
+                sBuilder.append(",");
+            }
+            sBuilder.append("{\"id\":").append(index + 1)
+                    .append(",\"method\":\"").append(methods.get(index)).append("\"}");
+        }
+        sBuilder.append("],\"totalCnt\":").append(index + 1).append("}");
+        return sBuilder;
     }
 
     /***

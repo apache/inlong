@@ -17,9 +17,11 @@
 
 package org.apache.tubemq.server.broker.web;
 
+import static org.apache.tubemq.server.common.webbase.WebMethodMapper.getRegisteredWebMethod;
 import static org.apache.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
 import static org.apache.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +44,10 @@ public abstract class AbstractWebHandler extends HttpServlet {
         doPost(req, resp);
     }
 
+    public List<String> getSupportedMethod() {
+        return getRegisteredWebMethod();
+    }
+
     @Override
     protected void doPost(HttpServletRequest req,
                           HttpServletResponse resp) throws IOException {
@@ -56,7 +62,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
                 WebApiRegInfo webApiRegInfo = getWebApiRegInfo(true, method);
                 if (webApiRegInfo == null) {
                     strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                            .append("Unsupported method ").append(method).append("}");
+                            .append("Unsupported method ").append(method).append("\"}");
                 } else {
                     strBuffer = (StringBuilder) webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req);
                 }
