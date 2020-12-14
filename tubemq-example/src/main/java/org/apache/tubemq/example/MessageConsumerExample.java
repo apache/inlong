@@ -17,8 +17,6 @@
 
 package org.apache.tubemq.example;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -35,6 +33,7 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
 import org.apache.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.tubemq.corebase.Message;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,59 +54,48 @@ import org.slf4j.LoggerFactory;
  */
 public final class MessageConsumerExample {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageConsumerExample.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(MessageConsumerExample.class);
     private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
 
     private final PushMessageConsumer messageConsumer;
     private final MessageSessionFactory messageSessionFactory;
 
-    public MessageConsumerExample(String masterHostAndPort, String group, int fetchCount) throws Exception {
+    public MessageConsumerExample(String masterHostAndPort,
+                                  String group, int fetchThreadCnt) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
         consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
-        if (fetchCount > 0) {
-            consumerConfig.setPushFetchThreadCnt(fetchCount);
+        if (fetchThreadCnt > 0) {
+            consumerConfig.setPushFetchThreadCnt(fetchThreadCnt);
         }
         this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messageConsumer = messageSessionFactory.createPushConsumer(consumerConfig);
     }
 
+
     public static void main(String[] args) {
-        final String masterHostAndPort = args[0];
+        final String masterServers = args[0];
         final String topics = args[1];
         final String group = args[2];
-        final int consumerCount = Integer.parseInt(args[3]);
-        int fetchCount = -1;
+        final int clientCount = Integer.parseInt(args[3]);
+        int threadCnt = -1;
         if (args.length > 5) {
-            fetchCount = Integer.parseInt(args[4]);
+            threadCnt = Integer.parseInt(args[4]);
         }
-        final Map<String, TreeSet<String>> topicTidsMap = new HashMap<>();
-
-        String[] topicTidsList = topics.split(",");
-        for (String topicTids : topicTidsList) {
-            String[] topicTidStr = topicTids.split(":");
-            TreeSet<String> tids = null;
-            if (topicTidStr.length > 1) {
-                String tidsStr = topicTidStr[1];
-                String[] tidsSet = tidsStr.split(";");
-                if (tidsSet.length > 0) {
-                    tids = new TreeSet<>(Arrays.asList(tidsSet));
-                }
-            }
-            topicTidsMap.put(topicTidStr[0], tids);
-        }
-        final int startFetchCount = fetchCount;
-        final ExecutorService executorService = Executors.newCachedThreadPool();
-        for (int i = 0; i < consumerCount; i++) {
+        final int fetchThreadCnt = threadCnt;
+        final Map<String, TreeSet<String>> topicAndFiltersMap =
+                MixedUtils.parseTopicParam(topics);
+        final ExecutorService executorService =
+                Executors.newCachedThreadPool();
+        for (int i = 0; i < clientCount; i++) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        MessageConsumerExample messageConsumer = new MessageConsumerExample(
-                                masterHostAndPort,
-                                group,
-                                startFetchCount
-                        );
-                        messageConsumer.subscribe(topicTidsMap);
+                        MessageConsumerExample messageConsumer =
+                                new MessageConsumerExample(masterServers,
+                                        group, fetchThreadCnt);
+                        messageConsumer.subscribe(topicAndFiltersMap);
                     } catch (Exception e) {
                         logger.error("Create consumer failed!", e);
                     }
@@ -126,8 +114,8 @@ public final class MessageConsumerExample {
         msgRecvStats.stopStats();
     }
 
-    public void subscribe(Map<String, TreeSet<String>> topicTidsMap) throws TubeClientException {
-        for (Map.Entry<String, TreeSet<String>> entry : topicTidsMap.entrySet()) {
+    public void subscribe(Map<String, TreeSet<String>> topicAndFiltersMap) throws TubeClientException {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             MessageV2Listener messageListener = new DefaultMessageListener(entry.getKey());
             messageConsumer.subscribe(entry.getKey(), entry.getValue(), messageListener);
         }

@@ -42,6 +42,7 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.fielddef.CliArgDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class CliProducer extends CliAbstractBase {
     // sent data content
     private static byte[] sentData;
     private final Map<String, TreeSet<String>> topicAndFiltersMap = new HashMap<>();
-    private final List<TupleValue> topicSendRounds = new ArrayList<>();
+    private final List<Tuple2<String, String>> topicSendRounds = new ArrayList<>();
     private final List<MessageSessionFactory> sessionFactoryList = new ArrayList<>();
     private final Map<MessageProducer, MsgSender> producerMap = new HashMap<>();
     // cli parameters
@@ -189,10 +190,10 @@ public class CliProducer extends CliAbstractBase {
         // initial topic send round
         for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
-                topicSendRounds.add(new TupleValue(entry.getKey()));
+                topicSendRounds.add(new Tuple2<String, String>(entry.getKey()));
             } else {
                 for (String filter : entry.getValue()) {
-                    topicSendRounds.add(new TupleValue(entry.getKey(), filter));
+                    topicSendRounds.add(new Tuple2<String, String>(entry.getKey(), filter));
                 }
             }
         }
@@ -266,11 +267,11 @@ public class CliProducer extends CliAbstractBase {
                 roundIndex = (int) (sentCount++ % topicAndCondCnt);
                 try {
                     long millis = System.currentTimeMillis();
-                    TupleValue tupleValue = topicSendRounds.get(roundIndex);
-                    Message message = new Message(tupleValue.topic, sentData);
-                    if (tupleValue.filter != null) {
+                    Tuple2<String, String> target = topicSendRounds.get(roundIndex);
+                    Message message = new Message(target.f0, sentData);
+                    if (target.f1 != null) {
                         // if include filter, add filter item
-                        message.putSystemHeader(tupleValue.filter, sdf.format(new Date(millis)));
+                        message.putSystemHeader(target.f1, sdf.format(new Date(millis)));
                     }
                     // use sync or async process
                     if (syncProduction) {
@@ -330,21 +331,6 @@ public class CliProducer extends CliAbstractBase {
             SENT_EXCEPT_COUNTER.incrementAndGet();
             logger.error("Send message error!", e);
         }
-    }
-
-    private static class TupleValue {
-        public String topic = null;
-        public String filter = null;
-
-        public TupleValue(String topic) {
-            this.topic = topic;
-        }
-
-        public TupleValue(String topic, String filter) {
-            this.topic = topic;
-            this.filter = filter;
-        }
-
     }
 
     public static void main(String[] args) {
