@@ -17,9 +17,10 @@
 
 package org.apache.tubemq.example;
 
-import java.util.Arrays;
+import static org.apache.tubemq.corebase.TErrCodeConstants.IGNORE_ERROR_SET;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import org.apache.tubemq.client.config.ConsumerConfig;
 import org.apache.tubemq.client.consumer.ConsumeOffsetInfo;
 import org.apache.tubemq.client.consumer.ConsumePosition;
@@ -29,8 +30,10 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
 import org.apache.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.tubemq.corebase.Message;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * This demo shows how to consume message by pull.
@@ -42,7 +45,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class MessagePullConsumerExample {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessagePullConsumerExample.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(MessagePullConsumerExample.class);
     private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
 
     private final PullMessageConsumer messagePullConsumer;
@@ -56,39 +60,37 @@ public final class MessagePullConsumerExample {
     }
 
     public static void main(String[] args) throws Throwable {
-        final String masterHostAndPort = args[0];
+        // get and initial parameters
+        final String masterServers = args[0];
         final String topics = args[1];
         final String group = args[2];
-        final int consumeCount = Integer.parseInt(args[3]);
-
-        final MessagePullConsumerExample messageConsumer = new MessagePullConsumerExample(
-            masterHostAndPort,
-            group
-        );
-
-        final List<String> topicList = Arrays.asList(topics.split(","));
-        messageConsumer.subscribe(topicList);
-        long startTime = System.currentTimeMillis();
-
+        final int msgCount = Integer.parseInt(args[3]);
+        final Map<String, TreeSet<String>> topicAndFiltersMap =
+                MixedUtils.parseTopicParam(topics);
+        // initial consumer object
+        final MessagePullConsumerExample messageConsumer =
+                new MessagePullConsumerExample(masterServers, group);
+        messageConsumer.subscribe(topicAndFiltersMap);
         Thread[] fetchRunners = new Thread[3];
         for (int i = 0; i < fetchRunners.length; i++) {
-            fetchRunners[i] = new Thread(new FetchRequestRunner(messageConsumer, consumeCount));
+            fetchRunners[i] = new Thread(new FetchRequestRunner(messageConsumer, msgCount));
             fetchRunners[i].setName("_fetch_runner_" + i);
         }
-
+        // initial fetch threads
         for (Thread thread : fetchRunners) {
             thread.start();
         }
-
-        Thread statisticThread = new Thread(msgRecvStats, "Sent Statistic Thread");
+        // initial statistic thread
+        Thread statisticThread =
+                new Thread(msgRecvStats, "Sent Statistic Thread");
         statisticThread.start();
     }
 
-    public void subscribe(List<String> topicList) throws TubeClientException {
-        for (String topic : topicList) {
-            messagePullConsumer.subscribe(topic, null);
+    public void subscribe(
+            Map<String, TreeSet<String>> topicAndFiltersMap) throws TubeClientException {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
+            messagePullConsumer.subscribe(entry.getKey(), entry.getValue());
         }
-
         messagePullConsumer.completeSubscribe();
     }
 
@@ -96,7 +98,8 @@ public final class MessagePullConsumerExample {
         return messagePullConsumer.getMessage();
     }
 
-    public ConsumerResult confirmConsume(final String confirmContext, boolean isConsumed) throws TubeClientException {
+    public ConsumerResult confirmConsume(final String confirmContext,
+                                         boolean isConsumed) throws TubeClientException {
         return messagePullConsumer.confirmConsume(confirmContext, isConsumed);
     }
 
@@ -109,9 +112,9 @@ public final class MessagePullConsumerExample {
         final MessagePullConsumerExample messageConsumer;
         final int consumeCount;
 
-        FetchRequestRunner(final MessagePullConsumerExample messageConsumer, int count) {
+        FetchRequestRunner(final MessagePullConsumerExample messageConsumer, int msgCount) {
             this.messageConsumer = messageConsumer;
-            this.consumeCount = count;
+            this.consumeCount = msgCount;
         }
 
         @Override
@@ -127,16 +130,10 @@ public final class MessagePullConsumerExample {
                         }
                         messageConsumer.confirmConsume(result.getConfirmContext(), true);
                     } else {
-                        if (!(result.getErrCode() == 400
-                                || result.getErrCode() == 404
-                                || result.getErrCode() == 405
-                                || result.getErrCode() == 406
-                                || result.getErrCode() == 407
-                                || result.getErrCode() == 408)) {
+                        if (!IGNORE_ERROR_SET.contains(result.getErrCode())) {
                             logger.info(
                                     "Receive messages errorCode is {}, Error message is {}",
-                                    result.getErrCode(),
-                                    result.getErrMsg());
+                                    result.getErrCode(), result.getErrMsg());
                         }
                     }
                     if (consumeCount > 0) {

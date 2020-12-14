@@ -19,7 +19,7 @@ package org.apache.tubemq.example;
 
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,9 @@ import org.apache.tubemq.client.producer.MessageProducer;
 import org.apache.tubemq.client.producer.MessageSentCallback;
 import org.apache.tubemq.client.producer.MessageSentResult;
 import org.apache.tubemq.corebase.Message;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,32 +50,40 @@ import org.slf4j.LoggerFactory;
  */
 public final class MessageProducerExample {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageProducerExample.class);
-    private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
+    private static final Logger logger =
+            LoggerFactory.getLogger(MessageProducerExample.class);
+    private static final ConcurrentHashMap<String, AtomicLong> counterMap =
+            new ConcurrentHashMap<>();
 
-    private final String[] arrayKey = {"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"};
-    private final Set<String> filters = new TreeSet<>();
     private final MessageProducer messageProducer;
     private final MessageSessionFactory messageSessionFactory;
 
-    private int keyCount = 0;
-    private int sentCount = 0;
-
-    public MessageProducerExample(String masterHostAndPort) throws Exception {
-        filters.add("aaa");
-        filters.add("bbb");
-
-        TubeClientConfig clientConfig = new TubeClientConfig(masterHostAndPort);
+    public MessageProducerExample(String masterServers) throws Exception {
+        TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
         this.messageSessionFactory = new TubeSingleSessionFactory(clientConfig);
         this.messageProducer = messageSessionFactory.createProducer();
     }
 
     public static void main(String[] args) {
-        final String masterHostAndPort = args[0];
+        // get and initial parameters
+        final String masterServers = args[0];
         final String topics = args[1];
-        final List<String> topicList = Arrays.asList(topics.split(","));
-        final int count = Integer.parseInt(args[2]);
-
+        final long msgCount = Long.parseLong(args[2]);
+        final Map<String, TreeSet<String>> topicAndFiltersMap =
+                MixedUtils.parseTopicParam(topics);
+        // initial send target
+        final List<Tuple2<String, String>> topicSendRounds = new ArrayList<>();
+        // initial topic send round
+        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+            if (entry.getValue().isEmpty()) {
+                topicSendRounds.add(new Tuple2<String, String>(entry.getKey()));
+            } else {
+                for (String filter : entry.getValue()) {
+                    topicSendRounds.add(new Tuple2<String, String>(entry.getKey(), filter));
+                }
+            }
+        }
+        // initial sent data
         String body = "This is a test message from single-session-factory.";
         byte[] bodyBytes = StringUtils.getBytesUtf8(body);
         final ByteBuffer dataBuffer = ByteBuffer.allocate(1024);
@@ -82,32 +92,40 @@ public final class MessageProducerExample {
             dataBuffer.put(bodyBytes, offset, Math.min(dataBuffer.remaining(), bodyBytes.length));
         }
         dataBuffer.flip();
+        // send messages
         try {
-            MessageProducerExample messageProducer = new MessageProducerExample(masterHostAndPort);
-            messageProducer.publishTopics(topicList);
-            for (int i = 0; i < count; i++) {
-                for (String topic : topicList) {
-                    try {
-                        // next line sends message synchronously, which is not recommended
-                        // messageProducer.sendMessage(topic, body.getBytes());
-
-                        // send message asynchronously, recommended
-                        messageProducer.sendMessageAsync(
-                            i,
-                            topic,
-                            dataBuffer.array(),
-                            messageProducer.new DefaultSendCallback()
-                        );
-                    } catch (Throwable e1) {
-                        logger.error("Send Message throw exception  ", e1);
-                    }
+            long sentCount = 0;
+            int roundIndex = 0;
+            int targetCnt = topicSendRounds.size();
+            MessageProducerExample messageProducer =
+                    new MessageProducerExample(masterServers);
+            messageProducer.publishTopics(topicAndFiltersMap.keySet());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+            while (msgCount < 0 || sentCount < msgCount) {
+                roundIndex = (int) (sentCount++ % targetCnt);
+                Tuple2<String, String> target = topicSendRounds.get(roundIndex);
+                Message message = new Message(target.f0, body.getBytes());
+                long currTimeMillis = System.currentTimeMillis();
+                message.setAttrKeyVal("index", String.valueOf(sentCount));
+                message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
+                if (target.f1 != null) {
+                    message.putSystemHeader(target.f1, sdf.format(new Date(currTimeMillis)));
                 }
-
-                if (i % 20000 == 0) {
+                try {
+                    // 1.1 next line sends message synchronously, which is not recommended
+                    // messageProducer.sendMessage(message);
+                    // 1.2 send message asynchronously, recommended
+                    messageProducer.sendMessageAsync(message,
+                            messageProducer.new DefaultSendCallback());
+                } catch (Throwable e1) {
+                    logger.error("Send Message throw exception  ", e1);
+                }
+                // only for test, delay inflight message's count
+                if (sentCount % 20000 == 0) {
                     ThreadUtils.sleep(4000);
-                } else if (i % 10000 == 0) {
+                } else if (sentCount % 10000 == 0) {
                     ThreadUtils.sleep(2000);
-                } else if (i % 2500 == 0) {
+                } else if (sentCount % 2500 == 0) {
                     ThreadUtils.sleep(300);
                 }
             }
@@ -124,51 +142,33 @@ public final class MessageProducerExample {
         }
     }
 
-    public void publishTopics(List<String> topicList) throws TubeClientException {
-        this.messageProducer.publish(new TreeSet<>(topicList));
+    public void publishTopics(Set<String> topicSet) throws TubeClientException {
+        this.messageProducer.publish(topicSet);
     }
 
     /**
      * Send message synchronous.
      */
-    public void sendMessage(String topic, byte[] body) {
+    public void sendMessage(Message message) {
         // date format is accurate to minute, not to second
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-        long currTimeMillis = System.currentTimeMillis();
-        Message message = new Message(topic, body);
-        message.setAttrKeyVal("index", String.valueOf(1));
-        message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
-        message.putSystemHeader("test", sdf.format(new Date(currTimeMillis)));
         try {
             MessageSentResult result = messageProducer.sendMessage(message);
             if (!result.isSuccess()) {
-                logger.error("Send message failed!" + result.getErrMsg());
+                logger.error("Sync-send message failed!" + result.getErrMsg());
             }
         } catch (TubeClientException | InterruptedException e) {
-            logger.error("Send message failed!", e);
+            logger.error("Sync-send message failed!", e);
         }
     }
 
     /**
      * Send message asynchronous. More efficient and recommended.
      */
-    public void sendMessageAsync(int id, String topic, byte[] body, MessageSentCallback callback) {
-        Message message = new Message(topic, body);
-
-        // date format is accurate to minute, not to second
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-        long currTimeMillis = System.currentTimeMillis();
-        message.setAttrKeyVal("index", String.valueOf(1));
-        String keyCode = arrayKey[sentCount++ % arrayKey.length];
-        message.putSystemHeader(keyCode, sdf.format(new Date(currTimeMillis)));
-        if (filters.contains(keyCode)) {
-            keyCount++;
-        }
+    public void sendMessageAsync(Message message, MessageSentCallback callback) {
         try {
-            message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
             messageProducer.sendMessage(message, callback);
         } catch (TubeClientException | InterruptedException e) {
-            logger.error("Send message failed!", e);
+            logger.error("Async-send message failed!", e);
         }
     }
 
@@ -187,9 +187,8 @@ public final class MessageProducerExample {
                         currCount = tmpCount;
                     }
                 }
-
                 if (currCount.incrementAndGet() % 1000 == 0) {
-                    logger.info("Send " + topicName + " " + currCount.get() + " message, keyCount is " + keyCount);
+                    logger.info("Send " + topicName + " " + currCount.get() + " message!");
                 }
             } else {
                 logger.error("Send message failed!" + result.getErrMsg());

@@ -17,7 +17,7 @@
 
 package org.apache.tubemq.example;
 
-import java.util.Arrays;
+import static org.apache.tubemq.corebase.TErrCodeConstants.IGNORE_ERROR_SET;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -34,8 +34,10 @@ import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.client.factory.MessageSessionFactory;
 import org.apache.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.tubemq.corebase.Message;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * This demo shows how to reset offset on consuming. The main difference from {@link MessagePullConsumerExample}
@@ -45,24 +47,32 @@ import org.slf4j.LoggerFactory;
  */
 public final class MessagePullSetConsumerExample {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessagePullSetConsumerExample.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(MessagePullSetConsumerExample.class);
     private static final AtomicLong counter = new AtomicLong(0);
 
     private final PullMessageConsumer messagePullConsumer;
     private final MessageSessionFactory messageSessionFactory;
 
-    public MessagePullSetConsumerExample(String masterHostAndPort, String group) throws Exception {
+    public MessagePullSetConsumerExample(String masterHostAndPort,
+                                         String group) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterHostAndPort, group);
         this.messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         this.messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
     }
 
     public static void main(String[] args) {
-        final String masterHostAndPort = args[0];
+        // get and initial parameters
+        final String masterServers = args[0];
         final String topics = args[1];
         final String group = args[2];
-        final int consumeCount = Integer.parseInt(args[3]);
-        final Map<String, Long> partOffsetMap = new ConcurrentHashMap<>();
+        final int msgCount = Integer.parseInt(args[3]);
+        final Map<String, TreeSet<String>> topicAndFiltersMap =
+                MixedUtils.parseTopicParam(topics);
+        // initial reset offset parameters
+        // (The offset specified is only a demo)
+        final Map<String, Long> partOffsetMap =
+                new ConcurrentHashMap<>();
         partOffsetMap.put("123:test_1:0", 0L);
         partOffsetMap.put("123:test_1:1", 0L);
         partOffsetMap.put("123:test_1:2", 0L);
@@ -70,17 +80,15 @@ public final class MessagePullSetConsumerExample {
         partOffsetMap.put("123:test_2:1", 350L);
         partOffsetMap.put("123:test_2:2", 350L);
 
-        final List<String> topicList = Arrays.asList(topics.split(","));
-
         ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int getCount = consumeCount;
+                    int getCount = msgCount;
                     MessagePullSetConsumerExample messageConsumer =
-                        new MessagePullSetConsumerExample(masterHostAndPort, group);
-                    messageConsumer.subscribe(topicList, partOffsetMap);
+                        new MessagePullSetConsumerExample(masterServers, group);
+                    messageConsumer.subscribe(topicAndFiltersMap, partOffsetMap);
                     // main logic of consuming
                     do {
                         ConsumerResult result = messageConsumer.getMessage();
@@ -125,19 +133,13 @@ public final class MessagePullSetConsumerExample {
                                     confirmResult.getErrMsg());
                             }
                         } else {
-                            if (!(result.getErrCode() == 400
-                                    || result.getErrCode() == 404
-                                    || result.getErrCode() == 405
-                                    || result.getErrCode() == 406
-                                    || result.getErrCode() == 407
-                                    || result.getErrCode() == 408)) {
+                            if (!IGNORE_ERROR_SET.contains(result.getErrCode())) {
                                 logger.info(
                                         "Receive messages errorCode is {}, Error message is {}",
-                                        result.getErrCode(),
-                                        result.getErrMsg());
+                                        result.getErrCode(), result.getErrMsg());
                             }
                         }
-                        if (consumeCount >= 0) {
+                        if (msgCount >= 0) {
                             if (--getCount <= 0) {
                                 break;
                             }
@@ -157,24 +159,16 @@ public final class MessagePullSetConsumerExample {
         }
     }
 
-    public void subscribe(
-        List<String> topicList,
-        Map<String, Long> partOffsetMap
-    ) throws TubeClientException {
-        TreeSet<String> filters = new TreeSet<>();
-        filters.add("aaa");
-        filters.add("bbb");
-        for (String topic : topicList) {
-            this.messagePullConsumer.subscribe(topic, filters);
+    public void subscribe(Map<String, TreeSet<String>> topicAndFiltersMap,
+                          Map<String, Long> partOffsetMap) throws TubeClientException {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
+            messagePullConsumer.subscribe(entry.getKey(), entry.getValue());
         }
         String sessionKey = "test_reset2";
         int consumerCount = 2;
         boolean isSelectBig = false;
-        messagePullConsumer.completeSubscribe(
-            sessionKey,
-            consumerCount,
-            isSelectBig,
-            partOffsetMap);
+        messagePullConsumer.completeSubscribe(sessionKey,
+                consumerCount, isSelectBig, partOffsetMap);
     }
 
     public ConsumerResult getMessage() throws TubeClientException {
