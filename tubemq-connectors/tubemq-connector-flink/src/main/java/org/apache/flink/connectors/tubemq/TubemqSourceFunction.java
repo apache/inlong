@@ -264,7 +264,6 @@ public class TubemqSourceFunction<T>
                 Duration idleTime =
                     Duration.between(lastConsumeInstant, Instant.now());
                 if (idleTime.compareTo(maxIdleTime) > 0) {
-                    LOG.info("Mark this source as temporarily idle.");
                     ctx.markAsTemporarilyIdle();
                 }
 
