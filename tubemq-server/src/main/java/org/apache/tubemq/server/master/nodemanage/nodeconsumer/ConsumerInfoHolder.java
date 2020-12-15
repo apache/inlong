@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.tubemq.corebase.cluster.ConsumerInfo;
+import org.apache.tubemq.corebase.utils.Tuple2;
 
 
 public class ConsumerInfoHolder {
@@ -369,7 +370,7 @@ public class ConsumerInfoHolder {
         return consumer;
     }
 
-    public ConsumeTupleInfo getConsumeTupleInfo(String consumerId) {
+    public Tuple2<String, ConsumerInfo> getConsumeTupleInfo(String consumerId) {
         try {
             rwLock.readLock().lock();
             ConsumerInfo consumerInfo = null;
@@ -378,7 +379,7 @@ public class ConsumerInfoHolder {
             if (consumeBandInfo != null) {
                 consumerInfo = consumeBandInfo.getConsumerInfo(consumerId);
             }
-            return new ConsumeTupleInfo(groupName, consumerInfo);
+            return new Tuple2<String, ConsumerInfo>(groupName, consumerInfo);
         } finally {
             rwLock.readLock().unlock();
         }
@@ -424,13 +425,4 @@ public class ConsumerInfoHolder {
         groupInfoMap.clear();
     }
 
-    public class ConsumeTupleInfo {
-        public String groupName;
-        public ConsumerInfo consumerInfo;
-
-        public ConsumeTupleInfo(String groupName, ConsumerInfo consumerInfo) {
-            this.groupName = groupName;
-            this.consumerInfo = consumerInfo;
-        }
-    }
 }

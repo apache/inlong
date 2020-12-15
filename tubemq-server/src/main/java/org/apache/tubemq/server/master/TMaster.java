@@ -71,6 +71,7 @@ import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
@@ -1883,14 +1884,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             if (consumerId == null) {
                 continue;
             }
-            ConsumerInfoHolder.ConsumeTupleInfo tupleInfo =
+            Tuple2<String, ConsumerInfo> tupleInfo =
                     consumerHolder.getConsumeTupleInfo(consumerId);
             if (tupleInfo == null
-                    || tupleInfo.groupName == null
-                    || tupleInfo.consumerInfo == null) {
+                    || tupleInfo.f0 == null
+                    || tupleInfo.f1 == null) {
                 continue;
             }
-            List<String> blackTopicList = this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
+            List<String> blackTopicList = this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.f0);
             Map<String, List<Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -1907,7 +1908,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         currentPartMap = new HashMap<>();
                     }
                 }
-                if (tupleInfo.consumerInfo.isOverTLS()) {
+                if (tupleInfo.f1.isOverTLS()) {
                     for (Partition currentPart : currentPartMap.values()) {
                         if (!blackTopicList.contains(currentPart.getTopic())) {
                             boolean found = false;
@@ -1923,8 +1924,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                             }
                         }
                         deletedSubInfoList
-                                .add(new SubscribeInfo(consumerId, tupleInfo.groupName,
-                                        tupleInfo.consumerInfo.isOverTLS(), currentPart));
+                                .add(new SubscribeInfo(consumerId, tupleInfo.f0,
+                                        tupleInfo.f1.isOverTLS(), currentPart));
                     }
                     for (Partition finalPart : finalPartList) {
                         if (!blackTopicList.contains(finalPart.getTopic())) {
@@ -1940,7 +1941,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 continue;
                             }
                             addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    tupleInfo.groupName, true, finalPart));
+                                    tupleInfo.f0, true, finalPart));
                         }
                     }
                 } else {
@@ -1948,14 +1949,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         if ((blackTopicList.contains(currentPart.getTopic()))
                                 || (!finalPartList.contains(currentPart))) {
                             deletedSubInfoList
-                                    .add(new SubscribeInfo(consumerId, tupleInfo.groupName, false, currentPart));
+                                    .add(new SubscribeInfo(consumerId, tupleInfo.f0, false, currentPart));
                         }
                     }
                     for (Partition finalPart : finalPartList) {
                         if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
                                 && (!blackTopicList.contains(finalPart.getTopic()))) {
                             addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    tupleInfo.groupName, false, finalPart));
+                                    tupleInfo.f0, false, finalPart));
                         }
                     }
                 }
@@ -2033,16 +2034,16 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             if (consumerId == null) {
                 continue;
             }
-            ConsumerInfoHolder.ConsumeTupleInfo tupleInfo =
+            Tuple2<String, ConsumerInfo> tupleInfo =
                     consumerHolder.getConsumeTupleInfo(consumerId);
             if (tupleInfo == null
-                    || tupleInfo.groupName == null
-                    || tupleInfo.consumerInfo == null) {
+                    || tupleInfo.f0 == null
+                    || tupleInfo.f1 == null) {
                 continue;
             }
 
             List<String> blackTopicList =
-                    this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.groupName);
+                    this.defaultBrokerConfManager.getBdbBlackTopicList(tupleInfo.f0);
             Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -2066,15 +2067,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     if ((blackTopicList.contains(currentPart.getTopic()))
                             || (finalPartMap.get(currentPart.getPartitionKey()) == null)) {
                         deletedSubInfoList
-                                .add(new SubscribeInfo(consumerId, tupleInfo.groupName,
-                                        tupleInfo.consumerInfo.isOverTLS(), currentPart));
+                                .add(new SubscribeInfo(consumerId, tupleInfo.f0,
+                                        tupleInfo.f1.isOverTLS(), currentPart));
                     }
                 }
                 for (Partition finalPart : finalPartMap.values()) {
                     if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
                             && (!blackTopicList.contains(finalPart.getTopic()))) {
-                        addedSubInfoList.add(new SubscribeInfo(consumerId, tupleInfo.groupName,
-                                tupleInfo.consumerInfo.isOverTLS(), finalPart));
+                        addedSubInfoList.add(new SubscribeInfo(consumerId, tupleInfo.f0,
+                                tupleInfo.f1.isOverTLS(), finalPart));
                     }
                 }
             }
