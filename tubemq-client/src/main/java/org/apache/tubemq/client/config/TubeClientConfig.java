@@ -546,6 +546,12 @@ public class TubeClientConfig {
 
     public String toJsonString() {
         int num = 0;
+        String localAddress = null;
+        try {
+            localAddress = AddressUtils.getLocalAddress();
+        } catch (Throwable e) {
+            //
+        }
         StringBuilder sBuilder = new StringBuilder(512);
         sBuilder.append("{\"masterInfo\":[");
         for (String item : this.masterInfo.getAddrMap4Failover().keySet()) {
@@ -580,6 +586,7 @@ public class TubeClientConfig {
             .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
             .append(",\"usrName\":\"").append(this.usrName)
             .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
+            .append("\",\"localAddress\":\"").append(localAddress)
             .append("\",").append(this.tlsConfig.toString())
             .append("}").toString();
     }
