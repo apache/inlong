@@ -1051,7 +1051,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // begin:  deprecated when brokers version equal to current master version
         builder.setAuthorizedInfo(genAuthorizedInfo(null, true));
         // end deprecated
-        builder.setBrokerAuthorizedInfo(genBrokerAuthorizedInfo(null));
+        builder.setBrokerAuthorizedInfo(genBrokerAuthorizedInfo());
         EnableBrokerFunInfo.Builder enableInfo = EnableBrokerFunInfo.newBuilder();
         enableInfo.setEnableVisitTokenCheck(masterConfig.isStartVisitTokenCheck());
         enableInfo.setEnableProduceAuthenticate(masterConfig.isStartProduceAuthenticate());
@@ -1280,7 +1280,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // begin:  deprecated when brokers version equal to current master version
         builder.setAuthorizedInfo(genAuthorizedInfo(null, true));
         // end deprecated
-        builder.setBrokerAuthorizedInfo(genBrokerAuthorizedInfo(null));
+        builder.setBrokerAuthorizedInfo(genBrokerAuthorizedInfo());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -2143,15 +2143,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     /**
      * get broker authorized info
      *
-     * @param authAuthorizedToken
      * @return
      */
-    private MasterBrokerAuthorizedInfo.Builder genBrokerAuthorizedInfo(String authAuthorizedToken) {
+    private MasterBrokerAuthorizedInfo.Builder genBrokerAuthorizedInfo() {
         MasterBrokerAuthorizedInfo.Builder authorizedBuilder = MasterBrokerAuthorizedInfo.newBuilder();
         authorizedBuilder.setVisitAuthorizedToken(visitTokenManager.getBrokerVisitTokens());
-        if (TStringUtils.isNotBlank(authAuthorizedToken)) {
-            authorizedBuilder.setAuthAuthorizedToken(authAuthorizedToken);
-        }
         return authorizedBuilder;
     }
 
