@@ -65,19 +65,19 @@ public class Master implements Action {
             }
             String type = req.getParameter("type");
             if ("consumer".equals(type)) {
-                sBuilder = getConsumerListInfo(req, sBuilder);
+                getConsumerListInfo(req, sBuilder);
             } else if ("sub_info".equals(type)) {
-                sBuilder = getConsumerSubInfo(req, sBuilder);
+                getConsumerSubInfo(req, sBuilder);
             } else if ("producer".equals(type)) {
-                sBuilder = getProducerListInfo(req, sBuilder);
+                getProducerListInfo(req, sBuilder);
             } else if ("broker".equals(type)) {
-                sBuilder = innGetBrokerInfo(req, sBuilder, true);
+                innGetBrokerInfo(req, sBuilder, true);
             } else if ("newBroker".equals(type)) {
-                sBuilder = innGetBrokerInfo(req, sBuilder, false);
+                innGetBrokerInfo(req, sBuilder, false);
             } else if ("topic_pub".equals(type)) {
-                sBuilder = getTopicPubInfo(req, sBuilder);
+                getTopicPubInfo(req, sBuilder);
             } else if ("unbalance_group".equals(type)) {
-                sBuilder = getUnbalanceGroupInfo(sBuilder);
+                getUnbalanceGroupInfo(sBuilder);
             } else {
                 sBuilder.append("Unsupported request type : ").append(type);
             }
@@ -94,7 +94,7 @@ public class Master implements Action {
      * @param sBuilder
      * @return
      */
-    private StringBuilder getConsumerListInfo(final HttpServletRequest req, StringBuilder sBuilder) {
+    private void getConsumerListInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         String group = req.getParameter("group");
         if (group != null) {
@@ -115,7 +115,6 @@ public class Master implements Action {
                 }
             }
         }
-        return sBuilder;
     }
 
     /**
@@ -125,7 +124,7 @@ public class Master implements Action {
      * @param sBuilder
      * @return
      */
-    private StringBuilder getConsumerSubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
+    private void getConsumerSubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         String group = req.getParameter("group");
         if (group != null) {
@@ -170,7 +169,6 @@ public class Master implements Action {
                 }
             }
         }
-        return sBuilder;
     }
 
     /**
@@ -180,7 +178,7 @@ public class Master implements Action {
      * @param sBuilder
      * @return
      */
-    private StringBuilder getProducerListInfo(final HttpServletRequest req, StringBuilder sBuilder) {
+    private void getProducerListInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String producerId = req.getParameter("id");
         if (producerId != null) {
             ProducerInfo producer = master.getProducerHolder().getProducerInfo(producerId);
@@ -205,7 +203,6 @@ public class Master implements Action {
                 }
             }
         }
-        return sBuilder;
     }
 
     /**
@@ -216,7 +213,7 @@ public class Master implements Action {
      * @param isOldRet
      * @return
      */
-    private StringBuilder innGetBrokerInfo(final HttpServletRequest req,
+    private void innGetBrokerInfo(final HttpServletRequest req,
                                            StringBuilder sBuilder, boolean isOldRet) {
         Map<Integer, BrokerInfo> brokerInfoMap = null;
         String brokerIds = req.getParameter("ids");
@@ -269,7 +266,6 @@ public class Master implements Action {
                 index++;
             }
         }
-        return sBuilder;
     }
 
     /**
@@ -279,7 +275,7 @@ public class Master implements Action {
      * @param sBuilder
      * @return
      */
-    private StringBuilder getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
+    private void getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String topic = req.getParameter("topic");
         Set<String> producerIds = master.getTopicPSInfoManager().getTopicPubInfo(topic);
         if (producerIds != null && !producerIds.isEmpty()) {
@@ -289,7 +285,6 @@ public class Master implements Action {
         } else {
             sBuilder.append("No producer has publish this topic.");
         }
-        return sBuilder;
     }
 
     /**
@@ -298,7 +293,7 @@ public class Master implements Action {
      * @param sBuilder
      * @return
      */
-    private StringBuilder getUnbalanceGroupInfo(StringBuilder sBuilder) {
+    private void getUnbalanceGroupInfo(StringBuilder sBuilder) {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
@@ -326,6 +321,5 @@ public class Master implements Action {
                 }
             }
         }
-        return sBuilder;
     }
 }
