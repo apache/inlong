@@ -246,6 +246,7 @@
                         <exclude>NOTICE</exclude>
                         <exclude>**/.*/**</exclude>
                         <exclude>**/*.log</exclude>
+                        <exclude>**/*.json</exclude>
                         <exclude>**/README.md</exclude>
                         <!-- Github -->
                         <exclude>**/.github/**</exclude>
