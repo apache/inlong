@@ -58,7 +58,6 @@
         <protobuf.version>2.5.0</protobuf.version>
         <httpclient.version>4.5.13</httpclient.version>
         <fastjson.version>1.2.68</fastjson.version>
-        <sleepycat.version>6.4.9</sleepycat.version>
         <hippoclient.version>2.0.5</hippoclient.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
     </properties>
