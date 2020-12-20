@@ -1905,7 +1905,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 tMaster.processResetbalance(rebalanceId,
                                         isStartBalance, subGroups);
                             } catch (Throwable e) {
-                                //
+                                logger.warn("[Rebalance processor] Error during reset-reb", e);
                             }
                             if (tMaster.isStopped()) {
                                 return;
@@ -1915,10 +1915,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 tMaster.processRebalance(rebalanceId,
                                         isStartBalance, subGroups);
                             } catch (Throwable e) {
-                                //
+                                logger.warn("[Rebalance processor] Error during normal-reb", e);
                             }
                         } catch (Throwable e) {
-                            logger.error("[Rebalance processor] Error during process", e);
+                            logger.warn("[Rebalance processor] Error during process", e);
                         } finally {
                             curBalanceParal.decrementAndGet();
                         }
