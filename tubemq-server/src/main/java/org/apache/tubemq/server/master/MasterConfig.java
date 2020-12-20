@@ -79,6 +79,7 @@ public class MasterConfig extends AbstractFileConfig {
     private String visitName = "";
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    private int rebalanceParallel = 4;
 
     /**
      * getters
@@ -251,6 +252,10 @@ public class MasterConfig extends AbstractFileConfig {
 
     public long getAuthValidTimeStampPeriodMs() {
         return authValidTimeStampPeriodMs;
+    }
+
+    public int getRebalanceParallel() {
+        return rebalanceParallel;
     }
 
     /**
@@ -460,6 +465,10 @@ public class MasterConfig extends AbstractFileConfig {
             this.visitName = masterConf.get("visitName").trim();
             this.visitPassword = masterConf.get("visitPassword").trim();
         }
+        if (TStringUtils.isNotBlank(masterConf.get("rebalanceParallel"))) {
+            int tmpParallel = this.getInt(masterConf, "rebalanceParallel");
+            this.rebalanceParallel = (tmpParallel <= 0) ? 1 : (Math.min(tmpParallel, 10));
+        }
     }
 
     /**
@@ -606,6 +615,7 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("useWebProxy", useWebProxy)
                 .append("visitName", visitName)
                 .append("visitPassword", visitPassword)
+                .append("rebalanceParallel", rebalanceParallel)
                 .append(",").append(replicationConfig.toString())
                 .append(",").append(tlsConfig.toString())
                 .append(",").append(zkConfig.toString())
