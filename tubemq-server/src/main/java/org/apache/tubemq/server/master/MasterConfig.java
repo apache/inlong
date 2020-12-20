@@ -467,7 +467,7 @@ public class MasterConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(masterConf.get("rebalanceParallel"))) {
             int tmpParallel = this.getInt(masterConf, "rebalanceParallel");
-            this.rebalanceParallel = (tmpParallel <= 0) ? 1 : (Math.min(tmpParallel, 10));
+            this.rebalanceParallel = (tmpParallel <= 0) ? 1 : (Math.min(tmpParallel, 20));
         }
     }
 
