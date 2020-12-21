@@ -164,10 +164,10 @@ public abstract class Configuration {
     }
 
     /**
-     * 从配置中获取long值
+     * get value as long
      *
-     * @param key - key值
-     * @param defaultValue - 默认值
+     * @param key - key
+     * @param defaultValue - default value
      * @return 返回long
      */
     public long getLong(String key, long defaultValue) {
@@ -176,11 +176,11 @@ public abstract class Configuration {
     }
 
     /**
-     * 从配置中获取boolean值
+     * get value as boolean
      *
-     * @param key - key值
-     * @param defaultValue - 默认值
-     * @return 返回boolean
+     * @param key - key
+     * @param defaultValue - default value
+     * @return boolean
      */
     public boolean getBoolean(String key, boolean defaultValue) {
         JsonElement value = configStorage.get(key);
@@ -188,11 +188,11 @@ public abstract class Configuration {
     }
 
     /**
-     * 从配置中获取string值
+     * get value as string
      *
-     * @param key - key值
-     * @param defaultValue - 默认值
-     * @return 返回string
+     * @param key - key
+     * @param defaultValue - default value
+     * @return string
      */
     public String get(String key, String defaultValue) {
         JsonElement value = configStorage.get(key);
@@ -200,11 +200,11 @@ public abstract class Configuration {
     }
 
     /**
-     * 从配置中获取string值，如果value为空，则抛出npe异常
+     * get value as string and throw npe if value is null
      *
-     * @param key - key值
-     * @return 返回string
-     * @throws NullPointerException value不存在时抛出异常
+     * @param key - key
+     * @return string
+     * @throws NullPointerException value
      */
     public String get(String key) {
         JsonElement value = configStorage.get(key);
@@ -215,20 +215,20 @@ public abstract class Configuration {
     }
 
     /**
-     * 检查key是否存在
+     * check whether key exists
      *
-     * @param key - key值
-     * @return - 返回是否有key
+     * @param key - key
+     * @return - boolean
      */
     public boolean hasKey(String key) {
         return configStorage.containsKey(key);
     }
 
     /**
-     * 设置key/value值
+     * set key, value
      *
-     * @param key - key值
-     * @param value - value值
+     * @param key - key
+     * @param value - value
      */
     public void set(String key, String value) {
         configStorage.put(key, new JsonPrimitive(value));
