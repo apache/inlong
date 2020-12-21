@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <groupId>org.apache.tubemq</groupId>
+  <artifactId>tubemq-agent</artifactId>
+  <packaging>pom</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <modelVersion>4.0.0</modelVersion>
+
+  <modules>
+    <module>agent-common</module>
+    <module>agent-core</module>
+  </modules>
+
+  <properties>
+    <awaitility.version>4.0.3</awaitility.version>
+    <bytebuddy.version>1.10.10</bytebuddy.version>
+    <common.io>2.6</common.io>
+    <common.lang3.version>3.10</common.lang3.version>
+    <commons.cli.version>1.4</commons.cli.version>
+    <dbutils.version>1.7</dbutils.version>
+    <encoding>UTF-8</encoding>
+    <gson.version>2.8.5</gson.version>
+    <guava.version>12.0.1</guava.version>
+    <jdk.version>1.8</jdk.version>
+    <log4j2.version>2.13.1</log4j2.version>
+    <mockito.version>3.3.3</mockito.version>
+    <plugin.assembly.version>3.2.0</plugin.assembly.version>
+    <plugin.compile.version>3.8.1</plugin.compile.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <unit.version>4.13</unit.version>
+    <bussdk.version>1.2.17</bussdk.version>
+    <common.lang.version>2.4</common.lang.version>
+    <spring.version>2.5.6</spring.version>
+    <oro.version>2.0.8</oro.version>
+    <aviator.version>2.2.1</aviator.version>
+    <avro.version>1.7.2</avro.version>
+
+    <netty.version>3.8.0.Final</netty.version>
+    <snappy.version>1.0.4.1</snappy.version>
+    <protobuf.version>2.5.0</protobuf.version>
+    <httpclient.version>4.5.13</httpclient.version>
+    <fastjson.version>1.2.68</fastjson.version>
+    <sleepycat.version>6.4.9</sleepycat.version>
+    <hippoclient.version>2.0.5</hippoclient.version>
+    <jetty.version>9.4.34.v20201102</jetty.version>
+    <rocksdb.version>6.14.6</rocksdb.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.rocksdb</groupId>
+        <artifactId>rocksdbjni</artifactId>
+        <version>${rocksdb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>${snappy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tencent.tdbank</groupId>
+        <artifactId>TDBusSDK</artifactId>
+        <version>${bussdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>commons-dbutils</artifactId>
+        <groupId>commons-dbutils</groupId>
+        <version>${dbutils.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro</artifactId>
+        <version>${avro.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro-ipc</artifactId>
+        <version>${avro.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>slf4j-api</artifactId>
+        <groupId>org.slf4j</groupId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>slf4j-log4j12</artifactId>
+        <groupId>org.slf4j</groupId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>guava</artifactId>
+        <groupId>com.google.guava</groupId>
+        <version>${guava.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>gson</artifactId>
+        <groupId>com.google.code.gson</groupId>
+        <version>${gson.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>commons-cli</artifactId>
+        <groupId>commons-cli</groupId>
+        <version>${commons.cli.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${common.lang.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>oro</groupId>
+        <artifactId>oro</artifactId>
+        <version>${oro.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.googlecode.aviator</groupId>
+        <artifactId>aviator</artifactId>
+        <version>${aviator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sleepycat</groupId>
+        <artifactId>je</artifactId>
+        <version>${sleepycat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.8.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ini4j</groupId>
+        <artifactId>ini4j</artifactId>
+        <version>0.5.1</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>commons-lang3</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <version>${common.lang3.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>commons-io</artifactId>
+        <groupId>commons-io</groupId>
+        <version>${common.io}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>rocksdbjni</artifactId>
+        <groupId>org.rocksdb</groupId>
+        <version>${rocksdb.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>junit</artifactId>
+        <groupId>junit</groupId>
+        <scope>test</scope>
+        <version>${unit.version}</version>
+      </dependency>
+
+      <!--   内部组件互相依赖     -->
+      <dependency>
+        <artifactId>agent-common</artifactId>
+        <groupId>org.apache.tubemq</groupId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>agent-core</artifactId>
+        <groupId>org.apache.tubemq</groupId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>agent-plugins</artifactId>
+        <groupId>org.apache.tubemq</groupId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>mockito-core</artifactId>
+        <groupId>org.mockito</groupId>
+        <scope>test</scope>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>byte-buddy</artifactId>
+        <groupId>net.bytebuddy</groupId>
+        <scope>test</scope>
+        <version>${bytebuddy.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>awaitility</artifactId>
+        <groupId>org.awaitility</groupId>
+        <scope>test</scope>
+        <version>${awaitility.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <name>Nexus tencent</name>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://mirrors.tencent.com/nexus/repository/maven-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Nexus tencent</name>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://mirrors.tencent.com/nexus/repository/maven-public/</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <encoding>${encoding}</encoding>
+          <source>${jdk.version}</source>
+          <target>${jdk.version}</target>
+        </configuration>
+        <version>${plugin.compile.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.16</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>6.19</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <configLocation>../codestyle/checkstyle.xml</configLocation>
+          <suppressionsLocation>../codestyle/suppressions.xml</suppressionsLocation>
+          <encoding>UTF-8</encoding>
+          <consoleOutput>true</consoleOutput>
+          <failOnViolation>true</failOnViolation>
+          <includeResources>false</includeResources>
+          <includeTestResources>false</includeTestResources>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>checkstyle</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
