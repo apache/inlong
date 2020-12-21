@@ -50,7 +50,6 @@ public class AgentConfiguration extends Configuration {
      * load config from agent file.
      */
     private AgentConfiguration() {
-        // 初始化配置文件
         for (String fileName : LOCAL_RESOURCES) {
             super.loadPropertiesResource(fileName);
         }

@@ -180,7 +180,7 @@ public abstract class Configuration {
      *
      * @param key - key
      * @param defaultValue - default value
-     * @return 返回boolean
+     * @return boolean
      */
     public boolean getBoolean(String key, boolean defaultValue) {
         JsonElement value = configStorage.get(key);

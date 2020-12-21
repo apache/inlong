@@ -57,7 +57,7 @@
     <protobuf.version>2.5.0</protobuf.version>
     <httpclient.version>4.5.13</httpclient.version>
     <fastjson.version>1.2.68</fastjson.version>
-    <sleepycat.version>6.4.9</sleepycat.version>
+    <sleepycat.version>7.3.7</sleepycat.version>
     <hippoclient.version>2.0.5</hippoclient.version>
     <jetty.version>9.4.34.v20201102</jetty.version>
     <rocksdb.version>6.14.6</rocksdb.version>
@@ -205,19 +205,12 @@
       </dependency>
 
       <dependency>
-        <artifactId>rocksdbjni</artifactId>
-        <groupId>org.rocksdb</groupId>
-        <version>${rocksdb.version}</version>
-      </dependency>
-
-      <dependency>
         <artifactId>junit</artifactId>
         <groupId>junit</groupId>
         <scope>test</scope>
         <version>${unit.version}</version>
       </dependency>
 
-      <!--   内部组件互相依赖     -->
       <dependency>
         <artifactId>agent-common</artifactId>
         <groupId>org.apache.tubemq</groupId>
@@ -255,31 +248,17 @@
     </dependencies>
   </dependencyManagement>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>central</id>
-      <name>Nexus tencent</name>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <url>https://mirrors.tencent.com/nexus/repository/maven-public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-
   <repositories>
     <repository>
-      <id>central</id>
-      <name>Nexus tencent</name>
+      <id>berkeleydb-je</id>
+      <name>berkeleydb-je</name>
+      <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
-      <url>https://mirrors.tencent.com/nexus/repository/maven-public/</url>
     </repository>
   </repositories>
 
