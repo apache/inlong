@@ -64,9 +64,13 @@ public enum WebFieldDef {
     COMPSPARTITIONID(12, "partitionId", "pid", WebFieldType.COMPINT,
             "Partition id", RegexDef.TMP_NUMBER),
     CALLERIP(13, "callerIp", "cip", WebFieldType.STRING,
-            "Caller ip address", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH);
-
-
+            "Caller ip address", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH),
+    BROKERID(14, "brokerId", "brokerId", WebFieldType.INT,
+            "Broker ID", RegexDef.TMP_NUMBER),
+    COMPSBROKERID(15, "brokerId", "brokerId", WebFieldType.COMPINT,
+            "Broker ID", RegexDef.TMP_NUMBER),
+    WITHIP(16, "withIp", "ip", WebFieldType.BOOLEAN,
+            "Require return ip information, default is false");
 
 
 

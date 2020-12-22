@@ -721,6 +721,75 @@ public class BrokerConfManager implements Server {
         return true;
     }
 
+    /**
+     * get broker's topicName set,
+     * if brokerIds is empty, then return all broker's topicNames
+     *
+     * @param brokerIdSet
+     * @return broker's topicName set
+     */
+    public Map<Integer, Set<String>> getBrokerTopicConfigInfo(Set<Integer> brokerIdSet) {
+        Map<Integer, Set<String>> result = new HashMap<>();
+        if (brokerIdSet.isEmpty()) {
+            for (ConcurrentHashMap.Entry<Integer,
+                    ConcurrentHashMap<String, BdbTopicConfEntity>>
+                    entry : brokerTopicEntityStoreMap.entrySet()) {
+                Set<String> topicSet = new HashSet<>();
+                if (entry.getValue() != null) {
+                    topicSet.addAll(entry.getValue().keySet());
+                }
+                result.put(entry.getKey(), topicSet);
+            }
+        } else {
+            for (Integer brokerId : brokerIdSet) {
+                ConcurrentHashMap<String, BdbTopicConfEntity> topicConfigMap =
+                        brokerTopicEntityStoreMap.get(brokerId);
+                Set<String> topicSet = new HashSet<>();
+                if (topicConfigMap != null && !topicConfigMap.isEmpty()) {
+                    topicSet.addAll(topicConfigMap.keySet());
+                }
+                result.put(brokerId, topicSet);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * get topic's brokerId set,
+     * if topicSet is empty, then return all topic's brokerIds
+     *
+     * @param topicNameSet
+     * @return topic's brokerId set
+     */
+    public Map<String, Map<Integer, String>> getTopicBrokerConfigInfo(Set<String> topicNameSet) {
+        Map<String, Map<Integer, String>> result = new HashMap<>();
+        if (topicNameSet.isEmpty()) {
+            for (Map<String, BdbTopicConfEntity> topicConfigMap
+                    : brokerTopicEntityStoreMap.values()) {
+                for (Map.Entry<String, BdbTopicConfEntity> entry
+                        : topicConfigMap.entrySet()) {
+                    Map<Integer, String> brokerInfos =
+                            result.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
+                    brokerInfos.put(entry.getValue().getBrokerId(),
+                            entry.getValue().getBrokerIp());
+                }
+            }
+        } else {
+            for (Map<String, BdbTopicConfEntity> topicConfigMap
+                    : brokerTopicEntityStoreMap.values()) {
+                for (String topic : topicNameSet) {
+                    Map<Integer, String> brokerInfos =
+                            result.computeIfAbsent(topic, k -> new HashMap<>());
+                    BdbTopicConfEntity topicConfig = topicConfigMap.get(topic);
+                    if (topicConfig != null) {
+                        brokerInfos.put(topicConfig.getBrokerId(), topicConfig.getBrokerIp());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public Set<String> getTotalConfiguredTopicNames() {
         Set<String> totalTopics = new HashSet<>(50);
         for (ConcurrentHashMap<String, BdbTopicConfEntity> tmpTopicCfgMap

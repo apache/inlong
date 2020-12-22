@@ -283,6 +283,51 @@ public class WebParameterUtils {
      * @param req        Http Servlet Request
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getIntParamValue(HttpServletRequest req,
+                                                 WebFieldDef fieldDef,
+                                                 boolean required) {
+        ProcessResult procResult =
+                getStringParamValue(req, fieldDef, required, null);
+        if (!procResult.success) {
+            return procResult;
+        }
+        ProcessResult procRet = new ProcessResult();
+        Set<Integer> tgtValueSet = new HashSet<Integer>();
+        if (fieldDef.isCompFieldType()) {
+            Set<String> valItemSet = (Set<String>) procResult.retData1;
+            if (valItemSet.isEmpty()) {
+                procResult.setSuccResult(tgtValueSet);
+                return procResult;
+            }
+            for (String itemVal : valItemSet) {
+                if (!checkIntValueNorms(procRet, fieldDef, itemVal, false, -1)) {
+                    return procRet;
+                }
+                tgtValueSet.add((Integer) procRet.retData1);
+            }
+        } else {
+            String paramValue = (String) procResult.retData1;
+            if (paramValue == null) {
+                procResult.setSuccResult(tgtValueSet);
+                return procResult;
+            }
+            if (!checkIntValueNorms(procRet,
+                    fieldDef, paramValue, false, -1)) {
+                tgtValueSet.add((Integer) procRet.retData1);
+            }
+        }
+        procResult.setSuccResult(tgtValueSet);
+        return procResult;
+    }
+
+    /**
+     * Parse the parameter value from an object value to a integer value
+     *
+     * @param req        Http Servlet Request
+     * @param fieldDef   the parameter field definition
+     * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if failed to parse value from the given object
      * @param minValue   min value required
      * @return valid result for the parameter value
@@ -307,7 +352,7 @@ public class WebParameterUtils {
             }
             ProcessResult procRet = new ProcessResult();
             for (String itemVal : valItemSet) {
-                if (!checkIntValueNorms(procRet, fieldDef, itemVal, minValue)) {
+                if (!checkIntValueNorms(procRet, fieldDef, itemVal, true, minValue)) {
                     return procRet;
                 }
                 tgtValueSet.add((Integer) procRet.retData1);
@@ -319,7 +364,7 @@ public class WebParameterUtils {
                 procResult.setSuccResult(defValue);
                 return procResult;
             }
-            checkIntValueNorms(procResult, fieldDef, paramValue, minValue);
+            checkIntValueNorms(procResult, fieldDef, paramValue, true, minValue);
         }
         return procResult;
     }
@@ -501,16 +546,18 @@ public class WebParameterUtils {
      * @param procResult   process result
      * @param fieldDef     the parameter field definition
      * @param paramValue   the parameter value
+     * @param hasMinVal    whether there is a minimum
      * param minValue      the parameter min value
      * @return check result for string value of parameter
      */
     private static boolean checkIntValueNorms(ProcessResult procResult,
                                               WebFieldDef fieldDef,
                                               String paramValue,
+                                              boolean hasMinVal,
                                               int minValue) {
         try {
             int paramIntVal = Integer.parseInt(paramValue);
-            if (paramIntVal < minValue) {
+            if (hasMinVal && paramIntVal < minValue) {
                 procResult.setFailResult(400,
                         new StringBuilder(512).append("Parameter ")
                                 .append(fieldDef.name).append(" value must >= ")
