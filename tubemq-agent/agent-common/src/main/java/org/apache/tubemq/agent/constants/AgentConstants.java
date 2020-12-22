@@ -13,13 +13,25 @@
  */
 package org.apache.tubemq.agent.constants;
 
+import org.apache.tubemq.agent.utils.AgentUtils;
+
 public class AgentConstants {
+
+    public static final String AGENT_HOME = "agent.home";
+    public static final String DEFAULT_AGENT_HOME = System.getProperty("agent.home");
+
+    public static final String AGENT_LOCAL_CACHE = "agent.local.cache";
+    public static final String DEFAULT_AGENT_LOCAL_CACHE = ".local";
 
     public static final String AGENT_LOCAL_STORE_PATH = "agent.localStore.path";
     public static final String DEFAULT_AGENT_LOCAL_STORE_PATH = ".bdb";
 
     public static final String AGENT_ROCKS_DB_PATH = "agent.rocks.db.path";
     public static final String DEFAULT_AGENT_ROCKS_DB_PATH = ".rocksdb";
+
+    public static final String AGENT_UNIQ_ID = "agent.uniq.id";
+    // default use local ip as uniq id for agent.
+    public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIP();
 
     public static final String AGENT_DB_INSTANCE_NAME = "agent.db.instance.name";
     public static final String DEFAULT_AGENT_DB_INSTANCE_NAME = "agent";
@@ -29,9 +41,6 @@ public class AgentConstants {
 
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
-
-    public static final String AGENT_FETCHER_INTERVAL = "agent.fetcher.interval";
-    public static final int DEFAULT_AGENT_FETCHER_INTERVAL = 60;
 
     public static final String AGENT_CONF_PARENT = "agent.conf.parent";
     public static final String DEFAULT_AGENT_CONF_PARENT = "conf";
