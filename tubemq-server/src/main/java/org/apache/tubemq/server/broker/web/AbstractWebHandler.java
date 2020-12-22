@@ -64,7 +64,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
                     strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                             .append("Unsupported method ").append(method).append("\"}");
                 } else {
-                    strBuffer = (StringBuilder) webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req);
+                    webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req, strBuffer);
                 }
             }
         } catch (Throwable e) {
