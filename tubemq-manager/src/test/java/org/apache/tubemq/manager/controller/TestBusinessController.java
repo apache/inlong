@@ -96,4 +96,6 @@ public class TestBusinessController {
         assertThat(Objects.requireNonNull(responseEntity.getBody()).getErrCode()).isEqualTo(-1);
         assertTrue(responseEntity.getBody().getErrMsg().contains("exception for test"));
     }
+
+
 }
