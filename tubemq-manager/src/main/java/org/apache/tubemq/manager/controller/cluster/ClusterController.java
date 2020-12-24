@@ -43,17 +43,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClusterController {
 
     private final Gson gson = new Gson();
+
     @Autowired
     private NodeRepository nodeRepository;
 
     @Autowired
     public MasterUtils masterUtil;
 
+    /**
+     * query cluster info
+     */
     @RequestMapping(value = "/query", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryInfo(
             @RequestParam Map<String, String> queryBody) throws Exception {
-        return gson.toJson(masterUtil.redirectToMaster(queryBody));
+        String url = masterUtil.getQueryUrl(queryBody);
+        return queryMaster(url);
     }
 
     /**
