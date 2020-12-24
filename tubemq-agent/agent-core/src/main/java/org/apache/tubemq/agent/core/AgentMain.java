@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.tubemq.agent;
+package org.apache.tubemq.agent.core;
 
 import java.util.Iterator;
 import org.apache.commons.cli.CommandLine;
