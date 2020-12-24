@@ -293,13 +293,6 @@ public class NodeService {
 
 
 
-    public void saveNodes(List<NodeEntry> nodes) {
-        nodeRepository.saveAll(nodes);
-    }
-
-
-
-
     public void close() throws IOException {
         httpclient.close();
     }

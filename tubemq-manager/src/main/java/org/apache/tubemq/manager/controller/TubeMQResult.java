@@ -32,7 +32,7 @@ public class TubeMQResult {
     private boolean result = true;
 
     public static TubeMQResult getErrorResult(String errorMsg) {
-        return TubeMQResult.builder().errCode(1)
+        return TubeMQResult.builder().errCode(-1)
                 .errMsg(errorMsg).result(false).build();
     }
 }
