@@ -80,4 +80,6 @@ public interface MetadataManager {
     String getDefDeletePolicy();
 
     String getTopicDeletePolicy(String topic);
+
+    Map<String, TopicMetadata> getTopicConfigMap();
 }

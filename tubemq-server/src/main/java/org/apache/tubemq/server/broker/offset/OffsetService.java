@@ -17,8 +17,12 @@
 
 package org.apache.tubemq.server.broker.offset;
 
+import java.util.Map;
+import java.util.Set;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
+
 
 /***
  * Offset manager service interface.
@@ -51,4 +55,18 @@ public interface OffsetService {
 
     long getTmpOffset(final String group, final String topic, int partitionId);
 
+    Set<String> getBookedGroups();
+
+    Set<String> getInMemoryGroups();
+
+    Set<String> getUnusedGroupInfo();
+
+    Set<String> getGroupSubInfo(String group);
+
+    Map<String, Map<Integer, Long>> queryGroupOffset(
+            String group, Map<String, Set<Integer>> topicPartMap);
+
+    boolean modifyGroupOffset(MessageStoreManager storeManager, Set<String> groups,
+                              Map<String, Map<Integer, Long>> topicPartOffsetMap,
+                              String modifier);
 }

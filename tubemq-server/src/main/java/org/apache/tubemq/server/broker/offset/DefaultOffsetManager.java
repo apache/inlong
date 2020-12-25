@@ -17,13 +17,17 @@
 
 package org.apache.tubemq.server.broker.offset;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
@@ -49,7 +53,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     public DefaultOffsetManager(final BrokerConfig brokerConfig) {
         super("[Offset Manager]", brokerConfig.getZkConfig().getZkCommitPeriodMs());
         this.brokerConfig = brokerConfig;
-        zkOffsetStorage = new ZkOffsetStorage(brokerConfig.getZkConfig());
+        zkOffsetStorage = new ZkOffsetStorage(brokerConfig.getZkConfig(),
+                true, brokerConfig.getBrokerId());
         super.start();
     }
 
@@ -323,6 +328,187 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     /***
+     * Get in-memory and in zk group set
+     *
+     * @return booked group in memory and in zk
+     */
+    @Override
+    public Set<String> getBookedGroups() {
+        Set<String> groupSet = new HashSet<>();
+        groupSet.addAll(cfmOffsetMap.keySet());
+        Map<String, Set<String>> localGroups =
+                zkOffsetStorage.getZkLocalGroupTopicInfos();
+        groupSet.addAll(localGroups.keySet());
+        return groupSet;
+    }
+
+    /***
+     * Get in-memory group set
+     *
+     * @return booked group in memory
+     */
+    public Set<String> getInMemoryGroups() {
+        Set<String> cacheGroup = new HashSet<>();
+        cacheGroup.addAll(cfmOffsetMap.keySet());
+        return cacheGroup;
+    }
+
+    /***
+     * Get in-zookeeper but not in memory's group set
+     *
+     * @return booked group in zookeeper
+     */
+    @Override
+    public Set<String> getUnusedGroupInfo() {
+        Set<String> unUsedGroups = new HashSet<>();
+        Map<String, Set<String>> localGroups =
+                zkOffsetStorage.getZkLocalGroupTopicInfos();
+        for (String groupName : localGroups.keySet()) {
+            if (!cfmOffsetMap.containsKey(groupName)) {
+                unUsedGroups.add(groupName);
+            }
+        }
+        return unUsedGroups;
+    }
+
+    /***
+     * Get the topic set subscribed by the consumer group
+     * @param group
+     * @return topic set subscribed
+     */
+    @Override
+    public Set<String> getGroupSubInfo(String group) {
+        Set<String> result = new HashSet<>();
+        Map<String, OffsetStorageInfo> topicPartOffsetMap = cfmOffsetMap.get(group);
+        if (topicPartOffsetMap == null) {
+            Map<String, Set<String>> localGroups =
+                    zkOffsetStorage.getZkLocalGroupTopicInfos();
+            result = localGroups.get(group);
+        } else {
+            for (OffsetStorageInfo storageInfo : topicPartOffsetMap.values()) {
+                result.add(storageInfo.getTopic());
+            }
+        }
+        return result;
+    }
+
+    /***
+     * Get group's offset by Specified topic-partitions
+     * @param group
+     * @param topicPartMap
+     * @return group offset info in memory or zk
+     */
+    @Override
+    public Map<String, Map<Integer, Long>> queryGroupOffset(
+            String group, Map<String, Set<Integer>> topicPartMap) {
+        Map<String, Map<Integer, Long>> result = new HashMap<>();
+        // search group from memory
+        Map<String, OffsetStorageInfo> topicPartOffsetMap = cfmOffsetMap.get(group);
+        if (topicPartOffsetMap == null) {
+            // query from zookeeper
+            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                Map<Integer, Long> qryResult =
+                        zkOffsetStorage.queryGroupOffsetInfo(
+                                group, entry.getKey(), entry.getValue());
+                Map<Integer, Long> offsetMap = new HashMap<>();
+                for (Map.Entry<Integer, Long> item : qryResult.entrySet()) {
+                    if (item.getValue() != null) {
+                        offsetMap.put(item.getKey(), item.getValue());
+                    }
+                }
+                if (!offsetMap.isEmpty()) {
+                    result.put(entry.getKey(), offsetMap);
+                }
+            }
+        } else {
+            // found in memory, get offset values
+            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                Map<Integer, Long> offsetMap = new HashMap<>();
+                for (Integer partitionId : entry.getValue()) {
+                    String offsetCacheKey =
+                            getOffsetCacheKey(entry.getKey(), partitionId);
+                    OffsetStorageInfo offsetInfo = topicPartOffsetMap.get(offsetCacheKey);
+                    if (offsetInfo != null) {
+                        offsetMap.put(partitionId, offsetInfo.getOffset());
+                    }
+                }
+                if (!offsetMap.isEmpty()) {
+                    result.put(entry.getKey(), offsetMap);
+                }
+            }
+        }
+        return result;
+    }
+
+
+    /***
+     * Reset offset.
+     *
+     * @param storeManager
+     * @param groups
+     * @param topicPartOffsetMap
+     * @param modifier
+     * @return at least one record modified
+     */
+    @Override
+    public boolean modifyGroupOffset(MessageStoreManager storeManager, Set<String> groups,
+                                     Map<String, Map<Integer, Long>> topicPartOffsetMap,
+                                     String modifier) {
+        long oldOffset = -1;
+        long reSetOffset = -1;
+        boolean changed = false;
+        MessageStore store = null;
+        StringBuilder strBuidler = new StringBuilder(512);
+        // set offset by group
+        for (String group : groups) {
+            for (Map.Entry<String, Map<Integer, Long>> entry : topicPartOffsetMap.entrySet()) {
+                Map<Integer, Long> partOffsetMap = entry.getValue();
+                if (partOffsetMap  == null) {
+                    continue;
+                }
+                // set offset
+                for (Map.Entry<Integer, Long> entry1 : partOffsetMap.entrySet()) {
+                    if (entry1.getValue() == null) {
+                        continue;
+                    }
+                    reSetOffset = entry1.getValue();
+                    // get topic store
+                    try {
+                        store = storeManager.getOrCreateMessageStore(
+                                entry.getKey(), entry1.getKey());
+                    } catch (Throwable e) {
+                        //
+                    }
+                    if (store == null) {
+                        continue;
+                    }
+                    long firstOffset = store.getIndexMinOffset();
+                    long lastOffset = store.getIndexMaxOffset();
+                    // adjust reseted offset value
+                    reSetOffset = reSetOffset < firstOffset
+                            ? firstOffset : Math.min(reSetOffset, lastOffset);
+                    String offsetCacheKey =
+                            getOffsetCacheKey(entry.getKey(), entry1.getKey());
+                    getAndResetTmpOffset(group, offsetCacheKey);
+                    OffsetStorageInfo regInfo = loadOrCreateOffset(group,
+                            entry.getKey(), entry1.getKey(), offsetCacheKey, 0);
+                    oldOffset = regInfo.getAndSetOffset(reSetOffset);
+                    changed = true;
+                    logger.info(strBuidler
+                            .append("[Offset Manager] Update offset by modifier=")
+                            .append(modifier).append(",reset offset=").append(reSetOffset)
+                            .append(",old offset=").append(oldOffset)
+                            .append(",updated offset=").append(regInfo.getOffset())
+                            .append(",group=").append(group)
+                            .append(",topic-partId=").append(offsetCacheKey).toString());
+                    strBuidler.delete(0, strBuidler.length());
+                }
+            }
+        }
+        return changed;
+    }
+
+    /***
      * Set temp offset.
      *
      * @param group
@@ -425,10 +611,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         OffsetStorageInfo regInfo = regInfoMap.get(offsetCacheKey);
         if (regInfo == null) {
             OffsetStorageInfo tmpRegInfo =
-                    zkOffsetStorage.loadOffset(group, topic, brokerConfig.getBrokerId(), partitionId);
+                    zkOffsetStorage.loadOffset(group, topic, partitionId);
             if (tmpRegInfo == null) {
-                tmpRegInfo =
-                        new OffsetStorageInfo(topic, brokerConfig.getBrokerId(), partitionId, defOffset, 0);
+                tmpRegInfo = new OffsetStorageInfo(topic,
+                        brokerConfig.getBrokerId(), partitionId, defOffset, 0);
             }
             regInfo = regInfoMap.putIfAbsent(offsetCacheKey, tmpRegInfo);
             if (regInfo == null) {
@@ -439,6 +625,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     private String getOffsetCacheKey(String topic, int partitionId) {
+        return new StringBuilder(256).append(topic)
+                .append("-").append(partitionId).toString();
+    }
+
+    private String getOffsetCacheKey(String topic, String partitionId) {
         return new StringBuilder(256).append(topic)
                 .append("-").append(partitionId).toString();
     }

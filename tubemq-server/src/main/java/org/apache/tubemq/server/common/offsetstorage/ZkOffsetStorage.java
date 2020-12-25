@@ -19,6 +19,12 @@ package org.apache.tubemq.server.common.offsetstorage;
 
 import java.net.BindException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.server.broker.exception.OffsetStoreException;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -42,7 +48,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                 public void uncaughtException(Thread t, Throwable e) {
                     if (e instanceof BindException) {
                         logger.error("Bind failed.", e);
-                        System.exit(1);
+                        // System.exit(1);
                     }
                     if (e instanceof IllegalStateException
                             && e.getMessage().contains("Shutdown in progress")) {
@@ -56,27 +62,33 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     private final String tubeZkRoot;
     private final String consumerZkDir;
+    private final boolean isBroker;
+    private final int brokerId;
     private ZKConfig zkConfig;
     private ZooKeeperWatcher zkw;
+    // group-topic-brokerid
+    private final Map<String, Map<String, Set<String>>> zkGroupTopicBrokerInfos = new HashMap<>();
+    // group-topic
+    private final Map<String, Set<String>> zkLocalGroupTopicInfos = new HashMap<>();
 
-    /**
-     * Constructor of ZkOffsetStorage
-     *
-     * @param zkConfig the zookeeper configuration
-     */
-    public ZkOffsetStorage(final ZKConfig zkConfig) {
+
+    public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
+        this.brokerId = brokerId;
+        this.isBroker = isBroker;
         this.tubeZkRoot = normalize(this.zkConfig.getZkNodeRoot());
         this.consumerZkDir = this.tubeZkRoot + "/consumers-v3";
         try {
             this.zkw = new ZooKeeperWatcher(zkConfig);
         } catch (Throwable e) {
             logger.error(new StringBuilder(256)
-                    .append("Failed to connect ZooKeeper server (")
+                    .append("[ZkOffsetStorage] Failed to connect ZooKeeper server (")
                     .append(this.zkConfig.getZkServerAddr()).append(") !").toString(), e);
             System.exit(1);
         }
-        logger.info("ZooKeeper Offset Storage initiated!");
+        logger.info("[ZkOffsetStorage] Get group-topic-broker info from ZooKeeper");
+        queryAllZKGroupTopicInfo();
+        logger.info("[ZkOffsetStorage] ZooKeeper Offset Storage initiated!");
     }
 
     @Override
@@ -87,6 +99,16 @@ public class ZkOffsetStorage implements OffsetStorage {
             this.zkw = null;
             logger.info("ZooKeeper Offset Storage closed!");
         }
+    }
+
+    @Override
+    public Map<String, Map<String, Set<String>>> getZkGroupTopicBrokerInfos() {
+        return zkGroupTopicBrokerInfos;
+    }
+
+    @Override
+    public Map<String, Set<String>> getZkLocalGroupTopicInfos() {
+        return zkLocalGroupTopicInfos;
     }
 
     @Override
@@ -125,10 +147,11 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     @Override
-    public OffsetStorageInfo loadOffset(final String group, final String topic, int brokerId, int partitionId) {
+    public OffsetStorageInfo loadOffset(final String group, final String topic, int partitionId) {
         String znode = new StringBuilder(512).append(this.consumerZkDir).append("/")
                 .append(group).append("/offsets/").append(topic).append("/")
-                .append(brokerId).append(TokenConstants.HYPHEN).append(partitionId).toString();
+                .append(brokerId).append(TokenConstants.HYPHEN)
+                .append(partitionId).toString();
         String offsetZkInfo;
         try {
             offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, znode);
@@ -182,6 +205,100 @@ public class ZkOffsetStorage implements OffsetStorage {
             }
         }
     }
+
+    /**
+     * Get offset stored in zookeeper, if not found or error, set null
+     * <p/>
+     *
+     * @return partitionId--offset map info
+     */
+    @Override
+    public Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
+                                                  Set<Integer> partitionIds) {
+        StringBuilder sBuider = new StringBuilder(512);
+        String basePath = sBuider.append(this.consumerZkDir).append("/")
+                .append(group).append("/offsets/").append(topic).append("/")
+                .append(brokerId).append(TokenConstants.HYPHEN).toString();
+        sBuider.delete(0, sBuider.length());
+        String offsetZkInfo = null;
+        Map<Integer, Long> offsetMap = new HashMap<>(partitionIds.size());
+        for (Integer partitionId : partitionIds) {
+            String offsetNode = sBuider.append(basePath).append(partitionId).toString();
+            sBuider.delete(0, sBuider.length());
+            try {
+                offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, offsetNode);
+                if (offsetZkInfo == null) {
+                    offsetMap.put(partitionId, null);
+                } else {
+                    String[] offsetInfoStrs =
+                            offsetZkInfo.split(TokenConstants.HYPHEN);
+                    offsetMap.put(partitionId, Long.parseLong(offsetInfoStrs[1]));
+                }
+            } catch (Throwable e) {
+                offsetMap.put(partitionId, null);
+            }
+        }
+        return offsetMap;
+    }
+
+    /**
+     * Get group-topic-brokerid map info stored in zookeeper.
+     * <p/>
+     * The broker only cares about the content of its own node,
+     * so this part only queries when the node starts, and
+     * caches relevant data in the memory for finding
+     *
+     */
+    private void queryAllZKGroupTopicInfo() {
+        StringBuilder sBuider = new StringBuilder(512);
+        // get all booked groups name
+        String groupNode = sBuider.append(this.consumerZkDir).toString();
+        List<String> bookedGroups = ZKUtil.getChildren(this.zkw, groupNode);
+        sBuider.delete(0, sBuider.length());
+        if (bookedGroups != null) {
+            // get topic info by group
+            for (String group : bookedGroups) {
+                String topicNode = sBuider.append(groupNode)
+                        .append("/").append(group).append("/offsets").toString();
+                List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
+                sBuider.delete(0, sBuider.length());
+                Set<String> topicSet = new HashSet<>();
+                Map<String, Set<String>> topicBrokerSet = new HashMap<>();
+                if (consumeTopics != null) {
+                    // get broker info by topic
+                    for (String topic : consumeTopics) {
+                        String brokerNode = sBuider.append(topicNode)
+                                .append("/").append(topic).toString();
+                        List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
+                        sBuider.delete(0, sBuider.length());
+                        Set<String> brokerIdSet = new HashSet<>();
+                        if (brokerIds != null) {
+                            for (String idStr : brokerIds) {
+                                if (idStr != null) {
+                                    String[] brokerPartIdStrs =
+                                            idStr.split(TokenConstants.HYPHEN);
+                                    brokerIdSet.add(brokerPartIdStrs[0]);
+                                }
+                            }
+                            if (isBroker && brokerIdSet.contains(String.valueOf(brokerId))) {
+                                topicSet.add(topic);
+                            }
+                        }
+                        topicBrokerSet.put(topic, brokerIdSet);
+                    }
+                }
+                if (!topicSet.isEmpty()) {
+                    zkLocalGroupTopicInfos.put(group, topicSet);
+                }
+                zkGroupTopicBrokerInfos.put(group, topicBrokerSet);
+            }
+        }
+        logger.info(new StringBuilder(256)
+                .append("[ZkOffsetStorage] query from zookeeper, total group size = ")
+                .append(zkGroupTopicBrokerInfos.size()).append(", local group size = ")
+                .append(zkLocalGroupTopicInfos.size()).toString());
+    }
+
 
     private String normalize(final String root) {
         if (root.startsWith("/")) {
