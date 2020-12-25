@@ -17,7 +17,9 @@
 
 package org.apache.tubemq.server.broker.metadata;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.tubemq.corebase.TBaseConstants;
@@ -246,6 +248,33 @@ public class TopicMetadata {
         for (int i = 0; i < numTopicStores; i++) {
             for (int j = 0; j < numPartitions; j++) {
                 partIds.add(i * TBaseConstants.META_STORE_INS_BASE + j);
+            }
+        }
+        return partIds;
+    }
+
+    // builder the partitionId set for each store
+    public Map<Integer, Set<Integer>> getStorePartIdMap() {
+        Map<Integer, Set<Integer>> storePartIds = new HashMap<>();
+        for (int i = 0; i < numTopicStores; i++) {
+            Set<Integer> partIds = new HashSet<>();
+            for (int j = 0; j < numPartitions; j++) {
+                partIds.add(i * TBaseConstants.META_STORE_INS_BASE + j);
+            }
+            storePartIds.put(i, partIds);
+        }
+        return storePartIds;
+    }
+
+    public int getStoreIdByPartitionId(int partitionId) {
+        return partitionId % TBaseConstants.META_STORE_INS_BASE;
+    }
+
+    public Set<Integer> getPartIdsByStoreId(int storeId) {
+        Set<Integer> partIds = new HashSet<>();
+        if (storeId >= 0 && storeId < numTopicStores) {
+            for (int i = 0; i < numPartitions; i++) {
+                partIds.add(storeId * TBaseConstants.META_STORE_INS_BASE + i);
             }
         }
         return partIds;
