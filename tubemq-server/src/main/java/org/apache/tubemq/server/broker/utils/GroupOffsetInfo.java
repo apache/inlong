@@ -39,10 +39,10 @@ public class GroupOffsetInfo {
 
     public void setPartPubStoreInfo(TopicPubStoreInfo pubStoreInfo) {
         if (pubStoreInfo != null) {
-            this.offsetMin = pubStoreInfo.indexStart;
-            this.offsetMax = pubStoreInfo.indexEnd;
-            this.dataMin = pubStoreInfo.dataStart;
-            this.dataMax = pubStoreInfo.dataEnd;
+            this.offsetMin = pubStoreInfo.offsetMin;
+            this.offsetMax = pubStoreInfo.offsetMax;
+            this.dataMin = pubStoreInfo.dataMin;
+            this.dataMax = pubStoreInfo.dataMax;
         }
     }
 

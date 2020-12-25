@@ -77,6 +77,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get all registered methods
         innRegisterWebMethod("admin_get_methods",
                 "adminQueryAllMethods");
+        // query topic's publish info
+        innRegisterWebMethod("admin_query_pubinfo",
+                "adminQueryPubInfo");
         // Query all consumer groups booked on the Broker.
         innRegisterWebMethod("admin_query_group",
                 "adminQueryBookedGroup");
@@ -467,7 +470,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * @throws Exception
      */
     public void adminQueryCurrentGroupOffSet(HttpServletRequest req,
-                                             StringBuilder sBuilder) throws Exception {
+                                             StringBuilder sBuilder) {
         ProcessResult result = WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.TOPICNAME, true, null);
         if (!result.success) {
@@ -576,6 +579,50 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     }
 
     /***
+     * Query topic's publish info on the Broker.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminQueryPubInfo(HttpServletRequest req,
+                                  StringBuilder sBuilder) {
+        // get the topic set to be queried
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // get target consume group name
+        Set<String> topicSet = (Set<String>) result.retData1;
+        // get topic's publish info
+        Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
+                broker.getStoreManager().getTopicPublishInfos(topicSet);
+        // builder result
+        int totalCnt = 0;
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        for (Map.Entry<String, Map<Integer, TopicPubStoreInfo>> entry
+                : topicStorePubInfoMap.entrySet()) {
+            if (totalCnt++ > 0) {
+                sBuilder.append(",");
+            }
+            sBuilder.append("{\"topicName\":\"").append(entry.getKey())
+                    .append("\",\"offsetInfo\":[");
+            Map<Integer, TopicPubStoreInfo> storeInfoMap = entry.getValue();
+            int itemCnt = 0;
+            for (Map.Entry<Integer, TopicPubStoreInfo> entry1 : storeInfoMap.entrySet()) {
+                if (itemCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                TopicPubStoreInfo pubStoreInfo = entry1.getValue();
+                pubStoreInfo.buildPubStoreInfo(sBuilder);
+            }
+            sBuilder.append("],\"itemCount\":").append(itemCnt).append("}");
+        }
+        sBuilder.append("],\"dataCount\":").append(totalCnt).append("}");
+    }
+
+    /***
      * Query all consumer groups booked on the Broker.
      *
      * @param req
@@ -583,7 +630,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryBookedGroup(HttpServletRequest req,
                                       StringBuilder sBuilder) {
-        // get group list
+        // get divide info
         ProcessResult result = WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHDIVIDE, false, false);
         if (!result.success) {
