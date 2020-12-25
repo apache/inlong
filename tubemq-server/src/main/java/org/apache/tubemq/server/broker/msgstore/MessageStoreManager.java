@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +92,7 @@ public class MessageStoreManager implements StoreService {
         this.metadataManager = this.tubeBroker.getMetadataManager();
         this.isRemovingTopic.set(false);
         this.maxMsgTransferSize =
-                tubeConfig.getTransferSize() > DataStoreUtils.MAX_MSG_TRANSFER_SIZE
-                        ? DataStoreUtils.MAX_MSG_TRANSFER_SIZE : tubeConfig.getTransferSize();
+                Math.min(tubeConfig.getTransferSize(), DataStoreUtils.MAX_MSG_TRANSFER_SIZE);
         this.metadataManager.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
@@ -383,6 +384,63 @@ public class MessageStoreManager implements StoreService {
 
     public Map<String, ConcurrentHashMap<Integer, MessageStore>> getMessageStores() {
         return Collections.unmodifiableMap(this.dataStores);
+    }
+
+    /***
+     * Query topic's publish info.
+     *
+     * @param topicSet query's topic set
+     *
+     * @return the topic's offset info
+     */
+    @Override
+    public Map<String, Map<Integer, TopicPubStoreInfo>> getTopicPublishInfos(
+            Set<String> topicSet) {
+        MessageStore store = null;
+        TopicMetadata topicMetadata = null;
+        Set<String> qryTopicSet = new HashSet<>();
+        Map<String, Map<Integer, TopicPubStoreInfo>> topicPubStoreInfoMap = new HashMap<>();
+        Map<String, TopicMetadata> confTopicInfo = metadataManager.getTopicConfigMap();
+        if (topicSet == null || topicSet.isEmpty()) {
+            qryTopicSet.addAll(confTopicInfo.keySet());
+        } else {
+            for (String topic : topicSet) {
+                if (confTopicInfo.containsKey(topic)) {
+                    qryTopicSet.add(topic);
+                }
+            }
+        }
+        if (qryTopicSet.isEmpty()) {
+            return topicPubStoreInfoMap;
+        }
+        for (String topic : qryTopicSet) {
+            topicMetadata = confTopicInfo.get(topic);
+            if (topicMetadata == null) {
+                continue;
+            }
+            Map<Integer, MessageStore> storeMap = dataStores.get(topic);
+            if (storeMap == null) {
+                continue;
+            }
+            Map<Integer, TopicPubStoreInfo> storeInfoMap = new HashMap<>();
+            for (Map.Entry<Integer, MessageStore> entry : storeMap.entrySet()) {
+                if (entry == null
+                        || entry.getKey() == null
+                        || entry.getValue() == null) {
+                    continue;
+                }
+                store = entry.getValue();
+                for (Integer partitionId : topicMetadata.getPartIdsByStoreId(entry.getKey())) {
+                    TopicPubStoreInfo storeInfo =
+                            new TopicPubStoreInfo(topic, entry.getKey(), partitionId,
+                                    store.getIndexMinOffset(), store.getIndexMaxOffset(),
+                                    store.getDataMinOffset(), store.getDataMaxOffset());
+                    storeInfoMap.put(partitionId, storeInfo);
+                }
+            }
+            topicPubStoreInfoMap.put(topic, storeInfoMap);
+        }
+        return topicPubStoreInfoMap;
     }
 
     private Set<File> getLogDirSet(final BrokerConfig tubeConfig) throws IOException {

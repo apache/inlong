@@ -133,9 +133,9 @@ public class MessageStore implements Closeable {
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
-                ? 6000 : (tmpIndexReadCnt >= 10000 ? 10000 : tmpIndexReadCnt));
+                ? 6000 : (Math.min(tmpIndexReadCnt, 10000)));
         fileMaxIndexReadCnt.set(tmpIndexReadCnt < 8000
-                ? 8000 : (tmpIndexReadCnt >= 13500 ? 13500 : tmpIndexReadCnt));
+                ? 8000 : (Math.min(tmpIndexReadCnt, 13500)));
         memMaxFilterIndexReadCnt.set(memMaxIndexReadCnt.get() * 2);
         fileMaxFilterIndexReadCnt.set(fileMaxIndexReadCnt.get() * 3);
         fileLowReqMaxFilterIndexReadCnt.set(fileMaxFilterIndexReadCnt.get() * 10);
@@ -250,8 +250,7 @@ public class MessageStore implements Closeable {
             }
         }
         // before read from file, adjust request's offset.
-        long reqNewOffset = requestOffset < this.msgFileStore.getIndexMinOffset()
-                ? this.msgFileStore.getIndexMinOffset() : requestOffset;
+        long reqNewOffset = Math.max(requestOffset, this.msgFileStore.getIndexMinOffset());
         if (reqSwitch <= 1 && reqNewOffset >= getFileIndexMaxOffset()) {
             return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
                     reqNewOffset, 0, "current offset is exceed max file offset");
@@ -409,9 +408,9 @@ public class MessageStore implements Closeable {
         maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
-                ? 6000 : (tmpIndexReadCnt >= 10000 ? 10000 : tmpIndexReadCnt));
+                ? 6000 : (Math.min(tmpIndexReadCnt, 10000)));
         fileMaxIndexReadCnt.set(tmpIndexReadCnt < 8000
-                ? 8000 : (tmpIndexReadCnt >= 13500 ? 13500 : tmpIndexReadCnt));
+                ? 8000 : (Math.min(tmpIndexReadCnt, 13500)));
         memMaxFilterIndexReadCnt.set(memMaxIndexReadCnt.get() * 2);
         fileMaxFilterIndexReadCnt.set(fileMaxIndexReadCnt.get() * 3);
         fileLowReqMaxFilterIndexReadCnt.set(fileMaxFilterIndexReadCnt.get() * 10);
