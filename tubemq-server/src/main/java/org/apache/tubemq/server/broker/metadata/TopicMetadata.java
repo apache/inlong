@@ -17,9 +17,14 @@
 
 package org.apache.tubemq.server.broker.metadata;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TStatusConstants;
+
 
 /***
  * Topic's metadata. Contains topic name, partitions count, etc.
@@ -233,6 +238,17 @@ public class TopicMetadata {
 
     public void setUnflushInterval(final int unflushInterval) {
         this.unflushInterval = unflushInterval;
+    }
+
+    // builder the partitionId set for each store
+    public Set<Integer> getAllPartitionIds() {
+        Set<Integer> partIds = new HashSet<>();
+        for (int i = 0; i < numTopicStores; i++) {
+            for (int j = 0; j < numPartitions; j++) {
+                partIds.add(i * TBaseConstants.META_STORE_INS_BASE + j);
+            }
+        }
+        return partIds;
     }
 
     public int getStatusId() {

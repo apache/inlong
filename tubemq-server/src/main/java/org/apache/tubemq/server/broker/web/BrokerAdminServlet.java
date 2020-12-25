@@ -17,6 +17,8 @@
 
 package org.apache.tubemq.server.broker.web;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.TubeBroker;
+import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
@@ -71,6 +74,15 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get all registered methods
         innRegisterWebMethod("admin_get_methods",
                 "adminQueryAllMethods");
+        // Query all consumer groups booked on the Broker.
+        innRegisterWebMethod("admin_query_group",
+                "adminQueryBookedGroup");
+        // query consumer group's offset
+        innRegisterWebMethod("admin_query_offset",
+                "adminQueryGroupOffSet");
+        // clone consumer group's offset from source to target
+        innRegisterWebMethod("admin_clone_offset",
+                "adminCloneGroupOffSet");
     }
 
     public void adminQueryAllMethods(HttpServletRequest req,
@@ -560,5 +572,239 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuilder.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
+    /***
+     * Query all consumer groups booked on the Broker.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminQueryBookedGroup(HttpServletRequest req,
+                                      StringBuilder sBuilder) {
+        // get group list
+        ProcessResult result = WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.WITHDIVIDE, false, false);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        boolean withDivide = (boolean) result.retData1;
+        // get offset service
+        int itemCnt = 0;
+        int totalCnt = 0;
+        OffsetService offsetService = broker.getOffsetManager();
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        if (withDivide) {
+            // query in-memory group name set
+            Set<String> onlineGroups = offsetService.getInMemoryGroups();
+            sBuilder.append("{\"type\":\"in-cache\",\"groupName\":[");
+            for (String group : onlineGroups) {
+                if (itemCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                sBuilder.append("\"").append(group).append("\"");
+            }
+            sBuilder.append("],\"groupCount\":").append(itemCnt).append("}");
+            totalCnt++;
+            sBuilder.append(",");
+            // query in-zk group name set
+            itemCnt = 0;
+            Set<String> onZKGroup = offsetService.getUnusedGroupInfo();
+            sBuilder.append("{\"type\":\"in-zk\",\"groupName\":[");
+            for (String group : onZKGroup) {
+                if (itemCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                sBuilder.append("\"").append(group).append("\"");
+            }
+            sBuilder.append("],\"groupCount\":").append(itemCnt).append("}");
+            totalCnt++;
+        } else {
+            Set<String> allGroups = offsetService.getBookedGroups();
+            sBuilder.append("{\"type\":\"all\",\"groupName\":[");
+            for (String group : allGroups) {
+                if (itemCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                sBuilder.append("\"").append(group).append("\"");
+            }
+            sBuilder.append("],\"groupCount\":").append(itemCnt).append("}");
+            totalCnt++;
+        }
+        sBuilder.append("],\"dataCount\":").append(totalCnt).append("}");
+    }
+
+    /***
+     * Query consumer group offset.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminQueryGroupOffSet(HttpServletRequest req,
+                                      StringBuilder sBuilder) {
+        // get group list
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // filter invalid groups
+        Set<String> qryGroupNameSet = new HashSet<>();
+        Set<String> inGroupNameSet = (Set<String>) result.retData1;
+        Set<String> bookedGroupSet = broker.getOffsetManager().getBookedGroups();
+        if (inGroupNameSet.isEmpty()) {
+            qryGroupNameSet = bookedGroupSet;
+        } else {
+            for (String group : inGroupNameSet) {
+                if (bookedGroupSet.contains(group)) {
+                    qryGroupNameSet.add(group);
+                }
+            }
+        }
+        // get the topic set to be queried
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // get target consume group name
+        Set<String> topicSet = (Set<String>) result.retData1;
+        // verify the acquired Topic set and
+        //   query the corresponding offset information
+        Map<String, Map<String, Map<Integer, Long>>> groupOffsetMaps = new HashMap<>();
+        for (String group : qryGroupNameSet) {
+            Map<String, Set<Integer>> topicPartMap =
+                    validAndGetPartitions(group, topicSet);
+            Map<String, Map<Integer, Long>> groupOffsetMap =
+                    broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
+            groupOffsetMaps.put(group, groupOffsetMap);
+        }
+        // builder result
+        int totalCnt = 0;
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        for (Map.Entry<String, Map<String, Map<Integer, Long>>> entry
+                : groupOffsetMaps.entrySet()) {
+            if (totalCnt++ > 0) {
+                sBuilder.append(",");
+            }
+            Map<String, Map<Integer, Long>> topicPartMap = entry.getValue();
+            sBuilder.append("{\"groupName\":\"").append(entry.getKey())
+                    .append("\",\"subInfo\":[");
+            int topicCnt = 0;
+            for (Map.Entry<String, Map<Integer, Long>> entry1 : topicPartMap.entrySet()) {
+                if (topicCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                Map<Integer, Long> partOffMap = entry1.getValue();
+                sBuilder.append("{\"topicName\":\"").append(entry1.getKey())
+                        .append("\",\"offsets\":[");
+                int partCnt = 0;
+                for (Map.Entry<Integer, Long> entry2 : partOffMap.entrySet()) {
+                    if (partCnt++ > 0) {
+                        sBuilder.append(",");
+                    }
+                    sBuilder.append("{\"").append(this.broker.getTubeConfig().getBrokerId())
+                            .append(TokenConstants.ATTR_SEP).append(entry1.getKey())
+                            .append(TokenConstants.ATTR_SEP).append(entry2.getKey())
+                            .append("\":").append(entry2.getValue()).append("}");
+                }
+                sBuilder.append("],\"partCount\":").append(partCnt).append("}");
+            }
+            sBuilder.append("],\"topicCount\":").append(topicCnt).append("}");
+        }
+        sBuilder.append("],\"totalCnt\":").append(totalCnt).append("}");
+    }
+
+    /***
+     * Clone consume group offset, clone A group's offset to other group.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminCloneGroupOffSet(HttpServletRequest req,
+                                      StringBuilder sBuilder) {
+        // get source consume group name
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.SRCGROUPNAME, true, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        final String srcGroupName = (String) result.retData1;
+        // get modify user
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        final String modifier = (String) result.retData1;
+        // get source consume group's topic set cloned to target group
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // get target consume group name
+        Set<String> srcTopicNameSet = (Set<String>) result.retData1;
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TGTCOMPSGROUPNAME, true, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Set<String> tgtGroupNameSet = (Set<String>) result.retData1;
+        // check sourceGroup if existed
+        Set<String> bookedGroups = broker.getOffsetManager().getBookedGroups();
+        if (!bookedGroups.contains(srcGroupName)) {
+            WebParameterUtils.buildFailResult(sBuilder,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(WebFieldDef.SRCGROUPNAME.name).append(": ")
+                            .append(srcGroupName)
+                            .append(" has not been registered on this Broker!").toString());
+            return;
+        }
+        // valid topic and get topic's partitionIds
+        Map<String, Set<Integer>> topicPartMap =
+                validAndGetPartitions(srcGroupName, srcTopicNameSet);
+        if (topicPartMap.isEmpty()) {
+            WebParameterUtils.buildFailResult(sBuilder,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(WebFieldDef.SRCGROUPNAME.name).append(": not found ")
+                            .append(srcGroupName).append(" subscribed topic set!").toString());
+            return;
+        }
+        // query offset from source group
+        Map<String, Map<Integer, Long>> srcGroupOffsets =
+                broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
+        boolean changed = broker.getOffsetManager().modifyGroupOffset(
+                broker.getStoreManager(), tgtGroupNameSet, srcGroupOffsets, modifier);
+        // builder return result
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
+    private Map<String, Set<Integer>> validAndGetPartitions(String group, Set<String> topicSet) {
+        Map<String, Set<Integer>> topicPartMap = new HashMap<>();
+        // query stored topic set stored in memory or zk
+        if (topicSet.isEmpty()) {
+            topicSet = broker.getOffsetManager().getGroupSubInfo(group);
+        }
+        // get topic's partitionIds
+        if (topicSet != null) {
+            Map<String, TopicMetadata> topicConfigMap =
+                    broker.getMetadataManager().getTopicConfigMap();
+            if (topicConfigMap != null) {
+                for (String topic : topicSet) {
+                    TopicMetadata topicMetadata = topicConfigMap.get(topic);
+                    if (topicMetadata != null) {
+                        topicPartMap.put(topic, topicMetadata.getAllPartitionIds());
+                    }
+                }
+            }
+        }
+        return topicPartMap;
+    }
 
 }

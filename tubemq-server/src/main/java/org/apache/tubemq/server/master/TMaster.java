@@ -176,7 +176,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.consumerEventManager = new ConsumerEventManager(consumerHolder);
         this.topicPSInfoManager = new TopicPSInfoManager();
         this.loadBalancer = new DefaultLoadBalancer();
-        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig());
+        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
+                false, TBaseConstants.META_VALUE_UNDEFINED);
         this.heartbeatManager = new HeartbeatManager();
         heartbeatManager.regConsumerCheckBusiness(masterConfig.getConsumerHeartbeatTimeoutMs(),
                 new TimeoutListener() {

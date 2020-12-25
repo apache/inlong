@@ -143,7 +143,8 @@ public class BrokerMetadataManager implements MetadataManager {
         return topicConfigMap.get(topic);
     }
 
-    public ConcurrentHashMap<String, TopicMetadata> getTopicConfigMap() {
+    @Override
+    public Map<String, TopicMetadata> getTopicConfigMap() {
         return topicConfigMap;
     }
 
