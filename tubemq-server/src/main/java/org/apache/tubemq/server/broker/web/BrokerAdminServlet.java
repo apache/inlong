@@ -27,12 +27,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.broker.TubeBroker;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
+import org.apache.tubemq.server.broker.utils.GroupOffsetInfo;
+import org.apache.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
@@ -672,42 +675,34 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         Set<String> topicSet = (Set<String>) result.retData1;
         // verify the acquired Topic set and
         //   query the corresponding offset information
-        Map<String, Map<String, Map<Integer, Long>>> groupOffsetMaps = new HashMap<>();
-        for (String group : qryGroupNameSet) {
-            Map<String, Set<Integer>> topicPartMap =
-                    validAndGetPartitions(group, topicSet);
-            Map<String, Map<Integer, Long>> groupOffsetMap =
-                    broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
-            groupOffsetMaps.put(group, groupOffsetMap);
-        }
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps =
+                getGroupOffsetInfo(qryGroupNameSet, topicSet);
         // builder result
         int totalCnt = 0;
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (Map.Entry<String, Map<String, Map<Integer, Long>>> entry
+        for (Map.Entry<String, Map<String, Map<Integer, GroupOffsetInfo>>> entry
                 : groupOffsetMaps.entrySet()) {
             if (totalCnt++ > 0) {
                 sBuilder.append(",");
             }
-            Map<String, Map<Integer, Long>> topicPartMap = entry.getValue();
+            Map<String, Map<Integer, GroupOffsetInfo>> topicPartMap = entry.getValue();
             sBuilder.append("{\"groupName\":\"").append(entry.getKey())
                     .append("\",\"subInfo\":[");
             int topicCnt = 0;
-            for (Map.Entry<String, Map<Integer, Long>> entry1 : topicPartMap.entrySet()) {
+            for (Map.Entry<String, Map<Integer, GroupOffsetInfo>> entry1 : topicPartMap.entrySet()) {
                 if (topicCnt++ > 0) {
                     sBuilder.append(",");
                 }
-                Map<Integer, Long> partOffMap = entry1.getValue();
+                Map<Integer, GroupOffsetInfo> partOffMap = entry1.getValue();
                 sBuilder.append("{\"topicName\":\"").append(entry1.getKey())
                         .append("\",\"offsets\":[");
                 int partCnt = 0;
-                for (Map.Entry<Integer, Long> entry2 : partOffMap.entrySet()) {
+                for (Map.Entry<Integer, GroupOffsetInfo> entry2 : partOffMap.entrySet()) {
                     if (partCnt++ > 0) {
                         sBuilder.append(",");
                     }
-                    sBuilder.append("{\"").append(this.broker.getTubeConfig().getBrokerId())
-                            .append(TokenConstants.ATTR_SEP).append(entry1.getKey())
-                            .append(TokenConstants.ATTR_SEP).append(entry2.getKey())
-                            .append("\":").append(entry2.getValue()).append("}");
+                    GroupOffsetInfo offsetInfo = entry2.getValue();
+                    offsetInfo.buildOffsetInfo(sBuilder);
                 }
                 sBuilder.append("],\"partCount\":").append(partCnt).append("}");
             }
@@ -777,13 +772,55 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         // query offset from source group
-        Map<String, Map<Integer, Long>> srcGroupOffsets =
+        Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets =
                 broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
         boolean changed = broker.getOffsetManager().modifyGroupOffset(
                 broker.getStoreManager(), tgtGroupNameSet, srcGroupOffsets, modifier);
         // builder return result
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
+
+    // builder group's offset info
+    private Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> getGroupOffsetInfo(
+            Set<String> groupSet, Set<String> topicSet) {
+        long curReadDataOffset = -2;
+        long curDataLag = -2;
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = new HashMap<>();
+        for (String group : groupSet) {
+            Map<String, Map<Integer, GroupOffsetInfo>> topicOffsetRet = new HashMap<>();
+            // valid and get topic's partitionIds
+            Map<String, Set<Integer>> topicPartMap = validAndGetPartitions(group, topicSet);
+            // get topic's publish info
+            Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
+                    broker.getStoreManager().getTopicPublishInfos(topicPartMap.keySet());
+            // get group's booked offset info
+            Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
+                    broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
+            // get offset info array
+            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                String topic = entry.getKey();
+                Map<Integer, GroupOffsetInfo> partOffsetRet = new HashMap<>();
+                Map<Integer, TopicPubStoreInfo> storeInfoMap = topicStorePubInfoMap.get(topic);
+                Map<Integer, Tuple2<Long, Long>> partBookedMap = groupOffsetMap.get(topic);
+                for (Integer partitionId : entry.getValue()) {
+                    GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
+                    offsetInfo.setPartPubStoreInfo(storeInfoMap.get(partitionId));
+                    offsetInfo.setConsumeOffsetInfo(partBookedMap.get(partitionId));
+                    String queryKey = buildQueryID(group, topic, partitionId);
+                    ConsumerNodeInfo nodeInfo = broker.getConsumerNodeInfo(queryKey);
+                    if (nodeInfo != null) {
+                        offsetInfo.setConsumeDataOffsetInfo(nodeInfo.getLastDataRdOffset());
+                    }
+                    offsetInfo.calculateLag();
+                    partOffsetRet.put(partitionId, offsetInfo);
+                }
+                topicOffsetRet.put(topic, partOffsetRet);
+            }
+            groupOffsetMaps.put(group, topicOffsetRet);
+        }
+        return groupOffsetMaps;
+    }
+
 
     private Map<String, Set<Integer>> validAndGetPartitions(String group, Set<String> topicSet) {
         Map<String, Set<Integer>> topicPartMap = new HashMap<>();
@@ -805,6 +842,12 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             }
         }
         return topicPartMap;
+    }
+
+    private String buildQueryID(String group, String topic, int partitionId) {
+        return new StringBuilder(512).append(group)
+                .append(TokenConstants.ATTR_SEP).append(topic)
+                .append(TokenConstants.ATTR_SEP).append(partitionId).toString();
     }
 
 }
