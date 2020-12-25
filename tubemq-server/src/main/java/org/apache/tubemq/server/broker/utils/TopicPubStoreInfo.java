@@ -26,20 +26,30 @@ public class TopicPubStoreInfo {
     public String topicName = null;
     public int storeId = TBaseConstants.META_VALUE_UNDEFINED;
     public int partitionId = TBaseConstants.META_VALUE_UNDEFINED;
-    public long indexStart = 0L;
-    public long indexEnd = 0L;
-    public long dataStart = 0L;
-    public long dataEnd = 0L;
+    public long offsetMin = 0L;
+    public long offsetMax = 0L;
+    public long dataMin = 0L;
+    public long dataMax = 0L;
 
     public TopicPubStoreInfo(String topicName, int storeId, int partitionId,
-                             long indexStart, long indexEnd, long dataStart, long dataEnd) {
+                             long offsetMin, long offsetMax, long dataMin, long dataMax) {
         this.topicName = topicName;
         this.storeId = storeId;
         this.partitionId = partitionId;
-        this.indexStart = indexStart;
-        this.indexEnd = indexEnd;
-        this.dataStart = dataStart;
-        this.dataEnd = dataEnd;
+        this.offsetMin = offsetMin;
+        this.offsetMax = offsetMax;
+        this.dataMin = dataMin;
+        this.dataMax = dataMax;
+    }
+
+    public StringBuilder buildPubStoreInfo(StringBuilder sBuilder) {
+        sBuilder.append("{\"partitionId\":").append(partitionId)
+                .append(",\"offsetMin\":").append(offsetMin)
+                .append(",\"offsetMax\":").append(offsetMax)
+                .append(",\"dataMin\":").append(dataMin)
+                .append(",\"dataMax\":").append(dataMax)
+                .append("}");
+        return sBuilder;
     }
 
 }
