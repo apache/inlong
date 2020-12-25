@@ -17,6 +17,8 @@ import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.Relationship;
 import com.sleepycat.persist.model.SecondaryKey;
+import org.apache.tubemq.agent.conf.JobProfile;
+import org.apache.tubemq.agent.conf.TriggerProfile;
 
 /**
  * key value entity. key is string and value is a json
@@ -64,5 +66,22 @@ public class KeyValueEntity {
     public KeyValueEntity setJsonValue(String jsonValue) {
         this.jsonValue = jsonValue;
         return this;
+    }
+
+    /**
+     * convert keyValue to job profile
+     * @return JobConfiguration
+     */
+    public JobProfile getAsJobProfile() {
+        // convert jsonValue to jobConfiguration
+        return JobProfile.parseJsonStr(getJsonValue());
+    }
+
+    /**
+     * convert keyValue to trigger profile
+     * @return
+     */
+    public TriggerProfile getAsTriggerProfile() {
+        return TriggerProfile.parseJsonStr(getJsonValue());
     }
 }

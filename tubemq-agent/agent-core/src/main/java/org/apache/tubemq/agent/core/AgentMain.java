@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * Agent entrance class
  */
 public class AgentMain {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMain.class);
 
     /**
@@ -77,6 +78,22 @@ public class AgentMain {
     }
 
     /**
+     * Stopping agent gracefully if get killed.
+     *
+     * @param manager - agent manager
+     */
+    private static void stopManagerIfKilled(AgentManager manager) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                LOGGER.info("stopping agent gracefully");
+                manager.stop();
+            } catch (Exception ex) {
+                LOGGER.error("exception while stopping threads", ex);
+            }
+        }));
+    }
+
+    /**
      * Main entrance.
      *
      * @param args - arguments
@@ -86,5 +103,15 @@ public class AgentMain {
         CommandLine cl = initOptions(args);
         assert cl != null;
         initAgentConf(cl);
+        AgentManager manager = new AgentManager();
+        try {
+            manager.start();
+            stopManagerIfKilled(manager);
+            manager.join();
+        } catch (Exception ex) {
+            LOGGER.error("exception caught", ex);
+        } finally {
+            manager.stop();
+        }
     }
 }
