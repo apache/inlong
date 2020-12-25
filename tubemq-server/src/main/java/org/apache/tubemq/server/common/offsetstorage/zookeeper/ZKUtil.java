@@ -19,6 +19,8 @@ package org.apache.tubemq.server.common.offsetstorage.zookeeper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
@@ -147,6 +149,23 @@ public class ZKUtil {
         return getDataInternal(zkw, znode, null, true);
     }
 
+    /**
+     * Get the children data at the specified znode.
+     * <p/>
+     * Returns the children data. Returns null if
+     * the node does not exist or there is an exception.
+     *
+     * @param zkw   zk reference
+     * @param znode path of node
+     * @return children data of the specified znode, or null
+     */
+    public static List<String> getChildren(ZooKeeperWatcher zkw, String znode) {
+        try {
+            return zkw.getRecoverableZooKeeper().getChildren(znode, false);
+        } catch (Throwable e) {
+            return null;
+        }
+    }
 
     private static byte[] getDataInternal(ZooKeeperWatcher zkw, String znode, Stat stat,
                                           boolean watcherSet) throws KeeperException {

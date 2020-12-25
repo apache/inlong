@@ -70,7 +70,15 @@ public enum WebFieldDef {
     COMPSBROKERID(15, "brokerId", "brokerId", WebFieldType.COMPINT,
             "Broker ID", RegexDef.TMP_NUMBER),
     WITHIP(16, "withIp", "ip", WebFieldType.BOOLEAN,
-            "Require return ip information, default is false");
+            "Require return ip information, default is false"),
+    WITHDIVIDE(17, "divide", "div", WebFieldType.BOOLEAN,
+            "Need to divide the returned result, default is false"),
+    SRCGROUPNAME(18, "sourceGroupName", "srcGroup", WebFieldType.STRING,
+            "Offset clone source group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
+            RegexDef.TMP_GROUP),
+    TGTCOMPSGROUPNAME(19, "targetGroupName", "tgtGroup",
+            WebFieldType.COMPSTRING, "Offset clone target group name",
+            TBaseConstants.META_MAX_GROUPNAME_LENGTH, RegexDef.TMP_GROUP);
 
 
 
