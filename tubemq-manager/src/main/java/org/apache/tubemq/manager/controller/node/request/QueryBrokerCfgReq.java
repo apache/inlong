@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,44 +17,31 @@
 
 package org.apache.tubemq.manager.controller.node.request;
 
-
-import lombok.Builder;
 import lombok.Data;
-import org.apache.tubemq.manager.service.tube.BrokerConf;
 
-import java.util.List;
-
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_QUERY;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY_BROKER_CONFIG;
 
 @Data
-public class AddBrokersReq {
+public class QueryBrokerCfgReq {
 
-    public String confModAuthToken;
-
-    public String createUser;
-
-    public int clusterId;
-
-    /**
-     * admin_bath_add_broker_configure
-     */
     public String method;
 
-    /**
-     * op_modify
-     */
+    public Integer brokerId;
+
     public String type;
 
-    public List<BrokerConf> brokerJsonSet;
+    public boolean withDetail;
 
-    public static AddBrokersReq getAddBrokerReq(String token, int clusterId) {
-        AddBrokersReq req = new AddBrokersReq();
-        req.setClusterId(clusterId);
-        req.setMethod(BATCH_ADD_BROKER);
-        req.setType(OP_MODIFY);
-        req.setCreateUser(WEB_API);
-        req.setConfModAuthToken(token);
+    public boolean withTopic;
+
+    public static QueryBrokerCfgReq getReq(Integer brokerId) {
+        QueryBrokerCfgReq req = new QueryBrokerCfgReq();
+        req.setBrokerId(brokerId);
+        req.setMethod(QUERY_BROKER_CONFIG);
+        req.setType(OP_QUERY);
+        req.setWithTopic(false);
+        req.setWithDetail(true);
         return req;
     }
-
 }

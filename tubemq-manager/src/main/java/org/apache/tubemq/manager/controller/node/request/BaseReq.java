@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,44 +17,8 @@
 
 package org.apache.tubemq.manager.controller.node.request;
 
-
-import lombok.Builder;
-import lombok.Data;
-import org.apache.tubemq.manager.service.tube.BrokerConf;
-
-import java.util.List;
-
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
-
-@Data
-public class AddBrokersReq {
-
-    public String confModAuthToken;
-
-    public String createUser;
-
-    public int clusterId;
-
-    /**
-     * admin_bath_add_broker_configure
-     */
-    public String method;
-
-    /**
-     * op_modify
-     */
+public class BaseReq {
     public String type;
-
-    public List<BrokerConf> brokerJsonSet;
-
-    public static AddBrokersReq getAddBrokerReq(String token, int clusterId) {
-        AddBrokersReq req = new AddBrokersReq();
-        req.setClusterId(clusterId);
-        req.setMethod(BATCH_ADD_BROKER);
-        req.setType(OP_MODIFY);
-        req.setCreateUser(WEB_API);
-        req.setConfModAuthToken(token);
-        return req;
-    }
-
+    public Integer clusterId;
+    public String method;
 }

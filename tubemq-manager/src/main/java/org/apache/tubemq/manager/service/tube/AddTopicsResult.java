@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,25 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller;
+package org.apache.tubemq.manager.service.tube;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.google.common.collect.Lists;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TubeMQResult {
-    private String errMsg = "";
-    private int errCode = 0;
-    private boolean result = true;
-    private String data;
+public class AddTopicsResult {
 
-    public static TubeMQResult getErrorResult(String errorMsg) {
-        return TubeMQResult.builder().errCode(-1)
-                .errMsg(errorMsg).result(false).data("").build();
-    }
+    public List<String> failTopics = Lists.newArrayList();
+
+    public List<String> successTopics = Lists.newArrayList();
 }
