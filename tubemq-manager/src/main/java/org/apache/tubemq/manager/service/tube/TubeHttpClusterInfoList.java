@@ -28,7 +28,7 @@ import java.util.Map;
 @Data
 public class TubeHttpClusterInfoList extends TubeMQResult {
 
-    private List<ClusterData> data = new ArrayList<>();
+    private List<ClusterData> clusterData = new ArrayList<>();
 
     @Data
     @AllArgsConstructor
@@ -63,7 +63,7 @@ public class TubeHttpClusterInfoList extends TubeMQResult {
                     ClusterData.ClusterInfo singleClusterInfo = getSingleClusterInfo(entries);
                     ClusterData clusterData =
                             new ClusterData(id, entries.get(0).getClusterName(), singleClusterInfo);
-                    clusterInfoList.getData().add(clusterData);
+                    clusterInfoList.getClusterData().add(clusterData);
                 }
         );
         return clusterInfoList;
