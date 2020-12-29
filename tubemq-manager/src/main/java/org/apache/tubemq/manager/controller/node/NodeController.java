@@ -69,6 +69,13 @@ public class NodeController {
     @Autowired
     MasterUtils masterUtil;
 
+    /**
+     * query brokers in certain cluster
+     * @param type
+     * @param method
+     * @param clusterId
+     * @return
+     */
     @RequestMapping(value = "/query/clusterInfo", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryInfo(@RequestParam String type, @RequestParam String method,
@@ -105,6 +112,12 @@ public class NodeController {
         return queryMaster(url);
     }
 
+    /**
+     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * @param req
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/clone", method = RequestMethod.POST)
     public @ResponseBody String cloneBrokers(
             @RequestBody CloneBrokersReq req) throws Exception {
