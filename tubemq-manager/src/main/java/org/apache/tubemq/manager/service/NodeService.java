@@ -431,7 +431,7 @@ public class NodeService {
         if (CollectionUtils.isEmpty(brokerId)) {
             TubeHttpBrokerInfoList brokerInfoList = requestClusterNodeStatus(master);
             if (brokerInfoList != null) {
-                brokerId = brokerInfoList.getAllBrokerIdList();
+                brokerId = brokerInfoList.getConfigurableBrokerIdList();
             }
         }
 
