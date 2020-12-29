@@ -19,7 +19,7 @@ package org.apache.tubemq.manager.controller;
 import java.net.URI;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tubemq.manager.controller.topic.TopicController;
+import org.apache.tubemq.manager.controller.topic.TopicTdmController;
 import org.apache.tubemq.manager.entry.TopicEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class TestBusinessController {
 
     @Before
     public void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(new TopicController()).build();
+        mvc = MockMvcBuilders.standaloneSetup(new TopicTdmController()).build();
     }
 
     @Test

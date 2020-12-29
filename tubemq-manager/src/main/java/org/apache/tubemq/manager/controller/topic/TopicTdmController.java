@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/business")
 @Slf4j
-public class TopicController {
+public class TopicTdmController {
 
     @Autowired
     private TopicRepository topicRepository;

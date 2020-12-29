@@ -17,22 +17,14 @@
 
 package org.apache.tubemq.manager.controller.node.request;
 
-
+import java.util.List;
 import lombok.Data;
 
 @Data
-public class AddTopicReq extends BaseReq {
-    public String createUser;
-    public String deleteWhen;
-    public Integer unflushThreshold;
-    public Boolean acceptPublish;
-    public Integer numPartitions;
-    public Integer unflushInterval;
-    public Boolean acceptSubscribe;
-    public String method;
-    public String type;
-    public String brokerId;
+public class CloneTopicReq extends BaseReq{
+    public String sourceTopicName;
+    public Integer clusterId;
+    public List<Integer> brokerId;
+    public List<String> targetTopicName;
     public String confModAuthToken;
-    public String topicName;
-    public String deletePolicy;
 }
