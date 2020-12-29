@@ -18,6 +18,13 @@
 
 package org.apache.tubemq.manager.controller.topic;
 
+import static org.apache.tubemq.manager.utils.MasterUtils.queryMaster;
+import static org.apache.tubemq.manager.utils.MasterUtils.requestMaster;
+
+import static org.apache.tubemq.manager.controller.node.NodeController.ADD;
+import static org.apache.tubemq.manager.controller.node.NodeController.CLONE;
+import static org.apache.tubemq.manager.controller.node.NodeController.ADD;
+import static org.apache.tubemq.manager.controller.node.NodeController.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.utils.MasterUtils.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.utils.MasterUtils.queryMaster;
@@ -32,11 +39,14 @@ import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
+import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.repository.TopicRepository;
 import org.apache.tubemq.manager.service.NodeService;
 import org.apache.tubemq.manager.service.TopicBackendWorker;
+import org.apache.tubemq.manager.utils.MasterUtils;
+import org.apache.tubemq.manager.service.TopicService;
 import org.apache.tubemq.manager.utils.ConvertUtils;
 import org.apache.tubemq.manager.utils.MasterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +62,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/v1/topic")
 @Slf4j
 public class TopicWebController {
-
-    @Autowired
-    private TopicRepository topicRepository;
-
-    @Autowired
-    private TopicBackendWorker topicBackendWorker;
 
     @Autowired
     private NodeService nodeService;
@@ -276,6 +280,32 @@ public class TopicWebController {
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterUtils.getQueryUrl(req);
         return requestMaster(url);
+    }
+
+    /**
+     * rebalance consumer given consumer id
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/rebalance/consumer")
+    public @ResponseBody TubeMQResult rebalanceConsumer(
+        @RequestParam Map<String, String> req) throws Exception {
+        String url = masterUtils.getQueryUrl(req);
+        return requestMaster(url);
+    }
+
+
+    /**
+     * rebalance all consumers in group
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/rebalance/group")
+    public @ResponseBody TubeMQResult rebalanceGroup(
+        @RequestBody RebalanceGroupReq req) throws Exception {
+        return topicService.rebalanceGroup(req);
     }
 
     /**

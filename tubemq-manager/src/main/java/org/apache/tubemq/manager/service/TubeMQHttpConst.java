@@ -23,6 +23,8 @@ public class TubeMQHttpConst {
             "/webapi.htm?type=op_query&method=admin_query_broker_run_status";
     public static final String TOPIC_CONFIG_INFO =
             "/webapi.htm?type=op_query&method=admin_query_topic_info";
+    public static final String QUERY_GROUP_DETAIL_INFO =
+        "/webapi.htm?type=op_query&method=admin_query_consume_group_detail";
     public static final String ADD_TUBE_TOPIC =
             "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
     public static final String RELOAD_BROKER =
@@ -33,4 +35,5 @@ public class TubeMQHttpConst {
     public static final String BATCH_ADD_BROKER = "admin_bath_add_broker_configure";
     public static final String WEB_API = "webapi";
     public static final String BATCH_ADD_TOPIC = "admin_add_new_topic_record";
+    public static final String REBALANCE_GROUP = "admin_rebalance_group_allocate";
 }
