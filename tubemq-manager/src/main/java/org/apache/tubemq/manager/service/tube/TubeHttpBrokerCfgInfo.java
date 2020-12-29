@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,25 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package org.apache.tubemq.manager.service.tube;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TubeMQResult {
-    private String errMsg = "";
-    private int errCode = 0;
-    private boolean result = true;
-    private String data;
-
-    public static TubeMQResult getErrorResult(String errorMsg) {
-        return TubeMQResult.builder().errCode(-1)
-                .errMsg(errorMsg).result(false).data("").build();
-    }
+public class TubeHttpBrokerCfgInfo {
+    public boolean acceptPublish;
+    public boolean acceptSubscribe;
+    public Integer brokerId;
+    public String brokerIp;
+    public Integer brokerPort;
+    public Integer brokerTLSPort;
+    public String createDate;
+    public String createUser;
+    public String deletePolicy;
+    public String deleteWhen;
+    public String modifyDate;
+    public String modifyUser;
+    public Integer memCacheFlushIntvl;
+    public Integer memCacheMsgCntInK;
+    public Integer memCacheMsgSizeInMB;
+    public Integer numPartitions;
+    public Integer numTopicStores;
+    public Integer unflushDataHold;
+    public Integer unflushInterval;
+    public Integer unflushThreshold;
+    public boolean hasTLSPort;
 }

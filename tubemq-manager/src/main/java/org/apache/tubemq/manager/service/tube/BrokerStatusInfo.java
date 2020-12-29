@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,33 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.node.request;
-
+package org.apache.tubemq.manager.service.tube;
 
 import lombok.Data;
 
-import java.security.SecureRandom;
+import java.util.List;
 
 @Data
-public class BrokerConf {
-
-    public String brokerIp;
-    public Integer brokerPort;
-    public Integer brokerId;
-    public String deleteWhen;
-    public Integer numPartitions;
-    public Integer unflushThreshold;
-    public Integer unflushIntegererval;
-    public Integer unflushDataHold;
-    public boolean acceptPublish;
-    public boolean acceptSubscribe;
-    public String createUser;
-    public Integer brokerTLSPort;
-    public Integer numTopicStores;
-    public Integer memCacheMsgCntInK;
-    public Integer memCacheMsgSizeInMB;
-    public Integer memCacheFlushIntegervl;
-
+public class BrokerStatusInfo {
+    public int code;
+    public String errMsg;
+    // total broker configuration info list of brokers.
+    public List<BrokerConf> data;
 }
-
-

@@ -18,6 +18,8 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import static java.lang.Math.abs;
+
+import com.google.common.collect.Maps;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -353,6 +355,9 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
             HashMap<String, BdbBrokerConfEntity> inBrokerConfEntityMap = new HashMap<>();
             ConcurrentHashMap<Integer, BdbBrokerConfEntity> bdbBrokerConfEntityMap =
                     brokerConfManager.getBrokerConfStoreMap();
+            // save broker ip and id relation.
+            Map<String, Integer> brokerIpId = Maps.newHashMap();
+
             for (int count = 0; count < brokerJsonArray.size(); count++) {
                 Map<String, String> jsonObject = brokerJsonArray.get(count);
                 try {
@@ -415,6 +420,7 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                     final String inputKey = strBuffer.append(brokerId).append("-")
                             .append(brokerIp).append("-").append(brokerPort).toString();
                     strBuffer.delete(0, strBuffer.length());
+                    brokerIpId.put(brokerIp, brokerId);
                     final String deleteWhen =
                             WebParameterUtils.validDecodeStringParameter("deleteWhen", jsonObject.get("deleteWhen"),
                                     TServerConstants.CFG_DELETEWHEN_MAX_LENGTH, false, "0 0 6,18 * * ?");
@@ -494,7 +500,19 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
             for (BdbBrokerConfEntity brokerConfEntity : inBrokerConfEntityMap.values()) {
                 brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
             }
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"");
+
+            if (brokerIpId.size() > 0) {
+                // add ip and id relation
+                strBuffer.append(",\"data\":[");
+                brokerIpId.forEach((ip, id) -> {
+                    strBuffer.append("{\"ip\":").append(ip);
+                    strBuffer.append(",\"id\":").append(id).append("},");
+                });
+                strBuffer.deleteCharAt(strBuffer.length() - 1).append("]");
+            }
+            strBuffer.append("}");
+
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
             strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")

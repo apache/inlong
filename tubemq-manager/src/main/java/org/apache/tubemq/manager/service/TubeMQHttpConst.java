@@ -27,4 +27,9 @@ public class TubeMQHttpConst {
             "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
     public static final String RELOAD_BROKER =
             "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
+    public static final String QUERY_BROKER_CONFIG = "admin_query_broker_configure";
+    public static final String OP_QUERY = "op_query";
+    public static final String OP_MODIFY = "op_modify";
+    public static final String BATCH_ADD_BROKER = "admin_bath_add_broker_configure";
+    public static final String WEB_API = "webapi";
 }

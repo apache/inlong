@@ -17,25 +17,35 @@
 
 package org.apache.tubemq.manager.controller.node;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
+import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
+import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.NodeService;
+import org.apache.tubemq.manager.service.tube.*;
 import org.apache.tubemq.manager.utils.MasterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 import static org.apache.tubemq.manager.utils.MasterUtils.*;
 
@@ -59,6 +69,13 @@ public class NodeController {
     @Autowired
     MasterUtils masterUtil;
 
+    /**
+     * query brokers in certain cluster
+     * @param type
+     * @param method
+     * @param clusterId
+     * @return
+     */
     @RequestMapping(value = "/query/clusterInfo", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryInfo(@RequestParam String type, @RequestParam String method,
@@ -95,13 +112,29 @@ public class NodeController {
         return queryMaster(url);
     }
 
+    /**
+     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/clone", method = RequestMethod.POST)
+    public @ResponseBody String cloneBrokers(
+            @RequestBody CloneBrokersReq req) throws Exception {
+        int clusterId = req.getClusterId();
+        TubeMQResult tubeResult = nodeService.cloneBrokersWithTopic(req, clusterId);
+        return gson.toJson(tubeResult);
+    }
+
+
+
 
     /**
      * add brokers to cluster, need to check token and
      * make sure user has authorization to modify it.
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public @ResponseBody String addBrokersToCluster(
+    public @ResponseBody String addBrokers(
             @RequestBody AddBrokersReq req) throws Exception {
         String token = req.getConfModAuthToken();
         int clusterId = req.getClusterId();
@@ -175,14 +208,11 @@ public class NodeController {
         return gson.toJson(result);
     }
 
-
-
     private TubeMQResult addBrokersToCluster(AddBrokersReq req, NodeEntry masterEntry) throws Exception {
         String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
         TubeMQResult tubeMQResult = requestMaster(url);
         return tubeMQResult;
     }
-
 
 }
