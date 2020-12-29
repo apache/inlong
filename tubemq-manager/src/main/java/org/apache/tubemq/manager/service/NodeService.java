@@ -45,10 +45,12 @@ import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
+import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.tube.*;
+import org.apache.tubemq.manager.service.tube.TubeHttpBrokerInfoList.BrokerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -146,10 +148,10 @@ public class NodeService {
         List<AddTopicReq> addTopicReqs = req.getAddTopicReqs();
 
         // 4. add topic to brokers
-        return addTopicToBrokers(masterEntry, brokerIds, addTopicReqs);
+        return addTopicsToBrokers(masterEntry, brokerIds, addTopicReqs);
     }
 
-    private TubeMQResult addTopicToBrokers(NodeEntry masterEntry, List<Integer> brokerIds, List<AddTopicReq> addTopicReqs) {
+    public TubeMQResult addTopicsToBrokers(NodeEntry masterEntry, List<Integer> brokerIds, List<AddTopicReq> addTopicReqs) {
         TubeMQResult tubeResult = new TubeMQResult();
         AddTopicsResult addTopicsResult = new AddTopicsResult();
 
@@ -412,5 +414,33 @@ public class NodeService {
             log.error("exception caught while requesting broker status", ex);
         }
         return null;
+    }
+
+    public TubeMQResult cloneTopicToBrokers(CloneTopicReq req, NodeEntry master) throws Exception {
+
+        // 1 query topic config
+        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getSourceTopicName());
+
+        if (topicInfoList == null) {
+            return TubeMQResult.getErrorResult("no such topic");
+        }
+
+        // 2 if there's no specific broker ids then clone to all of the brokers
+        List<Integer> brokerId = req.getBrokerId();
+
+        if (CollectionUtils.isEmpty(brokerId)) {
+            TubeHttpBrokerInfoList brokerInfoList = requestClusterNodeStatus(master);
+            if (brokerInfoList != null) {
+                brokerId = brokerInfoList.getConfigurableBrokerIdList();
+            }
+        }
+
+        // 3 generate add topic req
+        AddTopicReq addTopicReq = topicInfoList.getAddTopicReq(brokerId,
+            req.getTargetTopicName(), req.getConfModAuthToken());
+
+        // 4 send to master
+        return addTopicToBrokers(addTopicReq, master);
+
     }
 }

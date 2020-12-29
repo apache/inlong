@@ -132,4 +132,14 @@ public class TubeHttpBrokerInfoList {
         return tmpBrokerIdList;
     }
 
+    public List<Integer> getAllBrokerIdList() {
+        List<Integer> tmpBrokerIdList = new ArrayList<>();
+        if (data != null) {
+            for (BrokerInfo brokerInfo : data) {
+                tmpBrokerIdList.add(brokerInfo.getBrokerId());
+            }
+        }
+        return tmpBrokerIdList;
+    }
+
 }

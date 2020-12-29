@@ -32,4 +32,5 @@ public class TubeMQHttpConst {
     public static final String OP_MODIFY = "op_modify";
     public static final String BATCH_ADD_BROKER = "admin_bath_add_broker_configure";
     public static final String WEB_API = "webapi";
+    public static final String BATCH_ADD_TOPIC = "admin_add_new_topic_record";
 }

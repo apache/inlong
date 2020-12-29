@@ -17,9 +17,16 @@
 
 package org.apache.tubemq.manager.service.tube;
 
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.BATCH_ADD_TOPIC;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_MODIFY;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.WEB_API;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
 
 /**
@@ -93,5 +100,36 @@ public class TubeHttpTopicInfoList {
             }
         }
         return tmpBrokerIdList;
+    }
+
+    public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
+
+        AddTopicReq req = new AddTopicReq();
+        TopicInfoList topicInfoList = data.get(0);
+        if (topicInfoList == null) {
+            return req;
+        }
+        List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
+        if (CollectionUtils.isEmpty(topicInfos)) {
+            return req;
+        }
+
+        TopicInfo topicInfo = topicInfos.get(0);
+        String brokerStr = StringUtils.join(brokerIds, ",");
+        String topic = StringUtils.join(targetTopicNames, ",");
+
+        req.setBrokerId(brokerStr);
+        req.setTopicName(topic);
+        req.setMethod(BATCH_ADD_TOPIC);
+        req.setAcceptPublish(topicInfo.acceptPublish);
+        req.setAcceptSubscribe(topicInfo.acceptSubscribe);
+        req.setType(OP_MODIFY);
+        req.setCreateUser(WEB_API);
+        req.setDeleteWhen(topicInfo.getDeleteWhen());
+        req.setNumPartitions(topicInfo.getNumPartitions());
+        req.setUnflushInterval(topicInfo.getUnflushInterval());
+        req.setConfModAuthToken(token);
+        req.setDeletePolicy(topicInfo.getDeletePolicy());
+        return req;
     }
 }
