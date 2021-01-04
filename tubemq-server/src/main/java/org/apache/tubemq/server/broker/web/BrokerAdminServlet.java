@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.broker.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +26,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.broker.TubeBroker;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
@@ -89,6 +92,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // clone consumer group's offset from source to target
         innRegisterWebMethod("admin_clone_offset",
                 "adminCloneGroupOffSet");
+        // set or update group's offset info
+        innRegisterWebMethod("admin_set_offset",
+                "adminSetGroupOffSet");
     }
 
     public void adminQueryAllMethods(HttpServletRequest req,
@@ -759,6 +765,74 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     }
 
     /***
+     * Add or Modify consumer group offset.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminSetGroupOffSet(HttpServletRequest req,
+                                    StringBuilder sBuilder) {
+        // get group list
+        ProcessResult result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Set<String> groupNameSet = (Set<String>) result.retData1;
+        // get set mode
+        result = WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.MANUALSET, true, false);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        boolean manualSet = (Boolean) result.retData1;
+        // get modify user
+        result = WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        List<Tuple3<String, Integer, Long>> resetOffsets;
+        final String modifier = (String) result.retData1;
+        if (manualSet) {
+            // get offset json info
+            result = WebParameterUtils.getJsonDictParamValue(req,
+                    WebFieldDef.OFFSETJSON, true, null);
+            if (!result.success) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return;
+            }
+            Map<String, Long> manOffsets =
+                    (Map<String, Long>) result.retData1;
+            // valid and transfer offset format
+            result = validManOffsetResetInfo(WebFieldDef.OFFSETJSON, manOffsets);
+            if (!result.success) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return;
+            }
+            resetOffsets =
+                    (List<Tuple3<String, Integer, Long>>) result.retData1;
+        } else {
+            // get the topic set to be set
+            result = WebParameterUtils.getStringParamValue(req,
+                    WebFieldDef.COMPSTOPICNAME, true, null);
+            if (!result.success) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return;
+            }
+            Set<String> topicSet = (Set<String>) result.retData1;
+            // transfer offset format
+            resetOffsets = buildOffsetResetInfo(topicSet);
+        }
+        boolean changed = broker.getOffsetManager().modifyGroupOffset(
+                groupNameSet, resetOffsets, modifier);
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
+    /***
      * Clone consume group offset, clone A group's offset to other group.
      *
      * @param req
@@ -821,10 +895,160 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // query offset from source group
         Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets =
                 broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
+        // transfer offset format
+        List<Tuple3<String, Integer, Long>> resetOffsets =
+                buildOffsetResetInfo(srcGroupOffsets);
         boolean changed = broker.getOffsetManager().modifyGroupOffset(
-                broker.getStoreManager(), tgtGroupNameSet, srcGroupOffsets, modifier);
+                tgtGroupNameSet, resetOffsets, modifier);
         // builder return result
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
+    // build reset offset info
+    private List<Tuple3<String, Integer, Long>> buildOffsetResetInfo(
+            Map<String, Map<Integer, Tuple2<Long, Long>>> topicPartOffsetMap) {
+        long adjOffset = -1;
+        MessageStore store = null;
+        List<Tuple3<String, Integer, Long>> result = new ArrayList<>();
+        MessageStoreManager storeManager = broker.getStoreManager();
+        for (Map.Entry<String, Map<Integer, Tuple2<Long, Long>>> entry
+                : topicPartOffsetMap.entrySet()) {
+            Map<Integer, Tuple2<Long, Long>> partOffsetMap = entry.getValue();
+            if (partOffsetMap  == null) {
+                continue;
+            }
+            // process offset value
+            for (Map.Entry<Integer, Tuple2<Long, Long>> entry1 : partOffsetMap.entrySet()) {
+                if (entry1.getValue() == null) {
+                    continue;
+                }
+                Tuple2<Long, Long> offsetTuple = entry1.getValue();
+                // get topic store
+                try {
+                    store = storeManager.getOrCreateMessageStore(
+                            entry.getKey(), entry1.getKey());
+                } catch (Throwable e) {
+                    //
+                }
+                if (store == null) {
+                    continue;
+                }
+                long firstOffset = store.getIndexMinOffset();
+                long lastOffset = store.getIndexMaxOffset();
+                // adjust reset offset value
+                adjOffset = offsetTuple.f0 < firstOffset
+                        ? firstOffset : Math.min(offsetTuple.f0, lastOffset);
+                result.add(new Tuple3<>(entry.getKey(), entry1.getKey(), adjOffset));
+            }
+        }
+        return result;
+    }
+
+    // build reset offset info
+    private List<Tuple3<String, Integer, Long>> buildOffsetResetInfo(Set<String> topicSet) {
+        MessageStore store = null;
+        List<Tuple3<String, Integer, Long>> result = new ArrayList<>();
+        MessageStoreManager storeManager = broker.getStoreManager();
+        // get topic's partition set
+        Map<String, Set<Integer>> topicPartMap =
+                validAndGetPartitions(null, topicSet);
+        // fill current topic's max offset value
+        for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+            if (entry.getKey() == null
+                    || entry.getValue() == null
+                    || entry.getValue().isEmpty()) {
+                continue;
+            }
+            Set<Integer> partitionSet = entry.getValue();
+            for (Integer partId : partitionSet) {
+                // get topic store
+                try {
+                    store = storeManager.getOrCreateMessageStore(
+                            entry.getKey(), partId);
+                } catch (Throwable e) {
+                    //
+                }
+                if (store == null) {
+                    continue;
+                }
+                result.add(new Tuple3<>(entry.getKey(),
+                        partId, store.getIndexMaxOffset()));
+            }
+        }
+        return result;
+    }
+
+    // build reset offset info
+    private ProcessResult validManOffsetResetInfo(WebFieldDef fieldDef,
+                                                  Map<String, Long> manOffsetInfoMap) {
+        String brokerId;
+        String topicName;
+        String strPartId;
+        int partitionId;
+        long adjOffset;
+        MessageStore store = null;
+        ProcessResult procResult = new ProcessResult();
+        MessageStoreManager storeManager = broker.getStoreManager();
+        List<Tuple3<String, Integer, Long>> offsetVals = new ArrayList<>();
+        String localBrokerId = String.valueOf(broker.getTubeConfig().getBrokerId());
+        // get topic configure infos
+        Map<String, TopicMetadata> topicConfigMap =
+                broker.getMetadataManager().getTopicConfigMap();
+        for (Map.Entry<String, Long> entry : manOffsetInfoMap.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            // parse and check partitionKey value
+            String[] keyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
+            if (keyItems.length != 3) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name).append("'s key invalid:")
+                                .append(entry.getKey())
+                                .append(" must be brokerId:topicName:partitionId !").toString());
+                return procResult;
+            }
+            brokerId = keyItems[0].trim();
+            topicName = keyItems[1].trim();
+            strPartId = keyItems[2].trim();
+            if (!localBrokerId.equals(brokerId)
+                    || !topicConfigMap.containsKey(topicName)) {
+                continue;
+            }
+            try {
+                partitionId = Integer.parseInt(strPartId);
+            } catch (NumberFormatException e) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name).append("'s key invalid:")
+                                .append(entry.getKey())
+                                .append("'s partitionId value not number!").toString());
+                return procResult;
+            }
+            // check and adjust offset value
+            try {
+                store = storeManager.getOrCreateMessageStore(topicName, partitionId);
+            } catch (Throwable e) {
+                //
+            }
+            if (store == null) {
+                continue;
+            }
+            long firstOffset = store.getIndexMinOffset();
+            long lastOffset = store.getIndexMaxOffset();
+            adjOffset = entry.getValue() < firstOffset
+                    ? firstOffset : Math.min(entry.getValue(), lastOffset);
+            offsetVals.add(new Tuple3<>(topicName, partitionId, adjOffset));
+        }
+        if (offsetVals.isEmpty()) {
+            procResult.setFailResult(fieldDef.id,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(fieldDef.name)
+                            .append("'s value is invalid!").toString());
+        } else {
+            procResult.setSuccResult(offsetVals);
+        }
+        return procResult;
     }
 
     // builder group's offset info
@@ -872,7 +1096,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     private Map<String, Set<Integer>> validAndGetPartitions(String group, Set<String> topicSet) {
         Map<String, Set<Integer>> topicPartMap = new HashMap<>();
         // query stored topic set stored in memory or zk
-        if (topicSet.isEmpty()) {
+        if (topicSet.isEmpty() && group != null) {
             topicSet = broker.getOffsetManager().getGroupSubInfo(group);
         }
         // get topic's partitionIds
