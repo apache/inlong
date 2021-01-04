@@ -17,12 +17,13 @@
 
 package org.apache.tubemq.server.broker.offset;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 
 
@@ -68,7 +69,7 @@ public interface OffsetService {
     Map<String, Map<Integer, Tuple2<Long, Long>>> queryGroupOffset(
             String group, Map<String, Set<Integer>> topicPartMap);
 
-    boolean modifyGroupOffset(MessageStoreManager storeManager, Set<String> groups,
-                              Map<String, Map<Integer, Tuple2<Long, Long>>> topicPartOffsetMap,
+    boolean modifyGroupOffset(Set<String> groups,
+                              List<Tuple3<String, Integer, Long>> topicPartOffsets,
                               String modifier);
 }

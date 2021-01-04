@@ -78,7 +78,13 @@ public enum WebFieldDef {
             RegexDef.TMP_GROUP),
     TGTCOMPSGROUPNAME(19, "targetGroupName", "tgtGroup",
             WebFieldType.COMPSTRING, "Offset clone target group name",
-            TBaseConstants.META_MAX_GROUPNAME_LENGTH, RegexDef.TMP_GROUP);
+            TBaseConstants.META_MAX_GROUPNAME_LENGTH, RegexDef.TMP_GROUP),
+    MANUALSET(20, "manualSet", "manSet",
+            WebFieldType.BOOLEAN, "Whether manual offset setting mode"),
+    OFFSETJSON(21, "offsetJsonSet", "offsetSet",
+            WebFieldType.JSONTYPE, "The offset set that needs to be added or modified");
+
+
 
 
 

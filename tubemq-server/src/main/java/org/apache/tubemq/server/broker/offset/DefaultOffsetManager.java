@@ -19,6 +19,7 @@ package org.apache.tubemq.server.broker.offset;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,9 +27,9 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
@@ -119,8 +120,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 || (readStatus == TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS)) {
             long adjOffset = indexMaxOffset;
             if (readStatus != TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS) {
-                adjOffset = reqOffset > indexMaxOffset ? indexMaxOffset : reqOffset;
-                adjOffset = adjOffset < indexMinOffset ? indexMinOffset : adjOffset;
+                adjOffset = Math.min(reqOffset, indexMaxOffset);
+                adjOffset = Math.max(adjOffset, indexMinOffset);
             }
             regInfo.getAndSetOffset(adjOffset);
         }
@@ -288,7 +289,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             long firstOffset = store.getIndexMinOffset();
             long lastOffset = store.getIndexMaxOffset();
             reSetOffset = reSetOffset < firstOffset
-                    ? firstOffset : reSetOffset > lastOffset ? lastOffset : reSetOffset;
+                    ? firstOffset : Math.min(reSetOffset, lastOffset);
             String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
             getAndResetTmpOffset(group, offsetCacheKey);
             OffsetStorageInfo regInfo =
@@ -449,70 +450,46 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-
     /***
      * Reset offset.
      *
-     * @param storeManager
      * @param groups
-     * @param topicPartOffsetMap
+     * @param topicPartOffsets
      * @param modifier
      * @return at least one record modified
      */
     @Override
-    public boolean modifyGroupOffset(
-            MessageStoreManager storeManager, Set<String> groups,
-            Map<String, Map<Integer, Tuple2<Long, Long>>> topicPartOffsetMap, String modifier) {
+    public boolean modifyGroupOffset(Set<String> groups,
+                                     List<Tuple3<String, Integer, Long>> topicPartOffsets,
+                                     String modifier) {
         long oldOffset = -1;
-        long reSetOffset = -1;
         boolean changed = false;
-        MessageStore store = null;
+        String offsetCacheKey = null;
         StringBuilder strBuidler = new StringBuilder(512);
         // set offset by group
         for (String group : groups) {
-            for (Map.Entry<String, Map<Integer, Tuple2<Long, Long>>> entry
-                    : topicPartOffsetMap.entrySet()) {
-                Map<Integer, Tuple2<Long, Long>> partOffsetMap = entry.getValue();
-                if (partOffsetMap  == null) {
+            for (Tuple3<String, Integer, Long> tuple3 : topicPartOffsets) {
+                if (tuple3 == null
+                        || tuple3.f0 == null
+                        || tuple3.f1 == null
+                        || tuple3.f2 == null) {
                     continue;
                 }
-                // set offset
-                for (Map.Entry<Integer, Tuple2<Long, Long>> entry1 : partOffsetMap.entrySet()) {
-                    if (entry1.getValue() == null) {
-                        continue;
-                    }
-                    Tuple2<Long, Long> offsetTuple = entry1.getValue();
-                    // get topic store
-                    try {
-                        store = storeManager.getOrCreateMessageStore(
-                                entry.getKey(), entry1.getKey());
-                    } catch (Throwable e) {
-                        //
-                    }
-                    if (store == null) {
-                        continue;
-                    }
-                    long firstOffset = store.getIndexMinOffset();
-                    long lastOffset = store.getIndexMaxOffset();
-                    // adjust reseted offset value
-                    reSetOffset = offsetTuple.f0 < firstOffset
-                            ? firstOffset : Math.min(offsetTuple.f0, lastOffset);
-                    String offsetCacheKey =
-                            getOffsetCacheKey(entry.getKey(), entry1.getKey());
-                    getAndResetTmpOffset(group, offsetCacheKey);
-                    OffsetStorageInfo regInfo = loadOrCreateOffset(group,
-                            entry.getKey(), entry1.getKey(), offsetCacheKey, 0);
-                    oldOffset = regInfo.getAndSetOffset(reSetOffset);
-                    changed = true;
-                    logger.info(strBuidler
-                            .append("[Offset Manager] Update offset by modifier=")
-                            .append(modifier).append(",reset offset=").append(reSetOffset)
-                            .append(",old offset=").append(oldOffset)
-                            .append(",updated offset=").append(regInfo.getOffset())
-                            .append(",group=").append(group)
-                            .append(",topic-partId=").append(offsetCacheKey).toString());
-                    strBuidler.delete(0, strBuidler.length());
-                }
+                // set offset value
+                offsetCacheKey = getOffsetCacheKey(tuple3.f0, tuple3.f1);
+                getAndResetTmpOffset(group, offsetCacheKey);
+                OffsetStorageInfo regInfo = loadOrCreateOffset(group,
+                        tuple3.f0, tuple3.f1, offsetCacheKey, 0);
+                oldOffset = regInfo.getAndSetOffset(tuple3.f2);
+                changed = true;
+                logger.info(strBuidler
+                        .append("[Offset Manager] Update offset by modifier=")
+                        .append(modifier).append(",reset offset=").append(tuple3.f2)
+                        .append(",old offset=").append(oldOffset)
+                        .append(",updated offset=").append(regInfo.getOffset())
+                        .append(",group=").append(group)
+                        .append(",topic-partId=").append(offsetCacheKey).toString());
+                strBuidler.delete(0, strBuidler.length());
             }
         }
         return changed;

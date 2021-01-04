@@ -478,6 +478,77 @@ public class WebParameterUtils {
     }
 
     /**
+     * Parse the parameter value from an json dict
+     *
+     * @param req         Http Servlet Request
+     * @param fieldDef    the parameter field definition
+     * @param required    a boolean value represent whether the parameter is must required
+     * @param defValue    a default value returned if failed to parse value from the given object
+     * @return valid result for the parameter value
+     */
+    public static ProcessResult getJsonDictParamValue(HttpServletRequest req,
+                                                      WebFieldDef fieldDef,
+                                                      boolean required,
+                                                      Map<String, Long> defValue) {
+        ProcessResult procResult = new ProcessResult();
+        // get parameter value
+        String paramValue = req.getParameter(fieldDef.name);
+        if (paramValue == null) {
+            paramValue = req.getParameter(fieldDef.shortName);
+        }
+        if (TStringUtils.isNotBlank(paramValue)) {
+            // Cleanup value extra characters
+            paramValue = escDoubleQuotes(paramValue.trim());
+        }
+        // Check if the parameter exists
+        if (TStringUtils.isBlank(paramValue)) {
+            if (required) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name)
+                                .append(" is missing or value is null or blank!").toString());
+            } else {
+                procResult.setSuccResult(defValue);
+            }
+            return procResult;
+        }
+        try {
+            paramValue = URLDecoder.decode(paramValue,
+                    TBaseConstants.META_DEFAULT_CHARSET_NAME);
+        } catch (UnsupportedEncodingException e) {
+            procResult.setFailResult(fieldDef.id,
+                    new StringBuilder(512).append("Parameter ")
+                            .append(fieldDef.name)
+                            .append(" decode error, exception is ")
+                            .append(e.toString()).toString());
+        }
+        if (TStringUtils.isBlank(paramValue)) {
+            if (required) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name)
+                                .append("'s value is blank!").toString());
+            } else {
+                procResult.setSuccResult(defValue);
+            }
+            return procResult;
+        }
+        if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
+            if (paramValue.length() > fieldDef.valMaxLen) {
+                procResult.setFailResult(fieldDef.id,
+                        new StringBuilder(512).append("Parameter ")
+                                .append(fieldDef.name)
+                                .append("'s length over max allowed length (")
+                                .append(fieldDef.valMaxLen).append(")!").toString());
+                return procResult;
+            }
+        }
+        procResult.setSuccResult(new Gson().fromJson(paramValue,
+                new TypeToken<Map<String, Long>>(){}.getType()));
+        return procResult;
+    }
+
+    /**
      * process string default value
      *
      * @param procResult process result

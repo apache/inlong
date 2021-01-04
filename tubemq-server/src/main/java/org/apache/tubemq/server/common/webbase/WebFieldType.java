@@ -28,7 +28,8 @@ public enum WebFieldType {
     BOOLEAN(4, "Boolean"),
     DATE(5, "Date"),
     COMPSTRING(6, "Compound string"),
-    COMPINT(7, "Compound integer");
+    COMPINT(7, "Compound integer"),
+    JSONTYPE(8, "Json");
 
 
     public int value;
