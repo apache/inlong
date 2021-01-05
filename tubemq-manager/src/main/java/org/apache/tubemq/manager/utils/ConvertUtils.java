@@ -34,21 +34,32 @@ public class ConvertUtils {
     public static String convertReqToQueryStr(Object req) throws Exception {
         List<String> queryList = new ArrayList<>();
         Class<?> clz = req.getClass();
-        Field[] fields = clz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Object o = field.get(req);
-            String value;
-            // convert list to json string
-            if (o == null) continue;
-            if (o instanceof List) {
-                value = gson.toJson(o);
-            } else {
-                value = o.toString();
-            }
-            queryList.add(field.getName() + "=" + URLEncoder.encode(
-                    value, UTF_8.toString()));
+        List fieldsList = new ArrayList<Field[]>();
+
+        while (clz != null) {
+            Field[] declaredFields = clz.getDeclaredFields();
+            fieldsList.add(declaredFields);
+            clz = clz.getSuperclass();
         }
+
+        for (Object fields:fieldsList) {
+            Field[] f = (Field[]) fields;
+            for (Field field : f) {
+                field.setAccessible(true);
+                Object o = field.get(req);
+                String value;
+                // convert list to json string
+                if (o == null) continue;
+                if (o instanceof List) {
+                    value = gson.toJson(o);
+                } else {
+                    value = o.toString();
+                }
+                queryList.add(field.getName() + "=" + URLEncoder.encode(
+                    value, UTF_8.toString()));
+            }
+        }
+
         return StringUtils.join(queryList, "&");
     }
 }

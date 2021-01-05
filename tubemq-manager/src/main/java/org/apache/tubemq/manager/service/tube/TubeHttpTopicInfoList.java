@@ -50,10 +50,10 @@ public class TubeHttpTopicInfoList {
 
             @Data
             public static class RunInfo {
-                private boolean acceptPublish;
-                private boolean acceptSubscribe;
-                private int numPartitions;
-                private int numTopicStores;
+                private String acceptPublish;
+                private String acceptSubscribe;
+                private String numPartitions;
+                private String numTopicStores;
                 private String brokerManageStatus;
             }
 
@@ -102,6 +102,15 @@ public class TubeHttpTopicInfoList {
         return tmpBrokerIdList;
     }
 
+
+    public List<TopicInfo> getTopicInfo() {
+        List<Integer> tmpBrokerIdList = new ArrayList<>();
+        if (data != null) {
+            return data.get(0).getTopicInfo();
+        }
+        return null;
+    }
+
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
 
         AddTopicReq req = new AddTopicReq();
@@ -118,6 +127,14 @@ public class TubeHttpTopicInfoList {
         String brokerStr = StringUtils.join(brokerIds, ",");
         String topic = StringUtils.join(targetTopicNames, ",");
 
+        setAttributes(token, req, topicInfo, brokerStr, topic);
+        return req;
+    }
+
+
+
+    private void setAttributes(String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr,
+        String topic) {
         req.setBrokerId(brokerStr);
         req.setTopicName(topic);
         req.setMethod(BATCH_ADD_TOPIC);
@@ -130,6 +147,5 @@ public class TubeHttpTopicInfoList {
         req.setUnflushInterval(topicInfo.getUnflushInterval());
         req.setConfModAuthToken(token);
         req.setDeletePolicy(topicInfo.getDeletePolicy());
-        return req;
     }
 }

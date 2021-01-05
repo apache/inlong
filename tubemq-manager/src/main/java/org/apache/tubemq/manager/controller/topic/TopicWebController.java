@@ -25,6 +25,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.BatchAddTopicReq;
+import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
@@ -155,10 +156,30 @@ public class TopicWebController {
      * @return
      * @throws Exception
      */
+    @PostMapping("/query/config")
     public @ResponseBody String queryTopicConfig(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterUtils.getQueryUrl(req);
         return queryMaster(url);
+    }
+
+
+    /**
+     *
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/clone/offset")
+    public @ResponseBody TubeMQResult cloneOffset(
+        @RequestBody CloneOffsetReq req) throws Exception {
+        if (req.getClusterId() == null)
+            return TubeMQResult.getErrorResult("please input clusterId");
+        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
+        if (masterEntry == null)
+            return TubeMQResult.getErrorResult("no such cluster");
+        return nodeService.cloneOffsetToOtherGroups(req, masterEntry);
     }
 
 
