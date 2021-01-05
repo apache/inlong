@@ -165,7 +165,7 @@ public class TopicWebController {
 
 
     /**
-     *
+     * clone offset from one group to another
      * @param req
      * @return
      * @throws Exception
