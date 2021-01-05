@@ -45,12 +45,14 @@ import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
+import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.tube.*;
 import org.apache.tubemq.manager.service.tube.TubeHttpBrokerInfoList.BrokerInfo;
+import org.apache.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -72,6 +74,9 @@ public class NodeService {
     private int maxRetryAddingTopic;
 
     private final TopicBackendWorker worker;
+
+    @Value("${manager.broker.webPort:8081}")
+    private int brokerWebPort;
 
     @Autowired
     private NodeRepository nodeRepository;
@@ -443,4 +448,31 @@ public class NodeService {
         return addTopicToBrokers(addTopicReq, master);
 
     }
+
+    public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req, NodeEntry master)
+        throws Exception {
+
+        // 1. query the corresponding brokers having given topic
+        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
+        TubeMQResult result = new TubeMQResult();
+
+        if (topicInfoList != null) {
+            List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
+            // 2. for each broker, request to clone offset
+            for (TopicInfo topicInfo : topicInfos) {
+                String brokerIp = topicInfo.getBrokerIp();
+                String url = SCHEMA + brokerIp + ":" + brokerWebPort
+                    + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
+                result = requestMaster(url);
+                if (result.getErrCode() != 0) {
+                    return result;
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+
 }

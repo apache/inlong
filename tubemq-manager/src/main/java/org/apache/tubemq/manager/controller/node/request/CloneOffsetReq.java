@@ -20,8 +20,10 @@ package org.apache.tubemq.manager.controller.node.request;
 import lombok.Data;
 
 @Data
-public class BaseReq {
-    public String type;
-    public Integer clusterId;
-    public String method;
+public class CloneOffsetReq extends BaseReq {
+    public String sourceGroupName;
+    public String modifyUser;
+    public String topicName;
+    public String targetGroupName;
+    public String confModAuthToken;
 }
