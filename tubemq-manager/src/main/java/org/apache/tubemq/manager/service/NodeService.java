@@ -44,12 +44,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
+import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
@@ -479,6 +481,8 @@ public class NodeService {
 
         return result;
     }
+
+
 
 
 

@@ -37,6 +37,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
@@ -44,6 +45,7 @@ import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
+import org.apache.tubemq.manager.service.tube.CleanOffsetResult;
 import org.apache.tubemq.manager.service.tube.RebalanceGroupResult;
 import org.apache.tubemq.manager.service.tube.TubeHttpGroupDetailInfo;
 import org.apache.tubemq.manager.service.tube.TubeHttpTopicInfoList;
@@ -71,7 +73,7 @@ public class TopicService {
 
 
     public TubeMQResult addConsumer(
-        BatchAddGroupAuthReq req) throws Exception {
+        BatchAddGroupAuthReq req) {
         NodeEntry nodeEntry =
             nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(req.getClusterId());
         if (nodeEntry == null) {
@@ -84,7 +86,7 @@ public class TopicService {
     }
 
 
-    public TubeMQResult deleteConsumer(DeleteGroupReq req) throws Exception {
+    public TubeMQResult deleteConsumer(DeleteGroupReq req) {
         NodeEntry nodeEntry =
             nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(req.getClusterId());
         if (nodeEntry == null) {
@@ -148,7 +150,6 @@ public class TopicService {
             }
         }
 
-
         return result;
     }
 
@@ -204,6 +205,45 @@ public class TopicService {
         tubeResult.setData(gson.toJson(rebalanceGroupResult));
 
         return tubeResult;
+    }
+
+
+    public TubeMQResult deleteOffset(DeleteOffsetReq req) {
+
+        if (req.getClusterId() == null) {
+            return TubeMQResult.getErrorResult("please input clusterId");
+        }
+        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
+        if (masterEntry == null) {
+            return TubeMQResult.getErrorResult("no such cluster");
+        }
+
+        // 1. query the corresponding brokers having given topic
+        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(masterEntry, req.getTopicName());
+        TubeMQResult result = new TubeMQResult();
+        CleanOffsetResult cleanOffsetResult = new CleanOffsetResult();
+        if (topicInfoList == null) {
+            return TubeMQResult.getErrorResult("no such topic");
+        }
+
+        List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
+        // 2. for each broker, request to delete offset
+        for (TopicInfo topicInfo : topicInfos) {
+            String brokerIp = topicInfo.getBrokerIp();
+            String url = SCHEMA + brokerIp + ":" + brokerWebPort
+                + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
+            result = requestMaster(url);
+            if (result.getErrCode() != SUCCESS_CODE) {
+                cleanOffsetResult.getFailBrokers().add(brokerIp);
+            } else {
+                cleanOffsetResult.getSuccessBrokers().add(brokerIp);
+            }
+        }
+
+        result.setData(gson.toJson(cleanOffsetResult));
+
+        return result;
     }
 
 
