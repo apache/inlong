@@ -207,7 +207,7 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         WebParameterUtils.validIntDataParameter("memCacheMsgSizeInMB",
                                 req.getParameter("memCacheMsgSizeInMB"),
                                 false, defmemCacheMsgSizeInMB, 2);
-                memCacheMsgSizeInMB = memCacheMsgSizeInMB >= 2048 ? 2048 : memCacheMsgSizeInMB;
+                memCacheMsgSizeInMB = Math.min(memCacheMsgSizeInMB, 2048);
                 int memCacheFlushIntvl =
                         WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                 req.getParameter("memCacheFlushIntvl"),
@@ -354,7 +354,7 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                             WebParameterUtils.validIntDataParameter("memCacheMsgSizeInMB",
                                     jsonObject.get("memCacheMsgSizeInMB"),
                                     false, brokerConfEntity.getDftMemCacheMsgSizeInMB(), 2);
-                    memCacheMsgSizeInMB = memCacheMsgSizeInMB >= 2048 ? 2048 : memCacheMsgSizeInMB;
+                    memCacheMsgSizeInMB = Math.min(memCacheMsgSizeInMB, 2048);
                     int memCacheFlushIntvl =
                             WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                     jsonObject.get("memCacheFlushIntvl"),
@@ -714,10 +714,10 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
      * @return
      */
     public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req) {
+        ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
-        ProcessResult result = WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false);
-        if (!result.success) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.COMPSBROKERID, false, result)) {
             WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
             return strBuffer;
         }
@@ -752,17 +752,16 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
      * @return
      */
     public StringBuilder adminQuerySimpleBrokerId(HttpServletRequest req) {
+        ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
             return strBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
-        result = WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.WITHIP, false, false);
-        if (!result.success) {
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.WITHIP, false, false, result)) {
             WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
             return strBuffer;
         }

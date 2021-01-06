@@ -44,10 +44,13 @@ public class ProcessResult {
         this.success = false;
         this.errCode = errCode;
         this.errInfo = errMsg;
+        this.retData1 = null;
     }
 
     public void setSuccResult(Object retData) {
         this.success = true;
+        this.errInfo = "";
+        this.errCode = TErrCodeConstants.SUCCESS;
         this.retData1 = retData;
     }
 }

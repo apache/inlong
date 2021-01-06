@@ -35,6 +35,8 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 /**
  * A offset storage implementation with zookeeper
  */
@@ -64,18 +66,16 @@ public class ZkOffsetStorage implements OffsetStorage {
     private final String consumerZkDir;
     private final boolean isBroker;
     private final int brokerId;
+    private final String strBrokerId;
     private ZKConfig zkConfig;
     private ZooKeeperWatcher zkw;
-    // group-topic-brokerid
-    private final Map<String, Map<String, Set<String>>> zkGroupTopicBrokerInfos = new HashMap<>();
-    // group-topic
-    private final Map<String, Set<String>> zkLocalGroupTopicInfos = new HashMap<>();
 
 
     public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
-        this.brokerId = brokerId;
         this.isBroker = isBroker;
+        this.brokerId = brokerId;
+        this.strBrokerId = String.valueOf(brokerId);
         this.tubeZkRoot = normalize(this.zkConfig.getZkNodeRoot());
         this.consumerZkDir = this.tubeZkRoot + "/consumers-v3";
         try {
@@ -86,8 +86,6 @@ public class ZkOffsetStorage implements OffsetStorage {
                     .append(this.zkConfig.getZkServerAddr()).append(") !").toString(), e);
             System.exit(1);
         }
-        logger.info("[ZkOffsetStorage] Get group-topic-broker info from ZooKeeper");
-        queryAllZKGroupTopicInfo();
         logger.info("[ZkOffsetStorage] ZooKeeper Offset Storage initiated!");
     }
 
@@ -99,16 +97,6 @@ public class ZkOffsetStorage implements OffsetStorage {
             this.zkw = null;
             logger.info("ZooKeeper Offset Storage closed!");
         }
-    }
-
-    @Override
-    public Map<String, Map<String, Set<String>>> getZkGroupTopicBrokerInfos() {
-        return zkGroupTopicBrokerInfos;
-    }
-
-    @Override
-    public Map<String, Set<String>> getZkLocalGroupTopicInfos() {
-        return zkLocalGroupTopicInfos;
     }
 
     @Override
@@ -242,63 +230,130 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     /**
-     * Get group-topic-brokerid map info stored in zookeeper.
+     * Query booked topic info of groups stored in zookeeper.
+     * @param groupSet query groups
+     * @return group--topic map info
+     */
+    @Override
+    public Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet) {
+        String qryBrokerId;
+        Map<String, Set<String>> groupTopicMap = new HashMap<>();
+        StringBuilder sBuider = new StringBuilder(512);
+        if (groupSet == null || groupSet.isEmpty()) {
+            return groupTopicMap;
+        }
+        // build path base
+        String groupNode = sBuider.append(this.consumerZkDir).toString();
+        sBuider.delete(0, sBuider.length());
+        // get the group managed by this broker
+        for (String group : groupSet) {
+            String topicNode = sBuider.append(groupNode)
+                    .append("/").append(group).append("/offsets").toString();
+            List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
+            sBuider.delete(0, sBuider.length());
+            Set<String> topicSet = new HashSet<>();
+            if (consumeTopics != null) {
+                for (String topic : consumeTopics) {
+                    if (topic == null) {
+                        continue;
+                    }
+                    String brokerNode = sBuider.append(topicNode)
+                            .append("/").append(topic).toString();
+                    List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
+                    sBuider.delete(0, sBuider.length());
+                    if (brokerIds != null) {
+                        for (String idStr : brokerIds) {
+                            if (idStr != null) {
+                                String[] brokerPartIdStrs =
+                                        idStr.split(TokenConstants.HYPHEN);
+                                qryBrokerId = brokerPartIdStrs[0];
+                                if (qryBrokerId != null
+                                        && strBrokerId.equals(qryBrokerId.trim())) {
+                                    topicSet.add(topic);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!topicSet.isEmpty()) {
+                groupTopicMap.put(group, topicSet);
+            }
+        }
+        return groupTopicMap;
+    }
+
+    /**
+     * Get group-topic map info stored in zookeeper.
      * <p/>
-     * The broker only cares about the content of its own node,
-     * so this part only queries when the node starts, and
-     * caches relevant data in the memory for finding
+     * The broker only cares about the content of its own node
      *
      */
-    private void queryAllZKGroupTopicInfo() {
+    @Override
+    public Map<String, Set<String>> queryZkAllGroupTopicInfos() {
         StringBuilder sBuider = new StringBuilder(512);
         // get all booked groups name
         String groupNode = sBuider.append(this.consumerZkDir).toString();
         List<String> bookedGroups = ZKUtil.getChildren(this.zkw, groupNode);
-        sBuider.delete(0, sBuider.length());
-        if (bookedGroups != null) {
-            // get topic info by group
-            for (String group : bookedGroups) {
-                String topicNode = sBuider.append(groupNode)
-                        .append("/").append(group).append("/offsets").toString();
-                List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
-                sBuider.delete(0, sBuider.length());
-                Set<String> topicSet = new HashSet<>();
-                Map<String, Set<String>> topicBrokerSet = new HashMap<>();
-                if (consumeTopics != null) {
-                    // get broker info by topic
-                    for (String topic : consumeTopics) {
-                        String brokerNode = sBuider.append(topicNode)
-                                .append("/").append(topic).toString();
-                        List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
-                        sBuider.delete(0, sBuider.length());
-                        Set<String> brokerIdSet = new HashSet<>();
-                        if (brokerIds != null) {
-                            for (String idStr : brokerIds) {
-                                if (idStr != null) {
-                                    String[] brokerPartIdStrs =
-                                            idStr.split(TokenConstants.HYPHEN);
-                                    brokerIdSet.add(brokerPartIdStrs[0]);
-                                }
-                            }
-                            if (isBroker && brokerIdSet.contains(String.valueOf(brokerId))) {
-                                topicSet.add(topic);
-                            }
-                        }
-                        topicBrokerSet.put(topic, brokerIdSet);
-                    }
-                }
-                if (!topicSet.isEmpty()) {
-                    zkLocalGroupTopicInfos.put(group, topicSet);
-                }
-                zkGroupTopicBrokerInfos.put(group, topicBrokerSet);
-            }
-        }
-        logger.info(new StringBuilder(256)
-                .append("[ZkOffsetStorage] query from zookeeper, total group size = ")
-                .append(zkGroupTopicBrokerInfos.size()).append(", local group size = ")
-                .append(zkLocalGroupTopicInfos.size()).toString());
+        return queryZKGroupTopicInfo(bookedGroups);
     }
 
+    /**
+     * Get offset stored in zookeeper, if not found or error, set null
+     * <p/>
+     *
+     * @return partitionId--offset map info
+     */
+    @Override
+    public void deleteGroupOffsetInfo(
+            Map<String, Map<String, Set<Integer>>> groupTopicPartMap) {
+        StringBuilder sBuider = new StringBuilder(512);
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry
+                : groupTopicPartMap.entrySet()) {
+            if (entry.getKey() == null
+                    || entry.getValue() == null
+                    || entry.getValue().isEmpty()) {
+                continue;
+            }
+            String basePath = sBuider.append(this.consumerZkDir).append("/")
+                    .append(entry.getKey()).append("/offsets").toString();
+            sBuider.delete(0, sBuider.length());
+            Map<String, Set<Integer>> topicPartMap = entry.getValue();
+            for (Map.Entry<String, Set<Integer>> topicEntry : topicPartMap.entrySet()) {
+                if (topicEntry.getKey() == null
+                        || topicEntry.getValue() == null
+                        || topicEntry.getValue().isEmpty()) {
+                    continue;
+                }
+                Set<Integer> partIdSet = topicEntry.getValue();
+                for (Integer partitionId : partIdSet) {
+                    String offsetNode = sBuider.append(basePath).append("/")
+                            .append(topicEntry.getKey()).append("/")
+                            .append(brokerId).append(TokenConstants.HYPHEN)
+                            .append(partitionId).toString();
+                    sBuider.delete(0, sBuider.length());
+                    ZKUtil.delZNode(this.zkw, offsetNode);
+                }
+                String parentNode = sBuider.append(basePath).append("/")
+                        .append(topicEntry.getKey()).toString();
+                sBuider.delete(0, sBuider.length());
+                chkAndRmvBlankParentNode(parentNode);
+            }
+            chkAndRmvBlankParentNode(basePath);
+            String parentNode = sBuider.append(this.consumerZkDir)
+                    .append("/").append(entry.getKey()).toString();
+            sBuider.delete(0, sBuider.length());
+            chkAndRmvBlankParentNode(parentNode);
+        }
+    }
+
+    private void chkAndRmvBlankParentNode(String parentNode) {
+        List<String> nodeSet = ZKUtil.getChildren(zkw, parentNode);
+        if (nodeSet != null && nodeSet.isEmpty()) {
+            ZKUtil.delZNode(this.zkw, parentNode);
+        }
+    }
 
     private String normalize(final String root) {
         if (root.startsWith("/")) {
