@@ -23,8 +23,8 @@ import java.util.List;
 
 @Data
 public class BrokerStatusInfo {
-    public int code;
-    public String errMsg;
+    private int code;
+    private String errMsg;
     // total broker configuration info list of brokers.
-    public List<BrokerConf> data;
+    private List<BrokerConf> data;
 }

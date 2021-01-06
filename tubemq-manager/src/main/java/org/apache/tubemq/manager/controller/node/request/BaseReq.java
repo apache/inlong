@@ -21,7 +21,7 @@ import lombok.Data;
 
 @Data
 public class BaseReq {
-    public String type;
-    public Integer clusterId;
-    public String method;
+    private String type;
+    private Integer clusterId;
+    private String method;
 }

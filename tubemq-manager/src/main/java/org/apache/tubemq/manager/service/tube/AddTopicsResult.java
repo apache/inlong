@@ -25,7 +25,7 @@ import java.util.List;
 @Data
 public class AddTopicsResult {
 
-    public List<String> failTopics = Lists.newArrayList();
+    private List<String> failTopics = Lists.newArrayList();
 
-    public List<String> successTopics = Lists.newArrayList();
+    private List<String> successTopics = Lists.newArrayList();
 }

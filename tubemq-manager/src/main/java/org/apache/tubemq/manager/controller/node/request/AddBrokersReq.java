@@ -29,23 +29,23 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
 @Data
 public class AddBrokersReq {
 
-    public String confModAuthToken;
+    private String confModAuthToken;
 
-    public String createUser;
+    private String createUser;
 
-    public int clusterId;
+    private int clusterId;
 
     /**
      * admin_bath_add_broker_configure
      */
-    public String method;
+    private String method;
 
     /**
      * op_modify
      */
-    public String type;
+    private String type;
 
-    public List<BrokerConf> brokerJsonSet;
+    private List<BrokerConf> brokerJsonSet;
 
     public static AddBrokersReq getAddBrokerReq(String token, int clusterId) {
         AddBrokersReq req = new AddBrokersReq();

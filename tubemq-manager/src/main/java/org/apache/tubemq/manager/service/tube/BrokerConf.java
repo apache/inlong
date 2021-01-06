@@ -22,23 +22,23 @@ import lombok.Data;
 @Data
 public class BrokerConf {
 
-    public String brokerIp;
-    public Integer brokerPort;
-    public Integer brokerId;
-    public String deleteWhen;
-    public Integer numPartitions;
-    public Integer unflushThreshold;
-    public Integer unflushIntegererval;
-    public Integer unflushDataHold;
-    public boolean acceptPublish;
-    public boolean acceptSubscribe;
-    public String createUser;
-    public Integer brokerTLSPort;
-    public Integer numTopicStores;
-    public Integer memCacheMsgCntInK;
-    public Integer memCacheMsgSizeInMB;
-    public Integer memCacheFlushIntegervl;
-    public String deletePolicy;
+    private String brokerIp;
+    private Integer brokerPort;
+    private Integer brokerId;
+    private String deleteWhen;
+    private Integer numPartitions;
+    private Integer unflushThreshold;
+    private Integer unflushIntegererval;
+    private Integer unflushDataHold;
+    private boolean acceptPublish;
+    private boolean acceptSubscribe;
+    private String createUser;
+    private Integer brokerTLSPort;
+    private Integer numTopicStores;
+    private Integer memCacheMsgCntInK;
+    private Integer memCacheMsgSizeInMB;
+    private Integer memCacheFlushIntegervl;
+    private String deletePolicy;
 
     public BrokerConf(BrokerConf other) {
         this.brokerIp = other.brokerIp;

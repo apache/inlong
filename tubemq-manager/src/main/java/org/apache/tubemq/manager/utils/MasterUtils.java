@@ -49,6 +49,7 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 @Component
 public class MasterUtils {
 
+    public static final int SUCCESS_CODE = 0;
     private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
     public static final String TUBE_REQUEST_PATH = "webapi.htm";
@@ -78,7 +79,7 @@ public class MasterUtils {
             TubeHttpResponse tubeResponse =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
                             TubeHttpResponse.class);
-            if (tubeResponse.getCode() == 0 && tubeResponse.getErrCode() == 0) {
+            if (tubeResponse.getCode() == SUCCESS_CODE && tubeResponse.getErrCode() == SUCCESS_CODE) {
                 return defaultResult;
             } else {
                 defaultResult = getErrorResult(tubeResponse.getErrMsg());

@@ -49,7 +49,9 @@ public class ConvertUtils {
                 Object o = field.get(req);
                 String value;
                 // convert list to json string
-                if (o == null) continue;
+                if (o == null) {
+                    continue;
+                }
                 if (o instanceof List) {
                     value = gson.toJson(o);
                 } else {

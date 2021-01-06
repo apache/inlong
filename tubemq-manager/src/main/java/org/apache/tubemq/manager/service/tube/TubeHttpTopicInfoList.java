@@ -21,6 +21,7 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.BATCH_ADD_TOPIC;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_MODIFY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.WEB_API;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
@@ -104,11 +105,10 @@ public class TubeHttpTopicInfoList {
 
 
     public List<TopicInfo> getTopicInfo() {
-        List<Integer> tmpBrokerIdList = new ArrayList<>();
         if (data != null) {
             return data.get(0).getTopicInfo();
         }
-        return null;
+        return Lists.newArrayList();
     }
 
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {

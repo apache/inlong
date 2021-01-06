@@ -70,12 +70,14 @@ public class TopicWebController {
      */
     @PostMapping("/add")
     public TubeMQResult addTopic(@RequestBody BatchAddTopicReq req) {
-        if (req.getClusterId() == null)
+        if (req.getClusterId() == null) {
             return TubeMQResult.getErrorResult("please input clusterId");
+        }
         NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
             req.getClusterId());
-        if (masterEntry == null)
+        if (masterEntry == null) {
             return TubeMQResult.getErrorResult("no such cluster");
+        }
         return nodeService.addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
     }
 
@@ -88,12 +90,14 @@ public class TopicWebController {
      */
     @PostMapping("/clone")
     public TubeMQResult cloneTopic(@RequestBody CloneTopicReq req) throws Exception {
-        if (req.getClusterId() == null)
+        if (req.getClusterId() == null) {
             return TubeMQResult.getErrorResult("please input clusterId");
+        }
         NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
             req.getClusterId());
-        if (masterEntry == null)
+        if (masterEntry == null) {
             return TubeMQResult.getErrorResult("no such cluster");
+        }
         return nodeService.cloneTopicToBrokers(req, masterEntry);
     }
 
@@ -173,12 +177,14 @@ public class TopicWebController {
     @PostMapping("/clone/offset")
     public @ResponseBody TubeMQResult cloneOffset(
         @RequestBody CloneOffsetReq req) throws Exception {
-        if (req.getClusterId() == null)
+        if (req.getClusterId() == null) {
             return TubeMQResult.getErrorResult("please input clusterId");
+        }
         NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
             req.getClusterId());
-        if (masterEntry == null)
+        if (masterEntry == null) {
             return TubeMQResult.getErrorResult("no such cluster");
+        }
         return nodeService.cloneOffsetToOtherGroups(req, masterEntry);
     }
 
