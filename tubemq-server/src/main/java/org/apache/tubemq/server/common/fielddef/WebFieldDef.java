@@ -81,8 +81,10 @@ public enum WebFieldDef {
             TBaseConstants.META_MAX_GROUPNAME_LENGTH, RegexDef.TMP_GROUP),
     MANUALSET(20, "manualSet", "manSet",
             WebFieldType.BOOLEAN, "Whether manual offset setting mode"),
-    OFFSETJSON(21, "offsetJsonSet", "offsetSet",
-            WebFieldType.JSONTYPE, "The offset set that needs to be added or modified");
+    OFFSETJSON(21, "offsetJsonInfo", "offsetInfo",
+            WebFieldType.JSONTYPE, "The offset info that needs to be added or modified"),
+    ONLYMEM(22, "onlyMemory", "onlyMem", WebFieldType.BOOLEAN,
+            "Only clear the offset data in the memory cache, default is false");
 
 
 

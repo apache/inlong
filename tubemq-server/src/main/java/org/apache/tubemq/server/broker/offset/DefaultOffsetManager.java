@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.broker.offset;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -339,7 +340,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         Set<String> groupSet = new HashSet<>();
         groupSet.addAll(cfmOffsetMap.keySet());
         Map<String, Set<String>> localGroups =
-                zkOffsetStorage.getZkLocalGroupTopicInfos();
+                zkOffsetStorage.queryZkAllGroupTopicInfos();
         groupSet.addAll(localGroups.keySet());
         return groupSet;
     }
@@ -364,7 +365,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     public Set<String> getUnusedGroupInfo() {
         Set<String> unUsedGroups = new HashSet<>();
         Map<String, Set<String>> localGroups =
-                zkOffsetStorage.getZkLocalGroupTopicInfos();
+                zkOffsetStorage.queryZkAllGroupTopicInfos();
         for (String groupName : localGroups.keySet()) {
             if (!cfmOffsetMap.containsKey(groupName)) {
                 unUsedGroups.add(groupName);
@@ -383,9 +384,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         Set<String> result = new HashSet<>();
         Map<String, OffsetStorageInfo> topicPartOffsetMap = cfmOffsetMap.get(group);
         if (topicPartOffsetMap == null) {
-            Map<String, Set<String>> localGroups =
-                    zkOffsetStorage.getZkLocalGroupTopicInfos();
-            result = localGroups.get(group);
+            List<String> groupLst = new ArrayList<>(1);
+            groupLst.add(group);
+            Map<String, Set<String>> groupTopicInfo =
+                    zkOffsetStorage.queryZKGroupTopicInfo(groupLst);
+            result = groupTopicInfo.get(group);
         } else {
             for (OffsetStorageInfo storageInfo : topicPartOffsetMap.values()) {
                 result.add(storageInfo.getTopic());
@@ -493,6 +496,53 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
         }
         return changed;
+    }
+
+    /***
+     * Delete offset.
+     *
+     * @param onlyMemory
+     * @param groupTopicPartMap
+     * @param modifier
+     */
+    @Override
+    public void deleteGroupOffset(boolean onlyMemory,
+                                  Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
+                                  String modifier) {
+        String printBase;
+        StringBuilder strBuidler = new StringBuilder(512);
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry
+                : groupTopicPartMap.entrySet()) {
+            if (entry.getKey() == null
+                    || entry.getValue() == null
+                    || entry.getValue().isEmpty()) {
+                continue;
+            }
+            rmvOffset(entry.getKey(), entry.getValue());
+        }
+        if (onlyMemory) {
+            printBase = strBuidler
+                    .append("[Offset Manager] delete offset from memory by modifier=")
+                    .append(modifier).toString();
+        } else {
+            zkOffsetStorage.deleteGroupOffsetInfo(groupTopicPartMap);
+            printBase = strBuidler
+                    .append("[Offset Manager] delete offset from memory and zk by modifier=")
+                    .append(modifier).toString();
+        }
+        strBuidler.delete(0, strBuidler.length());
+        // print log
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry
+                : groupTopicPartMap.entrySet()) {
+            if (entry.getKey() == null
+                    || entry.getValue() == null
+                    || entry.getValue().isEmpty()) {
+                continue;
+            }
+            logger.info(strBuidler.append(printBase).append(",group=").append(entry.getKey())
+                    .append(",topic-partId-map=").append(entry.getValue()).toString());
+            strBuidler.delete(0, strBuidler.length());
+        }
     }
 
     /***
@@ -609,6 +659,50 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
         }
         return regInfo;
+    }
+
+    private void rmvOffset(String group, Map<String, Set<Integer>> topicPartMap) {
+        if (group == null
+                || topicPartMap == null
+                || topicPartMap.isEmpty()) {
+            return;
+        }
+        // remove confirm offset
+        ConcurrentHashMap<String, OffsetStorageInfo> regInfoMap = cfmOffsetMap.get(group);
+        if (regInfoMap != null) {
+            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                if (entry.getKey() == null
+                        || entry.getValue() == null
+                        || entry.getValue().isEmpty()) {
+                    continue;
+                }
+                for (Integer partitionId : entry.getValue()) {
+                    String offsetCacheKey = getOffsetCacheKey(entry.getKey(), partitionId);
+                    regInfoMap.remove(offsetCacheKey);
+                }
+            }
+            if (regInfoMap.isEmpty()) {
+                cfmOffsetMap.remove(group);
+            }
+        }
+        // remove tmp offset
+        ConcurrentHashMap<String, Long> tmpRegInfoMap = tmpOffsetMap.get(group);
+        if (tmpRegInfoMap != null) {
+            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                if (entry.getKey() == null
+                        || entry.getValue() == null
+                        || entry.getValue().isEmpty()) {
+                    continue;
+                }
+                for (Integer partitionId : entry.getValue()) {
+                    String offsetCacheKey = getOffsetCacheKey(entry.getKey(), partitionId);
+                    tmpRegInfoMap.remove(offsetCacheKey);
+                }
+            }
+            if (tmpRegInfoMap.isEmpty()) {
+                tmpOffsetMap.remove(group);
+            }
+        }
     }
 
     private String getOffsetCacheKey(String topic, int partitionId) {

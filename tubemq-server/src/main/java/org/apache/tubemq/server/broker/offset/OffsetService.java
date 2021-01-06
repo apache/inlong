@@ -72,4 +72,8 @@ public interface OffsetService {
     boolean modifyGroupOffset(Set<String> groups,
                               List<Tuple3<String, Integer, Long>> topicPartOffsets,
                               String modifier);
+
+    void deleteGroupOffset(boolean onlyMemory,
+                           Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
+                           String modifier);
 }
