@@ -100,7 +100,7 @@ public class NodeService {
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
                             TubeHttpBrokerInfoList.class);
             // request return normal.
-            if (brokerInfoList.getCode() == 0) {
+            if (brokerInfoList.getCode() == SUCCESS_CODE) {
                 // divide by state.
                 brokerInfoList.divideBrokerListByState();
                 return brokerInfoList;
@@ -120,7 +120,7 @@ public class NodeService {
             TubeHttpTopicInfoList topicInfoList =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
                             TubeHttpTopicInfoList.class);
-            if (topicInfoList.getErrCode() == 0) {
+            if (topicInfoList.getErrCode() == SUCCESS_CODE) {
                 return topicInfoList;
             }
         } catch (Exception ex) {
@@ -146,7 +146,7 @@ public class NodeService {
         AddBrokerResult addBrokerResult = addBrokersToClusterWithId(addBrokersReq, masterEntry);
 
         // might have duplicate brokers
-        if (addBrokerResult.getErrCode() != 0) {
+        if (addBrokerResult.getErrCode() != SUCCESS_CODE) {
             return TubeMQResult.getErrorResult(addBrokerResult.getErrMsg());
         }
         List<Integer> brokerIds = getBrokerIds(addBrokerResult);
@@ -168,7 +168,7 @@ public class NodeService {
                 String brokerStr = StringUtils.join(brokerIds, ",");
                 addTopicReq.setBrokerId(brokerStr);
                 TubeMQResult result = addTopicToBrokers(addTopicReq, masterEntry);
-                if (result.getErrCode() == 0) {
+                if (result.getErrCode() == SUCCESS_CODE) {
                     addTopicsResult.getSuccessTopics().add(addTopicReq.getTopicName());
                 } else {
                     addTopicsResult.getFailTopics().add(addTopicReq.getTopicName());
@@ -242,7 +242,7 @@ public class NodeService {
             TubeHttpResponse result =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
                             TubeHttpResponse.class);
-            return result.getCode() == 0 && result.getErrCode() == 0;
+            return result.getCode() == SUCCESS_CODE && result.getErrCode() == SUCCESS_CODE;
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);
         }
@@ -343,7 +343,7 @@ public class NodeService {
                 TubeHttpResponse result =
                         gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
                                 TubeHttpResponse.class);
-                if (result.getErrCode() == 0 && result.getCode() == 0) {
+                if (result.getErrCode() == SUCCESS_CODE && result.getCode() == SUCCESS_CODE) {
                     log.info("reload tube broker cgi: " +
                             url + " ; return value : " + result.getCode());
                 }
@@ -456,19 +456,22 @@ public class NodeService {
         TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
         TubeMQResult result = new TubeMQResult();
 
-        if (topicInfoList != null) {
-            List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
-            // 2. for each broker, request to clone offset
-            for (TopicInfo topicInfo : topicInfos) {
-                String brokerIp = topicInfo.getBrokerIp();
-                String url = SCHEMA + brokerIp + ":" + brokerWebPort
-                    + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-                result = requestMaster(url);
-                if (result.getErrCode() != 0) {
-                    return result;
-                }
+        if (topicInfoList == null) {
+            return result;
+        }
+
+        List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
+        // 2. for each broker, request to clone offset
+        for (TopicInfo topicInfo : topicInfos) {
+            String brokerIp = topicInfo.getBrokerIp();
+            String url = SCHEMA + brokerIp + ":" + brokerWebPort
+                + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
+            result = requestMaster(url);
+            if (result.getErrCode() != SUCCESS_CODE) {
+                return result;
             }
         }
+
 
         return result;
     }

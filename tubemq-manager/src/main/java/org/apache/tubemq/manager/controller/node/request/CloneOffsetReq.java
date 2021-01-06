@@ -21,9 +21,9 @@ import lombok.Data;
 
 @Data
 public class CloneOffsetReq extends BaseReq {
-    public String sourceGroupName;
-    public String modifyUser;
-    public String topicName;
-    public String targetGroupName;
-    public String confModAuthToken;
+    private String sourceGroupName;
+    private String modifyUser;
+    private String topicName;
+    private String targetGroupName;
+    private String confModAuthToken;
 }

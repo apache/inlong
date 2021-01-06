@@ -22,6 +22,6 @@ import lombok.Data;
 
 @Data
 public class IpIdRelation {
-    public String ip;
-    public Integer id;
+    private String ip;
+    private Integer id;
 }
