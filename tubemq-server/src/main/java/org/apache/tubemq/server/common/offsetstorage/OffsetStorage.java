@@ -18,6 +18,7 @@
 package org.apache.tubemq.server.common.offsetstorage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,10 +34,12 @@ public interface OffsetStorage {
                       final Collection<OffsetStorageInfo> offsetInfoList,
                       boolean isFailRetry);
 
-    Map<String, Map<String, Set<String>>> getZkGroupTopicBrokerInfos();
+    Map<String, Set<String>> queryZkAllGroupTopicInfos();
 
-    Map<String, Set<String>> getZkLocalGroupTopicInfos();
+    Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet);
 
     Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
                                             Set<Integer> partitionIds);
+
+    void deleteGroupOffsetInfo(Map<String, Map<String, Set<Integer>>> groupTopicPartMap);
 }

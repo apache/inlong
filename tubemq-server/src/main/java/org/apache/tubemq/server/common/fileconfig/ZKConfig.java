@@ -28,7 +28,6 @@ public class ZKConfig {
     private int zkSyncTimeMs = 1000;
     private long zkCommitPeriodMs = 5000L;
     private int zkCommitFailRetries = TServerConstants.CFG_ZK_COMMIT_DEFAULT_RETRIES;
-
     public ZKConfig() {
 
     }

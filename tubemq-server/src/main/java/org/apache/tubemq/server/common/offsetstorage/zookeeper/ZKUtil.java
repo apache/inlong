@@ -167,6 +167,20 @@ public class ZKUtil {
         }
     }
 
+    /**
+     * delete the specified znode.
+     *
+     * @param zkw   zk reference
+     * @param znode path of node
+     */
+    public static void delZNode(ZooKeeperWatcher zkw, String znode) {
+        try {
+            zkw.getRecoverableZooKeeper().delete(znode, -1);
+        } catch (Throwable e) {
+            //
+        }
+    }
+
     private static byte[] getDataInternal(ZooKeeperWatcher zkw, String znode, Stat stat,
                                           boolean watcherSet) throws KeeperException {
         try {

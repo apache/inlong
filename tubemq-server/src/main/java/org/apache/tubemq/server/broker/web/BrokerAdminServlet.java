@@ -95,10 +95,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // set or update group's offset info
         innRegisterWebMethod("admin_set_offset",
                 "adminSetGroupOffSet");
+        // remove group's offset info
+        innRegisterWebMethod("admin_rmv_offset",
+                "adminRemoveGroupOffSet");
     }
 
     public void adminQueryAllMethods(HttpServletRequest req,
-                                     StringBuilder sBuilder) throws Exception {
+                                     StringBuilder sBuilder) {
         int index = 0;
         List<String> methods = getSupportedMethod();
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
@@ -120,11 +123,11 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * @throws Exception
      */
     public void adminQueryBrokerAllConsumerInfo(HttpServletRequest req,
-                                                StringBuilder sBuilder) throws Exception {
+                                                StringBuilder sBuilder) {
         int index = 0;
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, false, null);
-        if (!result.success) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -209,10 +212,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * @throws Exception
      */
     public void adminQueryBrokerAllMessageStoreInfo(HttpServletRequest req,
-                                                    StringBuilder sBuilder) throws Exception {
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
+                                                    StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -276,17 +279,16 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * @throws Exception
      */
     public void adminGetMemStoreStatisInfo(HttpServletRequest req,
-                                           StringBuilder sBuilder) throws Exception {
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
+                                           StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
-        result = WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.NEEDREFRESH, false, false);
-        if (!result.success) {
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.NEEDREFRESH, false, false, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -335,38 +337,34 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * @throws Exception
      */
     public void adminManualSetCurrentOffSet(HttpServletRequest req,
-                                            StringBuilder sBuilder) throws Exception {
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.TOPICNAME, true, null);
-        if (!result.success) {
+                                            StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String topicName = (String) result.retData1;
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.GROUPNAME, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String groupName = (String) result.retData1;
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String modifyUser = (String) result.retData1;
-        result = WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.PARTITIONID, true, -1, 0);
-        if (!result.success) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         int partitionId = (Integer) result.retData1;
-        result = WebParameterUtils.getLongParamValue(req,
-                WebFieldDef.MANUALOFFSET, true, -1);
-        if (!result.success) {
+        if (!WebParameterUtils.getLongParamValue(req,
+                WebFieldDef.MANUALOFFSET, true, -1, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -429,23 +427,21 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQuerySnapshotMessageSet(HttpServletRequest req,
                                              StringBuilder sBuilder) throws Exception {
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.TOPICNAME, true, null);
-        if (!result.success) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String topicName = (String) result.retData1;
-        result = WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.PARTITIONID, true, -1, 0);
-        if (!result.success) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         int partitionId = (Integer) result.retData1;
-        result = WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.MSGCOUNT, false, 3, 3);
-        if (!result.success) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.MSGCOUNT, false, 3, 3, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -457,9 +453,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                     .append("\"}");
             return;
         }
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.FILTERCONDS, false, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.FILTERCONDS, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -477,31 +472,27 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryCurrentGroupOffSet(HttpServletRequest req,
                                              StringBuilder sBuilder) {
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.TOPICNAME, true, null);
-        if (!result.success) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TOPICNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String topicName = (String) result.retData1;
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.GROUPNAME, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String groupName = (String) result.retData1;
-        result = WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.PARTITIONID, true, -1, 0);
-        if (!result.success) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.PARTITIONID, true, -1, 0, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         int partitionId = (Integer) result.retData1;
-
-        result = WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.REQUIREREALOFFSET, false, false);
-        if (!result.success) {
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.REQUIREREALOFFSET, false, false, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -567,8 +558,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         Map<String, ConsumerNodeInfo> map =
                 broker.getBrokerServiceServer().getConsumerRegisterMap();
         int totalCnt = 0;
-        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",")
-                .append(",\"dataSet\":[");
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
         for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -592,10 +582,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryPubInfo(HttpServletRequest req,
                                   StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
         // get the topic set to be queried
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -637,9 +627,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     public void adminQueryBookedGroup(HttpServletRequest req,
                                       StringBuilder sBuilder) {
         // get divide info
-        ProcessResult result = WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.WITHDIVIDE, false, false);
-        if (!result.success) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.WITHDIVIDE, false, false, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -697,16 +687,24 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryGroupOffSet(HttpServletRequest req,
                                       StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
         // get group list
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, false, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
+        Set<String> inGroupNameSet = (Set<String>) result.retData1;
+        // get the topic set to be queried
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // get target consume group name
+        Set<String> topicSet = (Set<String>) result.retData1;
         // filter invalid groups
         Set<String> qryGroupNameSet = new HashSet<>();
-        Set<String> inGroupNameSet = (Set<String>) result.retData1;
         Set<String> bookedGroupSet = broker.getOffsetManager().getBookedGroups();
         if (inGroupNameSet.isEmpty()) {
             qryGroupNameSet = bookedGroupSet;
@@ -717,19 +715,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 }
             }
         }
-        // get the topic set to be queried
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return;
-        }
-        // get target consume group name
-        Set<String> topicSet = (Set<String>) result.retData1;
         // verify the acquired Topic set and
         //   query the corresponding offset information
         Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps =
-                getGroupOffsetInfo(qryGroupNameSet, topicSet);
+                getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, qryGroupNameSet, topicSet);
         // builder result
         int totalCnt = 0;
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
@@ -772,26 +761,24 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminSetGroupOffSet(HttpServletRequest req,
                                     StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
         // get group list
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         Set<String> groupNameSet = (Set<String>) result.retData1;
         // get set mode
-        result = WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.MANUALSET, true, false);
-        if (!result.success) {
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.MANUALSET, true, false, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         boolean manualSet = (Boolean) result.retData1;
         // get modify user
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -799,17 +786,15 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         final String modifier = (String) result.retData1;
         if (manualSet) {
             // get offset json info
-            result = WebParameterUtils.getJsonDictParamValue(req,
-                    WebFieldDef.OFFSETJSON, true, null);
-            if (!result.success) {
+            if (!WebParameterUtils.getJsonDictParamValue(req,
+                    WebFieldDef.OFFSETJSON, true, null, result)) {
                 WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
                 return;
             }
             Map<String, Long> manOffsets =
                     (Map<String, Long>) result.retData1;
             // valid and transfer offset format
-            result = validManOffsetResetInfo(WebFieldDef.OFFSETJSON, manOffsets);
-            if (!result.success) {
+            if (!validManOffsetResetInfo(WebFieldDef.OFFSETJSON, manOffsets, result)) {
                 WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
                 return;
             }
@@ -817,9 +802,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                     (List<Tuple3<String, Integer, Long>>) result.retData1;
         } else {
             // get the topic set to be set
-            result = WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.COMPSTOPICNAME, true, null);
-            if (!result.success) {
+            if (!WebParameterUtils.getStringParamValue(req,
+                    WebFieldDef.COMPSTOPICNAME, true, null, result)) {
                 WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
                 return;
             }
@@ -840,38 +824,43 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminCloneGroupOffSet(HttpServletRequest req,
                                       StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
         // get source consume group name
-        ProcessResult result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.SRCGROUPNAME, true, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.SRCGROUPNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         final String srcGroupName = (String) result.retData1;
-        // get modify user
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, true, null);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return;
-        }
-        final String modifier = (String) result.retData1;
         // get source consume group's topic set cloned to target group
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null);
-        if (!result.success) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
-        // get target consume group name
         Set<String> srcTopicNameSet = (Set<String>) result.retData1;
-        result = WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.TGTCOMPSGROUPNAME, true, null);
-        if (!result.success) {
+        // valid topic and get topic's partitionIds
+        if (!validAndGetTopicPartInfo(srcGroupName,
+                WebFieldDef.SRCGROUPNAME, srcTopicNameSet, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Map<String, Set<Integer>> topicPartMap =
+                (Map<String, Set<Integer>>) result.retData1;
+        // get target consume group name
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.TGTCOMPSGROUPNAME, true, null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
         Set<String> tgtGroupNameSet = (Set<String>) result.retData1;
+        // get modify user
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        final String modifier = (String) result.retData1;
         // check sourceGroup if existed
         Set<String> bookedGroups = broker.getOffsetManager().getBookedGroups();
         if (!bookedGroups.contains(srcGroupName)) {
@@ -882,16 +871,6 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                             .append(" has not been registered on this Broker!").toString());
             return;
         }
-        // valid topic and get topic's partitionIds
-        Map<String, Set<Integer>> topicPartMap =
-                validAndGetPartitions(srcGroupName, srcTopicNameSet);
-        if (topicPartMap.isEmpty()) {
-            WebParameterUtils.buildFailResult(sBuilder,
-                    new StringBuilder(512).append("Parameter ")
-                            .append(WebFieldDef.SRCGROUPNAME.name).append(": not found ")
-                            .append(srcGroupName).append(" subscribed topic set!").toString());
-            return;
-        }
         // query offset from source group
         Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets =
                 broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
@@ -900,6 +879,56 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 buildOffsetResetInfo(srcGroupOffsets);
         boolean changed = broker.getOffsetManager().modifyGroupOffset(
                 tgtGroupNameSet, resetOffsets, modifier);
+        // builder return result
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
+    /***
+     * Remove consume group offset.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminRemoveGroupOffSet(HttpServletRequest req,
+                                      StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
+        // get consume group name
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Set<String> groupNameSet = (Set<String>) result.retData1;
+        // get modify user
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        final String modifier = (String) result.retData1;
+        // get need removed offset's topic
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        // get target consume group name
+        Set<String> topicNameSet = (Set<String>) result.retData1;
+        // get set mode
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.ONLYMEM, false, false, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        boolean onlyMemory = (Boolean) result.retData1;
+        if (!validAndGetGroupTopicInfo(groupNameSet, topicNameSet, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Map<String, Map<String, Set<Integer>>> groupTopicPartMap =
+                (Map<String, Map<String, Set<Integer>>>) result.retData1;
+        broker.getOffsetManager().deleteGroupOffset(
+                onlyMemory, groupTopicPartMap, modifier);
         // builder return result
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
@@ -950,8 +979,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         List<Tuple3<String, Integer, Long>> result = new ArrayList<>();
         MessageStoreManager storeManager = broker.getStoreManager();
         // get topic's partition set
-        Map<String, Set<Integer>> topicPartMap =
-                validAndGetPartitions(null, topicSet);
+        Map<String, Set<Integer>> topicPartMap = getTopicPartitions(topicSet);
         // fill current topic's max offset value
         for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
             if (entry.getKey() == null
@@ -979,15 +1007,15 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     }
 
     // build reset offset info
-    private ProcessResult validManOffsetResetInfo(WebFieldDef fieldDef,
-                                                  Map<String, Long> manOffsetInfoMap) {
+    private boolean validManOffsetResetInfo(WebFieldDef fieldDef,
+                                            Map<String, Long> manOffsetInfoMap,
+                                            ProcessResult result) {
         String brokerId;
         String topicName;
         String strPartId;
         int partitionId;
         long adjOffset;
         MessageStore store = null;
-        ProcessResult procResult = new ProcessResult();
         MessageStoreManager storeManager = broker.getStoreManager();
         List<Tuple3<String, Integer, Long>> offsetVals = new ArrayList<>();
         String localBrokerId = String.valueOf(broker.getTubeConfig().getBrokerId());
@@ -1001,12 +1029,12 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             // parse and check partitionKey value
             String[] keyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
             if (keyItems.length != 3) {
-                procResult.setFailResult(fieldDef.id,
+                result.setFailResult(fieldDef.id,
                         new StringBuilder(512).append("Parameter ")
                                 .append(fieldDef.name).append("'s key invalid:")
                                 .append(entry.getKey())
                                 .append(" must be brokerId:topicName:partitionId !").toString());
-                return procResult;
+                return result.success;
             }
             brokerId = keyItems[0].trim();
             topicName = keyItems[1].trim();
@@ -1018,12 +1046,12 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             try {
                 partitionId = Integer.parseInt(strPartId);
             } catch (NumberFormatException e) {
-                procResult.setFailResult(fieldDef.id,
+                result.setFailResult(fieldDef.id,
                         new StringBuilder(512).append("Parameter ")
                                 .append(fieldDef.name).append("'s key invalid:")
                                 .append(entry.getKey())
                                 .append("'s partitionId value not number!").toString());
-                return procResult;
+                return result.success;
             }
             // check and adjust offset value
             try {
@@ -1041,65 +1069,129 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             offsetVals.add(new Tuple3<>(topicName, partitionId, adjOffset));
         }
         if (offsetVals.isEmpty()) {
-            procResult.setFailResult(fieldDef.id,
+            result.setFailResult(fieldDef.id,
                     new StringBuilder(512).append("Parameter ")
-                            .append(fieldDef.name)
-                            .append("'s value is invalid!").toString());
+                            .append(fieldDef.name).append("'s value is invalid!").toString());
         } else {
-            procResult.setSuccResult(offsetVals);
+            result.setSuccResult(offsetVals);
         }
-        return procResult;
+        return result.success;
     }
 
     // builder group's offset info
     private Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> getGroupOffsetInfo(
-            Set<String> groupSet, Set<String> topicSet) {
-        long curReadDataOffset = -2;
-        long curDataLag = -2;
+            WebFieldDef groupFldDef, Set<String> groupSet, Set<String> topicSet) {
+        ProcessResult result = new ProcessResult();
         Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = new HashMap<>();
         for (String group : groupSet) {
             Map<String, Map<Integer, GroupOffsetInfo>> topicOffsetRet = new HashMap<>();
             // valid and get topic's partitionIds
-            Map<String, Set<Integer>> topicPartMap = validAndGetPartitions(group, topicSet);
-            // get topic's publish info
-            Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
-                    broker.getStoreManager().getTopicPublishInfos(topicPartMap.keySet());
-            // get group's booked offset info
-            Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
-                    broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
-            // get offset info array
-            for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
-                String topic = entry.getKey();
-                Map<Integer, GroupOffsetInfo> partOffsetRet = new HashMap<>();
-                Map<Integer, TopicPubStoreInfo> storeInfoMap = topicStorePubInfoMap.get(topic);
-                Map<Integer, Tuple2<Long, Long>> partBookedMap = groupOffsetMap.get(topic);
-                for (Integer partitionId : entry.getValue()) {
-                    GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
-                    offsetInfo.setPartPubStoreInfo(storeInfoMap.get(partitionId));
-                    offsetInfo.setConsumeOffsetInfo(partBookedMap.get(partitionId));
-                    String queryKey = buildQueryID(group, topic, partitionId);
-                    ConsumerNodeInfo nodeInfo = broker.getConsumerNodeInfo(queryKey);
-                    if (nodeInfo != null) {
-                        offsetInfo.setConsumeDataOffsetInfo(nodeInfo.getLastDataRdOffset());
+            if (validAndGetTopicPartInfo(group, groupFldDef, topicSet, result)) {
+                Map<String, Set<Integer>> topicPartMap =
+                        (Map<String, Set<Integer>>) result.retData1;
+                // get topic's publish info
+                Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
+                        broker.getStoreManager().getTopicPublishInfos(topicPartMap.keySet());
+                // get group's booked offset info
+                Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
+                        broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
+                // get offset info array
+                for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                    String topic = entry.getKey();
+                    Map<Integer, GroupOffsetInfo> partOffsetRet = new HashMap<>();
+                    Map<Integer, TopicPubStoreInfo> storeInfoMap = topicStorePubInfoMap.get(topic);
+                    Map<Integer, Tuple2<Long, Long>> partBookedMap = groupOffsetMap.get(topic);
+                    for (Integer partitionId : entry.getValue()) {
+                        GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
+                        offsetInfo.setPartPubStoreInfo(
+                                storeInfoMap == null ? null :storeInfoMap.get(partitionId));
+                        offsetInfo.setConsumeOffsetInfo(
+                                partBookedMap == null ? null : partBookedMap.get(partitionId));
+                        String queryKey = buildQueryID(group, topic, partitionId);
+                        ConsumerNodeInfo nodeInfo = broker.getConsumerNodeInfo(queryKey);
+                        if (nodeInfo != null) {
+                            offsetInfo.setConsumeDataOffsetInfo(nodeInfo.getLastDataRdOffset());
+                        }
+                        offsetInfo.calculateLag();
+                        partOffsetRet.put(partitionId, offsetInfo);
                     }
-                    offsetInfo.calculateLag();
-                    partOffsetRet.put(partitionId, offsetInfo);
+                    topicOffsetRet.put(topic, partOffsetRet);
                 }
-                topicOffsetRet.put(topic, partOffsetRet);
             }
             groupOffsetMaps.put(group, topicOffsetRet);
         }
         return groupOffsetMaps;
     }
 
-
-    private Map<String, Set<Integer>> validAndGetPartitions(String group, Set<String> topicSet) {
-        Map<String, Set<Integer>> topicPartMap = new HashMap<>();
-        // query stored topic set stored in memory or zk
-        if (topicSet.isEmpty() && group != null) {
-            topicSet = broker.getOffsetManager().getGroupSubInfo(group);
+    // valid and get need removed group-topic info
+    private boolean validAndGetGroupTopicInfo(Set<String> groupSet,
+                                              Set<String> topicSet,
+                                              ProcessResult result) {
+        Map<String, Map<String, Set<Integer>>> groupTopicPartMap = new HashMap<>();
+        // filter group
+        Set<String> targetGroupSet = new HashSet<>();
+        Set<String> bookedGroups = broker.getOffsetManager().getBookedGroups();
+        for (String orgGroup : groupSet) {
+            if (bookedGroups.contains(orgGroup)) {
+                targetGroupSet.add(orgGroup);
+            }
         }
-        // get topic's partitionIds
+        // valid specified topic set
+        for (String group : targetGroupSet) {
+            if (validAndGetTopicPartInfo(group, WebFieldDef.GROUPNAME, topicSet, result)) {
+                Map<String, Set<Integer>> topicPartMap =
+                        (Map<String, Set<Integer>>) result.retData1;
+                groupTopicPartMap.put(group, topicPartMap);
+            }
+        }
+        result.setSuccResult(groupTopicPartMap);
+        return true;
+    }
+
+    private boolean validAndGetTopicPartInfo(String groupName,
+                                             WebFieldDef groupFldDef,
+                                             Set<String> topicSet,
+                                             ProcessResult result) {
+        Set<String> subTopicSet =
+                broker.getOffsetManager().getGroupSubInfo(groupName);
+        if (subTopicSet == null || subTopicSet.isEmpty()) {
+            result.setFailResult(400, new StringBuilder(512)
+                    .append("Parameter ").append(groupFldDef.name)
+                    .append(": subscribed topic set of ").append(groupName)
+                    .append(" query result is null!").toString());
+            return result.success;
+        }
+        // filter valid topic set
+        Set<String> tgtTopicSet = new HashSet<>();
+        if (topicSet.isEmpty()) {
+            tgtTopicSet = subTopicSet;
+        } else {
+            for (String topic : topicSet) {
+                if (subTopicSet.contains(topic)) {
+                    tgtTopicSet.add(topic);
+                }
+            }
+            if (tgtTopicSet.isEmpty()) {
+                result.setFailResult(400, new StringBuilder(512)
+                        .append("Parameter ").append(groupFldDef.name)
+                        .append(": ").append(groupName)
+                        .append(" unsubscribed to the specified topic set!").toString());
+                return result.success;
+            }
+        }
+        Map<String, Set<Integer>> topicPartMap = getTopicPartitions(tgtTopicSet);
+        if (topicPartMap.isEmpty()) {
+            result.setFailResult(400, new StringBuilder(512)
+                    .append("Parameter ").append(groupFldDef.name)
+                    .append(": all topics subscribed by the group have been deleted!").toString());
+            return result.success;
+        }
+        result.setSuccResult(topicPartMap);
+        return result.success;
+    }
+
+    private Map<String, Set<Integer>> getTopicPartitions(Set<String> topicSet) {
+        Map<String, Set<Integer>> topicPartMap = new HashMap<>();
         if (topicSet != null) {
             Map<String, TopicMetadata> topicConfigMap =
                     broker.getMetadataManager().getTopicConfigMap();
