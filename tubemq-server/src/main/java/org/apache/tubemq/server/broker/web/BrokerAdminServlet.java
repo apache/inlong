@@ -1104,7 +1104,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                     for (Integer partitionId : entry.getValue()) {
                         GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
                         offsetInfo.setPartPubStoreInfo(
-                                storeInfoMap == null ? null :storeInfoMap.get(partitionId));
+                                storeInfoMap == null ? null : storeInfoMap.get(partitionId));
                         offsetInfo.setConsumeOffsetInfo(
                                 partBookedMap == null ? null : partBookedMap.get(partitionId));
                         String queryKey = buildQueryID(group, topic, partitionId);
