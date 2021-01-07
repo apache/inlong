@@ -16,11 +16,14 @@ package org.apache.tubemq.agent.core;
 
 import org.apache.tubemq.agent.common.AbstractDaemon;
 import org.apache.tubemq.agent.conf.AgentConfiguration;
+import org.apache.tubemq.agent.conf.ProfileFetcher;
 import org.apache.tubemq.agent.constants.AgentConstants;
 import org.apache.tubemq.agent.core.job.JobManager;
 import org.apache.tubemq.agent.core.task.TaskManager;
+import org.apache.tubemq.agent.core.trigger.TriggerManager;
 import org.apache.tubemq.agent.db.DB;
 import org.apache.tubemq.agent.db.JobProfileDB;
+import org.apache.tubemq.agent.db.TriggerProfileDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,15 +36,20 @@ public class AgentManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentManager.class);
     private static JobManager jobManager;
     private static TaskManager taskManager;
+    private static TriggerManager triggerManager;
+
 
 
     private final long waitTime;
+    private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
     private final DB db;
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
         this.db = initDB();
+        fetcher = initFetcher();
+        triggerManager = new TriggerManager(this, new TriggerProfileDB(db));
         jobManager = new JobManager(this, new JobProfileDB(db));
         taskManager = new TaskManager(this);
 
@@ -49,6 +57,21 @@ public class AgentManager extends AbstractDaemon {
             AgentConstants.THREAD_POOL_AWAIT_TIME, AgentConstants.DEFAULT_THREAD_POOL_AWAIT_TIME);
     }
 
+    /**
+     * init fetch by class name
+     *
+     * @return
+     */
+    private ProfileFetcher initFetcher() {
+        try {
+            return (ProfileFetcher)
+                Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
+                    .newInstance();
+        } catch (Exception ex) {
+            LOGGER.warn("cannot find fetcher, ignore it {}", ex.getMessage());
+        }
+        return null;
+    }
 
     /**
      * init db by class name
@@ -85,8 +108,12 @@ public class AgentManager extends AbstractDaemon {
     @Override
     public void start() throws Exception {
         LOGGER.info("starting agent manager");
+        triggerManager.start();
         jobManager.start();
         taskManager.start();
+        if (fetcher != null) {
+            fetcher.start();
+        }
     }
 
     /**
@@ -96,9 +123,13 @@ public class AgentManager extends AbstractDaemon {
      */
     @Override
     public void stop() throws Exception {
+        if (fetcher != null) {
+            fetcher.stop();
+        }
         // TODO: change job state which is in running state.
         LOGGER.info("stopping agent manager");
         // close in order: trigger -> job -> task
+        triggerManager.stop();
         jobManager.stop();
         taskManager.stop();
         this.db.close();
