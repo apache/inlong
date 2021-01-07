@@ -268,10 +268,10 @@ public class CliProducer extends CliAbstractBase {
                 try {
                     long millis = System.currentTimeMillis();
                     Tuple2<String, String> target = topicSendRounds.get(roundIndex);
-                    Message message = new Message(target.f0, sentData);
-                    if (target.f1 != null) {
+                    Message message = new Message(target.getF0(), sentData);
+                    if (target.getF1() != null) {
                         // if include filter, add filter item
-                        message.putSystemHeader(target.f1, sdf.format(new Date(millis)));
+                        message.putSystemHeader(target.getF1(), sdf.format(new Date(millis)));
                     }
                     // use sync or async process
                     if (syncProduction) {

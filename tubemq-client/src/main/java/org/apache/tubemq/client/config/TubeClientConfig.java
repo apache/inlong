@@ -101,7 +101,7 @@ public class TubeClientConfig {
             throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is null!");
         }
         this.masterInfo = masterInfo.clone();
-        String iPv4LocalAddress = AddressUtils.getIPV4LocalAddress();
+        AddressUtils.getIPV4LocalAddress();
     }
 
     @Deprecated

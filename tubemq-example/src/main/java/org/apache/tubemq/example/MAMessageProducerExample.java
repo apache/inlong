@@ -191,12 +191,12 @@ public class MAMessageProducerExample {
                 long millis = System.currentTimeMillis();
                 roundIndex = (int) (sentCount++ % targetCnt);
                 Tuple2<String, String> target = topicSendRounds.get(roundIndex);
-                Message message = new Message(target.f0, sendData);
+                Message message = new Message(target.getF0(), sendData);
                 message.setAttrKeyVal("index", String.valueOf(sentCount));
                 message.setAttrKeyVal("dataTime", String.valueOf(millis));
-                if (target.f1 != null) {
+                if (target.getF1() != null) {
                     filterMsgCount.incrementAndGet();
-                    message.putSystemHeader(target.f1, sdf.format(new Date(millis)));
+                    message.putSystemHeader(target.getF1(), sdf.format(new Date(millis)));
                 }
                 try {
                     // next line sends message synchronously, which is not recommended

@@ -323,7 +323,7 @@ public class BrokerInfoHolder {
         }
     }
 
-    public class BrokerAbnInfo {
+    public static class BrokerAbnInfo {
         private int brokerId;
         private int abnStatus;  // 0 normal , -100 read abnormal, -1 write abnormal, -101 r & w abnormal
         private long firstRepTime;
@@ -364,7 +364,7 @@ public class BrokerInfoHolder {
         }
     }
 
-    public class BrokerFbdInfo {
+    public static class BrokerFbdInfo {
         private int brokerId;
         private int befStatus;
         private int newStatus;

@@ -459,7 +459,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         Set<String> filterCondStrSet = (Set<String>) result.retData1;
-        sBuilder = broker.getBrokerServiceServer()
+        broker.getBrokerServiceServer()
                 .getMessageSnapshot(topicName, partitionId, msgCount, filterCondStrSet, sBuilder);
     }
 
@@ -811,8 +811,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             // transfer offset format
             resetOffsets = buildOffsetResetInfo(topicSet);
         }
-        boolean changed = broker.getOffsetManager().modifyGroupOffset(
-                groupNameSet, resetOffsets, modifier);
+        broker.getOffsetManager().modifyGroupOffset(groupNameSet, resetOffsets, modifier);
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
 
@@ -875,10 +874,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets =
                 broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
         // transfer offset format
-        List<Tuple3<String, Integer, Long>> resetOffsets =
-                buildOffsetResetInfo(srcGroupOffsets);
-        boolean changed = broker.getOffsetManager().modifyGroupOffset(
-                tgtGroupNameSet, resetOffsets, modifier);
+        List<Tuple3<String, Integer, Long>> resetOffsets = buildOffsetResetInfo(srcGroupOffsets);
+        broker.getOffsetManager().modifyGroupOffset(tgtGroupNameSet, resetOffsets, modifier);
         // builder return result
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
@@ -965,8 +962,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 long firstOffset = store.getIndexMinOffset();
                 long lastOffset = store.getIndexMaxOffset();
                 // adjust reset offset value
-                adjOffset = offsetTuple.f0 < firstOffset
-                        ? firstOffset : Math.min(offsetTuple.f0, lastOffset);
+                adjOffset = offsetTuple.getF0() < firstOffset
+                        ? firstOffset : Math.min(offsetTuple.getF0(), lastOffset);
                 result.add(new Tuple3<>(entry.getKey(), entry1.getKey(), adjOffset));
             }
         }

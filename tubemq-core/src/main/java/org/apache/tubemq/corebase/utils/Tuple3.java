@@ -20,11 +20,11 @@ package org.apache.tubemq.corebase.utils;
 public class Tuple3<T0, T1, T2> {
 
     /** Field 0 of the tuple. */
-    public T0 f0 = null;
+    private T0 f0 = null;
     /** Field 1 of the tuple. */
-    public T1 f1 = null;
+    private T1 f1 = null;
     /** Field 2 of the tuple. */
-    public T2 f2 = null;
+    private T2 f2 = null;
 
     /**
      * Creates a new tuple where all fields are null.
@@ -44,5 +44,17 @@ public class Tuple3<T0, T1, T2> {
         this.f0 = value0;
         this.f1 = value1;
         this.f2 = value2;
+    }
+
+    public T0 getF0() {
+        return f0;
+    }
+
+    public T1 getF1() {
+        return f1;
+    }
+
+    public T2 getF2() {
+        return f2;
     }
 }

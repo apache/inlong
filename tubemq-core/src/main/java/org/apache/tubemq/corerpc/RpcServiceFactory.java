@@ -470,7 +470,7 @@ public class RpcServiceFactory {
                 .append(masterInfo.getMasterClusterStr()).toString();
     }
 
-    private class ServiceHolder<T> implements Shutdownable {
+    private static class ServiceHolder<T> implements Shutdownable {
         private T service;
         private AbstractServiceInvoker invoker;
 
@@ -489,7 +489,7 @@ public class RpcServiceFactory {
         }
     }
 
-    private class ConnectionNode {
+    private static class ConnectionNode {
         private Class clazzType;
         private NodeAddrInfo addressInfo;
         private RpcConfig config;
