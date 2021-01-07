@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -21,10 +21,20 @@ import lombok.Data;
 import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
-public class RebalanceConsumerReq extends BaseReq {
-    public String groupName;
-    public String confModAuthToken;
-    public Integer reJoinWait;
-    public String modifyUser;
-    public String consumerId;
+public class ModifyTopicReq extends BaseReq {
+    private String modifyUser;
+    private String deleteWhen;
+    private Integer unflushThreshold;
+    private Boolean acceptPublish;
+    private Integer numPartitions;
+    private Integer unflushInterval;
+    private Boolean acceptSubscribe;
+    private String brokerId;
+    private String confModAuthToken;
+    private String topicName;
+    private String deletePolicy;
+    private Integer unflushDataHold;
+    private Integer numTopicStores;
+    private Integer memCacheMsgCntInK;
+    private Integer memCacheMsgSizeInMB;
 }

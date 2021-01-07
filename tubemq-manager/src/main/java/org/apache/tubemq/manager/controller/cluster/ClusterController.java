@@ -18,7 +18,7 @@
 package org.apache.tubemq.manager.controller.cluster;
 
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
-import static org.apache.tubemq.manager.utils.MasterUtils.*;
+import static org.apache.tubemq.manager.service.MasterService.*;
 
 import com.google.gson.Gson;
 import java.util.Map;
@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
-import org.apache.tubemq.manager.utils.MasterUtils;
+import org.apache.tubemq.manager.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,7 +48,7 @@ public class ClusterController {
     private NodeRepository nodeRepository;
 
     @Autowired
-    public MasterUtils masterUtil;
+    public MasterService masterService;
 
     /**
      * query cluster info
@@ -57,7 +57,7 @@ public class ClusterController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryInfo(
             @RequestParam Map<String, String> queryBody) throws Exception {
-        String url = masterUtil.getQueryUrl(queryBody);
+        String url = masterService.getQueryUrl(queryBody);
         return queryMaster(url);
     }
 

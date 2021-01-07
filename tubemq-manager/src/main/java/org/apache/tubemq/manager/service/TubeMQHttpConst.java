@@ -36,4 +36,19 @@ public class TubeMQHttpConst {
     public static final String WEB_API = "webapi";
     public static final String BATCH_ADD_TOPIC = "admin_add_new_topic_record";
     public static final String REBALANCE_GROUP = "admin_rebalance_group_allocate";
+    public static final String AUTH_CONTROL = "authControl";
+    public static final String MODIFY = "modify";
+    public static final String DELETE = "delete";
+    public static final String REMOVE = "remove";
+    public static final String NO_SUCH_METHOD = "no such method";
+    public static final String ADMIN_QUERY_CLUSTER_INFO = "admin_query_cluster_info";
+    public static final String CLONE = "clone";
+    public static final String ADD = "add";
+    public static final String ONLINE = "online";
+    public static final String RELOAD = "reload";
+    public static final String SET_READ_OR_WRITE = "setReadOrWrite";
+    public static final String OFFLINE = "offline";
+    public static final String REBALANCE_CONSUMER_GROUP = "rebalanceGroup";
+    public static final String REBALANCE_CONSUMER = "rebalanceConsumer";
+
 }

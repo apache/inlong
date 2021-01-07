@@ -18,27 +18,29 @@
 package org.apache.tubemq.manager.controller.group;
 
 
-import static org.apache.tubemq.manager.controller.node.NodeController.ADD;
-import static org.apache.tubemq.manager.controller.node.NodeController.CLONE;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
-import static org.apache.tubemq.manager.utils.MasterUtils.TUBE_REQUEST_PATH;
-import static org.apache.tubemq.manager.utils.MasterUtils.queryMaster;
-import static org.apache.tubemq.manager.utils.MasterUtils.requestMaster;
+
+import static org.apache.tubemq.manager.service.MasterService.requestMaster;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
+import static org.apache.tubemq.manager.service.MasterService.queryMaster;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
 
 import com.google.gson.Gson;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.controller.group.request.AddBlackGroupReq;
+import org.apache.tubemq.manager.controller.group.request.DeleteBlackGroupReq;
 import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
-import org.apache.tubemq.manager.entry.NodeEntry;
-import org.apache.tubemq.manager.repository.NodeRepository;
-import org.apache.tubemq.manager.service.NodeService;
+import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
+import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.service.TopicService;
-import org.apache.tubemq.manager.utils.ConvertUtils;
-import org.apache.tubemq.manager.utils.MasterUtils;
+import org.apache.tubemq.manager.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,18 +55,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class GroupController {
 
-    public static final String DELETE = "delete";
-
     public Gson gson = new Gson();
 
     @Autowired
-    private MasterUtils masterUtils;
+    private MasterService masterService;
 
     @Autowired
     private TopicService topicService;
 
 
-    @PostMapping("/")
+    @PostMapping("")
     public @ResponseBody TubeMQResult groupMethodProxy(
         @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
@@ -72,6 +72,10 @@ public class GroupController {
                 return topicService.addConsumer(gson.fromJson(req, BatchAddGroupAuthReq.class));
             case DELETE:
                 return topicService.deleteConsumer(gson.fromJson(req, DeleteGroupReq.class));
+            case REBALANCE_CONSUMER_GROUP:
+                return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
+            case REBALANCE_CONSUMER:
+                return masterService.baseRequestMaster(gson.fromJson(req, RebalanceConsumerReq.class));
             default:
                 return TubeMQResult.getErrorResult("no such method");
         }
@@ -86,13 +90,13 @@ public class GroupController {
     @GetMapping("/")
     public @ResponseBody String queryConsumer(
         @RequestParam Map<String, String> req) throws Exception {
-        String url = masterUtils.getQueryUrl(req);
+        String url = masterService.getQueryUrl(req);
         return queryMaster(url);
     }
 
 
     @PostMapping("/offset")
-    public @ResponseBody TubeMQResult offsetMethodProxy(
+    public @ResponseBody TubeMQResult offsetProxy(
         @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case CLONE:
@@ -102,35 +106,23 @@ public class GroupController {
             default:
                 return TubeMQResult.getErrorResult("no such method");
         }
-
     }
 
-    /**
-     * add group to black list for certain topic
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/blackGroup/add")
-    public @ResponseBody
-    TubeMQResult addBlackGroup(
-        @RequestParam Map<String, String> req) throws Exception {
-        String url = masterUtils.getQueryUrl(req);
-        return requestMaster(url);
+
+
+    @PostMapping("/blackGroup")
+    public @ResponseBody TubeMQResult BlackGroupProxy(
+        @RequestParam String method, @RequestBody String req) {
+        switch (method) {
+            case ADD:
+                return masterService.baseRequestMaster(gson.fromJson(req, AddBlackGroupReq.class));
+            case DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, DeleteBlackGroupReq.class));
+            default:
+                return TubeMQResult.getErrorResult("no such method");
+        }
     }
 
-    /**
-     * delete group to black list for certain topic
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @GetMapping("/blackGroup/delete")
-    public @ResponseBody TubeMQResult deleteBlackGroup(
-        @RequestParam Map<String, String> req) throws Exception {
-        String url = masterUtils.getQueryUrl(req);
-        return requestMaster(url);
-    }
 
     /**
      * query the black list for certain topic
@@ -138,12 +130,14 @@ public class GroupController {
      * @return
      * @throws Exception
      */
-    @GetMapping("/blackGroup/query")
+    @GetMapping("/blackGroup")
     public @ResponseBody String queryBlackGroup(
         @RequestParam Map<String, String> req) throws Exception {
-        String url = masterUtils.getQueryUrl(req);
+        String url = masterService.getQueryUrl(req);
         return queryMaster(url);
     }
+
+
 
 
 }

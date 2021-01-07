@@ -23,9 +23,9 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.TOPIC_CONFIG_INFO;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertToRebalanceConsumerReq;
-import static org.apache.tubemq.manager.utils.MasterUtils.SUCCESS_CODE;
-import static org.apache.tubemq.manager.utils.MasterUtils.TUBE_REQUEST_PATH;
-import static org.apache.tubemq.manager.utils.MasterUtils.requestMaster;
+import static org.apache.tubemq.manager.service.MasterService.SUCCESS_CODE;
+import static org.apache.tubemq.manager.service.MasterService.TUBE_REQUEST_PATH;
+import static org.apache.tubemq.manager.service.MasterService.requestMaster;
 
 import com.google.gson.Gson;
 import java.io.InputStreamReader;
@@ -245,7 +245,5 @@ public class TopicService {
 
         return result;
     }
-
-
 
 }

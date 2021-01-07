@@ -22,17 +22,15 @@ import lombok.Data;
 
 @Data
 public class AddTopicReq extends BaseReq {
-    public String createUser;
-    public String deleteWhen;
-    public Integer unflushThreshold;
-    public Boolean acceptPublish;
-    public Integer numPartitions;
-    public Integer unflushInterval;
-    public Boolean acceptSubscribe;
-    public String method;
-    public String type;
-    public String brokerId;
-    public String confModAuthToken;
-    public String topicName;
-    public String deletePolicy;
+    private String createUser;
+    private String deleteWhen;
+    private Integer unflushThreshold;
+    private Boolean acceptPublish;
+    private Integer numPartitions;
+    private Integer unflushInterval;
+    private Boolean acceptSubscribe;
+    private String brokerId;
+    private String confModAuthToken;
+    private String topicName;
+    private String deletePolicy;
 }

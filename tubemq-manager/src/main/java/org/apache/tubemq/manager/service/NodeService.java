@@ -21,13 +21,10 @@ package org.apache.tubemq.manager.service;
 import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD_TUBE_TOPIC;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY_GROUP_DETAIL_INFO;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD_BROKER;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.TOPIC_CONFIG_INFO;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
-import static org.apache.tubemq.manager.utils.ConvertUtils.convertToRebalanceConsumerReq;
-import static org.apache.tubemq.manager.utils.MasterUtils.*;
+import static org.apache.tubemq.manager.service.MasterService.*;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -44,21 +41,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.tubemq.manager.controller.TubeMQResult;
-import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
-import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
-import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
-import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
-import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.tube.*;
-import org.apache.tubemq.manager.service.tube.TubeHttpBrokerInfoList.BrokerInfo;
-import org.apache.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -87,6 +77,9 @@ public class NodeService {
     @Autowired
     private NodeRepository nodeRepository;
 
+    @Autowired
+    private TopicService topicService;
+
     public NodeService(TopicBackendWorker worker) {
         this.worker = worker;
     }
@@ -98,7 +91,7 @@ public class NodeService {
      * @return
      * @throws IOException
      */
-    private TubeHttpBrokerInfoList requestClusterNodeStatus(NodeEntry nodeEntry) throws IOException {
+    private TubeHttpBrokerInfoList requestClusterNodeStatus(NodeEntry nodeEntry) {
         String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort() + BROKER_RUN_STATUS;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
@@ -118,22 +111,7 @@ public class NodeService {
     }
 
 
-    private TubeHttpTopicInfoList requestTopicConfigInfo(NodeEntry nodeEntry, String topic) {
-        String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
-                + TOPIC_CONFIG_INFO + "&topicName=" + topic;
-        HttpGet httpget = new HttpGet(url);
-        try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            TubeHttpTopicInfoList topicInfoList =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent()),
-                            TubeHttpTopicInfoList.class);
-            if (topicInfoList.getErrCode() == SUCCESS_CODE) {
-                return topicInfoList;
-            }
-        } catch (Exception ex) {
-            log.error("exception caught while requesting broker status", ex);
-        }
-        return null;
-    }
+
 
 
     public TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req, int clusterId) throws Exception {
@@ -228,14 +206,6 @@ public class NodeService {
     }
 
 
-    public TubeMQResult addBrokersToCluster(AddBrokersReq req, NodeEntry masterEntry) throws Exception {
-        String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-        TubeMQResult tubeMQResult = requestMaster(url);
-        return tubeMQResult;
-    }
-
-
     private boolean configBrokersForTopics(NodeEntry nodeEntry,
             Set<String> topics, List<Integer> brokerList, int maxBrokers) {
         List<Integer> finalBrokerList = brokerList.subList(0, maxBrokers);
@@ -299,7 +269,7 @@ public class NodeService {
         // 1. check tubemq cluster by topic name, remove pending topic if has added.
         Set<String> brandNewTopics = new HashSet<>();
         for (String topic : pendingTopic.keySet()) {
-            TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(nodeEntry, topic);
+            TubeHttpTopicInfoList topicInfoList = topicService.requestTopicConfigInfo(nodeEntry, topic);
             if (topicInfoList != null) {
                 // get broker list by topic request
                 List<Integer> topicBrokerList = topicInfoList.getTopicBrokerIdList();
@@ -427,10 +397,26 @@ public class NodeService {
         return null;
     }
 
-    public TubeMQResult cloneTopicToBrokers(CloneTopicReq req, NodeEntry master) throws Exception {
+    /**
+     * given one topic, copy its config and clone to brokers
+     * if no broker is is provided, topics will be cloned to all brokers in cluster
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    public TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception {
+
+        if (req.getClusterId() == null) {
+            return TubeMQResult.getErrorResult("please input clusterId");
+        }
+        NodeEntry master = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
+        if (master == null) {
+            return TubeMQResult.getErrorResult("no such cluster");
+        }
 
         // 1 query topic config
-        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getSourceTopicName());
+        TubeHttpTopicInfoList topicInfoList = topicService.requestTopicConfigInfo(master, req.getSourceTopicName());
 
         if (topicInfoList == null) {
             return TubeMQResult.getErrorResult("no such topic");
@@ -455,33 +441,54 @@ public class NodeService {
 
     }
 
-    public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req, NodeEntry master)
-        throws Exception {
 
-        // 1. query the corresponding brokers having given topic
-        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
-        TubeMQResult result = new TubeMQResult();
-
-        if (topicInfoList == null) {
-            return result;
-        }
-
-        List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
-        // 2. for each broker, request to clone offset
-        for (TopicInfo topicInfo : topicInfos) {
-            String brokerIp = topicInfo.getBrokerIp();
-            String url = SCHEMA + brokerIp + ":" + brokerWebPort
-                + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-            result = requestMaster(url);
-            if (result.getErrCode() != SUCCESS_CODE) {
-                return result;
-            }
-        }
-
-
-        return result;
+    private TubeMQResult addBrokersToCluster(AddBrokersReq req, NodeEntry masterEntry) {
+        String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
+            + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
+        TubeMQResult tubeMQResult = requestMaster(url);
+        return tubeMQResult;
     }
 
+
+
+    /**
+     * add brokers to cluster, need to check token and
+     * make sure user has authorization to modify it.
+     */
+    public String addBrokers(
+        AddBrokersReq req)  {
+        String token = req.getConfModAuthToken();
+        int clusterId = req.getClusterId();
+
+        if (StringUtils.isNotBlank(token)) {
+            NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+                clusterId);
+            TubeMQResult result = addBrokersToCluster(req, masterEntry);
+            return gson.toJson(result);
+        } else {
+            TubeMQResult result = new TubeMQResult();
+            result.setErrCode(-1);
+            result.setResult(false);
+            result.setErrMsg("token is not correct");
+            return gson.toJson(result);
+        }
+
+    }
+
+
+
+    /**
+     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    public String cloneBrokers(
+        CloneBrokersReq req) throws Exception {
+        int clusterId = req.getClusterId();
+        TubeMQResult tubeResult = cloneBrokersWithTopic(req, clusterId);
+        return gson.toJson(tubeResult);
+    }
 
 
 

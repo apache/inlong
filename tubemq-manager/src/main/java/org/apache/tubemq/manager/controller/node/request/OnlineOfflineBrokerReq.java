@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.topic.request;
+package org.apache.tubemq.manager.controller.node.request;
+
 
 import lombok.Data;
-import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
-public class RebalanceConsumerReq extends BaseReq {
-    public String groupName;
-    public String confModAuthToken;
-    public Integer reJoinWait;
-    public String modifyUser;
-    public String consumerId;
+public class OnlineOfflineBrokerReq extends BaseReq{
+    private Integer brokerId;
+    private String modifyUser;
+    private String confModAuthToken;
 }
