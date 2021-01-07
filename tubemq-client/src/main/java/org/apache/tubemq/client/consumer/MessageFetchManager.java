@@ -216,7 +216,10 @@ public class MessageFetchManager {
                     sBuilder.delete(0, sBuilder.length());
                 }
                 fetchWorkerStatusMap.put(curThreadId, 2);
-                MessageFetchManager.this.pushConsumer.processRequest(partSelectResult, sBuilder);
+                if (partSelectResult != null) {
+                    MessageFetchManager.this.pushConsumer.processRequest(
+                            partSelectResult, sBuilder);
+                }
             }
             fetchWorkerStatusMap.remove(curThreadId);
         }

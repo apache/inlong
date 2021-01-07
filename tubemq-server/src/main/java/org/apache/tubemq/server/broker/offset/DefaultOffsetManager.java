@@ -439,10 +439,12 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                             getOffsetCacheKey(entry.getKey(), partitionId);
                     OffsetStorageInfo offsetInfo = topicPartOffsetMap.get(offsetCacheKey);
                     Long tmpOffset = tmpPartOffsetMap.get(offsetCacheKey);
+                    if (tmpOffset == null) {
+                        tmpOffset = 0L;
+                    }
                     if (offsetInfo != null) {
                         offsetMap.put(partitionId,
-                                new Tuple2<>(offsetInfo.getOffset(),
-                                        (tmpOffset == null ? 0 : tmpOffset)));
+                                new Tuple2<>(offsetInfo.getOffset(), tmpOffset));
                     }
                 }
                 if (!offsetMap.isEmpty()) {
@@ -473,21 +475,21 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         for (String group : groups) {
             for (Tuple3<String, Integer, Long> tuple3 : topicPartOffsets) {
                 if (tuple3 == null
-                        || tuple3.f0 == null
-                        || tuple3.f1 == null
-                        || tuple3.f2 == null) {
+                        || tuple3.getF0() == null
+                        || tuple3.getF1() == null
+                        || tuple3.getF2() == null) {
                     continue;
                 }
                 // set offset value
-                offsetCacheKey = getOffsetCacheKey(tuple3.f0, tuple3.f1);
+                offsetCacheKey = getOffsetCacheKey(tuple3.getF0(), tuple3.getF1());
                 getAndResetTmpOffset(group, offsetCacheKey);
                 OffsetStorageInfo regInfo = loadOrCreateOffset(group,
-                        tuple3.f0, tuple3.f1, offsetCacheKey, 0);
-                oldOffset = regInfo.getAndSetOffset(tuple3.f2);
+                        tuple3.getF0(), tuple3.getF1(), offsetCacheKey, 0);
+                oldOffset = regInfo.getAndSetOffset(tuple3.getF2());
                 changed = true;
                 logger.info(strBuidler
                         .append("[Offset Manager] Update offset by modifier=")
-                        .append(modifier).append(",reset offset=").append(tuple3.f2)
+                        .append(modifier).append(",reset offset=").append(tuple3.getF2())
                         .append(",old offset=").append(oldOffset)
                         .append(",updated offset=").append(regInfo.getOffset())
                         .append(",group=").append(group)
@@ -710,9 +712,5 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 .append("-").append(partitionId).toString();
     }
 
-    private String getOffsetCacheKey(String topic, String partitionId) {
-        return new StringBuilder(256).append(topic)
-                .append("-").append(partitionId).toString();
-    }
 
 }

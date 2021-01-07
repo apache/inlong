@@ -32,8 +32,8 @@ public enum WebFieldType {
     JSONTYPE(8, "Json");
 
 
-    public int value;
-    public String desc;
+    private int value;
+    private String desc;
 
     WebFieldType(int value, String desc) {
         this.value = value;
