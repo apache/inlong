@@ -18,6 +18,7 @@ import org.apache.tubemq.agent.common.AbstractDaemon;
 import org.apache.tubemq.agent.conf.AgentConfiguration;
 import org.apache.tubemq.agent.conf.ProfileFetcher;
 import org.apache.tubemq.agent.constants.AgentConstants;
+import org.apache.tubemq.agent.core.conf.ConfigJetty;
 import org.apache.tubemq.agent.core.job.JobManager;
 import org.apache.tubemq.agent.core.task.TaskManager;
 import org.apache.tubemq.agent.core.trigger.TriggerManager;
@@ -39,6 +40,8 @@ public class AgentManager extends AbstractDaemon {
     private static TriggerManager triggerManager;
 
 
+    // jetty for config operations via http.
+    private ConfigJetty configJetty;
 
     private final long waitTime;
     private final ProfileFetcher fetcher;
@@ -53,6 +56,11 @@ public class AgentManager extends AbstractDaemon {
         jobManager = new JobManager(this, new JobProfileDB(db));
         taskManager = new TaskManager(this);
 
+        // need to be an option.
+        if (conf.getBoolean(
+            AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {
+            this.configJetty = new ConfigJetty(jobManager);
+        }
         this.waitTime = conf.getLong(
             AgentConstants.THREAD_POOL_AWAIT_TIME, AgentConstants.DEFAULT_THREAD_POOL_AWAIT_TIME);
     }
@@ -123,6 +131,9 @@ public class AgentManager extends AbstractDaemon {
      */
     @Override
     public void stop() throws Exception {
+        if (configJetty != null) {
+            configJetty.close();
+        }
         if (fetcher != null) {
             fetcher.stop();
         }
