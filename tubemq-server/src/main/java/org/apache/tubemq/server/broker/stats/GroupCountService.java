@@ -139,7 +139,7 @@ public class GroupCountService extends AbstractDaemonService implements CountSer
         countSet.refCnt.decrementAndGet();
     }
 
-    private class CountSet {
+    private static class CountSet {
         public AtomicLong refCnt = new AtomicLong(0);
         public ConcurrentHashMap<String, CountItem> counterItem =
                 new ConcurrentHashMap<>();

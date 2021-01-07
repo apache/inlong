@@ -104,12 +104,12 @@ public final class MessageProducerExample {
             while (msgCount < 0 || sentCount < msgCount) {
                 roundIndex = (int) (sentCount++ % targetCnt);
                 Tuple2<String, String> target = topicSendRounds.get(roundIndex);
-                Message message = new Message(target.f0, body.getBytes());
+                Message message = new Message(target.getF0(), body.getBytes());
                 long currTimeMillis = System.currentTimeMillis();
                 message.setAttrKeyVal("index", String.valueOf(sentCount));
                 message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
-                if (target.f1 != null) {
-                    message.putSystemHeader(target.f1, sdf.format(new Date(currTimeMillis)));
+                if (target.getF1() != null) {
+                    message.putSystemHeader(target.getF1(), sdf.format(new Date(currTimeMillis)));
                 }
                 try {
                     // 1.1 next line sends message synchronously, which is not recommended

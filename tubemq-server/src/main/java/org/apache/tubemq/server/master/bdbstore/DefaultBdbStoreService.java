@@ -930,9 +930,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
             if (!isPrimaryNodeActive()) {
                 if ((replicas4Transfer != null) && (!replicas4Transfer.isEmpty())) {
                     logger.info("start transferMaster to replicas: " + replicas4Transfer);
-                    if ((replicas4Transfer != null) && (!replicas4Transfer.isEmpty())) {
-                        repEnv.transferMaster(replicas4Transfer, 5, TimeUnit.MINUTES);
-                    }
+                    repEnv.transferMaster(replicas4Transfer, 5, TimeUnit.MINUTES);
                     logger.info("transferMaster end...");
                 } else {
                     throw new Exception("The replicate nodes is empty!");

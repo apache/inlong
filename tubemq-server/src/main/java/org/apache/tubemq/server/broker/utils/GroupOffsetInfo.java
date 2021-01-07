@@ -48,8 +48,8 @@ public class GroupOffsetInfo {
 
     public void setConsumeOffsetInfo(Tuple2<Long, Long> offsetInfo) {
         if (offsetInfo != null) {
-            this.curOffset = offsetInfo.f0;
-            this.flightOffset = offsetInfo.f1;
+            this.curOffset = offsetInfo.getF0();
+            this.flightOffset = offsetInfo.getF1();
         }
     }
 

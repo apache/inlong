@@ -423,8 +423,8 @@ public class RmtDataCache implements Closeable {
         if (frozenTime == null) {
             if (waitDlt > 10) {
                 TimeoutTask timeoutTask = new TimeoutTask(partitionKey);
-                timeouts.put(partitionKey,
-                        timer.newTimeout(timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
+                timeouts.put(partitionKey, timer.newTimeout(
+                        timeoutTask, waitDlt, TimeUnit.MILLISECONDS));
             } else {
                 releaseIdlePartition(partitionKey);
             }

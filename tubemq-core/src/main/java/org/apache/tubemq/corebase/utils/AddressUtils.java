@@ -58,12 +58,12 @@ public class AddressUtils {
             try {
                 Tuple2<Boolean, String> result =
                         getValidIPV4Address(allInterface.nextElement(), currLocalHost);
-                if (result.f0) {
+                if (result.getF0()) {
                     localIPAddress = currLocalHost;
                     return true;
                 }
                 if (TStringUtils.isEmpty(fstV4IP)) {
-                    fstV4IP = result.f1;
+                    fstV4IP = result.getF1();
                 }
             } catch (Throwable e) {
                 //
@@ -153,8 +153,8 @@ public class AddressUtils {
                 try {
                     Tuple2<Boolean, String> result =
                             getValidIPV4Address(enumeration.nextElement(), null);
-                    if (result.f0) {
-                        tmpAdress = result.f1;
+                    if (result.getF0()) {
+                        tmpAdress = result.getF1();
                         break;
                     }
                 } catch (Throwable e) {
@@ -196,8 +196,8 @@ public class AddressUtils {
                 try {
                     Tuple2<Boolean, String> result =
                             getValidIPV4Address(oneInterface, null);
-                    if (result.f0) {
-                        localIPAddress = result.f1;
+                    if (result.getF0()) {
+                        localIPAddress = result.getF1();
                         return localIPAddress;
                     }
                 } catch (Throwable e) {

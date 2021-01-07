@@ -64,7 +64,7 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
         // client.close();
     }
 
-    private class RpcResponseCallback implements Callback {
+    private static class RpcResponseCallback implements Callback {
 
         private Callback chainedCallback;
 
