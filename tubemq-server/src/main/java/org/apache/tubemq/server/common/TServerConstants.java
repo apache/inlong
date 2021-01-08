@@ -25,6 +25,8 @@ public final class TServerConstants {
     public static final String TOKEN_JOB_TOPICS = "topics";
     public static final String TOKEN_JOB_STORE_MGR = "messageStoreManager";
     public static final String TOKEN_DEFAULT_FLOW_CONTROL = "default_master_ctrl";
+    public static final String TOKEN_DEFAULT_CLUSTER_SETTING = "default_cluster_config";
+
     public static final String TOKEN_BLANK_FILTER_CONDITION = ",,";
 
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
