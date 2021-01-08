@@ -108,20 +108,6 @@ public class GroupController {
         }
     }
 
-    /**
-     * offsetQuery
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @GetMapping("/offset")
-    public @ResponseBody String queryOffset(
-        @RequestParam Map<String, String> req) throws Exception {
-        String url = masterService.getQueryUrl(req);
-        return queryMaster(url);
-    }
-
-
 
     @PostMapping("/blackGroup")
     public @ResponseBody TubeMQResult BlackGroupProxy(
