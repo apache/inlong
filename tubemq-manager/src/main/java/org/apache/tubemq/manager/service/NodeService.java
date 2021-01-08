@@ -21,6 +21,7 @@ package org.apache.tubemq.manager.service;
 import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD_TUBE_TOPIC;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_CLUSTER;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD_BROKER;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
@@ -43,6 +44,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
@@ -52,6 +54,7 @@ import org.apache.tubemq.manager.service.tube.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -79,6 +82,9 @@ public class NodeService {
 
     @Autowired
     private TopicService topicService;
+
+    @Autowired
+    private MasterService masterService;
 
     public NodeService(TopicBackendWorker worker) {
         this.worker = worker;
@@ -113,9 +119,15 @@ public class NodeService {
 
 
 
+    /**
+     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    public TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception {
 
-    public TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req, int clusterId) throws Exception {
-
+        int clusterId = req.getClusterId();
         // 1. query source broker config
         QueryBrokerCfgReq queryReq = QueryBrokerCfgReq.getReq(req.getSourceBrokerId());
         NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
@@ -406,15 +418,11 @@ public class NodeService {
      */
     public TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception {
 
-        if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
-        }
-        NodeEntry master = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-            req.getClusterId());
+        NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
-        }
 
+            return TubeMQResult.getErrorResult(NO_SUCH_CLUSTER);
+        }
         // 1 query topic config
         TubeHttpTopicInfoList topicInfoList = topicService.requestTopicConfigInfo(master, req.getSourceTopicName());
 
@@ -441,56 +449,16 @@ public class NodeService {
 
     }
 
-
-    private TubeMQResult addBrokersToCluster(AddBrokersReq req, NodeEntry masterEntry) {
-        String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-            + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-        TubeMQResult tubeMQResult = requestMaster(url);
-        return tubeMQResult;
-    }
-
-
-
     /**
-     * add brokers to cluster, need to check token and
-     * make sure user has authorization to modify it.
-     */
-    public String addBrokers(
-        AddBrokersReq req)  {
-        String token = req.getConfModAuthToken();
-        int clusterId = req.getClusterId();
-
-        if (StringUtils.isNotBlank(token)) {
-            NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-                clusterId);
-            TubeMQResult result = addBrokersToCluster(req, masterEntry);
-            return gson.toJson(result);
-        } else {
-            TubeMQResult result = new TubeMQResult();
-            result.setErrCode(-1);
-            result.setResult(false);
-            result.setErrMsg("token is not correct");
-            return gson.toJson(result);
-        }
-
-    }
-
-
-
-    /**
-     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * add topic to brokers
      * @param req
      * @return
-     * @throws Exception
      */
-    public String cloneBrokers(
-        CloneBrokersReq req) throws Exception {
-        int clusterId = req.getClusterId();
-        TubeMQResult tubeResult = cloneBrokersWithTopic(req, clusterId);
-        return gson.toJson(tubeResult);
+    public TubeMQResult addTopic(BatchAddTopicReq req) {
+        NodeEntry masterEntry = masterService.getMasterNode(req);
+        if (masterEntry == null) {
+            return TubeMQResult.getErrorResult(NO_SUCH_CLUSTER);
+        }
+        return addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
     }
-
-
-
-
 }

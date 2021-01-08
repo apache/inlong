@@ -17,8 +17,6 @@
 
 package org.apache.tubemq.manager.controller.node.request;
 
-
-import lombok.Builder;
 import lombok.Data;
 import org.apache.tubemq.manager.service.tube.BrokerConf;
 
@@ -27,23 +25,11 @@ import java.util.List;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
 
 @Data
-public class AddBrokersReq {
+public class AddBrokersReq extends BaseReq{
 
     private String confModAuthToken;
 
     private String createUser;
-
-    private int clusterId;
-
-    /**
-     * admin_bath_add_broker_configure
-     */
-    private String method;
-
-    /**
-     * op_modify
-     */
-    private String type;
 
     private List<BrokerConf> brokerJsonSet;
 

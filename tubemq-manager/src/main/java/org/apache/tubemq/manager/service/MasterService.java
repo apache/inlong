@@ -116,21 +116,6 @@ public class MasterService {
     }
 
 
-
-
-    public TubeMQResult redirectToMaster(Map<String, String> queryBody) throws Exception {
-        int clusterId = Integer.parseInt(queryBody.get("clusterId"));
-        queryBody.remove("clusterId");
-        NodeEntry nodeEntry =
-                nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(clusterId);
-        if (nodeEntry == null) {
-            return TubeMQResult.getErrorResult("ClusterId doesn't exist");
-        }
-        String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
-                + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(queryBody);
-        return requestMaster(url);
-    }
-
     public TubeMQResult baseRequestMaster(BaseReq req) {
         if (req.getClusterId() == null) {
             return TubeMQResult.getErrorResult("please input clusterId");
@@ -143,6 +128,15 @@ public class MasterService {
         String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
             + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
         return requestMaster(url);
+    }
+
+
+    public NodeEntry getMasterNode(BaseReq req) {
+        if (req.getClusterId() == null) {
+            return null;
+        }
+        return nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
     }
 
 

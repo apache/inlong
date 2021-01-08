@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.BrokerSetReadOrWriteReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
@@ -116,28 +117,25 @@ public class NodeController {
      * divides the operation on broker to different method
      */
     @RequestMapping(value = "/broker")
-    public @ResponseBody String brokerMethodProxy(
+    public @ResponseBody
+    TubeMQResult brokerMethodProxy(
         @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case CLONE:
-                return nodeService.cloneBrokers(gson.fromJson(req, CloneBrokersReq.class));
+                return nodeService.cloneBrokersWithTopic(gson.fromJson(req, CloneBrokersReq.class));
             case ADD:
-                return nodeService.addBrokers(gson.fromJson(req, AddBrokersReq.class));
+                return masterService.baseRequestMaster(gson.fromJson(req, AddBrokersReq.class));
             case ONLINE:
             case OFFLINE:
-                return gson.toJson(
-                    masterService.baseRequestMaster(gson.fromJson(req, OnlineOfflineBrokerReq.class)));
+                return masterService.baseRequestMaster(gson.fromJson(req, OnlineOfflineBrokerReq.class));
             case RELOAD:
-                return gson.toJson(
-                    masterService.baseRequestMaster(gson.fromJson(req, ReloadBrokerReq.class)));
+                return masterService.baseRequestMaster(gson.fromJson(req, ReloadBrokerReq.class));
             case DELETE:
-                return gson.toJson(
-                    masterService.baseRequestMaster(gson.fromJson(req, DeleteBrokerReq.class)));
+                return masterService.baseRequestMaster(gson.fromJson(req, DeleteBrokerReq.class));
             case SET_READ_OR_WRITE:
-                return gson.toJson(
-                    masterService.baseRequestMaster(gson.fromJson(req, BrokerSetReadOrWriteReq.class)));
+                return masterService.baseRequestMaster(gson.fromJson(req, BrokerSetReadOrWriteReq.class));
             default:
-                return "no such method";
+                return TubeMQResult.getErrorResult("no such method");
         }
     }
 

@@ -57,15 +57,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TopicWebController {
 
-
     @Autowired
     private NodeService nodeService;
-
-    @Autowired
-    private TopicService topicService;
-
-    @Autowired
-    private NodeRepository nodeRepository;
 
     public Gson gson = new Gson();
 
@@ -81,7 +74,7 @@ public class TopicWebController {
         @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case ADD:
-                return addTopic(gson.fromJson(req, BatchAddTopicReq.class));
+                return nodeService.addTopic(gson.fromJson(req, BatchAddTopicReq.class));
             case CLONE:
                 return nodeService.cloneTopicToBrokers(gson.fromJson(req, CloneTopicReq.class));
             case AUTH_CONTROL:
@@ -102,7 +95,7 @@ public class TopicWebController {
      * @return
      * @throws Exception
      */
-    @GetMapping("/consumer-auth")
+    @GetMapping("/consumerAuth")
     public @ResponseBody String queryConsumerAuth(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
@@ -115,34 +108,11 @@ public class TopicWebController {
      * @return
      * @throws Exception
      */
-    @GetMapping("/topic-config")
+    @GetMapping("/topicConfig")
     public @ResponseBody String queryTopicConfig(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
         return queryMaster(url);
     }
-
-
-
-
-    /**
-     * add topic to brokers
-     * @param req
-     * @return
-     */
-    public TubeMQResult addTopic(@RequestBody BatchAddTopicReq req) {
-        if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
-        }
-        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-            req.getClusterId());
-        if (masterEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
-        }
-        return nodeService.addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
-    }
-
-
-
 
 }

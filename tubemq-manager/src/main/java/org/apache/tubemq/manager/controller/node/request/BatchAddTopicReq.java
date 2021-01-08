@@ -21,8 +21,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class BatchAddTopicReq {
+public class BatchAddTopicReq extends BaseReq{
     List<AddTopicReq> addTopicReqs;
     List<Integer> brokerIds;
-    Integer clusterId;
 }

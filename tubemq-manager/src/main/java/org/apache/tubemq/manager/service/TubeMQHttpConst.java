@@ -50,5 +50,6 @@ public class TubeMQHttpConst {
     public static final String OFFLINE = "offline";
     public static final String REBALANCE_CONSUMER_GROUP = "rebalanceGroup";
     public static final String REBALANCE_CONSUMER = "rebalanceConsumer";
+    public static final String NO_SUCH_CLUSTER = "no such cluster";;
 
 }

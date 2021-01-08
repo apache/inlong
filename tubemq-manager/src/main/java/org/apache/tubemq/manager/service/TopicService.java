@@ -62,53 +62,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class TopicService {
 
-    @Autowired
-    private NodeRepository nodeRepository;
-
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
 
     @Value("${manager.broker.webPort:8081}")
     private int brokerWebPort;
 
-
-    public TubeMQResult addConsumer(
-        BatchAddGroupAuthReq req) {
-        NodeEntry nodeEntry =
-            nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(req.getClusterId());
-        if (nodeEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
-        }
-        String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
-            + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils.convertReqToQueryStr(req);
-
-        return requestMaster(url);
-    }
-
-
-    public TubeMQResult deleteConsumer(DeleteGroupReq req) {
-        NodeEntry nodeEntry =
-            nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(req.getClusterId());
-        if (nodeEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
-        }
-        String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
-            + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils.convertReqToQueryStr(req);
-        return requestMaster(url);
-    }
-
-
-    public TubeMQResult cloneOffset(CloneOffsetReq req) {
-        if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
-        }
-        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-            req.getClusterId());
-        if (masterEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
-        }
-        return cloneOffsetToOtherGroups(req, masterEntry);
-    }
+    @Autowired
+    private MasterService masterService;
 
     private TubeHttpGroupDetailInfo requestGroupRunInfo(NodeEntry nodeEntry, String group) {
         String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
@@ -128,8 +89,12 @@ public class TopicService {
     }
 
 
-    public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req, NodeEntry master) {
+    public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req) {
 
+        NodeEntry master = masterService.getMasterNode(req);
+        if (master == null) {
+            return TubeMQResult.getErrorResult("no such cluster");
+        }
         // 1. query the corresponding brokers having given topic
         TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
         TubeMQResult result = new TubeMQResult();
@@ -174,11 +139,7 @@ public class TopicService {
 
     public TubeMQResult rebalanceGroup(RebalanceGroupReq req) {
 
-        if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
-        }
-        NodeEntry master = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-            req.getClusterId());
+        NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
             return TubeMQResult.getErrorResult("no such cluster");
         }
@@ -210,17 +171,13 @@ public class TopicService {
 
     public TubeMQResult deleteOffset(DeleteOffsetReq req) {
 
-        if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
-        }
-        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-            req.getClusterId());
-        if (masterEntry == null) {
+        NodeEntry master = masterService.getMasterNode(req);
+        if (master == null) {
             return TubeMQResult.getErrorResult("no such cluster");
         }
 
         // 1. query the corresponding brokers having given topic
-        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(masterEntry, req.getTopicName());
+        TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
         TubeMQResult result = new TubeMQResult();
         CleanOffsetResult cleanOffsetResult = new CleanOffsetResult();
         if (topicInfoList == null) {

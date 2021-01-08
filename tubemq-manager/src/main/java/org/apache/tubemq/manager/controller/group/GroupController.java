@@ -69,9 +69,9 @@ public class GroupController {
         @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case ADD:
-                return topicService.addConsumer(gson.fromJson(req, BatchAddGroupAuthReq.class));
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchAddGroupAuthReq.class));
             case DELETE:
-                return topicService.deleteConsumer(gson.fromJson(req, DeleteGroupReq.class));
+                return masterService.baseRequestMaster(gson.fromJson(req, DeleteGroupReq.class));
             case REBALANCE_CONSUMER_GROUP:
                 return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
             case REBALANCE_CONSUMER:
@@ -100,7 +100,7 @@ public class GroupController {
         @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case CLONE:
-                return topicService.cloneOffset(gson.fromJson(req, CloneOffsetReq.class));
+                return topicService.cloneOffsetToOtherGroups(gson.fromJson(req, CloneOffsetReq.class));
             case DELETE:
                 return topicService.deleteOffset(gson.fromJson(req, DeleteOffsetReq.class));
             default:
