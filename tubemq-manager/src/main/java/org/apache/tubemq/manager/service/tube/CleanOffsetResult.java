@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.node.request;
 
+package org.apache.tubemq.manager.service.tube;
+
+import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+public class CleanOffsetResult {
+    private List<String> failBrokers = Lists.newArrayList();
+
+    private List<String> successBrokers = Lists.newArrayList();
 }

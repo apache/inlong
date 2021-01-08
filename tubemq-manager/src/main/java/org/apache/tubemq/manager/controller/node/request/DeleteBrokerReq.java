@@ -17,11 +17,12 @@
 
 package org.apache.tubemq.manager.controller.node.request;
 
-import java.util.List;
 import lombok.Data;
 
 @Data
-public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+public class DeleteBrokerReq extends BaseReq{
+    private Boolean isReservedData;
+    private String modifyUser;
+    private String brokerId;
+    private String confModAuthToken;
 }

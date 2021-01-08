@@ -15,13 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.node.request;
+package org.apache.tubemq.manager.controller.topic.request;
 
-import java.util.List;
 import lombok.Data;
+import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
-public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+public class ModifyTopicReq extends BaseReq {
+    private String modifyUser;
+    private String deleteWhen;
+    private Integer unflushThreshold;
+    private Boolean acceptPublish;
+    private Integer numPartitions;
+    private Integer unflushInterval;
+    private Boolean acceptSubscribe;
+    private String brokerId;
+    private String confModAuthToken;
+    private String topicName;
+    private String deletePolicy;
+    private Integer unflushDataHold;
+    private Integer numTopicStores;
+    private Integer memCacheMsgCntInK;
+    private Integer memCacheMsgSizeInMB;
 }

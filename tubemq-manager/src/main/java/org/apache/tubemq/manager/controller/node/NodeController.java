@@ -17,48 +17,46 @@
 
 package org.apache.tubemq.manager.controller.node;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.node.request.AddBrokersReq;
-import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.tubemq.manager.controller.node.request.BrokerSetReadOrWriteReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
-import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
-import org.apache.tubemq.manager.entry.NodeEntry;
+import org.apache.tubemq.manager.controller.node.request.DeleteBrokerReq;
+import org.apache.tubemq.manager.controller.node.request.OnlineOfflineBrokerReq;
+import org.apache.tubemq.manager.controller.node.request.ReloadBrokerReq;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.NodeService;
-import org.apache.tubemq.manager.service.tube.*;
-import org.apache.tubemq.manager.utils.MasterUtils;
+import org.apache.tubemq.manager.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
-import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.*;
-import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
-import static org.apache.tubemq.manager.utils.MasterUtils.*;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADMIN_QUERY_CLUSTER_INFO;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_METHOD;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.OFFLINE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ONLINE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_QUERY;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SET_READ_OR_WRITE;
+import static org.apache.tubemq.manager.service.MasterService.*;
 
 @RestController
 @RequestMapping(path = "/v1/node")
 @Slf4j
 public class NodeController {
 
-    public static final String NO_SUCH_METHOD = "no such method";
-    public static final String OP_QUERY = "op_query";
-    public static final String ADMIN_QUERY_CLUSTER_INFO = "admin_query_cluster_info";
+
     private final Gson gson = new Gson();
-    private static final CloseableHttpClient httpclient = HttpClients.createDefault();
 
     @Autowired
     NodeService nodeService;
@@ -67,7 +65,7 @@ public class NodeController {
     NodeRepository nodeRepository;
 
     @Autowired
-    MasterUtils masterUtil;
+    MasterService masterService;
 
     /**
      * query brokers in certain cluster
@@ -91,11 +89,11 @@ public class NodeController {
      * query brokers' run status
      * this method supports batch operation
      */
-    @RequestMapping(value = "/query/brokerStatus", method = RequestMethod.GET,
+    @RequestMapping(value = "/broker/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryBrokerDetail(
             @RequestParam Map<String, String> queryBody) throws Exception {
-        String url = masterUtil.getQueryUrl(queryBody);
+        String url = masterService.getQueryUrl(queryBody);
         return queryMaster(url);
     }
 
@@ -104,115 +102,41 @@ public class NodeController {
      * query brokers' configuration
      * this method supports batch operation
      */
-    @RequestMapping(value = "/query/brokerConfig", method = RequestMethod.GET,
+    @RequestMapping(value = "/broker/config", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String queryBrokerConfig(
             @RequestParam Map<String, String> queryBody) throws Exception {
-        String url = masterUtil.getQueryUrl(queryBody);
+        String url = masterService.getQueryUrl(queryBody);
         return queryMaster(url);
     }
 
-    /**
-     * clone source broker to generate brokers with the same config and copy the topics in it.
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/clone", method = RequestMethod.POST)
-    public @ResponseBody String cloneBrokers(
-            @RequestBody CloneBrokersReq req) throws Exception {
-        int clusterId = req.getClusterId();
-        TubeMQResult tubeResult = nodeService.cloneBrokersWithTopic(req, clusterId);
-        return gson.toJson(tubeResult);
-    }
-
-
 
 
     /**
-     * add brokers to cluster, need to check token and
-     * make sure user has authorization to modify it.
+     * broker method proxy
+     * divides the operation on broker to different method
      */
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public @ResponseBody String addBrokers(
-            @RequestBody AddBrokersReq req) throws Exception {
-        String token = req.getConfModAuthToken();
-        int clusterId = req.getClusterId();
-
-        if (StringUtils.isNotBlank(token)) {
-            NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
-                    clusterId);
-            TubeMQResult result = addBrokersToCluster(req, masterEntry);
-            return gson.toJson(result);
-        } else {
-            TubeMQResult result = new TubeMQResult();
-            result.setErrCode(-1);
-            result.setResult(false);
-            result.setErrMsg("token is not correct");
-            return gson.toJson(result);
+    @RequestMapping(value = "/broker")
+    public @ResponseBody
+    TubeMQResult brokerMethodProxy(
+        @RequestParam String method, @RequestBody String req) throws Exception {
+        switch (method) {
+            case CLONE:
+                return nodeService.cloneBrokersWithTopic(gson.fromJson(req, CloneBrokersReq.class));
+            case ADD:
+                return masterService.baseRequestMaster(gson.fromJson(req, AddBrokersReq.class));
+            case ONLINE:
+            case OFFLINE:
+                return masterService.baseRequestMaster(gson.fromJson(req, OnlineOfflineBrokerReq.class));
+            case RELOAD:
+                return masterService.baseRequestMaster(gson.fromJson(req, ReloadBrokerReq.class));
+            case DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, DeleteBrokerReq.class));
+            case SET_READ_OR_WRITE:
+                return masterService.baseRequestMaster(gson.fromJson(req, BrokerSetReadOrWriteReq.class));
+            default:
+                return TubeMQResult.getErrorResult("no such method");
         }
-
-    }
-
-
-    /**
-     * online brokers in cluster
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/online", method = RequestMethod.GET)
-    public @ResponseBody String onlineBrokers(
-            @RequestParam Map<String, String> queryBody) throws Exception {
-        return gson.toJson(masterUtil.redirectToMaster(queryBody));
-    }
-
-    /**
-     * reload brokers in cluster
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/reload", method = RequestMethod.GET)
-    public @ResponseBody String reloadBrokers(
-            @RequestParam Map<String, String> queryBody) throws Exception {
-        return gson.toJson(masterUtil.redirectToMaster(queryBody));
-    }
-
-    /**
-     * delete brokers in cluster
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public @ResponseBody String deleteBrokers(
-            @RequestParam Map<String, String> queryBody) throws Exception {
-        TubeMQResult result = masterUtil.redirectToMaster(queryBody);
-        return gson.toJson(result);
-    }
-
-    /**
-     * change brokers' read mode in cluster
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/setRead", method = RequestMethod.GET)
-    public @ResponseBody String setBrokersRead(
-            @RequestParam Map<String, String> queryBody) throws Exception {
-        TubeMQResult result = masterUtil.redirectToMaster(queryBody);
-        return gson.toJson(result);
-    }
-
-    /**
-     * change brokers' write mode in cluster
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/setWrite", method = RequestMethod.GET)
-    public @ResponseBody String setBrokersWrite(
-            @RequestParam Map<String, String> queryBody) throws Exception {
-        TubeMQResult result = masterUtil.redirectToMaster(queryBody);
-        return gson.toJson(result);
-    }
-
-    private TubeMQResult addBrokersToCluster(AddBrokersReq req, NodeEntry masterEntry) throws Exception {
-        String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-        TubeMQResult tubeMQResult = requestMaster(url);
-        return tubeMQResult;
     }
 
 }

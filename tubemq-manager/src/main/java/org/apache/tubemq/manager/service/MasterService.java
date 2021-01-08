@@ -16,7 +16,7 @@
  */
 
 
-package org.apache.tubemq.manager.utils;
+package org.apache.tubemq.manager.service;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +27,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.tube.TubeHttpResponse;
@@ -43,13 +45,14 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
+import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 
 
 @Slf4j
 @Component
-public class MasterUtils {
+public class MasterService {
 
-    public static final int SUCCESS_CODE = 0;
     private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
     public static final String TUBE_REQUEST_PATH = "webapi.htm";
@@ -69,7 +72,7 @@ public class MasterUtils {
 
 
 
-    public static TubeMQResult requestMaster(String url) throws Exception {
+    public static TubeMQResult requestMaster(String url) {
 
         log.info("start to request {}", url);
         HttpGet httpGet = new HttpGet(url);
@@ -113,20 +116,29 @@ public class MasterUtils {
     }
 
 
-
-
-    public TubeMQResult redirectToMaster(Map<String, String> queryBody) throws Exception {
-        int clusterId = Integer.parseInt(queryBody.get("clusterId"));
-        queryBody.remove("clusterId");
-        NodeEntry nodeEntry =
-                nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(clusterId);
-        if (nodeEntry == null) {
-            return TubeMQResult.getErrorResult("ClusterId doesn't exist");
+    public TubeMQResult baseRequestMaster(BaseReq req) {
+        if (req.getClusterId() == null) {
+            return TubeMQResult.getErrorResult("please input clusterId");
         }
-        String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
-                + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(queryBody);
+        NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
+        if (masterEntry == null) {
+            return TubeMQResult.getErrorResult("no such cluster");
+        }
+        String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
+            + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
         return requestMaster(url);
     }
+
+
+    public NodeEntry getMasterNode(BaseReq req) {
+        if (req.getClusterId() == null) {
+            return null;
+        }
+        return nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
+            req.getClusterId());
+    }
+
 
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));

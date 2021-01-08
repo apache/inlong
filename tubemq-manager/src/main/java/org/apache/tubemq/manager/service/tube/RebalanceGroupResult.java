@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.node.request;
 
+package org.apache.tubemq.manager.service.tube;
+
+import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+public class RebalanceGroupResult {
+    public List<String> failConsumers = Lists.newArrayList();
+
+    public List<String> successConsumers = Lists.newArrayList();
 }

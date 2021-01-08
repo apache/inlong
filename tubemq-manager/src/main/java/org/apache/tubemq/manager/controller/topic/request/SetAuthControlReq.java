@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.controller.node.request;
+package org.apache.tubemq.manager.controller.topic.request;
 
-import java.util.List;
 import lombok.Data;
+import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
-public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+public class SetAuthControlReq extends BaseReq {
+    private String confModAuthToken;
+    private String topicName;
+    private String createUser;
+    private Boolean isEnable;
 }
