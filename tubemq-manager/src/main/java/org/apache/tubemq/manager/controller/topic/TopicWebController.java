@@ -25,7 +25,6 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.MODIFY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REMOVE;
 import static org.apache.tubemq.manager.service.MasterService.queryMaster;
-import static org.apache.tubemq.manager.service.MasterService.requestMaster;
 
 
 import com.google.gson.Gson;
@@ -36,16 +35,11 @@ import org.apache.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.ModifyTopicReq;
-import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.controller.topic.request.SetAuthControlReq;
-import org.apache.tubemq.manager.entry.NodeEntry;
-import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.NodeService;
 import org.apache.tubemq.manager.service.MasterService;
-import org.apache.tubemq.manager.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -74,7 +68,7 @@ public class TopicWebController {
         @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case ADD:
-                return nodeService.addTopic(gson.fromJson(req, BatchAddTopicReq.class));
+                return nodeService.batchAddTopic(gson.fromJson(req, BatchAddTopicReq.class));
             case CLONE:
                 return nodeService.cloneTopicToBrokers(gson.fromJson(req, CloneTopicReq.class));
             case AUTH_CONTROL:

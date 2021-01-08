@@ -36,7 +36,7 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_GROUP;
 @Slf4j
 public class ConvertUtils {
 
-    public static Gson gson = new Gson();
+    public static final Gson gson = new Gson();
 
     public static String convertReqToQueryStr(Object req) {
         List<String> queryList = new ArrayList<>();
