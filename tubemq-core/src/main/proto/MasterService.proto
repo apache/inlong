@@ -61,6 +61,16 @@ message MasterBrokerAuthorizedInfo {
     optional string authAuthorizedToken = 2;
 }
 
+message ApprovedClientConfig {
+    required int64 configId = 1;
+    optional int32 maxMsgSize = 2;
+}
+
+message ClusterDefConfig {
+    required int64 configId = 1;
+    optional int32 maxMsgSize = 2;
+}
+
 message RegisterRequestP2M {
     required string clientId = 1;
     repeated string topicList = 2;
@@ -68,6 +78,7 @@ message RegisterRequestP2M {
     required string hostName = 4;
     optional MasterCertificateInfo authInfo = 5;
     optional string jdkVersion = 6;
+    optional ApprovedClientConfig appdConfig = 7;
 }
 
 message RegisterResponseM2P {
@@ -77,6 +88,7 @@ message RegisterResponseM2P {
     required int64 brokerCheckSum = 4;
     repeated string brokerInfos = 5;
     optional MasterAuthorizedInfo authorizedInfo = 6;
+    optional ApprovedClientConfig appdConfig = 7;
 }
 
 message HeartRequestP2M {
@@ -85,6 +97,7 @@ message HeartRequestP2M {
     required string hostName = 3;
     repeated string topicList = 4;
     optional MasterCertificateInfo authInfo = 5;
+    optional ApprovedClientConfig appdConfig = 6;
 }
 
 message HeartResponseM2P {
@@ -97,6 +110,7 @@ message HeartResponseM2P {
     repeated string brokerInfos = 6;
     optional bool requireAuth = 7;
     optional MasterAuthorizedInfo authorizedInfo = 8;
+    optional ApprovedClientConfig appdConfig = 9;
 }
 
 message CloseRequestP2M{
@@ -208,6 +222,7 @@ message RegisterRequestB2M {
     optional int32 qryPriorityId = 12;
     optional int32 tlsPort = 13;
     optional MasterCertificateInfo authInfo = 14;
+    optional ClusterDefConfig clsDefConfig = 15;
 }
 
 message RegisterResponseM2B {
@@ -230,6 +245,7 @@ message RegisterResponseM2B {
     optional int32 qryPriorityId = 15;
     optional MasterAuthorizedInfo authorizedInfo = 16; /* Deprecated  */
     optional MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 17;
+    optional ClusterDefConfig clsDefConfig = 18;
 }
 
 message HeartRequestB2M {
@@ -250,6 +266,7 @@ message HeartRequestB2M {
     optional int64 flowCheckId = 13;
     optional int32 qryPriorityId = 14;
     optional MasterCertificateInfo authInfo = 15;
+    optional ClusterDefConfig clsDefConfig = 16;
 }
 
 message HeartResponseM2B {
@@ -275,6 +292,7 @@ message HeartResponseM2B {
     optional int32 qryPriorityId = 17;
     optional MasterAuthorizedInfo authorizedInfo = 18;   /* Deprecated  */
     optional MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 19;
+    optional ClusterDefConfig clsDefConfig = 20;
 }
 
 message CloseRequestB2M {

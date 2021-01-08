@@ -46,6 +46,7 @@ import org.apache.tubemq.server.master.bdbstore.DefaultBdbStoreService;
 import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
@@ -90,6 +91,7 @@ public class BrokerConfManager implements Server {
             ConcurrentHashMap<String /* consumerGroup */, BdbGroupFilterCondEntity>> groupFilterCondTopicMap;
     private ConcurrentHashMap<String /* groupName */, BdbGroupFlowCtrlEntity> consumeGroupFlowCtrlMap;
     private ConcurrentHashMap<String /* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap;
+    private ConcurrentHashMap<String /* recordKey */, BdbClusterSettingEntity> clusterSettingMap;
     private AtomicLong brokerInfoCheckSum = new AtomicLong(System.currentTimeMillis());
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private long serviceStartTime = System.currentTimeMillis();
@@ -98,6 +100,8 @@ public class BrokerConfManager implements Server {
     public BrokerConfManager(DefaultBdbStoreService mBdbStoreManagerService) {
         this.mBdbStoreManagerService = mBdbStoreManagerService;
         this.replicationConfig = mBdbStoreManagerService.getReplicationConfig();
+        this.clusterSettingMap =
+                this.mBdbStoreManagerService.getClusterDefSettingMap();
         this.brokerConfStoreMap = this.mBdbStoreManagerService.getBrokerConfigMap();
         for (BdbBrokerConfEntity entity : this.brokerConfStoreMap.values()) {
             updateBrokerMaps(entity);
@@ -2012,6 +2016,97 @@ public class BrokerConfManager implements Server {
         }
         return true;
     }
+
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Add cluster default setting
+     *
+     * @param bdbEntity the cluster default setting entity will be add
+     * @return true if success otherwise false
+     * @throws Exception
+     */
+    public boolean confAddBdbClusterDefSetting(BdbClusterSettingEntity bdbEntity)
+            throws Exception {
+        validMasterStatus();
+        BdbClusterSettingEntity curEntity =
+                clusterSettingMap.get(bdbEntity.getRecordKey());
+        if (curEntity != null) {
+            throw new Exception(new StringBuilder(512)
+                    .append("Duplicate add ClusterSetting info, exist record is: ")
+                    .append(curEntity).toString());
+        }
+        boolean putResult =
+                mBdbStoreManagerService.putBdbClusterConfEntity(bdbEntity, true);
+        if (putResult) {
+            clusterSettingMap.put(bdbEntity.getRecordKey(), bdbEntity);
+            logger.info(new StringBuilder(512)
+                    .append("[ClusterSetting Success] ")
+                    .append(bdbEntity).toString());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * update cluster default setting
+     *
+     * @param bdbEntity the cluster setting entity will be set
+     * @return true if success otherwise false
+     * @throws Exception
+     */
+    public boolean confUpdBdbClusterSetting(BdbClusterSettingEntity bdbEntity)
+            throws Exception {
+        validMasterStatus();
+        StringBuilder strBuffer = new StringBuilder(512);
+        BdbClusterSettingEntity curDefSettingEntity =
+                clusterSettingMap.get(bdbEntity.getRecordKey());
+        if (curDefSettingEntity == null) {
+            throw new Exception(strBuffer
+                    .append("Update ClusterSetting failure, not exist record for record: ")
+                    .append(bdbEntity.getRecordKey()).toString());
+        }
+        boolean putResult =
+                mBdbStoreManagerService.putBdbClusterConfEntity(bdbEntity, false);
+        if (putResult) {
+            clusterSettingMap.put(bdbEntity.getRecordKey(), bdbEntity);
+            strBuffer.append("[confUpdBdbClusterSetting Success] record from : ");
+            strBuffer = curDefSettingEntity.toJsonString(strBuffer);
+            strBuffer.append(" to : ");
+            strBuffer = bdbEntity.toJsonString(strBuffer);
+            logger.info(strBuffer.toString());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Delete cluster default setting
+     *
+     * @param strBuffer    the error info string buffer
+     * @return true if success
+     * @throws Exception
+     */
+    public boolean confDeleteBdbClusterSetting(final StringBuilder strBuffer) throws Exception {
+        validMasterStatus();
+        BdbClusterSettingEntity curEntity =
+                this.clusterSettingMap.remove(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        if (curEntity != null) {
+            mBdbStoreManagerService.delBdbClusterConfEntity();
+            strBuffer.append(
+                    "[confDeleteBdbClusterSetting  Success], deleted cluster setting record :");
+            logger.info(curEntity.toJsonString(strBuffer).toString());
+            strBuffer.delete(0, strBuffer.length());
+        } else {
+            logger.info("[confDeleteBdbClusterSetting  Success], not found record");
+        }
+        return true;
+    }
+
+    public BdbClusterSettingEntity getBdbClusterSetting() {
+        return this.clusterSettingMap.get(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+    }
+
 
     private void validMasterStatus() throws Exception {
         if (!isSelfMaster()) {
