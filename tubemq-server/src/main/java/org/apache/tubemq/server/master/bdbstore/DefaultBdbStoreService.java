@@ -55,11 +55,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.Server;
+import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
@@ -72,6 +74,7 @@ import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Bdb store service
  * like a local database manager, according to database table name, store instance, primary key, memory cache
@@ -80,6 +83,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultBdbStoreService implements BdbStoreService, Server {
     private static final Logger logger = LoggerFactory.getLogger(DefaultBdbStoreService.class);
 
+    private static final String BDB_CLUSTER_SETTING_STORE_NAME = "bdbClusterSetting";
     private static final String BDB_TOPIC_CONFIG_STORE_NAME = "bdbTopicConfig";
     private static final String BDB_BROKER_CONFIG_STORE_NAME = "bdbBrokerConfig";
     private static final String BDB_CONSUMER_GROUP_STORE_NAME = "bdbConsumerGroup";
@@ -151,6 +155,11 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     private EntityStore consumeGroupSettingStore;
     private PrimaryIndex<String/* recordKey */, BdbConsumeGroupSettingEntity> consumeGroupSettingIndex;
     private ConcurrentHashMap<String/* consumeGroup */, BdbConsumeGroupSettingEntity> consumeGroupSettingMap =
+            new ConcurrentHashMap<>();
+    // cluster default setting store
+    private EntityStore clusterDefSettingStore;
+    private PrimaryIndex<String/* recordKey */, BdbClusterSettingEntity> clusterDefSettingIndex;
+    private ConcurrentHashMap<String/* recordKey */, BdbClusterSettingEntity> clusterDefSettingMap =
             new ConcurrentHashMap<>();
     // service status
     private AtomicBoolean isStarted = new AtomicBoolean(false);
@@ -384,6 +393,14 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                 groupFlowCtrlStore = null;
             } catch (Throwable e) {
                 logger.error("[BDB Error] Close groupFlowCtrlStore error ", e);
+            }
+        }
+        if (clusterDefSettingStore != null) {
+            try {
+                clusterDefSettingStore.close();
+                clusterDefSettingStore = null;
+            } catch (Throwable e) {
+                logger.error("[BDB Error] Close clusterDefSettingStore error ", e);
             }
         }
         /* evn close */
@@ -769,6 +786,39 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         return true;
     }
 
+    /**
+     * Put cluster default setting bdb entity
+     *
+     * @param clusterConfEntity
+     * @param isNew
+     * @return
+     */
+    @Override
+    public boolean putBdbClusterConfEntity(BdbClusterSettingEntity clusterConfEntity, boolean isNew) {
+        BdbClusterSettingEntity result = null;
+        try {
+            result = clusterDefSettingIndex.put(clusterConfEntity);
+        } catch (Throwable e) {
+            logger.error("[BDB Error] Put ClusterConfEntity Error ", e);
+            return false;
+        }
+        if (isNew) {
+            return result == null;
+        }
+        return result != null;
+    }
+
+    @Override
+    public boolean delBdbClusterConfEntity() {
+        try {
+            clusterDefSettingIndex.delete(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        } catch (Throwable e) {
+            logger.error("[BDB Error] delBdbClusterConfEntity Error ", e);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public ConcurrentHashMap<String,
             ConcurrentHashMap<String, BdbConsumerGroupEntity>> getConsumerGroupNameAccControlMap() {
@@ -795,6 +845,11 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     @Override
     public ConcurrentHashMap<String, BdbConsumeGroupSettingEntity> getConsumeGroupSettingMap() {
         return this.consumeGroupSettingMap;
+    }
+
+    @Override
+    public ConcurrentHashMap<String, BdbClusterSettingEntity> getClusterDefSettingMap() {
+        return this.clusterDefSettingMap;
     }
 
     /**
@@ -977,6 +1032,10 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                 new EntityStore(repEnv, BDB_CONSUME_GROUP_SETTING_STORE_NAME, storeConfig);
         consumeGroupSettingIndex =
                 consumeGroupSettingStore.getPrimaryIndex(String.class, BdbConsumeGroupSettingEntity.class);
+        clusterDefSettingStore =
+                new EntityStore(repEnv, BDB_CLUSTER_SETTING_STORE_NAME, storeConfig);
+        clusterDefSettingIndex =
+                clusterDefSettingStore.getPrimaryIndex(String.class, BdbClusterSettingEntity.class);
     }
 
     /**
@@ -1394,6 +1453,41 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
         logger.info("loadConsumeGroupSettingUnits successfully...");
     }
 
+
+    private void loadClusterDefSettingUnits() throws Exception {
+        long count = 0L;
+        EntityCursor<BdbClusterSettingEntity> cursor = null;
+        logger.info("loadClusterDefSettingUnits start...");
+        try {
+            cursor = clusterDefSettingIndex.entities();
+            clusterDefSettingMap.clear();
+            StringBuilder sBuilder = logger.isDebugEnabled() ? new StringBuilder(512) : null;
+            logger.debug("[loadClusterDefSettingUnits] Load consumer group begin:");
+            for (BdbClusterSettingEntity bdbEntity : cursor) {
+                if (bdbEntity == null) {
+                    logger.warn("[BDB Error] Found Null data while loading from clusterDefSettingIndex!");
+                    continue;
+                }
+                clusterDefSettingMap.put(bdbEntity.getRecordKey(), bdbEntity);
+                count++;
+                if (logger.isDebugEnabled()) {
+                    logger.debug(bdbEntity.toJsonString(sBuilder).toString());
+                    sBuilder.delete(0, sBuilder.length());
+                }
+            }
+            logger.debug("[loadClusterDefSettingUnits] Load consumer group finished!");
+            logger.info("[loadClusterDefSettingUnits] total load records are {}", count);
+        } catch (Exception e) {
+            logger.error("[loadClusterDefSettingUnits error] ", e);
+            throw e;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        logger.info("loadClusterDefSettingUnits successfully...");
+    }
+
     public class Listener implements StateChangeListener {
         @Override
         public void stateChange(StateChangeEvent stateChangeEvent) throws RuntimeException {
@@ -1424,6 +1518,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
                             if (!isMaster) {
                                 try {
                                     clearCachedRunData();
+                                    loadClusterDefSettingUnits();
                                     loadBrokerConfUnits();
                                     loadTopicConfUnits();
                                     loadGroupFlowCtrlUnits();

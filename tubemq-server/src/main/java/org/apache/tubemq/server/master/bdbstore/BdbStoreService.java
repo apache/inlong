@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
@@ -103,4 +104,10 @@ public interface BdbStoreService {
                                             boolean isNew);
 
     ConcurrentHashMap<String, BdbConsumeGroupSettingEntity> getConsumeGroupSettingMap();
+
+    boolean putBdbClusterConfEntity(BdbClusterSettingEntity clusterConfEntity, boolean isNew);
+
+    boolean delBdbClusterConfEntity();
+
+    ConcurrentHashMap<String, BdbClusterSettingEntity> getClusterDefSettingMap();
 }
