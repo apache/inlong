@@ -67,7 +67,7 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
         // daemon thread
         thread.setDaemon(true);
         thread.start();
-        nodeService = new NodeService(this);
+        nodeService = new NodeServiceImpl(this);
     }
 
     /**

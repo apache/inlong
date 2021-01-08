@@ -105,10 +105,10 @@ public class TubeHttpTopicInfoList {
 
 
     public List<TopicInfo> getTopicInfo() {
-        if (data != null) {
-            return data.get(0).getTopicInfo();
+        if (CollectionUtils.isEmpty(data)) {
+            return Lists.newArrayList();
         }
-        return Lists.newArrayList();
+        return data.get(0).getTopicInfo();
     }
 
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {

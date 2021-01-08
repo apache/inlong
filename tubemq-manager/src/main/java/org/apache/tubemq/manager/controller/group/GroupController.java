@@ -19,11 +19,11 @@ package org.apache.tubemq.manager.controller.group;
 
 
 
-import static org.apache.tubemq.manager.service.MasterService.requestMaster;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
 import static org.apache.tubemq.manager.service.MasterService.queryMaster;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
 
@@ -34,12 +34,13 @@ import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.group.request.AddBlackGroupReq;
 import org.apache.tubemq.manager.controller.group.request.DeleteBlackGroupReq;
 import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
-import org.apache.tubemq.manager.service.TopicService;
+import org.apache.tubemq.manager.service.TopicServiceImpl;
 import org.apache.tubemq.manager.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,13 +56,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class GroupController {
 
+
     public Gson gson = new Gson();
 
     @Autowired
     private MasterService masterService;
 
     @Autowired
-    private TopicService topicService;
+    private TopicServiceImpl topicService;
 
 
     @PostMapping("")
@@ -103,6 +105,8 @@ public class GroupController {
                 return topicService.cloneOffsetToOtherGroups(gson.fromJson(req, CloneOffsetReq.class));
             case DELETE:
                 return topicService.deleteOffset(gson.fromJson(req, DeleteOffsetReq.class));
+            case QUERY:
+                return topicService.queryOffset(gson.fromJson(req, QueryOffsetReq.class));
             default:
                 return TubeMQResult.getErrorResult("no such method");
         }
