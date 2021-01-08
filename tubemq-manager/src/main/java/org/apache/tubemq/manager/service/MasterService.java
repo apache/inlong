@@ -45,6 +45,7 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 
 
@@ -52,7 +53,6 @@ import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 @Component
 public class MasterService {
 
-    public static final int SUCCESS_CODE = 0;
     private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
     public static final String TUBE_REQUEST_PATH = "webapi.htm";

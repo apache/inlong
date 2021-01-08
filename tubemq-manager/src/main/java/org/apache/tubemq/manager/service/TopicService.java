@@ -20,10 +20,10 @@ package org.apache.tubemq.manager.service;
 
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY_GROUP_DETAIL_INFO;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.TOPIC_CONFIG_INFO;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertToRebalanceConsumerReq;
-import static org.apache.tubemq.manager.service.MasterService.SUCCESS_CODE;
 import static org.apache.tubemq.manager.service.MasterService.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.service.MasterService.requestMaster;
 

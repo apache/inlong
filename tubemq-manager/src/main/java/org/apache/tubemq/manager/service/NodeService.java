@@ -19,13 +19,16 @@ package org.apache.tubemq.manager.service;
 
 
 import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
+import static org.apache.tubemq.manager.service.MasterService.TUBE_REQUEST_PATH;
+import static org.apache.tubemq.manager.service.MasterService.queryMaster;
+import static org.apache.tubemq.manager.service.MasterService.requestMaster;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD_TUBE_TOPIC;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_CLUSTER;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD_BROKER;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
-import static org.apache.tubemq.manager.service.MasterService.*;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -54,7 +57,6 @@ import org.apache.tubemq.manager.service.tube.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -73,9 +75,6 @@ public class NodeService {
     private int maxRetryAddingTopic;
 
     private final TopicBackendWorker worker;
-
-    @Value("${manager.broker.webPort:8081}")
-    private int brokerWebPort;
 
     @Autowired
     private NodeRepository nodeRepository;
