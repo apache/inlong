@@ -102,7 +102,7 @@ public class Webapi implements Action {
                             "DesignatedPrimary happened...please check if the other member is down");
                 }
             }
-            WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(isQuery, method);
+            WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
             if (webApiRegInfo == null) {
                 strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Unsupported method: ")
                         .append(method).append("\"}");

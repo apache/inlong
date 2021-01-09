@@ -18,10 +18,9 @@
 package org.apache.tubemq.server.common.webbase;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,36 +29,25 @@ public class WebMethodMapper {
     // log printer
     private static final Logger logger =
             LoggerFactory.getLogger(WebMethodMapper.class);
-    // The query methods map
-    public static final Map<String, WebApiRegInfo> WEB_QRY_METHOD_MAP =
-            new HashMap<>();
-    // The modify methods map
-    public static final Map<String, WebApiRegInfo> WEB_MDY_METHOD_MAP =
+
+    public static final Map<String, WebApiRegInfo> WEB_METHOD_MAP =
             new HashMap<>();
 
 
-    public static WebApiRegInfo getWebApiRegInfo(boolean isQryApi,
-                                                 String webMethodName) {
-        if (isQryApi) {
-            return WEB_QRY_METHOD_MAP.get(webMethodName);
-        }
-        return WEB_MDY_METHOD_MAP.get(webMethodName);
+    public static WebApiRegInfo getWebApiRegInfo(String webMethodName) {
+        return WEB_METHOD_MAP.get(webMethodName);
     }
 
-    public static void registerWebMethod(boolean isQryApi,
-                                         String webMethodName,
+    public static void registerWebMethod(String webMethodName,
                                          String clsMethodName,
+                                         boolean onlyMasterOp,
+                                         boolean needAuthToken,
                                          Object webHandler) {
         Method[] methods = webHandler.getClass().getMethods();
         for (Method item : methods) {
             if (item.getName().equals(clsMethodName)) {
-                if (isQryApi) {
-                    WEB_QRY_METHOD_MAP.put(webMethodName,
-                            new WebApiRegInfo(item, webHandler));
-                } else {
-                    WEB_MDY_METHOD_MAP.put(webMethodName,
-                            new WebApiRegInfo(item, webHandler));
-                }
+                WEB_METHOD_MAP.put(webMethodName,
+                        new WebApiRegInfo(item, webHandler, onlyMasterOp, needAuthToken));
                 return;
             }
         }
@@ -69,11 +57,8 @@ public class WebMethodMapper {
                 .append(webHandler.getClass().getName()).toString());
     }
 
-    public static List<String> getRegisteredWebMethod() {
-        List<String> methods = new ArrayList<>();
-        methods.addAll(WEB_QRY_METHOD_MAP.keySet());
-        methods.addAll(WEB_MDY_METHOD_MAP.keySet());
-        return methods;
+    public static Set<String> getRegisteredWebMethod() {
+        return WEB_METHOD_MAP.keySet();
     }
 
 
@@ -81,11 +66,18 @@ public class WebMethodMapper {
     public static class WebApiRegInfo {
         public Method method;
         public Object webHandler;
+        public boolean onlyMasterOp = false;
+        public boolean needAuthToken = false;
+
 
         public WebApiRegInfo(Method method,
-                             Object webHandler) {
+                             Object webHandler,
+                             boolean onlyMasterOp,
+                             boolean needAuthToken) {
             this.method = method;
             this.webHandler = webHandler;
+            this.onlyMasterOp = onlyMasterOp;
+            this.needAuthToken = needAuthToken;
         }
     }
 

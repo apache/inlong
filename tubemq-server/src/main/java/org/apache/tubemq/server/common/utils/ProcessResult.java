@@ -47,6 +47,13 @@ public class ProcessResult {
         this.retData1 = null;
     }
 
+    public void setFailResult(final String errMsg) {
+        this.success = false;
+        this.errCode = TErrCodeConstants.BAD_REQUEST;
+        this.errInfo = errMsg;
+        this.retData1 = null;
+    }
+
     public void setSuccResult(Object retData) {
         this.success = true;
         this.errInfo = "";

@@ -37,18 +37,20 @@ public abstract class AbstractWebHandler {
 
     protected void registerQueryWebMethod(String webMethodName,
                                           String clsMethodName) {
-        innRegisterWebMethod(true, webMethodName, clsMethodName);
+        innRegisterWebMethod(webMethodName, clsMethodName, false, false);
     }
 
     protected void registerModifyWebMethod(String webMethodName,
                                            String clsMethodName) {
-        innRegisterWebMethod(false, webMethodName, clsMethodName);
+        innRegisterWebMethod(webMethodName, clsMethodName, true, true);
     }
 
-    private void innRegisterWebMethod(boolean isQryApi,
-                                      String webMethodName,
-                                      String clsMethodName) {
-        registerWebMethod(isQryApi, webMethodName, clsMethodName, this);
+    private void innRegisterWebMethod(String webMethodName,
+                                      String clsMethodName,
+                                      boolean onlyMasterOp,
+                                      boolean needAuthToken) {
+        registerWebMethod(webMethodName, clsMethodName,
+                onlyMasterOp, needAuthToken, this);
     }
 
 }
