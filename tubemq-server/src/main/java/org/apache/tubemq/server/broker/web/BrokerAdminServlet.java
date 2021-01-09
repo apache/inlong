@@ -58,59 +58,59 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     public void registerWebApiMethod() {
         // query consumer group's offset
         innRegisterWebMethod("admin_query_group_offset",
-                "adminQueryCurrentGroupOffSet");
+                "adminQueryCurrentGroupOffSet", false);
         // query snapshot message
         innRegisterWebMethod("admin_snapshot_message",
-                "adminQuerySnapshotMessageSet");
+                "adminQuerySnapshotMessageSet", false);
         // query broker's all consumer info
         innRegisterWebMethod("admin_query_broker_all_consumer_info",
-                "adminQueryBrokerAllConsumerInfo");
+                "adminQueryBrokerAllConsumerInfo", false);
         // get memory store status info
         innRegisterWebMethod("admin_query_broker_memstore_info",
-                "adminGetMemStoreStatisInfo");
+                "adminGetMemStoreStatisInfo", false);
         // query broker's all message store info
         innRegisterWebMethod("admin_query_broker_all_store_info",
-                "adminQueryBrokerAllMessageStoreInfo");
+                "adminQueryBrokerAllMessageStoreInfo", false);
         // query consumer register info
         innRegisterWebMethod("admin_query_consumer_regmap",
-                "adminQueryConsumerRegisterInfo");
+                "adminQueryConsumerRegisterInfo", false);
         // manual set offset
         innRegisterWebMethod("admin_manual_set_current_offset",
-                "adminManualSetCurrentOffSet");
+                "adminManualSetCurrentOffSet", false);
         // get all registered methods
         innRegisterWebMethod("admin_get_methods",
-                "adminQueryAllMethods");
+                "adminQueryAllMethods", false);
         // query topic's publish info
         innRegisterWebMethod("admin_query_pubinfo",
-                "adminQueryPubInfo");
+                "adminQueryPubInfo", false);
         // Query all consumer groups booked on the Broker.
         innRegisterWebMethod("admin_query_group",
-                "adminQueryBookedGroup");
+                "adminQueryBookedGroup", false);
         // query consumer group's offset
         innRegisterWebMethod("admin_query_offset",
-                "adminQueryGroupOffSet");
+                "adminQueryGroupOffSet", false);
         // clone consumer group's offset from source to target
         innRegisterWebMethod("admin_clone_offset",
-                "adminCloneGroupOffSet");
+                "adminCloneGroupOffSet", false);
         // set or update group's offset info
         innRegisterWebMethod("admin_set_offset",
-                "adminSetGroupOffSet");
+                "adminSetGroupOffSet", false);
         // remove group's offset info
         innRegisterWebMethod("admin_rmv_offset",
-                "adminRemoveGroupOffSet");
+                "adminRemoveGroupOffSet", false);
     }
 
     public void adminQueryAllMethods(HttpServletRequest req,
                                      StringBuilder sBuilder) {
         int index = 0;
-        List<String> methods = getSupportedMethod();
+        Set<String> methods = getSupportedMethod();
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (index = 0; index < methods.size(); index++) {
-            if (index > 0) {
+        for (String method : methods) {
+            if (index++ > 0) {
                 sBuilder.append(",");
             }
             sBuilder.append("{\"id\":").append(index + 1)
-                    .append(",\"method\":\"").append(methods.get(index)).append("\"}");
+                    .append(",\"method\":\"").append(method).append("\"}");
         }
         sBuilder.append("],\"totalCnt\":").append(index + 1).append("}");
     }

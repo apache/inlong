@@ -21,7 +21,8 @@ import static org.apache.tubemq.server.common.webbase.WebMethodMapper.getRegiste
 import static org.apache.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
 import static org.apache.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +45,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
         doPost(req, resp);
     }
 
-    public List<String> getSupportedMethod() {
+    public Set<String> getSupportedMethod() {
         return getRegisteredWebMethod();
     }
 
@@ -59,7 +60,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
                 strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                         .append("Please take with method parameter! \"}");
             } else {
-                WebApiRegInfo webApiRegInfo = getWebApiRegInfo(true, method);
+                WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
                 if (webApiRegInfo == null) {
                     strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                             .append("Unsupported method ").append(method).append("\"}");
@@ -82,8 +83,10 @@ public abstract class AbstractWebHandler extends HttpServlet {
     public abstract void registerWebApiMethod();
 
     protected void innRegisterWebMethod(String webMethodName,
-                                        String clsMethodName) {
-        registerWebMethod(true, webMethodName, clsMethodName, this);
+                                        String clsMethodName,
+                                        boolean needAuthToken) {
+        registerWebMethod(webMethodName, clsMethodName,
+                false, needAuthToken, this);
     }
 
 }

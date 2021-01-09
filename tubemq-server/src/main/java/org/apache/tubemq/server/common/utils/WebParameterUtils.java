@@ -242,13 +242,17 @@ public class WebParameterUtils {
                 .append(errMsg).append("\"}");
     }
 
+    public static StringBuilder buildSuccessResult(StringBuilder strBuffer) {
+        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
     /**
      * Parse the parameter value from an object value to a long value
      *
      * @param req        Http Servlet Request
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
-     * @param defValue   a default value returned if failed to parse value from the given object
+     * @param defValue   a default value returned if the field not exist
      * @param result     process result of parameter value
      * @return process result
      */
@@ -329,7 +333,7 @@ public class WebParameterUtils {
      * @param req        Http Servlet Request
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
-     * @param defValue   a default value returned if failed to parse value from the given object
+     * @param defValue   a default value returned if the field not exist
      * @param minValue   min value required
      * @param result     process result of parameter value
      * @return process result
@@ -377,7 +381,7 @@ public class WebParameterUtils {
      * @param req         Http Servlet Request
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
-     * @param defValue    a default value returned if failed to parse value from the given object
+     * @param defValue    a default value returned if the field not exist
      * @param result      process result
      * @return valid result for the parameter value
      */
@@ -404,7 +408,7 @@ public class WebParameterUtils {
      * @param req         Http Servlet Request
      * @param fieldDef    the parameter field definition
      * @param required     a boolean value represent whether the parameter is must required
-     * @param defValue     a default value returned if failed to parse value from the given object
+     * @param defValue     a default value returned if the field not exist
      * @param result      process result
      * @return valid result for the parameter value
      */
@@ -486,7 +490,7 @@ public class WebParameterUtils {
      * @param req         Http Servlet Request
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
-     * @param defValue    a default value returned if failed to parse value from the given object
+     * @param defValue    a default value returned if the field not exist
      * @param result      process result
      * @return valid result for the parameter value
      */
