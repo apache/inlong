@@ -84,7 +84,19 @@ public enum WebFieldDef {
     OFFSETJSON(21, "offsetJsonInfo", "offsetInfo",
             WebFieldType.JSONTYPE, "The offset info that needs to be added or modified"),
     ONLYMEM(22, "onlyMemory", "onlyMem", WebFieldType.BOOLEAN,
-            "Only clear the offset data in the memory cache, default is false");
+            "Only clear the offset data in the memory cache, default is false"),
+    ADMINAUTHTOKEN(23, "confModAuthToken", "authToken", WebFieldType.STRING,
+            "Admin api operation authorization code",
+            TServerConstants.CFG_MODAUTHTOKEN_MAX_LENGTH),
+    MAXMSGSIZE(24, "maxMsgSize", "maxMsgSize", WebFieldType.INT,
+            "Max allowed message size", RegexDef.TMP_NUMBER),
+    CREATEDATE(25, "createDate", "cDate", WebFieldType.STRING,
+            "Record creation date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
+    MODIFYDATE(26, "modifyDate", "mDate", WebFieldType.STRING,
+            "Record modification date", TBaseConstants.META_MAX_DATEVALUE_LENGTH);
+
+
+
 
 
 

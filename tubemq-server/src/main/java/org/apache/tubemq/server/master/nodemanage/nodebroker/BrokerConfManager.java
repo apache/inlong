@@ -2020,64 +2020,27 @@ public class BrokerConfManager implements Server {
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Add cluster default setting
+     * Add or update cluster default setting
      *
      * @param bdbEntity the cluster default setting entity will be add
      * @return true if success otherwise false
      * @throws Exception
      */
-    public boolean confAddBdbClusterDefSetting(BdbClusterSettingEntity bdbEntity)
+    public boolean confSetBdbClusterDefSetting(BdbClusterSettingEntity bdbEntity)
             throws Exception {
         validMasterStatus();
-        BdbClusterSettingEntity curEntity =
-                clusterSettingMap.get(bdbEntity.getRecordKey());
-        if (curEntity != null) {
-            throw new Exception(new StringBuilder(512)
-                    .append("Duplicate add ClusterSetting info, exist record is: ")
-                    .append(curEntity).toString());
-        }
-        boolean putResult =
+        bdbEntity.setRecordKey(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        boolean result =
                 mBdbStoreManagerService.putBdbClusterConfEntity(bdbEntity, true);
-        if (putResult) {
-            clusterSettingMap.put(bdbEntity.getRecordKey(), bdbEntity);
-            logger.info(new StringBuilder(512)
-                    .append("[ClusterSetting Success] ")
-                    .append(bdbEntity).toString());
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * update cluster default setting
-     *
-     * @param bdbEntity the cluster setting entity will be set
-     * @return true if success otherwise false
-     * @throws Exception
-     */
-    public boolean confUpdBdbClusterSetting(BdbClusterSettingEntity bdbEntity)
-            throws Exception {
-        validMasterStatus();
+        clusterSettingMap.put(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING, bdbEntity);
         StringBuilder strBuffer = new StringBuilder(512);
-        BdbClusterSettingEntity curDefSettingEntity =
-                clusterSettingMap.get(bdbEntity.getRecordKey());
-        if (curDefSettingEntity == null) {
-            throw new Exception(strBuffer
-                    .append("Update ClusterSetting failure, not exist record for record: ")
-                    .append(bdbEntity.getRecordKey()).toString());
+        if (result) {
+            strBuffer.append("[confSetBdbClusterDefSetting  Success], add new record :");
+        } else {
+            strBuffer.append("[confSetBdbClusterDefSetting  Success], update old record :");
         }
-        boolean putResult =
-                mBdbStoreManagerService.putBdbClusterConfEntity(bdbEntity, false);
-        if (putResult) {
-            clusterSettingMap.put(bdbEntity.getRecordKey(), bdbEntity);
-            strBuffer.append("[confUpdBdbClusterSetting Success] record from : ");
-            strBuffer = curDefSettingEntity.toJsonString(strBuffer);
-            strBuffer.append(" to : ");
-            strBuffer = bdbEntity.toJsonString(strBuffer);
-            logger.info(strBuffer.toString());
-            return true;
-        }
-        return false;
+        logger.info(bdbEntity.toJsonString(strBuffer).toString());
+        return true;
     }
 
     /**
@@ -2107,12 +2070,9 @@ public class BrokerConfManager implements Server {
         return this.clusterSettingMap.get(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
     }
 
-
     private void validMasterStatus() throws Exception {
         if (!isSelfMaster()) {
             throw new StandbyException("Please send your request to the master Node.");
         }
     }
-
-
 }
