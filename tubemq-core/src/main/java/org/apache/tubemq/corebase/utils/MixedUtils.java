@@ -92,13 +92,4 @@ public class MixedUtils {
         dataBuffer.flip();
         return dataBuffer.array();
     }
-
-    // get the middle data between min, max, and data
-    public static int mid(int data, int min, int max) {
-        return Math.max(min, Math.min(max, data));
-    }
-
-    public static long mid(long data, long min, long max) {
-        return Math.max(min, Math.min(max, data));
-    }
 }

@@ -31,6 +31,7 @@ public class TBaseConstants {
     public static final int META_MAX_MSGTYPE_LENGTH = 255;
     public static final int META_MAX_MESSAGE_HEADER_SIZE = 1024;
     public static final int META_MAX_MESSAGE_DATA_SIZE = 1024 * 1024;
+    public static final int META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT = 20 * 1024 * 1024;
     public static final int META_MAX_PARTITION_COUNT = 100;
     public static final int META_MAX_BROKER_IP_LENGTH = 32;
     public static final int META_MAX_USERNAME_LENGTH = 64;
