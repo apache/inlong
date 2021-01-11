@@ -66,7 +66,7 @@ message ApprovedClientConfig {
     optional int32 maxMsgSize = 2;
 }
 
-message ClusterDefConfig {
+message ClusterConfig {
     required int64 configId = 1;
     optional int32 maxMsgSize = 2;
 }
@@ -222,7 +222,7 @@ message RegisterRequestB2M {
     optional int32 qryPriorityId = 12;
     optional int32 tlsPort = 13;
     optional MasterCertificateInfo authInfo = 14;
-    optional ClusterDefConfig clsDefConfig = 15;
+    optional ClusterConfig clsConfig = 15;
 }
 
 message RegisterResponseM2B {
@@ -245,7 +245,7 @@ message RegisterResponseM2B {
     optional int32 qryPriorityId = 15;
     optional MasterAuthorizedInfo authorizedInfo = 16; /* Deprecated  */
     optional MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 17;
-    optional ClusterDefConfig clsDefConfig = 18;
+    optional ClusterConfig clsConfig = 18;
 }
 
 message HeartRequestB2M {
@@ -266,7 +266,7 @@ message HeartRequestB2M {
     optional int64 flowCheckId = 13;
     optional int32 qryPriorityId = 14;
     optional MasterCertificateInfo authInfo = 15;
-    optional ClusterDefConfig clsDefConfig = 16;
+    optional ClusterConfig clsConfig = 16;
 }
 
 message HeartResponseM2B {
@@ -292,7 +292,7 @@ message HeartResponseM2B {
     optional int32 qryPriorityId = 17;
     optional MasterAuthorizedInfo authorizedInfo = 18;   /* Deprecated  */
     optional MasterBrokerAuthorizedInfo brokerAuthorizedInfo = 19;
-    optional ClusterDefConfig clsDefConfig = 20;
+    optional ClusterConfig clsConfig = 20;
 }
 
 message CloseRequestB2M {

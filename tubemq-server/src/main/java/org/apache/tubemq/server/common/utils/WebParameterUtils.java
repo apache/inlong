@@ -297,37 +297,11 @@ public class WebParameterUtils {
                                            WebFieldDef fieldDef,
                                            boolean required,
                                            ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef,
-                required, null, result)) {
-            return result.success;
-        }
-        Set<Integer> tgtValueSet = new HashSet<Integer>();
-        if (fieldDef.isCompFieldType()) {
-            Set<String> valItemSet = (Set<String>) result.retData1;
-            if (valItemSet.isEmpty()) {
-                result.setSuccResult(tgtValueSet);
-                return result.success;
-            }
-            for (String itemVal : valItemSet) {
-                if (!checkIntValueNorms(fieldDef,
-                        itemVal, false, -1, result)) {
-                    return result.success;
-                }
-                tgtValueSet.add((Integer) result.retData1);
-            }
-        } else {
-            String paramValue = (String) result.retData1;
-            if (paramValue == null) {
-                result.setSuccResult(tgtValueSet);
-                return result.success;
-            }
-            if (!checkIntValueNorms(fieldDef,
-                    paramValue, false, -1, result)) {
-                tgtValueSet.add((Integer) result.retData1);
-            }
-        }
-        result.setSuccResult(tgtValueSet);
-        return result.success;
+        return getIntParamValue(req, fieldDef, required,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                result);
     }
 
     /**
@@ -342,11 +316,48 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getIntParamValue(HttpServletRequest req,
-                                                 WebFieldDef fieldDef,
-                                                 boolean required,
-                                                 int defValue,
-                                                 int minValue,
-                                                 ProcessResult result) {
+                                           WebFieldDef fieldDef,
+                                           boolean required,
+                                           int defValue,
+                                           int minValue,
+                                           ProcessResult result) {
+        return getIntParamValue(req, fieldDef, required, true, defValue,
+                true, minValue, false, TBaseConstants.META_VALUE_UNDEFINED, result);
+    }
+
+    /**
+     * Parse the parameter value from an object value to a integer value
+     *
+     * @param req        Http Servlet Request
+     * @param fieldDef   the parameter field definition
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if the field not exist
+     * @param minValue   min value required
+     * @param minValue   max value allowed
+     * @param result     process result of parameter value
+     * @return process result
+     */
+    public static boolean getIntParamValue(HttpServletRequest req,
+                                           WebFieldDef fieldDef,
+                                           boolean required,
+                                           int defValue,
+                                           int minValue,
+                                           int maxValue,
+                                           ProcessResult result) {
+        return getIntParamValue(req, fieldDef, required, true, defValue,
+                true, minValue, true, maxValue, result);
+    }
+
+    private static boolean getIntParamValue(HttpServletRequest req,
+                                            WebFieldDef fieldDef,
+                                            boolean required,
+                                            boolean hasDefVal,
+                                            int defValue,
+                                            boolean hasMinVal,
+                                            int minValue,
+                                            boolean hasMaxVal,
+                                            int maxValue,
+                                            ProcessResult result) {
         if (!getStringParamValue(req, fieldDef, required, null, result)) {
             return result.success;
         }
@@ -354,13 +365,15 @@ public class WebParameterUtils {
             Set<Integer> tgtValueSet = new HashSet<Integer>();
             Set<String> valItemSet = (Set<String>) result.retData1;
             if (valItemSet.isEmpty()) {
-                tgtValueSet.add(defValue);
+                if (hasDefVal) {
+                    tgtValueSet.add(defValue);
+                }
                 result.setSuccResult(tgtValueSet);
                 return result.success;
             }
             for (String itemVal : valItemSet) {
-                if (!checkIntValueNorms(fieldDef,
-                        itemVal, true, minValue, result)) {
+                if (!checkIntValueNorms(fieldDef, itemVal,
+                        hasMinVal, minValue, hasMaxVal, maxValue, result)) {
                     return result.success;
                 }
                 tgtValueSet.add((Integer) result.retData1);
@@ -369,11 +382,13 @@ public class WebParameterUtils {
         } else {
             String paramValue = (String) result.retData1;
             if (paramValue == null) {
-                result.setSuccResult(defValue);
+                if (hasDefVal) {
+                    result.setSuccResult(defValue);
+                }
                 return result.success;
             }
-            checkIntValueNorms(fieldDef,
-                    paramValue, true, minValue, result);
+            checkIntValueNorms(fieldDef, paramValue,
+                    hasMinVal, minValue, hasMinVal, maxValue, result);
         }
         return result.success;
     }
@@ -691,6 +706,8 @@ public class WebParameterUtils {
      * @param paramValue   the parameter value
      * @param hasMinVal    whether there is a minimum
      * param minValue      the parameter min value
+     * @param hasMaxVal    whether there is a maximum
+     * param maxValue      the parameter max value
      * @param result   process result
      * @return check result for string value of parameter
      */
@@ -698,6 +715,8 @@ public class WebParameterUtils {
                                               String paramValue,
                                               boolean hasMinVal,
                                               int minValue,
+                                              boolean hasMaxVal,
+                                              int maxValue,
                                               ProcessResult result) {
         try {
             int paramIntVal = Integer.parseInt(paramValue);
@@ -705,6 +724,12 @@ public class WebParameterUtils {
                 result.setFailResult(new StringBuilder(512)
                         .append("Parameter ").append(fieldDef.name)
                         .append(" value must >= ").append(minValue).toString());
+                return false;
+            }
+            if (hasMaxVal && paramIntVal > maxValue) {
+                result.setFailResult(new StringBuilder(512)
+                        .append("Parameter ").append(fieldDef.name)
+                        .append(" value must <= ").append(maxValue).toString());
                 return false;
             }
             result.setSuccResult(paramIntVal);

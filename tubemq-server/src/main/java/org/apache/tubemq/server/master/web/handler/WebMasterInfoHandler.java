@@ -169,13 +169,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.MAXMSGSIZE, false,
                 TBaseConstants.META_VALUE_UNDEFINED,
-                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
+                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
                 result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        int maxMsgSize = (int) result.retData1;
-        if (maxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
+        int maxMsgSizeInMB = (int) result.retData1;
+        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
             dataChanged = true;
         }
         // check and get modify date
@@ -196,9 +197,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             defClusterSetting = new BdbClusterSettingEntity();
         }
         defClusterSetting.setModifyInfo(modifyUser, modifyDate);
-        if (maxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
-            defClusterSetting.setMaxMsgSize(
-                    SettingValidUtils.validAndGetMaxMsgSize(maxMsgSize));
+        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
+            defClusterSetting.setMaxMsgSizeInB(
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB));
         }
         try {
             brokerConfManager.confSetBdbClusterDefSetting(defClusterSetting);

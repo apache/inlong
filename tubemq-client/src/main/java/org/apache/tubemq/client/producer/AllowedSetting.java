@@ -45,8 +45,8 @@ public class AllowedSetting {
             }
             if (allowedConfig.hasMaxMsgSize()
                     && allowedConfig.getMaxMsgSize() != maxMsgSize.get()) {
-                maxMsgSize.set(
-                        SettingValidUtils.validAndGetMaxMsgSize(allowedConfig.getMaxMsgSize()));
+                maxMsgSize.set(SettingValidUtils.validAndGetMaxMsgSizeInB(
+                        allowedConfig.getMaxMsgSize()));
             }
         }
     }

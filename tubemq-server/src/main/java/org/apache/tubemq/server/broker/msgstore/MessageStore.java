@@ -37,6 +37,7 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
+import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStatisInfo;
@@ -129,7 +130,7 @@ public class MessageStore implements Closeable {
         this.unflushThreshold.set(topicMetadata.getUnflushThreshold());
         this.unflushDataHold.set(topicMetadata.getUnflushDataHold());
         this.writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
-        this.writeCacheMaxSize = topicMetadata.getMemCacheMsgSize();
+        this.writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata.getMemCacheMsgSize());
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
@@ -421,7 +422,7 @@ public class MessageStore implements Closeable {
         writeCacheMutex.readLock().lock();
         try {
             writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
-            writeCacheMaxSize = topicMetadata.getMemCacheMsgSize();
+            writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata.getMemCacheMsgSize());
             writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         } finally {
             writeCacheMutex.readLock().unlock();
@@ -601,6 +602,17 @@ public class MessageStore implements Closeable {
         } catch (Throwable e) {
             return DataStoreUtils.MAX_FILE_VALID_DURATION;
         }
+    }
+
+    private int validAndGetMemCacheSize(int memCacheSize) {
+        if (memCacheSize <= ClusterConfigHolder.getMinMemCacheSize()) {
+            logger.info(new StringBuilder(512)
+                    .append("[Data Store] writeCacheMaxSize changed, from ")
+                    .append(memCacheSize).append(" to ")
+                    .append(ClusterConfigHolder.getMinMemCacheSize()).toString());
+            memCacheSize = ClusterConfigHolder.getMinMemCacheSize();
+        }
+        return memCacheSize;
     }
 
     /***

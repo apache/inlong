@@ -37,6 +37,7 @@ public class BdbClusterSettingEntity implements Serializable {
 
     @PrimaryKey
     private String recordKey = "";
+    private long configId = TBaseConstants.META_VALUE_UNDEFINED;
     //broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     //broker tls port
@@ -48,20 +49,22 @@ public class BdbClusterSettingEntity implements Serializable {
     //partition num
     private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;
     //flush disk threshold
-    private int unflushDskThreshold = TBaseConstants.META_VALUE_UNDEFINED;
+    private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED;
     //flush disk interval
-    private int unflushDksInterval = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache threshold
-    private int unflushMemThreshold = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache interval
-    private int unflushMemInterval = TBaseConstants.META_VALUE_UNDEFINED;
+    private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED;
+    //flush disk data count
+    private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED;
     //flush memory cache count
-    private int unflushMemCnt = TBaseConstants.META_VALUE_UNDEFINED;
+    private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;
+    //flush memory cache interval
+    private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;
+    //flush memory cache size
+    private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean acceptPublish = true;   //enable publish
     private boolean acceptSubscribe = true; //enable subscribe
-    private String deleteWhen = "";              //delete policy execute time
+    private String deletePolicy = "";              //delete policy execute time
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
-    private int maxMsgSize = TBaseConstants.META_VALUE_UNDEFINED;
+    private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
     private String attributes = "";             //extra attribute
     private String modifyUser;               //modify user
     private Date modifyDate;                 //modify date
@@ -70,30 +73,34 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     //Constructor
-    public BdbClusterSettingEntity(String recordKey, int brokerPort, int brokerTLSPort,
-                                   int brokerWebPort, int numTopicStores, int numPartitions,
-                                   int unflushDskThreshold, int unflushDksInterval,
-                                   int unflushMemThreshold, int unflushMemInterval,
-                                   int unflushMemCnt, boolean acceptPublish,
-                                   boolean acceptSubscribe, String deleteWhen,
-                                   int qryPriorityId, int maxMsgSize, String attributes,
+    public BdbClusterSettingEntity(String recordKey, long configId, int brokerPort,
+                                   int brokerTLSPort, int brokerWebPort,
+                                   int numTopicStores, int numPartitions,
+                                   int unflushThreshold, int unflushInterval,
+                                   int unflushDataHold, int memCacheMsgCntInK,
+                                   int memCacheFlushIntvl, int memCacheMsgSizeInMB,
+                                   boolean acceptPublish, boolean acceptSubscribe,
+                                   String deletePolicy, int qryPriorityId,
+                                   int maxMsgSizeInB, String attributes,
                                    String modifyUser, Date modifyDate) {
         this.recordKey = recordKey;
+        this.configId = configId;
         this.brokerPort = brokerPort;
         this.brokerTLSPort = brokerTLSPort;
         this.brokerWebPort = brokerWebPort;
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
-        this.unflushDskThreshold = unflushDskThreshold;
-        this.unflushDksInterval = unflushDksInterval;
-        this.unflushMemThreshold = unflushMemThreshold;
-        this.unflushMemInterval = unflushMemInterval;
-        this.unflushMemCnt = unflushMemCnt;
+        this.unflushThreshold = unflushThreshold;
+        this.unflushInterval = unflushInterval;
+        this.unflushDataHold = unflushDataHold;
+        this.memCacheMsgCntInK = memCacheMsgCntInK;
+        this.memCacheFlushIntvl = memCacheFlushIntvl;
+        this.memCacheMsgSizeInMB = memCacheMsgSizeInMB;
         this.acceptPublish = acceptPublish;
         this.acceptSubscribe = acceptSubscribe;
-        this.deleteWhen = deleteWhen;
+        this.deletePolicy = deletePolicy;
         this.qryPriorityId = qryPriorityId;
-        this.maxMsgSize = maxMsgSize;
+        this.maxMsgSizeInB = maxMsgSizeInB;
         this.attributes = attributes;
         this.modifyUser = modifyUser;
         this.modifyDate = modifyDate;
@@ -105,6 +112,10 @@ public class BdbClusterSettingEntity implements Serializable {
 
     public String getRecordKey() {
         return recordKey;
+    }
+
+    public long getConfigId() {
+        return configId;
     }
 
     public int getBrokerPort() {
@@ -147,44 +158,52 @@ public class BdbClusterSettingEntity implements Serializable {
         this.numPartitions = numPartitions;
     }
 
-    public int getUnflushDskThreshold() {
-        return unflushDskThreshold;
+    public int getUnflushThreshold() {
+        return unflushThreshold;
     }
 
-    public void setUnflushDskThreshold(int unflushDskThreshold) {
-        this.unflushDskThreshold = unflushDskThreshold;
+    public void setUnflushThreshold(int unflushThreshold) {
+        this.unflushThreshold = unflushThreshold;
     }
 
-    public int getUnflushDksInterval() {
-        return unflushDksInterval;
+    public int getUnflushInterval() {
+        return unflushInterval;
     }
 
-    public void setUnflushDksInterval(int unflushDksInterval) {
-        this.unflushDksInterval = unflushDksInterval;
+    public void setUnflushInterval(int unflushInterval) {
+        this.unflushInterval = unflushInterval;
     }
 
-    public int getUnflushMemThreshold() {
-        return unflushMemThreshold;
+    public int getUnflushDataHold() {
+        return unflushDataHold;
     }
 
-    public void setUnflushMemThreshold(int unflushMemThreshold) {
-        this.unflushMemThreshold = unflushMemThreshold;
+    public void setUnflushDataHold(int unflushDataHold) {
+        this.unflushDataHold = unflushDataHold;
     }
 
-    public int getUnflushMemInterval() {
-        return unflushMemInterval;
+    public int getMemCacheMsgCntInK() {
+        return memCacheMsgCntInK;
     }
 
-    public void setUnflushMemInterval(int unflushMemInterval) {
-        this.unflushMemInterval = unflushMemInterval;
+    public void setMemCacheMsgCntInK(int memCacheMsgCntInK) {
+        this.memCacheMsgCntInK = memCacheMsgCntInK;
     }
 
-    public int getUnflushMemCnt() {
-        return unflushMemCnt;
+    public int getMemCacheFlushIntvl() {
+        return memCacheFlushIntvl;
     }
 
-    public void setUnflushMemCnt(int unflushMemCnt) {
-        this.unflushMemCnt = unflushMemCnt;
+    public void setMemCacheFlushIntvl(int memCacheFlushIntvl) {
+        this.memCacheFlushIntvl = memCacheFlushIntvl;
+    }
+
+    public int getMemCacheMsgSizeInMB() {
+        return memCacheMsgSizeInMB;
+    }
+
+    public void setMemCacheMsgSizeInMB(int memCacheMsgSizeInMB) {
+        this.memCacheMsgSizeInMB = memCacheMsgSizeInMB;
     }
 
     public boolean isAcceptPublish() {
@@ -203,12 +222,12 @@ public class BdbClusterSettingEntity implements Serializable {
         this.acceptSubscribe = acceptSubscribe;
     }
 
-    public String getDeleteWhen() {
-        return deleteWhen;
+    public String getDeletePolicy() {
+        return deletePolicy;
     }
 
-    public void setDeleteWhen(String deleteWhen) {
-        this.deleteWhen = deleteWhen;
+    public void setDeletePolicy(String deletePolicy) {
+        this.deletePolicy = deletePolicy;
     }
 
     public int getQryPriorityId() {
@@ -219,12 +238,12 @@ public class BdbClusterSettingEntity implements Serializable {
         this.qryPriorityId = qryPriorityId;
     }
 
-    public int getMaxMsgSize() {
-        return maxMsgSize;
+    public int getMaxMsgSizeInB() {
+        return maxMsgSizeInB;
     }
 
-    public void setMaxMsgSize(int maxMsgSize) {
-        this.maxMsgSize = maxMsgSize;
+    public void setMaxMsgSizeInB(int maxMsgSizeInB) {
+        this.maxMsgSizeInB = maxMsgSizeInB;
     }
 
     public String getAttributes() {
@@ -236,6 +255,7 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public void setModifyInfo(String modifyUser, Date modifyDate) {
+        this.configId = System.currentTimeMillis();
         this.modifyUser = modifyUser;
         this.modifyDate = modifyDate;
     }
@@ -255,23 +275,30 @@ public class BdbClusterSettingEntity implements Serializable {
      * @return
      */
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
-        return sBuilder.append("{\"type\":\"BdbClusterSettingEntity\",")
+        sBuilder.append("{\"type\":\"BdbClusterSettingEntity\",")
                 .append("\"recordKey\":\"").append(recordKey).append("\"")
+                .append(",\"configId\":").append(configId)
                 .append(",\"brokerPort\":").append(brokerPort)
                 .append(",\"brokerTLSPort\":").append(brokerTLSPort)
                 .append(",\"brokerWebPort\":").append(brokerWebPort)
                 .append(",\"numTopicStores\":").append(numTopicStores)
                 .append(",\"numPartitions\":").append(numPartitions)
-                .append(",\"unflushDskThreshold\":").append(unflushDskThreshold)
-                .append(",\"unflushDksInterval\":").append(unflushDksInterval)
-                .append(",\"unflushMemThreshold\":").append(unflushMemThreshold)
-                .append(",\"unflushMemInterval\":").append(unflushMemInterval)
-                .append(",\"unflushMemCnt\":").append(unflushMemCnt)
+                .append(",\"unflushThreshold\":").append(unflushThreshold)
+                .append(",\"unflushInterval\":").append(unflushInterval)
+                .append(",\"unflushDataHold\":").append(unflushDataHold)
+                .append(",\"memCacheMsgCntInK\":").append(memCacheMsgCntInK)
+                .append(",\"memCacheFlushIntvl\":").append(memCacheFlushIntvl)
+                .append(",\"memCacheMsgSizeInMB\":").append(memCacheMsgSizeInMB)
                 .append(",\"acceptPublish\":").append(acceptPublish)
                 .append(",\"acceptSubscribe\":").append(acceptSubscribe)
-                .append(",\"deleteWhen\":\"").append(deleteWhen).append("\"")
-                .append(",\"maxMsgSize\":").append(maxMsgSize)
-                .append(",\"qryPriorityId\":").append(qryPriorityId)
+                .append(",\"deletePolicy\":\"").append(deletePolicy).append("\"")
+                .append(",\"maxMsgSizeInMB\":");
+        if (maxMsgSizeInB == TBaseConstants.META_VALUE_UNDEFINED) {
+            sBuilder.append(maxMsgSizeInB);
+        } else {
+            sBuilder.append(maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE);
+        }
+        return sBuilder.append(",\"qryPriorityId\":").append(qryPriorityId)
                 .append(",\"attributes\":\"").append(attributes).append("\"")
                 .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
                 .append(",\"modifyDate\":\"")
@@ -281,23 +308,30 @@ public class BdbClusterSettingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        ToStringBuilder sBuilder = new ToStringBuilder(this)
                 .append("recordKey", recordKey)
+                .append("configId", configId)
                 .append("brokerPort", brokerPort)
                 .append("brokerTLSPort", brokerTLSPort)
                 .append("brokerWebPort", brokerWebPort)
                 .append("numTopicStores", numTopicStores)
                 .append("numPartitions", numPartitions)
-                .append("unflushDskThreshold", unflushDskThreshold)
-                .append("unflushDksInterval", unflushDksInterval)
-                .append("unflushMemThreshold", unflushMemThreshold)
-                .append("unflushMemInterval", unflushMemInterval)
-                .append("unflushMemCnt", unflushMemCnt)
+                .append("unflushThreshold", unflushThreshold)
+                .append("unflushInterval", unflushInterval)
+                .append("unflushDataHold", unflushDataHold)
+                .append("memCacheMsgCntInK", memCacheMsgCntInK)
+                .append("memCacheFlushIntvl", memCacheFlushIntvl)
+                .append("memCacheMsgSizeInMB", memCacheMsgSizeInMB)
                 .append("acceptPublish", acceptPublish)
                 .append("acceptSubscribe", acceptSubscribe)
-                .append("deleteWhen", deleteWhen)
-                .append("maxMsgSize", maxMsgSize)
-                .append("qryPriorityId", qryPriorityId)
+                .append("deletePolicy", deletePolicy);
+        if (maxMsgSizeInB == TBaseConstants.META_VALUE_UNDEFINED) {
+            sBuilder.append("maxMsgSizeInMB", maxMsgSizeInB);
+        } else {
+            sBuilder.append("maxMsgSizeInMB",
+                    maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE);
+        }
+        return sBuilder.append("qryPriorityId", qryPriorityId)
                 .append("attributes", attributes)
                 .append("modifyUser", modifyUser)
                 .append("modifyDate", modifyDate)

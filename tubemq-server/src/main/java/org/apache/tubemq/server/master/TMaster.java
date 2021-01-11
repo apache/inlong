@@ -48,6 +48,7 @@ import org.apache.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestB2M;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestC2M;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestP2M;
@@ -101,6 +102,7 @@ import org.apache.tubemq.server.master.balance.DefaultLoadBalancer;
 import org.apache.tubemq.server.master.balance.LoadBalancer;
 import org.apache.tubemq.server.master.bdbstore.DefaultBdbStoreService;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
@@ -348,6 +350,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setBrokerCheckSum(this.defaultBrokerConfManager.getBrokerInfoCheckSum());
         builder.addAllBrokerInfos(this.defaultBrokerConfManager.getBrokersMap(overtls).values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
+        ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
+                buildApprovedClientConfig(request.getAppdConfig());
+        if (clientConfigBuilder != null) {
+            builder.setAppdConfig(clientConfigBuilder);
+        }
         logger.info(strBuffer.append("[Producer Register] ").append(producerId)
             .append(", isOverTLS=").append(overtls)
             .append(", clientJDKVer=").append(clientJdkVer).toString());
@@ -435,6 +442,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
         if (defaultBrokerConfManager.getBrokerInfoCheckSum() != inBrokerCheckSum) {
             builder.addAllBrokerInfos(defaultBrokerConfManager.getBrokersMap(overtls).values());
+        }
+        ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
+                buildApprovedClientConfig(request.getAppdConfig());
+        if (clientConfigBuilder != null) {
+            builder.setAppdConfig(clientConfigBuilder);
         }
         if (logger.isDebugEnabled()) {
             logger.debug(strBuffer.append("[Push Producer's available topic count:]")
@@ -1071,6 +1083,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setBrokerDefaultConfInfo(brokerStatusInfo.getLastPushBrokerDefaultConfInfo());
         builder.addAllBrokerTopicSetConfInfo(brokerStatusInfo.getLastPushBrokerTopicSetConfInfo());
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
+        ClientMaster.ClusterConfig.Builder clusterConfigBuilder =
+                buildClusterConfig(request.getClsConfig());
+        if (clusterConfigBuilder != null) {
+            builder.setClsConfig(clusterConfigBuilder);
+        }
         if (request.hasFlowCheckId()) {
             BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity =
                     defaultBrokerConfManager.getBdbDefFlowCtrl();
@@ -1259,6 +1276,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         brokerHolder.setBrokerHeartBeatReqStatus(brokerInfo.getBrokerId(), builder);
+        ClientMaster.ClusterConfig.Builder clusterConfigBuilder =
+                buildClusterConfig(request.getClsConfig());
+        if (clusterConfigBuilder != null) {
+            builder.setClsConfig(clusterConfigBuilder);
+        }
         builder.setTakeRemoveTopicInfo(true);
         builder.addAllRemoveTopicConfInfo(defaultBrokerConfManager
                 .getBrokerRemovedTopicStrConfigInfo(bdbBrokerConfEntity));
@@ -2294,6 +2316,56 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
     }
 
+    /**
+     * build approved client configure
+     *
+     * @param inClientConfig client reported Configure info
+     * @return ApprovedClientConfig
+     */
+    private ClientMaster.ApprovedClientConfig.Builder buildApprovedClientConfig(
+            ClientMaster.ApprovedClientConfig inClientConfig) {
+        ClientMaster.ApprovedClientConfig.Builder outClientConfig = null;
+        if (inClientConfig != null) {
+            outClientConfig = ClientMaster.ApprovedClientConfig.newBuilder();
+            BdbClusterSettingEntity settingEntity =
+                    this.defaultBrokerConfManager.getBdbClusterSetting();
+            if (settingEntity == null) {
+                outClientConfig.setConfigId(TBaseConstants.META_VALUE_UNDEFINED);
+            } else {
+                outClientConfig.setConfigId(settingEntity.getConfigId());
+                if (settingEntity.getConfigId() != inClientConfig.getConfigId()) {
+                    outClientConfig.setMaxMsgSize(settingEntity.getMaxMsgSizeInB());
+                }
+            }
+        }
+        return outClientConfig;
+    }
+
+
+    /**
+     * build cluster configure info
+     *
+     * @param inClusterConfig broker reported Configure info
+     * @return ClusterConfig
+     */
+    private ClientMaster.ClusterConfig.Builder buildClusterConfig(
+            ClientMaster.ClusterConfig inClusterConfig) {
+        ClientMaster.ClusterConfig.Builder outClsConfig = null;
+        if (inClusterConfig != null) {
+            outClsConfig = ClientMaster.ClusterConfig.newBuilder();
+            BdbClusterSettingEntity settingEntity =
+                    this.defaultBrokerConfManager.getBdbClusterSetting();
+            if (settingEntity == null) {
+                outClsConfig.setConfigId(TBaseConstants.META_VALUE_UNDEFINED);
+            } else {
+                outClsConfig.setConfigId(settingEntity.getConfigId());
+                if (settingEntity.getConfigId() != inClusterConfig.getConfigId()) {
+                    outClsConfig.setMaxMsgSize(settingEntity.getMaxMsgSizeInB());
+                }
+            }
+        }
+        return outClsConfig;
+    }
     /**
      * Start balance chore
      *
