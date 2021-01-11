@@ -29,9 +29,6 @@ public class TBaseConstants {
 
     public static final String META_DEFAULT_CHARSET_NAME = "UTF-8";
     public static final int META_MAX_MSGTYPE_LENGTH = 255;
-    public static final int META_MAX_MESSAGE_HEADER_SIZE = 1024;
-    public static final int META_MAX_MESSAGE_DATA_SIZE = 1024 * 1024;
-    public static final int META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT = 20 * 1024 * 1024;
     public static final int META_MAX_PARTITION_COUNT = 100;
     public static final int META_MAX_BROKER_IP_LENGTH = 32;
     public static final int META_MAX_USERNAME_LENGTH = 64;
@@ -66,5 +63,20 @@ public class TBaseConstants {
     public static final int META_MAX_BOOKED_TOPIC_COUNT = 1024;
 
     public static final long CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL = 20000;
+
+    public static final int META_MB_UNIT_SIZE = (1024 * 1024);
+    public static final int META_MESSAGE_SIZE_ADJUST = (512 * 1024);
+    public static final int META_MAX_MESSAGE_HEADER_SIZE = (10 * 1024);
+
+    public static final int META_MIN_ALLOWED_MESSAGE_SIZE_MB = 1;
+    public static final int META_MAX_ALLOWED_MESSAGE_SIZE_MB = 20;
+    public static final int META_MAX_MESSAGE_DATA_SIZE =
+            META_MIN_ALLOWED_MESSAGE_SIZE_MB * META_MB_UNIT_SIZE;
+    public static final int META_MIN_MEM_BUFFER_SIZE =
+            META_MAX_MESSAGE_DATA_SIZE + META_MESSAGE_SIZE_ADJUST;
+    public static final int META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT =
+            META_MAX_ALLOWED_MESSAGE_SIZE_MB * META_MB_UNIT_SIZE;
+
+
 
 }

@@ -55,6 +55,7 @@ import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.service.BrokerReadService;
 import org.apache.tubemq.corerpc.service.BrokerWriteService;
 import org.apache.tubemq.server.Server;
+import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
@@ -633,10 +634,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("data length is zero!");
             return builder.build();
         }
-        if (dataLength > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024) {
+        if (dataLength > ClusterConfigHolder.getMaxMsgSize()) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg(strBuffer.append("data length over max length, allowed max length is ")
-                    .append(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024)
+                    .append(ClusterConfigHolder.getMaxMsgSize())
                     .append(", data length is ").append(dataLength).toString());
             return builder.build();
         }

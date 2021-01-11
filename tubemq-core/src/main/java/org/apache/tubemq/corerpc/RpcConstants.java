@@ -18,6 +18,9 @@
 package org.apache.tubemq.corerpc;
 
 
+import org.apache.tubemq.corebase.TBaseConstants;
+
+
 public final class RpcConstants {
 
     public static final String RPC_CODEC = "rpc.codec";
@@ -66,7 +69,8 @@ public final class RpcConstants {
     public static final int RPC_PROTOCOL_BEGIN_TOKEN = 0xFF7FF4FE;
     public static final int RPC_MAX_BUFFER_SIZE = 8192;
     public static final int MAX_FRAME_MAX_LIST_SIZE =
-            (int) ((1024 * 1024 * 8) / RPC_MAX_BUFFER_SIZE);
+            (int) ((TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
+                    + TBaseConstants.META_MB_UNIT_SIZE * 8) / RPC_MAX_BUFFER_SIZE);
 
     public static final int RPC_FLAG_MSG_TYPE_REQUEST = 0x0;
     public static final int RPC_FLAG_MSG_TYPE_RESPONSE = 0x1;
