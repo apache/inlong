@@ -79,6 +79,8 @@ public class ProducerManager {
     private final ScheduledExecutorService heartbeatService;
     private final AtomicLong visitToken =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AllowedSetting allowedSetting =
+            new AllowedSetting();
     private final AtomicReference<String> authAuthorizedTokenRef =
             new AtomicReference<>("");
     private final ClientAuthenticateHandler authenticateHandler =
@@ -311,6 +313,15 @@ public class ProducerManager {
     }
 
     /**
+     * Get allowed message size.
+     *
+     * @return max allowed message size
+     */
+    public int getMaxMsgSize() {
+        return allowedSetting.getMaxMsgSize();
+    }
+
+    /**
      * Check if the producer manager is shutdown.
      *
      * @return producer status
@@ -396,7 +407,7 @@ public class ProducerManager {
                         updateBrokerInfoList(true, response.getBrokerInfosList(),
                                 response.getBrokerCheckSum(), sBuilder);
                     }
-                    processRegAuthorizedToken(response);
+                    processRegSyncInfo(response);
                     return;
                 }
                 if (remainingRetry <= 0) {
@@ -436,6 +447,7 @@ public class ProducerManager {
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
+        builder.setAppdConfig(buildAllowedConfig4P());
         return builder.build();
     }
 
@@ -455,6 +467,7 @@ public class ProducerManager {
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
+        builder.setAppdConfig(buildAllowedConfig4P());
         return builder.build();
     }
 
@@ -544,13 +557,22 @@ public class ProducerManager {
         }
     }
 
-    private void processRegAuthorizedToken(ClientMaster.RegisterResponseM2P response) {
+    private void processRegSyncInfo(ClientMaster.RegisterResponseM2P response) {
         if (response.hasAuthorizedInfo()) {
             processAuthorizedToken(response.getAuthorizedInfo());
         }
+        if (response.hasAppdConfig()) {
+            procAllowedConfig4P(response.getAppdConfig());
+        }
     }
 
-    private void processHeartBeatAuthorizedToken(ClientMaster.HeartResponseM2P response) {
+    private void processHeartBeatSyncInfo(ClientMaster.HeartResponseM2P response) {
+        if (response.hasRequireAuth()) {
+            nextWithAuthInfo2M.set(response.getRequireAuth());
+        }
+        if (response.hasAppdConfig()) {
+            procAllowedConfig4P(response.getAppdConfig());
+        }
         if (response.hasAuthorizedInfo()) {
             processAuthorizedToken(response.getAuthorizedInfo());
         }
@@ -595,6 +617,21 @@ public class ProducerManager {
         return authInfoBuilder;
     }
 
+    // build allowed configure info
+    private ClientMaster.ApprovedClientConfig.Builder buildAllowedConfig4P() {
+        ClientMaster.ApprovedClientConfig.Builder appdConfig =
+                ClientMaster.ApprovedClientConfig.newBuilder();
+        appdConfig.setConfigId(allowedSetting.getConfigId());
+        return appdConfig;
+    }
+
+    // set allowed configure info
+    private void procAllowedConfig4P(ClientMaster.ApprovedClientConfig allowedConfig) {
+        if (allowedConfig != null) {
+            allowedSetting.updAllowedSetting(allowedConfig);
+        }
+    }
+
     // #lizard forgives
     private class ProducerHeartbeatTask implements Runnable {
         @Override
@@ -633,10 +670,7 @@ public class ProducerManager {
                     }
                     return;
                 }
-                if (response.hasRequireAuth()) {
-                    nextWithAuthInfo2M.set(response.getRequireAuth());
-                }
-                processHeartBeatAuthorizedToken(response);
+                processHeartBeatSyncInfo(response);
                 if (response.getErrCode() == TErrCodeConstants.NOT_READY) {
                     lastHeartbeatTime = System.currentTimeMillis();
                     return;

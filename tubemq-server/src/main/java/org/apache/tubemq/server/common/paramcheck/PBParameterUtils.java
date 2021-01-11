@@ -32,6 +32,8 @@ import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
@@ -575,5 +577,36 @@ public class PBParameterUtils {
         }
         retResult.setCheckData(tmpValue);
         return retResult;
+    }
+
+    /**
+     * Check the string parameter
+     *
+     * @param fieldDef  the field to be checked
+     * @param paramValue the field value to be checked
+     * @param strBuffer the string pool construct the result
+     * @param result    the checked result
+     * @return result success or failure
+     */
+    public static boolean getStringParameter(WebFieldDef fieldDef,
+                                             String paramValue,
+                                             StringBuilder strBuffer,
+                                             ProcessResult result) {
+        if (TStringUtils.isBlank(paramValue)) {
+            result.setFailResult(strBuffer.append("Request miss necessary ")
+                    .append(fieldDef.name).append(" data!").toString());
+            strBuffer.delete(0, strBuffer.length());
+            return result.success;
+        }
+        String tmpValue = paramValue.trim();
+        if (tmpValue.length() > fieldDef.valMaxLen) {
+            result.setFailResult(strBuffer.append(fieldDef.name)
+                    .append("'s length over max value, allowed max length is ")
+                    .append(fieldDef.valMaxLen).toString());
+            strBuffer.delete(0, strBuffer.length());
+            return result.success;
+        }
+        result.setSuccResult(tmpValue);
+        return result.success;
     }
 }

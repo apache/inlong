@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.server.broker.BrokerConfig;
+import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStore;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.utils.AppendResult;
@@ -224,7 +225,7 @@ public class MsgMemStore implements Closeable {
             if ((cDataOffset < 0)
                     || (cDataSize <= 0)
                     || (cDataOffset >= currDataOffset)
-                    || (cDataSize > TBaseConstants.META_MAX_MESSAGE_DATA_SIZE + 1024)
+                    || (cDataSize > ClusterConfigHolder.getMaxMsgSize())
                     || (cDataOffset + cDataSize > currDataOffset)) {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
