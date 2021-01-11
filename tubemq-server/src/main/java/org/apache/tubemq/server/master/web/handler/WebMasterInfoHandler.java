@@ -17,10 +17,16 @@
 
 package org.apache.tubemq.server.master.web.handler;
 
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.SettingValidUtils;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
 
@@ -43,9 +49,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // register query method
         registerQueryWebMethod("admin_query_master_group_info",
                 "getGroupAddressStrInfo");
+        registerQueryWebMethod("admin_query_cluster_default_setting",
+                "adminQueryClusterDefSetting");
         // register modify method
         registerModifyWebMethod("admin_transfer_current_master",
                 "transferCurrentMaster");
+        // register modify method
+        registerModifyWebMethod("admin_set_cluster_default_setting",
+                "adminSetClusterDefSetting");
     }
 
     /**
@@ -94,17 +105,111 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return
      */
     public StringBuilder transferCurrentMaster(HttpServletRequest req) {
-        StringBuilder strBuffer = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager, req.getParameter("confModAuthToken"));
-            brokerConfManager.transferMaster();
-            strBuffer.append("{\"result\":true,\"errCode\":0," +
-                    "\"errMsg\":\"TransferMaster method called, please wait 20 seconds!\"}");
-        } catch (Exception e2) {
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e2.getMessage()).append("\"}");
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
-        return strBuffer;
+        try {
+            brokerConfManager.transferMaster();
+            WebParameterUtils.buildSuccessResult(sBuilder,
+                    "TransferMaster method called, please wait 20 seconds!");
+        } catch (Exception e2) {
+            WebParameterUtils.buildFailResult(sBuilder, e2.getMessage());
+        }
+        return sBuilder;
     }
+
+    /**
+     * Query cluster default setting
+     *
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
+        StringBuilder sBuilder = new StringBuilder(512);
+        BdbClusterSettingEntity defClusterSetting =
+                brokerConfManager.getBdbClusterSetting();
+        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"data\":[");
+        if (defClusterSetting != null) {
+            defClusterSetting.toJsonString(sBuilder);
+        }
+        sBuilder.append("]}");
+        return sBuilder;
+    }
+
+    /**
+     * Add or modify cluster default setting
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
+        boolean dataChanged = false;
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        // check modify user field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String modifyUser = (String) result.retData1;
+        // check max message size
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.MAXMSGSIZE, false,
+                TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
+                result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int maxMsgSize = (int) result.retData1;
+        if (maxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
+            dataChanged = true;
+        }
+        // check and get modify date
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.MODIFYDATE, false, new Date(), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Date modifyDate = (Date) result.retData1;
+        if (!dataChanged) {
+            WebParameterUtils.buildSuccessResult(sBuilder, "No data is changed!");
+            return sBuilder;
+        }
+        // add or modify cluster setting info
+        BdbClusterSettingEntity defClusterSetting =
+                brokerConfManager.getBdbClusterSetting();
+        if (defClusterSetting == null) {
+            defClusterSetting = new BdbClusterSettingEntity();
+        }
+        defClusterSetting.setModifyInfo(modifyUser, modifyDate);
+        if (maxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
+            defClusterSetting.setMaxMsgSize(
+                    SettingValidUtils.validAndGetMaxMsgSize(maxMsgSize));
+        }
+        try {
+            brokerConfManager.confSetBdbClusterDefSetting(defClusterSetting);
+            WebParameterUtils.buildSuccessResult(sBuilder);
+        } catch (Exception e) {
+            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+        }
+        return sBuilder;
+    }
+
+
+
 
 }

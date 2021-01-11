@@ -246,6 +246,10 @@ public class WebParameterUtils {
         return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
 
+    public static StringBuilder buildSuccessResult(StringBuilder strBuffer, String appendInfo) {
+        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"").
+                append(appendInfo).append("\"}");
+    }
     /**
      * Parse the parameter value from an object value to a long value
      *
@@ -273,10 +277,9 @@ public class WebParameterUtils {
             long paramIntVal = Long.parseLong(paramValue);
             result.setSuccResult(paramIntVal);
         } catch (Throwable e) {
-            result.setFailResult(400,
-                    new StringBuilder(512).append("Parameter ")
-                            .append(fieldDef.name).append(" parse error: ")
-                            .append(e.getMessage()).toString());
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" parse error: ").append(e.getMessage()).toString());
         }
         return result.success;
     }
@@ -429,10 +432,9 @@ public class WebParameterUtils {
         // Check if the parameter exists
         if (TStringUtils.isBlank(paramValue)) {
             if (required) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("Parameter ")
-                                .append(fieldDef.name)
-                                .append(" is missing or value is null or blank!").toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("Parameter ").append(fieldDef.name)
+                        .append(" is missing or value is null or blank!").toString());
             } else {
                 procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
             }
@@ -455,10 +457,9 @@ public class WebParameterUtils {
             // check if is empty result
             if (valItemSet.isEmpty()) {
                 if (required) {
-                    result.setFailResult(fieldDef.id,
-                            new StringBuilder(512).append("Parameter ")
-                                    .append(fieldDef.name)
-                                    .append(" is missing or value is null or blank!").toString());
+                    result.setFailResult(new StringBuilder(512)
+                            .append("Parameter ").append(fieldDef.name)
+                            .append(" is missing or value is null or blank!").toString());
                 } else {
                     procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
                 }
@@ -467,11 +468,10 @@ public class WebParameterUtils {
             // check max item count
             if (fieldDef.itemMaxCnt != TBaseConstants.META_VALUE_UNDEFINED) {
                 if (valItemSet.size() > fieldDef.itemMaxCnt) {
-                    result.setFailResult(fieldDef.id,
-                            new StringBuilder(512).append("Parameter ")
-                                    .append(fieldDef.name)
-                                    .append("'s item count over max allowed count (")
-                                    .append(fieldDef.itemMaxCnt).append(")!").toString());
+                    result.setFailResult(new StringBuilder(512)
+                            .append("Parameter ").append(fieldDef.name)
+                            .append("'s item count over max allowed count (")
+                            .append(fieldDef.itemMaxCnt).append(")!").toString());
                 }
             }
             result.setSuccResult(valItemSet);
@@ -511,10 +511,9 @@ public class WebParameterUtils {
         // Check if the parameter exists
         if (TStringUtils.isBlank(paramValue)) {
             if (required) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("Parameter ")
-                                .append(fieldDef.name)
-                                .append(" is missing or value is null or blank!").toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("Parameter ").append(fieldDef.name)
+                        .append(" is missing or value is null or blank!").toString());
             } else {
                 result.setSuccResult(defValue);
             }
@@ -524,18 +523,15 @@ public class WebParameterUtils {
             paramValue = URLDecoder.decode(paramValue,
                     TBaseConstants.META_DEFAULT_CHARSET_NAME);
         } catch (UnsupportedEncodingException e) {
-            result.setFailResult(fieldDef.id,
-                    new StringBuilder(512).append("Parameter ")
-                            .append(fieldDef.name)
-                            .append(" decode error, exception is ")
-                            .append(e.toString()).toString());
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" decode error, exception is ")
+                    .append(e.toString()).toString());
         }
         if (TStringUtils.isBlank(paramValue)) {
             if (required) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("Parameter ")
-                                .append(fieldDef.name)
-                                .append("'s value is blank!").toString());
+                result.setFailResult(new StringBuilder(512).append("Parameter ")
+                        .append(fieldDef.name).append("'s value is blank!").toString());
             } else {
                 result.setSuccResult(defValue);
             }
@@ -543,11 +539,10 @@ public class WebParameterUtils {
         }
         if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
             if (paramValue.length() > fieldDef.valMaxLen) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("Parameter ")
-                                .append(fieldDef.name)
-                                .append("'s length over max allowed length (")
-                                .append(fieldDef.valMaxLen).append(")!").toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("Parameter ").append(fieldDef.name)
+                        .append("'s length over max allowed length (")
+                        .append(fieldDef.valMaxLen).append(")!").toString());
                 return result.success;
             }
         }
@@ -557,11 +552,71 @@ public class WebParameterUtils {
                     new TypeToken<Map<String, Long>>(){}.getType());
             result.setSuccResult(manOffsets);
         } catch (Throwable e) {
-            result.setFailResult(fieldDef.id,
-                    new StringBuilder(512).append("Parameter ")
-                            .append(fieldDef.name)
-                            .append(" value parse failure, error is ")
-                            .append(e.getMessage()).append("!").toString());
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" value parse failure, error is ")
+                    .append(e.getMessage()).append("!").toString());
+        }
+        return result.success;
+    }
+
+    /**
+     * Parse the parameter value from an string value to Date value
+     *
+     * @param req         Http Servlet Request
+     * @param fieldDef    the parameter field definition
+     * @param required    a boolean value represent whether the parameter is must required
+     * @param defValue    a default value returned if failed to parse value from the given object
+     * @param result      process result
+     * @return valid result for the parameter value
+     */
+    public static boolean getDateParameter(HttpServletRequest req,
+                                           WebFieldDef fieldDef,
+                                           boolean required,
+                                           Date defValue,
+                                           ProcessResult result) {
+        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+            return result.success;
+        }
+        String paramValue = (String) result.retData1;
+        if (paramValue == null) {
+            result.setSuccResult(defValue);
+            return result.success;
+        }
+        try {
+            DateFormat sdf = new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
+            Date date = sdf.parse(paramValue);
+            result.setSuccResult(date);
+        } catch (Throwable e) {
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" parse error: ").append(e.getMessage()).toString());
+        }
+        return result.success;
+    }
+
+    /**
+     * Valid execution authorization info
+     * @param req        Http Servlet Request
+     * @param fieldDef   the parameter field definition
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param master     current master object
+     * @param result     process result
+     * @return valid result for the parameter value
+     */
+    public static boolean validReqAuthorizeInfo(HttpServletRequest req,
+                                                WebFieldDef fieldDef,
+                                                boolean required,
+                                                TMaster master,
+                                                ProcessResult result) {
+        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+            return result.success;
+        }
+        String paramValue = (String) result.retData1;
+        if (paramValue != null) {
+            if (!paramValue.equals(master.getMasterConfig().getConfModAuthToken())) {
+                result.setFailResult("Illegal access, unauthorized request!");
+            }
         }
         return result.success;
     }
@@ -608,20 +663,20 @@ public class WebParameterUtils {
         // check value's max length
         if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
             if (paramVal.length() > fieldDef.valMaxLen) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("over max length for ")
-                                .append(fieldDef.name).append(", only allow ")
-                                .append(fieldDef.valMaxLen).append(" length").toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("over max length for ").append(fieldDef.name)
+                        .append(", only allow ").append(fieldDef.valMaxLen)
+                        .append(" length").toString());
                 return false;
             }
         }
         // check value's pattern
         if (fieldDef.regexCheck) {
             if (!paramVal.matches(fieldDef.regexDef.getPattern())) {
-                result.setFailResult(fieldDef.id,
-                        new StringBuilder(512).append("illegal value for ")
-                                .append(fieldDef.name).append(", value ")
-                                .append(fieldDef.regexDef.getErrMsgTemp()).toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("illegal value for ").append(fieldDef.name)
+                        .append(", value ").append(fieldDef.regexDef.getErrMsgTemp())
+                        .toString());
                 return false;
             }
         }
@@ -647,18 +702,16 @@ public class WebParameterUtils {
         try {
             int paramIntVal = Integer.parseInt(paramValue);
             if (hasMinVal && paramIntVal < minValue) {
-                result.setFailResult(400,
-                        new StringBuilder(512).append("Parameter ")
-                                .append(fieldDef.name).append(" value must >= ")
-                                .append(minValue).toString());
+                result.setFailResult(new StringBuilder(512)
+                        .append("Parameter ").append(fieldDef.name)
+                        .append(" value must >= ").append(minValue).toString());
                 return false;
             }
             result.setSuccResult(paramIntVal);
         } catch (Throwable e) {
-            result.setFailResult(400,
-                    new StringBuilder(512).append("Parameter ")
-                            .append(fieldDef.name).append(" parse error: ")
-                            .append(e.getMessage()).toString());
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" parse error: ").append(e.getMessage()).toString());
             return false;
         }
         return true;

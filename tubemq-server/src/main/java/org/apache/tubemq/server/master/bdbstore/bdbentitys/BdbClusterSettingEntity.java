@@ -33,7 +33,7 @@ import org.apache.tubemq.server.common.utils.WebParameterUtils;
 @Entity
 public class BdbClusterSettingEntity implements Serializable {
 
-    private static final long serialVersionUID = -3259439355290322115L;
+    private static final long serialVersionUID = 3259439355290322115L;
 
     @PrimaryKey
     private String recordKey = "";
@@ -62,7 +62,7 @@ public class BdbClusterSettingEntity implements Serializable {
     private String deleteWhen = "";              //delete policy execute time
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     private int maxMsgSize = TBaseConstants.META_VALUE_UNDEFINED;
-    private String attributes;               //extra attribute
+    private String attributes = "";             //extra attribute
     private String modifyUser;               //modify user
     private Date modifyDate;                 //modify date
 
@@ -235,20 +235,17 @@ public class BdbClusterSettingEntity implements Serializable {
         this.attributes = attributes;
     }
 
+    public void setModifyInfo(String modifyUser, Date modifyDate) {
+        this.modifyUser = modifyUser;
+        this.modifyDate = modifyDate;
+    }
+
     public String getModifyUser() {
         return modifyUser;
     }
 
-    public void setModifyUser(String modifyUser) {
-        this.modifyUser = modifyUser;
-    }
-
     public Date getModifyDate() {
         return modifyDate;
-    }
-
-    public void setModifyDate(Date modifyDate) {
-        this.modifyDate = modifyDate;
     }
 
     /**
