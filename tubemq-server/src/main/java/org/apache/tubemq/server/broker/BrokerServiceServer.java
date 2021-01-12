@@ -69,13 +69,14 @@ import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.aaaserver.CertificateBrokerHandler;
 import org.apache.tubemq.server.common.aaaserver.CertifiedResult;
 import org.apache.tubemq.server.common.exception.HeartbeatException;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 import org.apache.tubemq.server.common.paramcheck.PBParameterUtils;
-import org.apache.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.tubemq.server.common.utils.AppendResult;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -271,6 +272,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public GetMessageResponseB2C getMessagesC2B(GetMessageRequestC2B request,
                                                 final String rmtAddress,
                                                 boolean overtls) throws Throwable {
+        ProcessResult result = new ProcessResult();
+        StringBuilder strBuffer = new StringBuilder(512);
         final GetMessageResponseB2C.Builder builder =
                 GetMessageResponseB2C.newBuilder();
         builder.setSuccess(false);
@@ -278,39 +281,37 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         builder.setEscFlowCtrl(false);
         builder.setCurrDataDlt(-1);
         builder.setMinLimitTime(0);
-        StringBuilder strBuffer = new StringBuilder(512);
         if (!this.started.get()
                 || ServiceStatusHolder.isReadServiceStop()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
             builder.setErrMsg("Read StoreService temporary unavailable!");
             return builder.build();
         }
-        // check request's parameters
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check clientId field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
+                request.getClientId(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.retData1;
+        // get and check groupName field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
+                request.getGroupName(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManager, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String groupName = (String) result.retData1;
+        // get and check topicName field
+        if (!PBParameterUtils.getTopicNameParameter(request.getTopicName(),
+                this.metadataManager, strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
         // get consumer info
-        final String topicName = (String) paramCheckResult.checkData;
+        final String topicName = (String) result.retData1;
         final int partitionId = request.getPartitionId();
         boolean isEscFlowCtrl = request.hasEscFlowCtrl() && request.getEscFlowCtrl();
         String partStr = getPartStr(groupName, topicName, partitionId);
@@ -587,6 +588,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public SendMessageResponseB2P sendMessageP2B(SendMessageRequestP2B request,
                                                  final String rmtAddress,
                                                  boolean overtls) throws Throwable {
+        ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         SendMessageResponseB2P.Builder builder = SendMessageResponseB2P.newBuilder();
         builder.setSuccess(false);
@@ -603,24 +605,23 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(certResult.errInfo);
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check clientId field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
+                request.getClientId(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String producerId = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkExistTopicNameInfo(request.getTopicName(),
-                        request.getPartitionId(), this.metadataManager, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String producerId = (String) result.retData1;
+        // get and check topicName and partitionId field
+        final int partitionId = request.getPartitionId();
+        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+                partitionId, this.metadataManager, strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String reqTopic = (String) paramCheckResult.checkData;
-        final int partition = request.getPartitionId();
+        final String topicName = (String) result.retData1;
         String msgType = null;
         int msgTypeCode = -1;
         if (TStringUtils.isNotBlank(request.getMsgType())) {
@@ -645,14 +646,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         if (request.getCheckSum() != -1 && checkSum != request.getCheckSum()) {
             builder.setErrCode(TErrCodeConstants.FORBIDDEN);
             builder.setErrMsg(strBuffer.append("Checksum msg data failure: ")
-                    .append(request.getCheckSum()).append(" of ").append(reqTopic)
+                    .append(request.getCheckSum()).append(" of ").append(topicName)
                     .append(" not equal to the data's checksum of ")
                     .append(checkSum).toString());
             return builder.build();
         }
         CertifiedResult authorizeResult =
                 serverAuthHandler.validProduceAuthorizeInfo(
-                        certResult.userName, reqTopic, msgType, rmtAddress);
+                        certResult.userName, topicName, msgType, rmtAddress);
         if (!authorizeResult.result) {
             builder.setErrCode(authorizeResult.errCode);
             builder.setErrMsg(authorizeResult.errInfo);
@@ -660,11 +661,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         try {
             final MessageStore store =
-                    this.storeManager.getOrCreateMessageStore(reqTopic, partition);
+                    this.storeManager.getOrCreateMessageStore(topicName, partitionId);
             final AppendResult appendResult = new AppendResult();
             if (store.appendMsg(appendResult, dataLength, checkSum, msgData,
-                    msgTypeCode, request.getFlag(), partition, request.getSentAddr())) {
-                String baseKey = strBuffer.append(reqTopic)
+                    msgTypeCode, request.getFlag(), partitionId, request.getSentAddr())) {
+                String baseKey = strBuffer.append(topicName)
                         .append("#").append(AddressUtils.intToIp(request.getSentAddr()))
                         .append("#").append(tubeConfig.getHostName())
                         .append("#").append(request.getPartitionId())
@@ -712,6 +713,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
                                                    final String rmtAddress,
                                                    boolean overtls) throws Throwable {
+        ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         RegisterResponseB2C.Builder builder = RegisterResponseB2C.newBuilder();
         builder.setSuccess(false);
@@ -727,28 +729,31 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(certResult.errInfo);
             return builder.build();
         }
-        ParamCheckResult paramCheckResult = PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check clientId field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
+                request.getClientId(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult
-                = PBParameterUtils.checkConsumeTopicName(request.getTopicName(), this.metadataManager, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.retData1;
+        // get and check topicName field
+        if (!PBParameterUtils.getTopicNameParameter(request.getTopicName(),
+                this.metadataManager, strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String topicName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get consumer info
+        final String topicName = (String) result.retData1;
+        // get and check groupName field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
+                request.getGroupName(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) result.retData1;
         boolean isRegister = (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER);
         Set<String> filterCondSet = new HashSet<>();
         if (request.getFilterCondStrList() != null && !request.getFilterCondStrList().isEmpty()) {
@@ -977,8 +982,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public HeartBeatResponseB2C consumerHeartbeatC2B(HeartBeatRequestC2B request,
                                                      final String rmtAddress,
                                                      boolean overtls) throws Throwable {
-        final HeartBeatResponseB2C.Builder builder = HeartBeatResponseB2C.newBuilder();
+        ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
+        final HeartBeatResponseB2C.Builder builder = HeartBeatResponseB2C.newBuilder();
         builder.setSuccess(false);
         if (!this.started.get()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
@@ -992,22 +998,22 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(certResult.errInfo);
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check clientId field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
+                request.getClientId(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.retData1;
+        // get and check groupName field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
+                request.getGroupName(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) result.retData1;
         int reqQryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         List<Partition> partitions =
@@ -1097,8 +1103,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public CommitOffsetResponseB2C consumerCommitC2B(CommitOffsetRequestC2B request,
                                                      final String rmtAddress,
                                                      boolean overtls) throws Throwable {
-        final CommitOffsetResponseB2C.Builder builder = CommitOffsetResponseB2C.newBuilder();
+        ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
+        final CommitOffsetResponseB2C.Builder builder = CommitOffsetResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
         if (!this.started.get()) {
@@ -1106,32 +1113,31 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check clientId field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
+                request.getClientId(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.retData1;
+        // get and check groupName field
+        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
+                request.getGroupName(), strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) result.retData1;
         int partitionId = request.getPartitionId();
-        paramCheckResult =
-                PBParameterUtils.checkExistTopicNameInfo(
-                        request.getTopicName(), partitionId, this.metadataManager, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // get and check topicName and partitionId field
+        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+                partitionId, this.metadataManager, strBuffer, result)) {
+            builder.setErrCode(result.errCode);
+            builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String topicName = (String) paramCheckResult.checkData;
+        final String topicName = (String) result.retData1;
         String partStr = getPartStr(groupName, topicName, partitionId);
         ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
         if (consumerNodeInfo == null) {
