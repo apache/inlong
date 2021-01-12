@@ -104,7 +104,7 @@ public final class MessageProducerExample {
             while (msgCount < 0 || sentCount < msgCount) {
                 roundIndex = (int) (sentCount++ % targetCnt);
                 Tuple2<String, String> target = topicSendRounds.get(roundIndex);
-                Message message = new Message(target.getF0(), body.getBytes());
+                Message message = new Message(target.getF0(), dataBuffer.array());
                 long currTimeMillis = System.currentTimeMillis();
                 message.setAttrKeyVal("index", String.valueOf(sentCount));
                 message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
