@@ -49,9 +49,6 @@ public class DataStoreUtils {
     // + data               0
     //
     public static final int MAX_MSG_TRANSFER_SIZE = 1024 * 1024;
-    public static final int MAX_MSG_DATA_STORE_SIZE =
-            TBaseConstants.META_MAX_MESSAGE_DATA_SIZE * 2;
-    public static final int MAX_READ_BUFFER_ADJUST = MAX_MSG_DATA_STORE_SIZE * 10;
 
     public static final int STORE_DATA_PREFX_LEN = 48;
     public static final int STORE_DATA_HEADER_LEN = STORE_DATA_PREFX_LEN + 4;
@@ -85,7 +82,9 @@ public class DataStoreUtils {
     public static final int INDEX_POS_KEY_CODE = 16;
     public static final int INDEX_POS_TIME_RECV = 20;
 
-
+    public static final int MAX_MSG_DATA_STORE_SIZE =
+            TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
+                    + TBaseConstants.META_MB_UNIT_SIZE * 8;
     public static final int STORE_MAX_MESSAGE_STORE_LEN
             = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 
