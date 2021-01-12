@@ -25,7 +25,6 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.utils.CheckSum;
-import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -366,7 +365,7 @@ public class FileSegment implements Segment {
                 itemNext = validBytes + DataStoreUtils.STORE_DATA_HEADER_LEN + itemMsglen;
                 if ((itemMsgToken != DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE)
                         || (itemMsglen <= 0)
-                        || (itemMsglen > ClusterConfigHolder.getMaxMsgSize())
+                        || (itemMsglen > DataStoreUtils.MAX_MSG_DATA_STORE_SIZE)
                         || (itemNext > totalBytes)) {
                     next = -1;
                     break;
@@ -438,7 +437,7 @@ public class FileSegment implements Segment {
                 if ((itemMsgPartId < 0)
                         || (itemMsgOffset < 0)
                         || (itemMsglen <= 0)
-                        || (itemMsglen > ClusterConfigHolder.getMaxMsgStoreLength())
+                        || (itemMsglen > DataStoreUtils.STORE_MAX_MESSAGE_STORE_LEN)
                         || (itemNext > totalBytes)) {
                     next = -1;
                     break;
