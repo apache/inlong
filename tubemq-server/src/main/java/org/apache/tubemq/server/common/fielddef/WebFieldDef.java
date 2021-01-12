@@ -93,7 +93,11 @@ public enum WebFieldDef {
     CREATEDATE(25, "createDate", "cDate", WebFieldType.STRING,
             "Record creation date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
     MODIFYDATE(26, "modifyDate", "mDate", WebFieldType.STRING,
-            "Record modification date", TBaseConstants.META_MAX_DATEVALUE_LENGTH);
+            "Record modification date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
+    HOSTNAME(27, "hostName", "hostName", WebFieldType.STRING,
+            "Host name information", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH),
+    CLIENTID(28, "clientId", "clientId", WebFieldType.STRING,
+            "Client ID", TBaseConstants.META_MAX_CLIENT_ID_LENGTH);
 
 
 
