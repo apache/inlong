@@ -33,10 +33,6 @@ public class ClusterConfigHolder {
                     + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE);
     private static AtomicInteger minMemCacheSize =
             new AtomicInteger(TBaseConstants.META_MIN_MEM_BUFFER_SIZE);
-    private static AtomicInteger maxMsgStoreLength =
-            new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE
-                    + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE
-                    + DataStoreUtils.STORE_DATA_HEADER_LEN);
 
     public ClusterConfigHolder() {
 
@@ -58,7 +54,6 @@ public class ClusterConfigHolder {
                     maxMsgSize.set(tmpMaxSize);
                     minMemCacheSize.set(tmpMaxSize +
                             (tmpMaxSize % 4 + 1) * TBaseConstants.META_MESSAGE_SIZE_ADJUST);
-                    maxMsgStoreLength.set(tmpMaxSize + DataStoreUtils.STORE_DATA_HEADER_LEN);
                 }
             }
         }
@@ -76,7 +71,4 @@ public class ClusterConfigHolder {
         return minMemCacheSize.get();
     }
 
-    public static int getMaxMsgStoreLength() {
-        return maxMsgStoreLength.get();
-    }
 }

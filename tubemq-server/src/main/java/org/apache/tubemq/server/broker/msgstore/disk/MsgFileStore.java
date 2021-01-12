@@ -35,7 +35,6 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.tubemq.server.broker.BrokerConfig;
-import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.stats.CountItem;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
@@ -274,7 +273,7 @@ public class MsgFileStore implements Closeable {
             // skip when mismatch condition
             if (curIndexDataOffset < 0
                     || curIndexDataSize <= 0
-                    || curIndexDataSize > ClusterConfigHolder.getMaxMsgStoreLength()
+                    || curIndexDataSize > DataStoreUtils.STORE_MAX_MESSAGE_STORE_LEN
                     || curIndexDataOffset < curDataMinOffset) {
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
