@@ -42,6 +42,9 @@ import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
+
 public class PBParameterUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(PBParameterUtils.class);
@@ -438,85 +441,6 @@ public class PBParameterUtils {
     }
 
     /**
-     * Check the topic name.
-     *
-     * @param topicName      the topic name to check
-     * @param metadataManager the metadata manager which contains topic information
-     * @param strBuffer      the string buffer used to construct the check result
-     * @return the check result
-     */
-    public static ParamCheckResult checkConsumeTopicName(final String topicName,
-                                                         final MetadataManager metadataManager,
-                                                         final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
-        if (TStringUtils.isBlank(topicName)) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    "Request miss necessary topicName data!");
-            return retResult;
-        }
-        String tmpValue = topicName.trim();
-        if (metadataManager.getTopicMetadata(tmpValue) == null) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.FORBIDDEN,
-                    strBuffer.append("Topic ").append(tmpValue)
-                            .append(" not existed, please check your configure").toString());
-            return retResult;
-        }
-        retResult.setCheckData(tmpValue);
-        return retResult;
-    }
-
-    /**
-     * Check the existing topic name info
-     *
-     * @param topicName      the topic name to be checked.
-     * @param partitionId    the partition ID where the topic locates
-     * @param metadataManager the metadata manager which contains topic information
-     * @param strBuffer      the string buffer used to construct the check result
-     * @return the check result
-     */
-    public static ParamCheckResult checkExistTopicNameInfo(final String topicName,
-                                                           final int partitionId,
-                                                           final MetadataManager metadataManager,
-                                                           final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
-        if (TStringUtils.isBlank(topicName)) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    "Request miss necessary topicName data!");
-            return retResult;
-        }
-        String tmpValue = topicName.trim();
-        TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tmpValue);
-        if (topicMetadata == null) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.FORBIDDEN,
-                    strBuffer.append("Topic ").append(tmpValue)
-                            .append(" not existed, please check your configure").toString());
-            return retResult;
-        }
-        if (metadataManager.isClosedTopic(tmpValue)) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.FORBIDDEN,
-                    strBuffer.append("Topic ").append(tmpValue).append(" has been closed").toString());
-            return retResult;
-        }
-        int realPartition = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? partitionId : partitionId % TBaseConstants.META_STORE_INS_BASE;
-        if ((realPartition < 0) || (realPartition >= topicMetadata.getNumPartitions())) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.FORBIDDEN,
-                    strBuffer.append("Partition ")
-                            .append(tmpValue).append("-").append(partitionId)
-                            .append(" not existed, please check your configure").toString());
-            return retResult;
-        }
-        retResult.setCheckData(tmpValue);
-        return retResult;
-    }
-
-    /**
      * Check the clientID.
      *
      * @param clientId  the client id to be checked
@@ -603,6 +527,84 @@ public class PBParameterUtils {
             result.setFailResult(strBuffer.append(fieldDef.name)
                     .append("'s length over max value, allowed max length is ")
                     .append(fieldDef.valMaxLen).toString());
+            strBuffer.delete(0, strBuffer.length());
+            return result.success;
+        }
+        result.setSuccResult(tmpValue);
+        return result.success;
+    }
+
+    /**
+     * Check the topic name.
+     *
+     * @param topicName      the topic name to check
+     * @param metadataManager the metadata manager which contains topic information
+     * @param strBuffer      the string buffer used to construct the check result
+     * @param result         the checked result
+     * @return the check result
+     */
+    public static boolean getTopicNameParameter(String topicName,
+                                                MetadataManager metadataManager,
+                                                StringBuilder strBuffer,
+                                                ProcessResult result) {
+        if (!getStringParameter(WebFieldDef.TOPICNAME,
+                topicName, strBuffer, result)) {
+            return result.success;
+        }
+        String tmpValue = (String) result.retData1;
+        if (metadataManager.getTopicMetadata(tmpValue) == null) {
+            result.setFailResult(TErrCodeConstants.FORBIDDEN,
+                    strBuffer.append(WebFieldDef.TOPICNAME.name)
+                            .append(" ").append(tmpValue)
+                            .append(" not existed, please check your configure").toString());
+            strBuffer.delete(0, strBuffer.length());
+        }
+        return result.success;
+    }
+
+    /**
+     * Check the existing topic name info
+     *
+     * @param topicName      the topic name to be checked.
+     * @param partitionId    the partition ID where the topic locates
+     * @param metadataManager the metadata manager which contains topic information
+     * @param strBuffer      the string buffer used to construct the check result
+     * @param result         the checked result
+     * @return the check result
+     */
+    public static boolean getTopicNamePartIdInfo(String topicName, int partitionId,
+                                                 MetadataManager metadataManager,
+                                                 StringBuilder strBuffer,
+                                                 ProcessResult result) {
+        if (!getStringParameter(WebFieldDef.TOPICNAME,
+                topicName, strBuffer, result)) {
+            return result.success;
+        }
+        String tmpValue = (String) result.retData1;
+        TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tmpValue);
+        if (topicMetadata == null) {
+            result.setFailResult(TErrCodeConstants.FORBIDDEN,
+                    strBuffer.append(WebFieldDef.TOPICNAME.name)
+                            .append(" ").append(tmpValue)
+                            .append(" not existed, please check your configure").toString());
+            strBuffer.delete(0, strBuffer.length());
+            return result.success;
+        }
+        if (metadataManager.isClosedTopic(tmpValue)) {
+            result.setFailResult(TErrCodeConstants.FORBIDDEN,
+                    strBuffer.append(WebFieldDef.TOPICNAME.name)
+                            .append(" ").append(tmpValue)
+                            .append(" has been closed").toString());
+            strBuffer.delete(0, strBuffer.length());
+            return result.success;
+        }
+        int realPartition = partitionId < TBaseConstants.META_STORE_INS_BASE
+                ? partitionId : partitionId % TBaseConstants.META_STORE_INS_BASE;
+        if ((realPartition < 0) || (realPartition >= topicMetadata.getNumPartitions())) {
+            result.setFailResult(TErrCodeConstants.FORBIDDEN,
+                    strBuffer.append(WebFieldDef.PARTITIONID.name)
+                            .append(" ").append(tmpValue).append("-").append(partitionId)
+                            .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
             return result.success;
         }
