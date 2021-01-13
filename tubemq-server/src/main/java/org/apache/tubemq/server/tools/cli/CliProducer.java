@@ -152,7 +152,7 @@ public class CliProducer extends CliAbstractBase {
         String sendThreadCntStr = cli.getOptionValue(CliArgDef.SENDTHREADS.longOpt);
         if (TStringUtils.isNotBlank(sendThreadCntStr)) {
             int tmpThreadCnt = Integer.parseInt(sendThreadCntStr);
-            tmpThreadCnt = (tmpThreadCnt < 1) ? 1 : Math.min(tmpThreadCnt, 200);
+            tmpThreadCnt = MixedUtils.mid(tmpThreadCnt, 1, 200);
             sendThreadCnt = tmpThreadCnt;
         }
         String rpcTimeoutStr = cli.getOptionValue(CliArgDef.RPCTIMEOUT.longOpt);
