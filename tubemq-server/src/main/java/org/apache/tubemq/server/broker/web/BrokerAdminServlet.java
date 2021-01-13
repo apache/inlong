@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corebase.utils.Tuple3;
@@ -959,11 +960,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 if (store == null) {
                     continue;
                 }
-                long firstOffset = store.getIndexMinOffset();
-                long lastOffset = store.getIndexMaxOffset();
                 // adjust reset offset value
-                adjOffset = offsetTuple.getF0() < firstOffset
-                        ? firstOffset : Math.min(offsetTuple.getF0(), lastOffset);
+                adjOffset = MixedUtils.mid(offsetTuple.getF0(),
+                        store.getIndexMinOffset(), store.getIndexMaxOffset());
                 result.add(new Tuple3<>(entry.getKey(), entry1.getKey(), adjOffset));
             }
         }
@@ -1059,10 +1058,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             if (store == null) {
                 continue;
             }
-            long firstOffset = store.getIndexMinOffset();
-            long lastOffset = store.getIndexMaxOffset();
-            adjOffset = entry.getValue() < firstOffset
-                    ? firstOffset : Math.min(entry.getValue(), lastOffset);
+            adjOffset = MixedUtils.mid(entry.getValue(),
+                    store.getIndexMinOffset(), store.getIndexMaxOffset());
             offsetVals.add(new Tuple3<>(topicName, partitionId, adjOffset));
         }
         if (offsetVals.isEmpty()) {

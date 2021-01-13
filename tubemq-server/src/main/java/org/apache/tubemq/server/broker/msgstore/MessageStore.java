@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
@@ -133,10 +134,8 @@ public class MessageStore implements Closeable {
         this.writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata.getMemCacheMsgSize());
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
-        memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
-                ? 6000 : (Math.min(tmpIndexReadCnt, 10000)));
-        fileMaxIndexReadCnt.set(tmpIndexReadCnt < 8000
-                ? 8000 : (Math.min(tmpIndexReadCnt, 13500)));
+        memMaxIndexReadCnt.set(MixedUtils.mid(tmpIndexReadCnt, 6000, 10000));
+        fileMaxIndexReadCnt.set(MixedUtils.mid(tmpIndexReadCnt, 8000, 13500));
         memMaxFilterIndexReadCnt.set(memMaxIndexReadCnt.get() * 2);
         fileMaxFilterIndexReadCnt.set(fileMaxIndexReadCnt.get() * 3);
         fileLowReqMaxFilterIndexReadCnt.set(fileMaxFilterIndexReadCnt.get() * 10);
@@ -408,10 +407,8 @@ public class MessageStore implements Closeable {
         unflushDataHold.set(topicMetadata.getUnflushDataHold());
         maxFileValidDurMs.set(parseDeletePolicy(topicMetadata.getDeletePolicy()));
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
-        memMaxIndexReadCnt.set(tmpIndexReadCnt <= 6000
-                ? 6000 : (Math.min(tmpIndexReadCnt, 10000)));
-        fileMaxIndexReadCnt.set(tmpIndexReadCnt < 8000
-                ? 8000 : (Math.min(tmpIndexReadCnt, 13500)));
+        memMaxIndexReadCnt.set(MixedUtils.mid(tmpIndexReadCnt, 6000, 10000));
+        fileMaxIndexReadCnt.set(MixedUtils.mid(tmpIndexReadCnt, 8000, 13500));
         memMaxFilterIndexReadCnt.set(memMaxIndexReadCnt.get() * 2);
         fileMaxFilterIndexReadCnt.set(fileMaxIndexReadCnt.get() * 3);
         fileLowReqMaxFilterIndexReadCnt.set(fileMaxFilterIndexReadCnt.get() * 10);

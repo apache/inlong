@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.daemon.AbstractDaemonService;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corebase.utils.Tuple3;
@@ -121,8 +122,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 || (readStatus == TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS)) {
             long adjOffset = indexMaxOffset;
             if (readStatus != TBaseConstants.CONSUME_MODEL_READ_FROM_MAX_ALWAYS) {
-                adjOffset = Math.min(reqOffset, indexMaxOffset);
-                adjOffset = Math.max(adjOffset, indexMinOffset);
+                adjOffset = MixedUtils.mid(reqOffset, indexMinOffset, indexMaxOffset);
             }
             regInfo.getAndSetOffset(adjOffset);
         }
@@ -287,10 +287,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                             long reSetOffset, final String modifier) {
         long oldOffset = -1;
         if (store != null) {
-            long firstOffset = store.getIndexMinOffset();
-            long lastOffset = store.getIndexMaxOffset();
-            reSetOffset = reSetOffset < firstOffset
-                    ? firstOffset : Math.min(reSetOffset, lastOffset);
+            reSetOffset = MixedUtils.mid(reSetOffset,
+                    store.getIndexMinOffset(), store.getIndexMaxOffset());
             String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
             getAndResetTmpOffset(group, offsetCacheKey);
             OffsetStorageInfo regInfo =
