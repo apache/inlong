@@ -177,7 +177,7 @@ public class CliConsumer extends CliAbstractBase {
         String fetchThreadCntStr = cli.getOptionValue(CliArgDef.FETCHTHREADS.longOpt);
         if (TStringUtils.isNotBlank(fetchThreadCntStr)) {
             int tmpFetchThreadCnt = Integer.parseInt(fetchThreadCntStr);
-            tmpFetchThreadCnt = (tmpFetchThreadCnt < 1) ? 1 : Math.min(tmpFetchThreadCnt, 100);
+            tmpFetchThreadCnt = MixedUtils.mid(tmpFetchThreadCnt, 1, 100);
             fetchThreadCnt = tmpFetchThreadCnt;
         }
         return true;
