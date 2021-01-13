@@ -22,6 +22,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.config.TLSConfig;
 import org.apache.tubemq.corebase.utils.AddressUtils;
+import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -467,7 +468,7 @@ public class MasterConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(masterConf.get("rebalanceParallel"))) {
             int tmpParallel = this.getInt(masterConf, "rebalanceParallel");
-            this.rebalanceParallel = (tmpParallel <= 0) ? 1 : (Math.min(tmpParallel, 20));
+            this.rebalanceParallel = MixedUtils.mid(tmpParallel, 1, 20);
         }
     }
 
