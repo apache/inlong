@@ -114,7 +114,7 @@ public class GroupController {
 
 
     @PostMapping("/blackGroup")
-    public @ResponseBody TubeMQResult BlackGroupProxy(
+    public @ResponseBody TubeMQResult blackGroupProxy(
         @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case ADD:
