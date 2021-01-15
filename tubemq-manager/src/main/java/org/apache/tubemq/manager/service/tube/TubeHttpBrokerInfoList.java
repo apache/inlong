@@ -27,6 +27,12 @@ import lombok.Data;
 @Data
 public class TubeHttpBrokerInfoList {
 
+    public static final String IDLE = "idle";
+    public static final String RUNNING = "running";
+    public static final String ONLINE = "online";
+    public static final String ONLY_READ = "only-read";
+    public static final String ONLY_WRITE = "only-write";
+
     /**
      * json class for broker info.
      */
@@ -47,15 +53,15 @@ public class TubeHttpBrokerInfoList {
         private boolean acceptSubscribe;
 
         public boolean isIdle() {
-            return subStatus != null && subStatus.equals("idle");
+            return subStatus != null && IDLE.equals(subStatus);
         }
 
         public boolean isWorking() {
             if (runStatus != null && manageStatus != null) {
-                return runStatus.equals("running") && (
-                        manageStatus.equals("online") ||
-                        manageStatus.equals("only-read") ||
-                        manageStatus.equals("only-write"));
+                return RUNNING.equals(runStatus) && (
+                        ONLINE.equals(manageStatus) ||
+                        ONLY_READ.equals(manageStatus) ||
+                        ONLY_WRITE.equals(manageStatus));
             }
             return false;
         }

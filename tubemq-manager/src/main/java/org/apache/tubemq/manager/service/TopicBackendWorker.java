@@ -92,7 +92,7 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
      */
     private void batchAddTopic() {
         pendingTopics.forEach((clusterId, queue) -> {
-            Map<String, TopicFuture> pendingTopicList = new HashMap<>();
+            Map<String, TopicFuture> pendingTopicList = new HashMap<>(32);
             if (notSatisfiedCount.get() > queueMaxWait || queue.size() > queueMaxRunningSize) {
                 notSatisfiedCount.set(0);
                 List<TopicFuture> tmpTopicList = new ArrayList<>();
