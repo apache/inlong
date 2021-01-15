@@ -48,7 +48,7 @@ public class ClusterController {
     private NodeRepository nodeRepository;
 
     @Autowired
-    public MasterService masterService;
+    private MasterService masterService;
 
     /**
      * query cluster info

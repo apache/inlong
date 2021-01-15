@@ -24,7 +24,7 @@ import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 public class BatchAddGroupAuthReq extends BaseReq {
-    public String confModAuthToken;
-    public List<GroupAuthItem> groupNameJsonSet;
-    public String createUser;
+    private String confModAuthToken;
+    private List<GroupAuthItem> groupNameJsonSet;
+    private String createUser;
 }

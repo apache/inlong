@@ -23,7 +23,7 @@ import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 public class BatchAddTopicAuthReq extends BaseReq {
-    public String confModAuthToken;
-    public List<TopicAuthItem> topicJsonSet;
-    public String createUser;
+    private String confModAuthToken;
+    private List<TopicAuthItem> topicJsonSet;
+    private String createUser;
 }

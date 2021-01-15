@@ -22,8 +22,8 @@ import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 public class RebalanceGroupReq extends BaseReq {
-    public String groupName;
-    public String confModAuthToken;
-    public Integer reJoinWait;
-    public String modifyUser;
+    private String groupName;
+    private String confModAuthToken;
+    private Integer reJoinWait;
+    private String modifyUser;
 }

@@ -25,15 +25,15 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY_BROKER_CON
 @Data
 public class QueryBrokerCfgReq {
 
-    public String method;
+    private String method;
 
-    public Integer brokerId;
+    private Integer brokerId;
 
-    public String type;
+    private String type;
 
-    public boolean withDetail;
+    private boolean withDetail;
 
-    public boolean withTopic;
+    private boolean withTopic;
 
     public static QueryBrokerCfgReq getReq(Integer brokerId) {
         QueryBrokerCfgReq req = new QueryBrokerCfgReq();

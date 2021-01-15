@@ -57,7 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GroupController {
 
 
-    public Gson gson = new Gson();
+    private Gson gson = new Gson();
 
     @Autowired
     private MasterService masterService;

@@ -22,7 +22,7 @@ import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 public class DeleteGroupReq extends BaseReq {
-    public String confModAuthToken;
-    public String topicName;
-    public String groupName;
+    private String confModAuthToken;
+    private String topicName;
+    private String groupName;
 }

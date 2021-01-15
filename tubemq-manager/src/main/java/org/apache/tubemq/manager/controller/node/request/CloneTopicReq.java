@@ -22,9 +22,9 @@ import lombok.Data;
 
 @Data
 public class CloneTopicReq extends BaseReq{
-    public String sourceTopicName;
-    public Integer clusterId;
-    public List<Integer> brokerId;
-    public List<String> targetTopicName;
-    public String confModAuthToken;
+    private String sourceTopicName;
+    private Integer clusterId;
+    private List<Integer> brokerId;
+    private List<String> targetTopicName;
+    private String confModAuthToken;
 }
