@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.utils.MixedUtils;
-
+import org.apache.tubemq.corebase.utils.Tuple2;
 
 
 public class ClusterConfigHolder {
@@ -46,14 +46,11 @@ public class ClusterConfigHolder {
         if (configId.get() != clusterConfig.getConfigId()) {
             configId.set(clusterConfig.getConfigId());
             if (clusterConfig.hasMaxMsgSize()) {
-                int tmpMaxSize = MixedUtils.mid(clusterConfig.getMaxMsgSize(),
-                        TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
-                        TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT)
-                        + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE;
-                if (tmpMaxSize != maxMsgSize.get()) {
-                    maxMsgSize.set(tmpMaxSize);
-                    minMemCacheSize.set(tmpMaxSize +
-                            (tmpMaxSize % 4 + 1) * TBaseConstants.META_MESSAGE_SIZE_ADJUST);
+                Tuple2<Integer, Integer> calcResult =
+                        calcMaxMsgSize(clusterConfig.getMaxMsgSize());
+                if (calcResult.getF0() != maxMsgSize.get()) {
+                    maxMsgSize.set(calcResult.getF0());
+                    minMemCacheSize.set(calcResult.getF1());
                 }
             }
         }
@@ -69,6 +66,16 @@ public class ClusterConfigHolder {
 
     public static int getMinMemCacheSize() {
         return minMemCacheSize.get();
+    }
+
+    public static Tuple2<Integer, Integer> calcMaxMsgSize(int maxMsgSize) {
+        int tmpMaxSize = MixedUtils.mid(maxMsgSize,
+                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
+                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT)
+                + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE;
+        int tmpMinMemCacheSize = tmpMaxSize +
+                (tmpMaxSize % 4 + 1) * TBaseConstants.META_MESSAGE_SIZE_ADJUST;
+        return new Tuple2<>(tmpMaxSize, tmpMinMemCacheSize);
     }
 
 }

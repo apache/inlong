@@ -131,7 +131,7 @@ public class MessageStore implements Closeable {
         this.unflushThreshold.set(topicMetadata.getUnflushThreshold());
         this.unflushDataHold.set(topicMetadata.getUnflushDataHold());
         this.writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
-        this.writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata.getMemCacheMsgSize());
+        this.writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata);
         this.writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         int tmpIndexReadCnt = tubeConfig.getIndexTransCount() * partitionNum;
         memMaxIndexReadCnt.set(MixedUtils.mid(tmpIndexReadCnt, 6000, 10000));
@@ -419,7 +419,7 @@ public class MessageStore implements Closeable {
         writeCacheMutex.readLock().lock();
         try {
             writeCacheMaxCnt = topicMetadata.getMemCacheMsgCnt();
-            writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata.getMemCacheMsgSize());
+            writeCacheMaxSize = validAndGetMemCacheSize(topicMetadata);
             writeCacheFlushIntvl = topicMetadata.getMemCacheFlushIntvl();
         } finally {
             writeCacheMutex.readLock().unlock();
@@ -601,13 +601,15 @@ public class MessageStore implements Closeable {
         }
     }
 
-    private int validAndGetMemCacheSize(int memCacheSize) {
-        if (memCacheSize <= ClusterConfigHolder.getMinMemCacheSize()) {
+    private int validAndGetMemCacheSize(TopicMetadata topicMetadata) {
+        int memCacheSize = topicMetadata.getMemCacheMsgSize();
+        if (memCacheSize <= topicMetadata.getMinMemCacheSize()) {
             logger.info(new StringBuilder(512)
-                    .append("[Data Store] writeCacheMaxSize changed, from ")
+                    .append("[Data Store] ").append(getTopic())
+                    .append(" writeCacheMaxSize changed, from ")
                     .append(memCacheSize).append(" to ")
                     .append(ClusterConfigHolder.getMinMemCacheSize()).toString());
-            memCacheSize = ClusterConfigHolder.getMinMemCacheSize();
+            memCacheSize = topicMetadata.getMinMemCacheSize();
         }
         return memCacheSize;
     }

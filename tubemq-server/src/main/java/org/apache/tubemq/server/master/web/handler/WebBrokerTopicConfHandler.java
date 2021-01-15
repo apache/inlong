@@ -25,11 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
+import org.apache.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
@@ -212,6 +214,11 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                 req.getParameter("memCacheFlushIntvl"),
                                 false, defmemCacheFlushIntvl, 4000);
+                int maxMsgSizeInMB =
+                        WebParameterUtils.validIntDataParameter("maxMsgSizeInMB",
+                                req.getParameter("maxMsgSizeInMB"),
+                                false, TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
                 String attributes = strBuffer.append(TokenConstants.TOKEN_STORE_NUM)
                         .append(TokenConstants.EQ).append(numTopicStores)
                         .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
@@ -221,7 +228,11 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_SIZE)
                         .append(TokenConstants.EQ).append(memCacheMsgSizeInMB)
                         .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
-                        .append(TokenConstants.EQ).append(memCacheFlushIntvl).toString();
+                        .append(TokenConstants.EQ).append(memCacheFlushIntvl)
+                        .append(TokenConstants.SEGMENT_SEP).append(TServerConstants.TOKEN_MAX_MSG_SIZE)
+                        .append(TokenConstants.EQ)
+                        .append(SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB))
+                        .toString();
                 strBuffer.delete(0, strBuffer.length());
                 for (String itemTopicName : batchAddTopicNames) {
                     batchAddBdbTopicEntities.add(new BdbTopicConfEntity(oldEntity.getBrokerId(),
@@ -359,6 +370,11 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                             WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                     jsonObject.get("memCacheFlushIntvl"),
                                     false, brokerConfEntity.getDftMemCacheFlushIntvl(), 4000);
+                    int maxMsgSizeInMB =
+                            WebParameterUtils.validIntDataParameter("maxMsgSizeInMB",
+                                    jsonObject.get("maxMsgSizeInMB"),
+                                    false, TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                                    TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
                     String itemCreateUser =
                             WebParameterUtils.validStringParameter("createUser",
                                     jsonObject.get("createUser"),
@@ -381,7 +397,11 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                                     .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_SIZE)
                                     .append(TokenConstants.EQ).append(memCacheMsgSizeInMB)
                                     .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
-                                    .append(TokenConstants.EQ).append(memCacheFlushIntvl).toString();
+                                    .append(TokenConstants.EQ).append(memCacheFlushIntvl)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TServerConstants.TOKEN_MAX_MSG_SIZE)
+                                    .append(TokenConstants.EQ)
+                                    .append(SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB))
+                                    .toString();
                     strBuffer.delete(0, strBuffer.length());
                     batchAddItemKeys.add(inputKey);
                     batchAddBdbTopicEntities.add(new BdbTopicConfEntity(brokerConfEntity.getBrokerId(),
@@ -595,6 +615,8 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                             .append(",\"memCacheMsgSizeInMB\":").append(entity.getMemCacheMsgSizeInMB())
                             .append(",\"memCacheFlushIntvl\":").append(entity.getMemCacheFlushIntvl())
                             .append(",\"memCacheMsgCntInK\":").append(entity.getMemCacheMsgCntInK())
+                            .append(",\"maxMsgSizeInMB\":")
+                            .append(entity.getMaxMsgSize() / TBaseConstants.META_MB_UNIT_SIZE)
                             .append(",\"createUser\":\"").append(entity.getCreateUser())
                             .append("\",\"createDate\":\"").append(formatter.format(entity.getCreateDate()))
                             .append("\",\"modifyUser\":\"").append(entity.getModifyUser())
@@ -1334,13 +1356,19 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
             int memCacheMsgSizeInMB =
                     WebParameterUtils.validIntDataParameter("memCacheMsgSizeInMB",
                             req.getParameter("memCacheMsgSizeInMB"), false, TBaseConstants.META_VALUE_UNDEFINED, 2);
-            memCacheMsgSizeInMB = memCacheMsgSizeInMB >= 2048 ? 2048 : memCacheMsgSizeInMB;
+            memCacheMsgSizeInMB = Math.min(memCacheMsgSizeInMB, 2048);
             int memCacheFlushIntvl =
                     WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                             req.getParameter("memCacheFlushIntvl"), false, TBaseConstants.META_VALUE_UNDEFINED, 4000);
             int unFlushDataHold =
                     WebParameterUtils.validIntDataParameter("unflushDataHold",
                             req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
+            int maxMsgSizeInMB =
+                    WebParameterUtils.validIntDataParameter("maxMsgSizeInMB",
+                            req.getParameter("maxMsgSizeInMB"),
+                            false, TBaseConstants.META_VALUE_UNDEFINED,
+                            TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
+
             List<BdbTopicConfEntity> batchModBdbTopicEntities = new ArrayList<>();
             for (BdbBrokerConfEntity tgtEntity : batchBrokerEntitySet) {
                 if (tgtEntity == null) {
@@ -1417,6 +1445,15 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         foundChange = true;
                         newEntity.appendAttributes(TokenConstants.TOKEN_MCACHE_MSG_SIZE,
                                 String.valueOf(memCacheMsgSizeInMB));
+                    }
+                    if (maxMsgSizeInMB > 0) {
+                        int maxMsgSizeInB =
+                                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
+                        if (maxMsgSizeInB != oldEntity.getMaxMsgSize()) {
+                            foundChange = true;
+                            newEntity.appendAttributes(TServerConstants.TOKEN_MAX_MSG_SIZE,
+                                    String.valueOf(maxMsgSizeInB));
+                        }
                     }
                     if (memCacheFlushIntvl >= 0 && memCacheFlushIntvl != oldEntity.getMemCacheFlushIntvl()) {
                         foundChange = true;
