@@ -40,7 +40,7 @@ public class TubeHttpGroupDetailInfo {
     private List<ConsumerInfo> data;
 
     @Data
-    public static class ConsumerInfo {
+    private static class ConsumerInfo {
 
         private String consumerId;
 

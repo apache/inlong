@@ -25,10 +25,10 @@ import java.util.List;
 
 @Data
 public class CloneBrokersReq {
-    Integer sourceBrokerId;
-    List<String> targetIps;
-    List<AddTopicReq> addTopicReqs;
-    public String confModAuthToken;
-    public String createUser;
-    public int clusterId;
+    private Integer sourceBrokerId;
+    private List<String> targetIps;
+    private List<AddTopicReq> addTopicReqs;
+    private String confModAuthToken;
+    private String createUser;
+    private int clusterId;
 }

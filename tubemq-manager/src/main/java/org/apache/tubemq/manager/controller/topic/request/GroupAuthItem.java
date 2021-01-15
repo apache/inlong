@@ -23,6 +23,6 @@ import org.apache.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 public class GroupAuthItem extends BaseReq {
-    public String topicName;
-    public String groupName;
+    private String topicName;
+    private String groupName;
 }

@@ -22,6 +22,6 @@ import lombok.Data;
 
 @Data
 public class BatchAddTopicReq extends BaseReq{
-    List<AddTopicReq> addTopicReqs;
-    List<Integer> brokerIds;
+    private List<AddTopicReq> addTopicReqs;
+    private List<Integer> brokerIds;
 }

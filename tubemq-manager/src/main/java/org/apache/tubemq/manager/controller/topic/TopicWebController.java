@@ -54,7 +54,7 @@ public class TopicWebController {
     @Autowired
     private NodeService nodeService;
 
-    public Gson gson = new Gson();
+    private Gson gson = new Gson();
 
     @Autowired
     private MasterService masterService;

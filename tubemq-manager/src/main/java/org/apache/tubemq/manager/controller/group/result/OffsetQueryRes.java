@@ -29,19 +29,19 @@ public class OffsetQueryRes {
     private int totalCnt;
 
     @Data
-    public static class GroupOffsetRes {
+    private static class GroupOffsetRes {
         private String groupName;
         private List<TopicOffsetRes> subInfo;
         private int topicCount;
 
         @Data
-        public static class TopicOffsetRes {
+        private static class TopicOffsetRes {
             private String topicName;
             private List<OffsetPartitionRes> offsets;
             private int partCount;
 
             @Data
-            public static class OffsetPartitionRes {
+            private static class OffsetPartitionRes {
                 private int partitionId;
                 private long curOffset;
                 private int flightOffset;
