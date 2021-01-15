@@ -345,6 +345,23 @@ public class BdbTopicConfEntity implements Serializable {
                         String.valueOf(memCacheFlushIntvl));
     }
 
+    public int getMaxMsgSize() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TServerConstants.TOKEN_MAX_MSG_SIZE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setMaxMsgSize(int maxMsgSize) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TServerConstants.TOKEN_MAX_MSG_SIZE,
+                        String.valueOf(maxMsgSize));
+    }
+
     public void appendAttributes(String attrKey, String attrVal) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
@@ -375,6 +392,7 @@ public class BdbTopicConfEntity implements Serializable {
                 .append(",\"memCacheMsgCntInK\":").append(getMemCacheMsgCntInK())
                 .append(",\"memCacheMsgSizeInMB\":").append(getMemCacheMsgSizeInMB())
                 .append(",\"memCacheFlushIntvl\":").append(getMemCacheFlushIntvl())
+                .append(",\"maxMsgSize\":").append(getMaxMsgSize())
                 .append(",\"dataPath\":\"").append(dataPath)
                 .append("\",\"createUser\":\"").append(createUser)
                 .append("\",\"createDate\":\"")

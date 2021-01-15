@@ -1205,6 +1205,12 @@ public class BrokerConfManager implements Server {
                 } else {
                     sbuffer.append(TokenConstants.ATTR_SEP).append(topicEntity.getMemCacheFlushIntvl());
                 }
+                int maxMsgSize = topicEntity.getMaxMsgSize();
+                if (maxMsgSize == TBaseConstants.META_VALUE_UNDEFINED) {
+                    sbuffer.append(TokenConstants.ATTR_SEP).append(" ");
+                } else {
+                    sbuffer.append(TokenConstants.ATTR_SEP).append(maxMsgSize);
+                }
                 brokerTopicStrConfSet.add(sbuffer.toString());
                 sbuffer.delete(0, sbuffer.length());
             }

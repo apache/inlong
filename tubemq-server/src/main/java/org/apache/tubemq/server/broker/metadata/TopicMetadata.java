@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.TStatusConstants;
 
 
@@ -62,6 +63,10 @@ public class TopicMetadata {
     private int memCacheMsgCnt = 5 * 1024;
     // the max interval(milliseconds) that topic's memory cache will flush to disk.
     private int memCacheFlushIntvl = 20000;
+    // the allowed max message size
+    private int maxMsgSize = TBaseConstants.META_VALUE_UNDEFINED;
+    // the allowed min memory cache size
+    private int minMemCacheSize = TBaseConstants.META_VALUE_UNDEFINED;
 
     /***
      * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom config).
@@ -141,6 +146,17 @@ public class TopicMetadata {
         } else {
             this.memCacheFlushIntvl = Integer.parseInt(topicConfInfoArr[13]);
         }
+        this.maxMsgSize = ClusterConfigHolder.getMaxMsgSize();
+        this.minMemCacheSize = ClusterConfigHolder.getMinMemCacheSize();
+        if (topicConfInfoArr.length > 14) {
+            if (TStringUtils.isNotBlank(topicConfInfoArr[14])) {
+                int maxMsgSize = Integer.parseInt(topicConfInfoArr[14]);
+                Tuple2<Integer, Integer> calcResult =
+                        ClusterConfigHolder.calcMaxMsgSize(maxMsgSize);
+                this.maxMsgSize = calcResult.getF0();
+                this.minMemCacheSize = calcResult.getF1();
+            }
+        }
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
@@ -149,7 +165,8 @@ public class TopicMetadata {
                           int numPartitions, boolean acceptPublish,
                           boolean acceptSubscribe, int statusId,
                           int numTopicStores, int memCacheMsgSize,
-                          int memCacheMsgCnt, int memCacheFlushIntvl) {
+                          int memCacheMsgCnt, int memCacheFlushIntvl,
+                          int maxMsgSize, int minMemCacheSize) {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
@@ -165,6 +182,8 @@ public class TopicMetadata {
         this.memCacheMsgSize = memCacheMsgSize;
         this.memCacheMsgCnt = memCacheMsgCnt;
         this.memCacheFlushIntvl = memCacheFlushIntvl;
+        this.maxMsgSize = maxMsgSize;
+        this.minMemCacheSize = minMemCacheSize;
     }
 
     @Override
@@ -175,7 +194,8 @@ public class TopicMetadata {
                 this.numPartitions, this.acceptPublish,
                 this.acceptSubscribe, this.statusId,
                 this.numTopicStores, this.memCacheMsgSize,
-                this.memCacheMsgCnt, this.memCacheFlushIntvl);
+                this.memCacheMsgCnt, this.memCacheFlushIntvl,
+                this.maxMsgSize, this.minMemCacheSize);
     }
 
     public boolean isAcceptPublish() {
@@ -304,6 +324,14 @@ public class TopicMetadata {
         return memCacheFlushIntvl;
     }
 
+    public int getMaxMsgSize() {
+        return maxMsgSize;
+    }
+
+    public int getMinMemCacheSize() {
+        return minMemCacheSize;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -323,6 +351,8 @@ public class TopicMetadata {
         result = prime * result + this.memCacheMsgSize;
         result = prime * result + this.memCacheMsgCnt;
         result = prime * result + this.memCacheFlushIntvl;
+        result = prime * result + this.maxMsgSize;
+        result = prime * result + this.minMemCacheSize;
         return result;
     }
 
@@ -400,6 +430,12 @@ public class TopicMetadata {
         if (this.memCacheFlushIntvl != other.memCacheFlushIntvl) {
             return false;
         }
+        if (this.maxMsgSize != other.maxMsgSize) {
+            return false;
+        }
+        if (this.minMemCacheSize != other.minMemCacheSize) {
+            return false;
+        }
 
         return true;
     }
@@ -418,6 +454,7 @@ public class TopicMetadata {
                 && this.memCacheMsgSize == other.memCacheMsgSize
                 && this.memCacheMsgCnt == other.memCacheMsgCnt
                 && this.memCacheFlushIntvl == other.memCacheFlushIntvl
+                && this.maxMsgSize == other.maxMsgSize
                 && this.deletePolicy.equals(other.deletePolicy));
     }
 
@@ -438,6 +475,8 @@ public class TopicMetadata {
                 .append(", memCacheMsgSizeInMs=").append(this.memCacheMsgSize / 1024 / 512)
                 .append(", memCacheMsgCntInK=").append(this.memCacheMsgCnt / 512)
                 .append(", memCacheFlushIntvl=").append(this.memCacheFlushIntvl)
+                .append(", maxMsgSize=").append(this.maxMsgSize)
+                .append(", minMemCacheSize=").append(this.minMemCacheSize)
                 .append("]").toString();
     }
 }
