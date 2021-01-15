@@ -608,7 +608,7 @@ public class PBParameterUtils {
             strBuffer.delete(0, strBuffer.length());
             return result.success;
         }
-        result.setSuccResult(tmpValue);
+        result.setSuccResult(topicMetadata);
         return result.success;
     }
 }

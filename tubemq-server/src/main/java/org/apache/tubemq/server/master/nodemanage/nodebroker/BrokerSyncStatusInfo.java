@@ -26,6 +26,8 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.CheckSum;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
@@ -730,6 +732,8 @@ public class BrokerSyncStatusInfo {
             int tmpmemCacheMsgSizeInMB = memCacheMsgSizeInMB;
             int tmpmemCacheMsgCntInK = memCacheMsgCntInK;
             int tmpmemCacheFlushIntvl = memCacheFlushIntvl;
+            int tmpMaxMsgSize = ClusterConfigHolder.getMaxMsgSize();
+            int tmpMinMemCacheSize = ClusterConfigHolder.getMinMemCacheSize();
             if (!TStringUtils.isBlank(topicConfInfoArr[11])) {
                 tmpmemCacheMsgSizeInMB = Integer.parseInt(topicConfInfoArr[11]);
             }
@@ -739,9 +743,20 @@ public class BrokerSyncStatusInfo {
             if (!TStringUtils.isBlank(topicConfInfoArr[13])) {
                 tmpmemCacheFlushIntvl = Integer.parseInt(topicConfInfoArr[13]);
             }
+            if (topicConfInfoArr.length > 14) {
+                if (!TStringUtils.isNotBlank(topicConfInfoArr[14])) {
+                    tmpMaxMsgSize = Integer.parseInt(topicConfInfoArr[14]);
+                    Tuple2<Integer, Integer> calcResult =
+                            ClusterConfigHolder.calcMaxMsgSize(tmpMaxMsgSize);
+                    tmpMaxMsgSize = calcResult.getF0();
+                    tmpMinMemCacheSize = calcResult.getF1();
+                }
+            }
             strBuffer.append(",\"memCacheMsgSizeInMB\":").append(tmpmemCacheMsgSizeInMB);
             strBuffer.append(",\"memCacheMsgCntInK\":").append(tmpmemCacheMsgCntInK);
             strBuffer.append(",\"memCacheFlushIntvl\":").append(tmpmemCacheFlushIntvl);
+            strBuffer.append(",\"maxMsgSize\":").append(tmpMaxMsgSize);
+            strBuffer.append(",\"minMemCacheSize\":").append(tmpMinMemCacheSize);
             strBuffer.append(",\"topicStatusId\":").append(topicStatusId);
             strBuffer.append("}");
         }
