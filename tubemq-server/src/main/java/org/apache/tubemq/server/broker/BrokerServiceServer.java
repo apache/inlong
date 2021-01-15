@@ -55,8 +55,8 @@ import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.service.BrokerReadService;
 import org.apache.tubemq.corerpc.service.BrokerWriteService;
 import org.apache.tubemq.server.Server;
-import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
+import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
@@ -621,7 +621,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String topicName = (String) result.retData1;
+        final TopicMetadata topicMetadata = (TopicMetadata) result.retData1;
+        final String topicName = topicMetadata.getTopic();
         String msgType = null;
         int msgTypeCode = -1;
         if (TStringUtils.isNotBlank(request.getMsgType())) {
@@ -635,10 +636,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("data length is zero!");
             return builder.build();
         }
-        if (dataLength > ClusterConfigHolder.getMaxMsgSize()) {
+        if (dataLength > topicMetadata.getMaxMsgSize()) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg(strBuffer.append("data length over max length, allowed max length is ")
-                    .append(ClusterConfigHolder.getMaxMsgSize())
+                    .append(topicMetadata.getMaxMsgSize())
                     .append(", data length is ").append(dataLength).toString());
             return builder.build();
         }
@@ -1137,7 +1138,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.errInfo);
             return builder.build();
         }
-        final String topicName = (String) result.retData1;
+        final TopicMetadata topicMetadata = (TopicMetadata) result.retData1;
+        final String topicName = topicMetadata.getTopic();
         String partStr = getPartStr(groupName, topicName, partitionId);
         ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
         if (consumerNodeInfo == null) {
