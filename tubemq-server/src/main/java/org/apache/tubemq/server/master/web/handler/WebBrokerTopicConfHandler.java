@@ -33,6 +33,7 @@ import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
@@ -628,18 +629,10 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                     if (brokerConfEntity != null) {
                         int manageStatus = brokerConfEntity.getManageStatus();
                         strManageStatus = WebParameterUtils.getBrokerManageStatusStr(manageStatus);
-                        if (manageStatus >= TStatusConstants.STATUS_MANAGE_ONLINE) {
-                            if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
-                                isAcceptPublish = true;
-                                isAcceptSubscribe = true;
-                            } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
-                                isAcceptPublish = false;
-                                isAcceptSubscribe = true;
-                            } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
-                                isAcceptPublish = true;
-                                isAcceptSubscribe = false;
-                            }
-                        }
+                        Tuple2<Boolean, Boolean> pubSubStatus =
+                                WebParameterUtils.getPubSubStatusByManageStatus(manageStatus);
+                        isAcceptPublish = pubSubStatus.getF0();
+                        isAcceptSubscribe = pubSubStatus.getF1();
                     }
                     BrokerInfo broker =
                             new BrokerInfo(entity.getBrokerId(), entity.getBrokerIp(), entity.getBrokerPort());
@@ -1243,18 +1236,10 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                 if (brokerConfEntity != null) {
                     int manageStatus = brokerConfEntity.getManageStatus();
                     strManageStatus = WebParameterUtils.getBrokerManageStatusStr(manageStatus);
-                    if (manageStatus >= TStatusConstants.STATUS_MANAGE_ONLINE) {
-                        if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
-                            isAcceptPublish = true;
-                            isAcceptSubscribe = true;
-                        } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
-                            isAcceptPublish = false;
-                            isAcceptSubscribe = true;
-                        } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
-                            isAcceptPublish = true;
-                            isAcceptSubscribe = false;
-                        }
-                    }
+                    Tuple2<Boolean, Boolean> pubSubStatus =
+                            WebParameterUtils.getPubSubStatusByManageStatus(manageStatus);
+                    isAcceptPublish = pubSubStatus.getF0();
+                    isAcceptSubscribe = pubSubStatus.getF1();
                 }
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
                         brokerSyncStatusInfoMap.get(brokerEntity.getBrokerId());
