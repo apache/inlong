@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
@@ -1399,6 +1400,24 @@ public class WebParameterUtils {
             strManageStatus = "only-write";
         }
         return strManageStatus;
+    }
+
+    public static Tuple2<Boolean, Boolean> getPubSubStatusByManageStatus(int manageStatus) {
+        boolean isAcceptPublish = false;
+        boolean isAcceptSubscribe = false;
+        if (manageStatus >= TStatusConstants.STATUS_MANAGE_ONLINE) {
+            if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
+                isAcceptPublish = true;
+                isAcceptSubscribe = true;
+            } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
+                isAcceptPublish = false;
+                isAcceptSubscribe = true;
+            } else if (manageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
+                isAcceptPublish = true;
+                isAcceptSubscribe = false;
+            }
+        }
+        return new Tuple2<>(isAcceptPublish, isAcceptSubscribe);
     }
 
     public static String date2yyyyMMddHHmmss(Date date) {
