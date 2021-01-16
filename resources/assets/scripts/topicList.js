@@ -102,7 +102,7 @@
                 'false': '否',
                 '-': '-'
             };
-            var url = G_CONFIG.HOST + "?type=op_query&method=admin_query_topic_info&" + $.param(
+            var url = G_CONFIG.HOST + "?type=op_query&method=admin_query_cluster_topic_view&" + $.param(
                     opts);
 
             if (!this.$topicListDataTable) {
@@ -126,7 +126,7 @@
                             return html;
                         }
                     }, {
-                        "data": "infoCount"
+                        "data": "totalCfgBrokerCnt"
                     }, {
                         "data": "totalCfgNumPart"
                     }, {
@@ -166,13 +166,13 @@
                                 + '"><input type="checkbox" checked></span>';
                         }
                     }, {
-                        "data": "authData",
+                        "data": "enableAuthControl",
                         "orderable": false,
                         "render": function (data,
                                             type,
                                             full,
                                             meta) {
-                            var checked = data.enableAuthControl
+                            var checked = data
                             === true
                                 ? ' checked'
                                 : '';
