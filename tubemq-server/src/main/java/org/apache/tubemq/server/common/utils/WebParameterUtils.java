@@ -388,7 +388,7 @@ public class WebParameterUtils {
                 return result.success;
             }
             checkIntValueNorms(fieldDef, paramValue,
-                    hasMinVal, minValue, hasMinVal, maxValue, result);
+                    hasMinVal, minValue, hasMaxVal, maxValue, result);
         }
         return result.success;
     }
