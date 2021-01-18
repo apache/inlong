@@ -21,31 +21,12 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
-## Release 0.7.0-incubating - Released (as of 2020-11-25)
-
-### New Features:
-
-| JIRA  | Summary  | Priority |
-| :---- | :------- | :------- |
-| [TUBEMQ-162](https://issues.apache.org/jira/browse/TUBEMQ-162) | Python SDK support in TubeMQ | High |
-| [TUBEMQ-336](https://issues.apache.org/jira/browse/TUBEMQ-336) | Propose web portal to manage tube cluster Phase-I | Major |
-| [TUBEMQ-390](https://issues.apache.org/jira/browse/TUBEMQ-390)   | support build C++ SDK with docker image | Normal |
+## Release 0.8.0-incubating - Released (as of 2021-01-18)
 
 ### IMPROVEMENTS:
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-369](https://issues.apache.org/jira/browse/TUBEMQ-369) | hope to add an option in the compilation script (like `make lib` etc...)                 | Major    |
-| [TUBEMQ-373](https://issues.apache.org/jira/browse/TUBEMQ-373) | Reduce the redundant code of Utils::Split functions             | Major    |
-| [TUBEMQ-374](https://issues.apache.org/jira/browse/TUBEMQ-374) | Adjust some coding style issues     | Major    |
-| [TUBEMQ-375](https://issues.apache.org/jira/browse/TUBEMQ-375) | Add a section to the README file about how to compile the project| Major    |
-| [TUBEMQ-385](https://issues.apache.org/jira/browse/TUBEMQ-385) | update docker images     | Major    |
-| [TUBEMQ-393](https://issues.apache.org/jira/browse/TUBEMQ-393) | Optimize the mapping code of WEB API     | Major    |
-| [TUBEMQ-406](https://issues.apache.org/jira/browse/TUBEMQ-406) | test_consumer.py works for both Python 2 and 3   | Minor |
-| [TUBEMQ-410](https://issues.apache.org/jira/browse/TUBEMQ-410) | install python package and simplify test_consumer.py    | Major    |
-| [TUBEMQ-416](https://issues.apache.org/jira/browse/TUBEMQ-416) | support consume from specified position   | Major    |
-| [TUBEMQ-417](https://issues.apache.org/jira/browse/TUBEMQ-417) | C++ Client support parse message from binary data for Python SDK    | Major    |
-| [TUBEMQ-419](https://issues.apache.org/jira/browse/TUBEMQ-419) | SetMaxPartCheckPeriodMs() negative number, getMessage() still  | Major    |
 | [TUBEMQ-430](https://issues.apache.org/jira/browse/TUBEMQ-430) | Optimizing the implementation of HTTP API for broke  | Major    |
 | [TUBEMQ-433](https://issues.apache.org/jira/browse/TUBEMQ-433) | add tubemq perf-consumer/producer scripts  | Major    |
 | [TUBEMQ-440](https://issues.apache.org/jira/browse/TUBEMQ-440) | Add feature package tube-manager to zip  | Major    |
@@ -73,6 +54,48 @@
 | [TUBEMQ-509](https://issues.apache.org/jira/browse/TUBEMQ-509) | Adjust the packet length check when data is loaded  | Major    |
 | [TUBEMQ-511](https://issues.apache.org/jira/browse/TUBEMQ-511) | Replace the conditional operator (?:) with mid()  | Major    |
 | [TUBEMQ-512](https://issues.apache.org/jira/browse/TUBEMQ-512) | Add package length control based on Topic  | Major    |
+| [TUBEMQ-515](https://issues.apache.org/jira/browse/TUBEMQ-515) | Add cluster Topic view web api  | Major    |
+
+
+### BUG FIXES:
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-441](https://issues.apache.org/jira/browse/TUBEMQ-441) | An error occurred when using the Tubemq class to create a sink table | Major |
+| [TUBEMQ-437](https://issues.apache.org/jira/browse/TUBEMQ-437) | Fix tubemq table source sink factory instance creating problem | Major |
+| [TUBEMQ-443](https://issues.apache.org/jira/browse/TUBEMQ-443) | TubemqSourceFunction class prints too many logs problem | Major |
+| [TUBEMQ-446](https://issues.apache.org/jira/browse/TUBEMQ-446) | Small bugs fix that do not affect the main logics | Major |
+| [TUBEMQ-453](https://issues.apache.org/jira/browse/TUBEMQ-453) | TubemqSourceFunction class prints too many logs problem | Major |
+| [TUBEMQ-457](https://issues.apache.org/jira/browse/TUBEMQ-457) | There is no need to return StringBuilder in Master.java | Major |
+| [TUBEMQ-495](https://issues.apache.org/jira/browse/TUBEMQ-495) | Code implementation adjustment based on SpotBugs check | Major |
+| [TUBEMQ-510](https://issues.apache.org/jira/browse/TUBEMQ-510) | Found a bug in MessageProducerExample class | Major |
+| [TUBEMQ-518](https://issues.apache.org/jira/browse/TUBEMQ-518) | fix parameter pass error | Major |
+
+
+## Release 0.7.0-incubating - Released (as of 2020-11-25)
+
+### New Features:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-162](https://issues.apache.org/jira/browse/TUBEMQ-162) | Python SDK support in TubeMQ | High |
+| [TUBEMQ-336](https://issues.apache.org/jira/browse/TUBEMQ-336) | Propose web portal to manage tube cluster Phase-I | Major |
+| [TUBEMQ-390](https://issues.apache.org/jira/browse/TUBEMQ-390)   | support build C++ SDK with docker image | Normal |
+
+### IMPROVEMENTS:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-369](https://issues.apache.org/jira/browse/TUBEMQ-369) | hope to add an option in the compilation script (like `make lib` etc...)                 | Major    |
+| [TUBEMQ-373](https://issues.apache.org/jira/browse/TUBEMQ-373) | Reduce the redundant code of Utils::Split functions             | Major    |
+| [TUBEMQ-374](https://issues.apache.org/jira/browse/TUBEMQ-374) | Adjust some coding style issues     | Major    |
+| [TUBEMQ-375](https://issues.apache.org/jira/browse/TUBEMQ-375) | Add a section to the README file about how to compile the project| Major    |
+| [TUBEMQ-385](https://issues.apache.org/jira/browse/TUBEMQ-385) | update docker images     | Major    |
+| [TUBEMQ-393](https://issues.apache.org/jira/browse/TUBEMQ-393) | Optimize the mapping code of WEB API     | Major    |
+| [TUBEMQ-406](https://issues.apache.org/jira/browse/TUBEMQ-406) | test_consumer.py works for both Python 2 and 3   | Minor |
+| [TUBEMQ-410](https://issues.apache.org/jira/browse/TUBEMQ-410) | install python package and simplify test_consumer.py    | Major    |
+| [TUBEMQ-416](https://issues.apache.org/jira/browse/TUBEMQ-416) | support consume from specified position   | Major    |
+| [TUBEMQ-417](https://issues.apache.org/jira/browse/TUBEMQ-417) | C++ Client support parse message from binary data for Python SDK    | Major    |
+| [TUBEMQ-419](https://issues.apache.org/jira/browse/TUBEMQ-419) | SetMaxPartCheckPeriodMs() negative number, getMessage() still  | Major    |
 
 
 ### BUG FIXES:
@@ -89,14 +112,6 @@
 | [TUBEMQ-401](https://issues.apache.org/jira/browse/TUBEMQ-401) | python sdk readme bug | Minor |
 | [TUBEMQ-407](https://issues.apache.org/jira/browse/TUBEMQ-407) | Fix some content in README.md | Trivial |
 | [TUBEMQ-418](https://issues.apache.org/jira/browse/TUBEMQ-418) | C++ SDK function SetMaxPartCheckPeriodMs() can't work | Major |
-| [TUBEMQ-441](https://issues.apache.org/jira/browse/TUBEMQ-441) | An error occurred when using the Tubemq class to create a sink table | Major |
-| [TUBEMQ-437](https://issues.apache.org/jira/browse/TUBEMQ-437) | Fix tubemq table source sink factory instance creating problem | Major |
-| [TUBEMQ-443](https://issues.apache.org/jira/browse/TUBEMQ-443) | TubemqSourceFunction class prints too many logs problem | Major |
-| [TUBEMQ-446](https://issues.apache.org/jira/browse/TUBEMQ-446) | Small bugs fix that do not affect the main logics | Major |
-| [TUBEMQ-453](https://issues.apache.org/jira/browse/TUBEMQ-453) | TubemqSourceFunction class prints too many logs problem | Major |
-| [TUBEMQ-457](https://issues.apache.org/jira/browse/TUBEMQ-457) | There is no need to return StringBuilder in Master.java | Major |
-| [TUBEMQ-495](https://issues.apache.org/jira/browse/TUBEMQ-495) | Code implementation adjustment based on SpotBugs check | Major |
-| [TUBEMQ-510](https://issues.apache.org/jira/browse/TUBEMQ-510) | Found a bug in MessageProducerExample class | Major |
 
 
 ### SUB-TASK:
