@@ -21,6 +21,73 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
+## Release 0.8.0-incubating - Released (as of 2021-01-18)
+
+### IMPROVEMENTS:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-430](https://issues.apache.org/jira/browse/TUBEMQ-430) | Optimizing the implementation of HTTP API for broke  | Major    |
+| [TUBEMQ-433](https://issues.apache.org/jira/browse/TUBEMQ-433) | add tubemq perf-consumer/producer scripts  | Major    |
+| [TUBEMQ-440](https://issues.apache.org/jira/browse/TUBEMQ-440) | Add feature package tube-manager to zip  | Major    |
+| [TUBEMQ-442](https://issues.apache.org/jira/browse/TUBEMQ-442) | Modifying the jvm parameters when the broker starts does not take effect  | Major    |
+| [TUBEMQ-444](https://issues.apache.org/jira/browse/TUBEMQ-444) | Add consume and produce Cli commands  | Major    |
+| [TUBEMQ-445](https://issues.apache.org/jira/browse/TUBEMQ-445) | Adjust the status check default sleep interval of pullConsumeReadyChkSliceMs  | Major    |
+| [TUBEMQ-447](https://issues.apache.org/jira/browse/TUBEMQ-447) | Add Broker-Admin Cli  | Major    |
+| [TUBEMQ-449](https://issues.apache.org/jira/browse/TUBEMQ-449) | Adjust Example implementation  | Major    |
+| [TUBEMQ-450](https://issues.apache.org/jira/browse/TUBEMQ-450) | TubeClientException: Generate producer id failed  | Major    |
+| [TUBEMQ-451](https://issues.apache.org/jira/browse/TUBEMQ-451) | Replace ConsumeTupleInfo with Tuple2  | Major    |
+| [TUBEMQ-463](https://issues.apache.org/jira/browse/TUBEMQ-463) | Adjust Master rebalance process implementation  | Major    |
+| [TUBEMQ-470](https://issues.apache.org/jira/browse/TUBEMQ-470) | Add query API of TopicName and BrokerId collection  | Major    |
+| [TUBEMQ-472](https://issues.apache.org/jira/browse/TUBEMQ-472) | Adjust Broker's AbstractWebHandler class implementation  | Major    |
+| [TUBEMQ-475](https://issues.apache.org/jira/browse/TUBEMQ-475) | add the offset clone api of the consume group  | Major    |
+| [TUBEMQ-482](https://issues.apache.org/jira/browse/TUBEMQ-482) | Add offset query api  | Major    |
+| [TUBEMQ-484](https://issues.apache.org/jira/browse/TUBEMQ-484) | Add query API for topic publication information  | Major    |
+| [TUBEMQ-485](https://issues.apache.org/jira/browse/TUBEMQ-485) | Add the batch setting API of consume group offset  | Major    |
+| [TUBEMQ-486](https://issues.apache.org/jira/browse/TUBEMQ-486) | Add the delete API of consumer group offset  | Major    |
+| [TUBEMQ-499](https://issues.apache.org/jira/browse/TUBEMQ-499) | Add configure store  | Major    |
+| [TUBEMQ-500](https://issues.apache.org/jira/browse/TUBEMQ-500) | Add setting operate API  | Major    |
+| [TUBEMQ-501](https://issues.apache.org/jira/browse/TUBEMQ-501) | Adjust max message size check logic  | Major    |
+| [TUBEMQ-502](https://issues.apache.org/jira/browse/TUBEMQ-502) | Add setting API interface document  | Major    |
+| [TUBEMQ-504](https://issues.apache.org/jira/browse/TUBEMQ-504) | Adjust the WebMethodMapper class interfaces  | Major    |
+| [TUBEMQ-505](https://issues.apache.org/jira/browse/TUBEMQ-505) | Remove the "WIP" label of the DISCLAIMER file  | Major    |
+| [TUBEMQ-508](https://issues.apache.org/jira/browse/TUBEMQ-508) | Optimize Broker's PB parameter check processing logic  | Major    |
+| [TUBEMQ-509](https://issues.apache.org/jira/browse/TUBEMQ-509) | Adjust the packet length check when data is loaded  | Major    |
+| [TUBEMQ-511](https://issues.apache.org/jira/browse/TUBEMQ-511) | Replace the conditional operator (?:) with mid()  | Major    |
+| [TUBEMQ-512](https://issues.apache.org/jira/browse/TUBEMQ-512) | Add package length control based on Topic  | Major    |
+| [TUBEMQ-515](https://issues.apache.org/jira/browse/TUBEMQ-515) | Add cluster Topic view web api  | Major    |
+
+### BUG FIXES:
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-441](https://issues.apache.org/jira/browse/TUBEMQ-441) | An error occurred when using the Tubemq class to create a sink table | Major |
+| [TUBEMQ-437](https://issues.apache.org/jira/browse/TUBEMQ-437) | Fix tubemq table source sink factory instance creating problem | Major |
+| [TUBEMQ-443](https://issues.apache.org/jira/browse/TUBEMQ-443) | TubemqSourceFunction class prints too many logs problem | Major |
+| [TUBEMQ-446](https://issues.apache.org/jira/browse/TUBEMQ-446) | Small bugs fix that do not affect the main logics | Major |
+| [TUBEMQ-453](https://issues.apache.org/jira/browse/TUBEMQ-453) | TubemqSourceFunction class prints too many logs problem | Major |
+| [TUBEMQ-457](https://issues.apache.org/jira/browse/TUBEMQ-457) | There is no need to return StringBuilder in Master.java | Major |
+| [TUBEMQ-495](https://issues.apache.org/jira/browse/TUBEMQ-495) | Code implementation adjustment based on SpotBugs check | Major |
+| [TUBEMQ-506](https://issues.apache.org/jira/browse/TUBEMQ-506) | cmakelist error | Major |
+| [TUBEMQ-510](https://issues.apache.org/jira/browse/TUBEMQ-510) | Found a bug in MessageProducerExample class | Major |
+| [TUBEMQ-518](https://issues.apache.org/jira/browse/TUBEMQ-518) | fix parameter pass error | Major |
+
+### SUB-TASK:
+
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [TUBEMQ-433](https://issues.apache.org/jira/browse/TUBEMQ-433) | add tubemq perf-consumer/producer scripts | Major |
+| [TUBEMQ-434](https://issues.apache.org/jira/browse/TUBEMQ-434) | Adjust Broker API mapping | Major |
+| [TUBEMQ-435](https://issues.apache.org/jira/browse/TUBEMQ-435) | Create Web field Mapping | Major |
+| [TUBEMQ-436](https://issues.apache.org/jira/browse/TUBEMQ-436) | Adjust Broker's HTTP API implementation | Major |
+| [TUBEMQ-439](https://issues.apache.org/jira/browse/TUBEMQ-439) | Add Cli field Scheme definition | Major |
+| [TUBEMQ-444](https://issues.apache.org/jira/browse/TUBEMQ-444) | Add consume and produce Cli commands | Major |
+| [TUBEMQ-447](https://issues.apache.org/jira/browse/TUBEMQ-447) | Add Broker-Admin Cli | Major |
+| [TUBEMQ-452](https://issues.apache.org/jira/browse/TUBEMQ-452) | Optimize rebalance performance | Major |
+| [TUBEMQ-464](https://issues.apache.org/jira/browse/TUBEMQ-464) | Add parameter rebalanceParallel in master.ini | Major |
+| [TUBEMQ-467](https://issues.apache.org/jira/browse/TUBEMQ-467) | Add WEB APIs of Master and Broker | Major |
+| [TUBEMQ-471](https://issues.apache.org/jira/browse/TUBEMQ-471) | Add query API Introduction of TopicName and BrokerId collection | Major |
+| [TUBEMQ-494](https://issues.apache.org/jira/browse/TUBEMQ-494) | Update API interface instruction document | Major |
+
 ## Release 0.7.0-incubating - Released (as of 2020-11-25)
 
 ### New Features:
