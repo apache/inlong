@@ -263,7 +263,7 @@
                         <!-- Front-end -->
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
-                        <exclude>DISCLAIMER-WIP</exclude>
+                        <exclude>DISCLAIMER</exclude>
                         <exclude>tubemq-web/**</exclude>
 
                         <exclude>**/tubemq-client-twins/tubemq-client-cpp/third_party/**</exclude>
