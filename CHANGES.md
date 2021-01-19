@@ -56,6 +56,7 @@
 | [TUBEMQ-511](https://issues.apache.org/jira/browse/TUBEMQ-511) | Replace the conditional operator (?:) with mid()  | Major    |
 | [TUBEMQ-512](https://issues.apache.org/jira/browse/TUBEMQ-512) | Add package length control based on Topic  | Major    |
 | [TUBEMQ-515](https://issues.apache.org/jira/browse/TUBEMQ-515) | Add cluster Topic view web api  | Major    |
+| [TUBEMQ-526](https://issues.apache.org/jira/browse/TUBEMQ-526) | Adjust the packaging script and version check list, remove the "-WIP" tag  | Major    |
 
 ### BUG FIXES:
 | JIRA  | Summary  | Priority |
