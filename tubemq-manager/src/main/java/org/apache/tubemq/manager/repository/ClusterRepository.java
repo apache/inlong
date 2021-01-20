@@ -24,5 +24,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
 
+    /**
+     * find clusterEntry by clusterId
+     * @param clusterId
+     * @return
+     */
     ClusterEntry findClusterEntryByClusterId(Integer clusterId);
 }

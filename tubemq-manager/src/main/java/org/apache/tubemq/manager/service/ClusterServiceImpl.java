@@ -51,6 +51,7 @@ public class ClusterServiceImpl implements ClusterService {
             retEntry = clusterRepository.saveAndFlush(entry);
         } catch (Exception e) {
             log.error("create cluster fail with exception", e);
+            return false;
         }
         // add master node
         return addMasterNode(req, retEntry);
