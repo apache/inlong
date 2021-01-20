@@ -81,27 +81,24 @@ public class TestNodeController {
     }
 
     private String expectedOneEntry =
-            "{\"data\":[{\"clusterId\":0," +
-            "\"clusterInfo\":{\"master\":\"127.0.0.1\"," +
-            "\"standby\":[],\"broker\":[]}}],\"errMsg\":" +
-            "\"\",\"errCode\":0,\"result\":true}";
+            "{\"clusterData\":[{\"clusterId\":0,\"clusterInfo\":"
+                + "{\"master\":\"127.0.0.1\",\"standby\":[],\"broker"
+                + "\":[]}}],\"errMsg\":\"\",\"errCode\":0,\"result\":true}";
 
 
     private String expectedTwoEntries =
-            "{\"data\":[{\"clusterId\":1,\"clusterInfo\":" +
-                    "{\"master\":\"127.0.0.1\",\"standby\"" +
-                    ":[],\"broker\":[]}},{\"clusterId\":2," +
-                    "\"clusterInfo\":{\"master\":\"127.0.0.1\"," +
-                    "\"standby\":[],\"broker\":[]}}]," +
-                    "\"errMsg\":\"\",\"errCode\":0,\"result\":true}";
+            "{\"clusterData\":[{\"clusterId\":1,\"clusterInfo\":"
+                + "{\"master\":\"127.0.0.1\",\"standby\":[],\"broker\":[]}},"
+                + "{\"clusterId\":2,\"clusterInfo\":{\"master\":\"127.0.0.1\","
+                + "\"standby\":[],\"broker\":[]}}],\"errMsg\":\"\",\"errCode\":0,\"result\":true}";
 
     @Test
     public void testClusterInfo() throws Exception {
         List<NodeEntry> nodeEntries = getOneNodeEntry();
         when(nodeRepository.findNodeEntriesByClusterIdIs(any(Integer.class)))
                 .thenReturn(nodeEntries);
-        RequestBuilder request = get("/v1/node/query?method=admin_query_cluster_info&" +
-                "type=op_query&clusterId=1");
+        RequestBuilder request = get("/v1/node/query/clusterInfo?method=admin_query_cluster_info&" +
+            "type=op_query&clusterId=1");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
         Assert.assertEquals(resultStr, expectedOneEntry);
@@ -115,7 +112,7 @@ public class TestNodeController {
         List<NodeEntry> nodeEntries = getTwoNodeEntries();
         when(nodeRepository.findNodeEntriesByClusterIdIs(any(Integer.class)))
                 .thenReturn(nodeEntries);
-        RequestBuilder request = get("/v1/node/query?method=admin_query_cluster_info&" +
+        RequestBuilder request = get("/v1/node/query/clusterInfo?method=admin_query_cluster_info&" +
                 "type=op_query&clusterId=1");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();

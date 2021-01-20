@@ -18,6 +18,7 @@
 package org.apache.tubemq.manager.utils;
 
 import com.google.gson.Gson;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -89,4 +90,17 @@ public class ConvertUtils {
         consumerReq.setMethod(REBALANCE_GROUP);
         return consumerReq;
     }
+
+
+    public static String covertMapToQueryString(Map<String, String> requestMap) throws Exception {
+        List<String> queryList = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : requestMap.entrySet()) {
+            queryList.add(entry.getKey() + "=" + URLEncoder.encode(
+                entry.getValue(), UTF_8.toString()));
+        }
+        return StringUtils.join(queryList, "&");
+    }
+
+
 }

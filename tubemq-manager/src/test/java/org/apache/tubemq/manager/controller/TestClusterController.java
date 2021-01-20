@@ -18,19 +18,24 @@
 package org.apache.tubemq.manager.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tubemq.manager.controller.cluster.ClusterController;
+import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
+import org.apache.tubemq.manager.entry.ClusterEntry;
 import org.apache.tubemq.manager.entry.NodeEntry;
+import org.apache.tubemq.manager.repository.ClusterRepository;
 import org.apache.tubemq.manager.repository.NodeRepository;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
+import org.apache.tubemq.manager.service.interfaces.NodeService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,8 +57,14 @@ public class TestClusterController {
     @MockBean
     private NodeRepository nodeRepository;
 
-    @InjectMocks
-    private ClusterController clusterController;
+    @MockBean
+    private ClusterRepository clusterRepository;
+
+    @MockBean
+    private NodeService nodeService;
+
+    @MockBean
+    private MasterService masterService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -146,5 +157,37 @@ public class TestClusterController {
         String resultStr = result.getResponse().getContentAsString();
         log.info("result json string is {}, response type is {}", resultStr,
                 result.getResponse().getContentType());
+    }
+
+
+    private ClusterEntry getOneClusterEntry() {
+        ClusterEntry clusterEntry = new ClusterEntry();
+        clusterEntry.setClusterId(1);
+        clusterEntry.setClusterName("test");
+        return clusterEntry;
+    }
+
+    @Test
+    public void testAddCluster() throws Exception {
+
+        AddClusterReq req = new AddClusterReq();
+        req.setClusterName("test");
+        req.setMasterIp("127.0.0.1");
+        req.setMasterWebPort(8080);
+        req.setMasterPort(8089);
+
+        ClusterEntry entry = getOneClusterEntry();
+        TubeMQResult successResult = new TubeMQResult();
+
+        when(clusterRepository.saveAndFlush(any(ClusterEntry.class))).thenReturn(entry);
+        when(nodeService.addNode(any(NodeEntry.class))).thenReturn(Boolean.TRUE);
+        when(masterService.checkMasterNodeStatus(anyString(), anyInt())).thenReturn(successResult);
+
+        RequestBuilder request = post("/v1/cluster")
+            .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(req));
+        MvcResult result = mockMvc.perform(request).andReturn();
+        String resultStr = result.getResponse().getContentAsString();
+        String expectRes = "{\"errMsg\":\"\",\"errCode\":0,\"result\":true,\"data\":null}";
+        Assert.assertEquals(resultStr, expectRes);
     }
 }

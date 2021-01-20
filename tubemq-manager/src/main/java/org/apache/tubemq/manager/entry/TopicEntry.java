@@ -37,7 +37,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class) // support CreationTimestamp annotation
 public class TopicEntry {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long businessId;
 
     @Size(max = 30)

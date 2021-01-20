@@ -17,17 +17,21 @@
 
 package org.apache.tubemq.manager.controller.cluster;
 
+import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
-import static org.apache.tubemq.manager.service.MasterService.*;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
+import static org.apache.tubemq.manager.utils.ConvertUtils.covertMapToQueryString;
 
 import com.google.gson.Gson;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
-import org.apache.tubemq.manager.service.MasterService;
+import org.apache.tubemq.manager.service.interfaces.ClusterService;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,7 +52,37 @@ public class ClusterController {
     private NodeRepository nodeRepository;
 
     @Autowired
+    private ClusterService clusterService;
+
+    @Autowired
     private MasterService masterService;
+
+    /**
+     * add a new cluster, should provide a master node
+     */
+    @RequestMapping(value = "", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody TubeMQResult addNewCluster(
+        @RequestBody AddClusterReq req) {
+
+        // 1. validate params
+        if (req.getMasterIp() == null || req.getMasterWebPort() == null) {
+            return TubeMQResult.getErrorResult("please input master ip and webPort");
+        }
+        TubeMQResult checkResult = masterService.checkMasterNodeStatus(req.getMasterIp(), req.getMasterWebPort());
+        if (checkResult.getErrCode() != SUCCESS_CODE) {
+            return TubeMQResult.getErrorResult("please check master ip and webPort");
+        }
+
+        // 2. add cluster and master node
+        Boolean addSuccess = clusterService.addClusterAndMasterNode(req);
+
+        if (!addSuccess) {
+            return TubeMQResult.getErrorResult("add cluster and master fail");
+        }
+
+        return new TubeMQResult();
+    }
 
     /**
      * query cluster info
@@ -58,7 +92,7 @@ public class ClusterController {
     public @ResponseBody String queryInfo(
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
     /**
@@ -78,7 +112,7 @@ public class ClusterController {
                     clusterId);
             String url = SCHEMA + nodeEntry.getIp() + ":" + nodeEntry.getWebPort()
                     + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(requestBody);
-            return gson.toJson(requestMaster(url));
+            return gson.toJson(masterService.requestMaster(url));
         } else {
             TubeMQResult result = new TubeMQResult();
             result.setErrCode(-1);
@@ -87,6 +121,8 @@ public class ClusterController {
             return gson.toJson(result);
         }
     }
+
+
 
 
 }

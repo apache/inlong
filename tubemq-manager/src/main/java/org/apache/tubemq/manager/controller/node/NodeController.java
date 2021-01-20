@@ -27,8 +27,8 @@ import org.apache.tubemq.manager.controller.node.request.DeleteBrokerReq;
 import org.apache.tubemq.manager.controller.node.request.OnlineOfflineBrokerReq;
 import org.apache.tubemq.manager.controller.node.request.ReloadBrokerReq;
 import org.apache.tubemq.manager.repository.NodeRepository;
-import org.apache.tubemq.manager.service.NodeService;
-import org.apache.tubemq.manager.service.MasterService;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
+import org.apache.tubemq.manager.service.interfaces.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +46,6 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.ONLINE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_QUERY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SET_READ_OR_WRITE;
-import static org.apache.tubemq.manager.service.MasterService.*;
 
 @RestController
 @RequestMapping(path = "/v1/node")
@@ -92,7 +91,7 @@ public class NodeController {
     public @ResponseBody String queryBrokerDetail(
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
 
@@ -105,7 +104,7 @@ public class NodeController {
     public @ResponseBody String queryBrokerConfig(
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
 

@@ -20,38 +20,34 @@ package org.apache.tubemq.manager.service;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
-import org.apache.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
 import org.apache.tubemq.manager.service.tube.TubeHttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.InputStreamReader;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
+import static org.apache.tubemq.manager.utils.ConvertUtils.covertMapToQueryString;
 
 
 @Slf4j
 @Component
-public class MasterService {
+public class MasterServiceImpl implements MasterService {
 
     private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
@@ -60,19 +56,8 @@ public class MasterService {
     @Autowired
     NodeRepository nodeRepository;
 
-    public static String covertMapToQueryString(Map<String, String> requestMap) throws Exception {
-        List<String> queryList = new ArrayList<>();
-
-        for (Map.Entry<String, String> entry : requestMap.entrySet()) {
-            queryList.add(entry.getKey() + "=" + URLEncoder.encode(
-                    entry.getValue(), UTF_8.toString()));
-        }
-        return StringUtils.join(queryList, "&");
-    }
-
-
-
-    public static TubeMQResult requestMaster(String url) {
+    @Override
+    public TubeMQResult requestMaster(String url) {
 
         log.info("start to request {}", url);
         HttpGet httpGet = new HttpGet(url);
@@ -99,7 +84,8 @@ public class MasterService {
      * @param url
      * @return query info
      */
-    public static String queryMaster(String url) {
+    @Override
+    public String queryMaster(String url) {
         log.info("start to request {}", url);
         HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
@@ -116,6 +102,7 @@ public class MasterService {
     }
 
 
+    @Override
     public TubeMQResult baseRequestMaster(BaseReq req) {
         if (req.getClusterId() == null) {
             return TubeMQResult.getErrorResult("please input clusterId");
@@ -131,6 +118,7 @@ public class MasterService {
     }
 
 
+    @Override
     public NodeEntry getMasterNode(BaseReq req) {
         if (req.getClusterId() == null) {
             return null;
@@ -140,6 +128,7 @@ public class MasterService {
     }
 
 
+    @Override
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));
         queryBody.remove("clusterId");
@@ -149,4 +138,9 @@ public class MasterService {
                 + "/" + TUBE_REQUEST_PATH + "?" + covertMapToQueryString(queryBody);
     }
 
+    @Override
+    public TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterWebPort) {
+        String url = SCHEMA + masterIp + ":" + masterWebPort + BROKER_RUN_STATUS;
+        return requestMaster(url);
+    }
 }

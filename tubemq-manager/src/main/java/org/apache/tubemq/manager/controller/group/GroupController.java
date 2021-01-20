@@ -22,7 +22,6 @@ package org.apache.tubemq.manager.controller.group;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
-import static org.apache.tubemq.manager.service.MasterService.queryMaster;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
@@ -40,8 +39,8 @@ import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
 import org.apache.tubemq.manager.service.TopicServiceImpl;
-import org.apache.tubemq.manager.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,7 +92,7 @@ public class GroupController {
     public @ResponseBody String queryConsumer(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
 
@@ -137,7 +136,7 @@ public class GroupController {
     public @ResponseBody String queryBlackGroup(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
 
