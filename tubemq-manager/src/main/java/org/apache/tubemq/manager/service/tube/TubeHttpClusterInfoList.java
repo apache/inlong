@@ -81,7 +81,7 @@ public class TubeHttpClusterInfoList extends TubeMQResult {
             if (nodeEntry.isBroker()) {
                 ClusterData.ClusterInfo.BrokerInfo brokerInfo =
                         new ClusterData.ClusterInfo.BrokerInfo();
-                brokerInfo.setBrokerId((int) nodeEntry.getBrokerId());
+                brokerInfo.setBrokerId((int) nodeEntry.getId());
                 brokerInfo.setBrokerIp(nodeEntry.getIp());
                 clusterInfo.getBroker().add(brokerInfo);
             }

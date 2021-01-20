@@ -37,7 +37,7 @@ public class TubeHttpBrokerInfoList {
      * json class for broker info.
      */
     @Data
-    private static class BrokerInfo {
+    public static class BrokerInfo {
         private int brokerId;
         private String brokerIp;
         private int brokerPort;
