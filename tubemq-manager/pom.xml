@@ -28,6 +28,11 @@
 
     <name>Apache TubeMQ - Manager</name>
 
+    <properties>
+        <guava.version>21.0</guava.version>
+        <commons.version>4.3</commons.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -51,13 +56,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.3</version>
+            <version>${commons.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>

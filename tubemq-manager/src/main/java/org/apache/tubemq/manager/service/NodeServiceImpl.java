@@ -376,28 +376,6 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public String queryClusterInfo(Integer clusterId) {
-        TubeHttpClusterInfoList clusterInfoList;
-        try {
-            // find all nodes by given clusterIds, show all nodes if clusterIds not provided
-            List<NodeEntry> nodeEntries = clusterId == null ?
-                    nodeRepository.findAll() : nodeRepository.findNodeEntriesByClusterIdIs(clusterId);
-            // divide all entries by clusterId
-            Map<Integer, List<NodeEntry>> nodeEntriesPerCluster =
-                    nodeEntries.parallelStream().collect(Collectors.groupingBy(NodeEntry::getClusterId));
-
-            clusterInfoList = TubeHttpClusterInfoList.getClusterInfoList(nodeEntriesPerCluster);
-        } catch (Exception e) {
-            log.error("query cluster info error", e);
-            return gson.toJson(TubeMQResult.getErrorResult(""));
-        }
-
-        return gson.toJson(clusterInfoList);
-    }
-
-
-
-    @Override
     public void close() throws IOException {
         httpclient.close();
     }

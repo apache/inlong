@@ -65,24 +65,6 @@ public class NodeController {
     MasterService masterService;
 
     /**
-     * query brokers in certain cluster
-     * @param type
-     * @param method
-     * @param clusterId
-     * @return
-     */
-    @RequestMapping(value = "/query/clusterInfo", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String queryInfo(@RequestParam String type, @RequestParam String method,
-            @RequestParam(required = false) Integer clusterId) {
-        if (method.equals(ADMIN_QUERY_CLUSTER_INFO) && type.equals(OP_QUERY)) {
-            return nodeService.queryClusterInfo(clusterId);
-        }
-        return gson.toJson(getErrorResult(NO_SUCH_METHOD));
-    }
-
-
-    /**
      * query brokers' run status
      * this method supports batch operation
      */

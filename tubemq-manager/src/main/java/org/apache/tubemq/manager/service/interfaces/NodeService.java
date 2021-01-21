@@ -66,13 +66,6 @@ public interface NodeService {
      */
     void updateBrokerStatus(int clusterId, Map<String, TopicFuture> pendingTopic);
 
-    /**
-     * query cluster info
-     * @param clusterId
-     * @return
-     */
-    String queryClusterInfo(Integer clusterId);
-
     void close() throws IOException;
 
     /**

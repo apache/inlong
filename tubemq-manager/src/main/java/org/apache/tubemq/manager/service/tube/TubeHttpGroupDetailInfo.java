@@ -19,10 +19,7 @@ package org.apache.tubemq.manager.service.tube;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Map;
 import lombok.Data;
-import org.apache.tubemq.manager.entry.NodeEntry;
-import org.apache.tubemq.manager.service.tube.TubeHttpClusterInfoList.ClusterData;
 
 @Data
 public class TubeHttpGroupDetailInfo {
