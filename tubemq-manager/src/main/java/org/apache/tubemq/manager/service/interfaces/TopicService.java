@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service;
+package org.apache.tubemq.manager.service.interfaces;
 
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.group.request.DeleteOffsetReq;

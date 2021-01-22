@@ -17,37 +17,33 @@
 
 package org.apache.tubemq.manager.entry;
 
+
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.Data;
 
 /**
- * node machine for tube cluster. broker/master/standby
+ * cluster machine for tube cluster. broker/master/standby
  */
 @Entity
-@Table(name = "node")
+@Table(name = "cluster", uniqueConstraints=
+    @UniqueConstraint(columnNames={"clusterName"}))
 @Data
-public class NodeEntry {
+public class ClusterEntry {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
-
-    private boolean master;
-
-    private boolean standby;
-
-    private boolean broker;
-
-    private String ip;
-
-    private int port;
-
-    private int webPort;
-
     private int clusterId;
 
     private String clusterName;
+
+    private Date createTime;
+
+    private Date modifyTime;
+
+    private String createUser;
 }

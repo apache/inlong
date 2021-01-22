@@ -26,9 +26,23 @@ import java.util.List;
 @Repository
 public interface NodeRepository extends JpaRepository<NodeEntry, Long> {
 
+    /**
+     * find master By clusterId
+     * @param clusterId
+     * @return
+     */
     NodeEntry findNodeEntryByClusterIdIsAndMasterIsTrue(int clusterId);
 
+    /**
+     * find all nodes in cluster
+     * @param clusterId
+     * @return
+     */
     List<NodeEntry> findNodeEntriesByClusterIdIs(int clusterId);
 
+    /**
+     * find all nodes
+     * @return
+     */
     List<NodeEntry> findAll();
 }

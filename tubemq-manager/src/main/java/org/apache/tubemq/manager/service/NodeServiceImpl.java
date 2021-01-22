@@ -19,9 +19,7 @@ package org.apache.tubemq.manager.service;
 
 
 import static org.apache.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
-import static org.apache.tubemq.manager.service.MasterService.TUBE_REQUEST_PATH;
-import static org.apache.tubemq.manager.service.MasterService.queryMaster;
-import static org.apache.tubemq.manager.service.MasterService.requestMaster;
+import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD_TUBE_TOPIC;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_CLUSTER;
@@ -53,6 +51,9 @@ import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
+import org.apache.tubemq.manager.service.interfaces.NodeService;
+import org.apache.tubemq.manager.service.interfaces.TopicService;
 import org.apache.tubemq.manager.service.tube.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -208,7 +209,7 @@ public class NodeServiceImpl implements NodeService {
     private BrokerStatusInfo getBrokerStatusInfo(QueryBrokerCfgReq queryReq, NodeEntry masterEntry) throws Exception {
         String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(queryReq);
-        BrokerStatusInfo brokerStatusInfo = gson.fromJson(queryMaster(url),
+        BrokerStatusInfo brokerStatusInfo = gson.fromJson(masterService.queryMaster(url),
                 BrokerStatusInfo.class);
         return brokerStatusInfo;
     }
@@ -217,7 +218,7 @@ public class NodeServiceImpl implements NodeService {
     public TubeMQResult addTopicToBrokers(AddTopicReq req, NodeEntry masterEntry) throws Exception {
         String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-        return requestMaster(url);
+        return masterService.requestMaster(url);
     }
 
 
@@ -375,28 +376,6 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public String queryClusterInfo(Integer clusterId) {
-        TubeHttpClusterInfoList clusterInfoList;
-        try {
-            // find all nodes by given clusterIds, show all nodes if clusterIds not provided
-            List<NodeEntry> nodeEntries = clusterId == null ?
-                    nodeRepository.findAll() : nodeRepository.findNodeEntriesByClusterIdIs(clusterId);
-            // divide all entries by clusterId
-            Map<Integer, List<NodeEntry>> nodeEntriesPerCluster =
-                    nodeEntries.parallelStream().collect(Collectors.groupingBy(NodeEntry::getClusterId));
-
-            clusterInfoList = TubeHttpClusterInfoList.getClusterInfoList(nodeEntriesPerCluster);
-        } catch (Exception e) {
-            log.error("query cluster info error", e);
-            return gson.toJson(TubeMQResult.getErrorResult(""));
-        }
-
-        return gson.toJson(clusterInfoList);
-    }
-
-
-
-    @Override
     public void close() throws IOException {
         httpclient.close();
     }
@@ -468,5 +447,17 @@ public class NodeServiceImpl implements NodeService {
             return TubeMQResult.getErrorResult(NO_SUCH_CLUSTER);
         }
         return addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
+    }
+
+
+    @Override
+    public boolean addNode(NodeEntry nodeEntry) {
+        try {
+            nodeRepository.saveAndFlush(nodeEntry);
+        } catch (Exception e) {
+            log.error("create node error with exception", e);
+            return false;
+        }
+        return true;
     }
 }

@@ -18,15 +18,13 @@
 package org.apache.tubemq.manager.service;
 
 
-import static org.apache.tubemq.manager.service.MasterService.queryMaster;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY_GROUP_DETAIL_INFO;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.TOPIC_CONFIG_INFO;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertReqToQueryStr;
 import static org.apache.tubemq.manager.utils.ConvertUtils.convertToRebalanceConsumerReq;
-import static org.apache.tubemq.manager.service.MasterService.TUBE_REQUEST_PATH;
-import static org.apache.tubemq.manager.service.MasterService.requestMaster;
+import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
 
 import com.google.gson.Gson;
 import java.io.InputStreamReader;
@@ -47,6 +45,8 @@ import org.apache.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
+import org.apache.tubemq.manager.service.interfaces.TopicService;
 import org.apache.tubemq.manager.service.tube.CleanOffsetResult;
 import org.apache.tubemq.manager.service.tube.RebalanceGroupResult;
 import org.apache.tubemq.manager.service.tube.TubeHttpGroupDetailInfo;
@@ -112,7 +112,7 @@ public class TopicServiceImpl implements TopicService {
             String brokerIp = topicInfo.getBrokerIp();
             String url = SCHEMA + brokerIp + ":" + brokerWebPort
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-            result = requestMaster(url);
+            result = masterService.requestMaster(url);
             if (result.getErrCode() != SUCCESS_CODE) {
                 return result;
             }
@@ -160,7 +160,7 @@ public class TopicServiceImpl implements TopicService {
                 consumerId);
             String url = SCHEMA + master.getIp() + ":" + master.getWebPort()
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(rebalanceConsumerReq);
-            TubeMQResult result = requestMaster(url);
+            TubeMQResult result = masterService.requestMaster(url);
             if (result.getErrCode() != 0) {
                 rebalanceGroupResult.getFailConsumers().add(consumerId);
             }
@@ -196,7 +196,7 @@ public class TopicServiceImpl implements TopicService {
             String brokerIp = topicInfo.getBrokerIp();
             String url = SCHEMA + brokerIp + ":" + brokerWebPort
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-            result = requestMaster(url);
+            result = masterService.requestMaster(url);
             if (result.getErrCode() != SUCCESS_CODE) {
                 cleanOffsetResult.getFailBrokers().add(brokerIp);
             } else {
@@ -234,7 +234,7 @@ public class TopicServiceImpl implements TopicService {
             String brokerIp = topicInfo.getBrokerIp();
             String url = SCHEMA + brokerIp + ":" + brokerWebPort
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
-            OffsetQueryRes res = gson.fromJson(queryMaster(url), OffsetQueryRes.class);
+            OffsetQueryRes res = gson.fromJson(masterService.queryMaster(url), OffsetQueryRes.class);
             if (res.getErrCode() != SUCCESS_CODE) {
                 return TubeMQResult.getErrorResult("query broker id" + topicInfo.getBrokerId() + " fail");
             }

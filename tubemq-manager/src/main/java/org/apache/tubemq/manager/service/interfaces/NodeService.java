@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service;
+package org.apache.tubemq.manager.service.interfaces;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,6 +27,7 @@ import org.apache.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
+import org.apache.tubemq.manager.service.TopicFuture;
 import org.apache.tubemq.manager.service.tube.AddBrokerResult;
 
 public interface NodeService {
@@ -65,13 +66,6 @@ public interface NodeService {
      */
     void updateBrokerStatus(int clusterId, Map<String, TopicFuture> pendingTopic);
 
-    /**
-     * query cluster info
-     * @param clusterId
-     * @return
-     */
-    String queryClusterInfo(Integer clusterId);
-
     void close() throws IOException;
 
     /**
@@ -88,4 +82,11 @@ public interface NodeService {
      * @return
      */
     TubeMQResult batchAddTopic(BatchAddTopicReq req);
+
+    /**
+     * add one node to node repository
+     * @param nodeEntry
+     * @return
+     */
+    boolean addNode(NodeEntry nodeEntry);
 }

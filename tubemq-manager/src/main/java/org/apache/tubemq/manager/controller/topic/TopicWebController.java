@@ -24,7 +24,6 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.MODIFY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REMOVE;
-import static org.apache.tubemq.manager.service.MasterService.queryMaster;
 
 
 import com.google.gson.Gson;
@@ -36,8 +35,8 @@ import org.apache.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.DeleteTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.ModifyTopicReq;
 import org.apache.tubemq.manager.controller.topic.request.SetAuthControlReq;
-import org.apache.tubemq.manager.service.NodeService;
-import org.apache.tubemq.manager.service.MasterService;
+import org.apache.tubemq.manager.service.interfaces.MasterService;
+import org.apache.tubemq.manager.service.interfaces.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -93,7 +92,7 @@ public class TopicWebController {
     public @ResponseBody String queryConsumerAuth(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
     /**
@@ -106,7 +105,7 @@ public class TopicWebController {
     public @ResponseBody String queryTopicConfig(
         @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
-        return queryMaster(url);
+        return masterService.queryMaster(url);
     }
 
 }
