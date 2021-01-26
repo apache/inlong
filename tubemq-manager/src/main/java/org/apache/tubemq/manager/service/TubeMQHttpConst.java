@@ -52,5 +52,6 @@ public class TubeMQHttpConst {
     public static final String REBALANCE_CONSUMER = "rebalanceConsumer";
     public static final String NO_SUCH_CLUSTER = "no such cluster";
     public static final Integer SUCCESS_CODE = 0;
+    public static final Integer DELETE_FAIL = 0;
     public static final String QUERY = "query";
 }

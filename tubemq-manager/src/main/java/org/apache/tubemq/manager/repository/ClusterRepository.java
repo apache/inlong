@@ -30,4 +30,11 @@ public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
      * @return
      */
     ClusterEntry findClusterEntryByClusterId(Integer clusterId);
+
+    /**
+     * delete cluster by cluster id
+     * @param clusterId
+     * @return
+     */
+    Integer deleteByClusterId(Integer clusterId);
 }

@@ -30,4 +30,10 @@ public interface ClusterService {
      * @return
      */
     Boolean addClusterAndMasterNode(AddClusterReq req);
+
+    /**
+     * delete cluster by id
+     * @param clusterId
+     */
+    void deleteCluster(Integer clusterId);
 }
