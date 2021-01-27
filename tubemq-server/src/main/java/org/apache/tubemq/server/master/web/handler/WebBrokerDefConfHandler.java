@@ -18,6 +18,7 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import static java.lang.Math.abs;
+import static org.apache.tubemq.corebase.TBaseConstants.OFFSET_TOPIC;
 
 import com.google.common.collect.Maps;
 import java.text.SimpleDateFormat;
@@ -310,7 +311,6 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                             .append(TokenConstants.EQ).append(memCacheFlushIntvl)
                             .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_TLS_PORT)
                             .append(TokenConstants.EQ).append(brokerTlsPort).toString();
-            strBuffer.delete(0, strBuffer.length());
             BdbBrokerConfEntity brokerConfEntity =
                     new BdbBrokerConfEntity(brokerId, brokerIp, brokerPort,
                             numPartitions, unflushThreshold, unflushInterval,
@@ -318,6 +318,10 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                             acceptSubscribe, attributes, true, false, createUser,
                             createDate, modifyUser, modifyDate);
             brokerConfManager.confAddBrokerDefaultConfig(brokerConfEntity);
+            strBuffer.delete(0, strBuffer.length());
+
+            // for every broker configured, create an offset topic to store offsets
+            inAddOffsetTopic(brokerConfEntity, brokerId, attributes, strBuffer);
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
         } catch (Exception e) {
             strBuffer.delete(0, strBuffer.length());
@@ -325,6 +329,30 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                     .append(e.getMessage()).append("\"}");
         }
         return strBuffer;
+    }
+
+
+    private void inAddOffsetTopic(BdbBrokerConfEntity brokerConf,
+        int brokerId, String attributes, StringBuilder topicNameStrBuilder) throws Exception {
+
+        // reuse stringBuilder to create topic name
+        String topicName = topicNameStrBuilder.append(OFFSET_TOPIC).append(brokerId).toString();
+
+        BdbTopicConfEntity bdbTopicConfEntity = new BdbTopicConfEntity(brokerConf.getBrokerId(),
+            brokerConf.getBrokerIp(), brokerConf.getBrokerPort(), topicName,
+            brokerConf.getDftNumPartitions(), brokerConf.getDftUnflushThreshold(),
+            brokerConf.getDftUnflushInterval(), brokerConf.getDftDeleteWhen(),
+            brokerConf.getDftDeletePolicy(), brokerConf.getAcceptPublish(),
+            brokerConf.getAcceptSubscribe(), brokerConf.getNumTopicStores(),
+            attributes, brokerConf.getRecordCreateUser(), brokerConf.getRecordCreateDate(),
+            brokerConf.getRecordModifyUser(), brokerConf.getRecordModifyDate());
+
+        boolean result = brokerConfManager.confAddTopicConfig(bdbTopicConfEntity);
+        if (result) {  // if it succeeds in adding topic config
+            brokerConfManager.updateBrokerConfChanged(brokerConf.getBrokerId(),
+                    true, false);
+        }
+        topicNameStrBuilder.delete(0, topicNameStrBuilder.length());
     }
 
     /**
