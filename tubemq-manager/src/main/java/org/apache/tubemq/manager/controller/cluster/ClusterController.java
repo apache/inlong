@@ -18,6 +18,10 @@
 package org.apache.tubemq.manager.controller.cluster;
 
 import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.covertMapToQueryString;
@@ -28,12 +32,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
+import org.apache.tubemq.manager.controller.cluster.request.DeleteClusterReq;
+import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
+import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
+import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
+import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.interfaces.ClusterService;
 import org.apache.tubemq.manager.service.interfaces.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -57,14 +67,24 @@ public class ClusterController {
     @Autowired
     private MasterService masterService;
 
+
+    @PostMapping("")
+    public @ResponseBody TubeMQResult clusterMethodProxy(
+        @RequestParam String method, @RequestBody String req) throws Exception {
+        switch (method) {
+            case ADD:
+                return addNewCluster(gson.fromJson(req, AddClusterReq.class));
+            case DELETE:
+                return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
+            default:
+                return TubeMQResult.getErrorResult("no such method");
+        }
+    }
+
     /**
      * add a new cluster, should provide a master node
      */
-    @RequestMapping(value = "", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody TubeMQResult addNewCluster(
-        @RequestBody AddClusterReq req) {
-
+    public TubeMQResult addNewCluster(AddClusterReq req) {
         // 1. validate params
         if (req.getMasterIp() == null || req.getMasterWebPort() == null) {
             return TubeMQResult.getErrorResult("please input master ip and webPort");
@@ -73,16 +93,32 @@ public class ClusterController {
         if (checkResult.getErrCode() != SUCCESS_CODE) {
             return TubeMQResult.getErrorResult("please check master ip and webPort");
         }
-
         // 2. add cluster and master node
         Boolean addSuccess = clusterService.addClusterAndMasterNode(req);
-
         if (!addSuccess) {
             return TubeMQResult.getErrorResult("add cluster and master fail");
         }
-
         return new TubeMQResult();
     }
+
+
+
+    /**
+     * delete a new cluster
+     */
+    public TubeMQResult deleteCluster(DeleteClusterReq req) {
+        // 1. validate params
+        if (req.getClusterId() == null || StringUtils.isEmpty(req.getModifyUser())) {
+            return TubeMQResult.getErrorResult("please input clusterId and modifyUser");
+        }
+        // 2. delete cluster
+        clusterService.deleteCluster(req.getClusterId());
+        return new TubeMQResult();
+    }
+
+
+
+
 
     /**
      * query cluster info

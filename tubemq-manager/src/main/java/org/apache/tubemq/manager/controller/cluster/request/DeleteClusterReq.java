@@ -15,26 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.repository;
 
-import java.util.List;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.apache.tubemq.manager.entry.NodeEntry;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.apache.tubemq.manager.controller.cluster.request;
 
-public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
+import lombok.Data;
 
-    /**
-     * find clusterEntry by clusterId
-     * @param clusterId
-     * @return
-     */
-    ClusterEntry findClusterEntryByClusterId(Integer clusterId);
-
-    /**
-     * delete cluster by cluster id
-     * @param clusterId
-     * @return
-     */
-    Integer deleteByClusterId(Integer clusterId);
+@Data
+public class DeleteClusterReq {
+    private Integer clusterId;
+    private String modifyUser;
 }
