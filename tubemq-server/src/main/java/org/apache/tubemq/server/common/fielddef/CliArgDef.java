@@ -100,8 +100,10 @@ public enum CliArgDef {
             "String: http call method",
             "Http call method"),
     ADMINMETHOD(null, "show-methods",
-            "Return http's methods.");
-
+            "Return http's methods."),
+    FILEPATH("f", "file",
+            "String: file path.",
+            "File path.");
 
 
 
