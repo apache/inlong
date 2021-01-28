@@ -303,7 +303,6 @@ License: https://github.com/webx/citrus/blob/r3.1.4/pom.xml
 
 5. bin/broker.sh
    bin/master.sh
-   tubemq-server/src/main/java/org/apache/tubemq/server/tools/ToolUtils.java
 Metamorphosis  metamorphosis-all-1.4.4 (Please note that the software have been modified.)
 Copyrighy (C) Alibaba Group Holding Limited.
 License: https://github.com/killme2008/Metamorphosis/blob/metamorphosis-all-1.4.4/COPYING.txt
