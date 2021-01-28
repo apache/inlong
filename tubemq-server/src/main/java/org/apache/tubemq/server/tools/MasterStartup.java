@@ -17,13 +17,30 @@
 
 package org.apache.tubemq.server.tools;
 
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MasterStartup {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(MasterStartup.class);
+
     public static void main(final String[] args) throws Exception {
-        final String configFilePath = ToolUtils.getConfigFilePath(args);
-        final MasterConfig masterConfig = ToolUtils.getMasterConfig(configFilePath);
+        // get configure file path
+        ProcessResult result = new ProcessResult();
+        if (!CliUtils.getConfigFilePath(args, result)) {
+            System.err.println(result.errInfo);
+            System.exit(1);
+        }
+        String configFilePath = (String) result.retData1;
+        // read configure file
+        final MasterConfig masterConfig = new MasterConfig();
+        masterConfig.loadFromFile(configFilePath);
+        logger.info("[MasterStartup] master config is: " + masterConfig);
+        // start master instance
         TMaster master = new TMaster(masterConfig);
         master.start();
         master.join();

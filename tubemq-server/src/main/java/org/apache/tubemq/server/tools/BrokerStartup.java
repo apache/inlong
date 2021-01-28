@@ -19,12 +19,30 @@ package org.apache.tubemq.server.tools;
 
 import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.broker.TubeBroker;
+import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class BrokerStartup {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(BrokerStartup.class);
+
     public static void main(final String[] args) throws Exception {
-        final String configFilePath = ToolUtils.getConfigFilePath(args);
-        final BrokerConfig tubeConfig = ToolUtils.getBrokerConfig(configFilePath);
-        final TubeBroker server = new TubeBroker(tubeConfig);
+        // get configure file path
+        ProcessResult result = new ProcessResult();
+        if (!CliUtils.getConfigFilePath(args, result)) {
+            System.err.println(result.errInfo);
+            System.exit(1);
+        }
+        String configFilePath = (String) result.retData1;
+        // read configure file
+        BrokerConfig brokerConfig = new BrokerConfig();
+        brokerConfig.loadFromFile(configFilePath);
+        logger.info("[BrokerStartup] Broker config is: " + brokerConfig);
+        // start broker instance
+        final TubeBroker server = new TubeBroker(brokerConfig);
         server.start();
     }
 }
