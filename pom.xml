@@ -93,7 +93,7 @@
         <repository>
             <id>berkeleydb-je</id>
             <name>berkeleydb-je</name>
-            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
+            <url>https://download.oracle.com/maven/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
