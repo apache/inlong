@@ -355,6 +355,7 @@ The following components are provided under the Apache 2.0 License.
  License : https://github.com/apache/pulsar/blob/master/LICENSE
 
 3.6 resources/assets/public/css/style.css
+    resources/assets/public/css/ie.css
  Source  : openmct v0.9.0
  License : https://gitee.com/ford25v6/openmct/blob/v0.9.0/LICENSES.md
 
