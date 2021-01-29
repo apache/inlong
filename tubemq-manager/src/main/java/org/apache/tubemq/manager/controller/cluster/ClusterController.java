@@ -20,23 +20,19 @@ package org.apache.tubemq.manager.controller.cluster;
 import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.covertMapToQueryString;
 
 import com.google.gson.Gson;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.tubemq.manager.controller.cluster.request.DeleteClusterReq;
-import org.apache.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
-import org.apache.tubemq.manager.controller.topic.request.DeleteGroupReq;
-import org.apache.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
-import org.apache.tubemq.manager.controller.topic.request.RebalanceGroupReq;
+import org.apache.tubemq.manager.entry.ClusterEntry;
 import org.apache.tubemq.manager.entry.NodeEntry;
 import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.interfaces.ClusterService;
@@ -101,7 +97,28 @@ public class ClusterController {
         return new TubeMQResult();
     }
 
-
+    /**
+     * query cluster info, if no clusterId is passed, return all clusters
+     * @param clusterId
+     * @return
+     */
+    @RequestMapping(value = "", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId) {
+        // return all clusters if no clusterId passed
+        TubeMQResult result = new TubeMQResult();
+        if (clusterId == null) {
+            List<ClusterEntry> allClusters = clusterService.getAllClusters();
+            result.setData(gson.toJson(allClusters));
+            return result;
+        }
+        ClusterEntry clusterEntry = clusterService.getOneCluster(clusterId);
+        if (clusterEntry == null) {
+            return TubeMQResult.getErrorResult("no such cluster with id " + clusterId);
+        }
+        result.setData(gson.toJson(clusterEntry));
+        return result;
+    }
 
     /**
      * delete a new cluster
