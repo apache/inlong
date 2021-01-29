@@ -21,6 +21,7 @@ package org.apache.tubemq.manager.service;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE_FAIL;
 
 import java.util.Date;
+import java.util.List;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
@@ -67,6 +68,17 @@ public class ClusterServiceImpl implements ClusterService {
         if (successCode.equals(DELETE_FAIL) ) {
             throw new RuntimeException("no such cluster with clusterId = " + clusterId);
         }
+    }
+
+    @Override
+    public ClusterEntry getOneCluster(Integer clusterId) {
+        return clusterRepository
+            .findClusterEntryByClusterId(clusterId);
+    }
+
+    @Override
+    public List<ClusterEntry> getAllClusters() {
+        return clusterRepository.findAll();
     }
 
     private boolean addMasterNode(AddClusterReq req, ClusterEntry clusterEntry) {

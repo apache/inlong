@@ -18,7 +18,9 @@
 package org.apache.tubemq.manager.service.interfaces;
 
 
+import java.util.List;
 import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
+import org.apache.tubemq.manager.entry.ClusterEntry;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,4 +38,17 @@ public interface ClusterService {
      * @param clusterId
      */
     void deleteCluster(Integer clusterId);
+
+    /**
+     * get one cluster
+     * @param clusterId
+     * @return
+     */
+    ClusterEntry getOneCluster(Integer clusterId);
+
+    /**
+     * get all clusters
+     * @return
+     */
+    List<ClusterEntry> getAllClusters();
 }
