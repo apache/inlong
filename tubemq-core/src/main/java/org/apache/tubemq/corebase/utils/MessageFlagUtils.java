@@ -24,7 +24,7 @@ public class MessageFlagUtils {
     public static int getFlag(final Message message) {
         int flag = 0;
         if (message != null && message.getAttribute() != null) {
-            flag = flag & 0xFFFFFFFE | 1;
+            flag = 1;
         }
         return flag;
     }
