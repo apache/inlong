@@ -64,7 +64,7 @@ public class TBaseConstants {
 
     public static final long CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL = 20000;
 
-    public static final String OFFSET_TOPIC = "offsetTopic-";
+    public static final String OFFSET_TOPIC = "offsetTopic";
 
     public static final int META_MB_UNIT_SIZE = (1024 * 1024);
     public static final int META_MESSAGE_SIZE_ADJUST = (512 * 1024);
