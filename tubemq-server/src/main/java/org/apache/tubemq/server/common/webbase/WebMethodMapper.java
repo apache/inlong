@@ -52,7 +52,7 @@ public class WebMethodMapper {
             }
         }
         logger.error(new StringBuilder(512)
-                .append("registerWebMethod failure, not found Method by clsMethodName")
+                .append("registerWebMethod failure, not found Method by clsMethodName ")
                 .append(clsMethodName).append(" in WebHandler class ")
                 .append(webHandler.getClass().getName()).toString());
     }
