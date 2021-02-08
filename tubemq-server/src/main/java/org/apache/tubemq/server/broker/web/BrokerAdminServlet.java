@@ -110,10 +110,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             if (index++ > 0) {
                 sBuilder.append(",");
             }
-            sBuilder.append("{\"id\":").append(index + 1)
+            sBuilder.append("{\"id\":").append(index)
                     .append(",\"method\":\"").append(method).append("\"}");
         }
-        sBuilder.append("],\"totalCnt\":").append(index + 1).append("}");
+        sBuilder.append("],\"totalCnt\":").append(index).append("}");
     }
 
     /***
@@ -150,10 +150,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             int partitionId = Integer.parseInt(partitionIdArr[2]);
             String consumerId = entry.getValue().getConsumerId();
             boolean ifFilterConsume = entry.getValue().isFilterConsume();
-            if (index > 0) {
+            if (index++ > 0) {
                 sBuilder.append(",");
             }
-            sBuilder.append("{\"index\":").append(++index).append(",\"groupName\":\"")
+            sBuilder.append("{\"index\":").append(index).append(",\"groupName\":\"")
                     .append(groupName).append("\",\"topicName\":\"").append(topicName)
                     .append("\",\"partitionId\":").append(partitionId);
             Long regTime =
@@ -231,11 +231,11 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                     || (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey()))) {
                 continue;
             }
-            if (recordId > 0) {
+            if (recordId++ > 0) {
                 sBuilder.append(",");
             }
             index = 0;
-            sBuilder.append("{\"index\":").append(++recordId).append(",\"topicName\":\"")
+            sBuilder.append("{\"index\":").append(recordId).append(",\"topicName\":\"")
                     .append(entry.getKey()).append("\",\"storeInfo\":[");
             ConcurrentHashMap<Integer, MessageStore> partStoreMap = entry.getValue();
             if (partStoreMap != null) {
@@ -564,13 +564,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            if (totalCnt > 0) {
+            if (totalCnt++ > 0) {
                 sBuilder.append(",");
             }
             sBuilder.append("{\"Partition\":\"").append(entry.getKey())
                     .append("\",\"Consumer\":\"")
                     .append(entry.getValue().getConsumerId())
-                    .append("\",\"index\":").append(++totalCnt).append("}");
+                    .append("\",\"index\":").append(totalCnt).append("}");
         }
         sBuilder.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
