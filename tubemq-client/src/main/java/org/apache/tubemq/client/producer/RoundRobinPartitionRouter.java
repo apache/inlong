@@ -18,8 +18,8 @@
 package org.apache.tubemq.client.producer;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.client.exception.TubeClientException;
 import org.apache.tubemq.corebase.Message;
@@ -41,7 +41,7 @@ public class RoundRobinPartitionRouter implements PartitionRouter {
         }
         AtomicInteger currRouterCount = partitionRouterMap.get(message.getTopic());
         if (null == currRouterCount) {
-            AtomicInteger newCounter = new AtomicInteger(new Random().nextInt());
+            AtomicInteger newCounter = new AtomicInteger(ThreadLocalRandom.current().nextInt());
             currRouterCount = partitionRouterMap.putIfAbsent(message.getTopic(), newCounter);
             if (null == currRouterCount) {
                 currRouterCount = newCounter;
