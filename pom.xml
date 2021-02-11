@@ -69,7 +69,6 @@
         <module>tubemq-server</module>
         <module>tubemq-example</module>
         <module>tubemq-connectors</module>
-        <module>tubemq-docker</module>
     </modules>
 
     <properties>
@@ -264,7 +263,6 @@
                         <exclude>resources/assets/lib/**</exclude>
                         <exclude>resources/assets/public/**</exclude>
                         <exclude>DISCLAIMER</exclude>
-                        <exclude>tubemq-web/**</exclude>
                         <!-- copy or modify files from other projects -->
                         <exclude>**/tubemq-client-twins/tubemq-client-cpp/src/any.h</exclude>
                         <exclude>**/tubemq-client-twins/tubemq-client-cpp/src/buffer.h</exclude>
