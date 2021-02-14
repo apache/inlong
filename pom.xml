@@ -85,7 +85,6 @@
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <spring.boot.version>2.3.3.RELEASE</spring.boot.version>
         <mysql.java.version>8.0.21</mysql.java.version>
-        <junit.platform.version>1.6.2</junit.platform.version>
     </properties>
 
     <repositories>
