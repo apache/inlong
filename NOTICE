@@ -4,9 +4,9 @@ Copyright 2019-2021 The Apache Software Foundation.
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).
 
+=======================================================================
 
 Apache HBase includes the following in its NOTICE file:
-
 | Apache HBase
 | Copyright 2007-2020 The Apache Software Foundation
 | 
@@ -60,7 +60,6 @@ Apache HBase includes the following in its NOTICE file:
 
 
 Apache MINA includes the following in its NOTICE file:
-
 | Apache MINA
 | Copyright 2007-2016 The Apache Software Foundation.
 | 
@@ -69,7 +68,6 @@ Apache MINA includes the following in its NOTICE file:
 
 
 Apache Avro includes the following in its NOTICE file:
-
 | Apache Avro
 | Copyright 2010-2019 The Apache Software Foundation
 | 
@@ -146,8 +144,15 @@ Apache Avro includes the following in its NOTICE file:
 | | See the License for the specific language governing permissions and limitations under the License.
 
 
-Apache Pulsar includes the following in its NOTICE file:
+Apache Commons Lang includes the following in its NOTICE file:
+| Apache Commons Lang
+| Copyright 2001-2011 The Apache Software Foundation
+|
+| This product includes software developed by
+| The Apache Software Foundation (http://www.apache.org/).
 
+
+Apache Pulsar includes the following in its NOTICE file:
 | Apache Pulsar
 | Copyright 2017-2019 The Apache Software Foundation
 | 
