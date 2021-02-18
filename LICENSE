@@ -204,18 +204,15 @@
 
 =======================================================================
 
-=========
-1. Third party MIT license licenses
-=========
+1 This projects includes modified/copied source files with the following licenses:
 
-1.1 The following modified/copied source files are provided under the MIT license.
-
-----
+=========
+1.1 Third party MIT license licenses
+=========
 
 1.1.1 resources/assets/lib/jquery.min.js
  Source  : jquery 1.11.3
  License : https://github.com/jquery/jquery/blob/1.11.3/MIT-LICENSE.txt
-
 | Copyright 2014 jQuery Foundation and other contributors
 | http://jquery.com/
 |
@@ -243,7 +240,6 @@
 1.1.2 resources/assets/lib/DataTables/*
  Source  : datatables  1.10.7
  License : https://github.com/DataTables/DataTables/blob/1.10.7/license.txt
-
 | Copyright (c) 2008-2013 SpryMedia Limited
 | http://datatables.net
 |
@@ -265,91 +261,72 @@
 | OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 | THE SOFTWARE.
 
-------------------
+----
 
-1.2 The following binary dependency packages are provided under the MIT license.
+1.1.3 resources/assets/public/css/style.css
+      resources/assets/public/css/ie.css
+ Source  : Compass
+ License :  https://github.com/Compass/compass/blob/stable/LICENSE.markdown
+ | Copyright (c) 2009-2014 Christopher M. Eppstein
+ |
+ | Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ |
+ | The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. No attribution is required by products that make use of this software.
+ |
+ | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ |
+ | Except as contained in this notice, the name(s) of the above copyright holders shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization.
+ |
+ | Contributors to this project agree to grant all rights to the copyright holder of the primary product. Attribution is maintained in the source control history of the product.
 
 ----
 
-1.2.1 org.slf4j:slf4j-api
-      org.slf4j:slf4j-log4j12
- Version : 1.6.2
- License : For details, see https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt
-
-1.2.1 org.mockito:mockito-all:1.9.0
-      org.mockito:mockito-core:2.18.0
- License : For details, see https://github.com/mockito/mockito/blob/release/1.x/LICENSE
-                            https://github.com/mockito/mockito/blob/release/2.x/LICENSE
-
-
 =========
-2. Third party BSD 3-Clause license
+1.2 Third party BSD 3-Clause license
 =========
 
-2.1 The following modified/copied source files are provided under the BSD 3-Clause license.
-
-----
-
-2.1.1 tubemq-client-twins/tubemq-client-cpp/src/any.h
+1.2.1 tubemq-client-twins/tubemq-client-cpp/src/any.h
       tubemq-client-twins/tubemq-client-cpp/src/buffer.h
  Source  : https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
            https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7
  License : https://github.com/Qihoo360/evpp/blob/master/LICENSE
-
-| BSD 3-Clause License
-|
-| Copyright (c) 2017, Qihoo 360
-| All rights reserved.
-|
-| Redistribution and use in source and binary forms, with or without
-| modification, are permitted provided that the following conditions are met:
-|
-| * Redistributions of source code must retain the above copyright notice, this
-|   list of conditions and the following disclaimer.
-|
-| * Redistributions in binary form must reproduce the above copyright notice,
-|   this list of conditions and the following disclaimer in the documentation
-|   and/or other materials provided with the distribution.
-|
-| * Neither the name of the copyright holder nor the names of its
-|   contributors may be used to endorse or promote products derived from
-|   this software without specific prior written permission.
-|
-| THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-| AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-| IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-| DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-| FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-| DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-| SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-| CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-| OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-| OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-------------------
-
-2.2 The following binary dependency packages are provided under the BSD 3-Clause license.
+ | BSD 3-Clause License
+ |
+ | Copyright (c) 2017, Qihoo 360
+ | All rights reserved.
+ |
+ | Redistribution and use in source and binary forms, with or without
+ | modification, are permitted provided that the following conditions are met:
+ |
+ | * Redistributions of source code must retain the above copyright notice, this
+ |   list of conditions and the following disclaimer.
+ |
+ | * Redistributions in binary form must reproduce the above copyright notice,
+ |   this list of conditions and the following disclaimer in the documentation
+ |   and/or other materials provided with the distribution.
+ |
+ | * Neither the name of the copyright holder nor the names of its
+ |   contributors may be used to endorse or promote products derived from
+ |   this software without specific prior written permission.
+ |
+ | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ | AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ | IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ | DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ | FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ | DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ | SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ | OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ | OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-2.2.1 com.google.protobuf:protobuf-java
- Version : 2.5.0
- License : For details, see https://github.com/protocolbuffers/protobuf/blob/v2.5.0/COPYING.txt
-
-2.2.2 com.googlecode.protobuf-java-format:protobuf-java-format
- Version : 1.4
- License : For details, see https://github.com/bivas/protobuf-java-format/blob/master/LICENSE.txt
-
-
 =========
-3. Third party Apache 2.0 Licenses
+1.3 Third party Apache 2.0 Licenses
 =========
 
-3.1 The following modified/copied source files are provided under the Apache 2.0 License.
-
-----
-
-3.1.1 tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
+1.3.1 tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
       tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
       tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
       tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
@@ -363,231 +340,38 @@
  Source  : hbase 0.94.27 (Please note that the software have been modified.)
  License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
 
-3.1.2 tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/MapBackedSet.java
+1.3.2 tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/MapBackedSet.java
       tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ConcurrentHashSet.java
  Source  : mina 2.0.12
  License : https://github.com/apache/mina/blob/2.0.12/LICENSE.txt
 
-3.1.3 bin/broker.sh
+1.3.3 bin/broker.sh
       bin/master.sh
  Source  : Metamorphosis  metamorphosis-all-1.4.4 (Please note that the software have been modified.)
  License : https://github.com/killme2008/Metamorphosis/blob/metamorphosis-all-1.4.4/COPYING.txt
 
-3.1.4 tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
+1.3.4 tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
       tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
  Source  : Apache Avro 1.7.6
  License : https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
 
-3.1.5 tubemq-client-twins/tubemq-client-cpp/src/future.h
+1.3.5 tubemq-client-twins/tubemq-client-cpp/src/future.h
  Source  : Apache Pulsar
  License : https://github.com/apache/pulsar/blob/master/LICENSE
 
-------------------
-
-3.2 The following binary dependency packages are provided under the Apache 2.0 License.
-
-----
-
-3.2.1 io.netty:netty
- Version : 3.8.0.Final
- License : For details, see https://github.com/netty/netty/blob/netty-3.8.0.Final/LICENSE.txt
-
-3.2.2 commons-cli:commons-cli
- Version : 1.4
- License : For details, see https://github.com/apache/commons-cli/blob/master/LICENSE.txt
-
-3.2.3 commons-codec:commons-codec
- Version : 1.10
- License : For details, see https://github.com/apache/commons-codec/blob/1.10/LICENSE.txt
-
-3.2.4 com.google.code.gson:gson
- Version : 2.8.5
- License : For details, see https://github.com/google/gson/blob/master/LICENSE
-
-3.2.5 commons-lang:commons-lang
- Version : 2.6
- License : For details, see https://github.com/apache/commons-lang/blob/master/LICENSE.txt
-
-3.2.6 org.apache.commons:commons-lang3
- Version :
- License : For details, see https://github.com/apache/commons-lang/blob/master/LICENSE.txt
-
-3.2.7 org.apache.httpcomponents:httpclient
- Version : 4.5.2
- License : For details, see https://github.com/apache/httpcomponents-client/blob/master/LICENSE.txt
-
-3.2.8 commons-io:commons-io
- Version : 2.1
- License : For details, see https://github.com/apache/commons-io/blob/master/LICENSE.txt
-
-3.2.9 org.apache.zookeeper:zookeeper
- Version : 3.4.3
- License : For details, see https://github.com/apache/zookeeper/blob/master/LICENSE.txt
-
-3.2.10 com.google.guava:guava
- Version : 13.0
- License : For details, see https://github.com/google/guava/blob/master/COPYING
-
-3.2.11 org.apache.velocity:velocity:1.7
-       org.apache.velocity:velocity-tools:2.0
- License : For details, see https://github.com/apache/velocity-master/blob/master/pom/pom.xml
-                            https://github.com/apache/velocity-tools/blob/2.0/LICENSE
-
-3.2.12 org.springframework:spring-core
-       org.springframework:spring-context
-       org.springframework:spring-jdbc
-       org.springframework:spring-orm
- Version : 4.1.6.RELEASE
- License : For details, see https://github.com/spring-projects/spring-framework/tree/v4.1.6.RELEASE#license
-
-3.2.13 org.mortbay.jetty:jetty
- Version : 6.1.26
- License : For details, see https://github.com/jetty-project/codehaus-jetty6
-
-3.2.14 org.ini4j:ini4j
- Version : 0.5.1
- License : For details, see https://github.com/facebookarchive/ini4j/blob/master/LICENSE.txt
-
-3.2.15 org.easymock:easymock
-       org.easymock:easymockclassextension
- Version : 2.5.2
- License : For details, see https://github.com/easymock/easymock/blob/master/header.txt
-
-3.2.16 org.eclipse.jetty:jetty-server
-       org.eclipse.jetty:jetty-servlet
- Version : 9.4.31.v20200723
- License : For details, see https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/LICENSE
-
-3.2.17 org.powermock:powermock-module-junit4
-       org.powermock:powermock-api-mockito2
- Version : 2.0.4
- License : For details, see https://github.com/powermock/powermock/blob/release/2.x/LICENSE.txt
-
-3.2.18 org.apache.flink:flink-core
-       org.apache.flink:flink-table-common
-       org.apache.flink:flink-runtime_2.11
-       org.apache.flink:flink-streaming-java_2.11
-       org.apache.flink:flink-table-api-java-bridge_2.11
- Version : 1.9.2
- License : For details, see https://github.com/apache/flink/blob/release-1.9/LICENSE
-
-3.2.19 org.apache.flume:flume-ng-core
- Version : 1.9.0
- License : For details, see https://github.com/apache/flume/blob/flume-1.9/LICENSE
-
-3.2.20 org.awaitility:awaitility
- Version : 4.0.3
- License : For details, see https://github.com/awaitility/awaitility/blob/master/LICENSE
-
-3.2.21 org.apache.spark:spark-core_2.11
-       org.apache.spark:spark-sql_2.11
-       org.apache.spark:spark-streaming_2.11
- Version : 2.4.4
- License : For details, see https://github.com/apache/spark/blob/branch-2.4/LICENSE
-
-
-=========
-4. Third party Eclipse Public License 1.0 Licenses
-=========
-
-4.1 The following binary dependency packages are provided under Eclipse Public License 1.0 Licenses.
+1.3.6 tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/TStringUtils.java
+ Source  : commons-lang (Please note that the software have been modified.)
+           https://github.com/apache/commons-lang/blob/LANG_2_X/src/
+                 main/java/org/apache/commons/lang/StringUtils.java
+ License : https://github.com/apache/commons-lang/blob/LANG_2_X/LICENSE.txt
 
 ----
 
-4.1.1 junit:junit
- Version : 4.11
- License : For details, see https://github.com/junit-team/junit4/blob/main/LICENSE-junit.txt
-
-
 =========
-5. Third party CDDL + GPLv2 with classpath exception Licenses
+2 Third party category X Licenses
 =========
 
-5.1 The following binary dependency packages are provided under CDDL + GPLv2 with classpath exception Licenses.
-
-----
-
-5.1.1 javax.servlet:javax.servlet-api
- Version : 4.0.1
- License : For details, see https://github.com/javaee/servlet-spec/blob/master/LICENSE
-
-
-=========
-6. Third party category X Licenses
-=========
-
-6.1 The following modified/copied source files are provided under category X Licenses.
-
-----
-
-6.1.1 tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/TStringUtils.java
- Source  : citrus r3.1.4 (Please note that the software have been modified.)
-           https://github.com/webx/citrus/blob/r3.1.4/common/util/src/main/java/com/alibaba/citrus/util/StringUtil.java
- License: The project does not contain the LICENSE file, but analyzed from
-          the project’s pom.xml content and the file header of the source code file,
-          the following components are provided under the Apache 2.0 License.
-
- pom.xml includes: see https://github.com/webx/citrus/blob/r3.1.4/pom.xml
- |    <licenses>
- |        <license>
- |            <name>The Apache Software License, Version 2.0</name>
- |            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
- |            <distribution>repo</distribution>
- |        </license>
- |    </licenses>
-
- source file includes:
- |
- | Copyright (c) 2002-2012 Alibaba Group Holding Limited.
- | All rights reserved.
- |
- | Licensed under the Apache License, Version 2.0 (the "License");
- | you may not use this file except in compliance with the License.
- | You may obtain a copy of the License at
- |
- |    http://www.apache.org/licenses/LICENSE-2.0
- |
- | Unless required by applicable law or agreed to in writing, software
- | distributed under the License is distributed on an "AS IS" BASIS,
- | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- | See the License for the specific language governing permissions and
- | limitations under the License.
- |
-
-----
-
-6.1.2 resources/assets/public/css/style.css
-      resources/assets/public/css/ie.css
- Source  : Compass
- License : According to the content of the project’s README.markdown and LICENSE.markdown,
-           the following components are provided under the slightly modified MIT License.
-
- README.markdown includes：(https://github.com/Compass/compass/blob/stable/README.markdown)
- | License
- | Copyright (c) 2008-2014 Christopher M. Eppstein
- | All Rights Reserved.
- | Released under a slightly modified MIT License.
-
- LICENSE.markdown includes: (https://github.com/Compass/compass/blob/stable/LICENSE.markdown)
- | Copyright (c) 2009-2014 Christopher M. Eppstein
- |
- | Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- |
- | The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. No attribution is required by products that make use of this software.
- |
- | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- |
- | Except as contained in this notice, the name(s) of the above copyright holders shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization.
- |
- | Contributors to this project agree to grant all rights to the copyright holder of the primary product. Attribution is maintained in the source control history of the product.
-
-------------------
-
-6.2 The following binary dependency packages are provided under category X Licenses.
-
-----
-
-6.2.1 berkeleydb-je
+2.1 berkeleydb-je
  Version : 7.3.7
  Source  : Oracle
  License ：We found that different versions of Berkeley DB JE (Java Edition) use different authorization protocols.
@@ -684,7 +468,6 @@
  |  * THE POSSIBILITY OF SUCH DAMAGE.
  |  */
 
-----
 
 
 
