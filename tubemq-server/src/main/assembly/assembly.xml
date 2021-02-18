@@ -37,7 +37,7 @@
                 <include>./resources/**</include>
                 <include>LICENSE</include>
                 <include>NOTICE</include>
-                <include>DISCLAIMER</include>
+                <include>DISCLAIMER-WIP</include>
             </includes>
             <excludes>
                 <exclude>**/src/**</exclude>
