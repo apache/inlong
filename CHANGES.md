@@ -62,6 +62,7 @@
 | [TUBEMQ-505](https://issues.apache.org/jira/browse/TUBEMQ-505) | Remove the "WIP" label of the DISCLAIMER file  | Major |
 | [TUBEMQ-543](https://issues.apache.org/jira/browse/TUBEMQ-543) | Modify the LICENSE statement of multiple files and others  | Major |
 | [TUBEMQ-557](https://issues.apache.org/jira/browse/TUBEMQ-557) | Handle the issues mentioned in the 0.8.0-RC2 review  | Major |
+| [TUBEMQ-562](https://issues.apache.org/jira/browse/TUBEMQ-562) | Update project contents according to the 0.8.0-RC3 review  | Major |
 
 ### SUB-TASK:
 | JIRA  | Summary  | Priority |
