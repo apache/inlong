@@ -371,6 +371,14 @@ public class BdbBrokerConfEntity implements Serializable {
         return numPartitions;
     }
 
+    public boolean getAcceptPublish() {
+        return acceptPublish;
+    }
+
+    public boolean getAcceptSubscribe() {
+        return acceptSubscribe;
+    }
+
     public void setDftNumPartitions(int numPartitions) {
         this.numPartitions = numPartitions;
     }
