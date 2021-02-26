@@ -66,8 +66,6 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         registerQueryWebMethod("admin_query_consume_group_setting",
                 "adminQueryConsumeGroupSetting");
         // register modify method
-        registerModifyWebMethod("admin_add_new_topic_record",
-                "adminAddTopicEntityInfo");
         registerModifyWebMethod("admin_add_black_consumergroup_info",
                 "adminAddBlackGroupInfo");
         registerModifyWebMethod("admin_bath_add_black_consumergroup_info",

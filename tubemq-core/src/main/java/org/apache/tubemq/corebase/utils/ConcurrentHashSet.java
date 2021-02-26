@@ -17,30 +17,56 @@
 
 package org.apache.tubemq.corebase.utils;
 
-import java.util.Collection;
+
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A Map-backed Set.
- *
- * Copied from <a href="http://mina.apache.org">Apache MINA Project</a>
+ * ConcurrentHashSet, construct the set collection through ConcurrentHashMap
+ *  to complete the operation management of the concurrent set
  */
-public class ConcurrentHashSet<E> extends MapBackedSet<E> {
+public class ConcurrentHashSet<E> implements Iterable<E> {
 
-    private static final long serialVersionUID = 8518578988740277828L;
+    private final ConcurrentHashMap<E, Long> keyValMap
+            = new ConcurrentHashMap<>();
 
     public ConcurrentHashSet() {
-        super(new ConcurrentHashMap<E, Boolean>());
+
     }
 
-    public ConcurrentHashSet(Collection<E> c) {
-        super(new ConcurrentHashMap<E, Boolean>(), c);
+    public boolean add(E key) {
+        Long value =
+                keyValMap.putIfAbsent(key, System.currentTimeMillis());
+        return (value == null);
+    }
+
+    public boolean contains(E key) {
+        return keyValMap.containsKey(key);
+    }
+
+    public boolean remove(E key) {
+        return keyValMap.remove(key) != null;
+    }
+
+    public void clear() {
+        keyValMap.clear();
+    }
+
+    public int size() {
+        return keyValMap.size();
+    }
+
+    public boolean isEmpty() {
+        return keyValMap.isEmpty();
+    }
+
+    public Long getKeyAddTime(E key) {
+        return keyValMap.get(key);
     }
 
     @Override
-    public boolean add(E o) {
-        Boolean answer =
-                map.putIfAbsent(o, Boolean.TRUE);
-        return answer == null;
+    public Iterator<E> iterator() {
+        return new HashSet<>(keyValMap.keySet()).iterator();
     }
 }

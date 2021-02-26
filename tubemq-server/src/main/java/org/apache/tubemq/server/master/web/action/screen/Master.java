@@ -277,7 +277,8 @@ public class Master implements Action {
      */
     private void getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String topic = req.getParameter("topic");
-        Set<String> producerIds = master.getTopicPSInfoManager().getTopicPubInfo(topic);
+        ConcurrentHashSet<String> producerIds =
+                master.getTopicPSInfoManager().getTopicPubInfo(topic);
         if (producerIds != null && !producerIds.isEmpty()) {
             for (String producerId : producerIds) {
                 sBuilder.append(producerId).append("\n");
