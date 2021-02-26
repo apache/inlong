@@ -18,6 +18,7 @@
 package org.apache.tubemq.corebase.utils;
 
 
+import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ConcurrentHashSet, construct the set collection through ConcurrentHashMap
  *  to complete the operation management of the concurrent set
  */
-public class ConcurrentHashSet<E> implements Iterable<E> {
+public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
     private final ConcurrentHashMap<E, Long> keyValMap
             = new ConcurrentHashMap<>();
@@ -35,28 +36,34 @@ public class ConcurrentHashSet<E> implements Iterable<E> {
 
     }
 
-    public boolean add(E key) {
+    @Override
+    public boolean add(E item) {
         Long value =
-                keyValMap.putIfAbsent(key, System.currentTimeMillis());
+                keyValMap.putIfAbsent(item, System.currentTimeMillis());
         return (value == null);
     }
 
-    public boolean contains(E key) {
-        return keyValMap.containsKey(key);
+    @Override
+    public boolean contains(Object item) {
+        return keyValMap.containsKey(item);
     }
 
-    public boolean remove(E key) {
-        return keyValMap.remove(key) != null;
+    @Override
+    public boolean remove(Object item) {
+        return keyValMap.remove(item) != null;
     }
 
+    @Override
     public void clear() {
         keyValMap.clear();
     }
 
+    @Override
     public int size() {
         return keyValMap.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return keyValMap.isEmpty();
     }
