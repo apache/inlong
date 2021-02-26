@@ -33,7 +33,7 @@ public class ConcurrentHashSetTest extends TestCase {
         }
         testSet.add("test-1");
         testSet.add("test-2");
-        System.out.println("test-2 add time is " + testSet.getKeyAddTime("test-2"));
+        System.out.println("test-2 add time is " + testSet.getItemAddTime("test-2"));
         testSet.add("test-3");
         testSet.add("test-4");
         assertEquals(4, testSet.size());
@@ -43,7 +43,7 @@ public class ConcurrentHashSetTest extends TestCase {
         for (String item : testSet) {
             System.out.println("Count = " + count++ + ", item = " + item);
         }
-        System.out.println("test-2 add time is " + testSet.getKeyAddTime("test-2"));
+        System.out.println("test-2 add time is " + testSet.getItemAddTime("test-2"));
     }
 
 }

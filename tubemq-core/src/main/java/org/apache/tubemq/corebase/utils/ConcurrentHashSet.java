@@ -68,12 +68,12 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> {
         return keyValMap.isEmpty();
     }
 
-    public Long getKeyAddTime(E key) {
-        return keyValMap.get(key);
-    }
-
     @Override
     public Iterator<E> iterator() {
         return new HashSet<>(keyValMap.keySet()).iterator();
+    }
+
+    public Long getItemAddTime(E item) {
+        return keyValMap.get(item);
     }
 }
