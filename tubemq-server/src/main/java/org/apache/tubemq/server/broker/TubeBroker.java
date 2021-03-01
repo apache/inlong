@@ -17,7 +17,11 @@
 
 package org.apache.tubemq.server.broker;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -26,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.LogManager;
 import org.apache.tubemq.corebase.TErrCodeConstants;
+import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.aaaclient.ClientAuthenticateHandler;
 import org.apache.tubemq.corebase.aaaclient.SimpleClientAuthenticateHandler;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
@@ -38,6 +43,7 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.RegisterReques
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
 import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corerpc.RpcConfig;
 import org.apache.tubemq.corerpc.RpcConstants;
 import org.apache.tubemq.corerpc.RpcServiceFactory;
@@ -48,14 +54,19 @@ import org.apache.tubemq.server.broker.exception.StartupException;
 import org.apache.tubemq.server.broker.metadata.BrokerMetadataManager;
 import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.metadata.MetadataManager;
+import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.DefaultOffsetManager;
 import org.apache.tubemq.server.broker.offset.OffsetService;
+import org.apache.tubemq.server.broker.offset.OffsetTimeManager;
 import org.apache.tubemq.server.broker.utils.BrokerSamplePrint;
+import org.apache.tubemq.server.broker.utils.GroupOffsetInfo;
+import org.apache.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.tubemq.server.broker.web.WebServer;
 import org.apache.tubemq.server.common.TubeServerVersion;
 import org.apache.tubemq.server.common.aaaserver.SimpleCertificateBrokerHandler;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +91,7 @@ public class TubeBroker implements Stoppable {
     // tube broker's offset manager
     private final OffsetService offsetManager;
     private final BrokerServiceServer brokerServiceServer;
+    private final OffsetTimeManager offsetTimeManager;
     private final BrokerSamplePrint samplePrintCtrl =
             new BrokerSamplePrint(logger);
     private final ScheduledExecutorService scheduledExecutorService;
@@ -108,6 +120,7 @@ public class TubeBroker implements Stoppable {
         this.metadataManager = new BrokerMetadataManager();
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
+
         this.serverAuthHandler = new SimpleCertificateBrokerHandler(this);
         // rpc config.
         RpcConfig rpcConfig = new RpcConfig();
@@ -119,6 +132,8 @@ public class TubeBroker implements Stoppable {
         // broker service.
         this.brokerServiceServer =
                 new BrokerServiceServer(this, tubeConfig);
+        logger.info("create offset time service");
+        this.offsetTimeManager = new OffsetTimeManager(tubeConfig, this);
         // web server.
         this.webServer = new WebServer(tubeConfig.getHostName(), tubeConfig.getWebPort(), this);
         this.webServer.start();
@@ -621,6 +636,120 @@ public class TubeBroker implements Stoppable {
                             tubeConfig.getVisitPassword()));
         }
         return authInfoBuilder;
+    }
+
+
+    // builder group's offset info
+    public Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> getGroupOffsetInfo(
+        String groupParamName, Set<String> groupSet, Set<String> topicSet) {
+        ProcessResult result = new ProcessResult();
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = new HashMap<>();
+        for (String group : groupSet) {
+            Map<String, Map<Integer, GroupOffsetInfo>> topicOffsetRet = new HashMap<>();
+            // valid and get topic's partitionIds
+            if (validAndGetTopicPartInfo(group, groupParamName, topicSet, result)) {
+                Map<String, Set<Integer>> topicPartMap =
+                    (Map<String, Set<Integer>>) result.retData1;
+                // get topic's publish info
+                Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
+                    storeManager.getTopicPublishInfos(topicPartMap.keySet());
+                // get group's booked offset info
+                Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
+                    offsetManager.queryGroupOffset(group, topicPartMap);
+                // get offset info array
+                for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
+                    String topic = entry.getKey();
+                    Map<Integer, GroupOffsetInfo> partOffsetRet = new HashMap<>();
+                    Map<Integer, TopicPubStoreInfo> storeInfoMap = topicStorePubInfoMap.get(topic);
+                    Map<Integer, Tuple2<Long, Long>> partBookedMap = groupOffsetMap.get(topic);
+                    for (Integer partitionId : entry.getValue()) {
+                        GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
+                        offsetInfo.setPartPubStoreInfo(
+                            storeInfoMap == null ? null : storeInfoMap.get(partitionId));
+                        offsetInfo.setConsumeOffsetInfo(
+                            partBookedMap == null ? null : partBookedMap.get(partitionId));
+                        String queryKey = buildQueryID(group, topic, partitionId);
+                        ConsumerNodeInfo nodeInfo = getConsumerNodeInfo(queryKey);
+                        if (nodeInfo != null) {
+                            offsetInfo.setConsumeDataOffsetInfo(nodeInfo.getLastDataRdOffset());
+                        }
+                        offsetInfo.calculateLag();
+                        partOffsetRet.put(partitionId, offsetInfo);
+                    }
+                    topicOffsetRet.put(topic, partOffsetRet);
+                }
+            }
+            groupOffsetMaps.put(group, topicOffsetRet);
+        }
+        return groupOffsetMaps;
+    }
+
+
+    private String buildQueryID(String group, String topic, int partitionId) {
+        return new StringBuilder(512).append(group)
+            .append(TokenConstants.ATTR_SEP).append(topic)
+            .append(TokenConstants.ATTR_SEP).append(partitionId).toString();
+    }
+
+    public boolean validAndGetTopicPartInfo(String groupName,
+        String groupParamName,
+        Set<String> topicSet,
+        ProcessResult result) {
+        Set<String> subTopicSet =
+            offsetManager.getGroupSubInfo(groupName);
+        if (subTopicSet == null || subTopicSet.isEmpty()) {
+            result.setFailResult(400, new StringBuilder(512)
+                .append("Parameter ").append(groupParamName)
+                .append(": subscribed topic set of ").append(groupName)
+                .append(" query result is null!").toString());
+            return result.success;
+        }
+        // filter valid topic set
+        Set<String> tgtTopicSet = new HashSet<>();
+        if (topicSet.isEmpty()) {
+            tgtTopicSet = subTopicSet;
+        } else {
+            for (String topic : topicSet) {
+                if (subTopicSet.contains(topic)) {
+                    tgtTopicSet.add(topic);
+                }
+            }
+            if (tgtTopicSet.isEmpty()) {
+                result.setFailResult(400, new StringBuilder(512)
+                    .append("Parameter ").append(groupParamName)
+                    .append(": ").append(groupName)
+                    .append(" unsubscribed to the specified topic set!").toString());
+                return result.success;
+            }
+        }
+        Map<String, Set<Integer>> topicPartMap = getTopicPartitions(tgtTopicSet);
+        if (topicPartMap.isEmpty()) {
+            result.setFailResult(400, new StringBuilder(512)
+                .append("Parameter ").append(groupParamName)
+                .append(": all topics subscribed by the group have been deleted!").toString());
+            return result.success;
+        }
+        result.setSuccResult(topicPartMap);
+        return result.success;
+    }
+
+
+
+    public Map<String, Set<Integer>> getTopicPartitions(Set<String> topicSet) {
+        Map<String, Set<Integer>> topicPartMap = new HashMap<>();
+        if (topicSet != null) {
+            Map<String, TopicMetadata> topicConfigMap =
+                metadataManager.getTopicConfigMap();
+            if (topicConfigMap != null) {
+                for (String topic : topicSet) {
+                    TopicMetadata topicMetadata = topicConfigMap.get(topic);
+                    if (topicMetadata != null) {
+                        topicPartMap.put(topic, topicMetadata.getAllPartitionIds());
+                    }
+                }
+            }
+        }
+        return topicPartMap;
     }
 
     /***
