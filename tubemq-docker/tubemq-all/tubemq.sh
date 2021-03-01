@@ -29,7 +29,7 @@ if [[ $TARGET == "standalone" ]]; then
   sleep 5
   # master start
 
-  ./master.sh start
+  ./tubemq.sh master start
   sleep 5
   # add broker
   curl -d "type=op_modify&method=admin_add_broker_configure&brokerId=1\
@@ -40,16 +40,16 @@ if [[ $TARGET == "standalone" ]]; then
   curl -d "type=op_modify&method=admin_online_broker_configure&brokerId=1\
     &modifyUser=docker&confModAuthToken=abc" http://127.0.0.1:8080/webapi.htm
   # broker start
-  ./broker.sh start
+  ./tubemq.sh broker start
   tail -F /opt/tubemq-server/logs/*
 fi
 # for master
 if [[ $TARGET == "master" ]]; then
-  ./master.sh start
+  ./tubemq.sh master start
   tail -F /opt/tubemq-server/logs/master.log
 fi
 # for broker
 if [[ $TARGET == "broker" ]]; then
-  ./broker.sh start
+  ./tubemq.sh broker start
   tail -F /opt/tubemq-server/logs/broker.log
 fi
