@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
-import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
@@ -93,7 +92,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                     }
                 }
             } else {
-                ConcurrentHashSet<String> groupSet = topicPSInfoManager.getTopicSubInfo(strTopicName);
+                Set<String> groupSet = topicPSInfoManager.getTopicSubInfo(strTopicName);
                 if ((groupSet != null) && (!groupSet.isEmpty())) {
                     if (TStringUtils.isEmpty(strConsumeGroup)) {
                         for (String tmpGroup : groupSet) {

@@ -17,30 +17,63 @@
 
 package org.apache.tubemq.corebase.utils;
 
-import java.util.Collection;
+
+import java.util.AbstractSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A Map-backed Set.
- *
- * Copied from <a href="http://mina.apache.org">Apache MINA Project</a>
+ * ConcurrentHashSet, construct the set collection through ConcurrentHashMap
+ *  to complete the operation management of the concurrent set
  */
-public class ConcurrentHashSet<E> extends MapBackedSet<E> {
+public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
-    private static final long serialVersionUID = 8518578988740277828L;
+    private final ConcurrentHashMap<E, Long> keyValMap
+            = new ConcurrentHashMap<>();
 
     public ConcurrentHashSet() {
-        super(new ConcurrentHashMap<E, Boolean>());
-    }
 
-    public ConcurrentHashSet(Collection<E> c) {
-        super(new ConcurrentHashMap<E, Boolean>(), c);
     }
 
     @Override
-    public boolean add(E o) {
-        Boolean answer =
-                map.putIfAbsent(o, Boolean.TRUE);
-        return answer == null;
+    public boolean add(E item) {
+        Long value =
+                keyValMap.putIfAbsent(item, System.currentTimeMillis());
+        return (value == null);
+    }
+
+    @Override
+    public boolean contains(Object item) {
+        return keyValMap.containsKey(item);
+    }
+
+    @Override
+    public boolean remove(Object item) {
+        return keyValMap.remove(item) != null;
+    }
+
+    @Override
+    public void clear() {
+        keyValMap.clear();
+    }
+
+    @Override
+    public int size() {
+        return keyValMap.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return keyValMap.isEmpty();
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new HashSet<>(keyValMap.keySet()).iterator();
+    }
+
+    public Long getItemAddTime(E item) {
+        return keyValMap.get(item);
     }
 }
