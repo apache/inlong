@@ -1,3 +1,18 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements.  See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.apache.tubemq.bus.channel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -225,18 +240,6 @@ public class FailoverChannelProcessor extends ChannelProcessor {
             }
         }
     }
-
-    /**
-     * Attempts to {@linkplain org.apache.flume.Channel#put(org.apache.flume.Event) put} the given
-     * event into each configured channel. If any {@code required} channel throws a {@link
-     * org.apache.flume.ChannelException}, that exception will be propagated.
-     * <p/>
-     * <p>Note that if multiple channels are configured, some {@link org.apache.flume.Transaction}s
-     * may have already been committed while others may be rolled back in the case of an exception.
-     *
-     * @param event The event to put into the configured channels.
-     * @throws org.apache.flume.ChannelException when a write to a required channel fails.
-     */
 
     public void processEvent(Event event) {
         event = interceptorChain.intercept(event);
