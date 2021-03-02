@@ -16,9 +16,7 @@
  */
 
 package org.apache.tubemq.server.broker.web;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +51,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     public BrokerAdminServlet(TubeBroker broker) {
         super(broker);
         registerWebApiMethod();
+
     }
 
     @Override
@@ -63,6 +62,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // query snapshot message
         innRegisterWebMethod("admin_snapshot_message",
                 "adminQuerySnapshotMessageSet", false);
+        // query offset at timestamp
+        innRegisterWebMethod("admin_offset_at_timestamp",
+            "adminQueryOffsetAtCertainTime", false);
         // query broker's all consumer info
         innRegisterWebMethod("admin_query_broker_all_consumer_info",
                 "adminQueryBrokerAllConsumerInfo", false);
@@ -464,6 +466,27 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 .getMessageSnapshot(topicName, partitionId, msgCount, filterCondStrSet, sBuilder);
     }
 
+
+
+    /***
+     * Query offset stored in offset topic, use timestamp as filter condition.
+     *
+     * @param req
+     * @param sBuilder process result
+     */
+    public void adminQueryOffsetAtCertainTime(HttpServletRequest req,
+        StringBuilder sBuilder) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+            WebFieldDef.FILTERCONDS, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return;
+        }
+        Set<String> filterTimestamp = (Set<String>) result.retData1;
+        broker.getBrokerServiceServer()
+            .getMessageAtCertainTimeStamp(filterTimestamp, sBuilder);
+    }
+
     /***
      * Query consumer group offset.
      *
@@ -719,7 +742,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // verify the acquired Topic set and
         //   query the corresponding offset information
         Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps =
-                getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, qryGroupNameSet, topicSet);
+                broker.getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME.name, qryGroupNameSet, topicSet);
         // builder result
         int totalCnt = 0;
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
@@ -840,8 +863,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         Set<String> srcTopicNameSet = (Set<String>) result.retData1;
         // valid topic and get topic's partitionIds
-        if (!validAndGetTopicPartInfo(srcGroupName,
-                WebFieldDef.SRCGROUPNAME, srcTopicNameSet, result)) {
+        if (!broker.validAndGetTopicPartInfo(srcGroupName,
+                WebFieldDef.SRCGROUPNAME.name, srcTopicNameSet, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -919,7 +942,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         boolean onlyMemory = (Boolean) result.retData1;
-        if (!validAndGetGroupTopicInfo(groupNameSet, topicNameSet, result)) {
+        if (!broker.validAndGetGroupTopicInfo(groupNameSet, topicNameSet, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
@@ -975,7 +998,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         List<Tuple3<String, Integer, Long>> result = new ArrayList<>();
         MessageStoreManager storeManager = broker.getStoreManager();
         // get topic's partition set
-        Map<String, Set<Integer>> topicPartMap = getTopicPartitions(topicSet);
+        Map<String, Set<Integer>> topicPartMap = broker.getTopicPartitions(topicSet);
         // fill current topic's max offset value
         for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
             if (entry.getKey() == null
@@ -1072,139 +1095,14 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         return result.success;
     }
 
-    // builder group's offset info
-    private Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> getGroupOffsetInfo(
-            WebFieldDef groupFldDef, Set<String> groupSet, Set<String> topicSet) {
-        ProcessResult result = new ProcessResult();
-        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = new HashMap<>();
-        for (String group : groupSet) {
-            Map<String, Map<Integer, GroupOffsetInfo>> topicOffsetRet = new HashMap<>();
-            // valid and get topic's partitionIds
-            if (validAndGetTopicPartInfo(group, groupFldDef, topicSet, result)) {
-                Map<String, Set<Integer>> topicPartMap =
-                        (Map<String, Set<Integer>>) result.retData1;
-                // get topic's publish info
-                Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
-                        broker.getStoreManager().getTopicPublishInfos(topicPartMap.keySet());
-                // get group's booked offset info
-                Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
-                        broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
-                // get offset info array
-                for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
-                    String topic = entry.getKey();
-                    Map<Integer, GroupOffsetInfo> partOffsetRet = new HashMap<>();
-                    Map<Integer, TopicPubStoreInfo> storeInfoMap = topicStorePubInfoMap.get(topic);
-                    Map<Integer, Tuple2<Long, Long>> partBookedMap = groupOffsetMap.get(topic);
-                    for (Integer partitionId : entry.getValue()) {
-                        GroupOffsetInfo offsetInfo = new GroupOffsetInfo(partitionId);
-                        offsetInfo.setPartPubStoreInfo(
-                                storeInfoMap == null ? null : storeInfoMap.get(partitionId));
-                        offsetInfo.setConsumeOffsetInfo(
-                                partBookedMap == null ? null : partBookedMap.get(partitionId));
-                        String queryKey = buildQueryID(group, topic, partitionId);
-                        ConsumerNodeInfo nodeInfo = broker.getConsumerNodeInfo(queryKey);
-                        if (nodeInfo != null) {
-                            offsetInfo.setConsumeDataOffsetInfo(nodeInfo.getLastDataRdOffset());
-                        }
-                        offsetInfo.calculateLag();
-                        partOffsetRet.put(partitionId, offsetInfo);
-                    }
-                    topicOffsetRet.put(topic, partOffsetRet);
-                }
-            }
-            groupOffsetMaps.put(group, topicOffsetRet);
-        }
-        return groupOffsetMaps;
-    }
 
-    // valid and get need removed group-topic info
-    private boolean validAndGetGroupTopicInfo(Set<String> groupSet,
-                                              Set<String> topicSet,
-                                              ProcessResult result) {
-        Map<String, Map<String, Set<Integer>>> groupTopicPartMap = new HashMap<>();
-        // filter group
-        Set<String> targetGroupSet = new HashSet<>();
-        Set<String> bookedGroups = broker.getOffsetManager().getBookedGroups();
-        for (String orgGroup : groupSet) {
-            if (bookedGroups.contains(orgGroup)) {
-                targetGroupSet.add(orgGroup);
-            }
-        }
-        // valid specified topic set
-        for (String group : targetGroupSet) {
-            if (validAndGetTopicPartInfo(group, WebFieldDef.GROUPNAME, topicSet, result)) {
-                Map<String, Set<Integer>> topicPartMap =
-                        (Map<String, Set<Integer>>) result.retData1;
-                groupTopicPartMap.put(group, topicPartMap);
-            }
-        }
-        result.setSuccResult(groupTopicPartMap);
-        return true;
-    }
 
-    private boolean validAndGetTopicPartInfo(String groupName,
-                                             WebFieldDef groupFldDef,
-                                             Set<String> topicSet,
-                                             ProcessResult result) {
-        Set<String> subTopicSet =
-                broker.getOffsetManager().getGroupSubInfo(groupName);
-        if (subTopicSet == null || subTopicSet.isEmpty()) {
-            result.setFailResult(400, new StringBuilder(512)
-                    .append("Parameter ").append(groupFldDef.name)
-                    .append(": subscribed topic set of ").append(groupName)
-                    .append(" query result is null!").toString());
-            return result.success;
-        }
-        // filter valid topic set
-        Set<String> tgtTopicSet = new HashSet<>();
-        if (topicSet.isEmpty()) {
-            tgtTopicSet = subTopicSet;
-        } else {
-            for (String topic : topicSet) {
-                if (subTopicSet.contains(topic)) {
-                    tgtTopicSet.add(topic);
-                }
-            }
-            if (tgtTopicSet.isEmpty()) {
-                result.setFailResult(400, new StringBuilder(512)
-                        .append("Parameter ").append(groupFldDef.name)
-                        .append(": ").append(groupName)
-                        .append(" unsubscribed to the specified topic set!").toString());
-                return result.success;
-            }
-        }
-        Map<String, Set<Integer>> topicPartMap = getTopicPartitions(tgtTopicSet);
-        if (topicPartMap.isEmpty()) {
-            result.setFailResult(400, new StringBuilder(512)
-                    .append("Parameter ").append(groupFldDef.name)
-                    .append(": all topics subscribed by the group have been deleted!").toString());
-            return result.success;
-        }
-        result.setSuccResult(topicPartMap);
-        return result.success;
-    }
 
-    private Map<String, Set<Integer>> getTopicPartitions(Set<String> topicSet) {
-        Map<String, Set<Integer>> topicPartMap = new HashMap<>();
-        if (topicSet != null) {
-            Map<String, TopicMetadata> topicConfigMap =
-                    broker.getMetadataManager().getTopicConfigMap();
-            if (topicConfigMap != null) {
-                for (String topic : topicSet) {
-                    TopicMetadata topicMetadata = topicConfigMap.get(topic);
-                    if (topicMetadata != null) {
-                        topicPartMap.put(topic, topicMetadata.getAllPartitionIds());
-                    }
-                }
-            }
-        }
-        return topicPartMap;
-    }
 
-    private String buildQueryID(String group, String topic, int partitionId) {
-        return new StringBuilder(512).append(group)
-                .append(TokenConstants.ATTR_SEP).append(topic)
-                .append(TokenConstants.ATTR_SEP).append(partitionId).toString();
-    }
+
+
+
+
+
 
 }

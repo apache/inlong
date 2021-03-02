@@ -17,6 +17,9 @@
 
 package org.apache.tubemq.server.broker;
 
+import static org.apache.tubemq.corebase.TBaseConstants.OFFSET_TOPIC;
+import static org.apache.tubemq.corebase.TBaseConstants.OFFSET_TOPIC_PARTITION;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,6 +117,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     // status of broker service.
     private AtomicBoolean started = new AtomicBoolean(false);
 
+    private final String offsetTopicName;
 
     public BrokerServiceServer(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) {
@@ -130,6 +134,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.heartbeatManager = new HeartbeatManager();
         this.brokerRowLock =
                 new RowLock("Broker-RowLock", this.tubeConfig.getRowLockWaitDurMs());
+        this.offsetTopicName = new StringBuilder(OFFSET_TOPIC)
+            .append(tubeConfig.getBrokerId()).toString();
         heartbeatManager.regConsumerCheckBusiness(
                 this.tubeConfig.getConsumerRegTimeoutMs(), consumerListener);
     }
@@ -571,6 +577,68 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         } catch (Throwable ee) {
             sb.append("{\"result\":false,\"errCode\":501,\"errMsg\":\"Get Message failure, exception is ")
                     .append(ee.getMessage()).append("\"}");
+            return sb;
+        }
+    }
+
+
+    /**
+     * get offset at timestamps
+     * @param filterTimestamps
+     * @param sb
+     * @return
+     */
+    public StringBuilder getMessageAtCertainTimeStamp(final Set<String> filterTimestamps,
+        final StringBuilder sb) {
+        MessageStore dataStore = null;
+        if (!this.started.get()
+            || ServiceStatusHolder.isReadServiceStop()) {
+            sb.append("{\"result\":false,\"errCode\":")
+                .append(TErrCodeConstants.SERVICE_UNAVAILABLE)
+                .append(",\"errMsg\":\"Read StoreService temporary unavailable!\"}");
+            return sb;
+        }
+        try {
+            dataStore = storeManager.getOrCreateMessageStore(offsetTopicName, OFFSET_TOPIC_PARTITION);
+            if (dataStore == null) {
+                sb.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                    .append("Invalid parameter: not found the store by topicName + partitionId(")
+                    .append(offsetTopicName).append(":").append(OFFSET_TOPIC_PARTITION).append(")!\"}");
+                return sb;
+            }
+
+            List<TransferedMessage> messagesAtTimeStamp = storeManager
+                .getMessagesAtTimeStamp(dataStore, offsetTopicName,
+                    OFFSET_TOPIC_PARTITION, filterTimestamps);
+            if ((messagesAtTimeStamp == null)
+                || (messagesAtTimeStamp.isEmpty())) {
+                sb.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
+                    .append("Could not find message at position by topic (")
+                    .append(offsetTopicName).append(")!\"}");
+                return sb;
+            } else {
+                List<String> transferMessageList = new ArrayList<>();
+                List<Message> messageList = DataConverterUtil.convertMessage(offsetTopicName, messagesAtTimeStamp);
+                messageList.forEach(message -> {
+                        String msgItem = new String(message.getData());
+                        transferMessageList.add(msgItem);
+                    }
+                );
+                int idx = 0;
+                sb.append("{\"result\":true,\"errCode\":200,\"errMsg\":\"Success!\",\"messages\":[");
+                for (String msgData : transferMessageList) {
+                    if (idx > 0) {
+                        sb.append(",");
+                    }
+                    sb.append("\"").append(msgData).append("\"");
+                    idx++;
+                }
+                sb.append("]}");
+                return sb;
+            }
+        } catch (Throwable ee) {
+            sb.append("{\"result\":false,\"errCode\":501,\"errMsg\":\"Get Message failure, exception is ")
+                .append(ee.getMessage()).append("\"}");
             return sb;
         }
     }

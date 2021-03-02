@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
+import org.apache.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
@@ -373,6 +374,37 @@ public class MessageStoreManager implements StoreService {
                     requestOffset, 0, "Get message failure, errMsg=" + e1.getMessage());
         }
     }
+
+
+
+    public List<TransferedMessage> getMessagesAtTimeStamp(final MessageStore msgStore,
+        final String topic,
+        final int partitionId,
+        final Set<String> filterTimestamps) {
+        try {
+            ConsumerNodeInfo consumerNodeInfo =
+                new ConsumerNodeInfo(tubeBroker.getStoreManager(),
+                    "offsetConsumer", filterTimestamps, "", System.currentTimeMillis(), "");
+            List<TransferedMessage> transferedMessageList = new ArrayList<>();
+            long fileIndexMaxOffset = msgStore.getFileIndexMaxOffset();
+            for (int requestOffset = 0; requestOffset < fileIndexMaxOffset;) {
+                GetMessageResult result = msgStore.getMessages(303, requestOffset, partitionId,
+                    consumerNodeInfo, topic, this.maxMsgTransferSize);
+                if (!result.isSuccess()) {
+                    return null;
+                }
+                transferedMessageList.addAll(result.getTransferedMessageList());
+                requestOffset = requestOffset + result.getLastReadOffset();
+            }
+            return transferedMessageList;
+        } catch (Throwable e1) {
+            return null;
+        }
+    }
+
+
+
+
 
     public MetadataManager getMetadataManager() {
         return tubeBroker.getMetadataManager();
