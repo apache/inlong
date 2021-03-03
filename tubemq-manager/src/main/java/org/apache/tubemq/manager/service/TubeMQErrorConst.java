@@ -19,7 +19,7 @@ package org.apache.tubemq.manager.service;
 
 public class TubeMQErrorConst {
     public static final String PARAM_ILLEGAL = "param illegal";
-    public static final String RESOURCE_ALREADY_USED = "RESOURCE_ALREADY_USED";
+    public static final String RESOURCE_ALREADY_USED = "resource already used";
     public static final String RESOURCE_NOT_EXIST = "resource not exsit";
     public static final String MYSQL_ERROR = "mysql error";
 }

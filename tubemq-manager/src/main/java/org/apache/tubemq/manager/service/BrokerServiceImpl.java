@@ -20,11 +20,9 @@ package org.apache.tubemq.manager.service;
 
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DEFAULT_REGION;
 
-import com.sun.xml.bind.annotation.OverrideAnnotationOf;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.tubemq.manager.entry.BrokerEntry;
-import org.apache.tubemq.manager.entry.RegionEntry;
 import org.apache.tubemq.manager.repository.BrokerRepository;
 import org.apache.tubemq.manager.service.interfaces.BrokerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +58,9 @@ public class BrokerServiceImpl implements BrokerService {
     public boolean checkIfBrokersAllExsit(List<Long> brokerIdList, long clusterId) {
         List<BrokerEntry> brokerEntries = brokerRepository
             .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, clusterId);
-        return brokerEntries.size() == brokerIdList.size();
+        List<Long> regionBrokerIdList = brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(
+            Collectors.toList());
+        return regionBrokerIdList.containsAll(brokerIdList);
     }
 
     @Override

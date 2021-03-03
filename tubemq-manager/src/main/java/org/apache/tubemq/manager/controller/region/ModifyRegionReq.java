@@ -18,13 +18,13 @@
 
 package org.apache.tubemq.manager.controller.region;
 
-import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import org.apache.tubemq.manager.entry.RegionEntry;
 
 @Data
 public class ModifyRegionReq {
     private RegionEntry regionEntry;
-    private List<Long> brokerIdList;
+    private Set<Long> brokerIdSet;
     private long clusterId;
 }

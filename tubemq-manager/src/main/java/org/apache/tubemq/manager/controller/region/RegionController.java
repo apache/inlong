@@ -27,15 +27,13 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tubemq.manager.controller.TubeMQResult;
 import org.apache.tubemq.manager.entry.ClusterEntry;
 import org.apache.tubemq.manager.entry.RegionEntry;
-import org.apache.tubemq.manager.repository.NodeRepository;
 import org.apache.tubemq.manager.service.interfaces.ClusterService;
-import org.apache.tubemq.manager.service.interfaces.MasterService;
-import org.apache.tubemq.manager.service.interfaces.NodeService;
 import org.apache.tubemq.manager.service.interfaces.RegionService;
 import org.apache.tubemq.manager.utils.ValidateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class RegionController {
     private final Gson gson = new GsonBuilder().serializeNulls().create();
-
-    @Autowired
-    NodeService nodeService;
-
-    @Autowired
-    NodeRepository nodeRepository;
-
-    @Autowired
-    MasterService masterService;
 
     @Autowired
     RegionService regionService;
@@ -106,7 +95,7 @@ public class RegionController {
     private TubeMQResult createNewRegion(CreateRegionReq req) {
         RegionEntry regionEntry = req.getRegionEntry();
         if (ValidateUtils.isNull(regionEntry) || !regionEntry.legal() ||
-            ValidateUtils.isNull(req.getBrokerIdList())) {
+            ValidateUtils.isNull(req.getBrokerIdSet())) {
             return TubeMQResult.errorResult(PARAM_ILLEGAL);
         }
         ClusterEntry clusterEntry = clusterService.getOneCluster(
@@ -114,7 +103,8 @@ public class RegionController {
         if (clusterEntry == null) {
             return TubeMQResult.errorResult(NO_SUCH_CLUSTER);
         }
-        return regionService.createNewRegion(regionEntry, req.getBrokerIdList());
+        List<Long> brokerList = new ArrayList<>(req.getBrokerIdSet());
+        return regionService.createNewRegion(regionEntry, brokerList);
     }
 
     private TubeMQResult modifyRegion(ModifyRegionReq req) {
@@ -122,8 +112,9 @@ public class RegionController {
         if (!regionEntry.legal() || ValidateUtils.isNull(regionEntry.getClusterId())) {
             return TubeMQResult.errorResult(PARAM_ILLEGAL);
         }
+        List<Long> brokerList = new ArrayList<>(req.getBrokerIdSet());
         return regionService.updateRegion(req.getRegionEntry(),
-            req.getBrokerIdList(), req.getClusterId());
+            brokerList, req.getClusterId());
     }
 
 

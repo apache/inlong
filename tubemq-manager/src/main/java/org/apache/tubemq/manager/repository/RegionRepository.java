@@ -20,6 +20,8 @@ package org.apache.tubemq.manager.repository;
 import java.util.List;
 import org.apache.tubemq.manager.entry.RegionEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,5 +31,8 @@ public interface RegionRepository extends JpaRepository<RegionEntry, Long> {
 
     List<RegionEntry> findRegionEntriesByClusterIdEqualsAndRegionIdEquals(long clusterId, long regionId);
 
+    @Modifying
+    @Query(value = "DELETE FROM Region WHERE region_id = ?1 AND cluster_id = ?2",nativeQuery = true)
+    void deleteRegion(long regionId, long clusterId);
 
 }

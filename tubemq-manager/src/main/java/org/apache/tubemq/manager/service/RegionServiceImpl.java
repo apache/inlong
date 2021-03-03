@@ -64,10 +64,7 @@ public class RegionServiceImpl implements RegionService {
             if (!brokerService.checkIfBrokersAllExsit(brokerIdList, clusterId)) {
                 return TubeMQResult.errorResult(RESOURCE_NOT_EXIST);
             }
-            if (existBrokerIdAlreadyInRegion(
-                clusterId,
-                brokerIdList,
-                null)) {
+            if (existBrokerIdAlreadyInRegion(clusterId, brokerIdList, null)) {
                 return TubeMQResult.errorResult(RESOURCE_ALREADY_USED);
             }
             regionRepository.save(regionEntry);
@@ -86,11 +83,7 @@ public class RegionServiceImpl implements RegionService {
     @Transactional(rollbackOn = Exception.class)
     public TubeMQResult deleteRegion(long regionId, long clusterId) {
         try {
-            RegionEntry regionEntry = getRegionEntry(clusterId, regionId);
-            if (ValidateUtils.isNull(regionEntry)) {
-                return TubeMQResult.errorResult(NO_SUCH_REGION);
-            }
-            regionRepository.deleteById(regionEntry.getId());
+            regionRepository.deleteRegion(regionId, clusterId);
             brokerService.resetBrokerRegions(regionId, clusterId);
         } catch (Exception e) {
             log.error("delete region failed, regionId:{}.", regionId, e);
@@ -129,9 +122,7 @@ public class RegionServiceImpl implements RegionService {
                 regionRepository.save(newRegionEntry);
                 return TubeMQResult.successResult();
             }
-            if (existBrokerIdAlreadyInRegion(
-                newRegionEntry.getClusterId(),
-                brokerIdList,
+            if (existBrokerIdAlreadyInRegion(newRegionEntry.getClusterId(), brokerIdList,
                 newRegionEntry.getRegionId())) {
                 return TubeMQResult.errorResult(RESOURCE_ALREADY_USED);
             }

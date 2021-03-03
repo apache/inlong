@@ -17,22 +17,10 @@
 
 package org.apache.tubemq.manager.utils;
 
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 
 public class ValidateUtils {
 
-    /**
-     * 是空字符串或者空
-     */
-    public static boolean anyBlank(String... strings) {
-        return Arrays.stream(strings).anyMatch(StringUtils::isBlank);
-    }
-
-    /**
-     * 为空
-     */
     public static boolean isNull(Object object) {
         return object == null;
     }
