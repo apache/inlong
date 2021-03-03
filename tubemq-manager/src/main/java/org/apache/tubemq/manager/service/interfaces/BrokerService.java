@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,38 +17,39 @@
 
 package org.apache.tubemq.manager.service.interfaces;
 
-
 import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public interface ClusterService {
+public interface BrokerService {
 
     /**
-     * add cluster and the master node in the cluster
-     * @param req
-     * @return
-     */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
-
-    /**
-     * delete cluster by id
+     * reset the brokers in a region to be default region
+     * @param regionId
      * @param clusterId
      */
-    void deleteCluster(Integer clusterId);
+    void resetBrokerRegions(long regionId, long clusterId);
 
     /**
-     * get one cluster
+     * update brokers to be in a region
+     * @param brokerIdList
+     * @param regionId
+     * @param clusterId
+     */
+    void updateBrokersRegion(List<Long> brokerIdList, Long regionId, Long clusterId);
+
+    /**
+     * check if all the brokers exsit in this cluster
+     * @param brokerIdList
      * @param clusterId
      * @return
      */
-    ClusterEntry getOneCluster(long clusterId);
+    boolean checkIfBrokersAllExsit(List<Long> brokerIdList, long clusterId);
 
     /**
-     * get all clusters
+     * get all broker id list in a region
+     * @param regionId
+     * @param cluster
      * @return
      */
-    List<ClusterEntry> getAllClusters();
+    List<Long> getBrokerIdListInRegion(long regionId, long cluster);
 }

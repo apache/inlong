@@ -33,7 +33,6 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -144,7 +143,7 @@ public class NodeServiceImpl implements NodeService {
 
         // might have duplicate brokers
         if (addBrokerResult.getErrCode() != SUCCESS_CODE) {
-            return TubeMQResult.getErrorResult(addBrokerResult.getErrMsg());
+            return TubeMQResult.errorResult(addBrokerResult.getErrMsg());
         }
         List<Integer> brokerIds = getBrokerIds(addBrokerResult);
         List<AddTopicReq> addTopicReqs = req.getAddTopicReqs();
@@ -407,13 +406,13 @@ public class NodeServiceImpl implements NodeService {
         NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
 
-            return TubeMQResult.getErrorResult(NO_SUCH_CLUSTER);
+            return TubeMQResult.errorResult(NO_SUCH_CLUSTER);
         }
         // 1 query topic config
         TubeHttpTopicInfoList topicInfoList = topicService.requestTopicConfigInfo(master, req.getSourceTopicName());
 
         if (topicInfoList == null) {
-            return TubeMQResult.getErrorResult("no such topic");
+            return TubeMQResult.errorResult("no such topic");
         }
 
         // 2 if there's no specific broker ids then clone to all of the brokers
@@ -444,7 +443,7 @@ public class NodeServiceImpl implements NodeService {
     public TubeMQResult batchAddTopic(BatchAddTopicReq req) {
         NodeEntry masterEntry = masterService.getMasterNode(req);
         if (masterEntry == null) {
-            return TubeMQResult.getErrorResult(NO_SUCH_CLUSTER);
+            return TubeMQResult.errorResult(NO_SUCH_CLUSTER);
         }
         return addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
     }

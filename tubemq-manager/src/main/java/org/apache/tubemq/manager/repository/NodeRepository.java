@@ -31,14 +31,14 @@ public interface NodeRepository extends JpaRepository<NodeEntry, Long> {
      * @param clusterId
      * @return
      */
-    NodeEntry findNodeEntryByClusterIdIsAndMasterIsTrue(int clusterId);
+    NodeEntry findNodeEntryByClusterIdIsAndMasterIsTrue(long clusterId);
 
     /**
      * find all nodes in cluster
      * @param clusterId
      * @return
      */
-    List<NodeEntry> findNodeEntriesByClusterIdIs(int clusterId);
+    List<NodeEntry> findNodeEntriesByClusterIdIs(long clusterId);
 
     /**
      * find all nodes

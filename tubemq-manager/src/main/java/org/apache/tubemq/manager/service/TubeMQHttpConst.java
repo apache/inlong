@@ -41,7 +41,6 @@ public class TubeMQHttpConst {
     public static final String DELETE = "delete";
     public static final String REMOVE = "remove";
     public static final String NO_SUCH_METHOD = "no such method";
-    public static final String ADMIN_QUERY_CLUSTER_INFO = "admin_query_cluster_info";
     public static final String CLONE = "clone";
     public static final String ADD = "add";
     public static final String ONLINE = "online";
@@ -54,4 +53,5 @@ public class TubeMQHttpConst {
     public static final Integer SUCCESS_CODE = 0;
     public static final Integer DELETE_FAIL = 0;
     public static final String QUERY = "query";
+    public static final Long DEFAULT_REGION = 0L;
 }

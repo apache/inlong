@@ -20,6 +20,7 @@ package org.apache.tubemq.manager.controller.cluster;
 import static org.apache.tubemq.manager.service.MasterServiceImpl.TUBE_REQUEST_PATH;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_METHOD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
 import static org.apache.tubemq.manager.utils.ConvertUtils.covertMapToQueryString;
@@ -73,7 +74,7 @@ public class ClusterController {
             case DELETE:
                 return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 
@@ -83,16 +84,16 @@ public class ClusterController {
     public TubeMQResult addNewCluster(AddClusterReq req) {
         // 1. validate params
         if (req.getMasterIp() == null || req.getMasterWebPort() == null) {
-            return TubeMQResult.getErrorResult("please input master ip and webPort");
+            return TubeMQResult.errorResult("please input master ip and webPort");
         }
         TubeMQResult checkResult = masterService.checkMasterNodeStatus(req.getMasterIp(), req.getMasterWebPort());
         if (checkResult.getErrCode() != SUCCESS_CODE) {
-            return TubeMQResult.getErrorResult("please check master ip and webPort");
+            return TubeMQResult.errorResult("please check master ip and webPort");
         }
         // 2. add cluster and master node
         Boolean addSuccess = clusterService.addClusterAndMasterNode(req);
         if (!addSuccess) {
-            return TubeMQResult.getErrorResult("add cluster and master fail");
+            return TubeMQResult.errorResult("add cluster and master fail");
         }
         return new TubeMQResult();
     }
@@ -114,7 +115,7 @@ public class ClusterController {
         }
         ClusterEntry clusterEntry = clusterService.getOneCluster(clusterId);
         if (clusterEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster with id " + clusterId);
+            return TubeMQResult.errorResult("no such cluster with id " + clusterId);
         }
         result.setData(gson.toJson(clusterEntry));
         return result;
@@ -126,7 +127,7 @@ public class ClusterController {
     public TubeMQResult deleteCluster(DeleteClusterReq req) {
         // 1. validate params
         if (req.getClusterId() == null || StringUtils.isEmpty(req.getModifyUser())) {
-            return TubeMQResult.getErrorResult("please input clusterId and modifyUser");
+            return TubeMQResult.errorResult("please input clusterId and modifyUser");
         }
         // 2. delete cluster
         clusterService.deleteCluster(req.getClusterId());

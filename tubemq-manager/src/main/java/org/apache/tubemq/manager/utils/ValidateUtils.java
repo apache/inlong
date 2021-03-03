@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,40 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service.interfaces;
+package org.apache.tubemq.manager.utils;
 
-
+import java.util.Arrays;
 import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
 
-@Component
-public interface ClusterService {
+public class ValidateUtils {
 
     /**
-     * add cluster and the master node in the cluster
-     * @param req
-     * @return
+     * 是空字符串或者空
      */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
+    public static boolean anyBlank(String... strings) {
+        return Arrays.stream(strings).anyMatch(StringUtils::isBlank);
+    }
 
     /**
-     * delete cluster by id
-     * @param clusterId
+     * 为空
      */
-    void deleteCluster(Integer clusterId);
+    public static boolean isNull(Object object) {
+        return object == null;
+    }
 
-    /**
-     * get one cluster
-     * @param clusterId
-     * @return
-     */
-    ClusterEntry getOneCluster(long clusterId);
 
-    /**
-     * get all clusters
-     * @return
-     */
-    List<ClusterEntry> getAllClusters();
+    public static boolean isEmptyList(List<?> seq) {
+        return isNull(seq) || seq.isEmpty();
+    }
+
 }

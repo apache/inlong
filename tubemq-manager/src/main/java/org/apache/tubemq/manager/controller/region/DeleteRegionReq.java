@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,40 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service.interfaces;
+
+package org.apache.tubemq.manager.controller.region;
 
 
-import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import lombok.Data;
 
-@Component
-public interface ClusterService {
-
-    /**
-     * add cluster and the master node in the cluster
-     * @param req
-     * @return
-     */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
-
-    /**
-     * delete cluster by id
-     * @param clusterId
-     */
-    void deleteCluster(Integer clusterId);
-
-    /**
-     * get one cluster
-     * @param clusterId
-     * @return
-     */
-    ClusterEntry getOneCluster(long clusterId);
-
-    /**
-     * get all clusters
-     * @return
-     */
-    List<ClusterEntry> getAllClusters();
+@Data
+public class DeleteRegionReq {
+    private long regionId;
+    private long clusterId;
 }

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
+import static org.apache.tubemq.manager.controller.TubeMQResult.errorResult;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.BROKER_RUN_STATUS;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SCHEMA;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SUCCESS_CODE;
@@ -70,11 +70,11 @@ public class MasterServiceImpl implements MasterService {
             if (tubeResponse.getCode() == SUCCESS_CODE && tubeResponse.getErrCode() == SUCCESS_CODE) {
                 return defaultResult;
             } else {
-                defaultResult = getErrorResult(tubeResponse.getErrMsg());
+                defaultResult = errorResult(tubeResponse.getErrMsg());
             }
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);
-            defaultResult = getErrorResult(ex.getMessage());
+            defaultResult = errorResult(ex.getMessage());
         }
         return defaultResult;
     }
@@ -105,12 +105,12 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public TubeMQResult baseRequestMaster(BaseReq req) {
         if (req.getClusterId() == null) {
-            return TubeMQResult.getErrorResult("please input clusterId");
+            return TubeMQResult.errorResult("please input clusterId");
         }
         NodeEntry masterEntry = nodeRepository.findNodeEntryByClusterIdIsAndMasterIsTrue(
             req.getClusterId());
         if (masterEntry == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
+            return TubeMQResult.errorResult("no such cluster");
         }
         String url = SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
             + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);

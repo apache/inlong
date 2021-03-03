@@ -71,7 +71,7 @@ public class ClusterServiceImpl implements ClusterService {
     }
 
     @Override
-    public ClusterEntry getOneCluster(Integer clusterId) {
+    public ClusterEntry getOneCluster(long clusterId) {
         return clusterRepository
             .findClusterEntryByClusterId(clusterId);
     }

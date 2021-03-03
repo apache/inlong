@@ -25,6 +25,8 @@ import java.util.List;
 public class BrokerStatusInfo {
     private int code;
     private String errMsg;
-    // total broker configuration info list of brokers.
+    /**
+     * total broker configuration info list of brokers.
+     */
     private List<BrokerConf> data;
 }

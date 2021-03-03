@@ -22,6 +22,8 @@ package org.apache.tubemq.manager.controller.group;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_CLUSTER;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_METHOD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.QUERY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER_GROUP;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REBALANCE_CONSUMER;
@@ -78,7 +80,7 @@ public class GroupController {
             case REBALANCE_CONSUMER:
                 return masterService.baseRequestMaster(gson.fromJson(req, RebalanceConsumerReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 
@@ -107,7 +109,7 @@ public class GroupController {
             case QUERY:
                 return topicService.queryOffset(gson.fromJson(req, QueryOffsetReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 
@@ -121,7 +123,7 @@ public class GroupController {
             case DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteBlackGroupReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 

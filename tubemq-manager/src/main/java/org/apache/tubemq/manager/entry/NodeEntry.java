@@ -47,7 +47,7 @@ public class NodeEntry {
 
     private int webPort;
 
-    private int clusterId;
+    private long clusterId;
 
     private String clusterName;
 }

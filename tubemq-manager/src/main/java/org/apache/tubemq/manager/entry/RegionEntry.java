@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -20,30 +20,48 @@ package org.apache.tubemq.manager.entry;
 
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Data;
+import org.apache.tubemq.manager.utils.ValidateUtils;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * cluster machine for tube cluster. broker/master/standby
- */
 @Entity
-@Table(name = "cluster", uniqueConstraints=
-    @UniqueConstraint(columnNames={"clusterName"}))
+@Table(name = "region", uniqueConstraints=
+    {
+        @UniqueConstraint(columnNames={"clusterId", "regionId"}),
+        @UniqueConstraint(columnNames={"id"})
+    })
 @Data
-public class ClusterEntry {
+@EntityListeners(AuditingEntityListener.class)
+public class RegionEntry {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long clusterId;
+    private Long id;
 
-    private String clusterName;
+    private Long regionId;
 
-    private Date createTime;
+    private String name;
 
-    private Date modifyTime;
+    @CreatedDate
+    private Date createDate;
+
+    @LastModifiedDate
+    private Date modifyDate;
 
     private String createUser;
+
+    private String modifyUser;
+
+    private Long clusterId;
+
+    public boolean legal() {
+        return !ValidateUtils.isNull(clusterId);
+    }
 }

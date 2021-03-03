@@ -23,6 +23,7 @@ import static org.apache.tubemq.manager.service.TubeMQHttpConst.AUTH_CONTROL;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.MODIFY;
+import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_METHOD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.REMOVE;
 
 
@@ -78,7 +79,7 @@ public class TopicWebController {
             case REMOVE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteTopicReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 

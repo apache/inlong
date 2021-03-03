@@ -35,15 +35,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static org.apache.tubemq.manager.controller.TubeMQResult.getErrorResult;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADD;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.ADMIN_QUERY_CLUSTER_INFO;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.CLONE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.DELETE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.NO_SUCH_METHOD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.OFFLINE;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.ONLINE;
-import static org.apache.tubemq.manager.service.TubeMQHttpConst.OP_QUERY;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.RELOAD;
 import static org.apache.tubemq.manager.service.TubeMQHttpConst.SET_READ_OR_WRITE;
 
@@ -114,7 +111,7 @@ public class NodeController {
             case SET_READ_OR_WRITE:
                 return masterService.baseRequestMaster(gson.fromJson(req, BrokerSetReadOrWriteReq.class));
             default:
-                return TubeMQResult.getErrorResult("no such method");
+                return TubeMQResult.errorResult(NO_SUCH_METHOD);
         }
     }
 

@@ -96,7 +96,7 @@ public class TopicServiceImpl implements TopicService {
 
         NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
+            return TubeMQResult.errorResult("no such cluster");
         }
         // 1. query the corresponding brokers having given topic
         TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
@@ -146,7 +146,7 @@ public class TopicServiceImpl implements TopicService {
 
         NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
+            return TubeMQResult.errorResult("no such cluster");
         }
 
         // 1. get all consumer ids in group
@@ -179,7 +179,7 @@ public class TopicServiceImpl implements TopicService {
 
         NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
+            return TubeMQResult.errorResult("no such cluster");
         }
 
         // 1. query the corresponding brokers having given topic
@@ -187,7 +187,7 @@ public class TopicServiceImpl implements TopicService {
         TubeMQResult result = new TubeMQResult();
         CleanOffsetResult cleanOffsetResult = new CleanOffsetResult();
         if (topicInfoList == null) {
-            return TubeMQResult.getErrorResult("no such topic");
+            return TubeMQResult.errorResult("no such topic");
         }
 
         List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
@@ -214,14 +214,14 @@ public class TopicServiceImpl implements TopicService {
 
         NodeEntry master = masterService.getMasterNode(req);
         if (master == null) {
-            return TubeMQResult.getErrorResult("no such cluster");
+            return TubeMQResult.errorResult("no such cluster");
         }
 
         // 1. query the corresponding brokers having given topic
         TubeHttpTopicInfoList topicInfoList = requestTopicConfigInfo(master, req.getTopicName());
         TubeMQResult result = new TubeMQResult();
         if (topicInfoList == null) {
-            return TubeMQResult.getErrorResult("no such topic");
+            return TubeMQResult.errorResult("no such topic");
         }
 
         List<TopicInfo> topicInfos = topicInfoList.getTopicInfo();
@@ -236,7 +236,7 @@ public class TopicServiceImpl implements TopicService {
                 + "/" + TUBE_REQUEST_PATH + "?" + convertReqToQueryStr(req);
             OffsetQueryRes res = gson.fromJson(masterService.queryMaster(url), OffsetQueryRes.class);
             if (res.getErrCode() != SUCCESS_CODE) {
-                return TubeMQResult.getErrorResult("query broker id" + topicInfo.getBrokerId() + " fail");
+                return TubeMQResult.errorResult("query broker id" + topicInfo.getBrokerId() + " fail");
             }
             generateOffsetInfo(offsetPerBroker, topicInfo, res);
         }

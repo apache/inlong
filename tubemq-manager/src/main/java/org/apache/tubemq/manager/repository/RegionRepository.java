@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,40 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service.interfaces;
-
+package org.apache.tubemq.manager.repository;
 
 import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import org.apache.tubemq.manager.entry.RegionEntry;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Component
-public interface ClusterService {
+@Repository
+public interface RegionRepository extends JpaRepository<RegionEntry, Long> {
 
-    /**
-     * add cluster and the master node in the cluster
-     * @param req
-     * @return
-     */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
+    List<RegionEntry> findRegionEntriesByClusterIdEquals(long clusterId);
 
-    /**
-     * delete cluster by id
-     * @param clusterId
-     */
-    void deleteCluster(Integer clusterId);
+    List<RegionEntry> findRegionEntriesByClusterIdEqualsAndRegionIdEquals(long clusterId, long regionId);
 
-    /**
-     * get one cluster
-     * @param clusterId
-     * @return
-     */
-    ClusterEntry getOneCluster(long clusterId);
 
-    /**
-     * get all clusters
-     * @return
-     */
-    List<ClusterEntry> getAllClusters();
 }

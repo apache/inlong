@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,40 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.manager.service.interfaces;
+package org.apache.tubemq.manager.repository;
 
-
+import com.sun.corba.se.pept.broker.Broker;
 import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
+import org.apache.tubemq.manager.entry.BrokerEntry;
 import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Component
-public interface ClusterService {
+public interface BrokerRepository extends JpaRepository<BrokerEntry, Long> {
 
-    /**
-     * add cluster and the master node in the cluster
-     * @param req
-     * @return
-     */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
+    List<BrokerEntry> findBrokerEntryByBrokerIdInAndClusterIdEquals(List<Long> brokerIds, long clusterId);
 
-    /**
-     * delete cluster by id
-     * @param clusterId
-     */
-    void deleteCluster(Integer clusterId);
+    List<BrokerEntry> findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(Long regionId, long clusterId);
 
-    /**
-     * get one cluster
-     * @param clusterId
-     * @return
-     */
-    ClusterEntry getOneCluster(long clusterId);
-
-    /**
-     * get all clusters
-     * @return
-     */
-    List<ClusterEntry> getAllClusters();
 }

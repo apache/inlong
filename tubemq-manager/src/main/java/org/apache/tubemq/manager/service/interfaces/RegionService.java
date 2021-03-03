@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,38 +17,45 @@
 
 package org.apache.tubemq.manager.service.interfaces;
 
-
 import java.util.List;
-import org.apache.tubemq.manager.controller.cluster.request.AddClusterReq;
-import org.apache.tubemq.manager.entry.ClusterEntry;
-import org.springframework.stereotype.Component;
+import org.apache.tubemq.manager.controller.TubeMQResult;
+import org.apache.tubemq.manager.entry.RegionEntry;
 
-@Component
-public interface ClusterService {
+public interface RegionService {
 
     /**
-     * add cluster and the master node in the cluster
-     * @param req
+     * create new region with brokers
+     * @param regionEntry
+     * @param brokerIdList
      * @return
      */
-    Boolean addClusterAndMasterNode(AddClusterReq req);
+    TubeMQResult createNewRegion(RegionEntry regionEntry,
+        List<Long> brokerIdList);
 
     /**
-     * delete cluster by id
-     * @param clusterId
-     */
-    void deleteCluster(Integer clusterId);
-
-    /**
-     * get one cluster
+     * delete region and set the brokers in the region to be default region
+     * @param regionId
      * @param clusterId
      * @return
      */
-    ClusterEntry getOneCluster(long clusterId);
+    TubeMQResult deleteRegion(long regionId, long clusterId);
 
     /**
-     * get all clusters
+     * update region to contain new brokers
+     * need to check if other region contains the same brokers
+     * @param newRegionEntry
+     * @param brokerIdList
+     * @param clusterId
      * @return
      */
-    List<ClusterEntry> getAllClusters();
+    TubeMQResult updateRegion(RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId);
+
+    /**
+     * query region inside a cluster
+     * if no regionId is passed return all regions inside the cluster
+     * @param regionId
+     * @param clusterId
+     * @return
+     */
+    List<RegionEntry> queryRegion(Long regionId, Long clusterId);
 }

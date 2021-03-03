@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.manager.controller;
 
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,8 +33,21 @@ public class TubeMQResult {
     private boolean result = true;
     private String data;
 
-    public static TubeMQResult getErrorResult(String errorMsg) {
+    private static Gson json = new Gson();
+
+    public static TubeMQResult errorResult(String errorMsg) {
         return TubeMQResult.builder().errCode(-1)
                 .errMsg(errorMsg).result(false).data("").build();
     }
+
+    public static TubeMQResult successResult() {
+        return TubeMQResult.builder().errCode(0)
+            .result(true).data("").build();
+    }
+
+    public static TubeMQResult successResult(Object data) {
+        return TubeMQResult.builder().errCode(0)
+            .result(true).data(json.toJson(data)).build();
+    }
+
 }
