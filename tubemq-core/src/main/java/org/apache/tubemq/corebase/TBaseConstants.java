@@ -65,6 +65,8 @@ public class TBaseConstants {
     public static final long CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL = 20000;
 
     public static final String OFFSET_TOPIC = "offsetTopic";
+    public static final int OFFSET_TOPIC_PARTITION = 0;
+    public static final String OFFSET_TIME_FORMAT = "yyyy_MM_dd_HH_mm";
 
     public static final int META_MB_UNIT_SIZE = (1024 * 1024);
     public static final int META_MESSAGE_SIZE_ADJUST = (512 * 1024);
@@ -79,6 +81,6 @@ public class TBaseConstants {
     public static final int META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT =
             META_MAX_ALLOWED_MESSAGE_SIZE_MB * META_MB_UNIT_SIZE;
 
-
+    public static final int MAX_CHAR_NUM_PER_MESSAGE = 1024 * 1000 * 2;
 
 }

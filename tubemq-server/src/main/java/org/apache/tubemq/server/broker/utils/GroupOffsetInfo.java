@@ -82,4 +82,11 @@ public class GroupOffsetInfo {
                 .append("}");
         return sBuilder;
     }
+
+    public StringBuilder buildOffsetInfoMsg(StringBuilder sBuilder) {
+        sBuilder.append(" ").append(partitionId)
+            .append(" ").append(curOffset)
+            .append(" ").append(curDataOffset);
+        return sBuilder;
+    }
 }
