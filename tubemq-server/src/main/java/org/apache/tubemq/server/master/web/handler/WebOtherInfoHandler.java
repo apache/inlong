@@ -27,10 +27,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
-import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
@@ -67,75 +68,56 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
      * @return
      */
     public StringBuilder getSubscribeInfo(HttpServletRequest req) {
-        StringBuilder strBuffer = new StringBuilder();
-        try {
-            String strConsumeGroup = WebParameterUtils.validGroupParameter("consumeGroup",
-                    req.getParameter("consumeGroup"), TBaseConstants.META_MAX_GROUPNAME_LENGTH, false, "");
-            String strTopicName = WebParameterUtils.validStringParameter("topicName",
-                    req.getParameter("topicName"), TBaseConstants.META_MAX_TOPICNAME_LENGTH, false, "");
-            ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
-            TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
-            List<String> queryGroupSet = new ArrayList<>();
-            if (TStringUtils.isEmpty(strTopicName)) {
-                List<String> tmpGroupSet = consumerHolder.getAllGroup();
-                if (!tmpGroupSet.isEmpty()) {
-                    if (TStringUtils.isEmpty(strConsumeGroup)) {
-                        for (String tmpGroup : tmpGroupSet) {
-                            if (tmpGroup != null) {
-                                queryGroupSet.add(tmpGroup);
-                            }
-                        }
-                    } else {
-                        if (tmpGroupSet.contains(strConsumeGroup)) {
-                            queryGroupSet.add(strConsumeGroup);
-                        }
-                    }
-                }
-            } else {
-                Set<String> groupSet = topicPSInfoManager.getTopicSubInfo(strTopicName);
-                if ((groupSet != null) && (!groupSet.isEmpty())) {
-                    if (TStringUtils.isEmpty(strConsumeGroup)) {
-                        for (String tmpGroup : groupSet) {
-                            if (tmpGroup != null) {
-                                queryGroupSet.add(tmpGroup);
-                            }
-                        }
-                    } else {
-                        if (groupSet.contains(strConsumeGroup)) {
-                            queryGroupSet.add(strConsumeGroup);
-                        }
-                    }
-                }
-            }
-            if (queryGroupSet.isEmpty()) {
-                strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"count\":0,\"data\":[]}");
-            } else {
-                int totalCnt = 0;
-                strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"count\":")
-                        .append(queryGroupSet.size()).append(",\"data\":[");
-                for (String tmpGroup : queryGroupSet) {
-                    Set<String> topicSet = consumerHolder.getGroupTopicSet(tmpGroup);
-                    final int consuemrCnt = consumerHolder.getConsumerCnt(tmpGroup);
-                    if (totalCnt++ > 0) {
-                        strBuffer.append(",");
-                    }
-                    strBuffer.append("{\"consumeGroup\":\"").append(tmpGroup).append("\",\"topicSet\":[");
-                    int topicCnt = 0;
-                    for (String tmpTopic : topicSet) {
-                        if (topicCnt++ > 0) {
-                            strBuffer.append(",");
-                        }
-                        strBuffer.append("\"").append(tmpTopic).append("\"");
-                    }
-                    strBuffer.append("],\"consumerNum\":").append(consuemrCnt).append("}");
-                }
-                strBuffer.append("]}");
-            }
-        } catch (Throwable e) {
-            strBuffer.append("{\"result\":false,\"errCode\":500,\"errMsg\":\"Exception on process")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(1024);
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
-        return strBuffer;
+        Set<String> inGroupNameSet = (Set<String>) result.retData1;
+        if (inGroupNameSet.isEmpty()) {
+            if (!WebParameterUtils.getStringParamValue(req,
+                    WebFieldDef.COMPSCONSUMEGROUP, false, null, result)) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return sBuilder;
+            }
+            inGroupNameSet = (Set<String>) result.retData1;
+        }
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Set<String> topicNameSet = (Set<String>) result.retData1;
+        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        Set<String> queryGroupSet =
+                topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
+        int totalCnt = 0;
+        int topicCnt = 0;
+        Tuple2<Set<String>, Integer> queryInfo = new Tuple2<>();
+        ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        for (String group : queryGroupSet) {
+            if (!consumerHolder.getGroupTopicSetAndClientCnt(group, queryInfo)) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                sBuilder.append(",");
+            }
+            sBuilder.append("{\"consumeGroup\":\"").append(group).append("\",\"topicSet\":[");
+            topicCnt = 0;
+            for (String tmpTopic : queryInfo.getF0()) {
+                if (topicCnt++ > 0) {
+                    sBuilder.append(",");
+                }
+                sBuilder.append("\"").append(tmpTopic).append("\"");
+            }
+            sBuilder.append("],\"consumerNum\":").append(queryInfo.getF1()).append("}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
+        return sBuilder;
     }
 
     /**
@@ -146,10 +128,19 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
      */
     // #lizard forgives
     public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req) {
-        StringBuilder strBuffer = new StringBuilder(1024);
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(1024);
+        // get group name
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null, result)) {
+            if (!WebParameterUtils.getStringParamValue(req,
+                    WebFieldDef.CONSUMEGROUP, true, null, result)) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return sBuilder;
+            }
+        }
+        String strConsumeGroup = (String) result.retData1;
         try {
-            String strConsumeGroup = WebParameterUtils.validGroupParameter("consumeGroup",
-                    req.getParameter("consumeGroup"), TBaseConstants.META_MAX_GROUPNAME_LENGTH, true, "");
             boolean isBandConsume = false;
             boolean isNotAllocate = false;
             boolean isSelectBig = true;
@@ -194,78 +185,78 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                     rebalanceCheckTime = consumerBandInfo.getCurCheckCycle();
                 }
             }
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
+            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
                     .append(",\"count\":").append(consumerList.size()).append(",\"topicSet\":[");
             int itemCnt = 0;
             for (String topicItem : topicSet) {
                 if (itemCnt++ > 0) {
-                    strBuffer.append(",");
+                    sBuilder.append(",");
                 }
-                strBuffer.append("\"").append(topicItem).append("\"");
+                sBuilder.append("\"").append(topicItem).append("\"");
             }
-            strBuffer.append("],\"consumeGroup\":\"").append(strConsumeGroup).append("\",\"re-rebalance\":{");
+            sBuilder.append("],\"consumeGroup\":\"").append(strConsumeGroup).append("\",\"re-rebalance\":{");
             itemCnt = 0;
             for (Map.Entry<String, NodeRebInfo> entry : nodeRebInfoMap.entrySet()) {
                 if (itemCnt++ > 0) {
-                    strBuffer.append(",");
+                    sBuilder.append(",");
                 }
-                strBuffer.append("\"").append(entry.getKey()).append("\":");
-                strBuffer = entry.getValue().toJsonString(strBuffer);
+                sBuilder.append("\"").append(entry.getKey()).append("\":");
+                sBuilder = entry.getValue().toJsonString(sBuilder);
             }
-            strBuffer.append("},\"isBandConsume\":").append(isBandConsume);
+            sBuilder.append("},\"isBandConsume\":").append(isBandConsume);
             // Append band consume info
             if (isBandConsume) {
-                strBuffer.append(",\"isNotAllocate\":").append(isNotAllocate)
+                sBuilder.append(",\"isNotAllocate\":").append(isNotAllocate)
                         .append(",\"sessionKey\":\"").append(sessionKey)
                         .append("\",\"isSelectBig\":").append(isSelectBig)
                         .append(",\"reqSourceCount\":").append(reqSourceCount)
                         .append(",\"curSourceCount\":").append(curSourceCount)
                         .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
             }
-            strBuffer.append(",\"rebInfo\":{");
+            sBuilder.append(",\"rebInfo\":{");
             if (rebalanceStatus == -2) {
-                strBuffer.append("\"isRebalanced\":false");
+                sBuilder.append("\"isRebalanced\":false");
             } else if (rebalanceStatus == 0) {
-                strBuffer.append("\"isRebalanced\":true,\"checkPasted\":false")
+                sBuilder.append("\"isRebalanced\":true,\"checkPasted\":false")
                         .append(",\"defBClientRate\":").append(defBClientRate)
                         .append(",\"confBClientRate\":").append(confBClientRate)
                         .append(",\"curBClientRate\":").append(curBClientRate)
                         .append(",\"minRequireClientCnt\":").append(minRequireClientCnt);
             } else {
-                strBuffer.append("\"isRebalanced\":true,\"checkPasted\":true")
+                sBuilder.append("\"isRebalanced\":true,\"checkPasted\":true")
                         .append(",\"defBClientRate\":").append(defBClientRate)
                         .append(",\"confBClientRate\":").append(confBClientRate)
                         .append(",\"curBClientRate\":").append(curBClientRate);
             }
-            strBuffer.append("},\"filterConds\":{");
+            sBuilder.append("},\"filterConds\":{");
             if (existedTopicConditions != null) {
                 int keyCount = 0;
                 for (Map.Entry<String, TreeSet<String>> entry : existedTopicConditions.entrySet()) {
                     if (keyCount++ > 0) {
-                        strBuffer.append(",");
+                        sBuilder.append(",");
                     }
-                    strBuffer.append("\"").append(entry.getKey()).append("\":[");
+                    sBuilder.append("\"").append(entry.getKey()).append("\":[");
                     if (entry.getValue() != null) {
                         int itemCount = 0;
                         for (String filterCond : entry.getValue()) {
                             if (itemCount++ > 0) {
-                                strBuffer.append(",");
+                                sBuilder.append(",");
                             }
-                            strBuffer.append("\"").append(filterCond).append("\"");
+                            sBuilder.append("\"").append(filterCond).append("\"");
                         }
                     }
-                    strBuffer.append("]");
+                    sBuilder.append("]");
                 }
             }
-            strBuffer.append("}");
+            sBuilder.append("}");
             // Append consumer info of the group
-            getConsumerInfoList(consumerList, isBandConsume, strBuffer);
-            strBuffer.append("}");
+            getConsumerInfoList(consumerList, isBandConsume, sBuilder);
+            sBuilder.append("}");
         } catch (Exception e) {
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
         }
-        return strBuffer;
+        return sBuilder;
     }
 
     /**

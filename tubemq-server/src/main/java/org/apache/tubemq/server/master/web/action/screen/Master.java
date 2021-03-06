@@ -32,6 +32,7 @@ import org.apache.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
@@ -298,13 +299,16 @@ public class Master implements Action {
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
                 master.getCurrentSubInfoMap();
+        int currPartSize = 0;
         List<String> groupList = consumerHolder.getAllGroup();
+        Tuple2<Set<String>, List<ConsumerInfo>> queryInfo = new Tuple2<>();
         for (String group : groupList) {
-            Set<String> topicSet = consumerHolder.getGroupTopicSet(group);
-            for (String topic : topicSet) {
-                int currPartSize = 0;
-                List<ConsumerInfo> consumerList = consumerHolder.getConsumerList(group);
-                for (ConsumerInfo consumer : consumerList) {
+            if (!consumerHolder.getGroupTopicSetAndConsumerInfos(group, queryInfo)) {
+                continue;
+            }
+            for (String topic : queryInfo.getF0()) {
+                currPartSize = 0;
+                for (ConsumerInfo consumer : queryInfo.getF1()) {
                     Map<String, Map<String, Partition>> consumerSubInfoMap =
                             currentSubInfoMap.get(consumer.getConsumerId());
                     if (consumerSubInfoMap != null) {

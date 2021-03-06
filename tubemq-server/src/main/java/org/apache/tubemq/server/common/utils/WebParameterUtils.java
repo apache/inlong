@@ -251,6 +251,15 @@ public class WebParameterUtils {
         return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"").
                 append(appendInfo).append("\"}");
     }
+
+    public static StringBuilder buildSuccessWithDataRetBegin(StringBuilder strBuffer) {
+        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+    }
+    public static StringBuilder buildSuccessWithDataRetEnd(
+            StringBuilder strBuffer, int totalCnt) {
+        return strBuffer.append("],\"count\":").append(totalCnt).append("}");
+    }
+
     /**
      * Parse the parameter value from an object value to a long value
      *

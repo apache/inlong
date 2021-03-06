@@ -58,4 +58,15 @@ public class Tuple2<T0, T1> {
     public T1 getF1() {
         return f1;
     }
+
+    /**
+     * Set all field values
+     *
+     * @param value0 The value for field 0
+     * @param value1 The value for field 1
+     */
+    public void setF0AndF1(T0 value0, T1 value1) {
+        this.f0 = value0;
+        this.f1 = value1;
+    }
 }
