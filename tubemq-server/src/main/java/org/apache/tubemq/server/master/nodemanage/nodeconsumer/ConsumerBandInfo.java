@@ -446,8 +446,18 @@ public class ConsumerBandInfo {
     }
 
     public List<ConsumerInfo> getConsumerInfoList() {
-        List<ConsumerInfo> result = new ArrayList<ConsumerInfo>();
+        List<ConsumerInfo> result = new ArrayList<>();
         result.addAll(this.consumerInfoMap.values());
+        return result;
+    }
+
+    public List<ConsumerInfo> cloneConsumerInfoList() {
+        List<ConsumerInfo> result = new ArrayList<>();
+        for (ConsumerInfo consumer : this.consumerInfoMap.values()) {
+            if (consumer != null) {
+                result.add(consumer.clone());
+            }
+        }
         return result;
     }
 

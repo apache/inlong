@@ -21,7 +21,6 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.RegexDef;
 import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.webbase.WebFieldType;
 
 
 public enum WebFieldDef {
@@ -44,6 +43,7 @@ public enum WebFieldDef {
     MODIFYUSER(4, "modifyUser", "mur", WebFieldType.STRING,
             "Record modifier", TBaseConstants.META_MAX_USERNAME_LENGTH,
             RegexDef.TMP_STRING),
+
     MANUALOFFSET(5, "manualOffset", "offset", WebFieldType.LONG,
             "Reset offset value", RegexDef.TMP_NUMBER),
     MSGCOUNT(6, "msgCount", "cnt", WebFieldType.INT,
@@ -55,6 +55,7 @@ public enum WebFieldDef {
             "Require return disk offset details"),
     NEEDREFRESH(9, "needRefresh", "nrf", WebFieldType.BOOLEAN,
             "Require refresh data"),
+
     COMPSGROUPNAME(10, "groupName", "group", WebFieldType.COMPSTRING,
             "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
                    RegexDef.TMP_GROUP),
@@ -67,6 +68,7 @@ public enum WebFieldDef {
             "Caller ip address", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH),
     BROKERID(14, "brokerId", "brokerId", WebFieldType.INT,
             "Broker ID", RegexDef.TMP_NUMBER),
+
     COMPSBROKERID(15, "brokerId", "brokerId", WebFieldType.COMPINT,
             "Broker ID", RegexDef.TMP_NUMBER),
     WITHIP(16, "withIp", "ip", WebFieldType.BOOLEAN,
@@ -79,10 +81,11 @@ public enum WebFieldDef {
     TGTCOMPSGROUPNAME(19, "targetGroupName", "tgtGroup",
             WebFieldType.COMPSTRING, "Offset clone target group name",
             TBaseConstants.META_MAX_GROUPNAME_LENGTH, RegexDef.TMP_GROUP),
+
     MANUALSET(20, "manualSet", "manSet",
             WebFieldType.BOOLEAN, "Whether manual offset setting mode"),
     OFFSETJSON(21, "offsetJsonInfo", "offsetInfo",
-            WebFieldType.JSONTYPE, "The offset info that needs to be added or modified"),
+            WebFieldType.JSONDICT, "The offset info that needs to be added or modified"),
     ONLYMEM(22, "onlyMemory", "onlyMem", WebFieldType.BOOLEAN,
             "Only clear the offset data in the memory cache, default is false"),
     ADMINAUTHTOKEN(23, "confModAuthToken", "authToken", WebFieldType.STRING,
@@ -90,6 +93,7 @@ public enum WebFieldDef {
             TServerConstants.CFG_MODAUTHTOKEN_MAX_LENGTH),
     MAXMSGSIZE(24, "maxMsgSizeInMB", "maxMsgSizeInMB", WebFieldType.INT,
             "Max allowed message size, unit MB", RegexDef.TMP_NUMBER),
+
     CREATEDATE(25, "createDate", "cDate", WebFieldType.STRING,
             "Record creation date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
     MODIFYDATE(26, "modifyDate", "mDate", WebFieldType.STRING,
@@ -97,12 +101,73 @@ public enum WebFieldDef {
     HOSTNAME(27, "hostName", "hostName", WebFieldType.STRING,
             "Host name information", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH),
     CLIENTID(28, "clientId", "clientId", WebFieldType.STRING,
-            "Client ID", TBaseConstants.META_MAX_CLIENT_ID_LENGTH);
+            "Client ID", TBaseConstants.META_MAX_CLIENT_ID_LENGTH),
+    @Deprecated
+    CONSUMEGROUP(29, "consumeGroup", "group", WebFieldType.STRING,
+            "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
+            RegexDef.TMP_GROUP),
 
+    @Deprecated
+    COMPSCONSUMEGROUP(30, "consumeGroup", "group", WebFieldType.COMPSTRING,
+            "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
+                   RegexDef.TMP_GROUP),
+    REGIONID(31, "regionId", "regionId", WebFieldType.INT,
+            "Region id", RegexDef.TMP_NUMBER),
+    COMPREGIONID(32, "regionId", "regionId", WebFieldType.COMPINT,
+            "Region id", RegexDef.TMP_NUMBER),
+    DATAVERSIONID(33, "dataVersionId", "dataVerId", WebFieldType.LONG,
+            "Data version id", RegexDef.TMP_NUMBER),
+    TOPICNAMEID(34, "topicNameId", "topicId", WebFieldType.LONG,
+            "Topic name id", RegexDef.TMP_NUMBER),
 
+    COMPTOPICNAMEID(35, "topicNameId", "topicId", WebFieldType.COMPLONG,
+            "Topic name id", RegexDef.TMP_NUMBER),
+    NUMTOPICSTORES(36, "numTopicStores", "numStore", WebFieldType.INT,
+            "Number of topic stores", RegexDef.TMP_NUMBER),
+    NUMPARTITIONS(37, "numPartitions", "numPart", WebFieldType.INT,
+            "Number of partitions", RegexDef.TMP_NUMBER),
+    UNFLUSHTHRESHOLD(38, "unflushThreshold", "unfDskMsgCnt", WebFieldType.INT,
+            "Maximum allowed disk unflushing message count", RegexDef.TMP_NUMBER),
+    UNFLUSHINTERVAL(39, "unflushInterval", "unfDskInt", WebFieldType.INT,
+            "Maximum allowed disk unflushing interval", RegexDef.TMP_NUMBER),
 
+    UNFLUSHDATAHOLD(40, "unflushDataHold", "unfDskDataSize", WebFieldType.INT,
+            "Maximum allowed disk unflushing data size", RegexDef.TMP_NUMBER),
+    MCACHESIZEINMB(41, "memCacheMsgSizeInMB", "cacheSizeInMB", WebFieldType.INT,
+            "Maximum allowed memory cache size in MB", RegexDef.TMP_NUMBER),
+    UNFMCACHECNTINK(42, "memCacheMsgCntInK", "unfMemMsgCnt", WebFieldType.INT,
+            "Maximum allowed memory cache unflushing message count", RegexDef.TMP_NUMBER),
+    UNFMCACHEINTERVAL(43, "memCacheFlushIntvl", "unfMemInt", WebFieldType.INT,
+            "Maximum allowed disk unflushing data size", RegexDef.TMP_NUMBER),
+    MAXMSGSIZEINMB(44, "maxMsgSizeInMB", "maxMsgSizeInMB", WebFieldType.INT,
+            "Maximum allowed message length", RegexDef.TMP_NUMBER),
 
+    ACCEPTPUBLISH(45, "acceptPublish", "accPub", WebFieldType.BOOLEAN,
+            "Enable publishing"),
+    ACCEPTSUBSCRIBE(46, "acceptSubscribe", "accSub", WebFieldType.BOOLEAN,
+            "Enable subscription"),
+    DELETEPOLICY(47, "deletePolicy", "delPolicy",
+            WebFieldType.DELPOLICY, "File aging strategy"),
+    TOPICJSONSET(48, "topicJsonSet", "topicSet",
+            WebFieldType.JSONSET, "The topic info set that needs to be added or modified"),
+    BROKERIP(49, "brokerIp", "brokerIp", WebFieldType.STRING,
+            "Broker ip", TBaseConstants.META_MAX_BROKER_IP_LENGTH,
+            RegexDef.TMP_IPV4ADDRESS),
 
+    BROKERPORT(50, "brokerPort", "brokerPort", WebFieldType.INT,
+            "Broker port", RegexDef.TMP_NUMBER),
+    BROKERTLSPORT(51, "brokerTLSPort", "brokerTLSPort", WebFieldType.INT,
+            "Broker tls port", RegexDef.TMP_NUMBER),
+    BROKERJSONSET(52, "brokerJsonSet", "brokerSet",
+            WebFieldType.JSONSET, "The broker info set that needs to be added or modified"),
+    STATUSID(53, "statusId", "statusId", WebFieldType.INT,
+            "Status id", RegexDef.TMP_NUMBER),
+    QRYPRIORITYID(54, "qryPriorityId", "qryPriId", WebFieldType.INT,
+            "Query priority id", RegexDef.TMP_NUMBER),
+
+    FLOWCTRLSET(55, "flowCtrlInfo", "flowCtrlSet",
+            WebFieldType.JSONSET,
+            "The flow control info set that needs to be added or modified");
 
 
 
@@ -174,6 +239,7 @@ public enum WebFieldDef {
 
     public boolean isCompFieldType() {
         return (this.type == WebFieldType.COMPINT
+                || this.type == WebFieldType.COMPLONG
                 || this.type == WebFieldType.COMPSTRING);
     }
 

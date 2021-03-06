@@ -19,7 +19,6 @@ package org.apache.tubemq.server.master.nodemanage.nodeconsumer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -217,20 +216,73 @@ public class ConsumerInfoHolder {
     }
 
     public Set<String> getGroupTopicSet(String group) {
-        if (group == null) {
-            return new HashSet<>();
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                return oldConsumeBandInfo.getTopicSet();
+        if (group != null) {
+            try {
+                rwLock.readLock().lock();
+                ConsumerBandInfo oldConsumeBandInfo =
+                        groupInfoMap.get(group);
+                if (oldConsumeBandInfo != null) {
+                    return oldConsumeBandInfo.getTopicSet();
+                }
+            } finally {
+                rwLock.readLock().unlock();
             }
-        } finally {
-            rwLock.readLock().unlock();
         }
-        return new HashSet<>();
+        return Collections.emptySet();
+    }
+
+    /**
+     * Get the group's subscribed topics and ConsumerInfos.
+     *
+     * @param group, group to be queried
+     * @param result, query result, only read
+     * @return Has the data been found
+     */
+    public boolean getGroupTopicSetAndConsumerInfos(
+            String group, Tuple2<Set<String>, List<ConsumerInfo>> result) {
+        if (group != null) {
+            try {
+                rwLock.readLock().lock();
+                ConsumerBandInfo curGroupInfo =
+                        groupInfoMap.get(group);
+                if (curGroupInfo != null) {
+                    result.setF0AndF1(curGroupInfo.getTopicSet(),
+                            curGroupInfo.cloneConsumerInfoList());
+                    return true;
+                }
+            } finally {
+                rwLock.readLock().unlock();
+            }
+        }
+        result.setF0AndF1(Collections.emptySet(), Collections.emptyList());
+        return false;
+    }
+
+    /**
+     * Get the group's subscribed topics and client count.
+     *
+     * @param group, group to be queried
+     * @param result, query result, only read
+     * @return Has the data been found
+     */
+    public boolean getGroupTopicSetAndClientCnt(String group,
+                                                Tuple2<Set<String>, Integer> result) {
+        if (group != null) {
+            try {
+                rwLock.readLock().lock();
+                ConsumerBandInfo curGroupInfo =
+                        groupInfoMap.get(group);
+                if (curGroupInfo != null) {
+                    result.setF0AndF1(curGroupInfo.getTopicSet(),
+                            curGroupInfo.getGroupCnt());
+                    return true;
+                }
+            } finally {
+                rwLock.readLock().unlock();
+            }
+        }
+        result.setF0AndF1(Collections.emptySet(), 0);
+        return false;
     }
 
     /**

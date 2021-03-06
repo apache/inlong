@@ -29,12 +29,15 @@ import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
+import org.apache.tubemq.server.master.TMaster;
+import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 
 /**
  * Topic Publication/Subscription info management
  */
 public class TopicPSInfoManager {
 
+    private final TMaster master;
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<BrokerInfo, TopicInfo>> brokerPubInfoMap =
             new ConcurrentHashMap<>();
@@ -44,6 +47,10 @@ public class TopicPSInfoManager {
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashSet<String/* group */>> topicSubInfoMap =
             new ConcurrentHashMap<>();
+
+    public TopicPSInfoManager(TMaster master) {
+        this.master = master;
+    }
 
     /**
      * Get groups according to topic
@@ -282,5 +289,64 @@ public class TopicPSInfoManager {
         brokerPubInfoMap.clear();
         topicPubInfoMap.clear();
         topicSubInfoMap.clear();
+    }
+
+    /**
+     * Get the set of online groups subscribed to the specified topic.
+     * If the specified query consumer group is empty, then the full amount of
+     * online consumer groups will be taken; if the specified subscription topic
+     * is empty, then all online consumer groups will be taken.
+     *
+     * @param qryGroupSet
+     * @param subTopicSet
+     * @return online groups
+     */
+    public Set<String> getGroupSetWithSubTopic(Set<String> qryGroupSet,
+                                               Set<String> subTopicSet) {
+        Set<String> resultSet = new HashSet<>();
+        if (subTopicSet.isEmpty()) {
+            // get all online group
+            ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
+            List<String> onlineGroups = consumerHolder.getAllGroup();
+            if (!onlineGroups.isEmpty()) {
+                if (qryGroupSet.isEmpty()) {
+                    resultSet.addAll(onlineGroups);
+                } else {
+                    for (String group : qryGroupSet) {
+                        if (onlineGroups.contains(group)) {
+                            resultSet.add(group);
+                        }
+                    }
+                }
+            }
+        } else {
+            // filter subscribed online group
+            Set<String> tmpGroupSet;
+            if (qryGroupSet.isEmpty()) {
+                for (String topic : subTopicSet) {
+                    tmpGroupSet = topicSubInfoMap.get(topic);
+                    if (tmpGroupSet != null && !tmpGroupSet.isEmpty()) {
+                        resultSet.addAll(tmpGroupSet);
+                    }
+                }
+            } else {
+                for (String topic : subTopicSet) {
+                    tmpGroupSet = topicSubInfoMap.get(topic);
+                    if (tmpGroupSet == null || tmpGroupSet.isEmpty()) {
+                        continue;
+                    }
+                    for (String group : qryGroupSet) {
+                        if (tmpGroupSet.contains(group)) {
+                            resultSet.add(group);
+                        }
+                    }
+                    qryGroupSet.removeAll(resultSet);
+                    if (qryGroupSet.isEmpty()) {
+                        break;
+                    }
+                }
+            }
+        }
+        return resultSet;
     }
 }

@@ -31,7 +31,7 @@ public class TopicPSInfoManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        topicPSInfoManager = new TopicPSInfoManager();
+        topicPSInfoManager = new TopicPSInfoManager(null);
     }
 
     @After

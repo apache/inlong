@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.webbase;
+package org.apache.tubemq.server.common.fielddef;
 
 
 
@@ -29,7 +29,10 @@ public enum WebFieldType {
     DATE(5, "Date"),
     COMPSTRING(6, "Compound string"),
     COMPINT(7, "Compound integer"),
-    JSONTYPE(8, "Json");
+    COMPLONG(8, "Compound long"),
+    JSONDICT(9, "Json dict"),
+    JSONSET(10, "Json set"),
+    DELPOLICY(11, "Delete policy");
 
 
     private int value;
