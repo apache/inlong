@@ -167,7 +167,12 @@ public enum WebFieldDef {
 
     FLOWCTRLSET(55, "flowCtrlInfo", "flowCtrlSet",
             WebFieldType.JSONSET,
-            "The flow control info set that needs to be added or modified");
+            "The flow control info set that needs to be added or modified"),
+    CONDSTATUS(56, "condStatus", "condStatus", WebFieldType.INT,
+            "Group control rule status id", RegexDef.TMP_NUMBER),
+    FILTERJSONSET(57, "filterCondJsonSet", "filterJsonSet",
+            WebFieldType.JSONSET, "The batch filter condition configure json array");
+
 
 
 
