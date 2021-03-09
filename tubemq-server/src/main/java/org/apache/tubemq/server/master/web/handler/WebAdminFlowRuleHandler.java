@@ -29,6 +29,8 @@ import org.apache.tubemq.corebase.policies.FlowCtrlItem;
 import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
+import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
@@ -37,7 +39,11 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntit
 
 public class WebAdminFlowRuleHandler extends AbstractWebHandler {
 
+    private static final String blankFlowCtrlRules = "[]";
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
+    private static final Set<String> rsvGroupNameSet =
+            new HashSet<>(Arrays.asList(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL));
+
 
     public WebAdminFlowRuleHandler(TMaster master) {
         super(master);
@@ -65,239 +71,256 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                 "adminModSpecGroupFlowCtrlRuleStatus");
     }
 
-    public StringBuilder adminQueryDefGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
-        return innQueryGroupFlowCtrlRule(req, 1);
+    public StringBuilder adminQueryDefGroupFlowCtrlRule(HttpServletRequest req) {
+        return innQueryGroupFlowCtrlRule(req, true);
     }
 
-    public StringBuilder adminQuerySpecGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
-        return innQueryGroupFlowCtrlRule(req, 2);
+    public StringBuilder adminQuerySpecGroupFlowCtrlRule(HttpServletRequest req) {
+        return innQueryGroupFlowCtrlRule(req, false);
     }
 
-    public StringBuilder adminSetDefGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
-        return innSetFlowControlRule(req, 1);
+    public StringBuilder adminSetDefGroupFlowCtrlRule(HttpServletRequest req) {
+        return innSetFlowControlRule(req, true);
     }
 
-    public StringBuilder adminSetSpecGroupFlowCtrlRule(HttpServletRequest req) throws Exception {
-        return innSetFlowControlRule(req, 2);
+    public StringBuilder adminSetSpecGroupFlowCtrlRule(HttpServletRequest req) {
+        return innSetFlowControlRule(req, false);
     }
 
-    public StringBuilder adminDelDefGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
-        return innDelGroupFlowCtrlRuleStatus(req, 1);
+    public StringBuilder adminDelDefGroupFlowCtrlRuleStatus(HttpServletRequest req) {
+        return innDelGroupFlowCtrlRuleStatus(req, true);
     }
 
-    public StringBuilder adminDelSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
-        return innDelGroupFlowCtrlRuleStatus(req, 2);
+    public StringBuilder adminDelSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) {
+        return innDelGroupFlowCtrlRuleStatus(req, false);
     }
 
-    public StringBuilder adminModDefGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
-        return innModGroupFlowCtrlRuleStatus(req, 1);
+    public StringBuilder adminModDefGroupFlowCtrlRuleStatus(HttpServletRequest req) {
+        return innModGroupFlowCtrlRuleStatus(req, true);
     }
 
-    public StringBuilder adminModSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) throws Exception {
-        return innModGroupFlowCtrlRuleStatus(req, 2);
+    public StringBuilder adminModSpecGroupFlowCtrlRuleStatus(HttpServletRequest req) {
+        return innModGroupFlowCtrlRuleStatus(req, false);
     }
 
     /**
      * add flow control rule
      *
      * @param req
-     * @param opType
+     * @param do4DefFlowCtrl
      * @return
-     * @throws Exception
      */
     private StringBuilder innSetFlowControlRule(HttpServletRequest req,
-                                                 int opType) throws Exception {
-        StringBuilder strBuffer = new StringBuilder(512);
+                                                boolean do4DefFlowCtrl) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        // get createUser info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.CREATEUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String createUser = (String) result.retData1;
+        // check and get create date
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.CREATEDATE, false, new Date(), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Date createDate = (Date) result.retData1;
+        // get rule required status info
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.STATUSID, false, 0, 0, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int statusId = (int) result.retData1;
+        // get and valid priority info
+        if (!getQryPriorityIdWithCheck(req, false, 301, 101, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int qryPriorityId = (int) result.retData1;
+        // get group name info
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // get and flow control rule info
+        int ruleCnt = getAndCheckFlowRules(req, blankFlowCtrlRules, result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String flowCtrlInfo = (String) result.retData1;
         try {
-            // check if allow modify
-            WebParameterUtils.reqAuthorizeCheck(master,
-                    brokerConfManager, req.getParameter("confModAuthToken"));
-            // get createUser info
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
-            // get createDate info
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            // get rule required status info
-            int statusId =
-                    WebParameterUtils.validIntDataParameter("statusId",
-                            req.getParameter("statusId"), false, 0, 0);
-            // get and valid priority info
-            int qryPriorityId =
-                    WebParameterUtils.validIntDataParameter("qryPriorityId",
-                            req.getParameter("qryPriorityId"), false, 301, 101);
-            checkQryPriorityId(qryPriorityId);
-            Set<String> batchGroupNames = new HashSet<>();
-            if (opType == 1) {
-                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-            } else {
-                // get groupname info if rule is set to consume group
-                boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<>();
-                if (checkResToken) {
-                    resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-                }
-                batchGroupNames =
-                        WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                                true, checkResToken, resTokenSet, strBuffer);
-            }
-            // get and flow control rule info
-            int ruleCnt =
-                    checkAndGetFlowRules(req.getParameter("flowCtrlInfo"), opType, strBuffer);
             // add flow control to bdb
             for (String groupName : batchGroupNames) {
                 if (groupName.equals(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
                     brokerConfManager.confAddBdbGroupFlowCtrl(
-                            new BdbGroupFlowCtrlEntity(strBuffer.toString(),
+                            new BdbGroupFlowCtrlEntity(flowCtrlInfo,
                                     statusId, ruleCnt, qryPriorityId, "",
-                                false, createUser, createDate));
+                                    false, createUser, createDate));
                 } else {
                     brokerConfManager.confAddBdbGroupFlowCtrl(
                             new BdbGroupFlowCtrlEntity(groupName,
-                                    strBuffer.toString(), statusId, ruleCnt, qryPriorityId, "",
-                                false, createUser, createDate));
+                                    flowCtrlInfo, statusId, ruleCnt, qryPriorityId, "",
+                                    false, createUser, createDate));
                 }
             }
-            strBuffer.delete(0, strBuffer.length());
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+            WebParameterUtils.buildSuccessResult(sBuilder);
         } catch (Exception e) {
-            strBuffer.delete(0, strBuffer.length());
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
         }
-        return strBuffer;
+        return sBuilder;
     }
 
     /**
      * delete flow control rule
      *
      * @param req
-     * @param opType
+     * @param do4DefFlowCtrl
      * @return
-     * @throws Exception
      */
     private StringBuilder innDelGroupFlowCtrlRuleStatus(HttpServletRequest req,
-                                                         int opType) throws Exception {
-        StringBuilder strBuffer = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master,
-                    brokerConfManager, req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> batchGroupNames = new HashSet<>();
-            if (opType == 1) {
-                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-            } else {
-                boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<>();
-                if (checkResToken) {
-                    resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-                }
-                batchGroupNames =
-                        WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                                true, checkResToken, resTokenSet, strBuffer);
-            }
-            brokerConfManager.confDeleteBdbGroupFlowCtrl(batchGroupNames);
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            strBuffer.delete(0, strBuffer.length());
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+                                                        boolean do4DefFlowCtrl) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
-        return strBuffer;
+        // get modifyUser info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.CREATEUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String modifyUser = (String) result.retData1;
+        // check and get modifyDate date
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.CREATEDATE, false, new Date(), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Date modifyDate = (Date) result.retData1;
+        // get group name info
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        try {
+            brokerConfManager.confDeleteBdbGroupFlowCtrl(batchGroupNames);
+            WebParameterUtils.buildSuccessResult(sBuilder);
+        } catch (Exception e) {
+            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+        }
+        return sBuilder;
     }
 
     /**
      * modify flow control rule
      *
      * @param req
-     * @param opType
+     * @param do4DefFlowCtrl
      * @return
-     * @throws Exception
      */
     private StringBuilder innModGroupFlowCtrlRuleStatus(HttpServletRequest req,
-                                                         int opType) throws Exception {
+                                                        boolean do4DefFlowCtrl) {
         // #lizard forgives
-        StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        // get modifyUser info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.CREATEUSER, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String modifyUser = (String) result.retData1;
+        // check and get modifyDate date
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.CREATEDATE, false, new Date(), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Date modifyDate = (Date) result.retData1;
+        // get group name info
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // get rule required status info
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.STATUSID, false,
+                TBaseConstants.META_VALUE_UNDEFINED, 0, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int statusId = (int) result.retData1;
+        // get and flow control rule info
+        int ruleCnt = getAndCheckFlowRules(req, null, result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String newFlowCtrlInfo = (String) result.retData1;
+        // get and valid priority info
+        if (!getQryPriorityIdWithCheck(req, false,
+                TBaseConstants.META_VALUE_UNDEFINED, 101, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int qryPriorityId = (int) result.retData1;
         try {
-            WebParameterUtils.reqAuthorizeCheck(master,
-                    brokerConfManager, req.getParameter("confModAuthToken"));
-            String modifyUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH, true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH, false, new Date());
-            Set<String> batchGroupNames = new HashSet<>();
-            // check optype
-            if (opType == 1) {
-                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-            } else {
-                boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<>();
-                if (checkResToken) {
-                    resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-                }
-                batchGroupNames =
-                        WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                                true, checkResToken, resTokenSet, strBuffer);
-            }
-            int ruleCnt =
-                    checkAndGetFlowRules(req.getParameter("flowCtrlInfo"), opType, strBuffer);
-            String newFlowCtrlInfo = strBuffer.toString();
-            strBuffer.delete(0, strBuffer.length());
+            boolean foundChange;
             for (String groupName : batchGroupNames) {
                 // check if record changed
                 BdbGroupFlowCtrlEntity oldEntity =
                         brokerConfManager.getBdbGroupFlowCtrl(groupName);
                 if (oldEntity != null) {
-                    boolean foundChange = false;
+                    foundChange = false;
                     BdbGroupFlowCtrlEntity newGroupFlowCtrlEntity =
                             new BdbGroupFlowCtrlEntity(oldEntity.getGroupName(),
                                     oldEntity.getFlowCtrlInfo(), oldEntity.getStatusId(),
                                     oldEntity.getRuleCnt(), oldEntity.getAttributes(),
                                     oldEntity.getSsdTranslateId(), oldEntity.isNeedSSDProc(),
                                     oldEntity.getCreateUser(), oldEntity.getCreateDate());
-                    int statusId =
-                            WebParameterUtils.validIntDataParameter("statusId",
-                                    req.getParameter("statusId"),
-                                    false, TBaseConstants.META_VALUE_UNDEFINED, 0);
                     if (statusId != TBaseConstants.META_VALUE_UNDEFINED
                             && statusId != oldEntity.getStatusId()) {
                         foundChange = true;
                         newGroupFlowCtrlEntity.setStatusId(statusId);
                     }
-                    int qryPriorityId =
-                            WebParameterUtils.validIntDataParameter("qryPriorityId",
-                                    req.getParameter("qryPriorityId"),
-                                    false, TBaseConstants.META_VALUE_UNDEFINED, 101);
                     if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
                             && qryPriorityId != oldEntity.getQryPriorityId()) {
-                        checkQryPriorityId(qryPriorityId);
                         foundChange = true;
                         newGroupFlowCtrlEntity.setQryPriorityId(qryPriorityId);
                     }
                     if (TStringUtils.isNotBlank(newFlowCtrlInfo)
                             && !newFlowCtrlInfo.equals(oldEntity.getFlowCtrlInfo())) {
                         foundChange = true;
-                        newGroupFlowCtrlEntity.setFlowCtrlInfo(newFlowCtrlInfo);
-                        newGroupFlowCtrlEntity.setRuleCnt(ruleCnt);
+                        newGroupFlowCtrlEntity.setFlowCtrlInfo(ruleCnt, newFlowCtrlInfo);
                     }
                     // update record if found change
                     if (foundChange) {
                         try {
+                            newGroupFlowCtrlEntity.setModifyInfo(modifyUser, modifyDate);
                             brokerConfManager.confUpdateBdbGroupFlowCtrl(newGroupFlowCtrlEntity);
                         } catch (Throwable ee) {
                             //
@@ -305,144 +328,193 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                     }
                 }
             }
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+            WebParameterUtils.buildSuccessResult(sBuilder);
         } catch (Exception e) {
-            strBuffer.delete(0, strBuffer.length());
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
         }
-        return strBuffer;
+        return sBuilder;
     }
 
     /**
      * query flow control rule
      *
      * @param req
-     * @param opType
+     * @param do4DefFlowCtrl
      * @return
-     * @throws Exception
      */
     private StringBuilder innQueryGroupFlowCtrlRule(HttpServletRequest req,
-                                                     int opType) throws Exception {
-        StringBuilder strBuffer = new StringBuilder(512);
+                                                    boolean do4DefFlowCtrl) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
         BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity = new BdbGroupFlowCtrlEntity();
-        try {
-            bdbGroupFlowCtrlEntity
-                    .setCreateUser(WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH, false, null));
-            bdbGroupFlowCtrlEntity
-                    .setStatusId(WebParameterUtils.validIntDataParameter("statusId",
-                            req.getParameter("statusId"),
-                            false, TBaseConstants.META_VALUE_UNDEFINED, 0));
-            bdbGroupFlowCtrlEntity
-                    .setQryPriorityId(WebParameterUtils.validIntDataParameter("qryPriorityId",
-                            req.getParameter("qryPriorityId"),
-                            false, TBaseConstants.META_VALUE_UNDEFINED, 0));
-            Set<String> batchGroupNames = new HashSet<>();
-            if (opType == 1) {
-                batchGroupNames.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-            } else {
-                boolean checkResToken = opType > 1;
-                Set<String> resTokenSet = new HashSet<>();
-                if (checkResToken) {
-                    resTokenSet.add(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL);
-                }
-                batchGroupNames =
-                        WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                                false, checkResToken, resTokenSet, strBuffer);
-            }
-            // return result as json format
-            int countI = 0;
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
-            List<BdbGroupFlowCtrlEntity> webGroupFlowCtrlEntities =
-                    brokerConfManager.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
+        // get modifyUser info
+        WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.CREATEUSER, false, null, result);
+        bdbGroupFlowCtrlEntity.setCreateUser((String) result.retData1);
+        // get status id info
+        WebParameterUtils.getIntParamValue(req, WebFieldDef.STATUSID, false,
+                TBaseConstants.META_VALUE_UNDEFINED, 0, result);
+        bdbGroupFlowCtrlEntity.setStatusId((int) result.retData1);
+        // get and valid priority info
+        getQryPriorityIdWithCheck(req, false,
+                TBaseConstants.META_VALUE_UNDEFINED, 101, result);
+        bdbGroupFlowCtrlEntity.setQryPriorityId((int) result.retData1);
+        getGroupNameWithCheck(req, false, do4DefFlowCtrl, result);
+        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // query group flow ctrl infos
+        List<BdbGroupFlowCtrlEntity> webGroupFlowCtrlEntities =
+                brokerConfManager.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
+        int totalCnt = 0;
+        boolean found = false;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        if (do4DefFlowCtrl) {
             for (BdbGroupFlowCtrlEntity entity : webGroupFlowCtrlEntities) {
-                if (!batchGroupNames.isEmpty()) {
-                    boolean found = false;
-                    for (String tmpGroupName : batchGroupNames) {
-                        if (entity.getGroupName().equals(tmpGroupName)) {
-                            found = true;
-                            break;
-                        }
+                if (entity.getGroupName().equals(
+                        TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
+                    if (totalCnt++ > 0) {
+                        sBuilder.append(",");
                     }
-                    if (!found) {
-                        continue;
-                    }
+                    sBuilder = entity.toJsonString(sBuilder);
+                    break;
                 }
-                if (opType > 1) {
-                    if (entity.getGroupName()
-                            .equals(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
-                        continue;
-                    }
-                }
-                if (countI++ > 0) {
-                    strBuffer.append(",");
-                }
-                strBuffer = entity.toJsonString(strBuffer);
             }
-            strBuffer.append("],\"count\":").append(countI).append("}");
-        } catch (Exception e) {
-            strBuffer.delete(0, strBuffer.length());
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+        } else {
+            for (BdbGroupFlowCtrlEntity entity : webGroupFlowCtrlEntities) {
+                if (entity.getGroupName().equals(
+                        TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
+                    continue;
+                }
+                found = false;
+                for (String tmpGroupName : batchGroupNames) {
+                    if (entity.getGroupName().equals(tmpGroupName)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    if (totalCnt++ > 0) {
+                        sBuilder.append(",");
+                    }
+                    sBuilder = entity.toJsonString(sBuilder);
+                }
+            }
         }
-        return strBuffer;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
+        return sBuilder;
     }
 
     // translate rule info to json format string
-    private int checkAndGetFlowRules(String inFlowCtrlInfo,
-                                     int opType,
-                                     StringBuilder strBuffer) throws Exception {
+    private int getAndCheckFlowRules(HttpServletRequest req,
+                                     String defValue,
+                                     ProcessResult result) {
         int ruleCnt = 0;
+        StringBuilder strBuffer = new StringBuilder(512);
+        // get parameter value
+        String paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.name);
+        if (paramValue == null) {
+            paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.shortName);
+        }
+        if (TStringUtils.isBlank(paramValue)) {
+            result.setSuccResult(defValue);
+            return ruleCnt;
+        }
         strBuffer.append("[");
-        if (TStringUtils.isNotBlank(inFlowCtrlInfo)) {
-            List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);
-            inFlowCtrlInfo = inFlowCtrlInfo.trim();
-            FlowCtrlRuleHandler flowCtrlRuleHandler =
+        paramValue = paramValue.trim();
+        List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);
+        FlowCtrlRuleHandler flowCtrlRuleHandler =
                 new FlowCtrlRuleHandler(true);
-            Map<Integer, List<FlowCtrlItem>> flowCtrlItemMap =
-                    flowCtrlRuleHandler.parseFlowCtrlInfo(inFlowCtrlInfo);
-            for (Integer typeId : ruleTypes) {
-                if (typeId != null) {
-                    int rules = 0;
-                    List<FlowCtrlItem> flowCtrlItems = flowCtrlItemMap.get(typeId);
-                    if (flowCtrlItems != null) {
-                        if (ruleCnt++ > 0) {
-                            strBuffer.append(",");
-                        }
-                        strBuffer.append("{\"type\":").append(typeId.intValue()).append(",\"rule\":[");
-                        for (FlowCtrlItem flowCtrlItem : flowCtrlItems) {
-                            if (flowCtrlItem != null) {
-                                if (rules++ > 0) {
-                                    strBuffer.append(",");
-                                }
-                                strBuffer = flowCtrlItem.toJsonString(strBuffer);
-                            }
-                        }
-                        strBuffer.append("]}");
+        Map<Integer, List<FlowCtrlItem>> flowCtrlItemMap;
+        try {
+            flowCtrlItemMap =
+                    flowCtrlRuleHandler.parseFlowCtrlInfo(paramValue);
+        } catch (Throwable e) {
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parse parameter ").append(WebFieldDef.FLOWCTRLSET.name)
+                    .append(" failure: '").append(e.toString()).toString());
+            return 0;
+        }
+        for (Integer typeId : ruleTypes) {
+            if (typeId != null) {
+                int rules = 0;
+                List<FlowCtrlItem> flowCtrlItems = flowCtrlItemMap.get(typeId);
+                if (flowCtrlItems != null) {
+                    if (ruleCnt++ > 0) {
+                        strBuffer.append(",");
                     }
+                    strBuffer.append("{\"type\":").append(typeId.intValue()).append(",\"rule\":[");
+                    for (FlowCtrlItem flowCtrlItem : flowCtrlItems) {
+                        if (flowCtrlItem != null) {
+                            if (rules++ > 0) {
+                                strBuffer.append(",");
+                            }
+                            strBuffer = flowCtrlItem.toJsonString(strBuffer);
+                        }
+                    }
+                    strBuffer.append("]}");
                 }
             }
         }
         strBuffer.append("]");
+        result.setSuccResult(strBuffer.toString());
         return ruleCnt;
     }
 
-    private void checkQryPriorityId(int qryPriorityId) throws Exception {
+    private boolean getGroupNameWithCheck(HttpServletRequest req, boolean required,
+                                          boolean do4DefFlowCtrl, ProcessResult result) {
+        if (do4DefFlowCtrl) {
+            result.setSuccResult(rsvGroupNameSet);
+            return true;
+        }
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, required, null, result)) {
+            return result.success;
+        }
+        Set<String> inGroupSet = (Set<String>) result.retData1;
+        for (String rsvGroup : rsvGroupNameSet) {
+            if (inGroupSet.contains(rsvGroup)) {
+                result.setFailResult(new StringBuilder(512)
+                        .append("Illegal value in ").append(WebFieldDef.COMPSGROUPNAME.name)
+                        .append(" parameter: '").append(rsvGroup)
+                        .append("' is a system reserved value!").toString());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean getQryPriorityIdWithCheck(HttpServletRequest req, boolean required,
+                                              int defValue, int minValue,
+                                              ProcessResult result) {
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.QRYPRIORITYID, required,
+                defValue, minValue, result)) {
+            return result.success;
+        }
+        int qryPriorityId = (int) result.retData1;
         if (qryPriorityId > 303 || qryPriorityId < 101) {
-            throw new Exception(
-                    "Illegal value in qryPriorityId parameter: qryPriorityId value"
-                            + " must be greater than or equal to 101 and less than or equal to 303!");
+            result.setFailResult(new StringBuilder(512)
+                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" parameter: ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" value must be greater than or equal")
+                    .append(" to 101 and less than or equal to 303!").toString());
+            return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId % 100)) {
-            throw new Exception("Illegal value in qryPriorityId parameter:"
-                    + " the units of qryPriorityId must in [1,2,3]!");
+            result.setFailResult(new StringBuilder(512)
+                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" parameter: the units of ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" must in ").append(allowedPriorityVal).toString());
+            return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId / 100)) {
-            throw new Exception("Illegal value in qryPriorityId parameter:"
-                    + " the hundreds of qryPriorityId must in [1,2,3]!");
+            result.setFailResult(new StringBuilder(512)
+                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" parameter: the hundreds of ").append(WebFieldDef.QRYPRIORITYID.name)
+                    .append(" must in ").append(allowedPriorityVal).toString());
+            return false;
         }
+        return true;
     }
 
 }

@@ -163,7 +163,8 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         return flowCtrlInfo;
     }
 
-    public void setFlowCtrlInfo(String flowCtrlInfo) {
+    public void setFlowCtrlInfo(int ruleCnt, String flowCtrlInfo) {
+        this.ruleCnt = ruleCnt;
         this.flowCtrlInfo = flowCtrlInfo;
         this.serialId = System.currentTimeMillis();
     }
@@ -196,6 +197,11 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
                 TStringUtils.setAttrValToAttributes(this.attributes,
                         TokenConstants.TOKEN_QRY_PRIORITY_ID,
                         String.valueOf(qryPriorityId));
+    }
+
+    public void setModifyInfo(String modifyUser, Date modifyDate) {
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
     }
 
     @Override

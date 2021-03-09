@@ -1560,8 +1560,7 @@ public class BrokerConfManager implements Server {
     }
 
     public List<BdbConsumerGroupEntity> confGetBdbAllowedConsumerGroupSet(
-            BdbConsumerGroupEntity bdbQueryEntity) throws Exception {
-        validMasterStatus();
+            BdbConsumerGroupEntity bdbQueryEntity)  {
         List<BdbConsumerGroupEntity> bdbConsumerGroupEntities =
                 new ArrayList<>();
         for (ConcurrentHashMap<String, BdbConsumerGroupEntity> consumerGroupEntityMap
@@ -1967,8 +1966,7 @@ public class BrokerConfManager implements Server {
     }
 
     public List<BdbGroupFlowCtrlEntity> confGetBdbGroupFlowCtrl(
-            BdbGroupFlowCtrlEntity bdbQueryEntity) throws Exception {
-        validMasterStatus();
+            BdbGroupFlowCtrlEntity bdbQueryEntity) {
         List<BdbGroupFlowCtrlEntity> bdbGroupFlowCtrlEntities =
                 new ArrayList<>();
         for (BdbGroupFlowCtrlEntity ctrlEntity : consumeGroupFlowCtrlMap.values()) {
