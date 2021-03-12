@@ -21,6 +21,8 @@ public class TBaseConstants {
 
     public static final int META_VALUE_UNDEFINED = -2;
 
+    public static final int BUILDER_DEFAULT_SIZE = 512;
+
     public static final int META_DEFAULT_MASTER_PORT = 8715;
     public static final int META_DEFAULT_MASTER_TLS_PORT = 8716;
     public static final int META_DEFAULT_BROKER_PORT = 8123;

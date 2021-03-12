@@ -382,7 +382,7 @@ public class BrokerConfManager implements Server {
             String allowedConds = bdbGroupFilterCondEntity.getAttributes();
             TreeSet<String> condItemSet = reqTopicConditions.get(tmpTopic);
             if (allowedConds.length() == 2
-                    && allowedConds.equals(TServerConstants.TOKEN_BLANK_FILTER_CONDITION)) {
+                    && allowedConds.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
                 isAllowed = false;
                 sb.append("[Restricted Group] ")
                         .append(consumerId)

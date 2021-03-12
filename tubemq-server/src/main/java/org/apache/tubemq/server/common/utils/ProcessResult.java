@@ -60,4 +60,20 @@ public class ProcessResult {
         this.errCode = TErrCodeConstants.SUCCESS;
         this.retData1 = retData;
     }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public int getErrCode() {
+        return errCode;
+    }
+
+    public String getErrInfo() {
+        return errInfo;
+    }
+
+    public Object getRetData() {
+        return retData1;
+    }
 }

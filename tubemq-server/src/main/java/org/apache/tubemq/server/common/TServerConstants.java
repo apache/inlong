@@ -28,7 +28,9 @@ public final class TServerConstants {
     public static final String TOKEN_DEFAULT_CLUSTER_SETTING = "default_cluster_config";
     public static final String TOKEN_MAX_MSG_SIZE = "maxMsgSize";
 
-    public static final String TOKEN_BLANK_FILTER_CONDITION = ",,";
+    public static final long DEFAULT_DATA_VERSION = 0L;
+
+    public static final String BLANK_FILTER_ITEM_STR = ",,";
 
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;
