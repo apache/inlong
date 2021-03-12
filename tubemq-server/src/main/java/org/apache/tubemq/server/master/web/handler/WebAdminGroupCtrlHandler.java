@@ -693,7 +693,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 if (!filterCondSet.isEmpty()) {
                     String filterItems = entity.getAttributes();
                     if (filterItems.length() == 2
-                            && filterItems.equals(TServerConstants.TOKEN_BLANK_FILTER_CONDITION)) {
+                            && filterItems.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
                         continue;
                     } else {
                         boolean allInc = true;

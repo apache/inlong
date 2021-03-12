@@ -947,7 +947,7 @@ public class WebParameterUtils {
         }
         if (TStringUtils.isBlank(inFilterConds)) {
             if (isTransBlank) {
-                sb.append(TServerConstants.TOKEN_BLANK_FILTER_CONDITION);
+                sb.append(TServerConstants.BLANK_FILTER_ITEM_STR);
             }
         } else {
             sb.append(TokenConstants.ARRAY_SEP);
