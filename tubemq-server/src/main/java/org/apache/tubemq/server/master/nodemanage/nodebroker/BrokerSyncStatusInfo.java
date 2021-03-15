@@ -744,7 +744,7 @@ public class BrokerSyncStatusInfo {
                 tmpmemCacheFlushIntvl = Integer.parseInt(topicConfInfoArr[13]);
             }
             if (topicConfInfoArr.length > 14) {
-                if (!TStringUtils.isNotBlank(topicConfInfoArr[14])) {
+                if (TStringUtils.isNotBlank(topicConfInfoArr[14])) {
                     tmpMaxMsgSize = Integer.parseInt(topicConfInfoArr[14]);
                     Tuple2<Integer, Integer> calcResult =
                             ClusterConfigHolder.calcMaxMsgSize(tmpMaxMsgSize);
