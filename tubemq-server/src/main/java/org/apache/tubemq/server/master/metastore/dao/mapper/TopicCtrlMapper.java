@@ -18,12 +18,15 @@
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metastore.dao.entity.ClusterSettingEntity;
+import org.apache.tubemq.server.master.metastore.dao.entity.TopicCtrlEntity;
 
 
-public interface ClusterConfigMapper extends AbstractMapper {
 
-    boolean putClusterConfig(ClusterSettingEntity entity, ProcessResult result);
+public interface TopicCtrlMapper extends AbstractMapper {
 
-    boolean delClusterConfig(String key);
+    boolean putTopicCtrlConfig(TopicCtrlEntity entity, ProcessResult result);
+
+    boolean delTopicCtrlConfig(String key);
+
+
 }

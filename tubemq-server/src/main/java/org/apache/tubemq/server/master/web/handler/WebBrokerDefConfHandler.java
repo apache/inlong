@@ -38,6 +38,7 @@ import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
@@ -297,16 +298,16 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                             req.getParameter("brokerTLSPort"), false,
                             TBaseConstants.META_DEFAULT_BROKER_TLS_PORT, 0);
             String attributes =
-                    strBuffer.append(TokenConstants.TOKEN_STORE_NUM).append(TokenConstants.EQ).append(numTopicStores)
-                            .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
+                    strBuffer.append(TStoreConstants.TOKEN_STORE_NUM).append(TokenConstants.EQ).append(numTopicStores)
+                            .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_DATA_UNFLUSHHOLD)
                             .append(TokenConstants.EQ).append(unFlushDataHold)
-                            .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_CNT)
+                            .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_CNT)
                             .append(TokenConstants.EQ).append(memCacheMsgCntInK)
-                            .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_SIZE)
+                            .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_SIZE)
                             .append(TokenConstants.EQ).append(memCacheMsgSizeInMB).append(TokenConstants.SEGMENT_SEP)
-                            .append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
+                            .append(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL)
                             .append(TokenConstants.EQ).append(memCacheFlushIntvl)
-                            .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_TLS_PORT)
+                            .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_TLS_PORT)
                             .append(TokenConstants.EQ).append(brokerTlsPort).toString();
             strBuffer.delete(0, strBuffer.length());
             BdbBrokerConfEntity brokerConfEntity =
@@ -468,16 +469,16 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                             WebParameterUtils.validIntDataParameter("memCacheFlushIntvl",
                                     jsonObject.get("memCacheFlushIntvl"), false, 20000, 4000);
                     String attributes = strBuffer
-                            .append(TokenConstants.TOKEN_STORE_NUM).append(TokenConstants.EQ).append(numTopicStores)
-                            .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
+                            .append(TStoreConstants.TOKEN_STORE_NUM).append(TokenConstants.EQ).append(numTopicStores)
+                            .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_DATA_UNFLUSHHOLD)
                             .append(TokenConstants.EQ).append(unFlushDataHold).append(TokenConstants.SEGMENT_SEP)
-                            .append(TokenConstants.TOKEN_MCACHE_MSG_CNT).append(TokenConstants.EQ)
+                            .append(TStoreConstants.TOKEN_MCACHE_MSG_CNT).append(TokenConstants.EQ)
                             .append(memCacheMsgCntInK).append(TokenConstants.SEGMENT_SEP)
-                            .append(TokenConstants.TOKEN_MCACHE_MSG_SIZE).append(TokenConstants.EQ)
+                            .append(TStoreConstants.TOKEN_MCACHE_MSG_SIZE).append(TokenConstants.EQ)
                             .append(memCacheMsgSizeInMB).append(TokenConstants.SEGMENT_SEP)
-                            .append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL).append(TokenConstants.EQ)
+                            .append(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL).append(TokenConstants.EQ)
                             .append(memCacheFlushIntvl).append(TokenConstants.SEGMENT_SEP)
-                            .append(TokenConstants.TOKEN_TLS_PORT).append(TokenConstants.EQ)
+                            .append(TStoreConstants.TOKEN_TLS_PORT).append(TokenConstants.EQ)
                             .append(brokerTlsPort).toString();
                     strBuffer.delete(0, strBuffer.length());
                     inBrokerConfEntityMap.put(inputKey, new BdbBrokerConfEntity(brokerId, brokerIp,
@@ -875,7 +876,7 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                         req.getParameter("numTopicStores"), false, TBaseConstants.META_VALUE_UNDEFINED, 1);
                 if ((numTopicStores > 0) && (numTopicStores != oldEntity.getNumTopicStores())) {
                     foundChange = true;
-                    newEntity.appendAttributes(TokenConstants.TOKEN_STORE_NUM, String.valueOf(numTopicStores));
+                    newEntity.appendAttributes(TStoreConstants.TOKEN_STORE_NUM, String.valueOf(numTopicStores));
                 }
                 int unFlushDataHold = WebParameterUtils.validIntDataParameter("unflushDataHold",
                         req.getParameter("unflushDataHold"), false, TBaseConstants.META_VALUE_UNDEFINED, 0);
@@ -911,7 +912,7 @@ public class WebBrokerDefConfHandler extends AbstractWebHandler {
                 if ((memCacheFlushIntvl > 0) && (memCacheFlushIntvl != oldEntity.getDftMemCacheFlushIntvl())) {
                     foundChange = true;
                     newEntity.setDftMemCacheFlushIntvl(memCacheFlushIntvl);
-                    newEntity.appendAttributes(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                    newEntity.appendAttributes(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
                             String.valueOf(memCacheFlushIntvl));
                 }
                 String publishParaStr = req.getParameter("acceptPublish");

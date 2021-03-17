@@ -45,6 +45,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntit
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.slf4j.Logger;
@@ -220,17 +221,17 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                                 req.getParameter("maxMsgSizeInMB"),
                                 false, TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
                                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
-                String attributes = strBuffer.append(TokenConstants.TOKEN_STORE_NUM)
+                String attributes = strBuffer.append(TStoreConstants.TOKEN_STORE_NUM)
                         .append(TokenConstants.EQ).append(numTopicStores)
-                        .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
+                        .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_DATA_UNFLUSHHOLD)
                         .append(TokenConstants.EQ).append(unFlushDataHold)
-                        .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_CNT)
+                        .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_CNT)
                         .append(TokenConstants.EQ).append(memCacheMsgCntInK)
-                        .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_SIZE)
+                        .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_SIZE)
                         .append(TokenConstants.EQ).append(memCacheMsgSizeInMB)
-                        .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
+                        .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL)
                         .append(TokenConstants.EQ).append(memCacheFlushIntvl)
-                        .append(TokenConstants.SEGMENT_SEP).append(TServerConstants.TOKEN_MAX_MSG_SIZE)
+                        .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MAX_MSG_SIZE)
                         .append(TokenConstants.EQ)
                         .append(SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB))
                         .toString();
@@ -389,17 +390,17 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         itemCreateDate = createDate;
                     }
                     String attributes =
-                            strBuffer.append(TokenConstants.TOKEN_STORE_NUM)
+                            strBuffer.append(TStoreConstants.TOKEN_STORE_NUM)
                                     .append(TokenConstants.EQ).append(numTopicStores)
-                                    .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_DATA_UNFLUSHHOLD)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_DATA_UNFLUSHHOLD)
                                     .append(TokenConstants.EQ).append(unFlushDataHold)
-                                    .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_CNT)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_CNT)
                                     .append(TokenConstants.EQ).append(memCacheMsgCntInK)
-                                    .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_MSG_SIZE)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_MSG_SIZE)
                                     .append(TokenConstants.EQ).append(memCacheMsgSizeInMB)
-                                    .append(TokenConstants.SEGMENT_SEP).append(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL)
                                     .append(TokenConstants.EQ).append(memCacheFlushIntvl)
-                                    .append(TokenConstants.SEGMENT_SEP).append(TServerConstants.TOKEN_MAX_MSG_SIZE)
+                                    .append(TokenConstants.SEGMENT_SEP).append(TStoreConstants.TOKEN_MAX_MSG_SIZE)
                                     .append(TokenConstants.EQ)
                                     .append(SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB))
                                     .toString();
@@ -700,10 +701,10 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                         }
                         strBuffer.append("{\"groupName\":\"").append(itemCond.getConsumerGroupName())
                                 .append("\",\"condStatus\":").append(itemCond.getControlStatus());
-                        if (itemCond.getAttributes().length() <= 2) {
+                        if (itemCond.getFilterCondStr().length() <= 2) {
                             strBuffer.append(",\"filterConds\":\"\"");
                         } else {
-                            strBuffer.append(",\"filterConds\":\"").append(itemCond.getAttributes()).append("\"");
+                            strBuffer.append(",\"filterConds\":\"").append(itemCond.getFilterCondStr()).append("\"");
                         }
                         strBuffer.append(",\"createUser\":\"").append(itemCond.getCreateUser())
                                 .append("\",\"createDate\":\"").append(formatter.format(itemCond.getCreateDate()))
@@ -1423,12 +1424,12 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                     }
                     if (memCacheMsgCntInK >= 0 && memCacheMsgCntInK != oldEntity.getMemCacheMsgCntInK()) {
                         foundChange = true;
-                        newEntity.appendAttributes(TokenConstants.TOKEN_MCACHE_MSG_CNT,
+                        newEntity.appendAttributes(TStoreConstants.TOKEN_MCACHE_MSG_CNT,
                                 String.valueOf(memCacheMsgCntInK));
                     }
                     if (memCacheMsgSizeInMB >= 0 && memCacheMsgSizeInMB != oldEntity.getMemCacheMsgSizeInMB()) {
                         foundChange = true;
-                        newEntity.appendAttributes(TokenConstants.TOKEN_MCACHE_MSG_SIZE,
+                        newEntity.appendAttributes(TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
                                 String.valueOf(memCacheMsgSizeInMB));
                     }
                     if (maxMsgSizeInMB > 0) {
@@ -1436,13 +1437,13 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
                                 SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
                         if (maxMsgSizeInB != oldEntity.getMaxMsgSize()) {
                             foundChange = true;
-                            newEntity.appendAttributes(TServerConstants.TOKEN_MAX_MSG_SIZE,
+                            newEntity.appendAttributes(TStoreConstants.TOKEN_MAX_MSG_SIZE,
                                     String.valueOf(maxMsgSizeInB));
                         }
                     }
                     if (memCacheFlushIntvl >= 0 && memCacheFlushIntvl != oldEntity.getMemCacheFlushIntvl()) {
                         foundChange = true;
-                        newEntity.appendAttributes(TokenConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                        newEntity.appendAttributes(TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
                                 String.valueOf(memCacheFlushIntvl));
                     }
                     if ((numTopicStores > 0) && (numTopicStores != oldEntity.getNumTopicStores())) {

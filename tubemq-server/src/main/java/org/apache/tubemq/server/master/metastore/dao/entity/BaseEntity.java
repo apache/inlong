@@ -82,6 +82,10 @@ public class BaseEntity implements Serializable {
         this.modifyDate = modifyDate;
     }
 
+    public void setDataVersionId() {
+        setDataVersionId(System.currentTimeMillis());
+    }
+
     public void setDataVersionId(long dataVersionId) {
         this.dataVersionId = dataVersionId;
     }

@@ -23,10 +23,11 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
+import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 @Entity
@@ -101,6 +102,25 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.createDate = createDate;
         this.needSSDProc = needSSDProc;
         this.ssdTranslateId = ssdTranslateId;
+    }
+
+    //Constructor
+    public BdbGroupFlowCtrlEntity(long serialId, String groupName, String flowCtrlInfo,
+                                  int statusId, int ruleCnt, int qryPriorityId,
+                                  String attributes, String createUser,
+                                  Date createDate) {
+        this.groupName = groupName;
+        this.serialId = serialId;
+        this.statusId = statusId;
+        this.flowCtrlInfo = flowCtrlInfo;
+        this.attributes = attributes;
+        this.ruleCnt = ruleCnt;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.needSSDProc = false;
+        this.ssdTranslateId = TBaseConstants.META_VALUE_UNDEFINED;
+        this.setQryPriorityId(qryPriorityId);
+
     }
 
     public long getSsdTranslateId() {
@@ -185,7 +205,7 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     public int getQryPriorityId() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_QRY_PRIORITY_ID);
+                        TStoreConstants.TOKEN_QRY_PRIORITY_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -195,8 +215,42 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     public void setQryPriorityId(int qryPriorityId) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_QRY_PRIORITY_ID,
+                        TStoreConstants.TOKEN_QRY_PRIORITY_ID,
                         String.valueOf(qryPriorityId));
+    }
+
+    public EnableStatus getResCheckStatus() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_RES_CHECK_STATUS);
+        if (atrVal != null) {
+            return EnableStatus.valueOf(Integer.parseInt(atrVal));
+        }
+        return EnableStatus.STATUS_UNDEFINE;
+    }
+
+    public void setResCheckStatus(EnableStatus resCheckStatus) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_RES_CHECK_STATUS,
+                        String.valueOf(resCheckStatus.getCode()));
+    }
+
+    public int getAllowedBrokerClientRate() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_CLIENT_RATE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setAllowedBrokerClientRate(int allowedBrokerClientRate) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_CLIENT_RATE,
+                        String.valueOf(allowedBrokerClientRate));
     }
 
     public void setModifyInfo(String modifyUser, Date modifyDate) {

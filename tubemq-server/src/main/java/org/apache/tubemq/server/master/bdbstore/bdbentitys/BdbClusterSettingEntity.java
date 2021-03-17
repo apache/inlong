@@ -23,7 +23,9 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 /*
@@ -266,6 +268,77 @@ public class BdbClusterSettingEntity implements Serializable {
 
     public Date getModifyDate() {
         return modifyDate;
+    }
+
+    public void setDefDataPath(String dataPath) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_PATH, dataPath);
+    }
+
+    public String getDefDataPath() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_DATA_PATH);
+    }
+
+    public void setDefDataType(int dataType) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_TYPE, String.valueOf(dataType));
+    }
+
+    public int getDefDataType() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_TYPE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setEnableGloFlowCtrl(Boolean enableGloFlowCtrl) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL,
+                        String.valueOf(enableGloFlowCtrl));
+    }
+
+    public Boolean getEnableGloFlowCtrl() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
+        if (atrVal != null) {
+            return Boolean.parseBoolean(atrVal);
+        }
+        return null;
+    }
+
+    public void setGloFlowCtrlCnt(int flowCtrlCnt) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_CNT, String.valueOf(flowCtrlCnt));
+    }
+
+    public int getGloFlowCtrlCnt() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_CNT);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setGloFlowCtrlInfo(String flowCtrlInfo) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_INFO, flowCtrlInfo);
+    }
+
+    public String getGloFlowCtrlInfo() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_FLOW_CTRL_INFO);
     }
 
     /**

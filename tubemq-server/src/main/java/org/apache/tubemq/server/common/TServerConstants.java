@@ -25,8 +25,6 @@ public final class TServerConstants {
     public static final String TOKEN_JOB_TOPICS = "topics";
     public static final String TOKEN_JOB_STORE_MGR = "messageStoreManager";
     public static final String TOKEN_DEFAULT_FLOW_CONTROL = "default_master_ctrl";
-    public static final String TOKEN_DEFAULT_CLUSTER_SETTING = "default_cluster_config";
-    public static final String TOKEN_MAX_MSG_SIZE = "maxMsgSize";
 
     public static final long DEFAULT_DATA_VERSION = 0L;
 

@@ -22,7 +22,10 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 @Entity
@@ -122,6 +125,23 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
 
     public void setLastUsedDateNow() {
         this.lastBindUsedDate = new Date();
+    }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
     }
 
     @Override

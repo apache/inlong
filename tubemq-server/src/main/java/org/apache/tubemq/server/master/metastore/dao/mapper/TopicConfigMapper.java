@@ -17,13 +17,13 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
-import java.util.Map;
+import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
 
-public interface TopicConfigMapper {
 
-    boolean loadTopicConfig(Map<String, String> metaDataMap);
+public interface TopicConfigMapper extends AbstractMapper {
 
-    boolean putTopicConfig(String key, String topicJsonData);
+    boolean putTopicConfig(BdbTopicConfEntity entity, ProcessResult result);
 
     boolean delTopicConfig(String key);
 

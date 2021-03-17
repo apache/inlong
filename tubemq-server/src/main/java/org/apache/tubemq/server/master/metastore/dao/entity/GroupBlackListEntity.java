@@ -20,6 +20,7 @@ package org.apache.tubemq.server.master.metastore.dao.entity;
 import java.util.Date;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
 
 
 /*
@@ -40,12 +41,34 @@ public class GroupBlackListEntity extends BaseEntity {
     public GroupBlackListEntity(String topicName, String groupName,
                                 String reason, String createUser, Date createDate) {
         super(createUser, createDate);
+        this.setTopicAndGroup(topicName, groupName);
+        this.reason = reason;
+    }
+
+    public GroupBlackListEntity(BdbBlackGroupEntity bdbEntity) {
+        super(bdbEntity.getDataVerId(),
+                bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
+        this.setTopicAndGroup(bdbEntity.getTopicName(),
+                bdbEntity.getBlackGroupName());
+        this.reason = bdbEntity.getReason();
+        this.setAttributes(bdbEntity.getAttributes());
+    }
+
+    public BdbBlackGroupEntity buildBdbBlackListEntity() {
+        BdbBlackGroupEntity bdbEntity =
+                new BdbBlackGroupEntity(topicName, groupName,
+                        getAttributes(), getCreateUser(), getCreateDate());
+        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setReason(reason);
+        return bdbEntity;
+    }
+
+    public void setTopicAndGroup(String topicName, String groupName) {
+        this.topicName = topicName;
+        this.groupName = groupName;
         this.recordKey = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
                 .append(topicName).append(TokenConstants.ATTR_SEP)
                 .append(groupName).toString();
-        this.topicName = topicName;
-        this.groupName = groupName;
-        this.reason = reason;
     }
 
     public String getRecordKey() {

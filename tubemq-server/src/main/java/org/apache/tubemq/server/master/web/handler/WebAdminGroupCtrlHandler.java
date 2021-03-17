@@ -345,7 +345,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                     new BdbGroupFilterCondEntity(curFilterCondEntity.getTopicName(),
                             curFilterCondEntity.getConsumerGroupName(),
                             curFilterCondEntity.getControlStatus(),
-                            curFilterCondEntity.getAttributes(),
+                            curFilterCondEntity.getFilterCondStr(),
                             modifyUser, modifyDate);
             int filterCondStatus =
                     WebParameterUtils.validIntDataParameter("condStatus",
@@ -361,9 +361,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             String strNewFilterConds =
                     WebParameterUtils.checkAndGetFilterConds(req.getParameter("filterConds"), false, sBuilder);
             if (TStringUtils.isNotBlank(strNewFilterConds)) {
-                if (!curFilterCondEntity.getAttributes().equals(strNewFilterConds)) {
+                if (!curFilterCondEntity.getFilterCondStr().equals(strNewFilterConds)) {
                     foundChange = true;
-                    newFilterCondEntity.setAttributes(strNewFilterConds);
+                    newFilterCondEntity.setFilterCondStr(strNewFilterConds);
                 }
             }
             if (foundChange) {
@@ -446,7 +446,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                             new BdbGroupFilterCondEntity(curFilterCondEntity.getTopicName(),
                                     curFilterCondEntity.getConsumerGroupName(),
                                     curFilterCondEntity.getControlStatus(),
-                                    curFilterCondEntity.getAttributes(),
+                                    curFilterCondEntity.getFilterCondStr(),
                                     modifyUser, modifyDate);
                     int filterCondStatus =
                             WebParameterUtils.validIntDataParameter("condStatus",
@@ -463,9 +463,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                                     (String) groupObject.get("filterConds"),
                                     false, sBuilder);
                     if (TStringUtils.isNotBlank(strNewFilterConds)) {
-                        if (!curFilterCondEntity.getAttributes().equals(strNewFilterConds)) {
+                        if (!curFilterCondEntity.getFilterCondStr().equals(strNewFilterConds)) {
                             foundChange = true;
-                            newFilterCondEntity.setAttributes(strNewFilterConds);
+                            newFilterCondEntity.setFilterCondStr(strNewFilterConds);
                         }
                     }
                     if (!foundChange) {
@@ -691,7 +691,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
             for (BdbGroupFilterCondEntity entity : webGroupCondEntities) {
                 if (!filterCondSet.isEmpty()) {
-                    String filterItems = entity.getAttributes();
+                    String filterItems = entity.getFilterCondStr();
                     if (filterItems.length() == 2
                             && filterItems.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
                         continue;
@@ -714,11 +714,11 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 sBuilder.append("{\"topicName\":\"").append(entity.getTopicName())
                         .append("\",\"groupName\":\"").append(entity.getConsumerGroupName())
                         .append("\",\"condStatus\":").append(entity.getControlStatus());
-                if (entity.getAttributes().length() <= 2) {
+                if (entity.getFilterCondStr().length() <= 2) {
                     sBuilder.append(",\"filterConds\":\"\"");
                 } else {
                     sBuilder.append(",\"filterConds\":\"")
-                            .append(entity.getAttributes())
+                            .append(entity.getFilterCondStr())
                             .append("\"");
                 }
                 sBuilder.append(",\"createUser\":\"").append(entity.getCreateUser())

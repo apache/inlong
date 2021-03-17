@@ -27,6 +27,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 @Entity
@@ -96,6 +97,34 @@ public class BdbTopicConfEntity implements Serializable {
         this.attributes = attributes;
     }
 
+    //Constructor
+    public BdbTopicConfEntity(int brokerId, String topicName,
+                              int numTopicStores, int numPartitions,
+                              int unflushThreshold, int unflushInterval,
+                              String deletePolicy, String attributes,
+                              boolean acceptPublish, boolean acceptSubscribe,
+                              String createUser, Date createDate,
+                              String modifyUser, Date modifyDate) {
+        StringBuilder sBuilder = new StringBuilder(512);
+        this.recordKey = sBuilder.append(brokerId)
+                .append(TokenConstants.ATTR_SEP).append(topicName).toString();
+        sBuilder.delete(0, sBuilder.length());
+        this.brokerId = brokerId;
+        this.topicName = topicName;
+        this.numPartitions = numPartitions;
+        this.unflushThreshold = unflushThreshold;
+        this.unflushInterval = unflushInterval;
+        this.deletePolicy = deletePolicy;
+        this.acceptPublish = acceptPublish;
+        this.acceptSubscribe = acceptSubscribe;
+        this.numTopicStores = numTopicStores;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.modifyUser = modifyUser;
+        this.modifyDate = modifyDate;
+        this.attributes = attributes;
+    }
+
     public void setBrokerAndTopicInfo(int brokerId, String brokerIp,
                                       int brokerPort, String topicName) {
         StringBuilder sBuilder = new StringBuilder(512);
@@ -134,7 +163,7 @@ public class BdbTopicConfEntity implements Serializable {
     public void setUnflushDataHold(final int unFlushDataHold) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD,
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
                         String.valueOf(unFlushDataHold));
     }
 
@@ -287,7 +316,7 @@ public class BdbTopicConfEntity implements Serializable {
     public int getUnflushDataHold() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -297,7 +326,7 @@ public class BdbTopicConfEntity implements Serializable {
     public int getMemCacheMsgCntInK() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT);
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -307,14 +336,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheMsgCntInK(final int memCacheMsgCntInK) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT,
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT,
                         String.valueOf(memCacheMsgCntInK));
     }
 
     public int getMemCacheMsgSizeInMB() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE);
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -324,14 +353,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheMsgSizeInMB(final int memCacheMsgSizeInMB) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE,
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
                         String.valueOf(memCacheMsgSizeInMB));
     }
 
     public int getMemCacheFlushIntvl() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL);
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -341,14 +370,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheFlushIntvl(final int memCacheFlushIntvl) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
                         String.valueOf(memCacheFlushIntvl));
     }
 
     public int getMaxMsgSize() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TServerConstants.TOKEN_MAX_MSG_SIZE);
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -358,8 +387,42 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMaxMsgSize(int maxMsgSize) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TServerConstants.TOKEN_MAX_MSG_SIZE,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
                         String.valueOf(maxMsgSize));
+    }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    public int getTopicId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setTopicId(int topicId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID,
+                        String.valueOf(topicId));
     }
 
     public void appendAttributes(String attrKey, String attrVal) {

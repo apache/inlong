@@ -17,15 +17,15 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
-import java.util.Map;
+import org.apache.tubemq.server.common.exception.LoadMetaException;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 
-public interface GroupConsumeCtrlMapper {
 
-    boolean loadGroupConsumeCtrlConfig(Map<String, String> metaDataMap);
+public interface AbstractMapper {
 
-    boolean putGroupConsumeCtrlConfig(String key, String consumeCtrlJsonData);
+    void close();
 
-    boolean delGroupConsumeCtrlConfig(String key);
+    void loadConfig(ProcessResult result) throws LoadMetaException;
 
 
 }

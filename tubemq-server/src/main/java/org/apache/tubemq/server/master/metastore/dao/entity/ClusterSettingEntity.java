@@ -18,9 +18,9 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.statusdef.RuleStatus;
-
+import org.apache.tubemq.server.common.statusdef.EnableStatus;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 /*
@@ -30,22 +30,80 @@ import org.apache.tubemq.server.common.statusdef.RuleStatus;
 public class ClusterSettingEntity extends BaseEntity {
 
     private String recordKey =
-            TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
-    //broker tcp port
+            TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
+    // broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tls port
+    // broker tls port
     private int brokerTLSPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker web port
+    // broker web port
     private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
-    private TopicPropGroup clsDefTopicPropGroup = new TopicPropGroup();
+    private TopicPropGroup clsDefTopicProps = new TopicPropGroup();
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
-    private RuleStatus flowCtrlStatus = RuleStatus.STATUS_UNDEFINE;
-    private int flowCtrlRuleCnt = 0;                //flow control rule count
-    private String flowCtrlRuleInfo = "";  // flow control info
+    private EnableStatus gloFlowCtrlStatus = EnableStatus.STATUS_UNDEFINE;
+    // flow control rule count
+    private int gloFlowCtrlRuleCnt = TBaseConstants.META_VALUE_UNDEFINED;
+    // flow control info
+    private String gloFlowCtrlRuleInfo = "";
+
+
 
     public ClusterSettingEntity() {
         super();
+    }
+
+    // Constructor by BdbClusterSettingEntity
+    public ClusterSettingEntity(BdbClusterSettingEntity bdbEntity) {
+        super(bdbEntity.getConfigId(), bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        this.brokerPort = bdbEntity.getBrokerPort();
+        this.brokerTLSPort = bdbEntity.getBrokerTLSPort();
+        this.brokerWebPort = bdbEntity.getBrokerWebPort();
+        this.clsDefTopicProps =
+                new TopicPropGroup(bdbEntity.getNumTopicStores(), bdbEntity.getNumPartitions(),
+                        bdbEntity.getUnflushThreshold(), bdbEntity.getUnflushInterval(),
+                        bdbEntity.getUnflushDataHold(), bdbEntity.getMemCacheMsgSizeInMB(),
+                        bdbEntity.getMemCacheMsgCntInK(), bdbEntity.getMemCacheFlushIntvl(),
+                        bdbEntity.isAcceptPublish(), bdbEntity.isAcceptSubscribe(),
+                        bdbEntity.getDeletePolicy(), bdbEntity.getDefDataType(),
+                        bdbEntity.getDefDataPath());
+        this.maxMsgSizeInB = bdbEntity.getMaxMsgSizeInB();
+        this.qryPriorityId = bdbEntity.getQryPriorityId();
+        setGloFlowCtrlInfo(bdbEntity.getEnableGloFlowCtrl(),
+                bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo());
+        setAttributes(bdbEntity.getAttributes());
+    }
+
+    // build bdb object from current info
+    public BdbClusterSettingEntity buildBdbClsDefSettingEntity() {
+        BdbClusterSettingEntity bdbEntity =
+                new BdbClusterSettingEntity(recordKey, getDataVersionId(), brokerPort,
+                        brokerTLSPort, brokerWebPort, clsDefTopicProps.getNumTopicStores(),
+                        clsDefTopicProps.getNumPartitions(), clsDefTopicProps.getUnflushThreshold(),
+                        clsDefTopicProps.getUnflushInterval(), clsDefTopicProps.getUnflushDataHold(),
+                        clsDefTopicProps.getMemCacheMsgCntInK(), clsDefTopicProps.getMemCacheFlushIntvl(),
+                        clsDefTopicProps.getMemCacheMsgSizeInMB(), clsDefTopicProps.isAcceptPublish(),
+                        clsDefTopicProps.isAcceptSubscribe(), clsDefTopicProps.getDeletePolicy(),
+                        this.qryPriorityId, this.maxMsgSizeInB, getAttributes(),
+                        getModifyUser(), getModifyDate());
+        bdbEntity.setDefDataPath(clsDefTopicProps.getDataPath());
+        bdbEntity.setDefDataType(clsDefTopicProps.getDataStoreType());
+        bdbEntity.setEnableGloFlowCtrl(enableFlowCtrl());
+        bdbEntity.setGloFlowCtrlCnt(gloFlowCtrlRuleCnt);
+        bdbEntity.setGloFlowCtrlInfo(gloFlowCtrlRuleInfo);
+        return bdbEntity;
+    }
+
+    public void setGloFlowCtrlInfo(Boolean enableFlowCtrl,
+                                   int flowCtrlCnt, String flowCtrlInfo) {
+        if (enableFlowCtrl != null) {
+            if (enableFlowCtrl) {
+                this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
+            } else {
+                this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
+            }
+        }
+        this.gloFlowCtrlRuleCnt = flowCtrlCnt;
+        this.gloFlowCtrlRuleInfo = flowCtrlInfo;
     }
 
     public String getRecordKey() {
@@ -92,44 +150,33 @@ public class ClusterSettingEntity extends BaseEntity {
         this.qryPriorityId = qryPriorityId;
     }
 
-    public void setFlowCtrlRuleCnt(Boolean enableFlowCtrl,
-                                   int flowCtrlCnt, String flowCtrlInfo) {
-        if (enableFlowCtrl != null) {
-            if (enableFlowCtrl) {
-                this.flowCtrlStatus = RuleStatus.STATUS_ENABLE;
-            } else {
-                this.flowCtrlStatus = RuleStatus.STATUS_DISABLE;
-            }
-        }
-        this.flowCtrlRuleCnt = flowCtrlCnt;
-        this.flowCtrlRuleInfo = flowCtrlInfo;
+
+    public int getGloFlowCtrlRuleCnt() {
+        return gloFlowCtrlRuleCnt;
     }
 
-    public int getFlowCtrlRuleCnt() {
-        return flowCtrlRuleCnt;
-    }
-
-    public String getFlowCtrlRuleInfo() {
-        return flowCtrlRuleInfo;
+    public String getGloFlowCtrlRuleInfo() {
+        return gloFlowCtrlRuleInfo;
     }
 
     public boolean enableFlowCtrl() {
-        return flowCtrlStatus == RuleStatus.STATUS_ENABLE;
+        return gloFlowCtrlStatus == EnableStatus.STATUS_ENABLE;
     }
 
     public void setEnableFlowCtrl(boolean enableFlowCtrl) {
         if (enableFlowCtrl) {
-            this.flowCtrlStatus = RuleStatus.STATUS_ENABLE;
+            this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
         } else {
-            this.flowCtrlStatus = RuleStatus.STATUS_DISABLE;
+            this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
         }
     }
 
-    public TopicPropGroup getClsDefTopicPropGroup() {
-        return clsDefTopicPropGroup;
+    public TopicPropGroup getClsDefTopicProps() {
+        return clsDefTopicProps;
     }
 
-    public void setClsDefTopicPropGroup(TopicPropGroup clsDefTopicPropGroup) {
-        this.clsDefTopicPropGroup = clsDefTopicPropGroup;
+    public void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {
+        this.clsDefTopicProps = clsDefTopicProps;
     }
+
 }
