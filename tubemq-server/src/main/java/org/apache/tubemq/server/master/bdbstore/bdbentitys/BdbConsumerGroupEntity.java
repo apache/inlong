@@ -71,6 +71,11 @@ public class BdbConsumerGroupEntity implements Serializable {
         this.topicName = topicName;
     }
 
+    public void setGroupAndTopicName(String groupName, String topicName) {
+        this.consumerGroupName = groupName;
+        this.topicName = topicName;
+    }
+
     public String getConsumerGroupName() {
         return consumerGroupName;
     }

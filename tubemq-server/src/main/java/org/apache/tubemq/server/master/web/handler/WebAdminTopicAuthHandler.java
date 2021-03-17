@@ -319,11 +319,11 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                     sBuilder.append("{\"topicName\":\"").append(condEntity.getTopicName())
                             .append("\",\"groupName\":\"").append(condEntity.getConsumerGroupName())
                             .append("\",\"condStatus\":").append(condEntity.getControlStatus());
-                    if (condEntity.getAttributes().length() <= 2) {
+                    if (condEntity.getFilterCondStr().length() <= 2) {
                         sBuilder.append(",\"filterConds\":\"\"");
                     } else {
                         sBuilder.append(",\"filterConds\":\"")
-                                .append(condEntity.getAttributes())
+                                .append(condEntity.getFilterCondStr())
                                 .append("\"");
                     }
                     sBuilder.append(",\"createUser\":\"").append(condEntity.getCreateUser())

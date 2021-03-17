@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.master.metastore.dao.mapper;
+package org.apache.tubemq.server.common.exception;
 
-import java.util.Map;
+public class LoadMetaException extends RuntimeException {
 
-public interface TopicAuthCtrlMapper {
+    static final long serialVersionUID = 5286701925988728790L;
 
-    boolean loadTopicAuthCtrlConfig(Map<String, String> metaDataMap);
+    public LoadMetaException(String msg) {
+        super(msg);
+    }
 
-    boolean putTopicAuthCtrlConfig(String key, String topicAuthCtrlJsonData);
+    public LoadMetaException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 
-    boolean delTopicAuthCtrlConfig(String key);
-
-
+    public LoadMetaException(Throwable cause) {
+        super(cause);
+    }
 }

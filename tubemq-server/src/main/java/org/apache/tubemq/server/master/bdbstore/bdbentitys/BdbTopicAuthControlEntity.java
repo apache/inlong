@@ -22,7 +22,10 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 @Entity
@@ -51,6 +54,20 @@ public class BdbTopicAuthControlEntity implements Serializable {
         this.createUser = createUser;
         this.createDate = createDate;
     }
+
+    public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
+                                     String attributes,  String createUser, Date createDate) {
+        this.topicName = topicName;
+        if (enableAuthControl) {
+            this.enableAuthControl = 1;
+        } else {
+            this.enableAuthControl = 0;
+        }
+        this.attributes = attributes;
+        this.createUser = createUser;
+        this.createDate = createDate;
+    }
+
 
     public String getAttributes() {
         return attributes;
@@ -98,6 +115,40 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    public int getMaxMsgSize() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setMaxMsgSize(int maxMsgSize) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
+                        String.valueOf(maxMsgSize));
     }
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {

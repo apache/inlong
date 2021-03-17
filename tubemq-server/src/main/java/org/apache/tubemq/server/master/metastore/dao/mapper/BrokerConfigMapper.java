@@ -17,15 +17,15 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
-import java.util.Map;
+import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.master.metastore.dao.entity.BrokerConfEntity;
 
-public interface BrokerConfigMapper {
 
-    boolean loadBrokerConfig(Map<String, String> metaDataMap);
+public interface BrokerConfigMapper extends AbstractMapper {
 
-    boolean putBrokerConfig(String key, String brokerJsonData);
+    boolean putBrokerConfig(BrokerConfEntity memEntity, ProcessResult result);
 
-    boolean delBrokerConfig(String key);
+    boolean delBrokerConfig(int brokerId);
 
 
 }

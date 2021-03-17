@@ -22,8 +22,11 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 
 
 @Entity
@@ -44,7 +47,7 @@ public class BdbGroupFilterCondEntity implements Serializable {
     }
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
-                                    int controlStatus, String attributes,
+                                    int controlStatus, String filterCondStr,
                                     String createUser, Date createDate) {
         this.recordKey =
                 new StringBuilder(512)
@@ -54,17 +57,42 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.topicName = topicName;
         this.consumerGroupName = consumerGroupName;
         this.controlStatus = controlStatus;
-        this.attributes = attributes;
+        setFilterCondStr(filterCondStr);
         this.createUser = createUser;
         this.createDate = createDate;
     }
 
-    public String getAttributes() {
-        return attributes;
+    public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
+                                    int controlStatus, String filterCondStr,
+                                    String attributes, String createUser, Date createDate) {
+        this.recordKey =
+                new StringBuilder(512)
+                        .append(topicName)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(consumerGroupName).toString();
+        this.topicName = topicName;
+        this.consumerGroupName = consumerGroupName;
+        this.controlStatus = controlStatus;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.attributes = attributes;
+        setFilterCondStr(filterCondStr);
     }
 
-    public void setAttributes(String attributes) {
-        this.attributes = attributes;
+    public String getFilterCondStr() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            return TStringUtils.getAttrValFrmAttributes(
+                    this.attributes, TStoreConstants.TOKEN_FILTER_COND_STR);
+        } else {
+            return attributes;
+        }
+    }
+
+    public void setFilterCondStr(String filterCondStr) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FILTER_COND_STR, filterCondStr);
     }
 
     public String getRecordKey() {
@@ -109,6 +137,43 @@ public class BdbGroupFilterCondEntity implements Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public String getAttributes() {
+        if (TStringUtils.isNotBlank(attributes)
+                && !attributes.contains(TokenConstants.EQ)) {
+            return attributes;
+        } else {
+            return "";
+        }
+    }
+
+    public void setAttributes(String attributes) {
+        this.attributes = attributes;
+    }
+
+    public long getDataVerId() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            String atrVal =
+                    TStringUtils.getAttrValFrmAttributes(this.attributes,
+                            TStoreConstants.TOKEN_DATA_VERSION_ID);
+            if (atrVal != null) {
+                return Long.parseLong(atrVal);
+            }
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        if (TStringUtils.isNotBlank(attributes)
+                && !attributes.contains(TokenConstants.EQ)) {
+            setFilterCondStr(attributes);
+        }
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
     }
 
     @Override

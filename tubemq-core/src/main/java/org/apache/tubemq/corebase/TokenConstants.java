@@ -29,13 +29,6 @@ public class TokenConstants {
     public static final String BLANK = " ";
 
 
-    public static final String TOKEN_STORE_NUM = "storeNum";
-    public static final String TOKEN_QRY_PRIORITY_ID = "qryPriorityId";
-    public static final String TOKEN_DATA_UNFLUSHHOLD = "unFlushDataHold";
-    public static final String TOKEN_MCACHE_MSG_CNT = "memCacheMsgCntInK";
-    public static final String TOKEN_TLS_PORT = "TLSPort";
-    public static final String TOKEN_MCACHE_MSG_SIZE = "memCacheMsgSizeInMB";
-    public static final String TOKEN_MCACHE_FLUSH_INTVL = "memCacheFlushIntvl";
     public static final String TOKEN_MSG_TYPE = "$msgType$";
     public static final String TOKEN_MSG_TIME = "$msgTime$";
 

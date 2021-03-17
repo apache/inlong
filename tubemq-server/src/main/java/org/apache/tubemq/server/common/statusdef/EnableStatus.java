@@ -15,15 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.master.metastore.dao.mapper;
-
-import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metastore.dao.entity.ClusterSettingEntity;
+package org.apache.tubemq.server.common.statusdef;
 
 
-public interface ClusterConfigMapper extends AbstractMapper {
+public enum EnableStatus {
+    STATUS_UNDEFINE(-2, "Undefined."),
+    STATUS_ENABLE(1, "Enable."),
+    STATUS_DISABLE(0, "Disable.");
 
-    boolean putClusterConfig(ClusterSettingEntity entity, ProcessResult result);
+    private int code;
+    private String description;
 
-    boolean delClusterConfig(String key);
+
+    EnableStatus(int code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public static EnableStatus valueOf(int code) {
+        for (EnableStatus status : EnableStatus.values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException(String.format("unknown Enable status code %s", code));
+    }
+
 }

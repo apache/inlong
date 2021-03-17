@@ -21,6 +21,7 @@ import java.util.Date;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 
 
 
@@ -30,22 +31,25 @@ import org.apache.tubemq.server.common.statusdef.ManageStatus;
  */
 
 public class BrokerConfEntity extends BaseEntity  {
+    // Primary Key
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerIp = "";
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tls port
+    // broker tls port
     private int brokerTLSPort = TBaseConstants.META_VALUE_UNDEFINED;
+    // broker web port
+    private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
+    private ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
+    private boolean isConfDataUpdated = false;  //conf data update flag
+    private boolean isBrokerLoaded = false;     //broker conf load flag
+    private int regionId = TBaseConstants.META_VALUE_UNDEFINED;
+    private int groupId = TBaseConstants.META_VALUE_UNDEFINED;
+    private TopicPropGroup topicProps = null;
     private String brokerAddress = "";       // broker ip:port
     private String brokerFullInfo = "";      // broker brokerId:ip:port
     private String brokerSimpleInfo = "";    // broker brokerId:ip:
     private String brokerTLSSimpleInfo = ""; //tls simple info
     private String brokerTLSFullInfo = "";   //tls full info
-    private int regionId = TBaseConstants.META_VALUE_UNDEFINED;
-    private int groupId = TBaseConstants.META_VALUE_UNDEFINED;
-    private ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
-    private boolean isConfDataUpdated = false;  //conf data update flag
-    private boolean isBrokerLoaded = false;     //broker conf load flag
-    private TopicPropGroup defTopicPropGroup = null;
 
 
     public BrokerConfEntity() {
@@ -54,18 +58,66 @@ public class BrokerConfEntity extends BaseEntity  {
 
 
     public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,
-                            int brokerTLSPort, ManageStatus manageStatus,
+                            int brokerTLSPort, int brokerWebPort, ManageStatus manageStatus,
+                            int regionId, int groupId, TopicPropGroup defTopicProps,
                             boolean isConfDataUpdated, boolean isBrokerLoaded,
-                            TopicPropGroup defTopicPropGroup,
-                            String createUser, Date createDate,
-                            String modifyUser, Date modifyDate) {
-        super(createUser, createDate, modifyUser, modifyDate);
+                            long dataVersionId, String createUser,
+                            Date createDate, String modifyUser, Date modifyDate) {
+        super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
         setBrokerIpAndAllPort(brokerId, brokerIp, brokerPort, brokerTLSPort);
+        this.regionId = regionId;
+        this.groupId = groupId;
+        this.brokerWebPort = brokerWebPort;
+        this.topicProps = defTopicProps;
         this.manageStatus = manageStatus;
         this.isConfDataUpdated = isConfDataUpdated;
         this.isBrokerLoaded = isBrokerLoaded;
-        this.defTopicPropGroup = defTopicPropGroup;
-        this.buildStrInfo();
+    }
+
+    public BrokerConfEntity(BdbBrokerConfEntity bdbEntity) {
+        super(bdbEntity.getDataVerId(), bdbEntity.getRecordCreateUser(),
+                bdbEntity.getRecordCreateDate(), bdbEntity.getRecordModifyUser(),
+                bdbEntity.getRecordModifyDate());
+        setBrokerIpAndAllPort(bdbEntity.getBrokerId(), bdbEntity.getBrokerIp(),
+                bdbEntity.getBrokerPort(), bdbEntity.getBrokerTLSPort());
+        this.regionId = bdbEntity.getRegionId();
+        this.groupId = bdbEntity.getBrokerGroupId();
+        this.brokerWebPort = bdbEntity.getBrokerWebPort();
+        this.topicProps =
+                new TopicPropGroup(bdbEntity.getNumTopicStores(), bdbEntity.getDftNumPartitions(),
+                        bdbEntity.getDftUnflushThreshold(), bdbEntity.getDftUnflushInterval(),
+                        bdbEntity.getDftUnFlushDataHold(), bdbEntity.getDftMemCacheMsgSizeInMB(),
+                        bdbEntity.getDftMemCacheMsgCntInK(), bdbEntity.getDftMemCacheFlushIntvl(),
+                        bdbEntity.isAcceptPublish(), bdbEntity.isAcceptSubscribe(),
+                        bdbEntity.getDftDeletePolicy(), bdbEntity.getDataStoreType(),
+                        bdbEntity.getDataPath());
+        this.manageStatus = ManageStatus.valueOf(bdbEntity.getManageStatus());
+        this.isConfDataUpdated = bdbEntity.isConfDataUpdated();
+        this.isBrokerLoaded = bdbEntity.isBrokerLoaded();
+        setAttributes(bdbEntity.getAttributes());
+    }
+
+    // build bdb object from current info
+    public BdbBrokerConfEntity buildBdbBrokerConfEntity() {
+        BdbBrokerConfEntity bdbEntity = new BdbBrokerConfEntity(brokerId, brokerIp, brokerPort,
+                topicProps.getNumPartitions(), topicProps.getUnflushThreshold(),
+                topicProps.getUnflushInterval(), "", topicProps.getDeletePolicy(),
+                manageStatus.getCode(), topicProps.isAcceptPublish(),
+                topicProps.isAcceptSubscribe(), getAttributes(), isConfDataUpdated,
+                isBrokerLoaded, getCreateUser(), getCreateDate(),
+                getModifyUser(), getModifyDate());
+        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setRegionId(regionId);
+        bdbEntity.setBrokerGroupId(groupId);
+        bdbEntity.setBrokerTLSPort(brokerTLSPort);
+        bdbEntity.setBrokerWebPort(brokerWebPort);
+        bdbEntity.setNumTopicStores(topicProps.getNumTopicStores());
+        bdbEntity.setDftMemCacheMsgSizeInMB(topicProps.getMemCacheMsgSizeInMB());
+        bdbEntity.setDftMemCacheMsgCntInK(topicProps.getMemCacheMsgCntInK());
+        bdbEntity.setDftMemCacheFlushIntvl(topicProps.getMemCacheFlushIntvl());
+        bdbEntity.setDftUnFlushDataHold(topicProps.getUnflushDataHold());
+        bdbEntity.setDataStore(topicProps.getDataStoreType(), topicProps.getDataPath());
+        return bdbEntity;
     }
 
     public int getBrokerId() {
@@ -129,6 +181,14 @@ public class BrokerConfEntity extends BaseEntity  {
         this.buildStrInfo();
     }
 
+    public int getBrokerWebPort() {
+        return brokerWebPort;
+    }
+
+    public void setBrokerWebPort(int brokerWebPort) {
+        this.brokerWebPort = brokerWebPort;
+    }
+
     public int getBrokerTLSPort() {
         return brokerTLSPort;
     }
@@ -173,12 +233,12 @@ public class BrokerConfEntity extends BaseEntity  {
         this.groupId = groupId;
     }
 
-    public TopicPropGroup getDefTopicPropGroup() {
-        return defTopicPropGroup;
+    public TopicPropGroup getTopicProps() {
+        return topicProps;
     }
 
-    public void setDefTopicPropGroup(TopicPropGroup defTopicPropGroup) {
-        this.defTopicPropGroup = defTopicPropGroup;
+    public void setTopicProps(TopicPropGroup topicProps) {
+        this.topicProps = topicProps;
     }
 
     private void buildStrInfo() {

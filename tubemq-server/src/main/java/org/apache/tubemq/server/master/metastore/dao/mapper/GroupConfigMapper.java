@@ -15,38 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.statusdef;
+package org.apache.tubemq.server.master.metastore.dao.mapper;
+
+import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.master.metastore.dao.entity.GroupConfigEntity;
 
 
-public enum RuleStatus {
-    STATUS_UNDEFINE(-2, "Undefined."),
-    STATUS_ENABLE(1, "Enable."),
-    STATUS_DISABLE(0, "Disable.");
 
-    private int code;
-    private String description;
+public interface GroupConfigMapper extends AbstractMapper {
 
+    boolean putGroupConfigConfig(GroupConfigEntity entity, ProcessResult result);
 
-    RuleStatus(int code, String description) {
-        this.code = code;
-        this.description = description;
-    }
+    boolean delGroupConfigConfig(String key);
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public static RuleStatus valueOf(int code) {
-        for (RuleStatus status : RuleStatus.values()) {
-            if (status.getCode() == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException(String.format("unknown Rule status code %s", code));
-    }
 
 }

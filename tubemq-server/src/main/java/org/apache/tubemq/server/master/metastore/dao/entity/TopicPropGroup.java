@@ -17,14 +17,16 @@
 
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
+import java.io.Serializable;
 import org.apache.tubemq.corebase.TBaseConstants;
+
 
 
 /*
  * Topic property group, save topic related storage and configuration information.
  *
  */
-public class TopicPropGroup {
+public class TopicPropGroup implements Serializable {
 
     private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;        //store num
     private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;        //partition num

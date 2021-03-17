@@ -55,7 +55,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.Server;
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
@@ -68,6 +67,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEnt
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 import org.apache.tubemq.server.master.utils.BdbStoreSamplePrint;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
@@ -811,7 +811,7 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     @Override
     public boolean delBdbClusterConfEntity() {
         try {
-            clusterDefSettingIndex.delete(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+            clusterDefSettingIndex.delete(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
         } catch (Throwable e) {
             logger.error("[BDB Error] delBdbClusterConfEntity Error ", e);
             return false;

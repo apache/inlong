@@ -53,6 +53,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEnt
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metastore.TStoreConstants;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -379,7 +380,7 @@ public class BrokerConfManager implements Server {
             if (bdbGroupFilterCondEntity == null) {
                 continue;
             }
-            String allowedConds = bdbGroupFilterCondEntity.getAttributes();
+            String allowedConds = bdbGroupFilterCondEntity.getFilterCondStr();
             TreeSet<String> condItemSet = reqTopicConditions.get(tmpTopic);
             if (allowedConds.length() == 2
                     && allowedConds.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
@@ -1442,8 +1443,8 @@ public class BrokerConfManager implements Server {
                         && !bdbQueryEntity.getTopicName().equals(entity.getTopicName()))
                         || (!TStringUtils.isBlank(bdbQueryEntity.getConsumerGroupName())
                         && !bdbQueryEntity.getConsumerGroupName().equals(entity.getConsumerGroupName()))
-                        || (!TStringUtils.isBlank(bdbQueryEntity.getAttributes())
-                        && !bdbQueryEntity.getAttributes().equals(entity.getAttributes()))
+                        || (!TStringUtils.isBlank(bdbQueryEntity.getFilterCondStr())
+                        && !bdbQueryEntity.getFilterCondStr().equals(entity.getFilterCondStr()))
                         || (bdbQueryEntity.getControlStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED
                         && bdbQueryEntity.getControlStatus() != entity.getControlStatus())
                         || (!TStringUtils.isBlank(bdbQueryEntity.getCreateUser())
@@ -2033,10 +2034,10 @@ public class BrokerConfManager implements Server {
     public boolean confSetBdbClusterDefSetting(BdbClusterSettingEntity bdbEntity)
             throws Exception {
         validMasterStatus();
-        bdbEntity.setRecordKey(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        bdbEntity.setRecordKey(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
         boolean result =
                 mBdbStoreManagerService.putBdbClusterConfEntity(bdbEntity, true);
-        clusterSettingMap.put(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING, bdbEntity);
+        clusterSettingMap.put(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING, bdbEntity);
         StringBuilder strBuffer = new StringBuilder(512);
         if (result) {
             strBuffer.append("[confSetBdbClusterDefSetting  Success], add new record :");
@@ -2057,7 +2058,7 @@ public class BrokerConfManager implements Server {
     public boolean confDeleteBdbClusterSetting(final StringBuilder strBuffer) throws Exception {
         validMasterStatus();
         BdbClusterSettingEntity curEntity =
-                this.clusterSettingMap.remove(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+                this.clusterSettingMap.remove(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
         if (curEntity != null) {
             mBdbStoreManagerService.delBdbClusterConfEntity();
             strBuffer.append(
@@ -2071,7 +2072,7 @@ public class BrokerConfManager implements Server {
     }
 
     public BdbClusterSettingEntity getBdbClusterSetting() {
-        return this.clusterSettingMap.get(TServerConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        return this.clusterSettingMap.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
     }
 
     private void validMasterStatus() throws Exception {
