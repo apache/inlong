@@ -24,7 +24,7 @@ import org.apache.tubemq.server.master.metastore.dao.entity.TopicCtrlEntity;
 
 public interface TopicCtrlMapper extends AbstractMapper {
 
-    boolean putTopicCtrlConfig(TopicCtrlEntity entity, ProcessResult result);
+    boolean putTopicCtrlConfig(TopicCtrlEntity memEntity, ProcessResult result);
 
     boolean delTopicCtrlConfig(String key);
 

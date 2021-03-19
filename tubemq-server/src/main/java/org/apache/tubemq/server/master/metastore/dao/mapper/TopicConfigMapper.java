@@ -18,12 +18,12 @@
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metastore.dao.entity.TopicConfEntity;
 
 
 public interface TopicConfigMapper extends AbstractMapper {
 
-    boolean putTopicConfig(BdbTopicConfEntity entity, ProcessResult result);
+    boolean putTopicConfig(TopicConfEntity memEntity, ProcessResult result);
 
     boolean delTopicConfig(String key);
 

@@ -24,7 +24,7 @@ import org.apache.tubemq.server.master.metastore.dao.entity.GroupConfigEntity;
 
 public interface GroupConfigMapper extends AbstractMapper {
 
-    boolean putGroupConfigConfig(GroupConfigEntity entity, ProcessResult result);
+    boolean putGroupConfigConfig(GroupConfigEntity memEntity, ProcessResult result);
 
     boolean delGroupConfigConfig(String key);
 

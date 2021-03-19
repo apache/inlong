@@ -68,6 +68,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntit
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
 import org.apache.tubemq.server.master.metastore.TStoreConstants;
+import org.apache.tubemq.server.master.metastore.impl.bdbimpl.TBDBStoreTables;
 import org.apache.tubemq.server.master.utils.BdbStoreSamplePrint;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
@@ -83,15 +84,6 @@ import org.slf4j.LoggerFactory;
 public class DefaultBdbStoreService implements BdbStoreService, Server {
     private static final Logger logger = LoggerFactory.getLogger(DefaultBdbStoreService.class);
 
-    private static final String BDB_CLUSTER_SETTING_STORE_NAME = "bdbClusterSetting";
-    private static final String BDB_TOPIC_CONFIG_STORE_NAME = "bdbTopicConfig";
-    private static final String BDB_BROKER_CONFIG_STORE_NAME = "bdbBrokerConfig";
-    private static final String BDB_CONSUMER_GROUP_STORE_NAME = "bdbConsumerGroup";
-    private static final String BDB_TOPIC_AUTH_CONTROL_STORE_NAME = "bdbTopicAuthControl";
-    private static final String BDB_BLACK_GROUP_STORE_NAME = "bdbBlackGroup";
-    private static final String BDB_GROUP_FILTER_COND_STORE_NAME = "bdbGroupFilterCond";
-    private static final String BDB_GROUP_FLOW_CONTROL_STORE_NAME = "bdbGroupFlowCtrlCfg";
-    private static final String BDB_CONSUME_GROUP_SETTING_STORE_NAME = "bdbConsumeGroupSetting";
     private static final int REP_HANDLE_RETRY_MAX = 1;
     private final TMaster tMaster;
     // simple log print
@@ -1001,39 +993,39 @@ public class DefaultBdbStoreService implements BdbStoreService, Server {
     /* initial metadata */
     private void initMetaStore() {
         brokerConfStore =
-                new EntityStore(repEnv, BDB_BROKER_CONFIG_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_BROKER_CONFIG_STORE_NAME, storeConfig);
         brokerConfIndex =
                 brokerConfStore.getPrimaryIndex(Integer.class, BdbBrokerConfEntity.class);
         topicConfStore =
-                new EntityStore(repEnv, BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
         topicConfIndex =
                 topicConfStore.getPrimaryIndex(String.class, BdbTopicConfEntity.class);
         consumerGroupStore =
-                new EntityStore(repEnv, BDB_CONSUMER_GROUP_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_CONSUMER_GROUP_STORE_NAME, storeConfig);
         consumerGroupIndex =
                 consumerGroupStore.getPrimaryIndex(String.class, BdbConsumerGroupEntity.class);
         topicAuthControlStore =
-                new EntityStore(repEnv, BDB_TOPIC_AUTH_CONTROL_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_TOPIC_AUTH_CONTROL_STORE_NAME, storeConfig);
         topicAuthControlIndex =
                 topicAuthControlStore.getPrimaryIndex(String.class, BdbTopicAuthControlEntity.class);
         blackGroupStore =
-                new EntityStore(repEnv, BDB_BLACK_GROUP_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_BLACK_GROUP_STORE_NAME, storeConfig);
         blackGroupIndex =
                 blackGroupStore.getPrimaryIndex(String.class, BdbBlackGroupEntity.class);
         groupFilterCondStore =
-                new EntityStore(repEnv, BDB_GROUP_FILTER_COND_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_GROUP_FILTER_COND_STORE_NAME, storeConfig);
         groupFilterCondIndex =
                 groupFilterCondStore.getPrimaryIndex(String.class, BdbGroupFilterCondEntity.class);
         groupFlowCtrlStore =
-                new EntityStore(repEnv, BDB_GROUP_FLOW_CONTROL_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_GROUP_FLOW_CONTROL_STORE_NAME, storeConfig);
         groupFlowCtrlIndex =
                 groupFlowCtrlStore.getPrimaryIndex(String.class, BdbGroupFlowCtrlEntity.class);
         consumeGroupSettingStore =
-                new EntityStore(repEnv, BDB_CONSUME_GROUP_SETTING_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_CONSUME_GROUP_SETTING_STORE_NAME, storeConfig);
         consumeGroupSettingIndex =
                 consumeGroupSettingStore.getPrimaryIndex(String.class, BdbConsumeGroupSettingEntity.class);
         clusterDefSettingStore =
-                new EntityStore(repEnv, BDB_CLUSTER_SETTING_STORE_NAME, storeConfig);
+                new EntityStore(repEnv, TBDBStoreTables.BDB_CLUSTER_SETTING_STORE_NAME, storeConfig);
         clusterDefSettingIndex =
                 clusterDefSettingStore.getPrimaryIndex(String.class, BdbClusterSettingEntity.class);
     }

@@ -23,7 +23,7 @@ import org.apache.tubemq.server.master.metastore.dao.entity.GroupFilterCtrlEntit
 
 public interface GroupFilterCtrlMapper extends AbstractMapper {
 
-    boolean putGroupFilterCtrlConfig(GroupFilterCtrlEntity entity, ProcessResult result);
+    boolean putGroupFilterCtrlConfig(GroupFilterCtrlEntity memEntity, ProcessResult result);
 
     boolean delGroupFilterCtrlConfig(String key);
 
