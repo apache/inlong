@@ -18,13 +18,12 @@
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
-
+import org.apache.tubemq.server.master.metastore.dao.entity.GroupBlackListEntity;
 
 
 public interface GroupBlackListMapper extends AbstractMapper {
 
-    boolean putGroupBlackListConfig(BdbBlackGroupEntity entity, ProcessResult result);
+    boolean putGroupBlackListConfig(GroupBlackListEntity memEntity, ProcessResult result);
 
     boolean delGroupBlackListConfig(String key);
 

@@ -64,7 +64,7 @@ public class GroupFilterCtrlEntity extends BaseEntity {
             this.filterConsumeStatus = EnableStatus.STATUS_DISABLE;
         }
         this.filterCondStr = bdbEntity.getFilterCondStr();
-        this.setAttributes(bdbEntity.getFilterCondStr());
+        this.setAttributes(bdbEntity.getAttributes());
     }
 
     public BdbGroupFilterCondEntity buildBdbGroupFilterCondEntity() {
