@@ -18,14 +18,13 @@
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
 import org.apache.tubemq.server.common.exception.LoadMetaException;
-import org.apache.tubemq.server.common.utils.ProcessResult;
 
 
 public interface AbstractMapper {
 
     void close();
 
-    void loadConfig(ProcessResult result) throws LoadMetaException;
+    void loadConfig() throws LoadMetaException;
 
 
 }

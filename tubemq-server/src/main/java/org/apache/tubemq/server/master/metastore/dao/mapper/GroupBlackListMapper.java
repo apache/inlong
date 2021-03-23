@@ -17,15 +17,29 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
+import java.util.List;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metastore.dao.entity.GroupBlackListEntity;
 
 
+
+
 public interface GroupBlackListMapper extends AbstractMapper {
 
-    boolean putGroupBlackListConfig(GroupBlackListEntity memEntity, ProcessResult result);
+    // about group blacklist api
+    boolean addGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);
 
-    boolean delGroupBlackListConfig(String key);
+    boolean updGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);
+
+    boolean delGroupBlackListConf(String recordKey);
+
+    boolean delGroupBlackListConfByGroupName(String groupName);
+
+    List<GroupBlackListEntity> getGrpBlkLstConfByGroupName(String groupName);
+
+    List<GroupBlackListEntity> getGrpBlkLstConfByTopicName(String topicName);
+
+    List<GroupBlackListEntity> getGroupBlackListConf(GroupBlackListEntity qryEntity);
 
 
 }

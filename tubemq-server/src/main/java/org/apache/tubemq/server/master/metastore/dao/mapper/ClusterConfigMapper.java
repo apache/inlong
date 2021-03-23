@@ -23,7 +23,11 @@ import org.apache.tubemq.server.master.metastore.dao.entity.ClusterSettingEntity
 
 public interface ClusterConfigMapper extends AbstractMapper {
 
-    boolean putClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);
+    boolean addClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);
 
-    boolean delClusterConfig(String key);
+    boolean updClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);
+
+    ClusterSettingEntity getClusterConfig();
+
+    boolean delClusterConfig();
 }

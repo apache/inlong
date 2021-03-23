@@ -23,12 +23,15 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
+import org.apache.tubemq.server.master.metastore.DataOpErrCode;
+import org.apache.tubemq.server.master.metastore.dao.entity.TopicConfEntity;
 import org.apache.tubemq.server.master.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metastore.dao.mapper.TopicCtrlMapper;
 import org.slf4j.Logger;
@@ -45,8 +48,10 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     // Topic control store
     private EntityStore topicCtrlStore;
-    private PrimaryIndex<String/* recordKey */, BdbTopicAuthControlEntity> topicCtrlIndex;
-
+    private PrimaryIndex<String/* topicName */, BdbTopicAuthControlEntity> topicCtrlIndex;
+    // data cache
+    private ConcurrentHashMap<String/* topicName */, TopicCtrlEntity> topicCtrlCache =
+            new ConcurrentHashMap<>();
 
     public BdbTopicCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         topicCtrlStore = new EntityStore(repEnv,
@@ -57,6 +62,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public void close() {
+        topicCtrlCache.clear();
         if (topicCtrlStore != null) {
             try {
                 topicCtrlStore.close();
@@ -68,25 +74,23 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
     }
 
     @Override
-    public void loadConfig(ProcessResult result) throws LoadMetaException {
+    public void loadConfig() throws LoadMetaException {
         long count = 0L;
-        Map<String, TopicCtrlEntity> metaDataMap = new HashMap<>();
         EntityCursor<BdbTopicAuthControlEntity> cursor = null;
         logger.info("[BDB Impl] load topic configure start...");
         try {
+            topicCtrlCache.clear();
             cursor = topicCtrlIndex.entities();
             for (BdbTopicAuthControlEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
                     logger.warn("[BDB Impl] found Null data while loading topic control!");
                     continue;
                 }
-                TopicCtrlEntity memEntity =
-                        new TopicCtrlEntity(bdbEntity);
-                metaDataMap.put(memEntity.getTopicName(), memEntity);
+                TopicCtrlEntity memEntity = new TopicCtrlEntity(bdbEntity);
+                topicCtrlCache.put(memEntity.getTopicName(), memEntity);
                 count++;
             }
             logger.info("[BDB Impl] total topic control records are {}", count);
-            result.setSuccResult(metaDataMap);
         } catch (Exception e) {
             logger.error("[BDB Impl] load topic control failure ", e);
             throw new LoadMetaException(e.getMessage());
@@ -98,6 +102,82 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
         logger.info("[BDB Impl] load topic control successfully...");
     }
 
+    @Override
+    public boolean addTopicCtrlConf(TopicCtrlEntity memEntity, ProcessResult result) {
+        TopicCtrlEntity curEntity =
+                topicCtrlCache.get(memEntity.getTopicName());
+        if (curEntity != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The topic control ").append(memEntity.getTopicName())
+                            .append("'s configure already exists, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putTopicCtrlConfig2Bdb(memEntity, result)) {
+            topicCtrlCache.put(memEntity.getTopicName(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean updTopicCtrlConf(TopicCtrlEntity memEntity, ProcessResult result) {
+        TopicCtrlEntity curEntity =
+                topicCtrlCache.get(memEntity.getTopicName());
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The topic control ").append(memEntity.getTopicName())
+                            .append("'s configure is not exists, please add record first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (curEntity.equals(memEntity)) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The topic control ").append(memEntity.getTopicName())
+                            .append("'s configure have not changed, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putTopicCtrlConfig2Bdb(memEntity, result)) {
+            topicCtrlCache.put(memEntity.getTopicName(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean delTopicCtrlConf(String topicName) {
+        TopicCtrlEntity curEntity =
+                topicCtrlCache.get(topicName);
+        if (curEntity == null) {
+            return true;
+        }
+        delTopicCtrlConfigFromBdb(topicName);
+        topicCtrlCache.remove(topicName);
+        return true;
+    }
+
+    @Override
+    public TopicCtrlEntity getTopicCtrlConf(String topicName) {
+        return topicCtrlCache.get(topicName);
+    }
+
+    @Override
+    public List<TopicCtrlEntity> getTopicCtrlConf(TopicConfEntity qryEntity) {
+        List<TopicCtrlEntity> retEntitys = new ArrayList<>();
+        if (qryEntity == null) {
+            retEntitys.addAll(topicCtrlCache.values());
+        } else {
+            for (TopicCtrlEntity entity : topicCtrlCache.values()) {
+                if (entity.isMatched(qryEntity)) {
+                    retEntitys.add(entity);
+                }
+            }
+        }
+        return retEntitys;
+    }
+
     /**
      * Put topic control configure info into bdb store
      *
@@ -105,8 +185,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
      * @param result process result with old value
      * @return
      */
-    @Override
-    public boolean putTopicCtrlConfig(TopicCtrlEntity memEntity, ProcessResult result) {
+    private boolean putTopicCtrlConfig2Bdb(TopicCtrlEntity memEntity, ProcessResult result) {
         BdbTopicAuthControlEntity retData = null;
         BdbTopicAuthControlEntity bdbEntity =
                 memEntity.buildBdbTopicAuthControlEntity();
@@ -123,8 +202,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
         return result.isSuccess();
     }
 
-    @Override
-    public boolean delTopicCtrlConfig(String recordKey) {
+    private boolean delTopicCtrlConfigFromBdb(String recordKey) {
         try {
             topicCtrlIndex.delete(recordKey);
         } catch (Throwable e) {

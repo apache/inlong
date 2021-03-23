@@ -18,8 +18,10 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 
@@ -264,4 +266,76 @@ public class BrokerConfEntity extends BaseEntity  {
                 .append(TokenConstants.ATTR_SEP).append(brokerTLSPort).toString();
     }
 
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   brokerId, brokerIp, brokerPort, brokerTLSPort, regionId, groupId
+     *   manageStatus, brokerWebPort
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(BrokerConfEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if (!super.isMatched(target)) {
+            return false;
+        }
+        if ((target.getBrokerId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getBrokerId() != this.brokerId)
+                || (TStringUtils.isNotBlank(target.getBrokerIp())
+                && !target.getBrokerIp().equals(this.brokerIp))
+                || (target.getBrokerPort() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getBrokerPort() != this.brokerPort)
+                || (target.getBrokerTLSPort() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getBrokerTLSPort() != this.brokerTLSPort)
+                || (target.getRegionId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getRegionId() != this.regionId)
+                || (target.getGroupId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getGroupId() != this.groupId)
+                || (target.getManageStatus() != ManageStatus.STATUS_MANAGE_UNDEFINED
+                && target.getManageStatus() != this.manageStatus)
+                || (target.getBrokerWebPort() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getBrokerWebPort() != this.brokerWebPort)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BrokerConfEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        BrokerConfEntity entity = (BrokerConfEntity) o;
+        return brokerId == entity.brokerId &&
+                brokerPort == entity.brokerPort &&
+                brokerTLSPort == entity.brokerTLSPort &&
+                brokerWebPort == entity.brokerWebPort &&
+                isConfDataUpdated == entity.isConfDataUpdated &&
+                isBrokerLoaded == entity.isBrokerLoaded &&
+                regionId == entity.regionId &&
+                groupId == entity.groupId &&
+                Objects.equals(brokerIp, entity.brokerIp) &&
+                manageStatus == entity.manageStatus &&
+                Objects.equals(topicProps, entity.topicProps) &&
+                Objects.equals(brokerAddress, entity.brokerAddress) &&
+                Objects.equals(brokerFullInfo, entity.brokerFullInfo) &&
+                Objects.equals(brokerSimpleInfo, entity.brokerSimpleInfo) &&
+                Objects.equals(brokerTLSSimpleInfo, entity.brokerTLSSimpleInfo) &&
+                Objects.equals(brokerTLSFullInfo, entity.brokerTLSFullInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), brokerId, brokerIp, brokerPort, brokerTLSPort,
+                brokerWebPort, manageStatus, isConfDataUpdated, isBrokerLoaded, regionId,
+                groupId, topicProps, brokerAddress, brokerFullInfo, brokerSimpleInfo,
+                brokerTLSSimpleInfo, brokerTLSFullInfo);
+    }
 }

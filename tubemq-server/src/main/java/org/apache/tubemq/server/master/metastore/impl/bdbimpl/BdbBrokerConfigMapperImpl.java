@@ -25,10 +25,12 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.metastore.DataOpErrCode;
 import org.apache.tubemq.server.master.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metastore.dao.mapper.BrokerConfigMapper;
 import org.slf4j.Logger;
@@ -41,11 +43,11 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     private static final Logger logger =
             LoggerFactory.getLogger(BdbBrokerConfigMapperImpl.class);
 
-
     // broker config store
     private EntityStore brokerConfStore;
     private PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
-
+    private ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity> metaDataCache =
+            new ConcurrentHashMap<>();
 
     public BdbBrokerConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         brokerConfStore = new EntityStore(repEnv,
@@ -56,6 +58,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     @Override
     public void close() {
+        metaDataCache.clear();
         if (brokerConfStore != null) {
             try {
                 brokerConfStore.close();
@@ -67,12 +70,12 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     }
 
     @Override
-    public void loadConfig(ProcessResult result) throws LoadMetaException {
+    public void loadConfig() throws LoadMetaException {
         long count = 0L;
-        Map<Integer, BrokerConfEntity> metaDataMap = new HashMap<>();
         EntityCursor<BdbBrokerConfEntity> cursor = null;
         logger.info("[BDB Impl] load broker configure start...");
         try {
+            metaDataCache.clear();
             cursor = brokerConfIndex.entities();
             for (BdbBrokerConfEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
@@ -81,11 +84,10 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
                 }
                 BrokerConfEntity memEntity =
                         new BrokerConfEntity(bdbEntity);
-                metaDataMap.put(memEntity.getBrokerId(), memEntity);
+                metaDataCache.put(memEntity.getBrokerId(), memEntity);
                 count++;
             }
             logger.info("[BDB Impl] total broker configure records are {}", count);
-            result.setSuccResult(metaDataMap);
         } catch (Exception e) {
             logger.error("[BDB Impl] load broker configure failure ", e);
             throw new LoadMetaException(e.getMessage());
@@ -97,6 +99,96 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         logger.info("[BDB Impl] load broker configure successfully...");
     }
 
+    @Override
+    public boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+        BrokerConfEntity curEntity =
+                metaDataCache.get(memEntity.getBrokerId());
+        if (curEntity != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The broker ").append(memEntity.getBrokerIp())
+                            .append("'s configure already exists, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putBrokerConfig2Bdb(memEntity, result)) {
+            metaDataCache.put(memEntity.getBrokerId(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean updBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+        BrokerConfEntity curEntity =
+                metaDataCache.get(memEntity.getBrokerId());
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The broker ").append(memEntity.getBrokerIp())
+                            .append("'s configure is not exists, please add record first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (curEntity.equals(memEntity)) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The broker ").append(memEntity.getBrokerIp())
+                            .append("'s configure have not changed, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putBrokerConfig2Bdb(memEntity, result)) {
+            metaDataCache.put(memEntity.getBrokerId(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    /**
+     * delete broker configure info from bdb store
+     * @return
+     */
+    @Override
+    public boolean delBrokerConf(int brokerId) {
+        BrokerConfEntity curEntity =
+                metaDataCache.get(brokerId);
+        if (curEntity == null) {
+            return true;
+        }
+        delBrokerConfigFromBdb(brokerId);
+        metaDataCache.remove(brokerId);
+        return true;
+    }
+
+    /**
+     * get broker configure info from bdb store
+     * @return result, only read
+     */
+    @Override
+    public Map<Integer, BrokerConfEntity> getBrokerConfByBrokerId(BrokerConfEntity qryEntity) {
+        Map<Integer, BrokerConfEntity> retMap = new HashMap<>();
+        if (qryEntity == null) {
+            for (BrokerConfEntity entity : metaDataCache.values()) {
+                retMap.put(entity.getBrokerId(), entity);
+            }
+        } else {
+            for (BrokerConfEntity entity : metaDataCache.values()) {
+                if (entity.isMatched(qryEntity)) {
+                    retMap.put(entity.getBrokerId(), entity);
+                }
+            }
+        }
+        return retMap;
+    }
+
+    /**
+     * get broker configure info from bdb store
+     * @return result, only read
+     */
+    @Override
+    public BrokerConfEntity getBrokerConfByBrokerId(int brokerId) {
+        return metaDataCache.get(brokerId);
+    }
+
     /**
      * Put cluster setting info into bdb store
      *
@@ -104,8 +196,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
      * @param result process result with old value
      * @return
      */
-    @Override
-    public boolean putBrokerConfig(BrokerConfEntity memEntity, ProcessResult result) {
+    private boolean putBrokerConfig2Bdb(BrokerConfEntity memEntity, ProcessResult result) {
         BdbBrokerConfEntity retData = null;
         BdbBrokerConfEntity bdbEntity =
                 memEntity.buildBdbBrokerConfEntity();
@@ -113,17 +204,17 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
             retData = brokerConfIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put broker configure failure ", e);
-            result.setFailResult(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                    .append("Put broker configure failure: ")
-                    .append(e.getMessage()).toString());
+            result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("Put broker configure failure: ")
+                            .append(e.getMessage()).toString());
             return result.isSuccess();
         }
         result.setSuccResult(retData == null);
         return result.isSuccess();
     }
 
-    @Override
-    public boolean delBrokerConfig(int brokerId) {
+    private boolean delBrokerConfigFromBdb(int brokerId) {
         try {
             brokerConfIndex.delete(brokerId);
         } catch (Throwable e) {

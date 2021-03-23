@@ -18,8 +18,10 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
 
@@ -35,7 +37,7 @@ public class TopicConfEntity extends BaseEntity {
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     // topic id, require globally unique
     private int topicId = TBaseConstants.META_VALUE_UNDEFINED;
-    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_OK;  // topic status
+    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;  // topic status
     private TopicPropGroup topicProps = null;
 
 
@@ -139,5 +141,57 @@ public class TopicConfEntity extends BaseEntity {
 
     public boolean isValidTopicStatus() {
         return this.deployStatus == TopicStatus.STATUS_TOPIC_OK;
+    }
+
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   brokerId, topicId, topicName, topicStatus
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(TopicConfEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if (!super.isMatched(target)) {
+            return false;
+        }
+        if ((target.getBrokerId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getBrokerId() != this.brokerId)
+                || (target.getTopicId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getTopicId() != this.topicId)
+                || (TStringUtils.isNotBlank(target.getTopicName())
+                && !target.getTopicName().equals(this.topicName))
+                || (target.getTopicStatus() != TopicStatus.STATUS_TOPIC_UNDEFINED
+                && target.getTopicStatus() != this.deployStatus)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TopicConfEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        TopicConfEntity that = (TopicConfEntity) o;
+        return brokerId == that.brokerId &&
+                topicId == that.topicId &&
+                Objects.equals(recordKey, that.recordKey) &&
+                Objects.equals(topicName, that.topicName) &&
+                deployStatus == that.deployStatus &&
+                Objects.equals(topicProps, that.topicProps);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordKey,
+                topicName, brokerId, topicId, deployStatus, topicProps);
     }
 }

@@ -17,15 +17,22 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
+import java.util.List;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metastore.dao.entity.GroupFilterCtrlEntity;
 
 
+
 public interface GroupFilterCtrlMapper extends AbstractMapper {
 
-    boolean putGroupFilterCtrlConfig(GroupFilterCtrlEntity memEntity, ProcessResult result);
+    boolean addGroupFilterCtrlConf(GroupFilterCtrlEntity entity, ProcessResult result);
 
-    boolean delGroupFilterCtrlConfig(String key);
+    boolean updGroupFilterCtrlConf(GroupFilterCtrlEntity entity, ProcessResult result);
 
+    boolean delGroupFilterCtrlConf(String recordKey);
+
+    List<GroupFilterCtrlEntity> getGroupFilterCtrlConf(String groupName);
+
+    List<GroupFilterCtrlEntity> getGroupFilterCtrlConf(GroupFilterCtrlEntity qryEntity);
 
 }

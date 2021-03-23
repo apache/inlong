@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.master.metastore.dao.mapper;
+package org.apache.tubemq.server.master.metastore.keepalive;
 
-import java.util.Map;
-import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metastore.dao.entity.GroupConfigEntity;
-
+import java.net.InetSocketAddress;
+import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 
 
-public interface GroupConfigMapper extends AbstractMapper {
 
-    boolean addGroupConf(GroupConfigEntity entity, ProcessResult result);
+public interface KeepAlive {
 
-    boolean updGroupConf(GroupConfigEntity entity, ProcessResult result);
+    boolean isMasterNow();
 
-    boolean delGroupConf(String groupName);
+    long getMasterSinceTime();
 
-    GroupConfigEntity getGroupConf(String groupName);
+    InetSocketAddress getMasterAddress();
 
-    Map<String, GroupConfigEntity> getGroupConf(GroupConfigEntity qryEntity);
+    boolean isPrimaryNodeActive();
 
+    void transferMaster() throws Exception;
 
+    void registerObserver(AliveObserver eventObserver);
+
+    MasterGroupStatus getMasterGroupStatus(boolean isFromHeartbeat);
 }

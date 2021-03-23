@@ -18,8 +18,9 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
-
+import org.apache.tubemq.corebase.utils.TStringUtils;
 
 
 /*
@@ -166,5 +167,70 @@ public class TopicPropGroup implements Serializable {
 
     public int getDataStoreType() {
         return dataStoreType;
+    }
+
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   numTopicStores, numPartitions, unflushThreshold, unflushInterval, unflushDataHold,
+     *   memCacheMsgSizeInMB, memCacheMsgCntInK, memCacheFlushIntvl, deletePolicy
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(TopicPropGroup target) {
+        if (target == null) {
+            return true;
+        }
+        if ((target.getNumTopicStores() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getNumTopicStores() != this.numTopicStores)
+                || (target.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getNumPartitions() != this.numPartitions)
+                || (target.getUnflushThreshold() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getUnflushThreshold() != this.unflushThreshold)
+                || (target.getUnflushInterval() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getUnflushInterval() != this.unflushInterval)
+                || (target.getUnflushDataHold() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getUnflushDataHold() != this.unflushDataHold)
+                || (target.getMemCacheMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getMemCacheMsgSizeInMB() != this.memCacheMsgSizeInMB)
+                || (target.getMemCacheMsgCntInK() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getMemCacheMsgCntInK() != this.memCacheMsgCntInK)
+                || (target.getMemCacheFlushIntvl() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getMemCacheFlushIntvl() != this.memCacheFlushIntvl)
+                || (TStringUtils.isNotBlank(target.getDeletePolicy())
+                && !target.getDeletePolicy().equals(this.deletePolicy))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TopicPropGroup)) {
+            return false;
+        }
+        TopicPropGroup that = (TopicPropGroup) o;
+        return numTopicStores == that.numTopicStores &&
+                numPartitions == that.numPartitions &&
+                unflushThreshold == that.unflushThreshold &&
+                unflushInterval == that.unflushInterval &&
+                unflushDataHold == that.unflushDataHold &&
+                memCacheMsgSizeInMB == that.memCacheMsgSizeInMB &&
+                memCacheMsgCntInK == that.memCacheMsgCntInK &&
+                memCacheFlushIntvl == that.memCacheFlushIntvl &&
+                acceptPublish == that.acceptPublish &&
+                acceptSubscribe == that.acceptSubscribe &&
+                dataStoreType == that.dataStoreType &&
+                Objects.equals(deletePolicy, that.deletePolicy) &&
+                Objects.equals(dataPath, that.dataPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(numTopicStores, numPartitions, unflushThreshold, unflushInterval,
+                unflushDataHold, memCacheMsgSizeInMB, memCacheMsgCntInK, memCacheFlushIntvl,
+                acceptPublish, acceptSubscribe, deletePolicy, dataStoreType, dataPath);
     }
 }
