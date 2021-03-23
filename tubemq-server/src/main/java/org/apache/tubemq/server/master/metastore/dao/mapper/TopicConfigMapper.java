@@ -17,15 +17,21 @@
 
 package org.apache.tubemq.server.master.metastore.dao.mapper;
 
+import java.util.List;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metastore.dao.entity.TopicConfEntity;
 
 
+
 public interface TopicConfigMapper extends AbstractMapper {
 
-    boolean putTopicConfig(TopicConfEntity memEntity, ProcessResult result);
+    boolean addTopicConf(TopicConfEntity entity, ProcessResult result);
 
-    boolean delTopicConfig(String key);
+    boolean updTopicConf(TopicConfEntity entity, ProcessResult result);
+
+    boolean delTopicConf(String recordKey);
+
+    List<TopicConfEntity> getTopicConf(TopicConfEntity qryEntity);
 
 
 }

@@ -23,12 +23,16 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
+import org.apache.tubemq.server.master.metastore.DataOpErrCode;
 import org.apache.tubemq.server.master.metastore.dao.entity.GroupFilterCtrlEntity;
 import org.apache.tubemq.server.master.metastore.dao.mapper.GroupFilterCtrlMapper;
 import org.slf4j.Logger;
@@ -38,14 +42,19 @@ import org.slf4j.LoggerFactory;
 
 public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
 
-
     private static final Logger logger =
             LoggerFactory.getLogger(BdbGroupFilterCtrlMapperImpl.class);
-
-
     // consumer group filter control store
     private EntityStore groupFilterStore;
     private PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupFilterIndex;
+    // configure cache
+    private ConcurrentHashMap<String/* recordKey */, GroupFilterCtrlEntity>
+            groupFilterCtrlCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
+            groupFilterCtrlTopicCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String> >
+            groupFilterCtrlGroupCache = new ConcurrentHashMap<>();
+
 
 
     public BdbGroupFilterCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
@@ -57,6 +66,7 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
 
     @Override
     public void close() {
+        clearCacheData();
         if (groupFilterStore != null) {
             try {
                 groupFilterStore.close();
@@ -68,12 +78,12 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
     }
 
     @Override
-    public void loadConfig(ProcessResult result) throws LoadMetaException {
+    public void loadConfig() throws LoadMetaException {
         long count = 0L;
-        Map<String, GroupFilterCtrlEntity> metaDataMap = new HashMap<>();
         EntityCursor<BdbGroupFilterCondEntity> cursor = null;
         logger.info("[BDB Impl] load filter configure start...");
         try {
+            clearCacheData();
             cursor = groupFilterIndex.entities();
             for (BdbGroupFilterCondEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
@@ -82,11 +92,10 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
                 }
                 GroupFilterCtrlEntity memEntity =
                         new GroupFilterCtrlEntity(bdbEntity);
-                metaDataMap.put(memEntity.getRecordKey(), memEntity);
+                addOrUpdCacheRecord(memEntity);
                 count++;
             }
             logger.info("[BDB Impl] total filter configure records are {}", count);
-            result.setSuccResult(metaDataMap);
         } catch (Exception e) {
             logger.error("[BDB Impl] load filter configure failure ", e);
             throw new LoadMetaException(e.getMessage());
@@ -98,6 +107,95 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
         logger.info("[BDB Impl] load filter configure successfully...");
     }
 
+    @Override
+    public boolean addGroupFilterCtrlConf(GroupFilterCtrlEntity memEntity, ProcessResult result) {
+        GroupFilterCtrlEntity curEntity =
+                groupFilterCtrlCache.get(memEntity.getRecordKey());
+        if (curEntity != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group filter ").append(memEntity.getRecordKey())
+                            .append("'s configure already exists, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putGroupFilterCtrlConfig2Bdb(memEntity, result)) {
+            addOrUpdCacheRecord(memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean updGroupFilterCtrlConf(GroupFilterCtrlEntity memEntity, ProcessResult result) {
+        GroupFilterCtrlEntity curEntity =
+                groupFilterCtrlCache.get(memEntity.getRecordKey());
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group filter ").append(memEntity.getRecordKey())
+                            .append("'s configure is not exists, please add record first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (curEntity.equals(memEntity)) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group filter ").append(memEntity.getRecordKey())
+                            .append("'s configure have not changed, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putGroupFilterCtrlConfig2Bdb(memEntity, result)) {
+            addOrUpdCacheRecord(memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean delGroupFilterCtrlConf(String recordKey) {
+        GroupFilterCtrlEntity curEntity =
+                groupFilterCtrlCache.get(recordKey);
+        if (curEntity == null) {
+            return true;
+        }
+        delGroupFilterCtrlConfigFromBdb(recordKey);
+        delCacheRecord(recordKey);
+        return true;
+    }
+
+    @Override
+    public List<GroupFilterCtrlEntity> getGroupFilterCtrlConf(String groupName) {
+        ConcurrentHashSet<String> keySet =
+                groupFilterCtrlGroupCache.get(groupName);
+        if (keySet == null || keySet.isEmpty()) {
+            return Collections.emptyList();
+        }
+        GroupFilterCtrlEntity entity;
+        List<GroupFilterCtrlEntity> result = new ArrayList<>();
+        for (String recordKey : keySet) {
+            entity = groupFilterCtrlCache.get(recordKey);
+            if (entity != null) {
+                result.add(entity);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<GroupFilterCtrlEntity> getGroupFilterCtrlConf(GroupFilterCtrlEntity qryEntity) {
+        List<GroupFilterCtrlEntity> retEntitys = new ArrayList<>();
+        if (qryEntity == null) {
+            retEntitys.addAll(groupFilterCtrlCache.values());
+        } else {
+            for (GroupFilterCtrlEntity entity : groupFilterCtrlCache.values()) {
+                if (entity.isMatched(qryEntity)) {
+                    retEntitys.add(entity);
+                }
+            }
+        }
+        return retEntitys;
+    }
+
     /**
      * Put Group filter configure info into bdb store
      *
@@ -105,8 +203,7 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
      * @param result process result with old value
      * @return
      */
-    @Override
-    public boolean putGroupFilterCtrlConfig(GroupFilterCtrlEntity memEntity, ProcessResult result) {
+    private boolean putGroupFilterCtrlConfig2Bdb(GroupFilterCtrlEntity memEntity, ProcessResult result) {
         BdbGroupFilterCondEntity retData = null;
         BdbGroupFilterCondEntity bdbEntity =
                 memEntity.buildBdbGroupFilterCondEntity();
@@ -114,17 +211,17 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
             retData = groupFilterIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put filter configure failure ", e);
-            result.setFailResult(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                    .append("Put filter configure failure: ")
-                    .append(e.getMessage()).toString());
+            result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("Put filter configure failure: ")
+                            .append(e.getMessage()).toString());
             return result.isSuccess();
         }
         result.setSuccResult(retData == null);
         return result.isSuccess();
     }
 
-    @Override
-    public boolean delGroupFilterCtrlConfig(String recordKey) {
+    private boolean delGroupFilterCtrlConfigFromBdb(String recordKey) {
         try {
             groupFilterIndex.delete(recordKey);
         } catch (Throwable e) {
@@ -134,4 +231,58 @@ public class BdbGroupFilterCtrlMapperImpl implements GroupFilterCtrlMapper {
         return true;
     }
 
+    private void delCacheRecord(String recordKey) {
+        GroupFilterCtrlEntity curEntity = groupFilterCtrlCache.get(recordKey);
+        if (curEntity == null) {
+            return;
+        }
+        // add topic index
+        ConcurrentHashSet<String> keySet =
+                groupFilterCtrlTopicCache.get(curEntity.getTopicName());
+        if (keySet != null) {
+            keySet.remove(recordKey);
+            if (keySet.isEmpty()) {
+                groupFilterCtrlTopicCache.remove(curEntity.getTopicName());
+            }
+        }
+        // delete group index
+        keySet = groupFilterCtrlGroupCache.remove(curEntity.getGroupName());
+        if (keySet != null) {
+            keySet.remove(recordKey);
+            if (keySet.isEmpty()) {
+                groupFilterCtrlGroupCache.remove(curEntity.getGroupName());
+            }
+        }
+    }
+
+    private void addOrUpdCacheRecord(GroupFilterCtrlEntity entity) {
+        groupFilterCtrlCache.put(entity.getRecordKey(), entity);
+        // add topic index map
+        ConcurrentHashSet<String> keySet =
+                groupFilterCtrlTopicCache.get(entity.getTopicName());
+        if (keySet == null) {
+            ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
+            keySet = groupFilterCtrlTopicCache.putIfAbsent(entity.getTopicName(), tmpSet);
+            if (keySet == null) {
+                keySet = tmpSet;
+            }
+        }
+        keySet.add(entity.getRecordKey());
+        // add group index map
+        keySet = groupFilterCtrlGroupCache.get(entity.getGroupName());
+        if (keySet == null) {
+            ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
+            keySet = groupFilterCtrlGroupCache.putIfAbsent(entity.getGroupName(), tmpSet);
+            if (keySet == null) {
+                keySet = tmpSet;
+            }
+        }
+        keySet.add(entity.getRecordKey());
+    }
+
+    private void clearCacheData() {
+        groupFilterCtrlTopicCache.clear();
+        groupFilterCtrlGroupCache.clear();
+        groupFilterCtrlCache.clear();
+    }
 }

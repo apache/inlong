@@ -18,8 +18,10 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 
@@ -125,4 +127,56 @@ public class GroupFilterCtrlEntity extends BaseEntity {
         this.filterCondStr = filterCondStr;
     }
 
+    public EnableStatus getFilterConsumeStatus() {
+        return filterConsumeStatus;
+    }
+
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   topicName, groupName, filterConsumeStatus
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(GroupFilterCtrlEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if (!super.isMatched(target)) {
+            return false;
+        }
+        if ((TStringUtils.isNotBlank(target.getTopicName())
+                && !target.getTopicName().equals(this.topicName))
+                || (TStringUtils.isNotBlank(target.getGroupName())
+                && !target.getGroupName().equals(this.groupName))
+                || (target.getFilterConsumeStatus() != EnableStatus.STATUS_UNDEFINE
+                && target.getFilterConsumeStatus() != this.filterConsumeStatus)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GroupFilterCtrlEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        GroupFilterCtrlEntity that = (GroupFilterCtrlEntity) o;
+        return recordKey.equals(that.recordKey) &&
+                Objects.equals(topicName, that.topicName) &&
+                Objects.equals(groupName, that.groupName) &&
+                filterConsumeStatus == that.filterConsumeStatus &&
+                Objects.equals(filterCondStr, that.filterCondStr);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordKey,
+                topicName, groupName, filterConsumeStatus, filterCondStr);
+    }
 }

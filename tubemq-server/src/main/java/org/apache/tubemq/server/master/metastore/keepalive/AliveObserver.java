@@ -15,25 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.master.metastore.dao.mapper;
 
-import java.util.Map;
-import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metastore.dao.entity.GroupConfigEntity;
+package org.apache.tubemq.server.master.metastore.keepalive;
 
+public interface AliveObserver {
 
-
-public interface GroupConfigMapper extends AbstractMapper {
-
-    boolean addGroupConf(GroupConfigEntity entity, ProcessResult result);
-
-    boolean updGroupConf(GroupConfigEntity entity, ProcessResult result);
-
-    boolean delGroupConf(String groupName);
-
-    GroupConfigEntity getGroupConf(String groupName);
-
-    Map<String, GroupConfigEntity> getGroupConf(GroupConfigEntity qryEntity);
+    void clearCacheData();
 
 
 }

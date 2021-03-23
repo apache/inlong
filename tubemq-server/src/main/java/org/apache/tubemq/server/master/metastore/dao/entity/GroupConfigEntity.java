@@ -18,7 +18,9 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 
@@ -149,4 +151,76 @@ public class GroupConfigEntity extends BaseEntity {
         this.allowedBrokerClientRate = allowedBrokerClientRate;
     }
 
+    public EnableStatus getResCheckStatus() {
+        return resCheckStatus;
+    }
+
+    public void setResCheckStatus(EnableStatus resCheckStatus) {
+        this.resCheckStatus = resCheckStatus;
+    }
+
+    public EnableStatus getFlowCtrlStatus() {
+        return flowCtrlStatus;
+    }
+
+    public void setFlowCtrlStatus(EnableStatus flowCtrlStatus) {
+        this.flowCtrlStatus = flowCtrlStatus;
+    }
+
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   groupName, qryPriorityId, resCheckStatus,
+     *   flowCtrlStatus, allowedBrokerClientRate
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(GroupConfigEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if (!super.isMatched(target)) {
+            return false;
+        }
+        if ((target.getQryPriorityId() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getQryPriorityId() != this.qryPriorityId)
+                || (TStringUtils.isNotBlank(target.getGroupName())
+                && !target.getGroupName().equals(this.groupName))
+                || (target.getResCheckStatus() != EnableStatus.STATUS_UNDEFINE
+                && target.getResCheckStatus() != this.resCheckStatus)
+                || (target.getFlowCtrlStatus() != EnableStatus.STATUS_UNDEFINE
+                && target.getFlowCtrlStatus() != this.flowCtrlStatus)
+                || (target.getAllowedBrokerClientRate() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getAllowedBrokerClientRate() != this.allowedBrokerClientRate)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GroupConfigEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        GroupConfigEntity that = (GroupConfigEntity) o;
+        return allowedBrokerClientRate == that.allowedBrokerClientRate &&
+                qryPriorityId == that.qryPriorityId &&
+                ruleCnt == that.ruleCnt &&
+                groupName.equals(that.groupName) &&
+                resCheckStatus == that.resCheckStatus &&
+                flowCtrlStatus == that.flowCtrlStatus &&
+                Objects.equals(flowCtrlInfo, that.flowCtrlInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), groupName, resCheckStatus,
+                allowedBrokerClientRate, qryPriorityId, flowCtrlStatus,
+                ruleCnt, flowCtrlInfo);
+    }
 }

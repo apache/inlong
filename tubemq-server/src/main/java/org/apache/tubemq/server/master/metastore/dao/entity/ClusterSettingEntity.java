@@ -17,10 +17,12 @@
 
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.metastore.TStoreConstants;
+
 
 
 /*
@@ -179,4 +181,34 @@ public class ClusterSettingEntity extends BaseEntity {
         this.clsDefTopicProps = clsDefTopicProps;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ClusterSettingEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ClusterSettingEntity entity = (ClusterSettingEntity) o;
+        return brokerPort == entity.brokerPort &&
+                brokerTLSPort == entity.brokerTLSPort &&
+                brokerWebPort == entity.brokerWebPort &&
+                maxMsgSizeInB == entity.maxMsgSizeInB &&
+                qryPriorityId == entity.qryPriorityId &&
+                gloFlowCtrlRuleCnt == entity.gloFlowCtrlRuleCnt &&
+                recordKey.equals(entity.recordKey) &&
+                Objects.equals(clsDefTopicProps, entity.clsDefTopicProps) &&
+                gloFlowCtrlStatus == entity.gloFlowCtrlStatus &&
+                Objects.equals(gloFlowCtrlRuleInfo, entity.gloFlowCtrlRuleInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordKey, brokerPort, brokerTLSPort,
+                brokerWebPort, clsDefTopicProps, maxMsgSizeInB, qryPriorityId,
+                gloFlowCtrlStatus, gloFlowCtrlRuleCnt, gloFlowCtrlRuleInfo);
+    }
 }

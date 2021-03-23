@@ -25,10 +25,12 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
+import org.apache.tubemq.server.master.metastore.DataOpErrCode;
 import org.apache.tubemq.server.master.metastore.dao.entity.GroupConfigEntity;
 import org.apache.tubemq.server.master.metastore.dao.mapper.GroupConfigMapper;
 import org.slf4j.Logger;
@@ -38,15 +40,13 @@ import org.slf4j.LoggerFactory;
 
 public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
 
-
     private static final Logger logger =
             LoggerFactory.getLogger(BdbGroupConfigMapperImpl.class);
-
-
     // consumer group configure store
     private EntityStore groupConfStore;
     private PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupConfIndex;
-
+    private ConcurrentHashMap<String/* groupName */, GroupConfigEntity> groupConfCache =
+            new ConcurrentHashMap<>();
 
     public BdbGroupConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         groupConfStore = new EntityStore(repEnv,
@@ -57,6 +57,7 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
 
     @Override
     public void close() {
+        groupConfCache.clear();
         if (groupConfStore != null) {
             try {
                 groupConfStore.close();
@@ -68,12 +69,12 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
     }
 
     @Override
-    public void loadConfig(ProcessResult result) throws LoadMetaException {
+    public void loadConfig() throws LoadMetaException {
         long count = 0L;
-        Map<String, GroupConfigEntity> metaDataMap = new HashMap<>();
         EntityCursor<BdbGroupFlowCtrlEntity> cursor = null;
         logger.info("[BDB Impl] load group configure start...");
         try {
+            groupConfCache.clear();
             cursor = groupConfIndex.entities();
             for (BdbGroupFlowCtrlEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
@@ -82,11 +83,10 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
                 }
                 GroupConfigEntity memEntity =
                         new GroupConfigEntity(bdbEntity);
-                metaDataMap.put(memEntity.getGroupName(), memEntity);
+                groupConfCache.put(memEntity.getGroupName(), memEntity);
                 count++;
             }
             logger.info("[BDB Impl] total group configure records are {}", count);
-            result.setSuccResult(metaDataMap);
         } catch (Exception e) {
             logger.error("[BDB Impl] load group configure failure ", e);
             throw new LoadMetaException(e.getMessage());
@@ -98,6 +98,84 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
         logger.info("[BDB Impl] load group configure successfully...");
     }
 
+    @Override
+    public boolean addGroupConf(GroupConfigEntity memEntity, ProcessResult result) {
+        GroupConfigEntity curEntity =
+                groupConfCache.get(memEntity.getGroupName());
+        if (curEntity != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group ").append(memEntity.getGroupName())
+                            .append("'s configure already exists, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putGroupConfigConfig2Bdb(memEntity, result)) {
+            groupConfCache.put(memEntity.getGroupName(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean updGroupConf(GroupConfigEntity memEntity, ProcessResult result) {
+        GroupConfigEntity curEntity =
+                groupConfCache.get(memEntity.getGroupName());
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group ").append(memEntity.getGroupName())
+                            .append("'s configure is not exists, please add record first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (curEntity.equals(memEntity)) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("The group ").append(memEntity.getGroupName())
+                            .append("'s configure have not changed, please delete it first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (putGroupConfigConfig2Bdb(memEntity, result)) {
+            groupConfCache.put(memEntity.getGroupName(), memEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean delGroupConf(String groupName) {
+        GroupConfigEntity curEntity =
+                groupConfCache.get(groupName);
+        if (curEntity == null) {
+            return true;
+        }
+        delGroupConfigConfigFromBdb(groupName);
+        groupConfCache.remove(groupName);
+        return true;
+    }
+
+    @Override
+    public GroupConfigEntity getGroupConf(String groupName) {
+        return groupConfCache.get(groupName);
+    }
+
+    @Override
+    public Map<String, GroupConfigEntity> getGroupConf(GroupConfigEntity qryEntity) {
+        Map<String, GroupConfigEntity> retMap = new HashMap<>();
+        if (qryEntity == null) {
+            for (GroupConfigEntity entity : groupConfCache.values()) {
+                retMap.put(entity.getGroupName(), entity);
+            }
+        } else {
+            for (GroupConfigEntity entity : groupConfCache.values()) {
+                if (entity.isMatched(qryEntity)) {
+                    retMap.put(entity.getGroupName(), entity);
+                }
+            }
+        }
+        return retMap;
+    }
+
     /**
      * Put Group configure info into bdb store
      *
@@ -105,8 +183,7 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
      * @param result process result with old value
      * @return
      */
-    @Override
-    public boolean putGroupConfigConfig(GroupConfigEntity memEntity, ProcessResult result) {
+    private boolean putGroupConfigConfig2Bdb(GroupConfigEntity memEntity, ProcessResult result) {
         BdbGroupFlowCtrlEntity retData = null;
         BdbGroupFlowCtrlEntity bdbEntity =
                 memEntity.buildBdbGroupFlowCtrlEntity();
@@ -114,17 +191,17 @@ public class BdbGroupConfigMapperImpl implements GroupConfigMapper {
             retData = groupConfIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put group configure failure ", e);
-            result.setFailResult(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                    .append("Put group configure failure: ")
-                    .append(e.getMessage()).toString());
+            result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("Put group configure failure: ")
+                            .append(e.getMessage()).toString());
             return result.isSuccess();
         }
         result.setSuccResult(retData == null);
         return result.isSuccess();
     }
 
-    @Override
-    public boolean delGroupConfigConfig(String recordKey) {
+    private boolean delGroupConfigConfigFromBdb(String recordKey) {
         try {
             groupConfIndex.delete(recordKey);
         } catch (Throwable e) {

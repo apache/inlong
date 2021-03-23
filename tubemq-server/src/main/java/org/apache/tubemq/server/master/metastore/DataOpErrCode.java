@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.statusdef;
+package org.apache.tubemq.server.master.metastore;
 
-public enum TopicStatus {
-    STATUS_TOPIC_UNDEFINED(-2, "Undefined."),
-    STATUS_TOPIC_OK(0, "Normal"),
-    STATUS_TOPIC_SOFT_DELETE(1, "Soft deleted"),
-    STATUS_TOPIC_SOFT_REMOVE(2, "Soft removed"),
-    STATUS_TOPIC_HARD_REMOVE(3, "Hard removed");
+
+public enum DataOpErrCode {
+    DERR_SUCCESS(200, "Success."),
+    DERR_NOT_EXIST(401, "Record not exist."),
+    DERR_EXISTED(402, "Record has existed."),
+    DERR_UNCHANGED(403, "Record not changed."),
+    DERR_STORE_ABNORMAL(501, "Store layer throw exception."),
+
+    STATUS_DISABLE(0, "Disable.");
 
     private int code;
     private String description;
 
 
-    TopicStatus(int code, String description) {
+    DataOpErrCode(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -41,13 +44,13 @@ public enum TopicStatus {
         return description;
     }
 
-    public static TopicStatus valueOf(int code) {
-        for (TopicStatus status : TopicStatus.values()) {
+    public static DataOpErrCode valueOf(int code) {
+        for (DataOpErrCode status : DataOpErrCode.values()) {
             if (status.getCode() == code) {
                 return status;
             }
         }
-        throw new IllegalArgumentException(String.format("unknown topic status code %s", code));
+        throw new IllegalArgumentException(String.format("unknown data operate error code %s", code));
     }
 
 }

@@ -18,7 +18,9 @@
 package org.apache.tubemq.server.master.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 
@@ -91,5 +93,63 @@ public class TopicCtrlEntity extends BaseEntity {
         } else {
             this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
         }
+    }
+
+    public EnableStatus getAuthCtrlStatus() {
+        return authCtrlStatus;
+    }
+
+    public int getMaxMsgSizeInB() {
+        return maxMsgSizeInB;
+    }
+
+    public void setMaxMsgSizeInB(int maxMsgSizeInB) {
+        this.maxMsgSizeInB = maxMsgSizeInB;
+    }
+
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   topicName, maxMsgSizeInB, authCtrlStatus
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(TopicCtrlEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if (!super.isMatched(target)) {
+            return false;
+        }
+        if ((target.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED
+                && target.getMaxMsgSizeInB() != this.maxMsgSizeInB)
+                || (TStringUtils.isNotBlank(target.getTopicName())
+                && !target.getTopicName().equals(this.topicName))
+                || (target.getAuthCtrlStatus() != EnableStatus.STATUS_UNDEFINE
+                && target.getAuthCtrlStatus() != this.authCtrlStatus)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TopicCtrlEntity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        TopicCtrlEntity that = (TopicCtrlEntity) o;
+        return maxMsgSizeInB == that.maxMsgSizeInB &&
+                topicName.equals(that.topicName) &&
+                authCtrlStatus == that.authCtrlStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), topicName, authCtrlStatus, maxMsgSizeInB);
     }
 }

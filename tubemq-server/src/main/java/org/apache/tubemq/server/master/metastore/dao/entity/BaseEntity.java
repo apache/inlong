@@ -20,9 +20,10 @@ package org.apache.tubemq.server.master.metastore.dao.entity;
 import com.google.gson.Gson;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
-
 
 
 // AbstractEntity: entity's abstract class
@@ -131,4 +132,47 @@ public class BaseEntity implements Serializable {
         return gson.toJson(this);
     }
 
+    /**
+     * Check whether the specified query item value matches
+     * Allowed query items:
+     *   dataVersionId, createUser, modifyUser
+     * @return true: matched, false: not match
+     */
+    public boolean isMatched(BaseEntity target) {
+        if (target == null) {
+            return true;
+        }
+        if ((target.getDataVersionId() != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVersionId() != target.getDataVersionId())
+                || (TStringUtils.isNotBlank(target.getCreateUser())
+                && !target.getCreateUser().equals(createUser))
+                || (TStringUtils.isNotBlank(target.getModifyUser())
+                && !target.getModifyUser().equals(modifyUser))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BaseEntity)) {
+            return false;
+        }
+        BaseEntity that = (BaseEntity) o;
+        return dataVersionId == that.dataVersionId &&
+                Objects.equals(createUser, that.createUser) &&
+                Objects.equals(createDate, that.createDate) &&
+                Objects.equals(modifyUser, that.modifyUser) &&
+                Objects.equals(modifyDate, that.modifyDate) &&
+                Objects.equals(attributes, that.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataVersionId, createUser,
+                createDate, modifyUser, modifyDate, attributes);
+    }
 }
