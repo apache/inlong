@@ -24,8 +24,8 @@ public enum DataOpErrCode {
     DERR_EXISTED(402, "Record has existed."),
     DERR_UNCHANGED(403, "Record not changed."),
     DERR_STORE_ABNORMAL(501, "Store layer throw exception."),
-
-    STATUS_DISABLE(0, "Disable.");
+    DERR_STORE_STOPPED(510, "Store stopped."),
+    DERR_STORE_NOT_MASTER(511, "Store not active master.");
 
     private int code;
     private String description;
