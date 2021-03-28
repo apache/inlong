@@ -19,6 +19,8 @@ package org.apache.tubemq.server.common.utils;
 
 import org.apache.tubemq.corebase.TErrCodeConstants;
 
+
+
 public class ProcessResult {
     public boolean success = true;
     public int errCode = TErrCodeConstants.SUCCESS;
@@ -75,5 +77,16 @@ public class ProcessResult {
 
     public Object getRetData() {
         return retData1;
+    }
+
+    public void setRetData(Object retData) {
+        this.retData1 = retData;
+    }
+
+    public void clear() {
+        this.success = true;
+        this.errCode = TErrCodeConstants.SUCCESS;
+        this.errInfo = "";
+        this.retData1 = null;
     }
 }

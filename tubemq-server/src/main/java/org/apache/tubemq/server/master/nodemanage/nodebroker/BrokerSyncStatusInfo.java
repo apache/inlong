@@ -31,6 +31,7 @@ import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +112,23 @@ public class BrokerSyncStatusInfo {
         }
     }
 
+    //Constructor
+    public BrokerSyncStatusInfo(BrokerConfEntity bdbEntity,
+                                List<String> brokerTopicSetConfInfo) {
+        updateBrokerConfigureInfo(bdbEntity.getBrokerDefaultConfInfo(),
+                brokerTopicSetConfInfo);
+        this.brokerManageStatus = bdbEntity.getManageStatus().getCode();
+        this.isBrokerConfChanged = bdbEntity.isConfDataUpdated();
+        this.isBrokerLoaded = bdbEntity.isBrokerLoaded();
+        this.brokerId = bdbEntity.getBrokerId();
+        this.brokerIp = bdbEntity.getBrokerIp();
+        this.brokerPort = bdbEntity.getBrokerPort();
+        this.brokerTLSPort = bdbEntity.getBrokerTLSPort();
+        this.isFastStart = false;
+        if (this.brokerManageStatus > TStatusConstants.STATUS_MANAGE_APPLY) {
+            currBrokerConfId.incrementAndGet();
+        }
+    }
     /**
      * Update current broker config info
      *
