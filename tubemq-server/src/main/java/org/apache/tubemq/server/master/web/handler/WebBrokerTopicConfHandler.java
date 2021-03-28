@@ -45,7 +45,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntit
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
-import org.apache.tubemq.server.master.metastore.TStoreConstants;
+import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.slf4j.Logger;

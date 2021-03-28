@@ -26,7 +26,7 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
-import org.apache.tubemq.server.master.metastore.TStoreConstants;
+import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity

@@ -27,7 +27,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
-import org.apache.tubemq.server.master.metastore.TStoreConstants;
+import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity

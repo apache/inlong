@@ -27,7 +27,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
-import org.apache.tubemq.server.master.metastore.TStoreConstants;
+import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -86,34 +86,6 @@ public class BdbTopicConfEntity implements Serializable {
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
         this.deleteWhen = deleteWhen;
-        this.deletePolicy = deletePolicy;
-        this.acceptPublish = acceptPublish;
-        this.acceptSubscribe = acceptSubscribe;
-        this.numTopicStores = numTopicStores;
-        this.createUser = createUser;
-        this.createDate = createDate;
-        this.modifyUser = modifyUser;
-        this.modifyDate = modifyDate;
-        this.attributes = attributes;
-    }
-
-    //Constructor
-    public BdbTopicConfEntity(int brokerId, String topicName,
-                              int numTopicStores, int numPartitions,
-                              int unflushThreshold, int unflushInterval,
-                              String deletePolicy, String attributes,
-                              boolean acceptPublish, boolean acceptSubscribe,
-                              String createUser, Date createDate,
-                              String modifyUser, Date modifyDate) {
-        StringBuilder sBuilder = new StringBuilder(512);
-        this.recordKey = sBuilder.append(brokerId)
-                .append(TokenConstants.ATTR_SEP).append(topicName).toString();
-        sBuilder.delete(0, sBuilder.length());
-        this.brokerId = brokerId;
-        this.topicName = topicName;
-        this.numPartitions = numPartitions;
-        this.unflushThreshold = unflushThreshold;
-        this.unflushInterval = unflushInterval;
         this.deletePolicy = deletePolicy;
         this.acceptPublish = acceptPublish;
         this.acceptSubscribe = acceptSubscribe;

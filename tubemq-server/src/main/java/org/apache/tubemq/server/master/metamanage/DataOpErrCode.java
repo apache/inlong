@@ -15,34 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.tubemq.server.common.statusdef;
+package org.apache.tubemq.server.master.metamanage;
 
-public enum ManageStatus {
 
-    STATUS_MANAGE_UNDEFINED(-2, "Undefined."),
-    STATUS_MANAGE_APPLY(1, "Apply."),
-    STATUS_MANAGE_ONLINE(5, "Online."),
-    STATUS_MANAGE_ONLINE_NOT_WRITE(6, "Online with not write"),
-    STATUS_MANAGE_ONLINE_NOT_READ(7, "Online with not read"),
-    STATUS_MANAGE_OFFLINE(9, "Offline");
+public enum DataOpErrCode {
+    DERR_SUCCESS(200, "Success."),
+    DERR_NOT_EXIST(401, "Record not exist."),
+    DERR_EXISTED(402, "Record has existed."),
+    DERR_UNCHANGED(403, "Record not changed."),
+    DERR_UNCLEANED(404, "Related configuration is not cleaned up."),
+    DERR_CONDITION_LACK(405, "The preconditions are not met"),
+    DERR_ILLEGAL_STATUS(406, "Illegal operate status"),
+    DERR_STORE_ABNORMAL(501, "Store layer throw exception."),
+    DERR_STORE_STOPPED(510, "Store stopped."),
+    DERR_STORE_NOT_MASTER(511, "Store not active master.");
 
     private int code;
     private String description;
 
 
-    ManageStatus(int code, String description) {
+    DataOpErrCode(int code, String description) {
         this.code = code;
         this.description = description;
-    }
-
-    public boolean isOnlineStatus() {
-        return (this == ManageStatus.STATUS_MANAGE_ONLINE
-                || this == ManageStatus.STATUS_MANAGE_ONLINE_NOT_WRITE
-                || this == ManageStatus.STATUS_MANAGE_ONLINE_NOT_READ);
-    }
-
-    public boolean isApplied() {
-        return (this.code > ManageStatus.STATUS_MANAGE_APPLY.getCode());
     }
 
     public int getCode() {
@@ -53,13 +47,13 @@ public enum ManageStatus {
         return description;
     }
 
-    public static ManageStatus valueOf(int code) {
-        for (ManageStatus status : ManageStatus.values()) {
+    public static DataOpErrCode valueOf(int code) {
+        for (DataOpErrCode status : DataOpErrCode.values()) {
             if (status.getCode() == code) {
                 return status;
             }
         }
-        throw new IllegalArgumentException(String.format(
-                "unknown broker manage status code %s", code));
+        throw new IllegalArgumentException(String.format("unknown data operate error code %s", code));
     }
+
 }
