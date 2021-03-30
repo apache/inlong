@@ -18,7 +18,7 @@
 package org.apache.tubemq.server.common.statusdef;
 
 public enum TopicStatus {
-    STATUS_TOPIC_UNDEFINED(-2, "Undefined."),
+    STATUS_TOPIC_UNDEFINED(-2, "Undefined"),
     STATUS_TOPIC_OK(0, "Normal"),
     STATUS_TOPIC_SOFT_DELETE(1, "Soft deleted"),
     STATUS_TOPIC_SOFT_REMOVE(2, "Soft removed"),

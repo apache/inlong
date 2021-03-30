@@ -26,10 +26,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
+import org.apache.tubemq.server.common.utils.WebParameterUtils;
 
 
 // AbstractEntity: entity's abstract class
-public class BaseEntity implements Serializable {
+public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
             TServerConstants.DEFAULT_DATA_VERSION;    // 0: default version， other: version
@@ -73,16 +74,15 @@ public class BaseEntity implements Serializable {
         this.modifyDate = modifyDate;
     }
 
-    public void setCreateUserInfo(String createUser, Date createDate) {
-        this.createUser = createUser;
-        this.createDate = createDate;
-        this.modifyUser = createUser;
-        this.modifyDate = createDate;
-    }
-
-    public void setModifyUserInfo(String modifyUser, Date modifyDate) {
-        this.modifyUser = modifyUser;
-        this.modifyDate = modifyDate;
+    public void setModifyInfo(long dataVersionId, boolean isAdd,
+                               String operator, Date opDate) {
+        this.dataVersionId = dataVersionId;
+        if (isAdd) {
+            this.createUser = operator;
+            this.createDate = opDate;
+        }
+        this.modifyUser = operator;
+        this.modifyDate = opDate;
     }
 
     public void setDataVersionId() {
@@ -160,6 +160,36 @@ public class BaseEntity implements Serializable {
         return true;
     }
 
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append(",\"dataVersionId\":").append(dataVersionId)
+                    .append(",\"createUser\":\"").append(createUser).append("\"")
+                    .append(",\"createDate\":\"")
+                    .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate)).append("\"")
+                    .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
+                    .append(",\"modifyDate\":\"")
+                    .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate)).append("\"")
+                    .append(",\"attributes\":\"").append(attributes).append("\"");
+        } else {
+            sBuilder.append(",\"dVerId\":").append(dataVersionId)
+                    .append(",\"cur\":\"").append(createUser).append("\"")
+                    .append(",\"cDate\":\"")
+                    .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate)).append("\"")
+                    .append(",\"mur\":\"").append(modifyUser).append("\"")
+                    .append(",\"mDate\":\"")
+                    .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate)).append("\"")
+                    .append(",\"attrs\":\"").append(attributes).append("\"");
+        }
+        return sBuilder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -181,5 +211,10 @@ public class BaseEntity implements Serializable {
     public int hashCode() {
         return Objects.hash(dataVersionId, createUser,
                 createDate, modifyUser, modifyDate, attributes);
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

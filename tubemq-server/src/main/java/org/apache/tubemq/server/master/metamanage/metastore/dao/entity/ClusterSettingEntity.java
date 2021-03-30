@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
+import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
@@ -29,7 +30,7 @@ import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
  * store the cluster default setting
  *
  */
-public class ClusterSettingEntity extends BaseEntity {
+public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
     private String recordKey =
             TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
@@ -52,6 +53,10 @@ public class ClusterSettingEntity extends BaseEntity {
 
     public ClusterSettingEntity() {
         super();
+    }
+
+    public ClusterSettingEntity(long dataVerId, String createUser, Date createDate) {
+        super(dataVerId, createUser, createDate);
     }
 
     // Constructor by BdbClusterSettingEntity
@@ -152,6 +157,13 @@ public class ClusterSettingEntity extends BaseEntity {
         this.qryPriorityId = qryPriorityId;
     }
 
+    public EnableStatus getGloFlowCtrlStatus() {
+        return gloFlowCtrlStatus;
+    }
+
+    public void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {
+        this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+    }
 
     public int getGloFlowCtrlRuleCnt() {
         return gloFlowCtrlRuleCnt;
@@ -179,6 +191,46 @@ public class ClusterSettingEntity extends BaseEntity {
 
     public void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {
         this.clsDefTopicProps = clsDefTopicProps;
+    }
+
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        int tmpMsgSizeInMB = maxMsgSizeInB;
+        if (maxMsgSizeInB != TBaseConstants.META_VALUE_UNDEFINED) {
+            tmpMsgSizeInMB /= TBaseConstants.META_MB_UNIT_SIZE;
+        }
+        if (isLongName) {
+            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
+                    .append(",\"brokerPort\":").append(brokerPort)
+                    .append(",\"brokerTLSPort\":").append(brokerTLSPort)
+                    .append(",\"brokerWebPort\":").append(brokerWebPort)
+                    .append(",\"maxMsgSizeInMB\":").append(tmpMsgSizeInMB)
+                    .append(",\"qryPriorityId\":").append(qryPriorityId)
+                    .append(",\"flowCtrlEnable\":").append(gloFlowCtrlStatus.isEnable())
+                    .append(",\"flowCtrlRuleCount\":").append(gloFlowCtrlRuleCnt)
+                    .append(",\"flowCtrlInfo\":").append(gloFlowCtrlRuleInfo);
+        } else {
+            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
+                    .append(",\"bPort\":").append(brokerPort)
+                    .append(",\"bTlsPort\":").append(brokerTLSPort)
+                    .append(",\"bWebPort\":").append(brokerWebPort)
+                    .append(",\"mxMsgInMB\":").append(tmpMsgSizeInMB)
+                    .append(",\"qryPriId\":").append(qryPriorityId)
+                    .append(",\"fCtrlEn\":").append(gloFlowCtrlStatus.isEnable())
+                    .append(",\"fCtrlCnt\":").append(gloFlowCtrlRuleCnt)
+                    .append(",\"fCtrlInfo\":").append(gloFlowCtrlRuleInfo);
+        }
+        clsDefTopicProps.toWebJsonStr(sBuilder, isLongName);
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
     }
 
     @Override
@@ -210,6 +262,18 @@ public class ClusterSettingEntity extends BaseEntity {
         return Objects.hash(super.hashCode(), recordKey, brokerPort, brokerTLSPort,
                 brokerWebPort, clsDefTopicProps, maxMsgSizeInB, qryPriorityId,
                 gloFlowCtrlStatus, gloFlowCtrlRuleCnt, gloFlowCtrlRuleInfo);
+    }
+
+    @Override
+    public ClusterSettingEntity clone() {
+        try {
+            ClusterSettingEntity copy = (ClusterSettingEntity) super.clone();
+            copy.setGloFlowCtrlStatus(getGloFlowCtrlStatus());
+            copy.setClsDefTopicProps(getClsDefTopicProps().clone());
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
 }

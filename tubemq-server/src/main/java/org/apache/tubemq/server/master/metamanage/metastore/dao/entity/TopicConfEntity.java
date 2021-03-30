@@ -30,7 +30,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
  * store the topic configure setting
  *
  */
-public class TopicConfEntity extends BaseEntity {
+public class TopicConfEntity extends BaseEntity implements Cloneable {
 
     private String recordKey = "";
     private String topicName = "";
@@ -39,9 +39,9 @@ public class TopicConfEntity extends BaseEntity {
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerAddress = "";
     // topic id, require globally unique
-    private int topicId = TBaseConstants.META_VALUE_UNDEFINED;
+    private int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
     private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;  // topic status
-    private TopicPropGroup topicProps = null;
+    private TopicPropGroup topicProps = new TopicPropGroup();
 
 
     public TopicConfEntity() {
@@ -88,7 +88,7 @@ public class TopicConfEntity extends BaseEntity {
                         getAttributes(), getCreateUser(), getCreateDate(),
                         getModifyUser(), getModifyDate());
         bdbEntity.setDataVerId(getDataVersionId());
-        bdbEntity.setTopicId(topicId);
+        bdbEntity.setTopicId(topicNameId);
         bdbEntity.setNumTopicStores(topicProps.getNumTopicStores());
         bdbEntity.setMemCacheMsgSizeInMB(topicProps.getMemCacheMsgSizeInMB());
         bdbEntity.setMemCacheMsgCntInK(topicProps.getMemCacheMsgCntInK());
@@ -103,7 +103,7 @@ public class TopicConfEntity extends BaseEntity {
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;
         this.topicName = topicName;
-        this.topicId = topicId;
+        this.topicNameId = topicId;
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
         this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
     }
@@ -137,11 +137,11 @@ public class TopicConfEntity extends BaseEntity {
     }
 
     public int getTopicId() {
-        return topicId;
+        return topicNameId;
     }
 
     public void setTopicId(int topicId) {
-        this.topicId = topicId;
+        this.topicNameId = topicId;
     }
 
     public String getTopicName() {
@@ -169,6 +169,14 @@ public class TopicConfEntity extends BaseEntity {
         return this.deployStatus == TopicStatus.STATUS_TOPIC_OK;
     }
 
+    public TopicStatus getDeployStatus() {
+        return deployStatus;
+    }
+
+    public void setDeployStatus(TopicStatus deployStatus) {
+        this.deployStatus = deployStatus;
+    }
+
     /**
      * Check whether the specified query item value matches
      * Allowed query items:
@@ -185,7 +193,7 @@ public class TopicConfEntity extends BaseEntity {
         if ((target.getBrokerId() != TBaseConstants.META_VALUE_UNDEFINED
                 && target.getBrokerId() != this.brokerId)
                 || (target.getTopicId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getTopicId() != this.topicId)
+                && target.getTopicId() != this.topicNameId)
                 || (TStringUtils.isNotBlank(target.getTopicName())
                 && !target.getTopicName().equals(this.topicName))
                 || (TStringUtils.isNotBlank(target.getBrokerIp())
@@ -195,6 +203,38 @@ public class TopicConfEntity extends BaseEntity {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topicName\":\"").append(topicName).append("\"")
+                    .append(",\"brokerId\":").append(brokerId)
+                    .append(",\"topicNameId\":").append(topicNameId)
+                    .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
+                    .append(",\"brokerPort\":").append(brokerPort)
+                    .append(",\"topicStatusId\":").append(deployStatus.getCode());
+        } else {
+            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topic\":\"").append(topicName).append("\"")
+                    .append(",\"brkId\":").append(brokerId)
+                    .append(",\"topicId\":").append(topicNameId)
+                    .append(",\"bIp\":\"").append(brokerIp).append("\"")
+                    .append(",\"bPort\":").append(brokerPort)
+                    .append(",\"tStsId\":").append(deployStatus.getCode());
+        }
+        topicProps.toWebJsonStr(sBuilder, isLongName);
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
     }
 
     @Override
@@ -211,7 +251,7 @@ public class TopicConfEntity extends BaseEntity {
         TopicConfEntity that = (TopicConfEntity) o;
         return brokerId == that.brokerId &&
                 brokerPort == that.brokerPort &&
-                topicId == that.topicId &&
+                topicNameId == that.topicNameId &&
                 recordKey.equals(that.recordKey) &&
                 topicName.equals(that.topicName) &&
                 Objects.equals(brokerIp, that.brokerIp) &&
@@ -223,6 +263,20 @@ public class TopicConfEntity extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), recordKey, topicName, brokerId,
-                brokerIp, brokerPort, brokerAddress, topicId, deployStatus, topicProps);
+                brokerIp, brokerPort, brokerAddress, topicNameId, deployStatus, topicProps);
+    }
+
+    @Override
+    public TopicConfEntity clone() {
+        try {
+            TopicConfEntity copy = (TopicConfEntity) super.clone();
+            if (copy.getTopicProps() != null) {
+                copy.setTopicProps(getTopicProps().clone());
+            }
+            copy.setDeployStatus(getDeployStatus());
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

@@ -104,6 +104,7 @@ import org.apache.tubemq.server.master.bdbstore.DefaultBdbStoreService;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
@@ -144,6 +145,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final OffsetStorage zkOffsetStorage;                //zookeeper offset manager
     private final ShutdownHook shutdownHook;                    //shutdown hook
     private final DefaultBdbStoreService defaultBdbStoreService;        //bdb store service
+    private final MetaDataManager defMetaDataManager;
     private final BrokerConfManager defaultBrokerConfManager;             //broker config manager
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
@@ -208,6 +210,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         new ReleaseBroker().run(nodeId);
                     }
                 });
+
+        this.defMetaDataManager = new MetaDataManager(masterConfig.getHostName(),
+                masterConfig.getMetaDataPath(), masterConfig.getReplicationConfig());
+        this.defMetaDataManager.start();
+
         this.defaultBdbStoreService = new DefaultBdbStoreService(masterConfig, this);
         this.defaultBdbStoreService.start();
         this.defaultBrokerConfManager = new BrokerConfManager(this.defaultBdbStoreService);
@@ -280,6 +287,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      */
     public BrokerConfManager getMasterTopicManager() {
         return this.defaultBrokerConfManager;
+    }
+
+
+    public MetaDataManager getDefMetaDataManager() {
+        return defMetaDataManager;
     }
 
     /**

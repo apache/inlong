@@ -29,7 +29,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEnt
  * store the group consume control setting
  *
  */
-public class GroupConsumeCtrlEntity extends BaseEntity {
+public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     private String recordKey = "";
     private String topicName = "";
     private String groupName = "";
@@ -103,12 +103,15 @@ public class GroupConsumeCtrlEntity extends BaseEntity {
         return groupName;
     }
 
+    public void setFilterConsumeStatus(EnableStatus filterConsumeStatus) {
+        this.filterConsumeStatus = filterConsumeStatus;
+    }
 
     public boolean isEnableFilterConsume() {
         return filterConsumeStatus == EnableStatus.STATUS_ENABLE;
     }
 
-    public void setFilterConsumeStatus(boolean enableFilterConsume) {
+    public void setEnableFilterConsume(boolean enableFilterConsume) {
         if (enableFilterConsume) {
             this.filterConsumeStatus = EnableStatus.STATUS_ENABLE;
         } else {
@@ -152,6 +155,33 @@ public class GroupConsumeCtrlEntity extends BaseEntity {
         return true;
     }
 
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topicName\":\"").append(topicName).append("\"")
+                    .append(",\"groupName\":\"").append(groupName).append("\"")
+                    .append(",\"filterEnable\":").append(filterConsumeStatus.isEnable())
+                    .append(",\"filterConds\":\"").append(filterCondStr).append("\"");
+        } else {
+            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topic\":\"").append(topicName).append("\"")
+                    .append(",\"group\":\"").append(groupName).append("\"")
+                    .append(",\"fltEn\":").append(filterConsumeStatus.isEnable())
+                    .append(",\"fltRls\":\"").append(filterCondStr).append("\"");
+        }
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -175,5 +205,16 @@ public class GroupConsumeCtrlEntity extends BaseEntity {
     public int hashCode() {
         return Objects.hash(super.hashCode(), recordKey,
                 topicName, groupName, filterConsumeStatus, filterCondStr);
+    }
+
+    @Override
+    public GroupConsumeCtrlEntity clone() {
+        try {
+            GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
+            copy.setFilterConsumeStatus(getFilterConsumeStatus());
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

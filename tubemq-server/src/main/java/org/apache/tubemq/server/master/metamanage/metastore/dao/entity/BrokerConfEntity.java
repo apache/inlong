@@ -23,6 +23,7 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 
 
@@ -32,7 +33,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
  *
  */
 
-public class BrokerConfEntity extends BaseEntity  {
+public class BrokerConfEntity extends BaseEntity implements Cloneable {
     // Primary Key
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerIp = "";
@@ -46,13 +47,14 @@ public class BrokerConfEntity extends BaseEntity  {
     private boolean isBrokerLoaded = false;     //broker conf load flag
     private int regionId = TBaseConstants.META_VALUE_UNDEFINED;
     private int groupId = TBaseConstants.META_VALUE_UNDEFINED;
-    private TopicPropGroup topicProps = null;
+    private TopicPropGroup topicProps = new TopicPropGroup();
+    // Redundant fields begin
     private String brokerAddress = "";       // broker ip:port
     private String brokerFullInfo = "";      // broker brokerId:ip:port
     private String brokerSimpleInfo = "";    // broker brokerId:ip:
     private String brokerTLSSimpleInfo = ""; //tls simple info
     private String brokerTLSFullInfo = "";   //tls full info
-
+    // Redundant fields end
 
     public BrokerConfEntity() {
         super();
@@ -304,6 +306,46 @@ public class BrokerConfEntity extends BaseEntity  {
     }
 
     /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        String manageSts =
+                WebParameterUtils.getBrokerManageStatusStr(getManageStatus().getCode());
+        if (isLongName) {
+            sBuilder.append("{\"brokerId\":").append(brokerId)
+                    .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
+                    .append(",\"brokerPort\":").append(brokerPort)
+                    .append(",\"brokerTLSPort\":").append(brokerTLSPort)
+                    .append(",\"brokerWebPort\":").append(brokerWebPort)
+                    .append(",\"manageStatus\":\"").append(manageSts).append("\"")
+                    .append(",\"isConfChanged\":").append(isConfDataUpdated)
+                    .append(",\"isConfLoaded\":").append(isBrokerLoaded)
+                    .append(",\"regionId\":").append(regionId)
+                    .append(",\"groupId\":").append(groupId);
+        } else {
+            sBuilder.append("{\"brkId\":").append(brokerId)
+                    .append(",\"bIp\":\"").append(brokerIp).append("\"")
+                    .append(",\"bPort\":").append(brokerPort)
+                    .append(",\"bTlsPort\":").append(brokerTLSPort)
+                    .append(",\"bWebPort\":").append(brokerWebPort)
+                    .append(",\"mSts\":\"").append(manageSts).append("\"")
+                    .append(",\"isConfChg\":").append(isConfDataUpdated)
+                    .append(",\"isConfLd\":").append(isBrokerLoaded)
+                    .append(",\"rId\":").append(regionId)
+                    .append(",\"gId\":").append(groupId);
+        }
+        topicProps.toWebJsonStr(sBuilder, isLongName);
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
+    }
+
+    /**
      * Get broker config string
      *
      * @return config string
@@ -360,6 +402,20 @@ public class BrokerConfEntity extends BaseEntity  {
                 brokerWebPort, manageStatus, isConfDataUpdated, isBrokerLoaded, regionId,
                 groupId, topicProps, brokerAddress, brokerFullInfo, brokerSimpleInfo,
                 brokerTLSSimpleInfo, brokerTLSFullInfo);
+    }
+
+    @Override
+    public BrokerConfEntity clone() {
+        try {
+            BrokerConfEntity copy = (BrokerConfEntity) super.clone();
+            copy.setManageStatus(getManageStatus());
+            if (copy.getTopicProps() != null) {
+                copy.setTopicProps(getTopicProps().clone());
+            }
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
 }

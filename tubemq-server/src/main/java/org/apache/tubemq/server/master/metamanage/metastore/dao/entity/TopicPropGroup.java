@@ -19,6 +19,7 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 
@@ -27,7 +28,7 @@ import org.apache.tubemq.corebase.utils.TStringUtils;
  * Topic property group, save topic related storage and configuration information.
  *
  */
-public class TopicPropGroup implements Serializable {
+public class TopicPropGroup implements Serializable, Cloneable {
 
     private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;        //store num
     private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;        //partition num
@@ -37,8 +38,8 @@ public class TopicPropGroup implements Serializable {
     private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;  // cache block size
     private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;    // cache max count
     private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;   // cache max interval
-    private boolean acceptPublish = true;    //enable publish
-    private boolean acceptSubscribe = true;  //enable subscribe
+    private Boolean acceptPublish = null;    //enable publish
+    private Boolean acceptSubscribe = null;  //enable subscribe
     private String deletePolicy = "";        // delete policy
     private int dataStoreType = TBaseConstants.META_VALUE_UNDEFINED;  // type
     private String dataPath = "";   //data path
@@ -136,7 +137,10 @@ public class TopicPropGroup implements Serializable {
         return acceptPublish;
     }
 
-    public void setAcceptPublish(boolean acceptPublish) {
+    public Boolean getAcceptPublish() {
+        return acceptPublish;
+    }
+    public void setAcceptPublish(Boolean acceptPublish) {
         this.acceptPublish = acceptPublish;
     }
 
@@ -144,8 +148,12 @@ public class TopicPropGroup implements Serializable {
         return acceptSubscribe;
     }
 
-    public void setAcceptSubscribe(boolean acceptSubscribe) {
+    public void setAcceptSubscribe(Boolean acceptSubscribe) {
         this.acceptSubscribe = acceptSubscribe;
+    }
+
+    public Boolean getAcceptSubscribe() {
+        return acceptSubscribe;
     }
 
     public String getDeletePolicy() {
@@ -196,11 +204,54 @@ public class TopicPropGroup implements Serializable {
                 && target.getMemCacheMsgCntInK() != this.memCacheMsgCntInK)
                 || (target.getMemCacheFlushIntvl() != TBaseConstants.META_VALUE_UNDEFINED
                 && target.getMemCacheFlushIntvl() != this.memCacheFlushIntvl)
+                || (target.getAcceptPublish() != null
+                && target.getAcceptPublish() != this.acceptPublish)
+                || (target.getAcceptSubscribe() != null
+                && target.getAcceptSubscribe() != this.acceptSubscribe)
                 || (TStringUtils.isNotBlank(target.getDeletePolicy())
                 && !target.getDeletePolicy().equals(this.deletePolicy))) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder
+     * @return
+     */
+    StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append(",\"numTopicStores\":").append(numTopicStores)
+                    .append(",\"numPartitions\":").append(numPartitions)
+                    .append(",\"unflushThreshold\":").append(unflushThreshold)
+                    .append(",\"unflushInterval\":").append(unflushInterval)
+                    .append(",\"unflushDataHold\":").append(unflushDataHold)
+                    .append(",\"memCacheMsgSizeInMB\":").append(memCacheMsgSizeInMB)
+                    .append(",\"memCacheMsgCntInK\":").append(memCacheMsgCntInK)
+                    .append(",\"memCacheFlushIntvl\":").append(memCacheFlushIntvl)
+                    .append(",\"acceptPublish\":").append(acceptPublish)
+                    .append(",\"acceptSubscribe\":").append(acceptSubscribe)
+                    .append(",\"deletePolicy\":\"").append(deletePolicy).append("\"")
+                    .append(",\"dataStoreType\":").append(dataStoreType)
+                    .append(",\"dataPath\":\"").append(dataPath).append("\"");
+        } else {
+            sBuilder.append(",\"numStore\":").append(numTopicStores)
+                    .append(",\"numPart\":").append(numPartitions)
+                    .append(",\"unfDskMsgCnt\":").append(unflushThreshold)
+                    .append(",\"unfDskInt\":").append(unflushInterval)
+                    .append(",\"unfDskDataSz\":").append(unflushDataHold)
+                    .append(",\"cacheInMB\":").append(memCacheMsgSizeInMB)
+                    .append(",\"unfMemMsgCnt\":").append(memCacheMsgCntInK)
+                    .append(",\"unfMemInt\":").append(memCacheFlushIntvl)
+                    .append(",\"accPub\":").append(acceptPublish)
+                    .append(",\"accSub\":").append(acceptSubscribe)
+                    .append(",\"delPol\":\"").append(deletePolicy).append("\"")
+                    .append(",\"dStType\":").append(dataStoreType)
+                    .append(",\"dPath\":\"").append(dataPath).append("\"");
+        }
+        return sBuilder;
     }
 
     @Override
@@ -220,17 +271,28 @@ public class TopicPropGroup implements Serializable {
                 memCacheMsgSizeInMB == that.memCacheMsgSizeInMB &&
                 memCacheMsgCntInK == that.memCacheMsgCntInK &&
                 memCacheFlushIntvl == that.memCacheFlushIntvl &&
-                acceptPublish == that.acceptPublish &&
-                acceptSubscribe == that.acceptSubscribe &&
                 dataStoreType == that.dataStoreType &&
+                Objects.equals(acceptPublish, that.acceptPublish) &&
+                Objects.equals(acceptSubscribe, that.acceptSubscribe) &&
                 Objects.equals(deletePolicy, that.deletePolicy) &&
                 Objects.equals(dataPath, that.dataPath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(numTopicStores, numPartitions, unflushThreshold, unflushInterval,
-                unflushDataHold, memCacheMsgSizeInMB, memCacheMsgCntInK, memCacheFlushIntvl,
-                acceptPublish, acceptSubscribe, deletePolicy, dataStoreType, dataPath);
+        return Objects.hash(numTopicStores, numPartitions, unflushThreshold,
+                unflushInterval, unflushDataHold, memCacheMsgSizeInMB,
+                memCacheMsgCntInK, memCacheFlushIntvl, acceptPublish,
+                acceptSubscribe, deletePolicy, dataStoreType, dataPath);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    @Override
+    public TopicPropGroup clone() throws CloneNotSupportedException {
+        return (TopicPropGroup) super.clone();
     }
 }

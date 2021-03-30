@@ -134,6 +134,24 @@ public class BdbTopicAuthControlEntity implements Serializable {
                         String.valueOf(dataVerId));
     }
 
+    public int getTopicId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setTopicId(int topicId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID,
+                        String.valueOf(topicId));
+    }
+
+
     public int getMaxMsgSize() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,

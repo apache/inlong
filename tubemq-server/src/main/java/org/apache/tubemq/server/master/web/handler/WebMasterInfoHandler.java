@@ -22,21 +22,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.SettingValidUtils;
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.corebase.utils.Tuple3;
+import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
@@ -81,9 +84,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      */
     public StringBuilder getGroupAddressStrInfo(HttpServletRequest req) {
         StringBuilder strBuffer = new StringBuilder(512);
-        ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
+        ClusterGroupVO clusterGroupVO = metaDataManager.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
-            strBuffer.append("{\"result\":false,\"errCode\":500,\"errMsg\":\"GetBrokerGroup info error\",\"data\":[]}");
+            WebParameterUtils.buildFailResultWithBlankData(
+                    500, "GetBrokerGroup info error", strBuffer);
         } else {
             strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
                     .append(clusterGroupVO.getGroupName()).append("\",\"isPrimaryNodeActive\":")
@@ -146,13 +150,13 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      */
     public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
         StringBuilder sBuilder = new StringBuilder(512);
-        BdbClusterSettingEntity defClusterSetting =
-                brokerConfManager.getBdbClusterSetting();
-        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"data\":[");
+        ClusterSettingEntity defClusterSetting =
+                metaDataManager.getClusterDefSetting();
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
         if (defClusterSetting != null) {
-            defClusterSetting.toJsonString(sBuilder);
+            defClusterSetting.toWebJsonStr(sBuilder, true);
         }
-        sBuilder.append("]}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
         return sBuilder;
     }
 
@@ -163,7 +167,6 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return
      */
     public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
-        boolean dataChanged = false;
         ProcessResult result = new ProcessResult();
         StringBuilder sBuilder = new StringBuilder(512);
         // valid operation authorize info
@@ -172,16 +175,16 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        // check modify user field
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, true, null, result)) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        String modifyUser = (String) result.retData1;
+        Tuple3<Long, String, Date> inOpTupleInfo =
+                (Tuple3<Long, String, Date>) result.getRetData();
         // check max message size
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.MAXMSGSIZE, false,
+                WebFieldDef.MAXMSGSIZEINMB, false,
                 TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
                 TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
@@ -189,40 +192,157 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        int maxMsgSizeInMB = (int) result.retData1;
-        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            dataChanged = true;
-        }
-        // check and get modify date
-        if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.MODIFYDATE, false, new Date(), result)) {
+        int inMaxMsgSize = (int) result.getRetData();
+        // get broker port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Date modifyDate = (Date) result.retData1;
-        if (!dataChanged) {
-            WebParameterUtils.buildSuccessResult(sBuilder, "No data is changed!");
+        int inBrokerPort = (int) result.getRetData();
+        // get broker tls port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        // add or modify cluster setting info
-        BdbClusterSettingEntity defClusterSetting =
-                brokerConfManager.getBdbClusterSetting();
-        if (defClusterSetting == null) {
-            defClusterSetting = new BdbClusterSettingEntity();
+        int inBrokerTlsPort = (int) result.getRetData();
+        // get broker web port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
-        defClusterSetting.setModifyInfo(modifyUser, modifyDate);
-        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            defClusterSetting.setMaxMsgSizeInB(
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB));
+        int inBrokerWebPort = (int) result.getRetData();
+        // get and valid TopicPropGroup info
+        if (!WebParameterUtils.getTopicPropInfo(req, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
-        try {
-            brokerConfManager.confSetBdbClusterDefSetting(defClusterSetting);
-            WebParameterUtils.buildSuccessResult(sBuilder);
-        } catch (Exception e) {
-            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+        TopicPropGroup defTopicProps = (TopicPropGroup) result.getRetData();
+        // get and valid qryPriorityId info
+        if (!WebParameterUtils.getQryPriorityIdParameter(req,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 101, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
         }
+        int inQryPriorityId = (int) result.retData1;
+        // get flowCtrlEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.FLOWCTRLENABLE, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean flowCtrlEnable = (Boolean) result.retData1;
+        // get and flow control rule info
+        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req, null, result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String flowCtrlInfo = (String) result.retData1;
+
+        // add or modify record
+        ClusterSettingEntity newConf = null;
+        ClusterSettingEntity curConf = metaDataManager.getClusterDefSetting();
+        if (curConf == null) {
+            newConf = new ClusterSettingEntity(
+                    inOpTupleInfo.getF0(), inOpTupleInfo.getF1(), inOpTupleInfo.getF2());
+            // check and process max message size
+            if (inMaxMsgSize == TBaseConstants.META_VALUE_UNDEFINED) {
+                inMaxMsgSize = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+            }
+            newConf.setMaxMsgSizeInB(
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(inMaxMsgSize));
+            // check and process broker ports
+            if (inBrokerPort == TBaseConstants.META_VALUE_UNDEFINED) {
+                inBrokerPort = TBaseConstants.META_DEFAULT_BROKER_PORT;
+            }
+            newConf.setBrokerPort(inBrokerPort);
+            if (inBrokerTlsPort == TBaseConstants.META_VALUE_UNDEFINED) {
+                inBrokerTlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
+            }
+            newConf.setBrokerTLSPort(inBrokerTlsPort);
+            if (inBrokerWebPort == TBaseConstants.META_VALUE_UNDEFINED) {
+                inBrokerWebPort = TBaseConstants.META_DEFAULT_BROKER_WEB_PORT;
+            }
+            newConf.setBrokerWebPort(inBrokerWebPort);
+            if (inQryPriorityId == TBaseConstants.META_VALUE_UNDEFINED) {
+                inQryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
+            }
+            newConf.setQryPriorityId(inQryPriorityId);
+            newConf.setClsDefTopicProps(defTopicProps);
+            if (flowCtrlEnable == null) {
+                flowCtrlEnable = false;
+            }
+            if (flowCtrlInfo == null) {
+                flowCtrlInfo = TServerConstants.BLANK_FLOWCTRL_RULES;
+            }
+            newConf.setGloFlowCtrlInfo(flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
+            if (!metaDataManager.confAddClusterDefSetting(newConf, sBuilder, result)) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return sBuilder;
+            }
+        } else {
+            boolean dataChanged = false;
+            newConf = curConf.clone();
+            newConf.setModifyInfo(inOpTupleInfo.getF0(),
+                    false, inOpTupleInfo.getF1(), inOpTupleInfo.getF2());
+            if (inMaxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
+                inMaxMsgSize = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(inMaxMsgSize);
+                if (newConf.getMaxMsgSizeInB() != inMaxMsgSize) {
+                    dataChanged = true;
+                    newConf.setMaxMsgSizeInB(inMaxMsgSize);
+                }
+            }
+            if (inBrokerPort != TBaseConstants.META_VALUE_UNDEFINED
+                    && newConf.getBrokerPort() != inBrokerPort) {
+                dataChanged = true;
+                newConf.setBrokerPort(inBrokerPort);
+            }
+            if (inBrokerTlsPort != TBaseConstants.META_VALUE_UNDEFINED
+                    && newConf.getBrokerTLSPort() != inBrokerTlsPort) {
+                dataChanged = true;
+                newConf.setBrokerTLSPort(inBrokerTlsPort);
+            }
+            if (inBrokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
+                    && newConf.getBrokerWebPort() != inBrokerWebPort) {
+                dataChanged = true;
+                newConf.setBrokerWebPort(inBrokerWebPort);
+            }
+            // check and set qry priority id
+            if (inQryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                    && newConf.getQryPriorityId() != inQryPriorityId) {
+                dataChanged = true;
+                newConf.setQryPriorityId(inQryPriorityId);
+            }
+            // check and set flowCtrl info
+            if (flowCtrlEnable != null
+                    && flowCtrlEnable != newConf.getGloFlowCtrlStatus().isEnable()) {
+                dataChanged = true;
+                newConf.setEnableFlowCtrl(flowCtrlEnable);
+            }
+            if (TStringUtils.isNotBlank(flowCtrlInfo)
+                    && !flowCtrlInfo.equals(newConf.getGloFlowCtrlRuleInfo())) {
+                dataChanged = true;
+                newConf.setGloFlowCtrlInfo(newConf.getGloFlowCtrlStatus().isEnable(),
+                        flowRuleCnt, flowCtrlInfo);
+            }
+            // check if changed
+            if (!dataChanged) {
+                WebParameterUtils.buildSuccessResult(sBuilder, "No data is changed!");
+                return sBuilder;
+            }
+            if (!metaDataManager.confModClusterDefSetting(newConf, sBuilder, result)) {
+                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+                return sBuilder;
+            }
+        }
+        curConf = metaDataManager.getClusterDefSetting();
+        WebParameterUtils.buildSuccWithData(curConf.getDataVersionId(), sBuilder);
         return sBuilder;
     }
+
 
     /**
      * Query cluster topic overall view
