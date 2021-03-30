@@ -915,7 +915,7 @@ public class MetaDataManager implements Server {
         }
         strBuffer.delete(0, strBuffer.length());
         // add topic control record
-        addIfAbsentTopicCtrlConf(entity.getTopicName(),
+        addIfAbsentTopicCtrlConf(entity.getTopicName(), entity.getTopicId(),
                 entity.getCreateUser(), strBuffer, new ProcessResult());
         return result.isSuccess();
     }
@@ -950,7 +950,7 @@ public class MetaDataManager implements Server {
         }
         strBuffer.delete(0, strBuffer.length());
         // add topic control record
-        addIfAbsentTopicCtrlConf(entity.getTopicName(),
+        addIfAbsentTopicCtrlConf(entity.getTopicName(), entity.getTopicId(),
                 entity.getCreateUser(), strBuffer, new ProcessResult());
         return result.isSuccess();
     }
@@ -1119,10 +1119,12 @@ public class MetaDataManager implements Server {
      * Add if absent topic control configure info
      *
      * @param topicName  the topic name will be add
+     * @param topicNameId the topic name id will be add
      * @param operator   operator
      * @param strBuffer  the print info string buffer
      */
     private void addIfAbsentTopicCtrlConf(String topicName,
+                                          int topicNameId,
                                           String operator,
                                           StringBuilder strBuffer,
                                           ProcessResult result) {
@@ -1131,7 +1133,7 @@ public class MetaDataManager implements Server {
         if (curEntity != null) {
             return;
         }
-        curEntity = new TopicCtrlEntity(topicName, operator);
+        curEntity = new TopicCtrlEntity(topicName, topicNameId, operator);
         if (metaStoreService.addTopicCtrlConf(curEntity, result)) {
             strBuffer.append("[addIfAbsentTopicCtrlConf], ")
                     .append(curEntity.getCreateUser())
@@ -1248,6 +1250,38 @@ public class MetaDataManager implements Server {
         } else {
             strBuffer.append("[confAddClusterDefSetting], ")
                     .append("failure to add cluster setting record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
+    }
+
+    /**
+     * Update cluster default setting
+     *
+     * @param entity     the cluster default setting entity will be add
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     * @throws Exception
+     */
+    public boolean confModClusterDefSetting(ClusterSettingEntity entity,
+                                            StringBuilder strBuffer,
+                                            ProcessResult result) {
+        if (metaStoreService.updClusterConfig(entity, result)) {
+            ClusterSettingEntity oldEntity =
+                    (ClusterSettingEntity) result.getRetData();
+            ClusterSettingEntity curEntity =
+                    metaStoreService.getClusterConfig();
+            strBuffer.append("[confModClusterDefSetting], ")
+                    .append(entity.getModifyUser())
+                    .append(" updated record from :").append(oldEntity.toString())
+                    .append(" to ").append(curEntity.toString());
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[confModClusterDefSetting], ")
+                    .append("failure to update record : ")
                     .append(result.getErrInfo());
             logger.warn(strBuffer.toString());
         }

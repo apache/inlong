@@ -19,6 +19,7 @@ package org.apache.tubemq.server.master.web.handler;
 
 import static org.apache.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import org.apache.tubemq.server.master.TMaster;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 
 
@@ -27,10 +28,12 @@ public abstract class AbstractWebHandler {
 
     protected TMaster master;
     protected BrokerConfManager brokerConfManager;
+    protected MetaDataManager metaDataManager;
 
     public AbstractWebHandler(TMaster master) {
         this.master = master;
         this.brokerConfManager = this.master.getMasterTopicManager();
+        this.metaDataManager = this.master.getDefMetaDataManager();
     }
 
     public abstract void registerWebApiMethod();

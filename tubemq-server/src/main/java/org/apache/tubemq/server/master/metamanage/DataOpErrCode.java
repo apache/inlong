@@ -26,6 +26,7 @@ public enum DataOpErrCode {
     DERR_UNCLEANED(404, "Related configuration is not cleaned up."),
     DERR_CONDITION_LACK(405, "The preconditions are not met"),
     DERR_ILLEGAL_STATUS(406, "Illegal operate status"),
+    DERR_ILLEGAL_VALUE(407, "Illegal data format or value"),
     DERR_STORE_ABNORMAL(501, "Store layer throw exception."),
     DERR_STORE_STOPPED(510, "Store stopped."),
     DERR_STORE_NOT_MASTER(511, "Store not active master.");

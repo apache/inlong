@@ -28,7 +28,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
  * store group black list setting
  *
  */
-public class GroupBlackListEntity extends BaseEntity {
+public class GroupBlackListEntity extends BaseEntity implements Cloneable {
 
     private String recordKey = "";
     private String topicName = "";
@@ -108,6 +108,31 @@ public class GroupBlackListEntity extends BaseEntity {
         return true;
     }
 
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topicName\":\"").append(topicName).append("\"")
+                    .append(",\"groupName\":\"").append(groupName).append("\"")
+                    .append(",\"reason\":\"").append(reason).append("\"");
+        } else {
+            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
+                    .append(",\"topic\":\"").append(topicName).append("\"")
+                    .append(",\"group\":\"").append(groupName).append("\"")
+                    .append(",\"rsn\":\"").append(reason).append("\"");
+        }
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -129,5 +154,15 @@ public class GroupBlackListEntity extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), recordKey, topicName, groupName, reason);
+    }
+
+    @Override
+    public GroupBlackListEntity clone() {
+        try {
+            GroupBlackListEntity copy = (GroupBlackListEntity) super.clone();
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

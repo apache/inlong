@@ -28,7 +28,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntit
  * store the group control setting
  *
  */
-public class GroupBaseCtrlEntity extends BaseEntity {
+public class GroupBaseCtrlEntity extends BaseEntity implements Cloneable {
     // group name
     private String groupName = "";
     // resource check control
@@ -196,6 +196,37 @@ public class GroupBaseCtrlEntity extends BaseEntity {
         return true;
     }
 
+    /**
+     * Serialize field to json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    @Override
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        if (isLongName) {
+            sBuilder.append("{\"groupName\":\"").append(groupName).append("\"")
+                    .append(",\"resCheckEnable\":").append(resCheckStatus.isEnable())
+                    .append(",\"alwdBrokerClientRate\":").append(allowedBrokerClientRate)
+                    .append(",\"qryPriorityId\":").append(qryPriorityId)
+                    .append(",\"flowCtrlEnable\":").append(flowCtrlStatus.isEnable())
+                    .append(",\"flowCtrlRuleCount\":").append(ruleCnt)
+                    .append(",\"flowCtrlInfo\":").append(flowCtrlInfo);
+        } else {
+            sBuilder.append("{\"group\":\"").append(groupName).append("\"")
+                    .append(",\"resChkEn\":").append(resCheckStatus.isEnable())
+                    .append(",\"abcr\":").append(allowedBrokerClientRate)
+                    .append(",\"qryPriId\":").append(qryPriorityId)
+                    .append(",\"fCtrlEn\":").append(flowCtrlStatus.isEnable())
+                    .append(",\"fCtrlCnt\":").append(ruleCnt)
+                    .append(",\"fCtrlInfo\":").append(flowCtrlInfo);
+        }
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -223,4 +254,17 @@ public class GroupBaseCtrlEntity extends BaseEntity {
                 allowedBrokerClientRate, qryPriorityId, flowCtrlStatus,
                 ruleCnt, flowCtrlInfo);
     }
+
+    @Override
+    public GroupBaseCtrlEntity clone() {
+        try {
+            GroupBaseCtrlEntity copy = (GroupBaseCtrlEntity) super.clone();
+            copy.setFlowCtrlStatus(getFlowCtrlStatus());
+            copy.setResCheckStatus(getResCheckStatus());
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+
 }
