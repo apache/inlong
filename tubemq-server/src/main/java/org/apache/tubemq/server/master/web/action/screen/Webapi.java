@@ -29,11 +29,11 @@ import org.apache.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.web.handler.AbstractWebHandler;
-import org.apache.tubemq.server.master.web.handler.WebAdminFlowRuleHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminTopicAuthHandler;
 import org.apache.tubemq.server.master.web.handler.WebBrokerDefConfHandler;
 import org.apache.tubemq.server.master.web.handler.WebBrokerTopicConfHandler;
+import org.apache.tubemq.server.master.web.handler.WebGroupResCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebMasterInfoHandler;
 import org.apache.tubemq.server.master.web.handler.WebOtherInfoHandler;
 import org.apache.tubemq.server.master.web.simplemvc.Action;
@@ -59,7 +59,7 @@ public class Webapi implements Action {
         registerHandler(new WebBrokerTopicConfHandler(this.master));
         registerHandler(new WebAdminGroupCtrlHandler(this.master));
         registerHandler(new WebAdminTopicAuthHandler(this.master));
-        registerHandler(new WebAdminFlowRuleHandler(this.master));
+        registerHandler(new WebGroupResCtrlHandler(this.master));
         registerHandler(new WebMasterInfoHandler(this.master));
         registerHandler(new WebOtherInfoHandler(this.master));
     }

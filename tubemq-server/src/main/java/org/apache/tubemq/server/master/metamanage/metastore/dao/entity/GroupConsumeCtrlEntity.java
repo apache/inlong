@@ -182,6 +182,20 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(GroupConsumeCtrlEntity other) {
+        return recordKey.equals(other.recordKey)
+                && Objects.equals(topicName, other.topicName)
+                && Objects.equals(groupName, other.groupName)
+                && filterConsumeStatus == other.filterConsumeStatus
+                && Objects.equals(filterCondStr, other.filterCondStr);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -194,11 +208,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
             return false;
         }
         GroupConsumeCtrlEntity that = (GroupConsumeCtrlEntity) o;
-        return recordKey.equals(that.recordKey) &&
-                Objects.equals(topicName, that.topicName) &&
-                Objects.equals(groupName, that.groupName) &&
-                filterConsumeStatus == that.filterConsumeStatus &&
-                Objects.equals(filterCondStr, that.filterCondStr);
+        return isDataEquals(that);
     }
 
     @Override

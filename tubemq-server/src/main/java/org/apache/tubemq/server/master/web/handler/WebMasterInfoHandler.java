@@ -21,13 +21,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
-import org.apache.tubemq.corebase.utils.SettingValidUtils;
-import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -35,10 +33,11 @@ import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
@@ -132,7 +131,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             return sBuilder;
         }
         try {
-            brokerConfManager.transferMaster();
+            metaDataManager.transferMaster();
             WebParameterUtils.buildSuccessResult(sBuilder,
                     "TransferMaster method called, please wait 20 seconds!");
         } catch (Exception e2) {
@@ -180,7 +179,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> inOpTupleInfo =
+        Tuple3<Long, String, Date> opTupleInfo =
                 (Tuple3<Long, String, Date>) result.getRetData();
         // check max message size
         if (!WebParameterUtils.getIntParamValue(req,
@@ -192,7 +191,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        int inMaxMsgSize = (int) result.getRetData();
+        int inMaxMsgSizeMB = (int) result.getRetData();
         // get broker port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
@@ -222,7 +221,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         TopicPropGroup defTopicProps = (TopicPropGroup) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 101, result)) {
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -241,95 +241,27 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             return sBuilder;
         }
         String flowCtrlInfo = (String) result.retData1;
-
         // add or modify record
         ClusterSettingEntity newConf = null;
         ClusterSettingEntity curConf = metaDataManager.getClusterDefSetting();
         if (curConf == null) {
-            newConf = new ClusterSettingEntity(
-                    inOpTupleInfo.getF0(), inOpTupleInfo.getF1(), inOpTupleInfo.getF2());
-            // check and process max message size
-            if (inMaxMsgSize == TBaseConstants.META_VALUE_UNDEFINED) {
-                inMaxMsgSize = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-            }
-            newConf.setMaxMsgSizeInB(
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(inMaxMsgSize));
-            // check and process broker ports
-            if (inBrokerPort == TBaseConstants.META_VALUE_UNDEFINED) {
-                inBrokerPort = TBaseConstants.META_DEFAULT_BROKER_PORT;
-            }
-            newConf.setBrokerPort(inBrokerPort);
-            if (inBrokerTlsPort == TBaseConstants.META_VALUE_UNDEFINED) {
-                inBrokerTlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
-            }
-            newConf.setBrokerTLSPort(inBrokerTlsPort);
-            if (inBrokerWebPort == TBaseConstants.META_VALUE_UNDEFINED) {
-                inBrokerWebPort = TBaseConstants.META_DEFAULT_BROKER_WEB_PORT;
-            }
-            newConf.setBrokerWebPort(inBrokerWebPort);
-            if (inQryPriorityId == TBaseConstants.META_VALUE_UNDEFINED) {
-                inQryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
-            }
-            newConf.setQryPriorityId(inQryPriorityId);
-            newConf.setClsDefTopicProps(defTopicProps);
-            if (flowCtrlEnable == null) {
-                flowCtrlEnable = false;
-            }
-            if (flowCtrlInfo == null) {
-                flowCtrlInfo = TServerConstants.BLANK_FLOWCTRL_RULES;
-            }
-            newConf.setGloFlowCtrlInfo(flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
+            newConf = new ClusterSettingEntity(opTupleInfo.getF0(),
+                    opTupleInfo.getF1(), opTupleInfo.getF2());
+            newConf.fillDefaultValue();
+            newConf.updModifyInfo(inBrokerPort, inBrokerTlsPort,
+                    inBrokerWebPort, inMaxMsgSizeMB, inQryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, defTopicProps);
             if (!metaDataManager.confAddClusterDefSetting(newConf, sBuilder, result)) {
                 WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
                 return sBuilder;
             }
         } else {
-            boolean dataChanged = false;
             newConf = curConf.clone();
-            newConf.setModifyInfo(inOpTupleInfo.getF0(),
-                    false, inOpTupleInfo.getF1(), inOpTupleInfo.getF2());
-            if (inMaxMsgSize != TBaseConstants.META_VALUE_UNDEFINED) {
-                inMaxMsgSize = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(inMaxMsgSize);
-                if (newConf.getMaxMsgSizeInB() != inMaxMsgSize) {
-                    dataChanged = true;
-                    newConf.setMaxMsgSizeInB(inMaxMsgSize);
-                }
-            }
-            if (inBrokerPort != TBaseConstants.META_VALUE_UNDEFINED
-                    && newConf.getBrokerPort() != inBrokerPort) {
-                dataChanged = true;
-                newConf.setBrokerPort(inBrokerPort);
-            }
-            if (inBrokerTlsPort != TBaseConstants.META_VALUE_UNDEFINED
-                    && newConf.getBrokerTLSPort() != inBrokerTlsPort) {
-                dataChanged = true;
-                newConf.setBrokerTLSPort(inBrokerTlsPort);
-            }
-            if (inBrokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
-                    && newConf.getBrokerWebPort() != inBrokerWebPort) {
-                dataChanged = true;
-                newConf.setBrokerWebPort(inBrokerWebPort);
-            }
-            // check and set qry priority id
-            if (inQryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
-                    && newConf.getQryPriorityId() != inQryPriorityId) {
-                dataChanged = true;
-                newConf.setQryPriorityId(inQryPriorityId);
-            }
-            // check and set flowCtrl info
-            if (flowCtrlEnable != null
-                    && flowCtrlEnable != newConf.getGloFlowCtrlStatus().isEnable()) {
-                dataChanged = true;
-                newConf.setEnableFlowCtrl(flowCtrlEnable);
-            }
-            if (TStringUtils.isNotBlank(flowCtrlInfo)
-                    && !flowCtrlInfo.equals(newConf.getGloFlowCtrlRuleInfo())) {
-                dataChanged = true;
-                newConf.setGloFlowCtrlInfo(newConf.getGloFlowCtrlStatus().isEnable(),
-                        flowRuleCnt, flowCtrlInfo);
-            }
-            // check if changed
-            if (!dataChanged) {
+            newConf.setModifyInfo(opTupleInfo.getF0(),
+                    opTupleInfo.getF1(), opTupleInfo.getF2());
+            if (!newConf.updModifyInfo(inBrokerPort, inBrokerTlsPort, inBrokerWebPort,
+                    inMaxMsgSizeMB, inQryPriorityId, flowCtrlEnable,
+                    flowRuleCnt, flowCtrlInfo, defTopicProps)) {
                 WebParameterUtils.buildSuccessResult(sBuilder, "No data is changed!");
                 return sBuilder;
             }
@@ -339,10 +271,18 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             }
         }
         curConf = metaDataManager.getClusterDefSetting();
-        WebParameterUtils.buildSuccWithData(curConf.getDataVersionId(), sBuilder);
+        if (curConf == null) {
+            WebParameterUtils.buildFailResultWithBlankData(
+                    DataOpErrCode.DERR_UPD_NOT_EXIST.getCode(),
+                    DataOpErrCode.DERR_UPD_NOT_EXIST.getDescription(), sBuilder);
+            return sBuilder;
+        }
+        // build return result
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        curConf.toWebJsonStr(sBuilder, true);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
         return sBuilder;
     }
-
 
     /**
      * Query cluster topic overall view
@@ -368,8 +308,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
         // query topic configure info
-        ConcurrentHashMap<String, List<BdbTopicConfEntity>> topicConfigMap =
-                brokerConfManager.getBdbTopicEntityMap(null);
+        Map<String, List<TopicConfEntity>> topicConfMap =
+                metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         int totalCount = 0;
         int brokerCount = 0;
@@ -380,11 +320,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         boolean isAcceptPublish = false;
         boolean isAcceptSubscribe = false;
         boolean enableAuthControl = false;
-        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
-        for (Map.Entry<String, List<BdbTopicConfEntity>> entry : topicConfigMap.entrySet()) {
-            if (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey())) {
-                continue;
-            }
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        for (Map.Entry<String, List<TopicConfEntity>> entry : topicConfMap.entrySet()) {
             if (totalCount++ > 0) {
                 sBuilder.append(",");
             }
@@ -396,18 +333,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             enableAuthControl = false;
             isAcceptPublish = false;
             isAcceptSubscribe = false;
-            for (BdbTopicConfEntity entity : entry.getValue()) {
-                if ((!brokerIds.isEmpty()) && (!brokerIds.contains(entity.getBrokerId()))) {
-                    continue;
-                }
+            for (TopicConfEntity entity : entry.getValue()) {
                 brokerCount++;
-                totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
-                BdbBrokerConfEntity brokerConfEntity =
-                        brokerConfManager.getBrokerDefaultConfigStoreInfo(entity.getBrokerId());
+                TopicPropGroup topicProps = entity.getTopicProps();
+                totalCfgNumPartCount +=
+                        topicProps.getNumPartitions() * topicProps.getNumTopicStores();
+                BrokerConfEntity brokerConfEntity =
+                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity != null) {
                     Tuple2<Boolean, Boolean> pubSubStatus =
                             WebParameterUtils.getPubSubStatusByManageStatus(
-                                    brokerConfEntity.getManageStatus());
+                                    brokerConfEntity.getManageStatus().getCode());
                     isAcceptPublish = pubSubStatus.getF0();
                     isAcceptSubscribe = pubSubStatus.getF1();
                 }
@@ -427,10 +363,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                             topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
                 }
             }
-            BdbTopicAuthControlEntity authEntity =
-                    brokerConfManager.getBdbEnableAuthControlByTopicName(entry.getKey());
+            TopicCtrlEntity authEntity =
+                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
             if (authEntity != null) {
-                enableAuthControl = authEntity.isEnableAuthControl();
+                enableAuthControl = authEntity.isAuthCtrlEnable();
             }
             sBuilder.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"totalCfgBrokerCnt\":").append(brokerCount)
@@ -441,7 +377,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     .append(",\"enableAuthControl\":").append(enableAuthControl)
                     .append("}");
         }
-        sBuilder.append("],\"dataCount\":").append(totalCount).append("}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCount);
         return sBuilder;
     }
 

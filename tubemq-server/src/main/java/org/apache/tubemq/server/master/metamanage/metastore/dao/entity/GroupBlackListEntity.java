@@ -133,6 +133,19 @@ public class GroupBlackListEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(GroupBlackListEntity other) {
+        return Objects.equals(recordKey, other.recordKey)
+                && Objects.equals(topicName, other.topicName)
+                && Objects.equals(groupName, other.groupName)
+                && Objects.equals(reason, other.reason);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -145,10 +158,7 @@ public class GroupBlackListEntity extends BaseEntity implements Cloneable {
             return false;
         }
         GroupBlackListEntity that = (GroupBlackListEntity) o;
-        return Objects.equals(recordKey, that.recordKey) &&
-                Objects.equals(topicName, that.topicName) &&
-                Objects.equals(groupName, that.groupName) &&
-                Objects.equals(reason, that.reason);
+        return isDataEquals(that);
     }
 
     @Override

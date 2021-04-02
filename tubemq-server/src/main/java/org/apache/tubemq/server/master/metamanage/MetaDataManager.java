@@ -35,7 +35,7 @@ import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.TStringUtils;
-import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
@@ -48,9 +48,9 @@ import org.apache.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceI
 import org.apache.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBaseCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
@@ -720,7 +720,7 @@ public class MetaDataManager implements Server {
         return this.brokerRunSyncManageMap.get(brokerId);
     }
 
-    public BrokerConfEntity getBrokerDefaultConfigStoreInfo(int brokerId) {
+    public BrokerConfEntity getBrokerConfByBrokerId(int brokerId) {
         return metaStoreService.getBrokerConfByBrokerId(brokerId);
     }
 
@@ -883,6 +883,11 @@ public class MetaDataManager implements Server {
         return metaStoreService.getTopicConfMap(qryEntity);
     }
 
+    public Map<String, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+        return metaStoreService.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIdSet);
+    }
+
     /**
      * Add topic configure
      *
@@ -960,8 +965,8 @@ public class MetaDataManager implements Server {
                                          StringBuilder strBuffer,
                                          ProcessResult result) {
         if (metaStoreService.delTopicConf(recordKey, result)) {
-            GroupBaseCtrlEntity entity =
-                    (GroupBaseCtrlEntity) result.getRetData();
+            GroupResCtrlEntity entity =
+                    (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
                 strBuffer.append("[confDelTopicConfInfo], ").append(operator)
                         .append(" deleted topic configure record :")
@@ -1325,25 +1330,25 @@ public class MetaDataManager implements Server {
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Add group configure info
+     * Add group resource control configure info
      *
-     * @param entity     the group base control info entity will be add
+     * @param entity     the group resource control info entity will be add
      * @param strBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confAddGroupBaseCtrlConf(GroupBaseCtrlEntity entity,
-                                            StringBuilder strBuffer,
-                                            ProcessResult result) {
-        if (metaStoreService.addGroupBaseCtrlConf(entity, result)) {
-            strBuffer.append("[confAddGroupBaseCtrlConf], ")
+    public boolean confAddGroupResCtrlConf(GroupResCtrlEntity entity,
+                                           StringBuilder strBuffer,
+                                           ProcessResult result) {
+        if (metaStoreService.addGroupResCtrlConf(entity, result)) {
+            strBuffer.append("[confAddGroupResCtrlConf], ")
                     .append(entity.getCreateUser())
-                    .append(" added group base control record :")
+                    .append(" added group resource control record :")
                     .append(entity.toString());
             logger.info(strBuffer.toString());
         } else {
-            strBuffer.append("[confAddGroupBaseCtrlConf], ")
-                    .append("failure to add group base control record : ")
+            strBuffer.append("[confAddGroupResCtrlConf], ")
+                    .append("failure to add group resource control record : ")
                     .append(result.getErrInfo());
             logger.warn(strBuffer.toString());
         }
@@ -1352,30 +1357,30 @@ public class MetaDataManager implements Server {
     }
 
     /**
-     * Update group base control configure
+     * Update group reource control configure
      *
-     * @param entity     the group base control info entity will be update
+     * @param entity     the group resource control info entity will be update
      * @param strBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confUpdGroupBaseCtrlConf(GroupBaseCtrlEntity entity,
-                                            StringBuilder strBuffer,
-                                            ProcessResult result) {
-        if (metaStoreService.updGroupBaseCtrlConf(entity, result)) {
-            GroupBaseCtrlEntity oldEntity =
-                    (GroupBaseCtrlEntity) result.getRetData();
-            GroupBaseCtrlEntity curEntity =
-                    metaStoreService.getGroupBaseCtrlConf(entity.getGroupName());
-            strBuffer.append("[confUpdGroupBaseCtrlConf], ")
+    public boolean confUpdGroupResCtrlConf(GroupResCtrlEntity entity,
+                                           StringBuilder strBuffer,
+                                           ProcessResult result) {
+        if (metaStoreService.updGroupResCtrlConf(entity, result)) {
+            GroupResCtrlEntity oldEntity =
+                    (GroupResCtrlEntity) result.getRetData();
+            GroupResCtrlEntity curEntity =
+                    metaStoreService.getGroupResCtrlConf(entity.getGroupName());
+            strBuffer.append("[confUpdGroupResCtrlConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :")
                     .append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
             logger.info(strBuffer.toString());
         } else {
-            strBuffer.append("[confUpdGroupBaseCtrlConf], ")
-                    .append("failure to update group base control record : ")
+            strBuffer.append("[confUpdGroupResCtrlConf], ")
+                    .append("failure to update group resource control record : ")
                     .append(result.getErrInfo());
             logger.warn(strBuffer.toString());
         }
@@ -1384,7 +1389,7 @@ public class MetaDataManager implements Server {
     }
 
     /**
-     * Delete group base control configure
+     * Delete group resource control configure
      *
      * @param operator   operator
      * @param groupNames the group will be deleted
@@ -1392,30 +1397,30 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confDelGroupBaseCtrlConf(String operator,
-                                            Set<String> groupNames,
-                                            StringBuilder strBuffer,
-                                            ProcessResult result) {
-        Map<String, Tuple2<Integer, String>> procRet =
+    public boolean confDelGroupResCtrlConf(String operator,
+                                           Set<String> groupNames,
+                                           StringBuilder strBuffer,
+                                           ProcessResult result) {
+        Map<String, Tuple3<Boolean, Integer, String>> procRet =
                 new HashMap<>(groupNames.size());
         for (String groupName : groupNames) {
-            if (metaStoreService.delGroupBaseCtrlConf(groupName, result)) {
-                GroupBaseCtrlEntity entity =
-                        (GroupBaseCtrlEntity) result.getRetData();
+            if (metaStoreService.delGroupResCtrlConf(groupName, result)) {
+                GroupResCtrlEntity entity =
+                        (GroupResCtrlEntity) result.getRetData();
                 if (entity != null) {
-                    strBuffer.append("[confDelGroupBaseCtrlConf], ").append(operator)
-                            .append(" deleted group base control record :")
+                    strBuffer.append("[confDelGroupResCtrlConf], ").append(operator)
+                            .append(" deleted group resource control record :")
                             .append(entity.toString());
                     logger.info(strBuffer.toString());
                 }
             } else {
-                strBuffer.append("[confDelGroupBaseCtrlConf], ")
-                        .append("failure to delete group base control record : ")
+                strBuffer.append("[confDelGroupResCtrlConf], ")
+                        .append("failure to delete group resource control record : ")
                         .append(result.getErrInfo());
                 logger.warn(strBuffer.toString());
             }
             strBuffer.delete(0, strBuffer.length());
-            procRet.put(groupName, new Tuple2<>(
+            procRet.put(groupName, new Tuple3<>(result.isSuccess(),
                     result.getErrCode(), result.getErrInfo()));
             result.clear();
         }
@@ -1423,13 +1428,13 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-    public Map<String, GroupBaseCtrlEntity> confGetGroupBaseCtrlConf(
-            GroupBaseCtrlEntity qryEntity) {
-        return metaStoreService.getGroupBaseCtrlConf(qryEntity);
+    public Map<String, GroupResCtrlEntity> confGetGroupResCtrlConf(
+            GroupResCtrlEntity qryEntity) {
+        return metaStoreService.getGroupResCtrlConf(qryEntity);
     }
 
-    public GroupBaseCtrlEntity confGetGroupBaseCtrlConf(String groupName) {
-        return this.metaStoreService.getGroupBaseCtrlConf(groupName);
+    public GroupResCtrlEntity confGetGroupResCtrlConf(String groupName) {
+        return this.metaStoreService.getGroupResCtrlConf(groupName);
     }
 
     /**

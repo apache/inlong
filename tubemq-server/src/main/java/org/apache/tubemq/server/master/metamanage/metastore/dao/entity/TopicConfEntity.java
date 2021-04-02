@@ -237,6 +237,24 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(TopicConfEntity other) {
+        return brokerId == other.brokerId
+                && brokerPort == other.brokerPort
+                && topicNameId == other.topicNameId
+                && recordKey.equals(other.recordKey)
+                && topicName.equals(other.topicName)
+                && Objects.equals(brokerIp, other.brokerIp)
+                && Objects.equals(brokerAddress, other.brokerAddress)
+                && deployStatus == other.deployStatus
+                && Objects.equals(topicProps, other.topicProps);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -249,15 +267,7 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
             return false;
         }
         TopicConfEntity that = (TopicConfEntity) o;
-        return brokerId == that.brokerId &&
-                brokerPort == that.brokerPort &&
-                topicNameId == that.topicNameId &&
-                recordKey.equals(that.recordKey) &&
-                topicName.equals(that.topicName) &&
-                Objects.equals(brokerIp, that.brokerIp) &&
-                Objects.equals(brokerAddress, that.brokerAddress) &&
-                deployStatus == that.deployStatus &&
-                Objects.equals(topicProps, that.topicProps);
+        return isDataEquals(that);
     }
 
     @Override

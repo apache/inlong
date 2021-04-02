@@ -74,15 +74,48 @@ public class BaseEntity implements Serializable, Cloneable {
         this.modifyDate = modifyDate;
     }
 
-    public void setModifyInfo(long dataVersionId, boolean isAdd,
-                               String operator, Date opDate) {
-        this.dataVersionId = dataVersionId;
-        if (isAdd) {
-            this.createUser = operator;
-            this.createDate = opDate;
-        }
+    public void setModifyInfo(long newDataVerId, String operator, Date opDate) {
+        this.dataVersionId = newDataVerId;
         this.modifyUser = operator;
         this.modifyDate = opDate;
+    }
+
+    public boolean updBaseModifyInfo(long newDataVerId, String newCreateUser,
+                                     Date newCreateDate, String newModifyUser,
+                                     Date newModifyDate, String newAttributes) {
+        boolean changed = false;
+        // check and set dataVersionId field
+        if (newDataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.dataVersionId != newDataVerId) {
+            changed = true;
+            this.dataVersionId = newDataVerId;
+        }
+        if (TStringUtils.isNotBlank(newCreateUser)
+                && !Objects.equals(createUser, newCreateUser)) {
+            changed = true;
+            this.createUser = newCreateUser;
+        }
+        if (newCreateDate != null
+                && !Objects.equals(createDate, newCreateDate)) {
+            changed = true;
+            this.createDate = newCreateDate;
+        }
+        if (TStringUtils.isNotBlank(newModifyUser)
+                && !Objects.equals(modifyUser, newModifyUser)) {
+            changed = true;
+            this.modifyUser = newModifyUser;
+        }
+        if (newModifyDate != null
+                && !Objects.equals(modifyDate, newModifyDate)) {
+            changed = true;
+            this.modifyDate = newModifyDate;
+        }
+        if (TStringUtils.isNotBlank(newAttributes)
+                && !Objects.equals(attributes, newAttributes)) {
+            changed = true;
+            this.attributes = newAttributes;
+        }
+        return changed;
     }
 
     public void setDataVersionId() {

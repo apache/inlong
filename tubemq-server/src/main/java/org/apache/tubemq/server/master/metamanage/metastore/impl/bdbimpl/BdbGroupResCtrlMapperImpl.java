@@ -31,24 +31,24 @@ import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBaseCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupBaseCtrlMapper;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 
-public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
+public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     private static final Logger logger =
-            LoggerFactory.getLogger(BdbGroupBaseCtrlMapperImpl.class);
+            LoggerFactory.getLogger(BdbGroupResCtrlMapperImpl.class);
     // consumer group configure store
     private EntityStore groupConfStore;
     private PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
-    private ConcurrentHashMap<String/* groupName */, GroupBaseCtrlEntity> groupBaseCtrlCache =
+    private ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity> groupBaseCtrlCache =
             new ConcurrentHashMap<>();
 
-    public BdbGroupBaseCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
+    public BdbGroupResCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         groupConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_GROUP_FLOW_CONTROL_STORE_NAME, storeConfig);
         groupBaseCtrlIndex =
@@ -63,7 +63,7 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
                 groupConfStore.close();
                 groupConfStore = null;
             } catch (Throwable e) {
-                logger.error("[BDB Impl] close group base control failure ", e);
+                logger.error("[BDB Impl] close group resource control failure ", e);
             }
         }
     }
@@ -72,41 +72,41 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
     public void loadConfig() throws LoadMetaException {
         long count = 0L;
         EntityCursor<BdbGroupFlowCtrlEntity> cursor = null;
-        logger.info("[BDB Impl] load group base control start...");
+        logger.info("[BDB Impl] load group resource control start...");
         try {
             groupBaseCtrlCache.clear();
             cursor = groupBaseCtrlIndex.entities();
             for (BdbGroupFlowCtrlEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
-                    logger.warn("[BDB Impl] found Null data while loading group base control!");
+                    logger.warn("[BDB Impl] null data while loading group resource control!");
                     continue;
                 }
-                GroupBaseCtrlEntity memEntity =
-                        new GroupBaseCtrlEntity(bdbEntity);
+                GroupResCtrlEntity memEntity =
+                        new GroupResCtrlEntity(bdbEntity);
                 groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
                 count++;
             }
-            logger.info("[BDB Impl] total group base control records are {}", count);
+            logger.info("[BDB Impl] total group resource control records are {}", count);
         } catch (Exception e) {
-            logger.error("[BDB Impl] load group base control failure ", e);
+            logger.error("[BDB Impl] load group resource control failure ", e);
             throw new LoadMetaException(e.getMessage());
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
-        logger.info("[BDB Impl] load group configure successfully...");
+        logger.info("[BDB Impl] load group resource configure successfully...");
     }
 
     @Override
-    public boolean addGroupBaseCtrlConf(GroupBaseCtrlEntity memEntity, ProcessResult result) {
-        GroupBaseCtrlEntity curEntity =
+    public boolean addGroupResCtrlConf(GroupResCtrlEntity memEntity, ProcessResult result) {
+        GroupResCtrlEntity curEntity =
                 groupBaseCtrlCache.get(memEntity.getGroupName());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
                     new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
                             .append("The group ").append(memEntity.getGroupName())
-                            .append("'s base control already exists, please delete it first!")
+                            .append("'s resource control already exists, please delete it first!")
                             .toString());
             return result.isSuccess();
         }
@@ -117,14 +117,14 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
     }
 
     @Override
-    public boolean updGroupBaseCtrlConf(GroupBaseCtrlEntity memEntity, ProcessResult result) {
-        GroupBaseCtrlEntity curEntity =
+    public boolean updGroupResCtrlConf(GroupResCtrlEntity memEntity, ProcessResult result) {
+        GroupResCtrlEntity curEntity =
                 groupBaseCtrlCache.get(memEntity.getGroupName());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
                             .append("The group ").append(memEntity.getGroupName())
-                            .append("'s base control is not exists, please add record first!")
+                            .append("'s resource control is not exists, please add record first!")
                             .toString());
             return result.isSuccess();
         }
@@ -132,7 +132,7 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
                             .append("The group ").append(memEntity.getGroupName())
-                            .append("'s base control have not changed, please delete it first!")
+                            .append("'s resource control have not changed, please delete it first!")
                             .toString());
             return result.isSuccess();
         }
@@ -144,8 +144,8 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
     }
 
     @Override
-    public boolean delGroupBaseCtrlConf(String groupName, ProcessResult result) {
-        GroupBaseCtrlEntity curEntity =
+    public boolean delGroupResCtrlConf(String groupName, ProcessResult result) {
+        GroupResCtrlEntity curEntity =
                 groupBaseCtrlCache.get(groupName);
         if (curEntity == null) {
             result.setSuccResult(null);
@@ -158,19 +158,19 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
     }
 
     @Override
-    public GroupBaseCtrlEntity getGroupBaseCtrlConf(String groupName) {
+    public GroupResCtrlEntity getGroupResCtrlConf(String groupName) {
         return groupBaseCtrlCache.get(groupName);
     }
 
     @Override
-    public Map<String, GroupBaseCtrlEntity> getGroupBaseCtrlConf(GroupBaseCtrlEntity qryEntity) {
-        Map<String, GroupBaseCtrlEntity> retMap = new HashMap<>();
+    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity) {
+        Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
         if (qryEntity == null) {
-            for (GroupBaseCtrlEntity entity : groupBaseCtrlCache.values()) {
+            for (GroupResCtrlEntity entity : groupBaseCtrlCache.values()) {
                 retMap.put(entity.getGroupName(), entity);
             }
         } else {
-            for (GroupBaseCtrlEntity entity : groupBaseCtrlCache.values()) {
+            for (GroupResCtrlEntity entity : groupBaseCtrlCache.values()) {
                 if (entity.isMatched(qryEntity)) {
                     retMap.put(entity.getGroupName(), entity);
                 }
@@ -186,17 +186,17 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
      * @param result process result with old value
      * @return
      */
-    private boolean putGroupConfigConfig2Bdb(GroupBaseCtrlEntity memEntity, ProcessResult result) {
+    private boolean putGroupConfigConfig2Bdb(GroupResCtrlEntity memEntity, ProcessResult result) {
         BdbGroupFlowCtrlEntity retData = null;
         BdbGroupFlowCtrlEntity bdbEntity =
                 memEntity.buildBdbGroupFlowCtrlEntity();
         try {
             retData = groupBaseCtrlIndex.put(bdbEntity);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] put group base control failure ", e);
+            logger.error("[BDB Impl] put group resource control failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
                     new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put group base control failure: ")
+                            .append("Put group resource control failure: ")
                             .append(e.getMessage()).toString());
             return result.isSuccess();
         }
@@ -208,7 +208,7 @@ public class BdbGroupBaseCtrlMapperImpl implements GroupBaseCtrlMapper {
         try {
             groupBaseCtrlIndex.delete(recordKey);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] delete group base control failure ", e);
+            logger.error("[BDB Impl] delete group resource control failure ", e);
             return false;
         }
         return true;

@@ -19,21 +19,21 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import java.util.Map;
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBaseCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
 
 
-public interface GroupBaseCtrlMapper extends AbstractMapper {
+public interface GroupResCtrlMapper extends AbstractMapper {
 
-    boolean addGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result);
+    boolean addGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
 
-    boolean updGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result);
+    boolean updGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
 
-    boolean delGroupBaseCtrlConf(String groupName, ProcessResult result);
+    boolean delGroupResCtrlConf(String groupName, ProcessResult result);
 
-    GroupBaseCtrlEntity getGroupBaseCtrlConf(String groupName);
+    GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
-    Map<String, GroupBaseCtrlEntity> getGroupBaseCtrlConf(GroupBaseCtrlEntity qryEntity);
+    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity);
 
 
 }
