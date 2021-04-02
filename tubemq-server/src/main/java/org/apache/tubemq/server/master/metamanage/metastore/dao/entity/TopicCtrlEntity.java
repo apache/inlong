@@ -187,6 +187,19 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(TopicCtrlEntity other) {
+        return topicNameId == other.topicNameId
+                && maxMsgSizeInB == other.maxMsgSizeInB
+                && topicName.equals(other.topicName)
+                && authCtrlStatus == other.authCtrlStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -199,10 +212,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
             return false;
         }
         TopicCtrlEntity that = (TopicCtrlEntity) o;
-        return topicNameId == that.topicNameId &&
-                maxMsgSizeInB == that.maxMsgSizeInB &&
-                topicName.equals(that.topicName) &&
-                authCtrlStatus == that.authCtrlStatus;
+        return isDataEquals(that);
     }
 
     @Override

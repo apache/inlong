@@ -26,9 +26,9 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.keepalive.KeepAlive;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBaseCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
@@ -80,6 +80,9 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMap(TopicConfEntity qryEntity);
 
+    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+            Set<String> topicSet, Set<Integer> brokerIdSet);
+
     Map<String, TopicConfEntity> getConfiguredTopicInfo(int brokerId);
 
     // topic control api
@@ -93,16 +96,16 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity);
 
-    // group configure api
-    boolean addGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result);
+    // group resource configure api
+    boolean addGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
 
-    boolean updGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result);
+    boolean updGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
 
-    boolean delGroupBaseCtrlConf(String groupName, ProcessResult result);
+    boolean delGroupResCtrlConf(String groupName, ProcessResult result);
 
-    GroupBaseCtrlEntity getGroupBaseCtrlConf(String groupName);
+    GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
-    Map<String, GroupBaseCtrlEntity> getGroupBaseCtrlConf(GroupBaseCtrlEntity qryEntity);
+    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity);
 
     // group blacklist api
     boolean addGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);

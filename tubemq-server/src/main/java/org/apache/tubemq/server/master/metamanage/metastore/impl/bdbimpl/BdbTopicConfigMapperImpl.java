@@ -55,12 +55,12 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     private ConcurrentHashMap<String/* recordKey */, TopicConfEntity> topicConfCache =
             new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            topicConfBrokerCacheIndex = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            brokerTopicMapCacheIndex = new ConcurrentHashMap<>();
-
+            brokerIdCacheIndex = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
-            topicConfTopicNameCacheIndex = new ConcurrentHashMap<>();
+            topicNameCacheIndex = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
+            brokerId2TopicCacheIndex = new ConcurrentHashMap<>();
+
 
 
 
@@ -174,7 +174,7 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     @Override
     public boolean hasConfiguredTopics(int brokerId) {
         ConcurrentHashSet<String> keySet =
-                topicConfBrokerCacheIndex.get(brokerId);
+                brokerIdCacheIndex.get(brokerId);
         return (keySet != null && !keySet.isEmpty());
     }
 
@@ -227,19 +227,71 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     }
 
     @Override
+    public Map<String, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+            Set<String> topicSet, Set<Integer> brokerIdSet) {
+        TopicConfEntity tmpEntity;
+        List<TopicConfEntity> itemLst;
+        ConcurrentHashSet<String> recSet;
+        Set<String> hitKeys = new HashSet<>();
+        Map<String, List<TopicConfEntity>> retEntityMap = new HashMap<>();
+        if (((topicSet == null) || (topicSet.isEmpty()))
+                && ((brokerIdSet == null) || (brokerIdSet.isEmpty()))) {
+            for (TopicConfEntity entity : topicConfCache.values()) {
+                itemLst = retEntityMap.get(entity.getTopicName());
+                if (itemLst == null) {
+                    itemLst = new ArrayList<>();
+                    retEntityMap.put(entity.getTopicName(), itemLst);
+                }
+                itemLst.add(entity);
+            }
+            return retEntityMap;
+        }
+        if ((topicSet == null) || (topicSet.isEmpty())) {
+            for (Integer brokerId : brokerIdSet) {
+                recSet = brokerIdCacheIndex.get(brokerId);
+                if (recSet == null || recSet.isEmpty()) {
+                    continue;
+                }
+                hitKeys.addAll(recSet);
+            }
+        } else {
+            for (String topic : topicSet) {
+                recSet = topicNameCacheIndex.get(topic);
+                if (recSet == null || recSet.isEmpty()) {
+                    continue;
+                }
+                hitKeys.addAll(recSet);
+            }
+        }
+        for (String key : hitKeys) {
+            tmpEntity = topicConfCache.get(key);
+            if (tmpEntity == null) {
+                continue;
+            }
+            itemLst = retEntityMap.get(tmpEntity.getTopicName());
+            if (itemLst == null) {
+                itemLst = new ArrayList<>();
+                retEntityMap.put(tmpEntity.getTopicName(), itemLst);
+            }
+            itemLst.add(tmpEntity);
+        }
+        return retEntityMap;
+    }
+
+    @Override
     public Map<Integer, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet) {
         Set<String> items;
         Map<Integer, Set<String>> retEntityMap = new HashMap<>();
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
             brokerIdSet = new HashSet<>();
-            brokerIdSet.addAll(brokerTopicMapCacheIndex.keySet());
+            brokerIdSet.addAll(brokerId2TopicCacheIndex.keySet());
         }
         for (Integer brokerId : brokerIdSet) {
             if (brokerId == null) {
                 continue;
             }
             ConcurrentHashSet<String> topicSet =
-                    brokerTopicMapCacheIndex.get(brokerId);
+                    brokerId2TopicCacheIndex.get(brokerId);
             if (topicSet == null || topicSet.isEmpty()) {
                 continue;
             }
@@ -264,14 +316,14 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
         Map<String, Map<Integer, String>> retEntityMap = new HashMap<>();
         if (topicNameSet == null || topicNameSet.isEmpty()) {
             topicNameSet = new HashSet<>();
-            topicNameSet.addAll(topicConfTopicNameCacheIndex.keySet());
+            topicNameSet.addAll(topicNameCacheIndex.keySet());
         }
         for (String topicName : topicNameSet) {
             if (topicName == null) {
                 continue;
             }
             ConcurrentHashSet<String> keySet =
-                    topicConfTopicNameCacheIndex.get(topicName);
+                    topicNameCacheIndex.get(topicName);
             if (keySet == null || keySet.isEmpty()) {
                 continue;
             }
@@ -294,7 +346,7 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     @Override
     public Set<String> getConfiguredTopicSet() {
         Set<String> topicNames = new HashSet<>();
-        topicNames.addAll(topicConfTopicNameCacheIndex.keySet());
+        topicNames.addAll(topicNameCacheIndex.keySet());
         return topicNames;
     }
 
@@ -302,7 +354,7 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     public Map<String, TopicConfEntity> getConfiguredTopicInfo(int brokerId) {
         TopicConfEntity tmpEntity;
         Map<String, TopicConfEntity> retEntityMap = new HashMap<>();
-        ConcurrentHashSet<String> records = topicConfBrokerCacheIndex.get(brokerId);
+        ConcurrentHashSet<String> records = brokerIdCacheIndex.get(brokerId);
         if (records == null || records.isEmpty()) {
             return retEntityMap;
         }
@@ -359,27 +411,27 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
         }
         // add topic index
         ConcurrentHashSet<String> keySet =
-                topicConfTopicNameCacheIndex.get(curEntity.getTopicName());
+                topicNameCacheIndex.get(curEntity.getTopicName());
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                topicConfTopicNameCacheIndex.remove(curEntity.getTopicName());
+                topicNameCacheIndex.remove(curEntity.getTopicName());
             }
         }
         // delete brokerId index
-        keySet = topicConfBrokerCacheIndex.get(curEntity.getBrokerId());
+        keySet = brokerIdCacheIndex.get(curEntity.getBrokerId());
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                topicConfBrokerCacheIndex.remove(curEntity.getBrokerId());
+                brokerIdCacheIndex.remove(curEntity.getBrokerId());
             }
         }
         // delete broker topic map
-        keySet = brokerTopicMapCacheIndex.get(curEntity.getBrokerId());
+        keySet = brokerId2TopicCacheIndex.get(curEntity.getBrokerId());
         if (keySet != null) {
             keySet.remove(curEntity.getTopicName());
             if (keySet.isEmpty()) {
-                brokerTopicMapCacheIndex.remove(curEntity.getBrokerId());
+                brokerId2TopicCacheIndex.remove(curEntity.getBrokerId());
             }
         }
     }
@@ -388,30 +440,30 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
         topicConfCache.put(entity.getRecordKey(), entity);
         // add topic index map
         ConcurrentHashSet<String> keySet =
-                topicConfTopicNameCacheIndex.get(entity.getTopicName());
+                topicNameCacheIndex.get(entity.getTopicName());
         if (keySet == null) {
             ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
-            keySet = topicConfTopicNameCacheIndex.putIfAbsent(entity.getTopicName(), tmpSet);
+            keySet = topicNameCacheIndex.putIfAbsent(entity.getTopicName(), tmpSet);
             if (keySet == null) {
                 keySet = tmpSet;
             }
         }
         keySet.add(entity.getRecordKey());
         // add brokerId index map
-        keySet = topicConfBrokerCacheIndex.get(entity.getBrokerId());
+        keySet = brokerIdCacheIndex.get(entity.getBrokerId());
         if (keySet == null) {
             ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
-            keySet = topicConfBrokerCacheIndex.putIfAbsent(entity.getBrokerId(), tmpSet);
+            keySet = brokerIdCacheIndex.putIfAbsent(entity.getBrokerId(), tmpSet);
             if (keySet == null) {
                 keySet = tmpSet;
             }
         }
         keySet.add(entity.getRecordKey());
         // add brokerId topic map
-        keySet = brokerTopicMapCacheIndex.get(entity.getBrokerId());
+        keySet = brokerId2TopicCacheIndex.get(entity.getBrokerId());
         if (keySet == null) {
             ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
-            keySet = brokerTopicMapCacheIndex.putIfAbsent(entity.getBrokerId(), tmpSet);
+            keySet = brokerId2TopicCacheIndex.putIfAbsent(entity.getBrokerId(), tmpSet);
             if (keySet == null) {
                 keySet = tmpSet;
             }
@@ -420,9 +472,9 @@ public class BdbTopicConfigMapperImpl implements TopicConfigMapper {
     }
 
     private void clearCacheData() {
-        topicConfTopicNameCacheIndex.clear();
-        topicConfBrokerCacheIndex.clear();
-        brokerTopicMapCacheIndex.clear();
+        topicNameCacheIndex.clear();
+        brokerIdCacheIndex.clear();
+        brokerId2TopicCacheIndex.clear();
         topicConfCache.clear();
     }
 }

@@ -60,6 +60,12 @@ public final class TServerConstants {
 
     public static final String TOPIC_POLICY_DEF = "delete,168h";
 
+    public static final int TOPIC_RET_PERIOD_IN_SEC_DEF = 14515200;
+
+    public static final int GROUP_BROKER_CLIENT_RATE_MIN = 0;
+
+
+
 
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;

@@ -42,6 +42,9 @@ public interface TopicConfigMapper extends AbstractMapper {
 
     Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMap(TopicConfEntity qryEntity);
 
+    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+            Set<String> topicSet, Set<Integer> brokerIdSet);
+
     Map<Integer/* brokerId */, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet);
 
     Map<String/* topicName */, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);

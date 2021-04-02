@@ -20,6 +20,9 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.SettingValidUtils;
+import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.TStoreConstants;
@@ -75,8 +78,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
                         bdbEntity.getDefDataPath());
         this.maxMsgSizeInB = bdbEntity.getMaxMsgSizeInB();
         this.qryPriorityId = bdbEntity.getQryPriorityId();
-        setGloFlowCtrlInfo(bdbEntity.getEnableGloFlowCtrl(),
-                bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo());
+        setEnableFlowCtrl(bdbEntity.getEnableGloFlowCtrl());
+        setGloFlowCtrlInfo(bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo());
         setAttributes(bdbEntity.getAttributes());
     }
 
@@ -100,17 +103,84 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         return bdbEntity;
     }
 
-    public void setGloFlowCtrlInfo(Boolean enableFlowCtrl,
-                                   int flowCtrlCnt, String flowCtrlInfo) {
-        if (enableFlowCtrl != null) {
-            if (enableFlowCtrl) {
-                this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
-            } else {
-                this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
+    /**
+     * fill fields with default value
+     *
+     * @return object
+     */
+    public ClusterSettingEntity fillDefaultValue() {
+        this.brokerPort = TBaseConstants.META_DEFAULT_BROKER_PORT;
+        this.brokerTLSPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
+        this.brokerWebPort = TBaseConstants.META_DEFAULT_BROKER_WEB_PORT;
+        this.maxMsgSizeInB =
+                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(
+                        TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
+        this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
+        this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        this.gloFlowCtrlRuleCnt = 0;
+        this.gloFlowCtrlRuleInfo = TServerConstants.BLANK_FLOWCTRL_RULES;
+        this.clsDefTopicProps.fillDefaultValue();
+        return this;
+    }
+
+    /**
+     * update subclass field values
+     *
+     * @return if changed
+     */
+    public boolean updModifyInfo(int newBrokerPort, int newBrokerTLSPort,
+                                 int newBrokerWebPort, int newMaxMsgSizeMB,
+                                 int newQryPriorityId, Boolean newFlowCtrlEnable,
+                                 int flowRuleCnt, String newFlowCtrlRuleInfo,
+                                 TopicPropGroup newDefTopicProps) {
+        boolean changed = false;
+        if (newBrokerPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerPort != newBrokerPort) {
+            changed = true;
+            this.brokerPort = newBrokerPort;
+        }
+        if (newBrokerTLSPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerTLSPort != newBrokerTLSPort) {
+            changed = true;
+            this.brokerTLSPort = newBrokerTLSPort;
+        }
+        if (newBrokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerWebPort != newBrokerWebPort) {
+            changed = true;
+            this.brokerWebPort = newBrokerWebPort;
+        }
+        // check and set modified field
+        if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
+            newMaxMsgSizeMB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
+            if (this.maxMsgSizeInB != newMaxMsgSizeMB) {
+                changed = true;
+                this.maxMsgSizeInB = newMaxMsgSizeMB;
             }
         }
-        this.gloFlowCtrlRuleCnt = flowCtrlCnt;
-        this.gloFlowCtrlRuleInfo = flowCtrlInfo;
+        // check and set qry priority id
+        if (newQryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.qryPriorityId != newQryPriorityId) {
+            changed = true;
+            this.qryPriorityId = newQryPriorityId;
+        }
+        // check and set flowCtrl info
+        if (newFlowCtrlEnable != null
+                && this.gloFlowCtrlStatus.isEnable() != newFlowCtrlEnable) {
+            changed = true;
+            setEnableFlowCtrl(newFlowCtrlEnable);
+        }
+        if (TStringUtils.isNotBlank(newFlowCtrlRuleInfo)
+                && !newFlowCtrlRuleInfo.equals(gloFlowCtrlRuleInfo)) {
+            changed = true;
+            setGloFlowCtrlInfo(flowRuleCnt, newFlowCtrlRuleInfo);
+        }
+        // check and set clsDefTopicProps info
+        if (newDefTopicProps != null
+                && !newDefTopicProps.isDataEquals(clsDefTopicProps)) {
+            changed = true;
+            clsDefTopicProps = newDefTopicProps;
+        }
+        return changed;
     }
 
     public String getRecordKey() {
@@ -121,48 +191,24 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         return brokerPort;
     }
 
-    public void setBrokerPort(int brokerPort) {
-        this.brokerPort = brokerPort;
-    }
-
     public int getBrokerTLSPort() {
         return brokerTLSPort;
-    }
-
-    public void setBrokerTLSPort(int brokerTLSPort) {
-        this.brokerTLSPort = brokerTLSPort;
     }
 
     public int getBrokerWebPort() {
         return brokerWebPort;
     }
 
-    public void setBrokerWebPort(int brokerWebPort) {
-        this.brokerWebPort = brokerWebPort;
-    }
-
     public int getMaxMsgSizeInB() {
         return maxMsgSizeInB;
-    }
-
-    public void setMaxMsgSizeInB(int maxMsgSizeInB) {
-        this.maxMsgSizeInB = maxMsgSizeInB;
     }
 
     public int getQryPriorityId() {
         return qryPriorityId;
     }
 
-    public void setQryPriorityId(int qryPriorityId) {
-        this.qryPriorityId = qryPriorityId;
-    }
-
     public EnableStatus getGloFlowCtrlStatus() {
         return gloFlowCtrlStatus;
-    }
-
-    public void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {
-        this.gloFlowCtrlStatus = gloFlowCtrlStatus;
     }
 
     public int getGloFlowCtrlRuleCnt() {
@@ -177,20 +223,27 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         return gloFlowCtrlStatus == EnableStatus.STATUS_ENABLE;
     }
 
-    public void setEnableFlowCtrl(boolean enableFlowCtrl) {
-        if (enableFlowCtrl) {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
-    }
-
     public TopicPropGroup getClsDefTopicProps() {
         return clsDefTopicProps;
     }
 
-    public void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {
-        this.clsDefTopicProps = clsDefTopicProps;
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(ClusterSettingEntity other) {
+        return brokerPort == other.brokerPort
+                && brokerTLSPort == other.brokerTLSPort
+                && brokerWebPort == other.brokerWebPort
+                && maxMsgSizeInB == other.maxMsgSizeInB
+                && qryPriorityId == other.qryPriorityId
+                && gloFlowCtrlRuleCnt == other.gloFlowCtrlRuleCnt
+                && recordKey.equals(other.recordKey)
+                && Objects.equals(clsDefTopicProps, other.clsDefTopicProps)
+                && gloFlowCtrlStatus == other.gloFlowCtrlStatus
+                && Objects.equals(gloFlowCtrlRuleInfo, other.gloFlowCtrlRuleInfo);
     }
 
     /**
@@ -245,16 +298,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
             return false;
         }
         ClusterSettingEntity entity = (ClusterSettingEntity) o;
-        return brokerPort == entity.brokerPort &&
-                brokerTLSPort == entity.brokerTLSPort &&
-                brokerWebPort == entity.brokerWebPort &&
-                maxMsgSizeInB == entity.maxMsgSizeInB &&
-                qryPriorityId == entity.qryPriorityId &&
-                gloFlowCtrlRuleCnt == entity.gloFlowCtrlRuleCnt &&
-                recordKey.equals(entity.recordKey) &&
-                Objects.equals(clsDefTopicProps, entity.clsDefTopicProps) &&
-                gloFlowCtrlStatus == entity.gloFlowCtrlStatus &&
-                Objects.equals(gloFlowCtrlRuleInfo, entity.gloFlowCtrlRuleInfo);
+        return isDataEquals(entity);
     }
 
     @Override
@@ -276,4 +320,24 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
     }
 
+    private void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {
+        this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+    }
+
+    private void setGloFlowCtrlInfo(int flowCtrlCnt, String flowCtrlInfo) {
+        this.gloFlowCtrlRuleCnt = flowCtrlCnt;
+        this.gloFlowCtrlRuleInfo = flowCtrlInfo;
+    }
+
+    private void setEnableFlowCtrl(boolean enableFlowCtrl) {
+        if (enableFlowCtrl) {
+            this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
+        } else {
+            this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        }
+    }
+
+    private void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {
+        this.clsDefTopicProps = clsDefTopicProps;
+    }
 }

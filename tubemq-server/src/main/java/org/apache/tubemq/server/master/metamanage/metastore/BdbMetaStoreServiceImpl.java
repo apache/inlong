@@ -64,23 +64,23 @@ import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBaseCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.BrokerConfigMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.ClusterConfigMapper;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupBaseCtrlMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupBlackListMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupConsumeCtrlMapper;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicConfigMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbBrokerConfigMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbClusterConfigMapperImpl;
-import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupBaseCtrlMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupBlackListMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupConsumeCtrlMapperImpl;
+import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupResCtrlMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicConfigMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicCtrlMapperImpl;
 import org.apache.tubemq.server.master.utils.BdbStoreSamplePrint;
@@ -147,7 +147,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // topic control configure
     private TopicCtrlMapper topicCtrlMapper;
     // group configure
-    private GroupBaseCtrlMapper groupBaseCtrlMapper;
+    private GroupResCtrlMapper groupResCtrlMapper;
     // group filter configure
     private GroupConsumeCtrlMapper groupConsumeCtrlMapper;
     // group blackList configure
@@ -206,7 +206,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         // close bdb configure
         brokerConfigMapper.close();
         topicConfigMapper.close();
-        groupBaseCtrlMapper.close();
+        groupResCtrlMapper.close();
         topicCtrlMapper.close();
         groupBlackListMapper.close();
         groupConsumeCtrlMapper.close();
@@ -368,6 +368,12 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
+    public Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+            Set<String> topicSet, Set<Integer> brokerIdSet) {
+        return topicConfigMapper.getTopicConfMapByTopicAndBrokerIds(topicSet, brokerIdSet);
+    }
+
+    @Override
     public Map<String, TopicConfEntity> getConfiguredTopicInfo(int brokerId) {
         return topicConfigMapper.getConfiguredTopicInfo(brokerId);
     }
@@ -412,40 +418,40 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     // group configure api
     @Override
-    public boolean addGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result) {
+    public boolean addGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return groupBaseCtrlMapper.addGroupBaseCtrlConf(entity, result);
+        return groupResCtrlMapper.addGroupResCtrlConf(entity, result);
     }
 
     @Override
-    public boolean updGroupBaseCtrlConf(GroupBaseCtrlEntity entity, ProcessResult result) {
+    public boolean updGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return groupBaseCtrlMapper.updGroupBaseCtrlConf(entity, result);
+        return groupResCtrlMapper.updGroupResCtrlConf(entity, result);
     }
 
     @Override
-    public boolean delGroupBaseCtrlConf(String groupName, ProcessResult result) {
+    public boolean delGroupResCtrlConf(String groupName, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return groupBaseCtrlMapper.delGroupBaseCtrlConf(groupName, result);
+        return groupResCtrlMapper.delGroupResCtrlConf(groupName, result);
     }
 
     @Override
-    public GroupBaseCtrlEntity getGroupBaseCtrlConf(String groupName) {
-        return groupBaseCtrlMapper.getGroupBaseCtrlConf(groupName);
+    public GroupResCtrlEntity getGroupResCtrlConf(String groupName) {
+        return groupResCtrlMapper.getGroupResCtrlConf(groupName);
     }
 
     @Override
-    public Map<String, GroupBaseCtrlEntity> getGroupBaseCtrlConf(GroupBaseCtrlEntity qryEntity) {
-        return groupBaseCtrlMapper.getGroupBaseCtrlConf(qryEntity);
+    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity) {
+        return groupResCtrlMapper.getGroupResCtrlConf(qryEntity);
     }
 
     // group blacklist api
@@ -991,7 +997,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
         brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
         topicConfigMapper =  new BdbTopicConfigMapperImpl(repEnv, storeConfig);
-        groupBaseCtrlMapper = new BdbGroupBaseCtrlMapperImpl(repEnv, storeConfig);
+        groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
         groupConsumeCtrlMapper = new BdbGroupConsumeCtrlMapperImpl(repEnv, storeConfig);
         groupBlackListMapper = new BdbGroupBlackListMapperImpl(repEnv, storeConfig);
@@ -1004,7 +1010,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         brokerConfigMapper.loadConfig();
         topicConfigMapper.loadConfig();
         topicCtrlMapper.loadConfig();
-        groupBaseCtrlMapper.loadConfig();
+        groupResCtrlMapper.loadConfig();
         groupBlackListMapper.loadConfig();
         groupConsumeCtrlMapper.loadConfig();
         relaodRunData();

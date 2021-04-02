@@ -366,6 +366,31 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 .append(topicProps.getMemCacheFlushIntvl()).toString();
     }
 
+    /**
+     * check if subclass fields is equals
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(BrokerConfEntity other) {
+        return brokerId == other.brokerId
+                && brokerPort == other.brokerPort
+                && brokerTLSPort == other.brokerTLSPort
+                && brokerWebPort == other.brokerWebPort
+                && isConfDataUpdated == other.isConfDataUpdated
+                && isBrokerLoaded == other.isBrokerLoaded
+                && regionId == other.regionId
+                && groupId == other.groupId
+                && Objects.equals(brokerIp, other.brokerIp)
+                && manageStatus == other.manageStatus
+                && Objects.equals(topicProps, other.topicProps)
+                && Objects.equals(brokerAddress, other.brokerAddress)
+                && Objects.equals(brokerFullInfo, other.brokerFullInfo)
+                && Objects.equals(brokerSimpleInfo, other.brokerSimpleInfo)
+                && Objects.equals(brokerTLSSimpleInfo, other.brokerTLSSimpleInfo)
+                && Objects.equals(brokerTLSFullInfo, other.brokerTLSFullInfo);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -378,22 +403,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
             return false;
         }
         BrokerConfEntity entity = (BrokerConfEntity) o;
-        return brokerId == entity.brokerId &&
-                brokerPort == entity.brokerPort &&
-                brokerTLSPort == entity.brokerTLSPort &&
-                brokerWebPort == entity.brokerWebPort &&
-                isConfDataUpdated == entity.isConfDataUpdated &&
-                isBrokerLoaded == entity.isBrokerLoaded &&
-                regionId == entity.regionId &&
-                groupId == entity.groupId &&
-                Objects.equals(brokerIp, entity.brokerIp) &&
-                manageStatus == entity.manageStatus &&
-                Objects.equals(topicProps, entity.topicProps) &&
-                Objects.equals(brokerAddress, entity.brokerAddress) &&
-                Objects.equals(brokerFullInfo, entity.brokerFullInfo) &&
-                Objects.equals(brokerSimpleInfo, entity.brokerSimpleInfo) &&
-                Objects.equals(brokerTLSSimpleInfo, entity.brokerTLSSimpleInfo) &&
-                Objects.equals(brokerTLSFullInfo, entity.brokerTLSFullInfo);
+        return isDataEquals(entity);
     }
 
     @Override

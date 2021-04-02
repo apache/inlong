@@ -131,7 +131,7 @@ public class WebParameterUtils {
                                          boolean isAdd, ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
-                false, TServerConstants.DEFAULT_DATA_VERSION, result)) {
+                false, System.currentTimeMillis(), result)) {
             return result.isSuccess();
         }
         Long dataVerId = (Long) result.retData1;
@@ -298,6 +298,8 @@ public class WebParameterUtils {
         }
         return result.isSuccess();
     }
+
+
 
     /**
      * Parse the parameter value for TopicPropGroup class
