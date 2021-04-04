@@ -118,13 +118,11 @@ public class GroupBlackListEntity extends BaseEntity implements Cloneable {
     @Override
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
-            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topicName\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"groupName\":\"").append(groupName).append("\"")
                     .append(",\"reason\":\"").append(reason).append("\"");
         } else {
-            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topic\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
                     .append(",\"group\":\"").append(groupName).append("\"")
                     .append(",\"rsn\":\"").append(reason).append("\"");
         }

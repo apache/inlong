@@ -18,6 +18,9 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
@@ -39,7 +42,14 @@ public interface GroupConsumeCtrlMapper extends AbstractMapper {
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);
 
+    Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet);
+
+    Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupSet);
+
     GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
+
+    Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
+            Set<String> groupNameSet, Set<String> topicNameSet);
 
     List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity);
 

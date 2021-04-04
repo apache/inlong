@@ -17,10 +17,9 @@
 
 package org.apache.tubemq.server.master.web.handler;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -31,15 +30,11 @@ import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
 
+
 public class WebGroupResCtrlHandler extends AbstractWebHandler {
-
-    private static final Set<String> rsvGroupNameSet =
-            new HashSet<>(Arrays.asList(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL));
-
 
     public WebGroupResCtrlHandler(TMaster master) {
         super(master);
@@ -87,20 +82,13 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
         StringBuilder sBuilder = new StringBuilder(512);
-        // get createUser query key
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, false, null, result)) {
+        // build query entity
+        GroupResCtrlEntity entity = new GroupResCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, entity, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        String inCreateUser = (String) result.getRetData();
-        // get modifyUser query key
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        String inModifyUser = (String) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, result)) {
@@ -108,6 +96,13 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<String> inGroupSet = (Set<String>) result.retData1;
+        // get consumeEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.CONSUMEENABLE, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean consumeEnable = (Boolean) result.retData1;
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, result)) {
@@ -130,12 +125,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Boolean flowCtrlEnable = (Boolean) result.retData1;
-        // build query entity
-        GroupResCtrlEntity entity = new GroupResCtrlEntity();
-        entity.updBaseModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                inCreateUser, null, inModifyUser, null, null);
-        entity.updModifyInfo(resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED,
-                inQryPriorityId, flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
+        entity.updModifyInfo(consumeEnable, null, resCheckEnable,
+                TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId, flowCtrlEnable,
+                TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
                 metaDataManager.confGetGroupResCtrlConf(entity);
         // Fill in the key to be queried
@@ -188,6 +180,20 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // get consumeEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.CONSUMEENABLE, false, true, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean consumeEnable = (Boolean) result.retData1;
+        // get disableReason list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.REASON, false, "", result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String disableRsn = (String) result.retData1;
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.RESCHECKENABLE, false, false, result)) {
@@ -227,18 +233,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         String flowCtrlInfo = (String) result.retData1;
         // add group resource record
-        Map<String, Tuple3<Boolean, Integer, String>> retInfo =
-                new HashMap<>(batchGroupNames.size());
+        GroupProcessResult retItem;
+        List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            GroupResCtrlEntity entity =
-                    new GroupResCtrlEntity(opTupleInfo.getF0(),
-                            opTupleInfo.getF1(), opTupleInfo.getF2());
-            entity.setGroupName(groupName);
-            entity.updModifyInfo(resCheckEnable, allowedBClientRate,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
-            metaDataManager.confAddGroupResCtrlConf(entity, sBuilder, result);
-            retInfo.put(entity.getGroupName(), new Tuple3<>(
-                    result.isSuccess(), result.getErrCode(), result.getErrInfo()));
+            retItem = metaDataManager.addGroupResCtrlConf(opTupleInfo.getF0(),
+                    opTupleInfo.getF1(), opTupleInfo.getF2(), groupName, consumeEnable,
+                    disableRsn, resCheckEnable, allowedBClientRate, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
+            retInfo.add(retItem);
         }
         return buildRetInfo(retInfo, sBuilder);
     }
@@ -272,6 +274,20 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // get consumeEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.CONSUMEENABLE, false, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean consumeEnable = (Boolean) result.retData1;
+        // get disableReason list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.REASON, false, "", result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String disableRsn = (String) result.retData1;
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, result)) {
@@ -310,27 +326,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         String flowCtrlInfo = (String) result.retData1;
         // modify group resource record
-        GroupResCtrlEntity curConf;
-        GroupResCtrlEntity newConf;
-        Map<String, Tuple3<Boolean, Integer, String>> retInfo =
-                new HashMap<>(batchGroupNames.size());
+        GroupProcessResult retItem;
+        List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            GroupResCtrlEntity newEntity = null;
-            curConf = metaDataManager.confGetGroupResCtrlConf(groupName);
-            if (curConf == null) {
-                retInfo.put(groupName, new Tuple3<>(false,
-                        DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                        DataOpErrCode.DERR_NOT_EXIST.getDescription()));
-                continue;
-            }
-            newConf = curConf.clone();
-            newConf.setModifyInfo(opTupleInfo.getF0(),
-                    opTupleInfo.getF1(), opTupleInfo.getF2());
-            newConf.updModifyInfo(resCheckEnable, allowedBClientRate,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
-            metaDataManager.confAddGroupResCtrlConf(newConf, sBuilder, result);
-            retInfo.put(newConf.getGroupName(), new Tuple3<>(
-                    result.isSuccess(), result.getErrCode(), result.getErrInfo()));
+            retItem = metaDataManager.updGroupResCtrlConf(opTupleInfo.getF0(),
+                    opTupleInfo.getF1(), opTupleInfo.getF2(), groupName, consumeEnable,
+                    disableRsn, resCheckEnable, allowedBClientRate, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
+            retInfo.add(retItem);
         }
         return buildRetInfo(retInfo, sBuilder);
     }
@@ -364,25 +367,25 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
-        metaDataManager.confDelGroupResCtrlConf(
-                opTupleInfo.getF1(), batchGroupNames, sBuilder, result);
-        Map<String, Tuple3<Boolean, Integer, String>> retInfo =
-                (Map<String, Tuple3<Boolean, Integer, String>>) result.retData1;
+        // delete group resource record
+        List<GroupProcessResult> retInfo =
+                metaDataManager.delGroupResCtrlConf(opTupleInfo.getF1(),
+                        batchGroupNames, sBuilder, result);
         return buildRetInfo(retInfo, sBuilder);
     }
 
-    private StringBuilder buildRetInfo(Map<String, Tuple3<Boolean, Integer, String>> retInfo,
+    private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
                                        StringBuilder sBuilder) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        for (Map.Entry<String, Tuple3<Boolean, Integer, String>> entry : retInfo.entrySet()) {
+        for (GroupProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
                 sBuilder.append(",");
             }
-            sBuilder.append("{\"groupName\":\"").append(entry.getKey()).append("\"")
-                    .append(",\"success\":").append(entry.getValue().getF0())
-                    .append(",\"errCode\":").append(entry.getValue().getF1())
-                    .append(",\"errInfo\":\"").append(entry.getValue().getF2()).append("\"}");
+            sBuilder.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
+                    .append(",\"success\":").append(entry.isSuccess())
+                    .append(",\"errCode\":").append(entry.getErrCode())
+                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
         return sBuilder;

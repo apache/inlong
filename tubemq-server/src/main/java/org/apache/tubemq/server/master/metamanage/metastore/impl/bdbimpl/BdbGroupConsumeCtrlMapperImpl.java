@@ -25,7 +25,11 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
@@ -227,10 +231,90 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
+    public Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicNameSet) {
+        ConcurrentHashSet<String> qrySet;
+        Set<String> retResult = new HashSet<>();
+        for (String topicName : topicNameSet) {
+            qrySet = grpConsumeCtrlTopicCache.get(topicName);
+            if (qrySet == null || qrySet.isEmpty()) {
+                continue;
+            }
+            retResult.addAll(qrySet);
+        }
+        return retResult;
+    }
+
+    @Override
+    public Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupNameSet) {
+        ConcurrentHashSet<String> qrySet;
+        Set<String> retResult = new HashSet<>();
+        for (String groupName : groupNameSet) {
+            qrySet = grpConsumeCtrlGroupCache.get(groupName);
+            if (qrySet == null || qrySet.isEmpty()) {
+                continue;
+            }
+            retResult.addAll(qrySet);
+        }
+        return retResult;
+    }
+
+    @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(
             String groupName, String topicName) {
         String recKey = KeyBuilderUtils.buildGroupTopicRecKey(groupName, topicName);
         return grpConsumeCtrlCache.get(recKey);
+    }
+
+    @Override
+    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
+            Set<String> groupNameSet, Set<String> topicNameSet) {
+        GroupConsumeCtrlEntity tmpEntity;
+        List<GroupConsumeCtrlEntity> itemLst;
+        ConcurrentHashSet<String> recSet;
+        Set<String> hitKeys = new HashSet<>();
+        Map<String, List<GroupConsumeCtrlEntity>> retEntityMap = new HashMap<>();
+        if (((groupNameSet == null) || (groupNameSet.isEmpty()))
+                && ((topicNameSet == null) || (topicNameSet.isEmpty()))) {
+            for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
+                itemLst = retEntityMap.get(entity.getGroupName());
+                if (itemLst == null) {
+                    itemLst = new ArrayList<>();
+                    retEntityMap.put(entity.getTopicName(), itemLst);
+                }
+                itemLst.add(entity);
+            }
+            return retEntityMap;
+        }
+        if ((groupNameSet == null) || (groupNameSet.isEmpty())) {
+            for (String topicName : topicNameSet) {
+                recSet = grpConsumeCtrlTopicCache.get(topicName);
+                if (recSet == null || recSet.isEmpty()) {
+                    continue;
+                }
+                hitKeys.addAll(recSet);
+            }
+        } else {
+            for (String groupName : groupNameSet) {
+                recSet = grpConsumeCtrlGroupCache.get(groupName);
+                if (recSet == null || recSet.isEmpty()) {
+                    continue;
+                }
+                hitKeys.addAll(recSet);
+            }
+        }
+        for (String key : hitKeys) {
+            tmpEntity = grpConsumeCtrlCache.get(key);
+            if (tmpEntity == null) {
+                continue;
+            }
+            itemLst = retEntityMap.get(tmpEntity.getTopicName());
+            if (itemLst == null) {
+                itemLst = new ArrayList<>();
+                retEntityMap.put(tmpEntity.getTopicName(), itemLst);
+            }
+            itemLst.add(tmpEntity);
+        }
+        return retEntityMap;
     }
 
     @Override

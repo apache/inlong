@@ -22,27 +22,28 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
 
 
 
-public interface TopicConfigMapper extends AbstractMapper {
+public interface TopicDeployConfigMapper extends AbstractMapper {
 
-    boolean addTopicConf(TopicConfEntity entity, ProcessResult result);
+    boolean addTopicConf(TopicDeployConfEntity entity, ProcessResult result);
 
-    boolean updTopicConf(TopicConfEntity entity, ProcessResult result);
+    boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result);
 
     boolean delTopicConf(String recordKey, ProcessResult result);
 
     boolean hasConfiguredTopics(int brokerId);
 
-    List<TopicConfEntity> getTopicConf(TopicConfEntity qryEntity);
+    List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity);
 
-    TopicConfEntity getTopicConfByeRecKey(String recordKey);
+    TopicDeployConfEntity getTopicConfByeRecKey(String recordKey);
 
-    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMap(TopicConfEntity qryEntity);
+    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMap(
+            TopicDeployConfEntity qryEntity);
 
-    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicSet, Set<Integer> brokerIdSet);
 
     Map<Integer/* brokerId */, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet);
@@ -51,5 +52,5 @@ public interface TopicConfigMapper extends AbstractMapper {
 
     Set<String> getConfiguredTopicSet();
 
-    Map<String, TopicConfEntity> getConfiguredTopicInfo(int brokerId);
+    Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId);
 }

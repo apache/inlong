@@ -30,7 +30,7 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
  * store the topic configure setting
  *
  */
-public class TopicConfEntity extends BaseEntity implements Cloneable {
+public class TopicDeployConfEntity extends BaseEntity implements Cloneable {
 
     private String recordKey = "";
     private String topicName = "";
@@ -44,22 +44,22 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
     private TopicPropGroup topicProps = new TopicPropGroup();
 
 
-    public TopicConfEntity() {
+    public TopicDeployConfEntity() {
         super();
     }
 
-    public TopicConfEntity(String topicName, int topicId, int brokerId,
-                           String brokerIp, int brokerPort,
-                           TopicPropGroup topicProps, TopicStatus deployStatus,
-                           long dataVersionId, String createUser,
-                           Date createDate, String modifyUser, Date modifyDate) {
+    public TopicDeployConfEntity(String topicName, int topicId, int brokerId,
+                                 String brokerIp, int brokerPort,
+                                 TopicPropGroup topicProps, TopicStatus deployStatus,
+                                 long dataVersionId, String createUser,
+                                 Date createDate, String modifyUser, Date modifyDate) {
         super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
         setTopicDeployInfo(brokerId, brokerIp, brokerPort, topicName, topicId);
         this.deployStatus = deployStatus;
         this.topicProps = topicProps;
     }
 
-    public TopicConfEntity(BdbTopicConfEntity bdbEntity) {
+    public TopicDeployConfEntity(BdbTopicConfEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
@@ -183,7 +183,7 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
      *   brokerId, topicId, topicName, topicStatus
      * @return true: matched, false: not match
      */
-    public boolean isMatched(TopicConfEntity target) {
+    public boolean isMatched(TopicDeployConfEntity target) {
         if (target == null) {
             return true;
         }
@@ -198,6 +198,7 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
                 && !target.getTopicName().equals(this.topicName))
                 || (TStringUtils.isNotBlank(target.getBrokerIp())
                 && !target.getBrokerIp().equals(this.brokerIp))
+                || !target.getTopicProps().isMatched(topicProps)
                 || (target.getTopicStatus() != TopicStatus.STATUS_TOPIC_UNDEFINED
                 && target.getTopicStatus() != this.deployStatus)) {
             return false;
@@ -215,16 +216,14 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
     @Override
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
-            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topicName\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"brokerId\":").append(brokerId)
                     .append(",\"topicNameId\":").append(topicNameId)
                     .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
                     .append(",\"brokerPort\":").append(brokerPort)
                     .append(",\"topicStatusId\":").append(deployStatus.getCode());
         } else {
-            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topic\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
                     .append(",\"brkId\":").append(brokerId)
                     .append(",\"topicId\":").append(topicNameId)
                     .append(",\"bIp\":\"").append(brokerIp).append("\"")
@@ -243,7 +242,7 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
      * @param other  check object
      * @return if equals
      */
-    public boolean isDataEquals(TopicConfEntity other) {
+    public boolean isDataEquals(TopicDeployConfEntity other) {
         return brokerId == other.brokerId
                 && brokerPort == other.brokerPort
                 && topicNameId == other.topicNameId
@@ -260,13 +259,13 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TopicConfEntity)) {
+        if (!(o instanceof TopicDeployConfEntity)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-        TopicConfEntity that = (TopicConfEntity) o;
+        TopicDeployConfEntity that = (TopicDeployConfEntity) o;
         return isDataEquals(that);
     }
 
@@ -277,9 +276,9 @@ public class TopicConfEntity extends BaseEntity implements Cloneable {
     }
 
     @Override
-    public TopicConfEntity clone() {
+    public TopicDeployConfEntity clone() {
         try {
-            TopicConfEntity copy = (TopicConfEntity) super.clone();
+            TopicDeployConfEntity copy = (TopicDeployConfEntity) super.clone();
             if (copy.getTopicProps() != null) {
                 copy.setTopicProps(getTopicProps().clone());
             }

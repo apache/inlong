@@ -203,7 +203,11 @@ public enum WebFieldDef {
     TOPICSTATUSID(70, "topicStatusId", "tStsId", WebFieldType.INT,
             "Status id", RegexDef.TMP_NUMBER),
     AUTHCTRLENABLE(71, "enableAuthControl", "acEn",
-                 WebFieldType.BOOLEAN, "Group authenticate control enable status");
+                 WebFieldType.BOOLEAN, "Group authenticate control enable status"),
+    CONSUMEENABLE(72, "consumeEnable", "csmEn",
+                 WebFieldType.BOOLEAN, "Consume enable status"),
+    GROUPCSMJSONSET(73, "groupCsmJsonSet", "csmJsonSet",
+                  WebFieldType.JSONSET, "The batch group consume configure json array");
 
 
     public final int id;
