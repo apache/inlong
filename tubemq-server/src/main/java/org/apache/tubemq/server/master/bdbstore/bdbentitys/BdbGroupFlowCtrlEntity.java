@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
@@ -234,6 +235,40 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
                 TStringUtils.setAttrValToAttributes(this.attributes,
                         TStoreConstants.TOKEN_RES_CHECK_STATUS,
                         String.valueOf(resCheckStatus.getCode()));
+    }
+
+    public EnableStatus getConsumeEnable() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_CONSUME);
+        if (atrVal != null) {
+            return EnableStatus.valueOf(Integer.parseInt(atrVal));
+        }
+        return EnableStatus.STATUS_ENABLE;
+    }
+
+    public void setConsumeEnable(EnableStatus enableConsume) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_CONSUME,
+                        String.valueOf(enableConsume.getCode()));
+    }
+
+
+    public String getDisableConsumeReason() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            return TStringUtils.getAttrValFrmAttributes(
+                    this.attributes, TStoreConstants.TOKEN_BLK_REASON);
+        } else {
+            return "";
+        }
+    }
+
+    public void setDisableConsumeReason(String disableConsumeReason) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BLK_REASON, disableConsumeReason);
     }
 
     public int getAllowedBrokerClientRate() {

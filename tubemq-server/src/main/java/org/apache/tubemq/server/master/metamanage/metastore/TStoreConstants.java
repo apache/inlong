@@ -33,6 +33,7 @@ public final class TStoreConstants {
     public static final String TOKEN_BROKER_GROUP_ID = "bGroupId";
     public static final String TOKEN_TLS_PORT = "TLSPort";
     public static final String TOKEN_BROKER_WEBPORT = "bWebPort";
+    public static final String TOKEN_ENABLE_CONSUME = "enbConsume";
     public static final String TOKEN_BLK_REASON = "reason";
     public static final String TOKEN_FILTER_COND_STR = "filterCondStr";
     public static final String TOKEN_RES_CHECK_STATUS = "resChkStatusId";

@@ -29,8 +29,8 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSe
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
 
 
 public interface MetaStoreService extends KeepAlive, Server {
@@ -38,9 +38,32 @@ public interface MetaStoreService extends KeepAlive, Server {
     boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result);
 
     // cluster default configure api
-    boolean addClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);
 
-    boolean updClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);
+    /**
+     * Add or update cluster default setting
+     *
+     * @param entity     the cluster default setting entity will be add
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     * @throws Exception
+     */
+    boolean addClusterConfig(ClusterSettingEntity entity,
+                             StringBuilder strBuffer,
+                             ProcessResult result);
+
+    /**
+     * Update cluster default setting
+     *
+     * @param entity     the cluster default setting entity will be add
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     * @throws Exception
+     */
+    boolean updClusterConfig(ClusterSettingEntity entity,
+                             StringBuilder strBuffer,
+                             ProcessResult result);
 
     ClusterSettingEntity getClusterConfig();
 
@@ -60,17 +83,17 @@ public interface MetaStoreService extends KeepAlive, Server {
     BrokerConfEntity getBrokerConfByBrokerIp(String brokerIp);
 
     // topic configure api
-    boolean addTopicConf(TopicConfEntity entity, ProcessResult result);
+    boolean addTopicConf(TopicDeployConfEntity entity, ProcessResult result);
 
-    boolean updTopicConf(TopicConfEntity entity, ProcessResult result);
+    boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result);
 
     boolean delTopicConf(String recordKey, ProcessResult result);
 
     boolean hasConfiguredTopics(int brokerId);
 
-    TopicConfEntity getTopicConfByeRecKey(String recordKey);
+    TopicDeployConfEntity getTopicConfByeRecKey(String recordKey);
 
-    List<TopicConfEntity> getTopicConf(TopicConfEntity qryEntity);
+    List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity);
 
     Set<String> getConfiguredTopicSet();
 
@@ -78,12 +101,13 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     Map<String/* topicName */, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
 
-    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMap(TopicConfEntity qryEntity);
+    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMap(
+            TopicDeployConfEntity qryEntity);
 
-    Map<String/* topicName */, List<TopicConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicDepInfoByTopicBrokerId(
             Set<String> topicSet, Set<Integer> brokerIdSet);
 
-    Map<String, TopicConfEntity> getConfiguredTopicInfo(int brokerId);
+    Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId);
 
     // topic control api
     boolean addTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
@@ -97,11 +121,43 @@ public interface MetaStoreService extends KeepAlive, Server {
     List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity);
 
     // group resource configure api
-    boolean addGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
+    /**
+     * Add group resource control configure info
+     *
+     * @param entity     the group resource control info entity will be add
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
+                                StringBuilder strBuffer,
+                                ProcessResult result);
 
-    boolean updGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
+    /**
+     * Update group reource control configure
+     *
+     * @param entity     the group resource control info entity will be update
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
+                                StringBuilder strBuffer,
+                                ProcessResult result);
 
-    boolean delGroupResCtrlConf(String groupName, ProcessResult result);
+    /**
+     * Delete group resource control configure
+     *
+     * @param operator   operator
+     * @param groupName the group will be deleted
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean delGroupResCtrlConf(String operator,
+                                String groupName,
+                                StringBuilder strBuffer,
+                                ProcessResult result);
 
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
@@ -127,19 +183,71 @@ public interface MetaStoreService extends KeepAlive, Server {
     List<GroupBlackListEntity> getGroupBlackListConf(GroupBlackListEntity qryEntity);
 
     // group consume control api
-    boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity, ProcessResult result);
+    /**
+     * Add group consume control configure
+     *
+     * @param entity     the group consume control info entity will be add
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
+                                    StringBuilder strBuffer,
+                                    ProcessResult result);
 
-    boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity, ProcessResult result);
+    /**
+     * Modify group consume control configure
+     *
+     * @param entity     the group consume control info entity will be update
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
+                                    StringBuilder strBuffer,
+                                    ProcessResult result);
 
-    boolean delGroupConsumeCtrlConf(String groupName, String topicName, ProcessResult result);
-
-    boolean delGroupConsumeCtrlConf(String recordKey, ProcessResult result);
+    /**
+     * Delete group consume control configure
+     *
+     * @param operator  operator
+     * @param groupName the blacklist record related to group
+     * @param topicName the blacklist record related to topic
+     *                  allow groupName or topicName is null,
+     *                  but not all null
+     * @return true if success
+     */
+    boolean delGroupConsumeCtrlConf(String operator,
+                                    String groupName,
+                                    String topicName,
+                                    StringBuilder strBuffer,
+                                    ProcessResult result);
+    /**
+     * Delete group consume control configure
+     *
+     * @param operator  operator
+     * @param recordKey the record key to group consume control record
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success
+     */
+    boolean delGroupConsumeCtrlConf(String operator,
+                                    String recordKey,
+                                    StringBuilder strBuffer,
+                                    ProcessResult result);
 
     GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey);
 
     GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
 
+    Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
+            Set<String> groupNameSet, Set<String> topicNameSet);
+
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);
+
+    Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet);
+
+    Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupSet);
 
     List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity);
 }

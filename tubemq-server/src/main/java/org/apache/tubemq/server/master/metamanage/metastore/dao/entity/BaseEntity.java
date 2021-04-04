@@ -34,6 +34,7 @@ public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
             TServerConstants.DEFAULT_DATA_VERSION;    // 0: default version， other: version
+    private long serialId = TBaseConstants.META_VALUE_UNDEFINED;
     private String createUser = "";      //create user
     private Date createDate = null;        //create date
     private String modifyUser = "";      //modify user
@@ -155,6 +156,14 @@ public class BaseEntity implements Serializable, Cloneable {
         return dataVersionId;
     }
 
+    public long getSerialId() {
+        return serialId;
+    }
+
+    protected void updSerialId() {
+        this.serialId = System.currentTimeMillis();
+    }
+
     public String getModifyUser() {
         return modifyUser;
     }
@@ -233,6 +242,7 @@ public class BaseEntity implements Serializable, Cloneable {
         }
         BaseEntity that = (BaseEntity) o;
         return dataVersionId == that.dataVersionId &&
+                serialId == that.serialId &&
                 Objects.equals(createUser, that.createUser) &&
                 Objects.equals(createDate, that.createDate) &&
                 Objects.equals(modifyUser, that.modifyUser) &&
@@ -242,7 +252,7 @@ public class BaseEntity implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataVersionId, createUser,
+        return Objects.hash(dataVersionId, serialId, createUser,
                 createDate, modifyUser, modifyDate, attributes);
     }
 

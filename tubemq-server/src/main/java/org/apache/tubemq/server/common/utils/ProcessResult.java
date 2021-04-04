@@ -31,6 +31,13 @@ public class ProcessResult {
 
     }
 
+    public ProcessResult(ProcessResult other) {
+        this.success = other.success;
+        this.errCode = other.errCode;
+        this.errInfo = other.errInfo;
+        this.retData1 = other.retData1;
+    }
+
     public ProcessResult(Object retData) {
         this.success = true;
         this.retData1 = retData;

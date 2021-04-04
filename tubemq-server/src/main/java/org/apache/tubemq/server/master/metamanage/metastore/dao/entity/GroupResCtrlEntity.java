@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
+import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 
@@ -31,6 +32,9 @@ import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntit
 public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     // group name
     private String groupName = "";
+    // Enable consume control, global control
+    private EnableStatus consumeEnable = EnableStatus.STATUS_UNDEFINE;
+    private String disableReason = "";
     // resource check control
     private EnableStatus resCheckStatus = EnableStatus.STATUS_UNDEFINE;
     private int allowedBrokerClientRate = TBaseConstants.META_VALUE_UNDEFINED;
@@ -52,12 +56,20 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         super(dataVerId, createUser, createDate);
     }
 
-    public GroupResCtrlEntity(String groupName, boolean enableFlowCtrl,
+    public GroupResCtrlEntity(String groupName,
+                              boolean enableConsume, String disableRsn,
+                              boolean enableFlowCtrl,
                               int qryPriorityId, int ruleCnt,
                               String flowCtrlInfo, String createUser,
                               Date createDate) {
         super(createUser, createDate);
         this.groupName = groupName;
+        if (enableConsume) {
+            this.consumeEnable = EnableStatus.STATUS_ENABLE;
+        } else {
+            this.consumeEnable = EnableStatus.STATUS_DISABLE;
+        }
+        this.disableReason = disableRsn;
         if (enableFlowCtrl) {
             this.flowCtrlStatus = EnableStatus.STATUS_ENABLE;
         } else {
@@ -72,6 +84,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         super(bdbEntity.getSerialId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.groupName = bdbEntity.getGroupName();
+        this.consumeEnable = bdbEntity.getConsumeEnable();
+        this.disableReason = bdbEntity.getDisableConsumeReason();
         this.qryPriorityId = bdbEntity.getQryPriorityId();
         this.ruleCnt = bdbEntity.getRuleCnt();
         this.flowCtrlInfo = bdbEntity.getFlowCtrlInfo();
@@ -90,17 +104,36 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                 new BdbGroupFlowCtrlEntity(getDataVersionId(), this.groupName,
                         this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
                         getAttributes(), getCreateUser(), getCreateDate());
+        bdbEntity.setConsumeEnable(consumeEnable);
+        bdbEntity.setDisableConsumeReason(disableReason);
         bdbEntity.setResCheckStatus(resCheckStatus);
         bdbEntity.setAllowedBrokerClientRate(allowedBrokerClientRate);
         return bdbEntity;
     }
 
-    public String getGroupName() {
-        return groupName;
+    /**
+     * fill fields with default value
+     *
+     * @return object
+     */
+    public GroupResCtrlEntity fillDefaultValue() {
+        this.consumeEnable = EnableStatus.STATUS_ENABLE;
+        this.disableReason = "";
+        this.resCheckStatus = EnableStatus.STATUS_DISABLE;
+        this.allowedBrokerClientRate = 0;
+        this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
+        this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        this.flowCtrlInfo = TServerConstants.BLANK_FILTER_ITEM_STR;
+        return this;
     }
 
-    public void setGroupName(String groupName) {
+    public GroupResCtrlEntity setGroupName(String groupName) {
         this.groupName = groupName;
+        return this;
+    }
+
+    public String getGroupName() {
+        return groupName;
     }
 
     public int getRuleCnt() {
@@ -151,6 +184,18 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.flowCtrlStatus = flowCtrlStatus;
     }
 
+    public EnableStatus getConsumeEnable() {
+        return consumeEnable;
+    }
+
+    public String getDisableReason() {
+        return disableReason;
+    }
+
+    public void setDisableReason(String disableReason) {
+        this.disableReason = disableReason;
+    }
+
     private void setResCheckStatus(boolean enableResChk) {
         if (enableResChk) {
             this.resCheckStatus = EnableStatus.STATUS_ENABLE;
@@ -172,15 +217,36 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.flowCtrlInfo = flowCtrlInfo;
     }
 
+    private void setConsumeEnable(boolean enableConsume) {
+        if (enableConsume) {
+            this.consumeEnable = EnableStatus.STATUS_ENABLE;
+        } else {
+            this.consumeEnable = EnableStatus.STATUS_DISABLE;
+        }
+    }
+
     /**
      * update subclass field values
      *
      * @return if changed
      */
-    public boolean updModifyInfo(Boolean newResChkEnable, int newAllowedB2CRate,
+    public boolean updModifyInfo(Boolean newEnableConsume, String newDisableRsn,
+                                 Boolean newResChkEnable, int newAllowedB2CRate,
                                  int newQryPriorityId, Boolean newFlowCtrlEnable,
                                  int flowRuleCnt, String newFlowCtrlRuleInfo) {
         boolean changed = false;
+        // check and set resCheckStatus info
+        if (newEnableConsume != null
+                && this.consumeEnable.isEnable() != newEnableConsume) {
+            changed = true;
+            setConsumeEnable(newEnableConsume);
+        }
+        // check and set disableReason info
+        if (TStringUtils.isNotBlank(newDisableRsn)
+                && !newDisableRsn.equals(disableReason)) {
+            changed = true;
+            this.disableReason = newDisableRsn;
+        }
         // check and set resCheckStatus info
         if (newResChkEnable != null
                 && this.resCheckStatus.isEnable() != newResChkEnable) {
@@ -205,10 +271,14 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
             changed = true;
             setFlowCtrlStatus(newFlowCtrlEnable);
         }
+        // check and set flowCtrlInfo info
         if (TStringUtils.isNotBlank(newFlowCtrlRuleInfo)
                 && !newFlowCtrlRuleInfo.equals(flowCtrlInfo)) {
             changed = true;
             setFlowCtrlRule(flowRuleCnt, newFlowCtrlRuleInfo);
+        }
+        if (changed) {
+            updSerialId();
         }
         return changed;
     }
@@ -232,6 +302,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                 && target.getQryPriorityId() != this.qryPriorityId)
                 || (TStringUtils.isNotBlank(target.getGroupName())
                 && !target.getGroupName().equals(this.groupName))
+                || (target.getConsumeEnable() != EnableStatus.STATUS_UNDEFINE
+                && target.getConsumeEnable() != this.consumeEnable)
                 || (target.getResCheckStatus() != EnableStatus.STATUS_UNDEFINE
                 && target.getResCheckStatus() != this.resCheckStatus)
                 || (target.getFlowCtrlStatus() != EnableStatus.STATUS_UNDEFINE
@@ -254,6 +326,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
             sBuilder.append("{\"groupName\":\"").append(groupName).append("\"")
+                    .append(",\"consumeEnable\":").append(consumeEnable.isEnable())
+                    .append(",\"reason\":\"").append(disableReason).append("\"")
                     .append(",\"resCheckEnable\":").append(resCheckStatus.isEnable())
                     .append(",\"alwdBrokerClientRate\":").append(allowedBrokerClientRate)
                     .append(",\"qryPriorityId\":").append(qryPriorityId)
@@ -262,6 +336,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                     .append(",\"flowCtrlInfo\":").append(flowCtrlInfo);
         } else {
             sBuilder.append("{\"group\":\"").append(groupName).append("\"")
+                    .append(",\"csmEn\":").append(consumeEnable.isEnable())
+                    .append(",\"rsn\":\"").append(disableReason).append("\"")
                     .append(",\"resChkEn\":").append(resCheckStatus.isEnable())
                     .append(",\"abcr\":").append(allowedBrokerClientRate)
                     .append(",\"qryPriId\":").append(qryPriorityId)
@@ -285,6 +361,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                 && qryPriorityId == other.qryPriorityId
                 && ruleCnt == other.ruleCnt
                 && groupName.equals(other.groupName)
+                && consumeEnable == other.consumeEnable
+                && Objects.equals(disableReason, other.disableReason)
                 && resCheckStatus == other.resCheckStatus
                 && flowCtrlStatus == other.flowCtrlStatus
                 && Objects.equals(flowCtrlInfo, other.flowCtrlInfo);
@@ -307,15 +385,16 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), groupName, resCheckStatus,
-                allowedBrokerClientRate, qryPriorityId, flowCtrlStatus,
-                ruleCnt, flowCtrlInfo);
+        return Objects.hash(super.hashCode(), groupName, consumeEnable,
+                disableReason, resCheckStatus, allowedBrokerClientRate,
+                qryPriorityId, flowCtrlStatus, ruleCnt, flowCtrlInfo);
     }
 
     @Override
     public GroupResCtrlEntity clone() {
         try {
             GroupResCtrlEntity copy = (GroupResCtrlEntity) super.clone();
+            copy.setConsumeEnable(getConsumeEnable().isEnable());
             copy.setFlowCtrlStatus(getFlowCtrlStatus());
             copy.setResCheckStatus(getResCheckStatus());
             return copy;

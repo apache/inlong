@@ -46,6 +46,8 @@ import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
@@ -128,13 +130,14 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getAUDBaseInfo(HttpServletRequest req,
-                                         boolean isAdd, ProcessResult result) {
+                                         boolean isAdd,
+                                         ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
-                false, System.currentTimeMillis(), result)) {
+                false, TServerConstants.DEFAULT_DATA_VERSION, result)) {
             return result.isSuccess();
         }
-        Long dataVerId = (Long) result.retData1;
+        long dataVerId = (long) result.retData1;
         // check and get createUser or modifyUser
         String operator = null;
         Date opDate = null;
@@ -168,6 +171,42 @@ public class WebParameterUtils {
         }
         result.setSuccResult(new Tuple3<Long, String, Date>(
                 dataVerId, operator, opDate));
+        return result.isSuccess();
+    }
+
+    /**
+     * Parse the parameter value required for query
+     *
+     * @param req        Http Servlet Request
+     * @param qryEntity  query entity
+     * @param result     process result
+     * @return process result
+     */
+    public static boolean getQueriedOperateInfo(HttpServletRequest req,
+                                                BaseEntity qryEntity,
+                                                ProcessResult result) {
+        // check and get data version id
+        if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
+                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
+            return result.isSuccess();
+        }
+        long dataVerId = (long) result.retData1;
+        // check createUser user field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.CREATEUSER, false, null, result)) {
+            return result.isSuccess();
+        }
+        String createUser = (String) result.retData1;
+        // check modify user field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, false, null, result)) {
+            return result.isSuccess();
+        }
+        String modifyUser = (String) result.retData1;
+        // set query keys
+        qryEntity.updBaseModifyInfo(dataVerId,
+                createUser, null, modifyUser, null, null);
+        result.setSuccResult(qryEntity);
         return result.isSuccess();
     }
 
@@ -320,12 +359,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int numTopicStores = (int) result.retData1;
-        if (numTopicStores == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                numTopicStores = TServerConstants.TOPIC_STOREBLOCK_NUM_MIN;
-            } else {
-                numTopicStores = defVal.getNumTopicStores();
-            }
+        if (numTopicStores == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            numTopicStores = defVal.getNumTopicStores();
         }
         newConf.setNumTopicStores(numTopicStores);
         // get numPartitions parameter value
@@ -335,12 +370,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int numPartitions = (int) result.retData1;
-        if (numPartitions == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                numPartitions = TServerConstants.TOPIC_PARTITION_NUM_MIN;
-            } else {
-                numPartitions = defVal.getNumPartitions();
-            }
+        if (numPartitions == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            numPartitions = defVal.getNumPartitions();
         }
         newConf.setNumPartitions(numPartitions);
         // get unflushThreshold parameter value
@@ -350,12 +381,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int unflushThreshold = (int) result.retData1;
-        if (unflushThreshold == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                unflushThreshold = TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_DEF;
-            } else {
-                unflushThreshold = defVal.getUnflushThreshold();
-            }
+        if (unflushThreshold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushThreshold = defVal.getUnflushThreshold();
         }
         newConf.setUnflushThreshold(unflushThreshold);
         // get unflushInterval parameter value
@@ -365,12 +392,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int unflushInterval = (int) result.retData1;
-        if (unflushInterval == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                unflushInterval = TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_DEF;
-            } else {
-                unflushInterval = defVal.getUnflushInterval();
-            }
+        if (unflushInterval == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushInterval = defVal.getUnflushInterval();
         }
         newConf.setUnflushInterval(unflushInterval);
         // get unflushDataHold parameter value
@@ -380,12 +403,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int unflushDataHold = (int) result.retData1;
-        if (unflushDataHold == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                unflushDataHold = TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN;
-            } else {
-                unflushDataHold = defVal.getUnflushDataHold();
-            }
+        if (unflushDataHold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushDataHold = defVal.getUnflushDataHold();
         }
         newConf.setUnflushDataHold(unflushDataHold);
         // get memCacheMsgSizeInMB parameter value
@@ -396,12 +415,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int cacheMsgSizeInMB = (int) result.retData1;
-        if (cacheMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                cacheMsgSizeInMB = TServerConstants.TOPIC_CACHESIZE_MB_DEF;
-            } else {
-                cacheMsgSizeInMB = defVal.getMemCacheMsgSizeInMB();
-            }
+        if (cacheMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheMsgSizeInMB = defVal.getMemCacheMsgSizeInMB();
         }
         newConf.setMemCacheMsgSizeInMB(cacheMsgSizeInMB);
         // get memCacheFlushIntvl parameter value
@@ -411,12 +426,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int cacheFlushIntvl = (int) result.retData1;
-        if (cacheFlushIntvl == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                cacheFlushIntvl = TServerConstants.TOPIC_CACHEINTVL_DEF;
-            } else {
-                cacheFlushIntvl = defVal.getMemCacheFlushIntvl();
-            }
+        if (cacheFlushIntvl == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheFlushIntvl = defVal.getMemCacheFlushIntvl();
         }
         newConf.setMemCacheFlushIntvl(cacheFlushIntvl);
         // get memCacheMsgCntInK parameter value
@@ -426,12 +437,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int cacheMsgCntInK = (int) result.retData1;
-        if (cacheMsgCntInK == TBaseConstants.META_VALUE_UNDEFINED) {
-            if (defVal == null) {
-                cacheMsgCntInK = TServerConstants.TOPIC_CACHECNT_INK_DEF;
-            } else {
-                cacheMsgCntInK = defVal.getMemCacheMsgCntInK();
-            }
+        if (cacheMsgCntInK == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheMsgCntInK = defVal.getMemCacheMsgCntInK();
         }
         newConf.setMemCacheMsgCntInK(cacheMsgCntInK);
         // get deletePolicy parameter value
@@ -440,12 +447,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         String deletePolicy = (String) result.retData1;
-        if (deletePolicy == null) {
-            if (defVal == null) {
-                deletePolicy = TServerConstants.TOPIC_POLICY_DEF;
-            } else {
-                deletePolicy = defVal.getDeletePolicy();
-            }
+        if (deletePolicy == null && defVal != null) {
+            deletePolicy = defVal.getDeletePolicy();
         }
         newConf.setDeletePolicy(deletePolicy);
         // get acceptPublish parameter value
@@ -454,12 +457,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         Boolean acceptPublish = (Boolean) result.retData1;
-        if (acceptPublish == null) {
-            if (defVal == null) {
-                acceptPublish = true;
-            } else {
-                acceptPublish = defVal.getAcceptPublish();
-            }
+        if (acceptPublish == null && defVal != null) {
+            acceptPublish = defVal.getAcceptPublish();
         }
         newConf.setAcceptPublish(acceptPublish);
         // get acceptSubscribe parameter value
@@ -468,12 +467,8 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         Boolean acceptSubscribe = (Boolean) result.retData1;
-        if (acceptSubscribe == null) {
-            if (defVal == null) {
-                acceptSubscribe = true;
-            } else {
-                acceptSubscribe = defVal.getAcceptSubscribe();
-            }
+        if (acceptSubscribe == null && defVal != null) {
+            acceptSubscribe = defVal.getAcceptSubscribe();
         }
         newConf.setAcceptSubscribe(acceptSubscribe);
         result.setSuccResult(newConf);
@@ -861,6 +856,7 @@ public class WebParameterUtils {
         }
         return result.success;
     }
+
     /**
      * Parse the parameter value from an object value to a boolean value
      *
@@ -877,6 +873,34 @@ public class WebParameterUtils {
                                                Boolean defValue,
                                                ProcessResult result) {
         if (!getStringParamValue(req, fieldDef, required, null, result)) {
+            return result.success;
+        }
+        String paramValue = (String) result.retData1;
+        if (paramValue == null) {
+            result.setSuccResult(defValue);
+            return result.success;
+        }
+        result.setSuccResult(Boolean.parseBoolean(paramValue));
+        return result.success;
+    }
+
+    /**
+     * Parse the parameter value from an object value to a boolean value
+     *
+     * @param keyValueMap key value map
+     * @param fieldDef    the parameter field definition
+     * @param required    a boolean value represent whether the parameter is must required
+     * @param defValue    a default value returned if the field not exist
+     * @param result      process result
+     * @return valid result for the parameter value
+     */
+    public static boolean getBooleanParamValue(Map<String, String> keyValueMap,
+                                               WebFieldDef fieldDef,
+                                               boolean required,
+                                               Boolean defValue,
+                                               ProcessResult result) {
+        if (!getStringParamValue(keyValueMap,
+                fieldDef, required, null, result)) {
             return result.success;
         }
         String paramValue = (String) result.retData1;
@@ -969,7 +993,7 @@ public class WebParameterUtils {
         // check if value is norm;
         if (fieldDef.isCompFieldType()) {
             // split original value to items
-            Set<String> valItemSet = new HashSet<>();
+            TreeSet<String> valItemSet = new TreeSet<>();
             String[] strParamValueItems = paramValue.split(fieldDef.splitToken);
             for (String strParamValueItem : strParamValueItems) {
                 if (TStringUtils.isBlank(strParamValueItem)) {
@@ -1000,6 +1024,7 @@ public class WebParameterUtils {
                             .append(fieldDef.itemMaxCnt).append(")!").toString());
                 }
             }
+            valItemSet.comparator();
             result.setSuccResult(valItemSet);
         } else {
             if (!checkStrValueNorms(fieldDef, paramValue, result)) {
@@ -1022,6 +1047,40 @@ public class WebParameterUtils {
      */
     public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
                                                    BrokerConfManager confManager,
+                                                   boolean required,
+                                                   String defValue,
+                                                   ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, required, defValue, result)) {
+            return result.success;
+        }
+        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> existedTopicSet =
+                confManager.getTotalConfiguredTopicNames();
+        for (String topic : topicNameSet) {
+            if (!existedTopicSet.contains(topic)) {
+                result.setFailResult(new StringBuilder(512)
+                        .append(WebFieldDef.COMPSTOPICNAME.name)
+                        .append(" value ").append(topic)
+                        .append(" is not configure, please configure first!").toString());
+                break;
+            }
+        }
+        return result.success;
+    }
+
+    /**
+     * Get and valid topicName value
+     *
+     * @param req        Http Servlet Request
+     * @param confManager  configure manager
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if the field not exist
+     * @param result     process result of parameter value
+     * @return process result
+     */
+    public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
+                                                   MetaDataManager confManager,
                                                    boolean required,
                                                    String defValue,
                                                    ProcessResult result) {
@@ -1133,18 +1192,18 @@ public class WebParameterUtils {
      * translate filter condition item with "''"
      */
     private static boolean transCondItems(ProcessResult result) {
-        Set<String> filterCondSet = (Set<String>) result.retData1;
+        TreeSet<String> filterCondSet = (TreeSet<String>) result.retData1;
         if (!filterCondSet.isEmpty()) {
-            Set<String> newFilterCondSet = new HashSet<>(filterCondSet.size());
+            TreeSet<String> newFilterCondSet = new TreeSet<>();
             StringBuilder sBuilder = new StringBuilder(512);
             for (String filterCond : filterCondSet) {
                 newFilterCondSet.add(sBuilder.append(TokenConstants.ARRAY_SEP)
                         .append(filterCond).append(TokenConstants.ARRAY_SEP).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
+            newFilterCondSet.comparator();
             result.setSuccResult(newFilterCondSet);
         }
-
         return result.success;
     }
 
@@ -1394,10 +1453,11 @@ public class WebParameterUtils {
                                               String defValue,
                                               ProcessResult result) {
         if (isCompFieldType) {
-            Set<String> valItemSet = new HashSet<>();
+            TreeSet<String> valItemSet = new TreeSet<>();
             if (TStringUtils.isNotBlank(defValue)) {
                 valItemSet.add(defValue);
             }
+            valItemSet.comparator();
             result.setSuccResult(valItemSet);
         } else {
             result.setSuccResult(defValue);

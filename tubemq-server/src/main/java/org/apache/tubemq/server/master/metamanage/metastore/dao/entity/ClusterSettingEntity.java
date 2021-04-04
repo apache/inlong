@@ -180,6 +180,9 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
             changed = true;
             clsDefTopicProps = newDefTopicProps;
         }
+        if (changed) {
+            updSerialId();
+        }
         return changed;
     }
 
@@ -260,8 +263,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
             tmpMsgSizeInMB /= TBaseConstants.META_MB_UNIT_SIZE;
         }
         if (isLongName) {
-            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
-                    .append(",\"brokerPort\":").append(brokerPort)
+            sBuilder.append("{\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
                     .append(",\"brokerWebPort\":").append(brokerWebPort)
                     .append(",\"maxMsgSizeInMB\":").append(tmpMsgSizeInMB)
@@ -270,8 +272,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
                     .append(",\"flowCtrlRuleCount\":").append(gloFlowCtrlRuleCnt)
                     .append(",\"flowCtrlInfo\":").append(gloFlowCtrlRuleInfo);
         } else {
-            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
-                    .append(",\"bPort\":").append(brokerPort)
+            sBuilder.append("{\"bPort\":").append(brokerPort)
                     .append(",\"bTlsPort\":").append(brokerTLSPort)
                     .append(",\"bWebPort\":").append(brokerWebPort)
                     .append(",\"mxMsgInMB\":").append(tmpMsgSizeInMB)

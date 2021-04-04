@@ -32,6 +32,20 @@ public class KeyBuilderUtils {
                 .append(groupName).toString();
     }
 
+    public static Tuple2<String, String> splitRecKey2GroupTopic(String recordKey) {
+        Tuple2<String, String> ret = new Tuple2<>();
+        if (recordKey == null) {
+            return ret;
+        }
+        String[] items = recordKey.split(TokenConstants.ATTR_SEP);
+        if (items.length < 2) {
+            ret.setF0AndF1(items[0], items[1]);
+        } else {
+            ret.setF0AndF1(items[0], items[0]);
+        }
+        return ret;
+    }
+
     public static String buildTopicConfRecKey(int brokerId, String topicName) {
         return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
                 .append(brokerId).append(TokenConstants.ATTR_SEP)

@@ -19,6 +19,7 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
 import java.util.Objects;
+
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
@@ -33,8 +34,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     private String recordKey = "";
     private String topicName = "";
     private String groupName = "";
+    // enable consume control
+    private EnableStatus consumeEnable = EnableStatus.STATUS_UNDEFINE;
+    private String disableReason = "";
     // filter consume setting
-    private EnableStatus filterConsumeStatus = EnableStatus.STATUS_UNDEFINE;
+    private EnableStatus filterEnable = EnableStatus.STATUS_UNDEFINE;
     private String filterCondStr = "";
 
 
@@ -42,28 +46,39 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public GroupConsumeCtrlEntity(String topicName, String groupName,
-                                  EnableStatus filterConsumeStatus,
+    public GroupConsumeCtrlEntity(long dataVerId,
+                                  String createUser,
+                                  Date createDate) {
+        super(dataVerId, createUser, createDate);
+    }
+
+    public GroupConsumeCtrlEntity(String groupName, String topicName,
+                                  EnableStatus consumeEnable,
+                                  String disableReason,
+                                  EnableStatus filterEnable,
                                   String filterCondStr, String createUser,
                                   Date createDate) {
         super(createUser, createDate);
-        this.setTopicAndGroup(topicName, groupName);
-        this.filterConsumeStatus = filterConsumeStatus;
+        this.setGroupAndTopic(groupName, topicName);
+        this.consumeEnable = consumeEnable;
+        this.disableReason = disableReason;
+        this.filterEnable = filterEnable;
         this.filterCondStr = filterCondStr;
     }
 
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
-        this.setTopicAndGroup(bdbEntity.getTopicName(),
-                bdbEntity.getConsumerGroupName());
+        this.setGroupAndTopic(bdbEntity.getConsumerGroupName(), bdbEntity.getTopicName());
         if (bdbEntity.getControlStatus() == 2) {
-            this.filterConsumeStatus = EnableStatus.STATUS_ENABLE;
+            this.filterEnable = EnableStatus.STATUS_ENABLE;
         } else if (bdbEntity.getControlStatus() == -2) {
-            this.filterConsumeStatus = EnableStatus.STATUS_UNDEFINE;
+            this.filterEnable = EnableStatus.STATUS_UNDEFINE;
         } else {
-            this.filterConsumeStatus = EnableStatus.STATUS_DISABLE;
+            this.filterEnable = EnableStatus.STATUS_DISABLE;
         }
+        this.consumeEnable = bdbEntity.getConsumeEnable();
+        this.disableReason = bdbEntity.getDisableConsumeReason();
         this.filterCondStr = bdbEntity.getFilterCondStr();
         this.setAttributes(bdbEntity.getAttributes());
     }
@@ -71,15 +86,17 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     public BdbGroupFilterCondEntity buildBdbGroupFilterCondEntity() {
         BdbGroupFilterCondEntity bdbEntity =
                 new BdbGroupFilterCondEntity(topicName, groupName,
-                        filterConsumeStatus.getCode(), filterCondStr,
+                        filterEnable.getCode(), filterCondStr,
                         getAttributes(), getCreateUser(), getCreateDate());
         bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setConsumeEnable(consumeEnable);
+        bdbEntity.setDisableConsumeReason(disableReason);
         return bdbEntity;
     }
 
-    public void setTopicAndGroup(String topicName, String groupName) {
-        this.topicName = topicName;
+    public void setGroupAndTopic(String groupName, String topicName) {
         this.groupName = groupName;
+        this.topicName = topicName;
         this.recordKey = KeyBuilderUtils.buildGroupTopicRecKey(groupName, topicName);
     }
 
@@ -103,19 +120,35 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return groupName;
     }
 
-    public void setFilterConsumeStatus(EnableStatus filterConsumeStatus) {
-        this.filterConsumeStatus = filterConsumeStatus;
+    public EnableStatus getConsumeEnable() {
+        return consumeEnable;
+    }
+
+    private void setConsumeEnable(boolean enableConsume) {
+        if (enableConsume) {
+            this.consumeEnable = EnableStatus.STATUS_ENABLE;
+        } else {
+            this.consumeEnable = EnableStatus.STATUS_DISABLE;
+        }
+    }
+
+    public String getDisableReason() {
+        return disableReason;
+    }
+
+    public void setDisableReason(String disableReason) {
+        this.disableReason = disableReason;
     }
 
     public boolean isEnableFilterConsume() {
-        return filterConsumeStatus == EnableStatus.STATUS_ENABLE;
+        return filterEnable == EnableStatus.STATUS_ENABLE;
     }
 
-    public void setEnableFilterConsume(boolean enableFilterConsume) {
-        if (enableFilterConsume) {
-            this.filterConsumeStatus = EnableStatus.STATUS_ENABLE;
+    private void setFilterEnable(boolean enableFilter) {
+        if (enableFilter) {
+            this.filterEnable = EnableStatus.STATUS_ENABLE;
         } else {
-            this.filterConsumeStatus = EnableStatus.STATUS_DISABLE;
+            this.filterEnable = EnableStatus.STATUS_DISABLE;
         }
     }
 
@@ -127,8 +160,46 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         this.filterCondStr = filterCondStr;
     }
 
-    public EnableStatus getFilterConsumeStatus() {
-        return filterConsumeStatus;
+    public EnableStatus getFilterEnable() {
+        return filterEnable;
+    }
+
+    /**
+     * update subclass field values
+     *
+     * @return if changed
+     */
+    public boolean updModifyInfo(Boolean newConsumeEnable, String newDisableRsn,
+                                 Boolean newFilterEnable, String newFilterCondStr) {
+        boolean changed = false;
+        // check and set consumeEnable info
+        if (newConsumeEnable != null
+                && this.consumeEnable.isEnable() != newConsumeEnable) {
+            changed = true;
+            setConsumeEnable(newConsumeEnable);
+        }
+        // check and set disableReason info
+        if (newDisableRsn != null
+                && !newDisableRsn.equals(disableReason)) {
+            changed = true;
+            disableReason = newDisableRsn;
+        }
+        // check and set consumeEnable info
+        if (newFilterEnable != null
+                && this.filterEnable.isEnable() != newFilterEnable) {
+            changed = true;
+            setFilterEnable(newFilterEnable);
+        }
+        // check and set filterCondStr info
+        if (TStringUtils.isNotBlank(newFilterCondStr)
+                && !newFilterCondStr.equals(filterCondStr)) {
+            changed = true;
+            filterCondStr = newFilterCondStr;
+        }
+        if (changed) {
+            updSerialId();
+        }
+        return changed;
     }
 
     /**
@@ -148,8 +219,10 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
                 && !target.getTopicName().equals(this.topicName))
                 || (TStringUtils.isNotBlank(target.getGroupName())
                 && !target.getGroupName().equals(this.groupName))
-                || (target.getFilterConsumeStatus() != EnableStatus.STATUS_UNDEFINE
-                && target.getFilterConsumeStatus() != this.filterConsumeStatus)) {
+                || (target.getConsumeEnable() != EnableStatus.STATUS_UNDEFINE
+                && target.getConsumeEnable() != this.consumeEnable)
+                || (target.getFilterEnable() != EnableStatus.STATUS_UNDEFINE
+                && target.getFilterEnable() != this.filterEnable)) {
             return false;
         }
         return true;
@@ -164,18 +237,24 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      */
     @Override
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+        String tmpFilterConds = filterCondStr;
+        if (tmpFilterConds.length() <= 2) {
+            tmpFilterConds = "";
+        }
         if (isLongName) {
-            sBuilder.append("{\"recordKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topicName\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"groupName\":\"").append(groupName).append("\"")
-                    .append(",\"filterEnable\":").append(filterConsumeStatus.isEnable())
-                    .append(",\"filterConds\":\"").append(filterCondStr).append("\"");
+                    .append(",\"consumeEnable\":").append(consumeEnable.isEnable())
+                    .append(",\"disableReason\":\"").append(disableReason).append("\"")
+                    .append(",\"filterEnable\":").append(filterEnable.isEnable())
+                    .append(",\"filterConds\":\"").append(tmpFilterConds).append("\"");
         } else {
-            sBuilder.append("{\"recKey\":\"").append(recordKey).append("\"")
-                    .append(",\"topic\":\"").append(topicName).append("\"")
+            sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
                     .append(",\"group\":\"").append(groupName).append("\"")
-                    .append(",\"fltEn\":").append(filterConsumeStatus.isEnable())
-                    .append(",\"fltRls\":\"").append(filterCondStr).append("\"");
+                    .append(",\"csmEn\":").append(consumeEnable.isEnable())
+                    .append(",\"dsRsn\":\"").append(disableReason).append("\"")
+                    .append(",\"fltEn\":").append(filterEnable.isEnable())
+                    .append(",\"fltRls\":\"").append(tmpFilterConds).append("\"");
         }
         super.toWebJsonStr(sBuilder, isLongName);
         sBuilder.append("}");
@@ -192,7 +271,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return recordKey.equals(other.recordKey)
                 && Objects.equals(topicName, other.topicName)
                 && Objects.equals(groupName, other.groupName)
-                && filterConsumeStatus == other.filterConsumeStatus
+                && consumeEnable == other.consumeEnable
+                && Objects.equals(disableReason, other.disableReason)
+                && filterEnable == other.filterEnable
                 && Objects.equals(filterCondStr, other.filterCondStr);
     }
 
@@ -213,15 +294,16 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), recordKey,
-                topicName, groupName, filterConsumeStatus, filterCondStr);
+        return Objects.hash(super.hashCode(), recordKey, topicName,
+                groupName, consumeEnable, disableReason, filterEnable, filterCondStr);
     }
 
     @Override
     public GroupConsumeCtrlEntity clone() {
         try {
             GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
-            copy.setFilterConsumeStatus(getFilterConsumeStatus());
+            copy.setConsumeEnable(getConsumeEnable().isEnable());
+            copy.setFilterEnable(getFilterEnable().isEnable());
             return copy;
         } catch (CloneNotSupportedException e) {
             return null;
