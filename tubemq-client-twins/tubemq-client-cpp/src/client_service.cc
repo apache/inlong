@@ -120,15 +120,15 @@ bool TubeMQService::IsRunning() { return (service_status_.Get() == 2); }
 void TubeMQService::iniServiceConfigure() {
   // initial logger parameters
   GetLogger().Init(serviceConfig_.GetLogStorePath(),
-    Logger::Level(serviceConfig_.getLogPrintLevel()),
-    serviceConfig_.getMaxLogFileSize(), serviceConfig_.getMaxLogFileNum());
+    Logger::Level(serviceConfig_.GetLogPrintLevel()),
+    serviceConfig_.GetMaxLogFileSize(), serviceConfig_.GetMaxLogFileNum());
   // initial dns translate thread
   dns_xfs_thread_ = std::thread(&TubeMQService::thread_task_dnsxfs,
-    this, serviceConfig_.getDnsXfsPeriodInMs());
+    this, serviceConfig_.GetDnsXfsPeriodInMs());
   // initial service thread pools
-  timer_executor_->Resize(serviceConfig_.getTimerThreads());
-  network_executor_->Resize(serviceConfig_.getNetWorkThreads());
-  thread_pool_ = std::make_shared<ThreadPool>(serviceConfig_.getSignalThreads());
+  timer_executor_->Resize(serviceConfig_.GetTimerThreads());
+  network_executor_->Resize(serviceConfig_.GetNetWorkThreads());
+  thread_pool_ = std::make_shared<ThreadPool>(serviceConfig_.GetSignalThreads());
   connection_pool_ = std::make_shared<ConnectionPool>(network_executor_);
 }
 
@@ -290,11 +290,11 @@ bool TubeMQService::getServiceConfByFile(string& err_info,
   fileini.GetValue(err_info, sector, "log_path", log_path, "../log/tubemq");
   fileini.GetValue(err_info, sector, "log_level", log_level, 4);
   log_level = TUBEMQ_MID(log_level, 4, 0);
-  serviceConfig.setLogCofigInfo(log_num, log_size, log_level, log_path);
+  serviceConfig.SetLogCofigInfo(log_num, log_size, log_level, log_path);
   // get dns translate period
   int32_t dns_xfs_period_ms = 30 * 1000;
   fileini.GetValue(err_info, sector, "dns_xfs_period_ms", dns_xfs_period_ms, 30 * 1000);
-  serviceConfig.setDnsXfsPeriodInMs(dns_xfs_period_ms);
+  serviceConfig.SetDnsXfsPeriodInMs(dns_xfs_period_ms);
   // get thread pools paremeters
   int32_t timer_threads = 2;
   int32_t network_threads = 4;
@@ -302,7 +302,7 @@ bool TubeMQService::getServiceConfByFile(string& err_info,
   fileini.GetValue(err_info, sector, "timer_threads", timer_threads, 2);
   fileini.GetValue(err_info, sector, "network_threads", network_threads, 4);
   fileini.GetValue(err_info, sector, "signal_threads", signal_threads, 8);
-  serviceConfig.setServiceThreads(timer_threads, network_threads, signal_threads);
+  serviceConfig.SetServiceThreads(timer_threads, network_threads, signal_threads);
   err_info = "Ok";
   return true;
 }    

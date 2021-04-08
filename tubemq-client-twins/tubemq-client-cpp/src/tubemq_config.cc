@@ -49,21 +49,7 @@ TubeMQServiceConfig::~TubeMQServiceConfig() {
   //
 }
 
-TubeMQServiceConfig& TubeMQServiceConfig::operator=(const TubeMQServiceConfig& target) {
-  if (this != &target) {
-    log_num_ = target.log_num_;
-    log_size_ = target.log_size_;
-    log_level_ = target.log_level_;
-    log_path_ = target.log_path_;
-    dns_xfs_period_ms_ = target.dns_xfs_period_ms_;
-    timer_threads_ = target.timer_threads_;
-    network_threads_ = target.network_threads_;
-    signal_threads_ = target.signal_threads_;
-  }
-  return *this;
-}
-
-void TubeMQServiceConfig::setLogCofigInfo(int32_t log_max_num,
+void TubeMQServiceConfig::SetLogCofigInfo(int32_t log_max_num,
                             int32_t log_max_size, int32_t log_level, const string& log_path) {
   log_num_   = log_max_num;
   log_size_  = log_max_size;
@@ -72,27 +58,27 @@ void TubeMQServiceConfig::setLogCofigInfo(int32_t log_max_num,
   log_level_ = TUBEMQ_MID(log_level, 4, 0);
 }
 
-void TubeMQServiceConfig::setDnsXfsPeriodInMs(int32_t dns_xfs_period_ms) {
+void TubeMQServiceConfig::SetDnsXfsPeriodInMs(int32_t dns_xfs_period_ms) {
     dns_xfs_period_ms_ =
         TUBEMQ_MID(dns_xfs_period_ms, tb_config::kMaxIntValue, 10000);
 }
 
-void TubeMQServiceConfig::setServiceThreads(int32_t timer_threads,
+void TubeMQServiceConfig::SetServiceThreads(int32_t timer_threads,
                                  int32_t network_threads, int32_t signal_threads) {
   timer_threads_   = TUBEMQ_MID(timer_threads, 50, 2);
   network_threads_ = TUBEMQ_MID(network_threads, 50, 4);
   signal_threads_  = TUBEMQ_MID(signal_threads, 50, 4);
 }
 
-const int32_t TubeMQServiceConfig::getMaxLogFileNum() const {
+const int32_t TubeMQServiceConfig::GetMaxLogFileNum() const {
   return log_num_;
 }
 
-const int32_t TubeMQServiceConfig::getMaxLogFileSize() const {
+const int32_t TubeMQServiceConfig::GetMaxLogFileSize() const {
   return log_size_;
 }
 
-const int32_t TubeMQServiceConfig::getLogPrintLevel() const {
+const int32_t TubeMQServiceConfig::GetLogPrintLevel() const {
   return log_level_;
 }
 
@@ -100,19 +86,19 @@ const string& TubeMQServiceConfig::GetLogStorePath() const {
   return log_path_;
 }
 
-const int32_t TubeMQServiceConfig::getDnsXfsPeriodInMs() const {
+const int32_t TubeMQServiceConfig::GetDnsXfsPeriodInMs() const {
   return dns_xfs_period_ms_;
 }
 
-const int32_t TubeMQServiceConfig::getTimerThreads() const {
+const int32_t TubeMQServiceConfig::GetTimerThreads() const {
   return timer_threads_;
 }
 
-const int32_t TubeMQServiceConfig::getNetWorkThreads() const {
+const int32_t TubeMQServiceConfig::GetNetWorkThreads() const {
   return network_threads_;
 }
 
-const int32_t TubeMQServiceConfig::getSignalThreads() const {
+const int32_t TubeMQServiceConfig::GetSignalThreads() const {
   return signal_threads_;
 }
 
