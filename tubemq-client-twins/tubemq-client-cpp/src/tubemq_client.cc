@@ -35,6 +35,12 @@ namespace tubemq {
 using std::lock_guard;
 using std::stringstream;
 
+bool StartTubeMQService(string& err_info,
+    const TubeMQServiceConfig& serviceConfig) {
+  signal(SIGPIPE, SIG_IGN);
+  return TubeMQService::Instance()->Start(err_info, serviceConfig);
+}
+
 bool StartTubeMQService(string& err_info, const string& conf_file) {
   signal(SIGPIPE, SIG_IGN);
   return TubeMQService::Instance()->Start(err_info, conf_file);

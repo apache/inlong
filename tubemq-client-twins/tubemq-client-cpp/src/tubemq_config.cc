@@ -32,6 +32,112 @@ using std::set;
 using std::stringstream;
 using std::vector;
 
+
+
+TubeMQServiceConfig::TubeMQServiceConfig() {
+  log_num_ = tb_config::kLogNumDef;
+  log_size_ = tb_config::kLogSizeDefMB;
+  log_level_ = tb_config::kLogLevelDef;
+  log_path_ = tb_config::kLogPathDef;
+  dns_xfs_period_ms_ = tb_config::kDnsXfsPeriodInMsDef;
+  timer_threads_ = tb_config::kTimerThreadNumDef;
+  network_threads_ = tb_config::kNetworkThreadNumDef;
+  signal_threads_ = tb_config::kSignalThreadNumDef;
+}
+
+TubeMQServiceConfig::~TubeMQServiceConfig() {
+  //
+}
+
+TubeMQServiceConfig& TubeMQServiceConfig::operator=(const TubeMQServiceConfig& target) {
+  if (this != &target) {
+    log_num_ = target.log_num_;
+    log_size_ = target.log_size_;
+    log_level_ = target.log_level_;
+    log_path_ = target.log_path_;
+    dns_xfs_period_ms_ = target.dns_xfs_period_ms_;
+    timer_threads_ = target.timer_threads_;
+    network_threads_ = target.network_threads_;
+    signal_threads_ = target.signal_threads_;
+  }
+  return *this;
+}
+
+void TubeMQServiceConfig::setLogCofigInfo(int32_t log_max_num,
+                            int32_t log_max_size, int32_t log_level, const string& log_path) {
+  log_num_   = log_max_num;
+  log_size_  = log_max_size;
+  log_level_ = log_level;
+  log_path_  = log_path;
+  log_level_ = TUBEMQ_MID(log_level, 4, 0);
+}
+
+void TubeMQServiceConfig::setDnsXfsPeriodInMs(int32_t dns_xfs_period_ms) {
+    dns_xfs_period_ms_ =
+        TUBEMQ_MID(dns_xfs_period_ms, tb_config::kMaxIntValue, 10000);
+}
+
+void TubeMQServiceConfig::setServiceThreads(int32_t timer_threads,
+                                 int32_t network_threads, int32_t signal_threads) {
+  timer_threads_   = TUBEMQ_MID(timer_threads, 50, 2);
+  network_threads_ = TUBEMQ_MID(network_threads, 50, 4);
+  signal_threads_  = TUBEMQ_MID(signal_threads, 50, 4);
+}
+
+const int32_t TubeMQServiceConfig::getMaxLogFileNum() const {
+  return log_num_;
+}
+
+const int32_t TubeMQServiceConfig::getMaxLogFileSize() const {
+  return log_size_;
+}
+
+const int32_t TubeMQServiceConfig::getLogPrintLevel() const {
+  return log_level_;
+}
+
+const string& TubeMQServiceConfig::GetLogStorePath() const {
+  return log_path_;
+}
+
+const int32_t TubeMQServiceConfig::getDnsXfsPeriodInMs() const {
+  return dns_xfs_period_ms_;
+}
+
+const int32_t TubeMQServiceConfig::getTimerThreads() const {
+  return timer_threads_;
+}
+
+const int32_t TubeMQServiceConfig::getNetWorkThreads() const {
+  return network_threads_;
+}
+
+const int32_t TubeMQServiceConfig::getSignalThreads() const {
+  return signal_threads_;
+}
+
+const string TubeMQServiceConfig::ToString() const {
+    stringstream ss;
+    ss << "TubeMQServiceConfig={log_num_=";
+    ss << log_num_;
+    ss << ", log_size_=";
+    ss << log_size_;
+    ss << ", log_level_=";
+    ss << log_level_;
+    ss << ", log_path_='";
+    ss << log_path_;
+    ss << "', dns_xfs_period_ms_=";
+    ss << dns_xfs_period_ms_;
+    ss << ", timer_threads_=";
+    ss << timer_threads_;
+    ss << ", network_threads_=";
+    ss << network_threads_;
+    ss << ", signal_threads_=";
+    ss << signal_threads_;
+    ss << "}";
+    return ss.str();
+}
+
 BaseConfig::BaseConfig() {
   master_addrinfo_ = "";
   auth_enable_ = false;
@@ -188,7 +294,7 @@ void BaseConfig::SetHeartbeatPeriodAftFailMs(int32_t heartbeat_period_afterfail_
 
 int32_t BaseConfig::GetHeartbeatPeriodAftFailMs() { return heartbeat_period_afterfail_ms_; }
 
-string BaseConfig::ToString() {
+const string BaseConfig::ToString() const {
   stringstream ss;
   ss << "BaseConfig={master_addrinfo_='";
   ss << master_addrinfo_;
@@ -538,11 +644,11 @@ void ConsumerConfig::SetShutdownRebWaitPeriodMs(
   shutdown_reb_wait_period_ms_ = wait_period_when_shutdown_ms;
 }
 
-string ConsumerConfig::ToString() {
+const string ConsumerConfig::ToString() const {
   int32_t i = 0;
   stringstream ss;
-  map<string, int64_t>::iterator it;
-  map<string, set<string> >::iterator it_map;
+  map<string, int64_t>::const_iterator it;
+  map<string, set<string> >::const_iterator it_map;
 
   // print info
   ss << "ConsumerConfig = {";
@@ -560,7 +666,7 @@ string ConsumerConfig::ToString() {
     ss << "'=[";
     int32_t j = 0;
     set<string> topic_set = it_map->second;
-    for (set<string>::iterator it = topic_set.begin(); it != topic_set.end(); ++it) {
+    for (set<string>::const_iterator it = topic_set.begin(); it != topic_set.end(); ++it) {
       if (j++ > 0) {
         ss << ",";
       }

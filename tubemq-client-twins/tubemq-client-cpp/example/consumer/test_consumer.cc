@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
   set<string> topic_list;
   topic_list.insert(topic_name);
   ConsumerConfig consumer_config;
+  TubeMQServiceConfig serviceConfig;
 
   consumer_config.SetRpcReadTimeoutMs(20000);
   result = consumer_config.SetMasterAddrInfo(err_info, master_addr);
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
     printf("\n Set GroupConsume Target failure: %s", err_info.c_str());
     return -1;
   }
-  result = StartTubeMQService(err_info, conf_file);
+  result = StartTubeMQService(err_info, serviceConfig);
   if (!result) {
     printf("\n StartTubeMQService failure: %s", err_info.c_str());
     return -1;
