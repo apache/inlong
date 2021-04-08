@@ -68,20 +68,9 @@ TubeMQService::~TubeMQService() {
   Stop(err_info);
 }
 
-bool TubeMQService::Start(string& err_info, string conf_file) {
-  // check configure file
+bool TubeMQService::Start(string& err_info,
+    const TubeMQServiceConfig& serviceConfig) {
   bool result = false;
-  Fileini fileini;
-  string sector = "TubeMQ";
-
-  result = Utils::ValidConfigFile(err_info, conf_file);
-  if (!result) {
-    return result;
-  }
-  result = fileini.Loadini(err_info, conf_file);
-  if (!result) {
-    return result;
-  }
   result = Utils::GetLocalIPV4Address(err_info, local_host_);
   if (!result) {
     return result;
@@ -90,14 +79,23 @@ bool TubeMQService::Start(string& err_info, string conf_file) {
     err_info = "TubeMQ Service has startted or Stopped!";
     return false;
   }
-  iniLogger(fileini, sector);
-  iniPoolThreads(fileini, sector);
-  iniXfsThread(fileini, sector);
+  serviceConfig_ = serviceConfig;
+  iniServiceConfigure();
   service_status_.Set(2);
   err_info = "Ok!";
-  LOG_INFO("[TubeMQService] TubeMQ service startted!");
-
+  LOG_INFO("[TubeMQService] TubeMQ service startted! initial configure is %s ",
+    serviceConfig.ToString().c_str());
   return true;
+}
+
+
+bool TubeMQService::Start(string& err_info, string conf_file) {
+  // check configure file
+  TubeMQServiceConfig serviceConfig;
+  if (!getServiceConfByFile(err_info, conf_file, serviceConfig)) {
+    return false;
+  }
+  return Start(err_info, serviceConfig);
 }
 
 bool TubeMQService::Stop(string& err_info) {
@@ -119,42 +117,18 @@ bool TubeMQService::Stop(string& err_info) {
 
 bool TubeMQService::IsRunning() { return (service_status_.Get() == 2); }
 
-void TubeMQService::iniLogger(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t log_num = 10;
-  int32_t log_size = 10;
-  int32_t log_level = 4;
-  string log_path = "../log/tubemq";
-  fileini.GetValue(err_info, sector, "log_num", log_num, 10);
-  fileini.GetValue(err_info, sector, "log_size", log_size, 100);
-  fileini.GetValue(err_info, sector, "log_path", log_path, "../log/tubemq");
-  fileini.GetValue(err_info, sector, "log_level", log_level, 4);
-  log_level = TUBEMQ_MID(log_level, 4, 0);
-  GetLogger().Init(log_path, Logger::Level(log_level), log_size, log_num);
-}
-
-void TubeMQService::iniXfsThread(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t dns_xfs_period_ms = 30 * 1000;
-  fileini.GetValue(err_info, sector, "dns_xfs_period_ms", dns_xfs_period_ms, 30 * 1000);
-  TUBEMQ_MID(dns_xfs_period_ms, tb_config::kMaxIntValue, 10000);
-  dns_xfs_thread_ = std::thread(&TubeMQService::thread_task_dnsxfs, this, dns_xfs_period_ms);
-}
-
-void TubeMQService::iniPoolThreads(const Fileini& fileini, const string& sector) {
-  string err_info;
-  int32_t timer_threads = 2;
-  int32_t network_threads = 4;
-  int32_t signal_threads = 8;
-  fileini.GetValue(err_info, sector, "timer_threads", timer_threads, 2);
-  TUBEMQ_MID(timer_threads, 50, 2);
-  fileini.GetValue(err_info, sector, "network_threads", network_threads, 4);
-  TUBEMQ_MID(network_threads, 50, 4);
-  fileini.GetValue(err_info, sector, "signal_threads", signal_threads, 8);
-  TUBEMQ_MID(signal_threads, 50, 4);
-  timer_executor_->Resize(timer_threads);
-  network_executor_->Resize(network_threads);
-  thread_pool_ = std::make_shared<ThreadPool>(signal_threads);
+void TubeMQService::iniServiceConfigure() {
+  // initial logger parameters
+  GetLogger().Init(serviceConfig_.GetLogStorePath(),
+    Logger::Level(serviceConfig_.getLogPrintLevel()),
+    serviceConfig_.getMaxLogFileSize(), serviceConfig_.getMaxLogFileNum());
+  // initial dns translate thread
+  dns_xfs_thread_ = std::thread(&TubeMQService::thread_task_dnsxfs,
+    this, serviceConfig_.getDnsXfsPeriodInMs());
+  // initial service thread pools
+  timer_executor_->Resize(serviceConfig_.getTimerThreads());
+  network_executor_->Resize(serviceConfig_.getNetWorkThreads());
+  thread_pool_ = std::make_shared<ThreadPool>(serviceConfig_.getSignalThreads());
   connection_pool_ = std::make_shared<ConnectionPool>(network_executor_);
 }
 
@@ -291,5 +265,46 @@ void TubeMQService::updMasterAddrByDns() {
     master_target_[it->first] = it->second;
   }
 }
+
+bool TubeMQService::getServiceConfByFile(string& err_info,
+    string conf_file, TubeMQServiceConfig& serviceConfig) {
+  // check configure file
+  bool result = false;
+  Fileini fileini;
+  string sector = "TubeMQ";    
+  result = Utils::ValidConfigFile(err_info, conf_file);
+  if (!result) {
+    return result;
+  }
+  result = fileini.Loadini(err_info, conf_file);
+  if (!result) {
+    return result;
+  }
+  // get log paremeters
+  int32_t log_num = 10;
+  int32_t log_size = 100;
+  int32_t log_level = 4;
+  string log_path = "../log/tubemq";
+  fileini.GetValue(err_info, sector, "log_num", log_num, 10);
+  fileini.GetValue(err_info, sector, "log_size", log_size, 100);
+  fileini.GetValue(err_info, sector, "log_path", log_path, "../log/tubemq");
+  fileini.GetValue(err_info, sector, "log_level", log_level, 4);
+  log_level = TUBEMQ_MID(log_level, 4, 0);
+  serviceConfig.setLogCofigInfo(log_num, log_size, log_level, log_path);
+  // get dns translate period
+  int32_t dns_xfs_period_ms = 30 * 1000;
+  fileini.GetValue(err_info, sector, "dns_xfs_period_ms", dns_xfs_period_ms, 30 * 1000);
+  serviceConfig.setDnsXfsPeriodInMs(dns_xfs_period_ms);
+  // get thread pools paremeters
+  int32_t timer_threads = 2;
+  int32_t network_threads = 4;
+  int32_t signal_threads = 8;
+  fileini.GetValue(err_info, sector, "timer_threads", timer_threads, 2);
+  fileini.GetValue(err_info, sector, "network_threads", network_threads, 4);
+  fileini.GetValue(err_info, sector, "signal_threads", signal_threads, 8);
+  serviceConfig.setServiceThreads(timer_threads, network_threads, signal_threads);
+  err_info = "Ok";
+  return true;
+}    
 
 }  // namespace tubemq

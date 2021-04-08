@@ -36,6 +36,20 @@ using std::string;
 
 // configuration value setting
 namespace tb_config {
+// log setting default define
+static const int32_t kLogNumDef = 10;
+static const int32_t kLogSizeDefMB = 100;
+static const int32_t kLogLevelDef = 4;
+static const char kLogPathDef[] = "../log/tubemq";
+
+// dns tranlate period in ms
+static const int32_t kDnsXfsPeriodInMsDef = 30000;
+
+// frame threads define
+static const int32_t kTimerThreadNumDef = 2;
+static const int32_t kNetworkThreadNumDef = 4;
+static const int32_t kSignalThreadNumDef = 8;
+
 // rpc timeout define
 static const int32_t kRpcTimoutDefMs = 15000;
 static const int32_t kRpcTimoutMaxMs = 300000;

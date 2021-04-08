@@ -34,6 +34,42 @@ using std::set;
 using std::string;
 
 
+// configure for log, thread pool etc.
+class TubeMQServiceConfig {
+ public:
+  TubeMQServiceConfig();
+  ~TubeMQServiceConfig();
+  TubeMQServiceConfig& operator=(const TubeMQServiceConfig& target);
+  void setLogCofigInfo(int32_t log_max_num,
+                int32_t log_max_size, int32_t log_level, const string& log_path);
+  const int32_t getMaxLogFileNum() const;
+  const int32_t getMaxLogFileSize() const;
+  const int32_t getLogPrintLevel() const;
+  const string& GetLogStorePath() const;
+  void setDnsXfsPeriodInMs(int32_t dns_xfs_period_ms);
+  const int32_t getDnsXfsPeriodInMs() const;
+  void setServiceThreads(int32_t timer_threads,
+    int32_t network_threads, int32_t signal_threads);
+  const int32_t getTimerThreads() const;
+  const int32_t getNetWorkThreads() const;
+  const int32_t getSignalThreads() const;
+  const string ToString() const;
+
+ private:
+  // max log file count
+  int32_t log_num_;
+  // unit MB
+  int32_t log_size_;
+  // 0:trace, 1:debug, 2:info, 3:warn, 4:error
+  int32_t log_level_;
+  // need include log filename
+  string log_path_;
+  int32_t dns_xfs_period_ms_;
+  int32_t timer_threads_;
+  int32_t network_threads_;
+  int32_t signal_threads_;
+};
+
 class BaseConfig {
  public:
   BaseConfig();
@@ -63,7 +99,7 @@ class BaseConfig {
   int32_t GetMaxHeartBeatRetryTimes();
   void SetHeartbeatPeriodAftFailMs(int32_t heartbeat_period_afterfail_ms);
   int32_t GetHeartbeatPeriodAftFailMs();
-  string ToString();
+  const string ToString() const;
 
  private:
   string master_addrinfo_;
@@ -118,7 +154,7 @@ class ConsumerConfig : public BaseConfig {
   //    be blocked forever and will not return until the consumption conditions are met;
   // 2. if If it is set to 0, it means that the GetMessage() calling thread will only block
   //    the ConsumerConfig.GetPartCheckSliceMs() interval when the consumption conditions
-  //    are not met and then return; 
+  //    are not met and then return;
   // 3. if it is set to a positive number, it will not meet the current user usage (including
   //    unused partitions or allocated partitions, but these partitions do not meet the usage
   //    conditions), the GetMessage() calling thread will be blocked until the total time of
@@ -138,7 +174,7 @@ class ConsumerConfig : public BaseConfig {
   void SetMaxConfirmWaitPeriodMs(int32_t max_confirm_wait_period_ms);
   const int32_t GetShutdownRebWaitPeriodMs() const;
   void SetShutdownRebWaitPeriodMs(int32_t wait_period_when_shutdown_ms);
-  string ToString();
+  const string ToString() const;
 
  private:
   bool setGroupConsumeTarget(string& err_info, bool is_bound_consume, const string& group_name,

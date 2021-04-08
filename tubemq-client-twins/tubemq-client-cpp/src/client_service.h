@@ -62,6 +62,8 @@ using BaseClientPtr = std::shared_ptr<BaseClient>;
 class TubeMQService : public noncopyable {
  public:
   static TubeMQService* Instance();
+  bool Start(string& err_info, const TubeMQServiceConfig& serviceConfig);
+  // Deprecated method
   bool Start(string& err_info, string conf_file = "../conf/tubemqclient.conf");
   bool Stop(string& err_info);
   bool IsRunning();
@@ -90,17 +92,18 @@ class TubeMQService : public noncopyable {
  private:
   TubeMQService();
   ~TubeMQService();
-  void iniLogger(const Fileini& fileini, const string& sector);
-  void iniPoolThreads(const Fileini& fileini, const string& sector);
-  void iniXfsThread(const Fileini& fileini, const string& sector);
+  void iniServiceConfigure();
   void thread_task_dnsxfs(int dns_xfs_period_ms);
   void shutDownClinets() const;
   bool hasXfsTask(map<string, int32_t>& src_addr_map);
   bool addNeedDnsXfsAddr(map<string, int32_t>& src_addr_map);
+  bool getServiceConfByFile(string& err_info,
+    string conf_file, TubeMQServiceConfig& serviceConfig);
 
  private:
   static TubeMQService* _instance;
   string local_host_;
+  TubeMQServiceConfig serviceConfig_;
   AtomicInteger service_status_;
   AtomicInteger client_index_base_;
   mutable mutex mutex_;
