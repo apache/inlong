@@ -43,6 +43,7 @@ import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
@@ -174,6 +175,51 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
+    public static boolean getAUDBaseInfo(Map<String, String> keyValueMap,
+                                         boolean isAdd,
+                                         ProcessResult result) {
+        // check and get data version id
+        if (!WebParameterUtils.getLongParamValue(keyValueMap, WebFieldDef.DATAVERSIONID,
+                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
+            return result.isSuccess();
+        }
+        long dataVerId = (long) result.retData1;
+        // check and get createUser or modifyUser
+        String operator = null;
+        Date opDate = null;
+        if (isAdd) {
+            // check create user field
+            if (!WebParameterUtils.getStringParamValue(keyValueMap,
+                    WebFieldDef.CREATEUSER, false, null, result)) {
+                return result.isSuccess();
+            }
+            operator = (String) result.retData1;
+            // check and get create date
+            if (!WebParameterUtils.getDateParameter(keyValueMap,
+                    WebFieldDef.CREATEDATE, false, null, result)) {
+                return result.isSuccess();
+            }
+            opDate = (Date) result.retData1;
+
+        } else {
+            // check modify user field
+            if (!WebParameterUtils.getStringParamValue(keyValueMap,
+                    WebFieldDef.MODIFYUSER, false, null, result)) {
+                return result.isSuccess();
+            }
+            operator = (String) result.retData1;
+            // check and get modify date
+            if (!WebParameterUtils.getDateParameter(keyValueMap,
+                    WebFieldDef.MODIFYDATE, false, null, result)) {
+                return result.isSuccess();
+            }
+            opDate = (Date) result.retData1;
+        }
+        result.setSuccResult(new Tuple3<Long, String, Date>(
+                dataVerId, operator, opDate));
+        return result.isSuccess();
+    }
+
     /**
      * Parse the parameter value required for query
      *
@@ -247,12 +293,26 @@ public class WebParameterUtils {
      * Decode the deletePolicy parameter value from an object value
      * the value must like {method},{digital}[s|m|h]
      *
-     * @param req        Http Servlet Request
+     * @param keyValueMap key-value map
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if failed to parse value from the given object
      * @param result     process result of parameter value
      * @return the process result
      */
+    public static boolean getDeletePolicyParameter(Map<String, String> keyValueMap,
+                                                   boolean required, String defValue,
+                                                   ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(keyValueMap,
+                WebFieldDef.DELETEPOLICY, required, defValue, result)) {
+            return result.isSuccess();
+        }
+        String delPolicy = (String) result.retData1;
+        if (TStringUtils.isBlank(delPolicy)) {
+            return result.isSuccess();
+        }
+        return validDeletePolicyValue(delPolicy, result);
+    }
+
     public static boolean getDeletePolicyParameter(HttpServletRequest req,
                                                    boolean required, String defValue,
                                                    ProcessResult result) {
@@ -264,6 +324,10 @@ public class WebParameterUtils {
         if (TStringUtils.isBlank(delPolicy)) {
             return result.isSuccess();
         }
+        return validDeletePolicyValue(delPolicy, result);
+    }
+
+    private static boolean validDeletePolicyValue(String delPolicy, ProcessResult result) {
         // check value format
         String[] tmpStrs = delPolicy.split(",");
         if (tmpStrs.length != 2) {
@@ -339,6 +403,27 @@ public class WebParameterUtils {
     }
 
 
+    public static boolean getTopicStatusParamValue(HttpServletRequest req,
+                                                   boolean isRequired,
+                                                   TopicStatus defVal,
+                                                   ProcessResult result) {
+        // get topicStatusId field
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICSTATUSID,
+                isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_OK.getCode(), result)) {
+            return result.isSuccess();
+        }
+        int paramValue = (int) result.getRetData();
+        try {
+            TopicStatus topicStatus = TopicStatus.valueOf(paramValue);
+            result.setSuccResult(topicStatus);
+        } catch (Throwable e) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    new StringBuilder(512).append("The value of field ")
+                            .append(WebFieldDef.TOPICSTATUSID.name())
+                            .append(" invalid:").append(e.getMessage()).toString());
+        }
+        return result.isSuccess();
+    }
 
     /**
      * Parse the parameter value for TopicPropGroup class
@@ -463,6 +548,141 @@ public class WebParameterUtils {
         newConf.setAcceptPublish(acceptPublish);
         // get acceptSubscribe parameter value
         if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.ACCEPTSUBSCRIBE, false, null, result)) {
+            return result.isSuccess();
+        }
+        Boolean acceptSubscribe = (Boolean) result.retData1;
+        if (acceptSubscribe == null && defVal != null) {
+            acceptSubscribe = defVal.getAcceptSubscribe();
+        }
+        newConf.setAcceptSubscribe(acceptSubscribe);
+        result.setSuccResult(newConf);
+        return result.isSuccess();
+    }
+
+    /**
+     * Parse the parameter value for TopicPropGroup class
+     *
+     * @param keyValueMap parameter key-value map
+     * @param defVal      default value
+     * @param result      process result of parameter value
+     * @return process    result
+     */
+    public static boolean getTopicPropInfo(Map<String, String> keyValueMap,
+                                           TopicPropGroup defVal,
+                                           ProcessResult result) {
+        TopicPropGroup newConf = new TopicPropGroup();
+        // get numTopicStores parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.NUMTOPICSTORES,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, result)) {
+            return result.isSuccess();
+        }
+        int numTopicStores = (int) result.retData1;
+        if (numTopicStores == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            numTopicStores = defVal.getNumTopicStores();
+        }
+        newConf.setNumTopicStores(numTopicStores);
+        // get numPartitions parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.NUMPARTITIONS,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_PARTITION_NUM_MIN, result)) {
+            return result.isSuccess();
+        }
+        int numPartitions = (int) result.retData1;
+        if (numPartitions == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            numPartitions = defVal.getNumPartitions();
+        }
+        newConf.setNumPartitions(numPartitions);
+        // get unflushThreshold parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHTHRESHOLD,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_MIN, result)) {
+            return result.isSuccess();
+        }
+        int unflushThreshold = (int) result.retData1;
+        if (unflushThreshold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushThreshold = defVal.getUnflushThreshold();
+        }
+        newConf.setUnflushThreshold(unflushThreshold);
+        // get unflushInterval parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHINTERVAL,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_MIN, result)) {
+            return result.isSuccess();
+        }
+        int unflushInterval = (int) result.retData1;
+        if (unflushInterval == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushInterval = defVal.getUnflushInterval();
+        }
+        newConf.setUnflushInterval(unflushInterval);
+        // get unflushDataHold parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHINTERVAL,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, result)) {
+            return result.isSuccess();
+        }
+        int unflushDataHold = (int) result.retData1;
+        if (unflushDataHold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            unflushDataHold = defVal.getUnflushDataHold();
+        }
+        newConf.setUnflushDataHold(unflushDataHold);
+        // get memCacheMsgSizeInMB parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.MCACHESIZEINMB,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_CACHESIZE_MB_MIN,
+                TServerConstants.TOPIC_CACHESIZE_MB_MAX, result)) {
+            return result.isSuccess();
+        }
+        int cacheMsgSizeInMB = (int) result.retData1;
+        if (cacheMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheMsgSizeInMB = defVal.getMemCacheMsgSizeInMB();
+        }
+        newConf.setMemCacheMsgSizeInMB(cacheMsgSizeInMB);
+        // get memCacheFlushIntvl parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFMCACHEINTERVAL,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_CACHEINTVL_MIN, result)) {
+            return result.isSuccess();
+        }
+        int cacheFlushIntvl = (int) result.retData1;
+        if (cacheFlushIntvl == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheFlushIntvl = defVal.getMemCacheFlushIntvl();
+        }
+        newConf.setMemCacheFlushIntvl(cacheFlushIntvl);
+        // get memCacheMsgCntInK parameter value
+        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFMCACHECNTINK,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.TOPIC_CACHECNT_INK_MIN, result)) {
+            return result.isSuccess();
+        }
+        int cacheMsgCntInK = (int) result.retData1;
+        if (cacheMsgCntInK == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
+            cacheMsgCntInK = defVal.getMemCacheMsgCntInK();
+        }
+        newConf.setMemCacheMsgCntInK(cacheMsgCntInK);
+        // get deletePolicy parameter value
+        if (!WebParameterUtils.getDeletePolicyParameter(keyValueMap,
+                false, null, result)) {
+            return result.isSuccess();
+        }
+        String deletePolicy = (String) result.retData1;
+        if (deletePolicy == null && defVal != null) {
+            deletePolicy = defVal.getDeletePolicy();
+        }
+        newConf.setDeletePolicy(deletePolicy);
+        // get acceptPublish parameter value
+        if (!WebParameterUtils.getBooleanParamValue(keyValueMap,
+                WebFieldDef.ACCEPTPUBLISH, false, null, result)) {
+            return result.isSuccess();
+        }
+        Boolean acceptPublish = (Boolean) result.retData1;
+        if (acceptPublish == null && defVal != null) {
+            acceptPublish = defVal.getAcceptPublish();
+        }
+        newConf.setAcceptPublish(acceptPublish);
+        // get acceptSubscribe parameter value
+        if (!WebParameterUtils.getBooleanParamValue(keyValueMap,
                 WebFieldDef.ACCEPTSUBSCRIBE, false, null, result)) {
             return result.isSuccess();
         }
@@ -697,6 +917,31 @@ public class WebParameterUtils {
         return result.success;
     }
 
+    public static boolean getLongParamValue(Map<String, String> keyValueMap,
+                                            WebFieldDef fieldDef,
+                                            boolean required,
+                                            long defValue,
+                                            ProcessResult result) {
+        if (!getStringParamValue(keyValueMap,
+                fieldDef, required, null, result)) {
+            return result.success;
+        }
+        String paramValue = (String) result.retData1;
+        if (paramValue == null) {
+            result.setSuccResult(defValue);
+            return result.success;
+        }
+        try {
+            long paramIntVal = Long.parseLong(paramValue);
+            result.setSuccResult(paramIntVal);
+        } catch (Throwable e) {
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" parse error: ").append(e.getMessage()).toString());
+        }
+        return result.success;
+    }
+
     /**
      * Parse the parameter value from an object value to a integer value
      *
@@ -779,6 +1024,17 @@ public class WebParameterUtils {
                                            int maxValue,
                                            ProcessResult result) {
         return getIntParamValue(req, fieldDef, required, true, defValue,
+                true, minValue, true, maxValue, result);
+    }
+
+    public static boolean getIntParamValue(Map<String, String> keyValueMap,
+                                           WebFieldDef fieldDef,
+                                           boolean required,
+                                           int defValue,
+                                           int minValue,
+                                           int maxValue,
+                                           ProcessResult result) {
+        return getIntParamValue(keyValueMap, fieldDef, required, true, defValue,
                 true, minValue, true, maxValue, result);
     }
 
@@ -1415,6 +1671,32 @@ public class WebParameterUtils {
         return result.success;
     }
 
+    public static boolean getDateParameter(Map<String, String> keyValueMap,
+                                           WebFieldDef fieldDef,
+                                           boolean required,
+                                           Date defValue,
+                                           ProcessResult result) {
+        if (!getStringParamValue(keyValueMap,
+                fieldDef, required, null, result)) {
+            return result.success;
+        }
+        String paramValue = (String) result.retData1;
+        if (paramValue == null) {
+            result.setSuccResult(defValue);
+            return result.success;
+        }
+        try {
+            DateFormat sdf = new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
+            Date date = sdf.parse(paramValue);
+            result.setSuccResult(date);
+        } catch (Throwable e) {
+            result.setFailResult(new StringBuilder(512)
+                    .append("Parameter ").append(fieldDef.name)
+                    .append(" parse error: ").append(e.getMessage()).toString());
+        }
+        return result.success;
+    }
+
     /**
      * Valid execution authorization info
      * @param req        Http Servlet Request
@@ -1546,6 +1828,21 @@ public class WebParameterUtils {
             return false;
         }
         return true;
+    }
+
+    public static boolean checkBrokerInOfflining(int brokerId,
+                                                 int manageStatus,
+                                                 MetaDataManager metaManager) {
+        BrokerSyncStatusInfo brokerSyncStatusInfo =
+                metaManager.getBrokerRunSyncStatusInfo(brokerId);
+        if ((brokerSyncStatusInfo != null)
+                && (brokerSyncStatusInfo.isBrokerRegister())) {
+            if ((manageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
+                    && (brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

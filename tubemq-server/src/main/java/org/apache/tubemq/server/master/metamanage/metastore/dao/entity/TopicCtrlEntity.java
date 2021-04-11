@@ -163,10 +163,12 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
+     * @param fullFormat if return full format json
      * @return
      */
-    @Override
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
+                                      boolean isLongName,
+                                      boolean fullFormat) {
         int tmpMsgSizeInMB = maxMsgSizeInB;
         if (maxMsgSizeInB != TBaseConstants.META_VALUE_UNDEFINED) {
             tmpMsgSizeInMB /= TBaseConstants.META_MB_UNIT_SIZE;
@@ -183,7 +185,9 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
                     .append(",\"mxMsgInMB\":").append(tmpMsgSizeInMB);
         }
         super.toWebJsonStr(sBuilder, isLongName);
-        sBuilder.append("}");
+        if (fullFormat) {
+            sBuilder.append("}");
+        }
         return sBuilder;
     }
 

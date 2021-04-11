@@ -59,6 +59,7 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDepl
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TargetValidResult;
+import org.apache.tubemq.server.master.web.handler.BrokerProcessResult;
 import org.apache.tubemq.server.master.web.handler.GroupProcessResult;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.slf4j.Logger;
@@ -414,29 +415,34 @@ public class MetaDataManager implements Server {
     /**
      * Add broker configure information
      *
-     * @param entity     the broker configure entity will be add
-     * @param strBuffer  the print information string buffer
+     * @param sBuilder   the print information string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confAddBrokerConfig(BrokerConfEntity entity,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
-        if (metaStoreService.addBrokerConf(entity, result)) {
-            updateBrokerMaps(entity);
-            strBuffer.append("[confAddBrokerConfig], ")
-                    .append(entity.getCreateUser())
-                    .append(" added broker configure record :")
-                    .append(entity.toString());
-            logger.info(strBuffer.toString());
+    public BrokerProcessResult addBrokerConfig(long dataVerId, String createUser, Date createDate,
+                                               int brokerId, String brokerIp, int brokerPort,
+                                               int brokerTlsPort, int brokerWebPort, int regionId,
+                                               int groupId, ManageStatus manageStatus,
+                                               TopicPropGroup topicProps, StringBuilder sBuilder,
+                                               ProcessResult result) {
+        BrokerConfEntity entity = new BrokerConfEntity(dataVerId, createUser, createDate);
+        entity.setBrokerIdAndIp(brokerId, brokerIp);
+        entity.updModifyInfo(brokerPort, brokerTlsPort, brokerWebPort,
+                regionId, groupId, manageStatus, topicProps);
+        return addBrokerConfig(entity, sBuilder, result);
+    }
+
+    public BrokerProcessResult addBrokerConfig(BrokerConfEntity entity,
+                                               StringBuilder sBuilder,
+                                               ProcessResult result) {
+        if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) != null
+                || metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    DataOpErrCode.DERR_EXISTED.getDescription());
         } else {
-            strBuffer.append("[confAddBrokerConfig], ")
-                    .append("failure to add broker configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
+            metaStoreService.addBrokerConf(entity, sBuilder, result);
         }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
+        return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
     }
 
     /**
@@ -447,27 +453,27 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confModBrokerConfig(BrokerConfEntity entity,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
-        if (metaStoreService.updBrokerConf(entity, result)) {
-            BrokerConfEntity oldEntity =
-                    (BrokerConfEntity) result.getRetData();
-            BrokerConfEntity curEntity =
-                    metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId());
-            strBuffer.append("[confModBrokerConfig], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :")
-                    .append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confModBrokerConfig], ")
-                    .append("failure to update broker configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
+    public boolean modBrokerConfig(BrokerConfEntity entity,
+                                   StringBuilder strBuffer,
+                                   ProcessResult result) {
+        metaStoreService.updBrokerConf(entity, strBuffer, result);
+        return result.isSuccess();
+    }
+
+    /**
+     * Delete broker's topic configure information
+     *
+     * @param operator  operator
+     * @param brokerId  need deleted broker id
+     * @param strBuffer  the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public boolean delBrokerTopicConfig(String operator,
+                                        int brokerId,
+                                        StringBuilder strBuffer,
+                                        ProcessResult result) {
+        metaStoreService.delTopicConfByBrokerId(operator, brokerId, strBuffer, result);
         return result.isSuccess();
     }
 
@@ -516,22 +522,10 @@ public class MetaDataManager implements Server {
                 return result.isSuccess();
             }
         }
-        if (metaStoreService.delBrokerConf(brokerId, result)) {
+        if (metaStoreService.delBrokerConf(operator, brokerId, strBuffer, result)) {
             this.brokerRunSyncManageMap.remove(brokerId);
             delBrokerRunData(brokerId);
-            BrokerConfEntity entity = (BrokerConfEntity) result.getRetData();
-            if (entity != null) {
-                strBuffer.append("[confDelBrokerConfig], ").append(operator)
-                        .append(" deleted broker configure record :").append(entity.toString());
-                logger.info(strBuffer.toString());
-            }
-        } else {
-            strBuffer.append("[confDelBrokerConfig], ")
-                    .append("failure to delete broker configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
         return result.isSuccess();
     }
 
@@ -544,6 +538,18 @@ public class MetaDataManager implements Server {
     public Map<Integer, BrokerConfEntity> confGetBrokerConfInfo(
             BrokerConfEntity qryEntity) {
         return metaStoreService.getBrokerConfInfo(qryEntity);
+    }
+
+    /**
+     * Get broker configure information
+     *
+     * @param qryEntity
+     * @return broker configure information
+     */
+    public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
+                                                            Set<String> brokerIpSet,
+                                                            BrokerConfEntity qryEntity) {
+        return metaStoreService.getBrokerConfInfo(brokerIdSet, brokerIpSet, qryEntity);
     }
 
     /**
@@ -784,7 +790,7 @@ public class MetaDataManager implements Server {
         if (isChanged) {
             if (!curEntity.isConfDataUpdated()) {
                 curEntity.setConfDataUpdated();
-                confModBrokerConfig(curEntity, strBuffer, result);
+                modBrokerConfig(curEntity, strBuffer, result);
             }
             if (curEntity.getManageStatus().isApplied()) {
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
@@ -810,7 +816,7 @@ public class MetaDataManager implements Server {
         } else {
             if (curEntity.isConfDataUpdated()) {
                 curEntity.setBrokerLoaded();
-                confModBrokerConfig(curEntity, strBuffer, result);
+                modBrokerConfig(curEntity, strBuffer, result);
             }
             if (curEntity.getManageStatus().isApplied()) {
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
@@ -1238,6 +1244,18 @@ public class MetaDataManager implements Server {
 
     // //////////////////////////////////////////////////////////////////////////////
 
+    public boolean addClusterDefSetting(StringBuilder strBuffer, ProcessResult result) {
+        if (metaStoreService.getClusterConfig() == null) {
+            ClusterSettingEntity defConf =
+                    new ClusterSettingEntity(TServerConstants.DEFAULT_DATA_VERSION,
+                            "Stystem", new Date());
+            defConf.fillDefaultValue();
+            return metaStoreService.addClusterConfig(defConf, strBuffer, result);
+        }
+        result.setSuccResult(null);
+        return result.isSuccess();
+    }
+
     public boolean addClusterDefSetting(long dataVerId, String createUsr, Date createDate,
                                         int brokerPort, int brokerTlsPort, int brokerWebPort,
                                         int maxMsgSizeMB, int qryPriorityId,
@@ -1284,34 +1302,6 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-    /**
-     * Delete cluster default setting
-     *
-     * @param operator   operator
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success
-     */
-    public boolean confDelClusterDefSetting(String operator,
-                                            StringBuilder strBuffer,
-                                            ProcessResult result) {
-        if (metaStoreService.delClusterConfig(result)) {
-            ClusterSettingEntity entity =
-                    (ClusterSettingEntity) result.getRetData();
-            if (entity != null) {
-                strBuffer.append("[confDelClusterDefSetting], ").append(operator)
-                        .append(" deleted cluster setting record :").append(entity.toString());
-                logger.info(strBuffer.toString());
-            }
-        } else {
-            strBuffer.append("[confDelClusterDefSetting], ")
-                    .append("failure to delete cluster setting record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
-    }
 
     public ClusterSettingEntity getClusterDefSetting() {
         return metaStoreService.getClusterConfig();

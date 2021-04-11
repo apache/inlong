@@ -18,6 +18,8 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 
@@ -32,6 +34,10 @@ public interface BrokerConfigMapper extends AbstractMapper {
     boolean delBrokerConf(int brokerId, ProcessResult result);
 
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity);
+
+    Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
+                                                     Set<String> brokerIpSet,
+                                                     BrokerConfEntity qryEntity);
 
     BrokerConfEntity getBrokerConfByBrokerId(int brokerId);
 

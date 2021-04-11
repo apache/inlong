@@ -60,6 +60,9 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         super();
     }
 
+    public BrokerConfEntity(long dataVerId, String createUser, Date createDate) {
+        super(dataVerId, createUser, createDate);
+    }
 
     public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,
                             int brokerTLSPort, int brokerWebPort, ManageStatus manageStatus,
@@ -130,6 +133,11 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
 
     public void setBrokerId(int brokerId) {
         this.brokerId = brokerId;
+    }
+
+    public void setBrokerIdAndIp(int brokerId, String brokerIp) {
+        this.brokerId = brokerId;
+        this.brokerIp = brokerIp;
     }
 
     public ManageStatus getManageStatus() {
@@ -271,6 +279,65 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     /**
+     * update subclass field values
+     *
+     * @return if changed
+     */
+    public boolean updModifyInfo(int brokerPort, int brokerTlsPort, int brokerWebPort,
+                                 int regionId, int groupId, ManageStatus manageStatus,
+                                 TopicPropGroup topicProps) {
+        boolean changed = false;
+        // check and set brokerPort info
+        if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerPort != brokerPort) {
+            changed = true;
+            this.brokerPort = brokerPort;
+        }
+        // check and set brokerTLSPort info
+        if (brokerTlsPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerTLSPort != brokerTlsPort) {
+            changed = true;
+            this.brokerTLSPort = brokerTlsPort;
+        }
+        // check and set brokerWebPort info
+        if (brokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerWebPort != brokerWebPort) {
+            changed = true;
+            this.brokerWebPort = brokerWebPort;
+        }
+        // check and set regionId info
+        if (regionId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.regionId != regionId) {
+            changed = true;
+            this.regionId = regionId;
+        }
+        // check and set regionId info
+        if (groupId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.groupId != groupId) {
+            changed = true;
+            this.groupId = groupId;
+        }
+        // check and set resCheckStatus info
+        if (manageStatus != null
+                && manageStatus != ManageStatus.STATUS_MANAGE_UNDEFINED
+                && this.manageStatus != manageStatus) {
+            changed = true;
+            this.manageStatus = manageStatus;
+        }
+        // check and set topicProps info
+        if (topicProps != null
+                && !topicProps.isDataEquals(this.topicProps)) {
+            changed = true;
+            this.topicProps = topicProps;
+        }
+        if (changed) {
+            updSerialId();
+            buildStrInfo();
+        }
+        return changed;
+    }
+
+    /**
      * Check whether the specified query item value matches
      * Allowed query items:
      *   brokerId, brokerIp, brokerPort, brokerTLSPort, regionId, groupId
@@ -310,10 +377,12 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
+     * @param fullFormat if return full format json
      * @return
      */
-    @Override
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
+                                      boolean isLongName,
+                                      boolean fullFormat) {
         String manageSts =
                 WebParameterUtils.getBrokerManageStatusStr(getManageStatus().getCode());
         if (isLongName) {
@@ -341,7 +410,9 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         }
         topicProps.toWebJsonStr(sBuilder, isLongName);
         super.toWebJsonStr(sBuilder, isLongName);
-        sBuilder.append("}");
+        if (fullFormat) {
+            sBuilder.append("}");
+        }
         return sBuilder;
     }
 

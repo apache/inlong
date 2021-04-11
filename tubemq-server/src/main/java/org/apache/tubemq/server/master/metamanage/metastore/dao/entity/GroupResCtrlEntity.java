@@ -283,7 +283,6 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         return changed;
     }
 
-
     /**
      * Check whether the specified query item value matches
      * Allowed query items:
@@ -320,10 +319,12 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
+     * @param fullFormat if return full format json
      * @return
      */
-    @Override
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
+                                      boolean isLongName,
+                                      boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"groupName\":\"").append(groupName).append("\"")
                     .append(",\"consumeEnable\":").append(consumeEnable.isEnable())
@@ -346,7 +347,9 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                     .append(",\"fCtrlInfo\":").append(flowCtrlInfo);
         }
         super.toWebJsonStr(sBuilder, isLongName);
-        sBuilder.append("}");
+        if (fullFormat) {
+            sBuilder.append("}");
+        }
         return sBuilder;
     }
 

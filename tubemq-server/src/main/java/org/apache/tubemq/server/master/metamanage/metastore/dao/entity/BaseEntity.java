@@ -18,11 +18,10 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -178,7 +177,8 @@ public class BaseEntity implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this);
+        Gson gson = new GsonBuilder().create();
+        return toJsonString(gson);
     }
 
     /**

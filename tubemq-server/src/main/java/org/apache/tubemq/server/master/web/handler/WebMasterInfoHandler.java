@@ -153,7 +153,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 metaDataManager.getClusterDefSetting();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
         if (defClusterSetting != null) {
-            defClusterSetting.toWebJsonStr(sBuilder, true);
+            defClusterSetting.toWebJsonStr(sBuilder, true, true);
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
         return sBuilder;
@@ -274,7 +274,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         // build return result
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        curConf.toWebJsonStr(sBuilder, true);
+        curConf.toWebJsonStr(sBuilder, true, true);
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
         return sBuilder;
     }
