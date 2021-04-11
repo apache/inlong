@@ -64,8 +64,11 @@ public final class TServerConstants {
 
     public static final int GROUP_BROKER_CLIENT_RATE_MIN = 0;
 
+    public static final int BROKER_REGION_ID_MIN = 0;
+    public static final int BROKER_REGION_ID_DEF = 0;
 
-
+    public static final int BROKER_GROUP_ID_MIN = 0;
+    public static final int BROKER_GROUP_ID_DEF = 0;
 
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;

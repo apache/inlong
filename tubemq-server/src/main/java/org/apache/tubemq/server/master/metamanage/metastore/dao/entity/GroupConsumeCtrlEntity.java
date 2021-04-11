@@ -233,10 +233,12 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
+     * @param fullFormat if return full format json
      * @return
      */
-    @Override
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
+                                      boolean isLongName,
+                                      boolean fullFormat) {
         String tmpFilterConds = filterCondStr;
         if (tmpFilterConds.length() <= 2) {
             tmpFilterConds = "";
@@ -257,7 +259,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
                     .append(",\"fltRls\":\"").append(tmpFilterConds).append("\"");
         }
         super.toWebJsonStr(sBuilder, isLongName);
-        sBuilder.append("}");
+        if (fullFormat) {
+            sBuilder.append("}");
+        }
         return sBuilder;
     }
 

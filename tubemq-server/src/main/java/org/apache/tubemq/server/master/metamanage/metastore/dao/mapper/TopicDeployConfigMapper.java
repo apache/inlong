@@ -34,6 +34,9 @@ public interface TopicDeployConfigMapper extends AbstractMapper {
 
     boolean delTopicConf(String recordKey, ProcessResult result);
 
+    boolean delTopicConfByBrokerId(Integer brokerId, ProcessResult result);
+
+
     boolean hasConfiguredTopics(int brokerId);
 
     List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity);

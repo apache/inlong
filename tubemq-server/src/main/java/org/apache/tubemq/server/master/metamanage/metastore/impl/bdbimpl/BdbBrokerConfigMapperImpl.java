@@ -24,7 +24,9 @@ import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
@@ -193,6 +195,49 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         }
         return retMap;
     }
+
+    /**
+     * get broker configure info from bdb store
+     * @return result, only read
+     */
+    @Override
+    public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
+                                                            Set<String> brokerIpSet,
+                                                            BrokerConfEntity qryEntity) {
+        Set<Integer> qryBrokerKey = null;
+        Map<Integer, BrokerConfEntity> retMap = new HashMap<>();
+        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
+            qryBrokerKey = new HashSet<>(brokerIdSet);
+        }
+        if (brokerIpSet != null && !brokerIpSet.isEmpty()) {
+            if (qryBrokerKey == null) {
+                qryBrokerKey = new HashSet<>();
+            }
+            for (String brokerIp : brokerIpSet) {
+                Integer brokerId = brokerIpIndexCache.get(brokerIp);
+                if (brokerId != null) {
+                    qryBrokerKey.add(brokerId);
+                }
+            }
+        }
+        if (qryBrokerKey == null) {
+            qryBrokerKey = new HashSet<>(brokerConfCache.keySet());
+        }
+        if (qryBrokerKey.isEmpty()) {
+            return retMap;
+        }
+        for (Integer brokerId : qryBrokerKey) {
+            BrokerConfEntity entity = brokerConfCache.get(brokerId);
+            if (entity == null
+                    || (qryEntity != null && !qryEntity.isMatched(entity))) {
+                continue;
+            }
+            retMap.put(entity.getBrokerId(), entity);
+        }
+        return retMap;
+    }
+
+
 
     /**
      * get broker configure info from bdb store

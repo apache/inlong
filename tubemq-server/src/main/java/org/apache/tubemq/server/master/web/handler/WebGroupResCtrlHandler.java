@@ -145,7 +145,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             if (totalCnt++ > 0) {
                 sBuilder.append(",");
             }
-            sBuilder = entity.toWebJsonStr(sBuilder, true);
+            sBuilder = entity.toWebJsonStr(sBuilder, true, true);
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
         return sBuilder;

@@ -173,7 +173,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 if (totalCnt++ > 0) {
                     sBuilder.append(",");
                 }
-                entity.toWebJsonStr(sBuilder, true);
+                entity.toWebJsonStr(sBuilder, true, true);
             }
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);

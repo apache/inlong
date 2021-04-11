@@ -287,44 +287,118 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public boolean delClusterConfig(ProcessResult result) {
+    public boolean delClusterConfig(String operator,
+                                    StringBuilder strBuffer,
+                                    ProcessResult result) {
         if (!checkStoreStatus(true, result)) {
             return false;
         }
-        return clusterConfigMapper.delClusterConfig(result);
+        if (clusterConfigMapper.delClusterConfig(result)) {
+            ClusterSettingEntity entity =
+                    (ClusterSettingEntity) result.getRetData();
+            if (entity != null) {
+                strBuffer.append("[delClusterConfig], ").append(operator)
+                        .append(" deleted cluster setting record :").append(entity.toString());
+                logger.info(strBuffer.toString());
+            }
+        } else {
+            strBuffer.append("[delClusterConfig], ")
+                    .append("failure to delete cluster setting record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     // broker configure api
     @Override
-    public boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+    public boolean addBrokerConf(BrokerConfEntity entity,
+                                 StringBuilder strBuffer,
+                                 ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return brokerConfigMapper.addBrokerConf(memEntity, result);
+        if (brokerConfigMapper.addBrokerConf(entity, result)) {
+            strBuffer.append("[addBrokerConf], ")
+                    .append(entity.getCreateUser())
+                    .append(" added broker configure record :")
+                    .append(entity.toString());
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[addBrokerConf], ")
+                    .append("failure to add broker configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
-    public boolean updBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+    public boolean updBrokerConf(BrokerConfEntity entity,
+                                 StringBuilder strBuffer,
+                                 ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return brokerConfigMapper.updBrokerConf(memEntity, result);
+        if (brokerConfigMapper.updBrokerConf(entity, result)) {
+            BrokerConfEntity oldEntity =
+                    (BrokerConfEntity) result.getRetData();
+            BrokerConfEntity curEntity =
+                    brokerConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
+            strBuffer.append("[updBrokerConf], ")
+                    .append(entity.getModifyUser())
+                    .append(" updated broker configure record from :")
+                    .append(oldEntity.toString())
+                    .append(" to ").append(curEntity.toString());
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[updBrokerConf], ")
+                    .append("failure to update broker configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
-    public boolean delBrokerConf(int brokerId, ProcessResult result) {
+    public boolean delBrokerConf(String operator, int brokerId,
+                                 StringBuilder strBuffer, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return brokerConfigMapper.delBrokerConf(brokerId, result);
+        if (brokerConfigMapper.delBrokerConf(brokerId, result)) {
+            BrokerConfEntity entity = (BrokerConfEntity) result.getRetData();
+            if (entity != null) {
+                strBuffer.append("[delBrokerConf], ").append(operator)
+                        .append(" deleted broker configure record :").append(entity.toString());
+                logger.info(strBuffer.toString());
+            }
+        } else {
+            strBuffer.append("[delBrokerConf], ")
+                    .append("failure to delete broker configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity) {
         return brokerConfigMapper.getBrokerConfInfo(qryEntity);
+    }
+
+    @Override
+    public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
+                                                            Set<String> brokerIpSet,
+                                                            BrokerConfEntity qryEntity) {
+        return brokerConfigMapper.getBrokerConfInfo(brokerIdSet, brokerIpSet, qryEntity);
     }
 
     @Override
@@ -363,6 +437,31 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         return topicDeployConfigMapper.delTopicConf(recordKey, result);
+    }
+
+    @Override
+    public boolean delTopicConfByBrokerId(String operator,
+                                          int brokerId,
+                                          StringBuilder strBuffer,
+                                          ProcessResult result) {
+        // check current status
+        if (!checkStoreStatus(true, result)) {
+            return result.isSuccess();
+        }
+        if (topicDeployConfigMapper.delTopicConfByBrokerId(brokerId, result)) {
+            strBuffer.append("[delTopicConfByBrokerId], ")
+                    .append(operator)
+                    .append(" deleted topic deploy record :")
+                    .append(brokerId);
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[delTopicConfByBrokerId], ")
+                    .append("failure to delete topic deploy record : ")
+                    .append(brokerId).append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override

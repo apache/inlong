@@ -207,7 +207,20 @@ public enum WebFieldDef {
     CONSUMEENABLE(72, "consumeEnable", "csmEn",
                  WebFieldType.BOOLEAN, "Consume enable status"),
     GROUPCSMJSONSET(73, "groupCsmJsonSet", "csmJsonSet",
-                  WebFieldType.JSONSET, "The batch group consume configure json array");
+                  WebFieldType.JSONSET, "The batch group consume configure json array"),
+    WITHTOPIC(74, "withTopic", "wTopic",
+                  WebFieldType.BOOLEAN, "With topic info."),
+
+    ISINCLUDE(75, "isInclude", "isInclude",
+              WebFieldType.BOOLEAN, "If include or un-include topic required"),
+    COMPBROKERIP(76, "brokerIp", "bIp", WebFieldType.COMPSTRING,
+            "Broker ip", TBaseConstants.META_MAX_BROKER_IP_LENGTH,
+             RegexDef.TMP_IPV4ADDRESS),
+    ISRESERVEDDATA(77, "isReservedData", "isRsvDt",
+            WebFieldType.BOOLEAN, "Whether to keep topic data in the broker");
+
+
+
 
 
     public final int id;

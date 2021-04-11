@@ -67,16 +67,62 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     ClusterSettingEntity getClusterConfig();
 
-    boolean delClusterConfig(ProcessResult result);
+    /**
+     * Delete cluster default setting
+     *
+     * @param operator   operator
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success
+     */
+    boolean delClusterConfig(String operator,
+                             StringBuilder strBuffer,
+                             ProcessResult result);
 
     // broker configure api
-    boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result);
+    /**
+     * Add broker configure information
+     *
+     * @param entity     the broker configure entity will be add
+     * @param strBuffer  the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean addBrokerConf(BrokerConfEntity entity,
+                          StringBuilder strBuffer,
+                          ProcessResult result);
 
-    boolean updBrokerConf(BrokerConfEntity memEntity, ProcessResult result);
+    /**
+     * Modify broker configure information
+     *
+     * @param entity     the broker configure entity will be update
+     * @param strBuffer  the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean updBrokerConf(BrokerConfEntity entity,
+                          StringBuilder strBuffer,
+                          ProcessResult result);
 
-    boolean delBrokerConf(int brokerId, ProcessResult result);
+    /**
+     * Delete broker configure information
+     *
+     * @param operator  operator
+     * @param brokerId  need deleted broker id
+     * @param strBuffer  the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean delBrokerConf(String operator,
+                          int brokerId,
+                          StringBuilder strBuffer,
+                          ProcessResult result);
 
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity);
+
+    Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
+                                                     Set<String> brokerIpSet,
+                                                     BrokerConfEntity qryEntity);
 
     BrokerConfEntity getBrokerConfByBrokerId(int brokerId);
 
@@ -88,6 +134,11 @@ public interface MetaStoreService extends KeepAlive, Server {
     boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result);
 
     boolean delTopicConf(String recordKey, ProcessResult result);
+
+    boolean delTopicConfByBrokerId(String operator,
+                                   int brokerId,
+                                   StringBuilder strBuffer,
+                                   ProcessResult result);
 
     boolean hasConfiguredTopics(int brokerId);
 

@@ -172,6 +172,22 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
+    public boolean delTopicConfByBrokerId(Integer brokerId, ProcessResult result) {
+        ConcurrentHashSet<String> recordKeySet =
+                brokerIdCacheIndex.get(brokerId);
+        if (recordKeySet == null) {
+            result.setSuccResult(null);
+            return result.isSuccess();
+        }
+        for (String recordKey : recordKeySet) {
+            delTopicConfigFromBdb(recordKey);
+            delCacheRecord(recordKey);
+        }
+        result.setSuccResult(null);
+        return result.isSuccess();
+    }
+
+    @Override
     public boolean hasConfiguredTopics(int brokerId) {
         ConcurrentHashSet<String> keySet =
                 brokerIdCacheIndex.get(brokerId);
