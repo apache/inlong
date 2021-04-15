@@ -37,7 +37,7 @@ import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
@@ -303,7 +303,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
         // query topic configure info
-        Map<String, List<TopicDeployConfEntity>> topicConfMap =
+        Map<String, List<TopicDeployEntity>> topicConfMap =
                 metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         int totalCount = 0;
@@ -316,7 +316,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         boolean isAcceptSubscribe = false;
         boolean enableAuthControl = false;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        for (Map.Entry<String, List<TopicDeployConfEntity>> entry : topicConfMap.entrySet()) {
+        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicConfMap.entrySet()) {
             if (totalCount++ > 0) {
                 sBuilder.append(",");
             }
@@ -328,7 +328,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             enableAuthControl = false;
             isAcceptPublish = false;
             isAcceptSubscribe = false;
-            for (TopicDeployConfEntity entity : entry.getValue()) {
+            for (TopicDeployEntity entity : entry.getValue()) {
                 brokerCount++;
                 TopicPropGroup topicProps = entity.getTopicProps();
                 totalCfgNumPartCount +=

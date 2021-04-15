@@ -22,15 +22,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
 
 
-public interface TopicDeployConfigMapper extends AbstractMapper {
+public interface TopicDeployMapper extends AbstractMapper {
 
-    boolean addTopicConf(TopicDeployConfEntity entity, ProcessResult result);
+    boolean addTopicConf(TopicDeployEntity entity, ProcessResult result);
 
-    boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result);
+    boolean updTopicConf(TopicDeployEntity entity, ProcessResult result);
 
     boolean delTopicConf(String recordKey, ProcessResult result);
 
@@ -39,14 +39,20 @@ public interface TopicDeployConfigMapper extends AbstractMapper {
 
     boolean hasConfiguredTopics(int brokerId);
 
-    List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity);
+    List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity);
 
-    TopicDeployConfEntity getTopicConfByeRecKey(String recordKey);
+    TopicDeployEntity getTopicConf(int brokerId, String topicName);
 
-    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMap(
-            TopicDeployConfEntity qryEntity);
+    TopicDeployEntity getTopicConfByeRecKey(String recordKey);
 
-    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+    Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
+                                                         Set<Integer> brokerIdSet,
+                                                         TopicDeployEntity qryEntity);
+
+    Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
+                                                                Set<Integer> brokerIdSet);
+
+    Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicSet, Set<Integer> brokerIdSet);
 
     Map<Integer/* brokerId */, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet);
@@ -55,5 +61,5 @@ public interface TopicDeployConfigMapper extends AbstractMapper {
 
     Set<String> getConfiguredTopicSet();
 
-    Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId);
+    Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId);
 }

@@ -55,12 +55,13 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlac
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TargetValidResult;
 import org.apache.tubemq.server.master.web.handler.BrokerProcessResult;
 import org.apache.tubemq.server.master.web.handler.GroupProcessResult;
+import org.apache.tubemq.server.master.web.handler.TopicProcessResult;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -643,13 +644,13 @@ public class MetaDataManager implements Server {
         if (!metaStoreService.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        Map<String, TopicDeployConfEntity> confEntityMap =
+        Map<String, TopicDeployEntity> confEntityMap =
                 metaStoreService.getConfiguredTopicInfo(brokerId);
         if (confEntityMap == null || confEntityMap.isEmpty()) {
             return result.isSuccess();
         }
         for (String topicName : rmvTopics) {
-            TopicDeployConfEntity topicEntity = confEntityMap.get(topicName);
+            TopicDeployEntity topicEntity = confEntityMap.get(topicName);
             if (topicEntity != null
                     && topicEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE) {
                 confDelTopicConfInfo(topicEntity.getModifyUser(),
@@ -679,12 +680,12 @@ public class MetaDataManager implements Server {
         if (!metaStoreService.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        Map<String, TopicDeployConfEntity> confEntityMap =
+        Map<String, TopicDeployEntity> confEntityMap =
                 metaStoreService.getConfiguredTopicInfo(brokerId);
         if (confEntityMap == null || confEntityMap.isEmpty()) {
             return result.isSuccess();
         }
-        for (TopicDeployConfEntity topicEntity : confEntityMap.values()) {
+        for (TopicDeployEntity topicEntity : confEntityMap.values()) {
             if (topicEntity == null) {
                 continue;
             }
@@ -738,7 +739,7 @@ public class MetaDataManager implements Server {
         return metaStoreService.getBrokerConfByBrokerIp(brokerIp);
     }
 
-    public Map<String, TopicDeployConfEntity> getBrokerTopicConfEntitySet(int brokerId) {
+    public Map<String, TopicDeployEntity> getBrokerTopicConfEntitySet(int brokerId) {
         return metaStoreService.getConfiguredTopicInfo(brokerId);
     }
 
@@ -882,115 +883,357 @@ public class MetaDataManager implements Server {
 
     // ////////////////////////////////////////////////////////////////////////////
 
+    public List<TopicProcessResult> addTopicDeployInfo(long dataVerId, String createUsr,
+                                                       Date createDate, Set<Integer> brokerIdSet,
+                                                       Set<String> topicNameSet,
+                                                       TopicPropGroup topicPropInfo,
+                                                       StringBuilder sBuilder,
+                                                       ProcessResult result) {
+        TopicDeployEntity deployConf;
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        // add topic control info
+        addIfAbsentTopicCtrlConf(topicNameSet, createUsr, sBuilder, result);
+        result.clear();
+        // add topic deployment record
+        for (Integer brokerId : brokerIdSet) {
+            BrokerConfEntity brokerConf = getBrokerConfByBrokerId(brokerId);
+            if (brokerConf == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                retInfo.add(new TopicProcessResult(brokerId, "", result));
+                continue;
+            }
+            for (String topicName : topicNameSet) {
+                TopicDeployEntity deployInfo = getTopicConfInfo(brokerId, topicName);
+                if (deployInfo != null) {
+                    result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                            DataOpErrCode.DERR_EXISTED.getDescription());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                deployConf = new TopicDeployEntity(dataVerId, createUsr, createDate);
+                deployConf.setTopicDeployInfo(brokerConf.getBrokerId(),
+                        brokerConf.getBrokerIp(), brokerConf.getBrokerPort(), topicName);
+                deployConf.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED, null,
+                        TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
+                metaStoreService.addTopicConf(deployConf, sBuilder, result);
+                retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+            }
+        }
+        return retInfo;
+    }
+
+    public TopicProcessResult addTopicDeployInfo(TopicDeployEntity deployEntity,
+                                                 StringBuilder sBuilder,
+                                                 ProcessResult result) {
+        // add topic control info
+        addIfAbsentTopicCtrlConf(deployEntity.getTopicName(),
+                TBaseConstants.META_VALUE_UNDEFINED,
+                deployEntity.getCreateUser(), sBuilder, result);
+        BrokerConfEntity brokerConf = getBrokerConfByBrokerId(deployEntity.getBrokerId());
+        if (brokerConf == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    DataOpErrCode.DERR_NOT_EXIST.getDescription());
+            return new TopicProcessResult(deployEntity.getBrokerId(), "", result);
+        }
+        // add topic deployment record
+        TopicDeployEntity curDeployInfo =
+                metaStoreService.getTopicConfByeRecKey(deployEntity.getRecordKey());
+        if (curDeployInfo != null) {
+            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                    DataOpErrCode.DERR_EXISTED.getDescription());
+            return new TopicProcessResult(deployEntity.getBrokerId(),
+                    deployEntity.getTopicName(), result);
+        }
+        metaStoreService.addTopicConf(deployEntity, sBuilder, result);
+        return new TopicProcessResult(deployEntity.getBrokerId(),
+                deployEntity.getTopicName(), result);
+    }
+
+    /**
+     * Modify topic config
+     *
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public List<TopicProcessResult> modTopicConfig(long dataVerId, String modifyUser,
+                                                   Date modifyDate, Set<Integer> brokerIdSet,
+                                                   Set<String> topicNameSet,
+                                                   TopicPropGroup topicProps,
+                                                   StringBuilder sBuilder,
+                                                   ProcessResult result) {
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        // add topic control info
+        addIfAbsentTopicCtrlConf(topicNameSet, modifyUser, sBuilder, result);
+        result.clear();
+        // add topic deployment record
+        TopicDeployEntity curEntity;
+        TopicDeployEntity newEntity;
+        for (Integer brokerId : brokerIdSet) {
+            BrokerConfEntity brokerConf = getBrokerConfByBrokerId(brokerId);
+            if (brokerConf == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                retInfo.add(new TopicProcessResult(brokerId, "", result));
+                continue;
+            }
+            for (String topicName : topicNameSet) {
+                curEntity = getTopicConfInfo(brokerId, topicName);
+                if (curEntity == null) {
+                    result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                            DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if (!curEntity.isValidTopicStatus()) {
+                    result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                            sBuilder.append("Topic of ").append(topicName)
+                                    .append("is deleted softly in brokerId=").append(brokerId)
+                                    .append(", please resume the record or hard removed first!")
+                                    .toString());
+                    sBuilder.delete(0, sBuilder.length());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if (topicProps != null) {
+                    if (topicProps.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
+                            && topicProps.getNumPartitions() < curEntity.getNumPartitions()) {
+                        result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                                sBuilder.append("Partition value is less than before,")
+                                        .append("please confirm the configure first! brokerId=")
+                                        .append(curEntity.getBrokerId()).append(", topicName=")
+                                        .append(curEntity.getTopicName())
+                                        .append(", old Partition value is ")
+                                        .append(curEntity.getNumPartitions())
+                                        .append(", new Partition value is ")
+                                        .append(topicProps.getNumPartitions()).toString());
+                        sBuilder.delete(0, sBuilder.length());
+                        retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                        continue;
+                    }
+                    if (topicProps.getNumTopicStores() != TBaseConstants.META_VALUE_UNDEFINED
+                            && topicProps.getNumTopicStores() < curEntity.getNumTopicStores()) {
+                        result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                                sBuilder.append("TopicStores value is less than before,")
+                                        .append("please confirm the configure first! brokerId=")
+                                        .append(curEntity.getBrokerId()).append(", topicName=")
+                                        .append(curEntity.getTopicName())
+                                        .append(", old TopicStores value is ")
+                                        .append(curEntity.getNumTopicStores())
+                                        .append(", new TopicStores value is ")
+                                        .append(topicProps.getNumTopicStores()).toString());
+                        sBuilder.delete(0, sBuilder.length());
+                        retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                        continue;
+                    }
+                }
+                newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(dataVerId,
+                        null, null, modifyUser, modifyDate, null);
+                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED, null, null, topicProps)) {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            sBuilder.append("Data not changed for brokerId=")
+                                    .append(curEntity.getBrokerId()).append(", topicName=")
+                                    .append(curEntity.getTopicName()).toString());
+                    sBuilder.delete(0, sBuilder.length());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                metaStoreService.updTopicConf(newEntity, sBuilder, result);
+                retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+            }
+        }
+        return retInfo;
+    }
+
+    /**
+     * Modify topic config
+     *
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public List<TopicProcessResult> modDelOrRmvTopicConf(long dataVerId, String modifyUser,
+                                                         Date modifyDate, Set<Integer> brokerIdSet,
+                                                         Set<String> topicNameSet,
+                                                         TopicStatus topicStatus,
+                                                         StringBuilder sBuilder,
+                                                         ProcessResult result) {
+        TopicDeployEntity curEntity;
+        TopicDeployEntity newEntity;
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        // add topic deployment record
+        for (Integer brokerId : brokerIdSet) {
+            BrokerConfEntity brokerConf = getBrokerConfByBrokerId(brokerId);
+            if (brokerConf == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                retInfo.add(new TopicProcessResult(brokerId, "", result));
+                continue;
+            }
+            for (String topicName : topicNameSet) {
+                curEntity = getTopicConfInfo(brokerId, topicName);
+                if (curEntity == null) {
+                    result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                            DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if (curEntity.isAcceptPublish()
+                        || curEntity.isAcceptSubscribe()) {  // still accept publish and subscribe
+                    result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                            sBuilder.append("The topic ").append(topicName)
+                                    .append("'s acceptPublish and acceptSubscribe status must be false in broker=")
+                                    .append(brokerId).append(" before topic deleted!").toString());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if ((topicStatus == TopicStatus.STATUS_TOPIC_SOFT_DELETE
+                        && !curEntity.isValidTopicStatus())
+                        || (topicStatus == TopicStatus.STATUS_TOPIC_SOFT_REMOVE
+                        && curEntity.getTopicStatus() != TopicStatus.STATUS_TOPIC_SOFT_DELETE)) {
+                    result.setSuccResult("");
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(dataVerId,
+                        null, null, modifyUser, modifyDate, null);
+                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED, null, topicStatus, null)) {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            sBuilder.append("Data not changed for brokerId=")
+                                    .append(curEntity.getBrokerId()).append(", topicName=")
+                                    .append(curEntity.getTopicName()).toString());
+                    sBuilder.delete(0, sBuilder.length());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                metaStoreService.updTopicConf(newEntity, sBuilder, result);
+                retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+            }
+        }
+        return retInfo;
+    }
+
+    /**
+     * Modify topic config
+     *
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public List<TopicProcessResult> modRedoDelTopicConf(long dataVerId, String modifyUser,
+                                                        Date modifyDate, Set<Integer> brokerIdSet,
+                                                        Set<String> topicNameSet,
+                                                        StringBuilder sBuilder,
+                                                        ProcessResult result) {
+        TopicDeployEntity curEntity;
+        TopicDeployEntity newEntity;
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        // add topic deployment record
+        for (Integer brokerId : brokerIdSet) {
+            BrokerConfEntity brokerConf = getBrokerConfByBrokerId(brokerId);
+            if (brokerConf == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                retInfo.add(new TopicProcessResult(brokerId, "", result));
+                continue;
+            }
+            for (String topicName : topicNameSet) {
+                curEntity = getTopicConfInfo(brokerId, topicName);
+                if (curEntity == null) {
+                    result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                            DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if (curEntity.isAcceptPublish()
+                        || curEntity.isAcceptSubscribe()) {  // still accept publish and subscribe
+                    result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                            sBuilder.append("The topic ").append(topicName)
+                                    .append("'s acceptPublish and acceptSubscribe status must be false in broker=")
+                                    .append(brokerId).append(" before topic deleted!").toString());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                if (curEntity.getTopicStatus() != TopicStatus.STATUS_TOPIC_SOFT_DELETE) {
+                    if (curEntity.isValidTopicStatus()) {
+                        result.setSuccResult(null);
+                    } else {
+                        result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                                sBuilder.append("Topic of ").append(topicName)
+                                        .append("is in removing flow in brokerId=")
+                                        .append(curEntity.getBrokerId())
+                                        .append(", please wait until remove process finished!")
+                                        .toString());
+                        sBuilder.delete(0, sBuilder.length());
+                    }
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(dataVerId,
+                        null, null, modifyUser, modifyDate, null);
+                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED, null,
+                        TopicStatus.STATUS_TOPIC_OK, null)) {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            sBuilder.append("Data not changed for brokerId=")
+                                    .append(curEntity.getBrokerId()).append(", topicName=")
+                                    .append(curEntity.getTopicName()).toString());
+                    sBuilder.delete(0, sBuilder.length());
+                    retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+                    continue;
+                }
+                metaStoreService.updTopicConf(newEntity, sBuilder, result);
+                retInfo.add(new TopicProcessResult(brokerId, topicName, result));
+            }
+        }
+        return retInfo;
+    }
+
+
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
      *
      * @param qryEntity query conditions
      * @return topic entity map
      */
-    public Map<String, List<TopicDeployConfEntity>> getTopicConfEntityMap(
-            TopicDeployConfEntity qryEntity) {
-        return metaStoreService.getTopicConfMap(qryEntity);
+    public Map<String, List<TopicDeployEntity>> getTopicConfEntityMap(Set<String> topicNameSet,
+                                                                      Set<Integer> brokerIdSet,
+                                                                      TopicDeployEntity qryEntity) {
+        return metaStoreService.getTopicConfMap(topicNameSet, brokerIdSet, qryEntity);
     }
 
-    public Map<String, List<TopicDeployConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+    public TopicDeployEntity getTopicConfInfo(int brokerId, String topicName) {
+        return metaStoreService.getTopicConf(brokerId, topicName);
+    }
+
+    /**
+     * Get broker topic entity, if query entity is null, return all topic entity
+     *
+     * @return topic entity map
+     */
+    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
+                                                                       Set<Integer> brokerIdSet) {
+        return metaStoreService.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+    }
+
+    public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicNameSet, Set<Integer> brokerIdSet) {
         return metaStoreService.getTopicDepInfoByTopicBrokerId(topicNameSet, brokerIdSet);
     }
 
-    /**
-     * Add topic configure
-     *
-     * @param entity     the topic control info entity will be add
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confAddTopicConfig(TopicDeployConfEntity entity,
-                                      StringBuilder strBuffer,
-                                      ProcessResult result) {
-        BrokerConfEntity brkEntity =
-                metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId());
-        if (brkEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_CONDITION_LACK.getCode(),
-                    "Miss broker configure, please create broker configure first!");
-            return result.isSuccess();
-        }
-        if (metaStoreService.addTopicConf(entity, result)) {
-            strBuffer.append("[confAddTopicConfig], ")
-                    .append(entity.getCreateUser())
-                    .append(" added topic configure record :")
-                    .append(entity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confAddTopicConfig], ")
-                    .append("failure to add topic configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        // add topic control record
-        addIfAbsentTopicCtrlConf(entity.getTopicName(), entity.getTopicId(),
-                entity.getCreateUser(), strBuffer, new ProcessResult());
-        return result.isSuccess();
-    }
 
-    /**
-     * Modify topic config
-     *
-     * @param entity     the topic control info entity will be update
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confModTopicConfig(TopicDeployConfEntity entity,
-                                      StringBuilder strBuffer,
-                                      ProcessResult result) {
-        if (metaStoreService.updTopicConf(entity, result)) {
-            TopicDeployConfEntity oldEntity =
-                    (TopicDeployConfEntity) result.getRetData();
-            TopicDeployConfEntity curEntity =
-                    metaStoreService.getTopicConfByeRecKey(entity.getRecordKey());
-            strBuffer.append("[confModTopicConfig], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :")
-                    .append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confModTopicConfig], ")
-                    .append("failure to update topic configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        // add topic control record
-        addIfAbsentTopicCtrlConf(entity.getTopicName(), entity.getTopicId(),
-                entity.getCreateUser(), strBuffer, new ProcessResult());
-        return result.isSuccess();
-    }
+
 
     private boolean confDelTopicConfInfo(String operator,
                                          String recordKey,
                                          StringBuilder strBuffer,
                                          ProcessResult result) {
-        if (metaStoreService.delTopicConf(recordKey, result)) {
-            GroupResCtrlEntity entity =
-                    (GroupResCtrlEntity) result.getRetData();
-            if (entity != null) {
-                strBuffer.append("[confDelTopicConfInfo], ").append(operator)
-                        .append(" deleted topic configure record :")
-                        .append(entity.toString());
-                logger.info(strBuffer.toString());
-            }
-        } else {
-            strBuffer.append("[confDelTopicConfInfo], ")
-                    .append("failure to delete topic configure record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
+        return metaStoreService.delTopicConf(operator,
+                recordKey, strBuffer, result);
     }
 
     public List<String> getBrokerTopicStrConfigInfo(
@@ -1006,7 +1249,7 @@ public class MetaDataManager implements Server {
     private List<String> inGetTopicConfStrInfo(BrokerConfEntity brokerEntity,
                                                boolean isRemoved, StringBuilder sBuffer) {
         List<String> topicConfStrs = new ArrayList<>();
-        Map<String, TopicDeployConfEntity> topicEntityMap =
+        Map<String, TopicDeployEntity> topicEntityMap =
                 metaStoreService.getConfiguredTopicInfo(brokerEntity.getBrokerId());
         if (topicEntityMap.isEmpty()) {
             return topicConfStrs;
@@ -1015,7 +1258,7 @@ public class MetaDataManager implements Server {
         ClusterSettingEntity clusterDefConf =
                 metaStoreService.getClusterConfig();
         int defMsgSizeInB = clusterDefConf.getMaxMsgSizeInB();
-        for (TopicDeployConfEntity topicEntity : topicEntityMap.values()) {
+        for (TopicDeployEntity topicEntity : topicEntityMap.values()) {
             /*
              * topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:
              * deletePolicy:filterStatusId:statusId
@@ -1114,19 +1357,7 @@ public class MetaDataManager implements Server {
     public boolean confAddTopicCtrlConf(TopicCtrlEntity entity,
                                         StringBuilder strBuffer,
                                         ProcessResult result) {
-        if (metaStoreService.addTopicCtrlConf(entity, result)) {
-            strBuffer.append("[confAddTopicCtrlConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added topic control record :")
-                    .append(entity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confAddTopicCtrlConf], ")
-                    .append("failure to add topic control record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
+        metaStoreService.addTopicCtrlConf(entity, strBuffer, result);
         return result.isSuccess();
     }
 
@@ -1138,31 +1369,54 @@ public class MetaDataManager implements Server {
      * @param operator   operator
      * @param strBuffer  the print info string buffer
      */
-    private void addIfAbsentTopicCtrlConf(String topicName,
-                                          int topicNameId,
-                                          String operator,
-                                          StringBuilder strBuffer,
-                                          ProcessResult result) {
+    public void addIfAbsentTopicCtrlConf(String topicName,
+                                         int topicNameId,
+                                         String operator,
+                                         StringBuilder strBuffer,
+                                         ProcessResult result) {
         TopicCtrlEntity curEntity =
                 metaStoreService.getTopicCtrlConf(topicName);
         if (curEntity != null) {
             return;
         }
-        curEntity = new TopicCtrlEntity(topicName, topicNameId, operator);
-        if (metaStoreService.addTopicCtrlConf(curEntity, result)) {
-            strBuffer.append("[addIfAbsentTopicCtrlConf], ")
-                    .append(curEntity.getCreateUser())
-                    .append(" added topic control record :")
-                    .append(curEntity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[addIfAbsentTopicCtrlConf], ")
-                    .append("failure to add topic control record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
+        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+        ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
+        if (defSetting != null) {
+            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
         }
-        strBuffer.delete(0, strBuffer.length());
+        curEntity = new TopicCtrlEntity(topicName, topicNameId, maxMsgSizeInMB, operator);
+        metaStoreService.addTopicCtrlConf(curEntity, strBuffer, result);
         return;
+    }
+
+    /**
+     * Add if absent topic control configure info
+     *
+     * @param topicNameSet  the topic name will be add
+     * @param operator the topic name id will be add
+     * @param operator   operator
+     * @param strBuffer  the print info string buffer
+     */
+    public void addIfAbsentTopicCtrlConf(Set<String> topicNameSet,
+                                         String operator,
+                                         StringBuilder strBuffer,
+                                         ProcessResult result) {
+        TopicCtrlEntity curEntity;
+        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+        ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
+        if (defSetting != null) {
+            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
+        }
+        for (String topicName : topicNameSet) {
+            result.clear();
+            curEntity = metaStoreService.getTopicCtrlConf(topicName);
+            if (curEntity != null) {
+                continue;
+            }
+            curEntity = new TopicCtrlEntity(topicName,
+                    TBaseConstants.META_VALUE_UNDEFINED, maxMsgSizeInMB, operator);
+            metaStoreService.addTopicCtrlConf(curEntity, strBuffer, result);
+        }
     }
 
     /**
@@ -1229,6 +1483,20 @@ public class MetaDataManager implements Server {
 
     public TopicCtrlEntity getTopicCtrlByTopicName(String topicName) {
         return this.metaStoreService.getTopicCtrlConf(topicName);
+    }
+
+    public int getTopicMaxMsgSizeInMB(String topicName) {
+        // get maxMsgSizeInMB info
+        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+        ClusterSettingEntity clusterSettingEntity = getClusterDefSetting();
+        if (clusterSettingEntity != null) {
+            maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
+        }
+        TopicCtrlEntity topicCtrlEntity = getTopicCtrlByTopicName(topicName);
+        if (topicCtrlEntity != null) {
+            maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
+        }
+        return maxMsgSizeInMB;
     }
 
     /**

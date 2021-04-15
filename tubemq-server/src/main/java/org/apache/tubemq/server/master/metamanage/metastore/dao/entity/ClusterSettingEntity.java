@@ -45,6 +45,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
     private TopicPropGroup clsDefTopicProps = new TopicPropGroup();
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
+    private int maxMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     private EnableStatus gloFlowCtrlStatus = EnableStatus.STATUS_UNDEFINE;
     // flow control rule count
@@ -77,6 +78,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
                         bdbEntity.getDeletePolicy(), bdbEntity.getDefDataType(),
                         bdbEntity.getDefDataPath());
         this.maxMsgSizeInB = bdbEntity.getMaxMsgSizeInB();
+        this.maxMsgSizeInMB =
+                this.maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE;
         this.qryPriorityId = bdbEntity.getQryPriorityId();
         setEnableFlowCtrl(bdbEntity.getEnableGloFlowCtrl());
         setGloFlowCtrlInfo(bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo());
@@ -112,9 +115,9 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         this.brokerPort = TBaseConstants.META_DEFAULT_BROKER_PORT;
         this.brokerTLSPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
         this.brokerWebPort = TBaseConstants.META_DEFAULT_BROKER_WEB_PORT;
+        this.maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
         this.maxMsgSizeInB =
-                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(
-                        TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
+                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(this.maxMsgSizeInMB);
         this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
         this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
         this.gloFlowCtrlRuleCnt = 0;
@@ -151,10 +154,12 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set modified field
         if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            newMaxMsgSizeMB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
-            if (this.maxMsgSizeInB != newMaxMsgSizeMB) {
+            int newMaxMsgSizeB =
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
+            if (this.maxMsgSizeInB != newMaxMsgSizeB) {
                 changed = true;
-                this.maxMsgSizeInB = newMaxMsgSizeMB;
+                this.maxMsgSizeInB = newMaxMsgSizeB;
+                this.maxMsgSizeInMB = newMaxMsgSizeMB;
             }
         }
         // check and set qry priority id
@@ -204,6 +209,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
     public int getMaxMsgSizeInB() {
         return maxMsgSizeInB;
+    }
+
+    public int getMaxMsgSizeInMB() {
+        return maxMsgSizeInMB;
     }
 
     public int getQryPriorityId() {
@@ -260,15 +269,11 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,
                                       boolean fullFormat) {
-        int tmpMsgSizeInMB = maxMsgSizeInB;
-        if (maxMsgSizeInB != TBaseConstants.META_VALUE_UNDEFINED) {
-            tmpMsgSizeInMB /= TBaseConstants.META_MB_UNIT_SIZE;
-        }
         if (isLongName) {
             sBuilder.append("{\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
                     .append(",\"brokerWebPort\":").append(brokerWebPort)
-                    .append(",\"maxMsgSizeInMB\":").append(tmpMsgSizeInMB)
+                    .append(",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
                     .append(",\"qryPriorityId\":").append(qryPriorityId)
                     .append(",\"flowCtrlEnable\":").append(gloFlowCtrlStatus.isEnable())
                     .append(",\"flowCtrlRuleCount\":").append(gloFlowCtrlRuleCnt)
@@ -277,7 +282,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
             sBuilder.append("{\"bPort\":").append(brokerPort)
                     .append(",\"bTlsPort\":").append(brokerTLSPort)
                     .append(",\"bWebPort\":").append(brokerWebPort)
-                    .append(",\"mxMsgInMB\":").append(tmpMsgSizeInMB)
+                    .append(",\"mxMsgInMB\":").append(maxMsgSizeInMB)
                     .append(",\"qryPriId\":").append(qryPriorityId)
                     .append(",\"fCtrlEn\":").append(gloFlowCtrlStatus.isEnable())
                     .append(",\"fCtrlCnt\":").append(gloFlowCtrlRuleCnt)
