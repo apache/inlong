@@ -17,22 +17,31 @@
 
 package org.apache.tubemq.server.common.statusdef;
 
+import org.apache.tubemq.corebase.utils.Tuple2;
+
+
 public enum ManageStatus {
 
-    STATUS_MANAGE_UNDEFINED(-2, "Undefined."),
-    STATUS_MANAGE_APPLY(1, "Apply."),
-    STATUS_MANAGE_ONLINE(5, "Online."),
-    STATUS_MANAGE_ONLINE_NOT_WRITE(6, "Online with not write"),
-    STATUS_MANAGE_ONLINE_NOT_READ(7, "Online with not read"),
-    STATUS_MANAGE_OFFLINE(9, "Offline");
+    STATUS_MANAGE_UNDEFINED(-2, "-", false, false),
+    STATUS_MANAGE_APPLY(1, "draft", false, false),
+    STATUS_MANAGE_ONLINE(5, "online", true, true),
+    STATUS_MANAGE_ONLINE_NOT_WRITE(6, "only-read", false, true),
+    STATUS_MANAGE_ONLINE_NOT_READ(7, "only-write", true, false),
+    STATUS_MANAGE_OFFLINE(9, "offline", false, false);
 
     private int code;
     private String description;
+    private boolean isAcceptPublish;
+    private boolean isAcceptSubscribe;
 
 
-    ManageStatus(int code, String description) {
+    ManageStatus(int code, String description,
+                 boolean isAcceptPublish,
+                 boolean isAcceptSubscribe) {
         this.code = code;
         this.description = description;
+        this.isAcceptPublish = isAcceptPublish;
+        this.isAcceptSubscribe = isAcceptSubscribe;
     }
 
     public boolean isOnlineStatus() {
@@ -53,6 +62,11 @@ public enum ManageStatus {
         return description;
     }
 
+    public Tuple2<Boolean, Boolean> getPubSubStatus() {
+        return new Tuple2<>(isAcceptPublish, isAcceptSubscribe);
+    }
+
+
     public static ManageStatus valueOf(int code) {
         for (ManageStatus status : ManageStatus.values()) {
             if (status.getCode() == code) {
@@ -62,4 +76,5 @@ public enum ManageStatus {
         throw new IllegalArgumentException(String.format(
                 "unknown broker manage status code %s", code));
     }
+
 }

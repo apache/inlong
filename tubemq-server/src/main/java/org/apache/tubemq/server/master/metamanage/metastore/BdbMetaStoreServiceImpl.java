@@ -68,21 +68,21 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlac
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.BrokerConfigMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.ClusterConfigMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupBlackListMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupConsumeCtrlMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployConfigMapper;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbBrokerConfigMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbClusterConfigMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupBlackListMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupConsumeCtrlMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupResCtrlMapperImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicCtrlMapperImpl;
-import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicDeployConfigMapperImpl;
+import org.apache.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicDeployMapperImpl;
 import org.apache.tubemq.server.master.utils.BdbStoreSamplePrint;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
@@ -143,7 +143,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // broker configure
     private BrokerConfigMapper brokerConfigMapper;
     // topic configure
-    private TopicDeployConfigMapper topicDeployConfigMapper;
+    private TopicDeployMapper topicDeployMapper;
     // topic control configure
     private TopicCtrlMapper topicCtrlMapper;
     // group configure
@@ -205,7 +205,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         logger.info("[BDB Impl] Stopping StoreManagerService...");
         // close bdb configure
         brokerConfigMapper.close();
-        topicDeployConfigMapper.close();
+        topicDeployMapper.close();
         groupResCtrlMapper.close();
         topicCtrlMapper.close();
         groupBlackListMapper.close();
@@ -413,30 +413,84 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     // topic configure api
     @Override
-    public boolean addTopicConf(TopicDeployConfEntity entity, ProcessResult result) {
+    public boolean addTopicConf(TopicDeployEntity entity,
+                                StringBuilder strBuffer,
+                                ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicDeployConfigMapper.addTopicConf(entity, result);
+        if (topicDeployMapper.addTopicConf(entity, result)) {
+            strBuffer.append("[addTopicConf], ")
+                    .append(entity.getCreateUser())
+                    .append(" added topic configure record :")
+                    .append(entity.toString());
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[addTopicConf], ")
+                    .append("failure to add topic configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
-    public boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result) {
+    public boolean updTopicConf(TopicDeployEntity entity,
+                                StringBuilder strBuffer,
+                                ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicDeployConfigMapper.updTopicConf(entity, result);
+        if (topicDeployMapper.updTopicConf(entity, result)) {
+            TopicDeployEntity oldEntity =
+                    (TopicDeployEntity) result.getRetData();
+            TopicDeployEntity curEntity =
+                    topicDeployMapper.getTopicConfByeRecKey(entity.getRecordKey());
+            strBuffer.append("[updTopicConf], ")
+                    .append(entity.getModifyUser())
+                    .append(" updated record from :")
+                    .append(oldEntity.toString())
+                    .append(" to ").append(curEntity.toString());
+            logger.info(strBuffer.toString());
+        } else {
+            strBuffer.append("[updTopicConf], ")
+                    .append("failure to update topic configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
-    public boolean delTopicConf(String recordKey, ProcessResult result) {
+    public boolean delTopicConf(String operator,
+                                String recordKey,
+                                StringBuilder strBuffer,
+                                ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicDeployConfigMapper.delTopicConf(recordKey, result);
+        if (topicDeployMapper.delTopicConf(recordKey, result)) {
+            GroupResCtrlEntity entity =
+                    (GroupResCtrlEntity) result.getRetData();
+            if (entity != null) {
+                strBuffer.append("[delTopicConf], ").append(operator)
+                        .append(" deleted topic configure record :")
+                        .append(entity.toString());
+                logger.info(strBuffer.toString());
+            }
+        } else {
+            strBuffer.append("[delTopicConf], ")
+                    .append("failure to delete topic configure record : ")
+                    .append(result.getErrInfo());
+            logger.warn(strBuffer.toString());
+        }
+        strBuffer.delete(0, strBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
@@ -448,7 +502,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployConfigMapper.delTopicConfByBrokerId(brokerId, result)) {
+        if (topicDeployMapper.delTopicConfByBrokerId(brokerId, result)) {
             strBuffer.append("[delTopicConfByBrokerId], ")
                     .append(operator)
                     .append(" deleted topic deploy record :")
@@ -466,59 +520,86 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public boolean hasConfiguredTopics(int brokerId) {
-        return topicDeployConfigMapper.hasConfiguredTopics(brokerId);
+        return topicDeployMapper.hasConfiguredTopics(brokerId);
     }
 
     @Override
-    public TopicDeployConfEntity getTopicConfByeRecKey(String recordKey) {
-        return topicDeployConfigMapper.getTopicConfByeRecKey(recordKey);
+    public TopicDeployEntity getTopicConfByeRecKey(String recordKey) {
+        return topicDeployMapper.getTopicConfByeRecKey(recordKey);
     }
 
     @Override
-    public List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity) {
-        return topicDeployConfigMapper.getTopicConf(qryEntity);
+    public List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity) {
+        return topicDeployMapper.getTopicConf(qryEntity);
+    }
+
+    @Override
+    public TopicDeployEntity getTopicConf(int brokerId, String topicName) {
+        return topicDeployMapper.getTopicConf(brokerId, topicName);
     }
 
     @Override
     public Map<Integer, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet) {
-        return topicDeployConfigMapper.getConfiguredTopicInfo(brokerIdSet);
+        return topicDeployMapper.getConfiguredTopicInfo(brokerIdSet);
     }
 
     @Override
     public Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet) {
-        return topicDeployConfigMapper.getTopicBrokerInfo(topicNameSet);
+        return topicDeployMapper.getTopicBrokerInfo(topicNameSet);
     }
 
     @Override
     public Set<String> getConfiguredTopicSet() {
-        return topicDeployConfigMapper.getConfiguredTopicSet();
+        return topicDeployMapper.getConfiguredTopicSet();
     }
 
     @Override
-    public Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMap(
-            TopicDeployConfEntity qryEntity) {
-        return topicDeployConfigMapper.getTopicConfMap(qryEntity);
+    public Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMap(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet, TopicDeployEntity qryEntity) {
+        return topicDeployMapper.getTopicConfMap(topicNameSet, brokerIdSet, qryEntity);
     }
 
     @Override
-    public Map<String, List<TopicDeployConfEntity>>getTopicDepInfoByTopicBrokerId(
+    public Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+        return topicDeployMapper.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+    }
+
+
+    @Override
+    public Map<String, List<TopicDeployEntity>>getTopicDepInfoByTopicBrokerId(
             Set<String> topicSet, Set<Integer> brokerIdSet) {
-        return topicDeployConfigMapper.getTopicConfMapByTopicAndBrokerIds(topicSet, brokerIdSet);
+        return topicDeployMapper.getTopicConfMapByTopicAndBrokerIds(topicSet, brokerIdSet);
     }
 
     @Override
-    public Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId) {
-        return topicDeployConfigMapper.getConfiguredTopicInfo(brokerId);
+    public Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId) {
+        return topicDeployMapper.getConfiguredTopicInfo(brokerId);
     }
 
     // topic control api
     @Override
-    public boolean addTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result) {
+    public boolean addTopicCtrlConf(TopicCtrlEntity entity,
+                                    StringBuilder sBuffer,
+                                    ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicCtrlMapper.addTopicCtrlConf(entity, result);
+        if (topicCtrlMapper.addTopicCtrlConf(entity, result)) {
+            sBuffer.append("[addTopicCtrlConf], ")
+                    .append(entity.getCreateUser())
+                    .append(" added topic control record :")
+                    .append(entity.toString());
+            logger.info(sBuffer.toString());
+        } else {
+            sBuffer.append("[addTopicCtrlConf], ")
+                    .append("failure to add topic control record : ")
+                    .append(result.getErrInfo());
+            logger.warn(sBuffer.toString());
+        }
+        sBuffer.delete(0, sBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
@@ -1270,7 +1351,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     private void initMetaStore() {
         clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
         brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
-        topicDeployConfigMapper =  new BdbTopicDeployConfigMapperImpl(repEnv, storeConfig);
+        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
         groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
         groupConsumeCtrlMapper = new BdbGroupConsumeCtrlMapperImpl(repEnv, storeConfig);
@@ -1282,7 +1363,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         clearCachedRunData();
         clusterConfigMapper.loadConfig();
         brokerConfigMapper.loadConfig();
-        topicDeployConfigMapper.loadConfig();
+        topicDeployMapper.loadConfig();
         topicCtrlMapper.loadConfig();
         groupResCtrlMapper.loadConfig();
         groupBlackListMapper.loadConfig();

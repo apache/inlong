@@ -39,7 +39,7 @@ import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +207,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
         for (BrokerConfEntity entity : qryResult.values()) {
-            Map<String, TopicDeployConfEntity> topicConfEntityMap =
+            Map<String, TopicDeployEntity> topicConfEntityMap =
                     metaDataManager.getBrokerTopicConfEntitySet(entity.getBrokerId());
             if (!isValidRecord(topicNameSet, isInclude, topicStatus, topicConfEntityMap)) {
                 continue;
@@ -518,7 +518,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // check broker configure status
         List<BrokerProcessResult> retInfo = new ArrayList<>();
         Map<Integer, BrokerConfEntity> needDelMap = new HashMap<>();
-        Map<String, TopicDeployConfEntity> topicConfigMap;
+        Map<String, TopicDeployEntity> topicConfigMap;
         for (BrokerConfEntity entity : qryResult.values()) {
             if (entity == null) {
                 continue;
@@ -539,7 +539,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
             boolean isMatched = true;
             if (isReservedData) {
-                for (Map.Entry<String, TopicDeployConfEntity> entry : topicConfigMap.entrySet()) {
+                for (Map.Entry<String, TopicDeployEntity> entry : topicConfigMap.entrySet()) {
                     if (entry.getValue() == null) {
                         continue;
                     }
@@ -579,7 +579,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 continue;
             }
             if (isReservedData) {
-                Map<String, TopicDeployConfEntity> brokerTopicConfMap =
+                Map<String, TopicDeployEntity> brokerTopicConfMap =
                         metaDataManager.getBrokerTopicConfEntitySet(entry.getBrokerId());
                 if (brokerTopicConfMap != null) {
                     metaDataManager.delBrokerTopicConfig(opTupleInfo.getF1(),
@@ -606,7 +606,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      */
     private boolean isValidRecord(Set<String> qryTopicSet, Boolean isInclude,
                                   TopicStatus topicStatus,
-                                  Map<String, TopicDeployConfEntity> topicConfEntityMap) {
+                                  Map<String, TopicDeployEntity> topicConfEntityMap) {
         if ((topicConfEntityMap == null) || (topicConfEntityMap.isEmpty())) {
             if ((qryTopicSet.isEmpty() || !isInclude)
                     && topicStatus == TopicStatus.STATUS_TOPIC_UNDEFINED) {
@@ -639,7 +639,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
         }
         // second check topic status if match
-        for (TopicDeployConfEntity topicConfEntity : topicConfEntityMap.values()) {
+        for (TopicDeployEntity topicConfEntity : topicConfEntityMap.values()) {
             if (topicConfEntity.getDeployStatus() == topicStatus) {
                 return true;
             }
@@ -656,12 +656,12 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder addTopicInfo(Boolean withTopic, StringBuilder sBuilder,
-                                       Map<String, TopicDeployConfEntity> topicConfEntityMap) {
+                                       Map<String, TopicDeployEntity> topicConfEntityMap) {
         if (withTopic) {
             sBuilder.append(",\"topicSet\":[");
             int topicCount = 0;
             if (topicConfEntityMap != null) {
-                for (TopicDeployConfEntity topicEntity : topicConfEntityMap.values()) {
+                for (TopicDeployEntity topicEntity : topicConfEntityMap.values()) {
                     if (topicCount++ > 0) {
                         sBuilder.append(",");
                     }

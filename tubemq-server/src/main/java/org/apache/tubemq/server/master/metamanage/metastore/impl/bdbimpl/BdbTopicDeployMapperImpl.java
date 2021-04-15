@@ -32,27 +32,28 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
+import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployConfigMapper;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 
-public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
+public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     private static final Logger logger =
-            LoggerFactory.getLogger(BdbTopicDeployConfigMapperImpl.class);
+            LoggerFactory.getLogger(BdbTopicDeployMapperImpl.class);
 
     // Topic configure store
     private EntityStore topicConfStore;
     private PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
     // data cache
-    private ConcurrentHashMap<String/* recordKey */, TopicDeployConfEntity> topicConfCache =
+    private ConcurrentHashMap<String/* recordKey */, TopicDeployEntity> topicConfCache =
             new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
             brokerIdCacheIndex = new ConcurrentHashMap<>();
@@ -65,7 +66,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
 
 
 
-    public BdbTopicDeployConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
+    public BdbTopicDeployMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         topicConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
         topicConfIndex =
@@ -96,7 +97,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
                     logger.warn("[BDB Impl] found Null data while loading topic configure!");
                     continue;
                 }
-                TopicDeployConfEntity memEntity = new TopicDeployConfEntity(bdbEntity);
+                TopicDeployEntity memEntity = new TopicDeployEntity(bdbEntity);
                 addOrUpdCacheRecord(memEntity);
                 count++;
             }
@@ -113,8 +114,8 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
-    public boolean addTopicConf(TopicDeployConfEntity memEntity, ProcessResult result) {
-        TopicDeployConfEntity curEntity =
+    public boolean addTopicConf(TopicDeployEntity memEntity, ProcessResult result) {
+        TopicDeployEntity curEntity =
                 topicConfCache.get(memEntity.getRecordKey());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
@@ -131,8 +132,8 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
-    public boolean updTopicConf(TopicDeployConfEntity memEntity, ProcessResult result) {
-        TopicDeployConfEntity curEntity =
+    public boolean updTopicConf(TopicDeployEntity memEntity, ProcessResult result) {
+        TopicDeployEntity curEntity =
                 topicConfCache.get(memEntity.getRecordKey());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
@@ -159,7 +160,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
 
     @Override
     public boolean delTopicConf(String recordKey, ProcessResult result) {
-        TopicDeployConfEntity curEntity =
+        TopicDeployEntity curEntity =
                 topicConfCache.get(recordKey);
         if (curEntity == null) {
             result.setSuccResult(null);
@@ -195,17 +196,17 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
-    public TopicDeployConfEntity getTopicConfByeRecKey(String recordKey) {
+    public TopicDeployEntity getTopicConfByeRecKey(String recordKey) {
         return topicConfCache.get(recordKey);
     }
 
     @Override
-    public List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity) {
-        List<TopicDeployConfEntity> retEntitys = new ArrayList<>();
+    public List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity) {
+        List<TopicDeployEntity> retEntitys = new ArrayList<>();
         if (qryEntity == null) {
             retEntitys.addAll(topicConfCache.values());
         } else {
-            for (TopicDeployConfEntity entity : topicConfCache.values()) {
+            for (TopicDeployEntity entity : topicConfCache.values()) {
                 if (entity.isMatched(qryEntity)) {
                     retEntitys.add(entity);
                 }
@@ -215,44 +216,121 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
-    public Map<String, List<TopicDeployConfEntity>> getTopicConfMap(TopicDeployConfEntity qryEntity) {
-        List<TopicDeployConfEntity> items;
-        Map<String, List<TopicDeployConfEntity>> retEntityMap = new HashMap<>();
-        if (qryEntity == null) {
-            for (TopicDeployConfEntity entity : topicConfCache.values()) {
-                items = retEntityMap.get(entity.getTopicName());
-                if (items == null) {
-                    items = new ArrayList<>();
-                    retEntityMap.put(entity.getTopicName(), items);
+    public TopicDeployEntity getTopicConf(int brokerId, String topicName) {
+        String recordKey =
+                KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
+        return topicConfCache.get(recordKey);
+    }
+
+    @Override
+    public Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
+                                                                Set<Integer> brokerIdSet,
+                                                                TopicDeployEntity qryEntity) {
+        List<TopicDeployEntity> items;
+        Set<String> qryTopicKey = null;
+        ConcurrentHashSet<String> keySet;
+        Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
+        if (topicNameSet != null && !topicNameSet.isEmpty()) {
+            qryTopicKey = new HashSet<>();
+            for (String topicName : topicNameSet) {
+                keySet = topicNameCacheIndex.get(topicName);
+                if (keySet != null && !keySet.isEmpty()) {
+                    qryTopicKey.addAll(keySet);
                 }
-                items.add(entity);
             }
-        } else {
-            for (TopicDeployConfEntity entity : topicConfCache.values()) {
-                if (entity.isMatched(qryEntity)) {
-                    items = retEntityMap.get(entity.getTopicName());
-                    if (items == null) {
-                        items = new ArrayList<>();
-                        retEntityMap.put(entity.getTopicName(), items);
-                    }
-                    items.add(entity);
+        }
+        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
+            if (qryTopicKey == null) {
+                qryTopicKey = new HashSet<>();
+            }
+            for (Integer brokerId : brokerIdSet) {
+                keySet = brokerIdCacheIndex.get(brokerId);
+                if (keySet != null && !keySet.isEmpty()) {
+                    qryTopicKey.addAll(keySet);
                 }
             }
+        }
+        if (qryTopicKey == null) {
+            qryTopicKey = new HashSet<>(topicConfCache.keySet());
+        }
+        if (qryTopicKey.isEmpty()) {
+            return retEntityMap;
+        }
+        for (String recordKey: qryTopicKey) {
+            TopicDeployEntity entity = topicConfCache.get(recordKey);
+            if (entity == null
+                    || (qryEntity != null && !qryEntity.isMatched(entity))) {
+                continue;
+            }
+            items = retEntityMap.get(entity.getTopicName());
+            if (items == null) {
+                items = new ArrayList<>();
+                retEntityMap.put(entity.getTopicName(), items);
+            }
+            items.add(entity);
         }
         return retEntityMap;
     }
 
     @Override
-    public Map<String, List<TopicDeployConfEntity>> getTopicConfMapByTopicAndBrokerIds(
+    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+        List<TopicDeployEntity> items;
+        Set<String> qryTopicKey = null;
+        ConcurrentHashSet<String> keySet;
+        Map<Integer, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
+        if (topicNameSet != null && !topicNameSet.isEmpty()) {
+            qryTopicKey = new HashSet<>();
+            for (String topicName : topicNameSet) {
+                keySet = topicNameCacheIndex.get(topicName);
+                if (keySet != null && !keySet.isEmpty()) {
+                    qryTopicKey.addAll(keySet);
+                }
+            }
+        }
+        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
+            if (qryTopicKey == null) {
+                qryTopicKey = new HashSet<>();
+            }
+            for (Integer brokerId : brokerIdSet) {
+                keySet = brokerIdCacheIndex.get(brokerId);
+                if (keySet != null && !keySet.isEmpty()) {
+                    qryTopicKey.addAll(keySet);
+                }
+            }
+        }
+        if (qryTopicKey == null) {
+            qryTopicKey = new HashSet<>(topicConfCache.keySet());
+        }
+        if (qryTopicKey.isEmpty()) {
+            return retEntityMap;
+        }
+        for (String recordKey: qryTopicKey) {
+            TopicDeployEntity entity = topicConfCache.get(recordKey);
+            if (entity == null) {
+                continue;
+            }
+            items = retEntityMap.get(entity.getBrokerId());
+            if (items == null) {
+                items = new ArrayList<>();
+                retEntityMap.put(entity.getBrokerId(), items);
+            }
+            items.add(entity);
+        }
+        return retEntityMap;
+    }
+
+    @Override
+    public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicSet, Set<Integer> brokerIdSet) {
-        TopicDeployConfEntity tmpEntity;
-        List<TopicDeployConfEntity> itemLst;
+        TopicDeployEntity tmpEntity;
+        List<TopicDeployEntity> itemLst;
         ConcurrentHashSet<String> recSet;
         Set<String> hitKeys = new HashSet<>();
-        Map<String, List<TopicDeployConfEntity>> retEntityMap = new HashMap<>();
+        Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         if (((topicSet == null) || (topicSet.isEmpty()))
                 && ((brokerIdSet == null) || (brokerIdSet.isEmpty()))) {
-            for (TopicDeployConfEntity entity : topicConfCache.values()) {
+            for (TopicDeployEntity entity : topicConfCache.values()) {
                 itemLst = retEntityMap.get(entity.getTopicName());
                 if (itemLst == null) {
                     itemLst = new ArrayList<>();
@@ -344,7 +422,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
                 continue;
             }
             for (String key : keySet) {
-                TopicDeployConfEntity entity = topicConfCache.get(key);
+                TopicDeployEntity entity = topicConfCache.get(key);
                 if (entity == null) {
                     continue;
                 }
@@ -367,9 +445,9 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     @Override
-    public Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId) {
-        TopicDeployConfEntity tmpEntity;
-        Map<String, TopicDeployConfEntity> retEntityMap = new HashMap<>();
+    public Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId) {
+        TopicDeployEntity tmpEntity;
+        Map<String, TopicDeployEntity> retEntityMap = new HashMap<>();
         ConcurrentHashSet<String> records = brokerIdCacheIndex.get(brokerId);
         if (records == null || records.isEmpty()) {
             return retEntityMap;
@@ -391,7 +469,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
      * @param result process result with old value
      * @return
      */
-    private boolean putTopicConfig2Bdb(TopicDeployConfEntity memEntity, ProcessResult result) {
+    private boolean putTopicConfig2Bdb(TopicDeployEntity memEntity, ProcessResult result) {
         BdbTopicConfEntity retData = null;
         BdbTopicConfEntity bdbEntity =
                 memEntity.buildBdbTopicConfEntity();
@@ -420,7 +498,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
     }
 
     private void delCacheRecord(String recordKey) {
-        TopicDeployConfEntity curEntity =
+        TopicDeployEntity curEntity =
                 topicConfCache.remove(recordKey);
         if (curEntity == null) {
             return;
@@ -452,7 +530,7 @@ public class BdbTopicDeployConfigMapperImpl implements TopicDeployConfigMapper {
         }
     }
 
-    private void addOrUpdCacheRecord(TopicDeployConfEntity entity) {
+    private void addOrUpdCacheRecord(TopicDeployEntity entity) {
         topicConfCache.put(entity.getRecordKey(), entity);
         // add topic index map
         ConcurrentHashSet<String> keySet =

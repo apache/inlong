@@ -30,7 +30,7 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlac
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
 
 public interface MetaStoreService extends KeepAlive, Server {
@@ -129,11 +129,18 @@ public interface MetaStoreService extends KeepAlive, Server {
     BrokerConfEntity getBrokerConfByBrokerIp(String brokerIp);
 
     // topic configure api
-    boolean addTopicConf(TopicDeployConfEntity entity, ProcessResult result);
+    boolean addTopicConf(TopicDeployEntity entity,
+                         StringBuilder strBuffer,
+                         ProcessResult result);
 
-    boolean updTopicConf(TopicDeployConfEntity entity, ProcessResult result);
+    boolean updTopicConf(TopicDeployEntity entity,
+                         StringBuilder strBuffer,
+                         ProcessResult result);
 
-    boolean delTopicConf(String recordKey, ProcessResult result);
+    boolean delTopicConf(String operator,
+                         String recordKey,
+                         StringBuilder strBuffer,
+                         ProcessResult result);
 
     boolean delTopicConfByBrokerId(String operator,
                                    int brokerId,
@@ -142,9 +149,11 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     boolean hasConfiguredTopics(int brokerId);
 
-    TopicDeployConfEntity getTopicConfByeRecKey(String recordKey);
+    TopicDeployEntity getTopicConfByeRecKey(String recordKey);
 
-    List<TopicDeployConfEntity> getTopicConf(TopicDeployConfEntity qryEntity);
+    List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity);
+
+    TopicDeployEntity getTopicConf(int brokerId, String topicName);
 
     Set<String> getConfiguredTopicSet();
 
@@ -152,16 +161,21 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     Map<String/* topicName */, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
 
-    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicConfMap(
-            TopicDeployConfEntity qryEntity);
+    Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMap(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet, TopicDeployEntity qryEntity);
 
-    Map<String/* topicName */, List<TopicDeployConfEntity>> getTopicDepInfoByTopicBrokerId(
+    Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
+            Set<String> topicNameSet, Set<Integer> brokerIdSet);
+
+    Map<String/* topicName */, List<TopicDeployEntity>> getTopicDepInfoByTopicBrokerId(
             Set<String> topicSet, Set<Integer> brokerIdSet);
 
-    Map<String, TopicDeployConfEntity> getConfiguredTopicInfo(int brokerId);
+    Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId);
 
     // topic control api
-    boolean addTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
+    boolean addTopicCtrlConf(TopicCtrlEntity entity,
+                             StringBuilder sBuffer,
+                             ProcessResult result);
 
     boolean updTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
 

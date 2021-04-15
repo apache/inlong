@@ -20,6 +20,7 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
@@ -36,17 +37,22 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     private int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
     private EnableStatus authCtrlStatus = EnableStatus.STATUS_UNDEFINE;
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
+    private int maxMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
 
 
     public TopicCtrlEntity() {
         super();
     }
 
-    public TopicCtrlEntity(String topicName, int topicNameId, String createUser) {
+    public TopicCtrlEntity(String topicName, int topicNameId,
+                           int maxMsgSizeInMB, String createUser) {
         super(createUser, new Date());
         this.topicName = topicName;
         this.topicNameId = topicNameId;
         this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
+        this.maxMsgSizeInB =
+                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
+        this.maxMsgSizeInMB = maxMsgSizeInMB;
     }
 
     public TopicCtrlEntity(String topicName, int topicNameId,
@@ -56,7 +62,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
         this.topicName = topicName;
         this.topicNameId = topicNameId;
-        this.maxMsgSizeInB = maxMsgSizeInB;
+        this.fillMaxMsgSize(maxMsgSizeInB);
         if (enableAuth) {
             this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
         } else {
@@ -69,7 +75,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.topicName = bdbEntity.getTopicName();
         this.topicNameId = bdbEntity.getTopicId();
-        this.maxMsgSizeInB = bdbEntity.getMaxMsgSize();
+        this.fillMaxMsgSize(maxMsgSizeInB);
         if (bdbEntity.isEnableAuthControl()) {
             this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
         } else {
@@ -120,8 +126,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return maxMsgSizeInB;
     }
 
-    public void setMaxMsgSizeInB(int maxMsgSizeInB) {
-        this.maxMsgSizeInB = maxMsgSizeInB;
+    public int getMaxMsgSizeInMB() {
+        return maxMsgSizeInMB;
     }
 
     public int getTopicId() {
@@ -130,6 +136,45 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
 
     public void setTopicId(int topicNameId) {
         this.topicNameId = topicNameId;
+    }
+
+    /**
+     * update subclass field values
+     *
+     * @return if changed
+     */
+    public boolean updModifyInfo(int topicNameId,
+                                 int newMaxMsgSizeMB,
+                                 EnableStatus authCtrlStatus) {
+        boolean changed = false;
+        // check and set topicNameId info
+        if (topicNameId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.topicNameId != topicNameId) {
+            changed = true;
+            this.topicNameId = topicNameId;
+        }
+        // check and set modified field
+        if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
+            int newMaxMsgSizeB =
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
+            if (this.maxMsgSizeInB != newMaxMsgSizeB) {
+                changed = true;
+                this.maxMsgSizeInB = newMaxMsgSizeB;
+                this.maxMsgSizeInMB = newMaxMsgSizeMB;
+            }
+        }
+        // check and set authCtrlStatus info
+        if (authCtrlStatus != null
+                && authCtrlStatus != EnableStatus.STATUS_UNDEFINE
+                && this.authCtrlStatus != authCtrlStatus) {
+            changed = true;
+            this.authCtrlStatus = authCtrlStatus;
+        }
+
+        if (changed) {
+            updSerialId();
+        }
+        return changed;
     }
 
     /**
@@ -169,26 +214,28 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,
                                       boolean fullFormat) {
-        int tmpMsgSizeInMB = maxMsgSizeInB;
-        if (maxMsgSizeInB != TBaseConstants.META_VALUE_UNDEFINED) {
-            tmpMsgSizeInMB /= TBaseConstants.META_MB_UNIT_SIZE;
-        }
         if (isLongName) {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"topicNameId\":").append(topicNameId)
                     .append(",\"enableAuthControl\":").append(authCtrlStatus.isEnable())
-                    .append(",\"maxMsgSizeInMB\":").append(tmpMsgSizeInMB);
+                    .append(",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB);
         } else {
             sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
                     .append(",\"topicId\":").append(topicNameId)
                     .append(",\"acEn\":").append(authCtrlStatus.isEnable())
-                    .append(",\"mxMsgInMB\":").append(tmpMsgSizeInMB);
+                    .append(",\"mxMsgInMB\":").append(maxMsgSizeInMB);
         }
         super.toWebJsonStr(sBuilder, isLongName);
         if (fullFormat) {
             sBuilder.append("}");
         }
         return sBuilder;
+    }
+
+    private void fillMaxMsgSize(int maxMsgSizeInB) {
+        this.maxMsgSizeInB = maxMsgSizeInB;
+        this.maxMsgSizeInMB =
+                maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE;
     }
 
     /**

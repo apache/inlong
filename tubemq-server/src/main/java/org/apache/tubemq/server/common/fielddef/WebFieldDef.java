@@ -217,10 +217,9 @@ public enum WebFieldDef {
             "Broker ip", TBaseConstants.META_MAX_BROKER_IP_LENGTH,
              RegexDef.TMP_IPV4ADDRESS),
     ISRESERVEDDATA(77, "isReservedData", "isRsvDt",
-            WebFieldType.BOOLEAN, "Whether to keep topic data in the broker");
-
-
-
+            WebFieldType.BOOLEAN, "Whether to keep topic data in the broker"),
+    WITHCTRLINFO(78, "ctrlData", "cD",
+              WebFieldType.BOOLEAN, "With topic control data info.");
 
 
     public final int id;
