@@ -38,7 +38,6 @@ import org.apache.tubemq.corebase.policies.FlowCtrlItem;
 import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.TStatusConstants;
@@ -121,63 +120,50 @@ public class WebParameterUtils {
         return strBuffer;
     }
 
-    /**
-     * Parse the parameter value required for add, update, delete record
-     *
-     * @param req        Http Servlet Request
-     * @param isAdd      if add commend
-     * @param result     process result of parameter value, include a
-     *                   tuple3 object(dataVersionId, operator, opData) info
-     * @return process result
-     */
     public static boolean getAUDBaseInfo(HttpServletRequest req,
-                                         boolean isAdd,
-                                         ProcessResult result) {
+                                         boolean isAdd, ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
-                false, TServerConstants.DEFAULT_DATA_VERSION, result)) {
+                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
             return result.isSuccess();
         }
         long dataVerId = (long) result.retData1;
         // check and get createUser or modifyUser
-        String operator = null;
-        Date opDate = null;
+        String createUsr = "";
+        Date createDate = null;
         if (isAdd) {
             // check create user field
             if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.CREATEUSER, true, null, result)) {
+                    WebFieldDef.CREATEUSER, isAdd, null, result)) {
                 return result.isSuccess();
             }
-            operator = (String) result.retData1;
+            createUsr = (String) result.retData1;
             // check and get create date
             if (!WebParameterUtils.getDateParameter(req,
                     WebFieldDef.CREATEDATE, false, new Date(), result)) {
                 return result.isSuccess();
             }
-            opDate = (Date) result.retData1;
-
-        } else {
-            // check modify user field
-            if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.MODIFYUSER, true, null, result)) {
-                return result.isSuccess();
-            }
-            operator = (String) result.retData1;
-            // check and get modify date
-            if (!WebParameterUtils.getDateParameter(req,
-                    WebFieldDef.MODIFYDATE, false, new Date(), result)) {
-                return result.isSuccess();
-            }
-            opDate = (Date) result.retData1;
+            createDate = (Date) result.retData1;
         }
-        result.setSuccResult(new Tuple3<Long, String, Date>(
-                dataVerId, operator, opDate));
+        // check modify user field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, !isAdd, createUsr, result)) {
+            return result.isSuccess();
+        }
+        String modifyUser = (String) result.retData1;
+        // check and get modify date
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.MODIFYDATE, false, createDate, result)) {
+            return result.isSuccess();
+        }
+        Date modifyDate = (Date) result.retData1;
+        result.setSuccResult(new BaseEntity(dataVerId,
+                createUsr, createDate, modifyUser, modifyDate));
         return result.isSuccess();
     }
 
-    public static boolean getAUDBaseInfo(Map<String, String> keyValueMap,
-                                         boolean isAdd,
-                                         ProcessResult result) {
+    public static boolean getAUDBaseInfo(Map<String, String> keyValueMap, boolean isAdd,
+                                         BaseEntity defOpInfoEntity, ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(keyValueMap, WebFieldDef.DATAVERSIONID,
                 false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
@@ -185,38 +171,36 @@ public class WebParameterUtils {
         }
         long dataVerId = (long) result.retData1;
         // check and get createUser or modifyUser
-        String operator = null;
-        Date opDate = null;
+        String createUsr = null;
+        Date createDate = null;
         if (isAdd) {
             // check create user field
             if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                    WebFieldDef.CREATEUSER, false, null, result)) {
+                    WebFieldDef.CREATEUSER, false, defOpInfoEntity.getCreateUser(), result)) {
                 return result.isSuccess();
             }
-            operator = (String) result.retData1;
+            createUsr = (String) result.retData1;
             // check and get create date
             if (!WebParameterUtils.getDateParameter(keyValueMap,
-                    WebFieldDef.CREATEDATE, false, null, result)) {
+                    WebFieldDef.CREATEDATE, false, defOpInfoEntity.getCreateDate(), result)) {
                 return result.isSuccess();
             }
-            opDate = (Date) result.retData1;
-
-        } else {
-            // check modify user field
-            if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                    WebFieldDef.MODIFYUSER, false, null, result)) {
-                return result.isSuccess();
-            }
-            operator = (String) result.retData1;
-            // check and get modify date
-            if (!WebParameterUtils.getDateParameter(keyValueMap,
-                    WebFieldDef.MODIFYDATE, false, null, result)) {
-                return result.isSuccess();
-            }
-            opDate = (Date) result.retData1;
+            createDate = (Date) result.retData1;
         }
-        result.setSuccResult(new Tuple3<Long, String, Date>(
-                dataVerId, operator, opDate));
+        // check modify user field
+        if (!WebParameterUtils.getStringParamValue(keyValueMap,
+                WebFieldDef.MODIFYUSER, false, defOpInfoEntity.getModifyUser(), result)) {
+            return result.isSuccess();
+        }
+        String modifyUser = (String) result.retData1;
+        // check and get modify date
+        if (!WebParameterUtils.getDateParameter(keyValueMap,
+                WebFieldDef.MODIFYDATE, false, defOpInfoEntity.getModifyDate(), result)) {
+            return result.isSuccess();
+        }
+        Date modifyDate = (Date) result.retData1;
+        result.setSuccResult(new BaseEntity(dataVerId,
+                createUsr, createDate, modifyUser, modifyDate));
         return result.isSuccess();
     }
 

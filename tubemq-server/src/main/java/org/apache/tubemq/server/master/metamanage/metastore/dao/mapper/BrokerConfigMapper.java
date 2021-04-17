@@ -42,4 +42,6 @@ public interface BrokerConfigMapper extends AbstractMapper {
     BrokerConfEntity getBrokerConfByBrokerId(int brokerId);
 
     BrokerConfEntity getBrokerConfByBrokerIp(String brokerIp);
+
+    Map<Integer, Set<Integer>> getBrokerIdByRegionId(Set<Integer> regionIdSet);
 }

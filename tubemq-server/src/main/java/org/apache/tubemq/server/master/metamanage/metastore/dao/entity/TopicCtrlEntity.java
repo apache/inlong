@@ -44,6 +44,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
+
     public TopicCtrlEntity(String topicName, int topicNameId,
                            int maxMsgSizeInMB, String createUser) {
         super(createUser, new Date());
@@ -53,6 +54,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         this.maxMsgSizeInB =
                 SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
         this.maxMsgSizeInMB = maxMsgSizeInMB;
+    }
+
+    public TopicCtrlEntity(BaseEntity opEntity, String topicName) {
+        super(opEntity);
+        this.topicName = topicName;
     }
 
     public TopicCtrlEntity(String topicName, int topicNameId,
@@ -89,7 +95,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
                 new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
                         getAttributes(), getCreateUser(), getCreateDate());
         bdbEntity.setTopicId(topicNameId);
-        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setMaxMsgSize(maxMsgSizeInB);
         return bdbEntity;
     }
@@ -143,10 +149,15 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(int topicNameId,
-                                 int newMaxMsgSizeMB,
-                                 EnableStatus authCtrlStatus) {
+    public boolean updModifyInfo(long dataVerId, int topicNameId,
+                                 int newMaxMsgSizeMB, Boolean enableTopicAuth) {
         boolean changed = false;
+        // check and set brokerPort info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
+            changed = true;
+            this.setDataVersionId(dataVerId);
+        }
         // check and set topicNameId info
         if (topicNameId != TBaseConstants.META_VALUE_UNDEFINED
                 && this.topicNameId != topicNameId) {
@@ -164,13 +175,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
             }
         }
         // check and set authCtrlStatus info
-        if (authCtrlStatus != null
-                && authCtrlStatus != EnableStatus.STATUS_UNDEFINE
-                && this.authCtrlStatus != authCtrlStatus) {
+        if (enableTopicAuth != null
+                && this.authCtrlStatus.isEnable() != enableTopicAuth) {
+            setEnableAuthCtrl(enableTopicAuth);
             changed = true;
-            this.authCtrlStatus = authCtrlStatus;
         }
-
         if (changed) {
             updSerialId();
         }
@@ -274,12 +283,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public TopicCtrlEntity clone() {
-        try {
-            TopicCtrlEntity copy = (TopicCtrlEntity) super.clone();
-            copy.setAuthCtrlStatus(getAuthCtrlStatus());
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        TopicCtrlEntity copy = (TopicCtrlEntity) super.clone();
+        copy.setAuthCtrlStatus(getAuthCtrlStatus());
+        return copy;
     }
 }

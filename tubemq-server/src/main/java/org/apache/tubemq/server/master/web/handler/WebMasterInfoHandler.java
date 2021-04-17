@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.server.master.web.handler;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,13 +26,13 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.Tuple2;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
@@ -150,7 +149,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
         StringBuilder sBuilder = new StringBuilder(512);
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting();
+                metaDataManager.getClusterDefSetting(true);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
         if (defClusterSetting != null) {
             defClusterSetting.toWebJsonStr(sBuilder, true, true);
@@ -179,8 +178,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check max message size
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.MAXMSGSIZEINMB, false,
@@ -245,10 +243,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         String flowCtrlInfo = (String) result.retData1;
         // add or modify record
         ClusterSettingEntity newConf = null;
-        ClusterSettingEntity curConf = metaDataManager.getClusterDefSetting();
+        ClusterSettingEntity curConf = metaDataManager.getClusterDefSetting(true);
         if (curConf == null) {
-            if (!metaDataManager.addClusterDefSetting(opTupleInfo.getF0(),
-                    opTupleInfo.getF1(), opTupleInfo.getF2(), inBrokerPort,
+            if (!metaDataManager.addClusterDefSetting(opEntity, inBrokerPort,
                     inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
                     inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
                     defTopicProps, sBuilder, result)) {
@@ -256,8 +253,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 return sBuilder;
             }
         } else {
-            if (!metaDataManager.modClusterDefSetting(opTupleInfo.getF0(),
-                    opTupleInfo.getF1(), opTupleInfo.getF2(), inBrokerPort,
+            if (!metaDataManager.modClusterDefSetting(opEntity, inBrokerPort,
                     inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
                     inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
                     defTopicProps, sBuilder, result)) {
@@ -265,7 +261,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 return sBuilder;
             }
         }
-        curConf = metaDataManager.getClusterDefSetting();
+        curConf = metaDataManager.getClusterDefSetting(true);
         if (curConf == null) {
             WebParameterUtils.buildFailResultWithBlankData(
                     DataOpErrCode.DERR_UPD_NOT_EXIST.getCode(),

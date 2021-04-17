@@ -19,7 +19,6 @@ package org.apache.tubemq.server.master.web.handler;
 
 import static java.lang.Math.abs;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
@@ -37,6 +35,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
@@ -199,8 +198,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         }
         Boolean withTopic = (Boolean) result.retData1;
         // fill query entity fields
-        qryEntity.updModifyInfo(brokerPort, brokerTlsPort, brokerWebPort,
-                regionId, groupId, null, brokerProps);
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(), brokerPort, brokerTlsPort,
+                brokerWebPort, regionId, groupId, null, brokerProps);
         Map<Integer, BrokerConfEntity> qryResult =
                 metaDataManager.getBrokerConfInfo(brokerIds, brokerIpSet, qryEntity);
         // build query result
@@ -244,18 +243,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // check and get cluster default setting info
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting();
-        if (defClusterSetting == null) {
-            if (!metaDataManager.addClusterDefSetting(sBuilder, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
-            }
-            defClusterSetting = metaDataManager.getClusterDefSetting();
-        }
+                metaDataManager.getClusterDefSetting(false);
         // get brokerIp and brokerId field
         if (!getBrokerIpAndIdParamValue(req, sBuilder, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
@@ -312,8 +303,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // add record and process result
         List<BrokerProcessResult> retInfo = new ArrayList<>();
         BrokerProcessResult processResult =
-                metaDataManager.addBrokerConfig(opTupleInfo.getF0(),
-                        opTupleInfo.getF1(), opTupleInfo.getF2(), brokerIdAndIpTuple.getF0(),
+                metaDataManager.addBrokerConfig(opInfoEntity, brokerIdAndIpTuple.getF0(),
                         brokerIdAndIpTuple.getF1(), brokerPort, brokerTlsPort, brokerWebPort,
                         regionId, groupId, manageStatus, brokerProps, sBuilder, result);
         retInfo.add(processResult);
@@ -341,12 +331,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity defOpInfoEntity = (BaseEntity) result.getRetData();
         // check and get brokerJsonSet info
-        if (!getBrokerJsonSetInfo(req, true, true,
-                opTupleInfo.getF0(), opTupleInfo.getF1(), opTupleInfo.getF2(),
-                null, sBuilder, result)) {
+        if (!getBrokerJsonSetInfo(req, true,
+                defOpInfoEntity, null, sBuilder, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -385,8 +373,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, result)) {
@@ -452,9 +439,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 continue;
             }
             newEntity = curEntity.clone();
-            newEntity.updBaseModifyInfo(opTupleInfo.getF0(), null, null,
-                    opTupleInfo.getF1(), opTupleInfo.getF2(), null);
-            if (!newEntity.updModifyInfo(brokerPort, brokerTlsPort,
+            newEntity.updBaseModifyInfo(opInfoEntity);
+            if (!newEntity.updModifyInfo(opInfoEntity.getDataVerId(), brokerPort, brokerTlsPort,
                     brokerWebPort, regionId, groupId, null, brokerProps)) {
                 result.setFailResult(DataOpErrCode.DERR_SUCCESS_UNCHANGED.getCode(),
                         DataOpErrCode.DERR_SUCCESS_UNCHANGED.getDescription());
@@ -487,8 +473,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // get isReservedData info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ISRESERVEDDATA, false, false, result)) {
@@ -582,12 +567,12 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 Map<String, TopicDeployEntity> brokerTopicConfMap =
                         metaDataManager.getBrokerTopicConfEntitySet(entry.getBrokerId());
                 if (brokerTopicConfMap != null) {
-                    metaDataManager.delBrokerTopicConfig(opTupleInfo.getF1(),
+                    metaDataManager.delBrokerTopicConfig(opInfoEntity.getModifyUser(),
                             entry.getBrokerId(), sBuilder, result);
                 }
             }
-            metaDataManager.confDelBrokerConfig(
-                    opTupleInfo.getF1(), entry.getBrokerId(), sBuilder, result);
+            metaDataManager.confDelBrokerConfig(opInfoEntity.getModifyUser(),
+                    entry.getBrokerId(), sBuilder, result);
             retInfo.add(new BrokerProcessResult(
                     entry.getBrokerId(), entry.getBrokerIp(), result));
         }
@@ -673,50 +658,29 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         return sBuilder;
     }
 
-    private boolean getBrokerJsonSetInfo(HttpServletRequest req, boolean required,
-                                         boolean isCreate, long dataVerId,
-                                         String operator, Date operateDate,
+    private boolean getBrokerJsonSetInfo(HttpServletRequest req, boolean isAddOp,
+                                         BaseEntity defOpInfoEntity,
                                          List<Map<String, String>> defValue,
-                                         StringBuilder sBuilder,
-                                         ProcessResult result) {
+                                         StringBuilder sBuilder, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
-                WebFieldDef.BROKERJSONSET, required, defValue, result)) {
+                WebFieldDef.BROKERJSONSET, true, defValue, result)) {
             return result.success;
         }
         List<Map<String, String>> brokerJsonArray =
                 (List<Map<String, String>>) result.retData1;
         // check and get cluster default setting info
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting();
-        if (defClusterSetting == null) {
-            if (!metaDataManager.addClusterDefSetting(sBuilder, result)) {
-                return result.isSuccess();
-            }
-            defClusterSetting = metaDataManager.getClusterDefSetting();
-        }
+                metaDataManager.getClusterDefSetting(false);
         // check and get broker configure
         HashMap<Integer, BrokerConfEntity> addedRecordMap = new HashMap<>();
         for (int j = 0; j < brokerJsonArray.size(); j++) {
             Map<String, String> brokerObject = brokerJsonArray.get(j);
             // check and get operation info
-            long itemDataVerId = dataVerId;
-            String itemCreator = operator;
-            Date itemCreateDate = operateDate;
-            if (!WebParameterUtils.getAUDBaseInfo(
-                    brokerObject, true, result)) {
+            if (!WebParameterUtils.getAUDBaseInfo(brokerObject,
+                    isAddOp, defOpInfoEntity, result)) {
                 return result.isSuccess();
             }
-            Tuple3<Long, String, Date> opTupleInfo =
-                    (Tuple3<Long, String, Date>) result.getRetData();
-            if (opTupleInfo.getF0() != TBaseConstants.META_VALUE_UNDEFINED) {
-                itemDataVerId = opTupleInfo.getF0();
-            }
-            if (opTupleInfo.getF1() != null) {
-                itemCreator = opTupleInfo.getF1();
-            }
-            if (opTupleInfo.getF2() != null) {
-                itemCreateDate = opTupleInfo.getF2();
-            }
+            BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
             // get brokerIp and brokerId field
             if (!getBrokerIpAndIdParamValue(brokerObject, sBuilder, result)) {
                 return result.isSuccess();
@@ -764,22 +728,20 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             // manageStatusId
             ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_APPLY;
             BrokerConfEntity entity =
-                    new BrokerConfEntity(itemDataVerId, itemCreator, itemCreateDate);
+                    new BrokerConfEntity(itemOpEntity);
             entity.setBrokerIdAndIp(brokerIdAndIpTuple.getF0(), brokerIdAndIpTuple.getF1());
-            entity.updModifyInfo(brokerPort, brokerTlsPort, brokerWebPort,
-                    regionId, groupId, manageStatus, brokerProps);
+            entity.updModifyInfo(itemOpEntity.getDataVerId(), brokerPort, brokerTlsPort,
+                    brokerWebPort, regionId, groupId, manageStatus, brokerProps);
             addedRecordMap.put(entity.getBrokerId(), entity);
         }
         // check result
         if (addedRecordMap.isEmpty()) {
-            if (isCreate) {
-                result.setFailResult(sBuilder
-                        .append("Not found record in ")
-                        .append(WebFieldDef.BROKERJSONSET.name)
-                        .append(" parameter!").toString());
-                sBuilder.delete(0, sBuilder.length());
-                return result.isSuccess();
-            }
+            result.setFailResult(sBuilder
+                    .append("Not found record in ")
+                    .append(WebFieldDef.BROKERJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuilder.delete(0, sBuilder.length());
+            return result.isSuccess();
         }
         result.setSuccResult(addedRecordMap);
         return result.isSuccess();

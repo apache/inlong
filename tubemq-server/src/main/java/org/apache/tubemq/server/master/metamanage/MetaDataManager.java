@@ -19,7 +19,6 @@ package org.apache.tubemq.server.master.metamanage;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +48,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.MetaStoreService;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
@@ -72,6 +72,8 @@ public class MetaDataManager implements Server {
 
     private static final Logger logger =
             LoggerFactory.getLogger(MetaDataManager.class);
+    private static final ClusterSettingEntity defClusterSetting =
+            new ClusterSettingEntity().fillDefaultValue();
     private final MasterReplicationConfig replicationConfig;
     private final ScheduledExecutorService scheduledExecutorService;
     private final ConcurrentHashMap<Integer, String> brokersMap =
@@ -420,16 +422,18 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public BrokerProcessResult addBrokerConfig(long dataVerId, String createUser, Date createDate,
-                                               int brokerId, String brokerIp, int brokerPort,
-                                               int brokerTlsPort, int brokerWebPort, int regionId,
-                                               int groupId, ManageStatus manageStatus,
-                                               TopicPropGroup topicProps, StringBuilder sBuilder,
+    public BrokerProcessResult addBrokerConfig(BaseEntity opInfoEntity, int brokerId,
+                                               String brokerIp, int brokerPort,
+                                               int brokerTlsPort, int brokerWebPort,
+                                               int regionId, int groupId,
+                                               ManageStatus manageStatus,
+                                               TopicPropGroup topicProps,
+                                               StringBuilder sBuilder,
                                                ProcessResult result) {
-        BrokerConfEntity entity = new BrokerConfEntity(dataVerId, createUser, createDate);
+        BrokerConfEntity entity = new BrokerConfEntity(opInfoEntity);
         entity.setBrokerIdAndIp(brokerId, brokerIp);
-        entity.updModifyInfo(brokerPort, brokerTlsPort, brokerWebPort,
-                regionId, groupId, manageStatus, topicProps);
+        entity.updModifyInfo(opInfoEntity.getDataVerId(), brokerPort, brokerTlsPort,
+                brokerWebPort, regionId, groupId, manageStatus, topicProps);
         return addBrokerConfig(entity, sBuilder, result);
     }
 
@@ -883,8 +887,8 @@ public class MetaDataManager implements Server {
 
     // ////////////////////////////////////////////////////////////////////////////
 
-    public List<TopicProcessResult> addTopicDeployInfo(long dataVerId, String createUsr,
-                                                       Date createDate, Set<Integer> brokerIdSet,
+    public List<TopicProcessResult> addTopicDeployInfo(BaseEntity opEntity,
+                                                       Set<Integer> brokerIdSet,
                                                        Set<String> topicNameSet,
                                                        TopicPropGroup topicPropInfo,
                                                        StringBuilder sBuilder,
@@ -892,7 +896,8 @@ public class MetaDataManager implements Server {
         TopicDeployEntity deployConf;
         List<TopicProcessResult> retInfo = new ArrayList<>();
         // add topic control info
-        addIfAbsentTopicCtrlConf(topicNameSet, createUsr, sBuilder, result);
+        addIfAbsentTopicCtrlConf(topicNameSet,
+                opEntity.getCreateUser(), sBuilder, result);
         result.clear();
         // add topic deployment record
         for (Integer brokerId : brokerIdSet) {
@@ -903,6 +908,7 @@ public class MetaDataManager implements Server {
                 retInfo.add(new TopicProcessResult(brokerId, "", result));
                 continue;
             }
+
             for (String topicName : topicNameSet) {
                 TopicDeployEntity deployInfo = getTopicConfInfo(brokerId, topicName);
                 if (deployInfo != null) {
@@ -911,10 +917,11 @@ public class MetaDataManager implements Server {
                     retInfo.add(new TopicProcessResult(brokerId, topicName, result));
                     continue;
                 }
-                deployConf = new TopicDeployEntity(dataVerId, createUsr, createDate);
-                deployConf.setTopicDeployInfo(brokerConf.getBrokerId(),
+                deployConf = new TopicDeployEntity(opEntity, brokerConf.getBrokerId(),
                         brokerConf.getBrokerIp(), brokerConf.getBrokerPort(), topicName);
-                deployConf.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                deployConf.setTopicProps(brokerConf.getTopicProps());
+                deployConf.updModifyInfo(opEntity.getDataVerId(),
+                        TBaseConstants.META_VALUE_UNDEFINED,
                         TBaseConstants.META_VALUE_UNDEFINED, null,
                         TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
                 metaStoreService.addTopicConf(deployConf, sBuilder, result);
@@ -927,16 +934,16 @@ public class MetaDataManager implements Server {
     public TopicProcessResult addTopicDeployInfo(TopicDeployEntity deployEntity,
                                                  StringBuilder sBuilder,
                                                  ProcessResult result) {
-        // add topic control info
-        addIfAbsentTopicCtrlConf(deployEntity.getTopicName(),
-                TBaseConstants.META_VALUE_UNDEFINED,
-                deployEntity.getCreateUser(), sBuilder, result);
-        BrokerConfEntity brokerConf = getBrokerConfByBrokerId(deployEntity.getBrokerId());
+        // check broker configure exist
+        BrokerConfEntity brokerConf =
+                getBrokerConfByBrokerId(deployEntity.getBrokerId());
         if (brokerConf == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     DataOpErrCode.DERR_NOT_EXIST.getDescription());
             return new TopicProcessResult(deployEntity.getBrokerId(), "", result);
         }
+        // add topic control info
+        addIfAbsentTopicCtrlConf(deployEntity, sBuilder, result);
         // add topic deployment record
         TopicDeployEntity curDeployInfo =
                 metaStoreService.getTopicConfByeRecKey(deployEntity.getRecordKey());
@@ -957,15 +964,16 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public List<TopicProcessResult> modTopicConfig(long dataVerId, String modifyUser,
-                                                   Date modifyDate, Set<Integer> brokerIdSet,
+    public List<TopicProcessResult> modTopicConfig(BaseEntity opEntity,
+                                                   Set<Integer> brokerIdSet,
                                                    Set<String> topicNameSet,
                                                    TopicPropGroup topicProps,
                                                    StringBuilder sBuilder,
                                                    ProcessResult result) {
         List<TopicProcessResult> retInfo = new ArrayList<>();
         // add topic control info
-        addIfAbsentTopicCtrlConf(topicNameSet, modifyUser, sBuilder, result);
+        addIfAbsentTopicCtrlConf(topicNameSet,
+                opEntity.getModifyUser(), sBuilder, result);
         result.clear();
         // add topic deployment record
         TopicDeployEntity curEntity;
@@ -1029,10 +1037,11 @@ public class MetaDataManager implements Server {
                     }
                 }
                 newEntity = curEntity.clone();
-                newEntity.updBaseModifyInfo(dataVerId,
-                        null, null, modifyUser, modifyDate, null);
-                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                        TBaseConstants.META_VALUE_UNDEFINED, null, null, topicProps)) {
+                newEntity.updBaseModifyInfo(opEntity);
+                if (!newEntity.updModifyInfo(opEntity.getDataVerId(),
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        null, null, topicProps)) {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                             sBuilder.append("Data not changed for brokerId=")
                                     .append(curEntity.getBrokerId()).append(", topicName=")
@@ -1054,8 +1063,8 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public List<TopicProcessResult> modDelOrRmvTopicConf(long dataVerId, String modifyUser,
-                                                         Date modifyDate, Set<Integer> brokerIdSet,
+    public List<TopicProcessResult> modDelOrRmvTopicConf(BaseEntity opEntity,
+                                                         Set<Integer> brokerIdSet,
                                                          Set<String> topicNameSet,
                                                          TopicStatus topicStatus,
                                                          StringBuilder sBuilder,
@@ -1098,10 +1107,11 @@ public class MetaDataManager implements Server {
                     continue;
                 }
                 newEntity = curEntity.clone();
-                newEntity.updBaseModifyInfo(dataVerId,
-                        null, null, modifyUser, modifyDate, null);
-                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                        TBaseConstants.META_VALUE_UNDEFINED, null, topicStatus, null)) {
+                newEntity.updBaseModifyInfo(opEntity);
+                if (!newEntity.updModifyInfo(opEntity.getDataVerId(),
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        null, topicStatus, null)) {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                             sBuilder.append("Data not changed for brokerId=")
                                     .append(curEntity.getBrokerId()).append(", topicName=")
@@ -1123,8 +1133,8 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public List<TopicProcessResult> modRedoDelTopicConf(long dataVerId, String modifyUser,
-                                                        Date modifyDate, Set<Integer> brokerIdSet,
+    public List<TopicProcessResult> modRedoDelTopicConf(BaseEntity opEntity,
+                                                        Set<Integer> brokerIdSet,
                                                         Set<String> topicNameSet,
                                                         StringBuilder sBuilder,
                                                         ProcessResult result) {
@@ -1173,9 +1183,9 @@ public class MetaDataManager implements Server {
                     continue;
                 }
                 newEntity = curEntity.clone();
-                newEntity.updBaseModifyInfo(dataVerId,
-                        null, null, modifyUser, modifyDate, null);
-                if (!newEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                newEntity.updBaseModifyInfo(opEntity);
+                if (!newEntity.updModifyInfo(opEntity.getDataVerId(),
+                        TBaseConstants.META_VALUE_UNDEFINED,
                         TBaseConstants.META_VALUE_UNDEFINED, null,
                         TopicStatus.STATUS_TOPIC_OK, null)) {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
@@ -1346,36 +1356,125 @@ public class MetaDataManager implements Server {
     }
 
     // /////////////////////////////////////////////////////////////////////////////////
+
     /**
-     * Add topic control configure info
+     * Add or Update topic control configure info
      *
-     * @param entity     the topic control info entity will be add
-     * @param strBuffer  the print info string buffer
+     * @param sBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public boolean confAddTopicCtrlConf(TopicCtrlEntity entity,
-                                        StringBuilder strBuffer,
-                                        ProcessResult result) {
-        metaStoreService.addTopicCtrlConf(entity, strBuffer, result);
+    public List<TopicProcessResult> addOrUpdTopicCtrlConf(BaseEntity opInfoEntity,
+                                                          Set<String> topicNameSet,
+                                                          int topicNameId,
+                                                          Boolean enableTopicAuth,
+                                                          int maxMsgSizeInMB,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        TopicCtrlEntity curEntity;
+        TopicCtrlEntity newEntity;
+        List<TopicProcessResult> retInfoList = new ArrayList<>();
+        for (String topicName : topicNameSet) {
+            curEntity = metaStoreService.getTopicCtrlConf(topicName);
+            if (curEntity == null) {
+                newEntity = new TopicCtrlEntity(opInfoEntity, topicName);
+                newEntity.updModifyInfo(opInfoEntity.getDataVerId(),
+                        topicNameId, maxMsgSizeInMB, enableTopicAuth);
+                metaStoreService.addTopicCtrlConf(newEntity, sBuffer, result);
+            } else {
+                newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(opInfoEntity);
+                if (!newEntity.updModifyInfo(opInfoEntity.getDataVerId(),
+                        topicNameId, maxMsgSizeInMB, enableTopicAuth)) {
+                    result.setSuccResult(null);
+                    retInfoList.add(new TopicProcessResult(0, topicName, result));
+                    continue;
+                }
+                metaStoreService.updTopicCtrlConf(newEntity, sBuffer, result);
+            }
+            retInfoList.add(new TopicProcessResult(0, topicName, result));
+        }
+        return retInfoList;
+    }
+
+    /**
+     * Add or Update topic control configure info
+     *
+     * @param inEntity  the topic control info entity will be add
+     * @param sBuffer   the print info string buffer
+     * @param result    the process result return
+     * @return true if success otherwise false
+     */
+    public TopicProcessResult addOrUpdTopicCtrlConf(TopicCtrlEntity inEntity,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+
+        TopicCtrlEntity curEntity =
+                metaStoreService.getTopicCtrlConf(inEntity.getTopicName());
+        if (curEntity == null) {
+            metaStoreService.addTopicCtrlConf(inEntity, sBuffer, result);
+        } else {
+            TopicCtrlEntity newEntity2 = curEntity.clone();
+            newEntity2.updBaseModifyInfo(inEntity);
+            if (!newEntity2.updModifyInfo(inEntity.getDataVerId(), inEntity.getTopicId(),
+                    inEntity.getMaxMsgSizeInMB(), inEntity.isAuthCtrlEnable())) {
+                result.setSuccResult(null);
+                return new TopicProcessResult(0, inEntity.getTopicName(), result);
+            }
+            metaStoreService.updTopicCtrlConf(newEntity2, sBuffer, result);
+        }
+        return new TopicProcessResult(0, inEntity.getTopicName(), result);
+    }
+
+    /**
+     * Delete topic control configure
+     *
+     * @param operator   operator
+     * @param topicName  the topicName will be deleted
+     * @param sBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public boolean delTopicCtrlConf(String operator,
+                                    String topicName,
+                                    StringBuilder sBuffer,
+                                    ProcessResult result) {
+        // check current status
+        if (!metaStoreService.checkStoreStatus(true, result)) {
+            return result.isSuccess();
+        }
+        if (metaStoreService.isTopicDeployed(topicName)) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    sBuffer.append("TopicName ").append(topicName)
+                            .append(" is in using, please delete the deploy info first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        if (metaStoreService.isTopicNameInUsed(topicName)) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    sBuffer.append("TopicName ").append(topicName)
+                            .append(" is in using, please delete the consume control info first!")
+                            .toString());
+            return result.isSuccess();
+        }
+        metaStoreService.delTopicCtrlConf(operator, topicName, sBuffer, result);
         return result.isSuccess();
     }
+
 
     /**
      * Add if absent topic control configure info
      *
-     * @param topicName  the topic name will be add
-     * @param topicNameId the topic name id will be add
-     * @param operator   operator
-     * @param strBuffer  the print info string buffer
+     * @param deployEntity  the topic deploy info will be add
+     * @param strBuffer     the print info string buffer
+     * @param result        the process result return
+     * @return true if success otherwise false
      */
-    public void addIfAbsentTopicCtrlConf(String topicName,
-                                         int topicNameId,
-                                         String operator,
+    public void addIfAbsentTopicCtrlConf(TopicDeployEntity deployEntity,
                                          StringBuilder strBuffer,
                                          ProcessResult result) {
         TopicCtrlEntity curEntity =
-                metaStoreService.getTopicCtrlConf(topicName);
+                metaStoreService.getTopicCtrlConf(deployEntity.getTopicName());
         if (curEntity != null) {
             return;
         }
@@ -1384,7 +1483,8 @@ public class MetaDataManager implements Server {
         if (defSetting != null) {
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
         }
-        curEntity = new TopicCtrlEntity(topicName, topicNameId, maxMsgSizeInMB, operator);
+        curEntity = new TopicCtrlEntity(deployEntity.getTopicName(),
+                deployEntity.getTopicId(), maxMsgSizeInMB, deployEntity.getCreateUser());
         metaStoreService.addTopicCtrlConf(curEntity, strBuffer, result);
         return;
     }
@@ -1397,10 +1497,8 @@ public class MetaDataManager implements Server {
      * @param operator   operator
      * @param strBuffer  the print info string buffer
      */
-    public void addIfAbsentTopicCtrlConf(Set<String> topicNameSet,
-                                         String operator,
-                                         StringBuilder strBuffer,
-                                         ProcessResult result) {
+    public void addIfAbsentTopicCtrlConf(Set<String> topicNameSet, String operator,
+                                         StringBuilder strBuffer, ProcessResult result) {
         TopicCtrlEntity curEntity;
         int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
         ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
@@ -1408,7 +1506,6 @@ public class MetaDataManager implements Server {
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
         }
         for (String topicName : topicNameSet) {
-            result.clear();
             curEntity = metaStoreService.getTopicCtrlConf(topicName);
             if (curEntity != null) {
                 continue;
@@ -1419,67 +1516,6 @@ public class MetaDataManager implements Server {
         }
     }
 
-    /**
-     * Update topic control configure
-     *
-     * @param entity     the topic control info entity will be update
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confUpdTopicCtrlConf(TopicCtrlEntity entity,
-                                        StringBuilder strBuffer,
-                                        ProcessResult result) {
-        if (metaStoreService.updTopicCtrlConf(entity, result)) {
-            TopicCtrlEntity oldEntity =
-                    (TopicCtrlEntity) result.getRetData();
-            TopicCtrlEntity curEntity =
-                    metaStoreService.getTopicCtrlConf(entity.getTopicName());
-            strBuffer.append("[confUpdTopicCtrlConf], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :").append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confUpdTopicCtrlConf], ")
-                    .append("failure to update topic control record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
-    }
-
-     /**
-     * Delete topic control configure
-     *
-     * @param operator   operator
-     * @param topicName  the topicName will be deleted
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confDelTopicCtrlConf(String operator,
-                                        String topicName,
-                                        StringBuilder strBuffer,
-                                        ProcessResult result) {
-        if (metaStoreService.delTopicCtrlConf(topicName, result)) {
-            TopicCtrlEntity entity =
-                    (TopicCtrlEntity) result.getRetData();
-            if (entity != null) {
-                strBuffer.append("[confDelTopicCtrlConf], ").append(operator)
-                        .append(" deleted topic control record :").append(entity.toString());
-                logger.info(strBuffer.toString());
-            }
-        } else {
-            strBuffer.append("[confDelTopicCtrlConf], ")
-                    .append("failure to delete topic control record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
-    }
 
     public TopicCtrlEntity getTopicCtrlByTopicName(String topicName) {
         return this.metaStoreService.getTopicCtrlConf(topicName);
@@ -1487,11 +1523,8 @@ public class MetaDataManager implements Server {
 
     public int getTopicMaxMsgSizeInMB(String topicName) {
         // get maxMsgSizeInMB info
-        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        ClusterSettingEntity clusterSettingEntity = getClusterDefSetting();
-        if (clusterSettingEntity != null) {
-            maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
-        }
+        ClusterSettingEntity clusterSettingEntity = getClusterDefSetting(false);
+        int maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
         TopicCtrlEntity topicCtrlEntity = getTopicCtrlByTopicName(topicName);
         if (topicCtrlEntity != null) {
             maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
@@ -1509,32 +1542,26 @@ public class MetaDataManager implements Server {
         return metaStoreService.getTopicCtrlConf(qryEntity);
     }
 
+    public Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
+                                                         TopicCtrlEntity qryEntity) {
+        return metaStoreService.getTopicCtrlConf(topicNameSet, qryEntity);
+    }
+
+
 
     // //////////////////////////////////////////////////////////////////////////////
 
-    public boolean addClusterDefSetting(StringBuilder strBuffer, ProcessResult result) {
-        if (metaStoreService.getClusterConfig() == null) {
-            ClusterSettingEntity defConf =
-                    new ClusterSettingEntity(TServerConstants.DEFAULT_DATA_VERSION,
-                            "Stystem", new Date());
-            defConf.fillDefaultValue();
-            return metaStoreService.addClusterConfig(defConf, strBuffer, result);
-        }
-        result.setSuccResult(null);
-        return result.isSuccess();
-    }
-
-    public boolean addClusterDefSetting(long dataVerId, String createUsr, Date createDate,
-                                        int brokerPort, int brokerTlsPort, int brokerWebPort,
+    public boolean addClusterDefSetting(BaseEntity opEntity, int brokerPort,
+                                        int brokerTlsPort, int brokerWebPort,
                                         int maxMsgSizeMB, int qryPriorityId,
                                         Boolean flowCtrlEnable, int flowRuleCnt,
                                         String flowCtrlInfo, TopicPropGroup topicProps,
                                         StringBuilder strBuffer, ProcessResult result) {
         ClusterSettingEntity newConf =
-                new ClusterSettingEntity(dataVerId, createUsr, createDate);
+                new ClusterSettingEntity(opEntity);
         newConf.fillDefaultValue();
-        newConf.updModifyInfo(brokerPort, brokerTlsPort,
-                brokerWebPort, maxMsgSizeMB, qryPriorityId,
+        newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
+                brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                 flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
         return metaStoreService.addClusterConfig(newConf, strBuffer, result);
     }
@@ -1544,8 +1571,8 @@ public class MetaDataManager implements Server {
      *
      * @return true if success otherwise false
      */
-    public boolean modClusterDefSetting(long dataVerId, String modifyUser, Date modifyDate,
-                                        int brokerPort, int brokerTlsPort, int brokerWebPort,
+    public boolean modClusterDefSetting(BaseEntity opEntity, int brokerPort,
+                                        int brokerTlsPort, int brokerWebPort,
                                         int maxMsgSizeMB, int qryPriorityId,
                                         Boolean flowCtrlEnable, int flowRuleCnt,
                                         String flowCtrlInfo, TopicPropGroup topicProps,
@@ -1558,9 +1585,9 @@ public class MetaDataManager implements Server {
             return result.isSuccess();
         }
         ClusterSettingEntity newConf = curConf.clone();
-        newConf.setModifyInfo(dataVerId, modifyUser, modifyDate);
-        if (newConf.updModifyInfo(brokerPort, brokerTlsPort,
-                brokerWebPort, maxMsgSizeMB, qryPriorityId,
+        newConf.updBaseModifyInfo(opEntity);
+        if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
+                brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                 flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
             metaStoreService.updClusterConfig(newConf, strBuffer, result);
         } else {
@@ -1571,25 +1598,28 @@ public class MetaDataManager implements Server {
     }
 
 
-    public ClusterSettingEntity getClusterDefSetting() {
-        return metaStoreService.getClusterConfig();
+    public ClusterSettingEntity getClusterDefSetting(boolean isMustConf) {
+        ClusterSettingEntity curClsSetting =
+                metaStoreService.getClusterConfig();
+        if (!isMustConf && curClsSetting == null) {
+            curClsSetting = defClusterSetting;
+        }
+        return curClsSetting;
     }
 
     // //////////////////////////////////////////////////////////////////////////////
 
-    public GroupProcessResult addGroupResCtrlConf(long dataVerId, String createUser,
-                                                  Date createDate, String groupName,
+    public GroupProcessResult addGroupResCtrlConf(BaseEntity opEntity, String groupName,
                                                   Boolean consumeEnable, String disableRsn,
                                                   Boolean resCheckEnable, int allowedBClientRate,
                                                   int qryPriorityId, Boolean flowCtrlEnable,
                                                   int flowRuleCnt, String flowCtrlInfo,
                                                   StringBuilder sBuilder, ProcessResult result) {
         GroupResCtrlEntity entity =
-                new GroupResCtrlEntity(dataVerId, createUser, createDate);
-        entity.setGroupName(groupName);
-        entity.updModifyInfo(consumeEnable, disableRsn,
-                resCheckEnable, allowedBClientRate, qryPriorityId,
-                flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
+                new GroupResCtrlEntity(opEntity, groupName);
+        entity.updModifyInfo(opEntity.getDataVerId(),
+                consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
+                qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
         return addGroupResCtrlConf(entity, sBuilder, result);
     }
 
@@ -1618,8 +1648,7 @@ public class MetaDataManager implements Server {
      *
      * @return true if success otherwise false
      */
-    public GroupProcessResult updGroupResCtrlConf(long dataVerId, String modifyUser,
-                                                  Date modifyDate, String groupName,
+    public GroupProcessResult updGroupResCtrlConf(BaseEntity opEntity, String groupName,
                                                   Boolean consumeEnable, String disableRsn,
                                                   Boolean resCheckEnable, int allowedBClientRate,
                                                   int qryPriorityId, Boolean flowCtrlEnable,
@@ -1633,10 +1662,10 @@ public class MetaDataManager implements Server {
             return new GroupProcessResult(groupName, null, result);
         }
         GroupResCtrlEntity newEntity = curEntity.clone();
-        newEntity.updBaseModifyInfo(dataVerId,
-                null, null, modifyUser, modifyDate, null);
-        if (newEntity.updModifyInfo(consumeEnable, disableRsn, resCheckEnable,
-                allowedBClientRate, qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo)) {
+        newEntity.updBaseModifyInfo(opEntity);
+        if (newEntity.updModifyInfo(opEntity.getDataVerId(), consumeEnable, disableRsn,
+                resCheckEnable, allowedBClientRate, qryPriorityId, flowCtrlEnable,
+                flowRuleCnt, flowCtrlInfo)) {
             metaStoreService.updGroupResCtrlConf(newEntity, sBuilder, result);
         } else {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
@@ -1671,33 +1700,31 @@ public class MetaDataManager implements Server {
         return retInfo;
     }
 
-    public Map<String, GroupResCtrlEntity> confGetGroupResCtrlConf(
-            GroupResCtrlEntity qryEntity) {
-        return metaStoreService.getGroupResCtrlConf(qryEntity);
+    public Map<String, GroupResCtrlEntity> confGetGroupResCtrlConf(Set<String> groupSet,
+                                                                   GroupResCtrlEntity qryEntity) {
+        return metaStoreService.getGroupResCtrlConf(groupSet, qryEntity);
     }
 
     public GroupResCtrlEntity confGetGroupResCtrlConf(String groupName) {
         return this.metaStoreService.getGroupResCtrlConf(groupName);
     }
 
-    public GroupProcessResult addGroupConsumeCtrlInfo(long dataVerId, String createUser,
-                                                      Date createDate, String groupName,
+    public GroupProcessResult addGroupConsumeCtrlInfo(BaseEntity opInfoEntity, String groupName,
                                                       String topicName, Boolean enableCsm,
                                                       String disableRsn, Boolean enableFilter,
                                                       String filterCondStr, StringBuilder sBuilder,
                                                       ProcessResult result) {
         GroupConsumeCtrlEntity entity =
-                new GroupConsumeCtrlEntity(dataVerId, createUser, createDate);
-        entity.setGroupAndTopic(groupName, topicName);
-        entity.updModifyInfo(enableCsm, disableRsn, enableFilter, filterCondStr);
+                new GroupConsumeCtrlEntity(opInfoEntity, groupName, topicName);
+        entity.updModifyInfo(opInfoEntity.getDataVerId(),
+                enableCsm, disableRsn, enableFilter, filterCondStr);
         return addGroupConsumeCtrlInfo(entity, sBuilder, result);
     }
 
     public GroupProcessResult addGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
                                                       StringBuilder sBuilder,
                                                       ProcessResult result) {
-        if (!addIfAbsentGroupResConf(entity.getGroupName(),
-                entity.getCreateUser(), entity.getCreateDate(), sBuilder, result)) {
+        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuilder, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         if (metaStoreService.getConsumeCtrlByGroupAndTopic(
@@ -1710,8 +1737,7 @@ public class MetaDataManager implements Server {
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
-    public GroupProcessResult modGroupConsumeCtrlInfo(long dataVerId, String modifyUser,
-                                                      Date modifyDate, String groupName,
+    public GroupProcessResult modGroupConsumeCtrlInfo(BaseEntity opEntity, String groupName,
                                                       String topicName, Boolean enableCsm,
                                                       String disableRsn, Boolean enableFilter,
                                                       String filterCondStr, StringBuilder sBuilder,
@@ -1724,9 +1750,9 @@ public class MetaDataManager implements Server {
             return new GroupProcessResult(groupName, topicName, result);
         }
         GroupConsumeCtrlEntity newEntity = curEntity.clone();
-        newEntity.updBaseModifyInfo(dataVerId,
-                null, null, modifyUser, modifyDate, null);
-        if (newEntity.updModifyInfo(enableCsm, disableRsn, enableFilter, filterCondStr)) {
+        newEntity.updBaseModifyInfo(opEntity);
+        if (newEntity.updModifyInfo(opEntity.getDataVerId(),
+                enableCsm, disableRsn, enableFilter, filterCondStr)) {
             metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuilder, result);
         } else {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
@@ -1746,8 +1772,7 @@ public class MetaDataManager implements Server {
                     DataOpErrCode.DERR_NOT_EXIST.getDescription());
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
-        if (!addIfAbsentGroupResConf(entity.getGroupName(),
-                entity.getModifyUser(), entity.getModifyDate(), sBuilder, result)) {
+        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuilder, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         metaStoreService.updGroupConsumeCtrlConf(entity, sBuilder, result);
@@ -1784,7 +1809,7 @@ public class MetaDataManager implements Server {
         return retInfo;
     }
 
-    private boolean addIfAbsentGroupResConf(String groupName, String operator, Date opDate,
+    private boolean addIfAbsentGroupResConf(BaseEntity opEntity, String groupName,
                                             StringBuilder sBuilder, ProcessResult result) {
         GroupResCtrlEntity resCtrlEntity =
                 this.metaStoreService.getGroupResCtrlConf(groupName);
@@ -1792,8 +1817,7 @@ public class MetaDataManager implements Server {
             result.setSuccResult(null);
             return true;
         }
-        resCtrlEntity = new GroupResCtrlEntity(
-                TServerConstants.DEFAULT_DATA_VERSION, operator, opDate);
+        resCtrlEntity = new GroupResCtrlEntity(opEntity, groupName);
         resCtrlEntity.setGroupName(groupName);
         resCtrlEntity.fillDefaultValue();
         return this.metaStoreService.addGroupResCtrlConf(resCtrlEntity, sBuilder, result);

@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.SettingValidUtils;
@@ -59,8 +58,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public ClusterSettingEntity(long dataVerId, String createUser, Date createDate) {
-        super(dataVerId, createUser, createDate);
+    public ClusterSettingEntity(BaseEntity opEntity) {
+        super(opEntity);
     }
 
     // Constructor by BdbClusterSettingEntity
@@ -89,7 +88,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     // build bdb object from current info
     public BdbClusterSettingEntity buildBdbClsDefSettingEntity() {
         BdbClusterSettingEntity bdbEntity =
-                new BdbClusterSettingEntity(recordKey, getDataVersionId(), brokerPort,
+                new BdbClusterSettingEntity(recordKey, getDataVerId(), brokerPort,
                         brokerTLSPort, brokerWebPort, clsDefTopicProps.getNumTopicStores(),
                         clsDefTopicProps.getNumPartitions(), clsDefTopicProps.getUnflushThreshold(),
                         clsDefTopicProps.getUnflushInterval(), clsDefTopicProps.getUnflushDataHold(),
@@ -131,59 +130,65 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(int newBrokerPort, int newBrokerTLSPort,
-                                 int newBrokerWebPort, int newMaxMsgSizeMB,
-                                 int newQryPriorityId, Boolean newFlowCtrlEnable,
-                                 int flowRuleCnt, String newFlowCtrlRuleInfo,
-                                 TopicPropGroup newDefTopicProps) {
+    public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTLSPort,
+                                 int brokerWebPort, int maxMsgSizeMB,
+                                 int qryPriorityId, Boolean flowCtrlEnable,
+                                 int flowRuleCnt, String flowCtrlRuleInfo,
+                                 TopicPropGroup defTopicProps) {
         boolean changed = false;
-        if (newBrokerPort != TBaseConstants.META_VALUE_UNDEFINED
-                && this.brokerPort != newBrokerPort) {
+        // check and set dataVerId info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
             changed = true;
-            this.brokerPort = newBrokerPort;
+            this.setDataVersionId(dataVerId);
         }
-        if (newBrokerTLSPort != TBaseConstants.META_VALUE_UNDEFINED
-                && this.brokerTLSPort != newBrokerTLSPort) {
+        if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerPort != brokerPort) {
             changed = true;
-            this.brokerTLSPort = newBrokerTLSPort;
+            this.brokerPort = brokerPort;
         }
-        if (newBrokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
-                && this.brokerWebPort != newBrokerWebPort) {
+        if (brokerTLSPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerTLSPort != brokerTLSPort) {
             changed = true;
-            this.brokerWebPort = newBrokerWebPort;
+            this.brokerTLSPort = brokerTLSPort;
+        }
+        if (brokerWebPort != TBaseConstants.META_VALUE_UNDEFINED
+                && this.brokerWebPort != brokerWebPort) {
+            changed = true;
+            this.brokerWebPort = brokerWebPort;
         }
         // check and set modified field
-        if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
+        if (maxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
             int newMaxMsgSizeB =
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeMB);
             if (this.maxMsgSizeInB != newMaxMsgSizeB) {
                 changed = true;
                 this.maxMsgSizeInB = newMaxMsgSizeB;
-                this.maxMsgSizeInMB = newMaxMsgSizeMB;
+                this.maxMsgSizeInMB = maxMsgSizeMB;
             }
         }
         // check and set qry priority id
-        if (newQryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
-                && this.qryPriorityId != newQryPriorityId) {
+        if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.qryPriorityId != qryPriorityId) {
             changed = true;
-            this.qryPriorityId = newQryPriorityId;
+            this.qryPriorityId = qryPriorityId;
         }
         // check and set flowCtrl info
-        if (newFlowCtrlEnable != null
-                && this.gloFlowCtrlStatus.isEnable() != newFlowCtrlEnable) {
+        if (flowCtrlEnable != null
+                && this.gloFlowCtrlStatus.isEnable() != flowCtrlEnable) {
             changed = true;
-            setEnableFlowCtrl(newFlowCtrlEnable);
+            setEnableFlowCtrl(flowCtrlEnable);
         }
-        if (TStringUtils.isNotBlank(newFlowCtrlRuleInfo)
-                && !newFlowCtrlRuleInfo.equals(gloFlowCtrlRuleInfo)) {
+        if (TStringUtils.isNotBlank(flowCtrlRuleInfo)
+                && !flowCtrlRuleInfo.equals(gloFlowCtrlRuleInfo)) {
             changed = true;
-            setGloFlowCtrlInfo(flowRuleCnt, newFlowCtrlRuleInfo);
+            setGloFlowCtrlInfo(flowRuleCnt, flowCtrlRuleInfo);
         }
         // check and set clsDefTopicProps info
-        if (newDefTopicProps != null
-                && !newDefTopicProps.isDataEquals(clsDefTopicProps)) {
+        if (defTopicProps != null
+                && !defTopicProps.isDataEquals(clsDefTopicProps)) {
             changed = true;
-            clsDefTopicProps = newDefTopicProps;
+            clsDefTopicProps = defTopicProps;
         }
         if (changed) {
             updSerialId();

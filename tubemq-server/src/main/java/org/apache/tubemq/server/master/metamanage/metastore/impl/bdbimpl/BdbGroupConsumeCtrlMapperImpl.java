@@ -172,6 +172,13 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
+    public boolean isTopicNameInUsed(String topicName) {
+        ConcurrentHashSet<String> consumeCtrlSet =
+                grpConsumeCtrlTopicCache.get(topicName);
+        return (consumeCtrlSet != null && !consumeCtrlSet.isEmpty());
+    }
+
+    @Override
     public boolean delGroupConsumeCtrlConf(String groupName,
                                            String topicName,
                                            ProcessResult result) {

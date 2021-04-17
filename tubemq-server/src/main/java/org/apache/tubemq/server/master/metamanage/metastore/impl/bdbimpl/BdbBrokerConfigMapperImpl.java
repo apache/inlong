@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
@@ -51,6 +52,8 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     private ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity> brokerConfCache =
             new ConcurrentHashMap<>();
     private ConcurrentHashMap<String/* brokerIP */, Integer/* brokerId */> brokerIpIndexCache =
+            new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer/* regionId */, ConcurrentHashSet<Integer>> regionIndexCache =
             new ConcurrentHashMap<>();
 
     public BdbBrokerConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
@@ -261,6 +264,26 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         return brokerConfCache.get(brokerId);
     }
 
+    @Override
+    public Map<Integer, Set<Integer>> getBrokerIdByRegionId(Set<Integer> regionIdSet) {
+        Set<Integer> qryKey = new HashSet<>();
+        Map<Integer, Set<Integer>> retInfo = new HashMap<>();
+        if (regionIdSet == null || regionIdSet.isEmpty()) {
+            qryKey.addAll(regionIndexCache.keySet());
+        } else {
+            qryKey.addAll(regionIdSet);
+        }
+        for (Integer regionId : qryKey) {
+            ConcurrentHashSet<Integer> brokerIdSet =
+                    regionIndexCache.get(regionId);
+            if (brokerIdSet == null || brokerIdSet.isEmpty()) {
+                continue;
+            }
+            retInfo.put(regionId, brokerIdSet);
+        }
+        return retInfo;
+    }
+
     /**
      * Put cluster setting info into bdb store
      *
@@ -304,6 +327,12 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
             return;
         }
         brokerIpIndexCache.remove(curEntity.getBrokerIp());
+        ConcurrentHashSet<Integer> brokerIdSet =
+                regionIndexCache.get(curEntity.getRegionId());
+        if (brokerIdSet == null) {
+            return;
+        }
+        brokerIdSet.remove(brokerId);
     }
 
     private void addOrUpdCacheRecord(BrokerConfEntity entity) {
@@ -313,10 +342,20 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         if (brokerId == null || brokerId != entity.getBrokerId()) {
             brokerIpIndexCache.put(entity.getBrokerIp(), entity.getBrokerId());
         }
+        ConcurrentHashSet<Integer> brokerIdSet = regionIndexCache.get(entity.getRegionId());
+        if (brokerIdSet == null) {
+            ConcurrentHashSet<Integer> tmpBrokerIdSet = new ConcurrentHashSet<>();
+            brokerIdSet = regionIndexCache.putIfAbsent(entity.getRegionId(), tmpBrokerIdSet);
+            if (brokerIdSet == null) {
+                brokerIdSet = tmpBrokerIdSet;
+            }
+        }
+        brokerIdSet.add(entity.getBrokerId());
     }
 
     private void clearCacheData() {
         brokerIpIndexCache.clear();
+        regionIndexCache.clear();
         brokerConfCache.clear();
     }
 }

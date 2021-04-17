@@ -223,6 +223,12 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     @Override
+    public boolean isTopicDeployed(String topicName) {
+        ConcurrentHashSet<String> deploySet = topicNameCacheIndex.get(topicName);
+        return (deploySet != null && !deploySet.isEmpty());
+    }
+
+    @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
                                                                 Set<Integer> brokerIdSet,
                                                                 TopicDeployEntity qryEntity) {

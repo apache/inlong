@@ -24,7 +24,11 @@ import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.server.common.exception.LoadMetaException;
@@ -176,6 +180,28 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
             }
         }
         return retEntitys;
+    }
+
+    @Override
+    public Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
+                                                         TopicCtrlEntity qryEntity) {
+        Set<String> qryKeySet = new HashSet<>();
+        Map<String, TopicCtrlEntity> retEntityMap = new HashMap<>();
+        if (topicNameSet == null || topicNameSet.isEmpty()) {
+            qryKeySet.addAll(topicCtrlCache.keySet());
+        } else {
+            qryKeySet.addAll(topicNameSet);
+        }
+        for (String topicName : qryKeySet) {
+            TopicCtrlEntity entity = topicCtrlCache.get(topicName);
+            if (entity == null
+                    || (qryEntity != null
+                    && !entity.isMatched(qryEntity))) {
+                continue;
+            }
+            retEntityMap.put(topicName, entity);
+        }
+        return retEntityMap;
     }
 
     /**

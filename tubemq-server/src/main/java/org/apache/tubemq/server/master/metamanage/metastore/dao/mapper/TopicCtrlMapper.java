@@ -18,6 +18,9 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
@@ -35,6 +38,9 @@ public interface TopicCtrlMapper extends AbstractMapper {
     TopicCtrlEntity getTopicCtrlConf(String topicName);
 
     List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity);
+
+    Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
+                                                  TopicCtrlEntity qryEntity);
 
 
 }

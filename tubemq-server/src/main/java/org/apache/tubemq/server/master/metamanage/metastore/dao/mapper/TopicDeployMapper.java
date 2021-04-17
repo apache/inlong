@@ -39,6 +39,8 @@ public interface TopicDeployMapper extends AbstractMapper {
 
     boolean hasConfiguredTopics(int brokerId);
 
+    boolean isTopicDeployed(String topicName);
+
     List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity);
 
     TopicDeployEntity getTopicConf(int brokerId, String topicName);

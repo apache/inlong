@@ -54,6 +54,14 @@ public class BaseEntity implements Serializable, Cloneable {
                 createUser, createDate, createUser, createDate);
     }
 
+    public BaseEntity(BaseEntity other) {
+        this.dataVersionId = other.dataVersionId;
+        this.createUser = other.createUser;
+        this.createDate = other.createDate;
+        this.modifyUser = other.modifyUser;
+        this.modifyDate = other.modifyDate;
+    }
+
     public BaseEntity(long dataVersionId, String createUser, Date createDate) {
         this(dataVersionId, createUser, createDate, createUser, createDate);
     }
@@ -79,6 +87,37 @@ public class BaseEntity implements Serializable, Cloneable {
         this.modifyUser = operator;
         this.modifyDate = opDate;
     }
+
+    public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
+        boolean changed = false;
+        if (TStringUtils.isNotBlank(opInfoEntity.getCreateUser())
+                && !Objects.equals(createUser, opInfoEntity.getCreateUser())) {
+            changed = true;
+            this.createUser = opInfoEntity.getCreateUser();
+        }
+        if (opInfoEntity.getCreateDate() != null
+                && !Objects.equals(createDate, opInfoEntity.getCreateDate())) {
+            changed = true;
+            this.createDate = opInfoEntity.getCreateDate();
+        }
+        if (TStringUtils.isNotBlank(opInfoEntity.getModifyUser())
+                && !Objects.equals(modifyUser, opInfoEntity.getModifyUser())) {
+            changed = true;
+            this.modifyUser = opInfoEntity.getModifyUser();
+        }
+        if (opInfoEntity.getModifyDate() != null
+                && !Objects.equals(modifyDate, opInfoEntity.getModifyDate())) {
+            changed = true;
+            this.modifyDate = opInfoEntity.getModifyDate();
+        }
+        if (TStringUtils.isNotBlank(opInfoEntity.getAttributes())
+                && !Objects.equals(attributes, opInfoEntity.getAttributes())) {
+            changed = true;
+            this.attributes = opInfoEntity.getAttributes();
+        }
+        return changed;
+    }
+
 
     public boolean updBaseModifyInfo(long newDataVerId, String newCreateUser,
                                      Date newCreateDate, String newModifyUser,
@@ -118,10 +157,6 @@ public class BaseEntity implements Serializable, Cloneable {
         return changed;
     }
 
-    public void setDataVersionId() {
-        setDataVersionId(System.currentTimeMillis());
-    }
-
     public void setDataVersionId(long dataVersionId) {
         this.dataVersionId = dataVersionId;
     }
@@ -151,7 +186,7 @@ public class BaseEntity implements Serializable, Cloneable {
         return createDate;
     }
 
-    public long getDataVersionId() {
+    public long getDataVerId() {
         return dataVersionId;
     }
 
@@ -191,8 +226,8 @@ public class BaseEntity implements Serializable, Cloneable {
         if (target == null) {
             return true;
         }
-        if ((target.getDataVersionId() != TBaseConstants.META_VALUE_UNDEFINED
-                && this.getDataVersionId() != target.getDataVersionId())
+        if ((target.getDataVerId() != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != target.getDataVerId())
                 || (TStringUtils.isNotBlank(target.getCreateUser())
                 && !target.getCreateUser().equals(createUser))
                 || (TStringUtils.isNotBlank(target.getModifyUser())
@@ -257,7 +292,11 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (Throwable e) {
+            return null;
+        }
     }
 }
