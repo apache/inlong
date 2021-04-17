@@ -48,8 +48,15 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public TopicDeployEntity(long dataVerId, String createUser, Date createDate) {
-        super(dataVerId, createUser, createDate);
+    public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId,
+                             String brokerIp, int brokerPort, String topicName) {
+        super(opInfoEntity);
+        this.brokerId = brokerId;
+        this.brokerIp = brokerIp;
+        this.brokerPort = brokerPort;
+        this.topicName = topicName;
+        this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
+        this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
     }
 
     public TopicDeployEntity(String topicName, int topicId, int brokerId,
@@ -93,7 +100,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
                         topicProps.isAcceptSubscribe(), topicProps.getNumTopicStores(),
                         getAttributes(), getCreateUser(), getCreateDate(),
                         getModifyUser(), getModifyDate());
-        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setTopicId(topicNameId);
         bdbEntity.setNumTopicStores(topicProps.getNumTopicStores());
         bdbEntity.setMemCacheMsgSizeInMB(topicProps.getMemCacheMsgSizeInMB());
@@ -204,9 +211,16 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(int topicNameId, int brokerPort, String brokerIp,
-                                 TopicStatus deployStatus, TopicPropGroup topicProps) {
+    public boolean updModifyInfo(long dataVerId, int topicNameId, int brokerPort,
+                                 String brokerIp, TopicStatus deployStatus,
+                                 TopicPropGroup topicProps) {
         boolean changed = false;
+        // check and set dataVerId info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
+            changed = true;
+            this.setDataVersionId(dataVerId);
+        }
         // check and set topicNameId info
         if (topicNameId != TBaseConstants.META_VALUE_UNDEFINED
                 && this.topicNameId != topicNameId) {
@@ -352,8 +366,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     public TopicDeployEntity clone() {
         try {
             TopicDeployEntity copy = (TopicDeployEntity) super.clone();
-            if (copy.getTopicProps() != null) {
-                copy.setTopicProps(getTopicProps().clone());
+            if (copy.topicProps != null) {
+                copy.topicProps = getTopicProps().clone();
             }
             copy.setDeployStatus(getDeployStatus());
             return copy;

@@ -30,13 +30,13 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
@@ -154,7 +154,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<String> filterCondSet = (Set<String>) result.retData1;
-        qryEntity.updModifyInfo(consumeEnable, null, filterEnable, null);
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                consumeEnable, null, filterEnable, null);
         Map<String, List<GroupConsumeCtrlEntity>> qryResultSet =
                 metaDataManager.getGroupConsumeCtrlConf(groupSet, topicNameSet);
         // build return result
@@ -200,8 +201,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getAndValidTopicNameInfo(req,
                 metaDataManager, true, null, result)) {
@@ -249,8 +249,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         for (String groupName : groupNameSet) {
             for (String topicName : topicNameSet) {
                 csmProcessResult =
-                        metaDataManager.addGroupConsumeCtrlInfo(opTupleInfo.getF0(),
-                                opTupleInfo.getF1(), opTupleInfo.getF2(), groupName,
+                        metaDataManager.addGroupConsumeCtrlInfo(opInfoEntity, groupName,
                                 topicName, consumeEnable, disableRsn,
                                 filterEnable, filterCondStr, sBuilder, result);
                 retInfo.add(csmProcessResult);
@@ -280,12 +279,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get groupCsmJsonSet data
-        if (!getGroupConsumeJsonSetInfo(req, true, true,
-                opTupleInfo.getF0(), opTupleInfo.getF1(), opTupleInfo.getF2(),
-                null, sBuilder, result)) {
+        if (!getGroupConsumeJsonSetInfo(req, true,
+                defOpEntity, null, sBuilder, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -328,8 +325,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getAndValidTopicNameInfo(req,
                 metaDataManager, true, null, result)) {
@@ -377,8 +373,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         for (String groupName : groupNameSet) {
             for (String topicName : topicNameSet) {
                 csmProcessResult =
-                        metaDataManager.modGroupConsumeCtrlInfo(opTupleInfo.getF0(),
-                                opTupleInfo.getF1(), opTupleInfo.getF2(), groupName,
+                        metaDataManager.modGroupConsumeCtrlInfo(opEntity, groupName,
                                 topicName, consumeEnable, disableRsn,
                                 filterEnable, filterCondStr, sBuilder, result);
                 retInfo.add(csmProcessResult);
@@ -408,11 +403,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get groupCsmJsonSet data
-        if (!getGroupConsumeJsonSetInfo(req, true, false, opTupleInfo.getF0(),
-                opTupleInfo.getF1(), opTupleInfo.getF2(), null, sBuilder, result)) {
+        if (!getGroupConsumeJsonSetInfo(req, true,
+                opEntity, null, sBuilder, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -455,8 +449,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, result)) {
@@ -473,7 +466,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         Set<String> groupNameSet = (Set<String>) result.retData1;
         // execute delete operation
         List<GroupProcessResult> retInfo =
-                metaDataManager.delGroupConsumeCtrlConf(opTupleInfo.getF1(),
+                metaDataManager.delGroupConsumeCtrlConf(opEntity.getModifyUser(),
                         groupNameSet, topicNameSet, sBuilder, result);
         buildRetInfo(retInfo, sBuilder);
         return sBuilder;
@@ -598,14 +591,13 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
 
 
 
-    private boolean getGroupConsumeJsonSetInfo(HttpServletRequest req, boolean required,
-                                               boolean isCreate, long dataVerId,
-                                               String operator, Date operateDate,
+    private boolean getGroupConsumeJsonSetInfo(HttpServletRequest req, boolean isAddOp,
+                                               BaseEntity defOpEntity,
                                                List<Map<String, String>> defValue,
                                                StringBuilder sBuilder,
                                                ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
-                WebFieldDef.GROUPCSMJSONSET, required, defValue, result)) {
+                WebFieldDef.GROUPCSMJSONSET, true, defValue, result)) {
             return result.success;
         }
         List<Map<String, String>> filterJsonArray =
@@ -636,7 +628,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             }
             // get consumeEnable info
             if (!WebParameterUtils.getBooleanParamValue(groupObject,
-                    WebFieldDef.CONSUMEENABLE, false, (isCreate ? true : null), result)) {
+                    WebFieldDef.CONSUMEENABLE, false, (isAddOp ? true : null), result)) {
                 return result.isSuccess();
             }
             Boolean consumeEnable = (Boolean) result.retData1;
@@ -648,23 +640,23 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             String disableRsn = (String) result.retData1;
             // get filterEnable info
             if (!WebParameterUtils.getBooleanParamValue(groupObject,
-                    WebFieldDef.FILTERENABLE, false, (isCreate ? false : null), result)) {
+                    WebFieldDef.FILTERENABLE, false, (isAddOp ? false : null), result)) {
                 return result.isSuccess();
             }
             Boolean filterEnable = (Boolean) result.retData1;
             // get filterConds info
             if (!WebParameterUtils.getFilterCondString(groupObject,
-                    false, isCreate, result)) {
+                    false, isAddOp, result)) {
                 return result.isSuccess();
             }
             String filterCondStr = (String) result.retData1;
             // record object
-            if (isCreate) {
+            if (isAddOp) {
                 // add new record
                 GroupConsumeCtrlEntity entity =
-                        new GroupConsumeCtrlEntity(dataVerId, operator, operateDate);
-                entity.setGroupAndTopic(groupName, topicName);
-                entity.updModifyInfo(consumeEnable, disableRsn, filterEnable, filterCondStr);
+                        new GroupConsumeCtrlEntity(defOpEntity, groupName, topicName);
+                entity.updModifyInfo(defOpEntity.getDataVerId(),
+                        consumeEnable, disableRsn, filterEnable, filterCondStr);
                 result.setSuccResult(entity);
                 csmProcessMap.put(entity.getRecordKey(),
                         new GroupProcessResult(groupName, topicName, result));
@@ -680,10 +672,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                     continue;
                 }
                 GroupConsumeCtrlEntity newEntity = curEntity.clone();
-                newEntity.updBaseModifyInfo(dataVerId, null,
-                        null, operator, operateDate, null);
-                if (newEntity.updModifyInfo(consumeEnable,
-                        disableRsn, filterEnable, filterCondStr)) {
+                newEntity.updBaseModifyInfo(defOpEntity);
+                if (newEntity.updModifyInfo(defOpEntity.getDataVerId(),
+                        consumeEnable, disableRsn, filterEnable, filterCondStr)) {
                     result.setSuccResult(newEntity);
                 } else {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
@@ -695,14 +686,12 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         // check result
         if (csmProcessMap.isEmpty()) {
-            if (isCreate) {
-                result.setFailResult(sBuilder
-                        .append("Not found record in ")
-                        .append(WebFieldDef.GROUPCSMJSONSET.name)
-                        .append(" parameter!").toString());
-                sBuilder.delete(0, sBuilder.length());
-                return result.isSuccess();
-            }
+            result.setFailResult(sBuilder
+                    .append("Not found record in ")
+                    .append(WebFieldDef.GROUPCSMJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuilder.delete(0, sBuilder.length());
+            return result.isSuccess();
         }
         result.setSuccResult(csmProcessMap);
         return result.isSuccess();

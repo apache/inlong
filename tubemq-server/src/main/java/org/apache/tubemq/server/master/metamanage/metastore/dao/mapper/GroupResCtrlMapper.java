@@ -18,6 +18,8 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
@@ -33,7 +35,6 @@ public interface GroupResCtrlMapper extends AbstractMapper {
 
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
-    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity);
-
-
+    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
+                                                        GroupResCtrlEntity qryEntity);
 }

@@ -219,7 +219,12 @@ public enum WebFieldDef {
     ISRESERVEDDATA(77, "isReservedData", "isRsvDt",
             WebFieldType.BOOLEAN, "Whether to keep topic data in the broker"),
     WITHCTRLINFO(78, "ctrlData", "cD",
-              WebFieldType.BOOLEAN, "With topic control data info.");
+              WebFieldType.BOOLEAN, "With topic control data info."),
+    WITHDEPLOYINFO(79, "withDeployInfo", "wDI",
+                 WebFieldType.BOOLEAN, "With topic deploy info."),
+
+    TOPICCTRLSET(80, "topicCtrlJsonSet", "tCtrlSet", WebFieldType.JSONSET,
+            "The topic control info set that needs to be added or modified");
 
 
     public final int id;

@@ -18,18 +18,17 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
 
@@ -125,21 +124,16 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Boolean flowCtrlEnable = (Boolean) result.retData1;
-        entity.updModifyInfo(consumeEnable, null, resCheckEnable,
-                TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId, flowCtrlEnable,
-                TBaseConstants.META_VALUE_UNDEFINED, null);
+        entity.updModifyInfo(entity.getDataVerId(), consumeEnable, null,
+                resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
+                flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                metaDataManager.confGetGroupResCtrlConf(entity);
-        // Fill in the key to be queried
-        if (inGroupSet.isEmpty()) {
-            inGroupSet.addAll(groupResCtrlEntityMap.keySet());
-        }
+                metaDataManager.confGetGroupResCtrlConf(inGroupSet, entity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        for (String groupName : inGroupSet) {
-            entity = groupResCtrlEntityMap.get(groupName);
-            if (entity == null) {
+        for (GroupResCtrlEntity resCtrlEntity : groupResCtrlEntityMap.values()) {
+            if (resCtrlEntity == null) {
                 continue;
             }
             if (totalCnt++ > 0) {
@@ -171,8 +165,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, result)) {
@@ -236,8 +229,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         GroupProcessResult retItem;
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            retItem = metaDataManager.addGroupResCtrlConf(opTupleInfo.getF0(),
-                    opTupleInfo.getF1(), opTupleInfo.getF2(), groupName, consumeEnable,
+            retItem = metaDataManager.addGroupResCtrlConf(opEntity, groupName, consumeEnable,
                     disableRsn, resCheckEnable, allowedBClientRate, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
             retInfo.add(retItem);
@@ -265,8 +257,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, result)) {
@@ -329,10 +320,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         GroupProcessResult retItem;
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            retItem = metaDataManager.updGroupResCtrlConf(opTupleInfo.getF0(),
-                    opTupleInfo.getF1(), opTupleInfo.getF2(), groupName, consumeEnable,
-                    disableRsn, resCheckEnable, allowedBClientRate, qryPriorityId,
-                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
+            retItem = metaDataManager.updGroupResCtrlConf(opEntity, groupName,
+                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
+                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
+                    sBuilder, result);
             retInfo.add(retItem);
         }
         return buildRetInfo(retInfo, sBuilder);
@@ -358,8 +349,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, result)) {
@@ -369,7 +359,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         Set<String> batchGroupNames = (Set<String>) result.retData1;
         // delete group resource record
         List<GroupProcessResult> retInfo =
-                metaDataManager.delGroupResCtrlConf(opTupleInfo.getF1(),
+                metaDataManager.delGroupResCtrlConf(opEntity.getModifyUser(),
                         batchGroupNames, sBuilder, result);
         return buildRetInfo(retInfo, sBuilder);
     }

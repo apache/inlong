@@ -59,7 +59,7 @@ public class GroupBlackListEntity extends BaseEntity implements Cloneable {
         BdbBlackGroupEntity bdbEntity =
                 new BdbBlackGroupEntity(topicName, groupName,
                         getAttributes(), getCreateUser(), getCreateDate());
-        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setReason(reason);
         return bdbEntity;
     }
@@ -166,11 +166,7 @@ public class GroupBlackListEntity extends BaseEntity implements Cloneable {
 
     @Override
     public GroupBlackListEntity clone() {
-        try {
-            GroupBlackListEntity copy = (GroupBlackListEntity) super.clone();
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        GroupBlackListEntity copy = (GroupBlackListEntity) super.clone();
+        return copy;
     }
 }

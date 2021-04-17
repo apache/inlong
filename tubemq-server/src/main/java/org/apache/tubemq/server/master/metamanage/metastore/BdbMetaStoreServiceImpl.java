@@ -524,6 +524,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
+    public boolean isTopicDeployed(String topicName) {
+        return topicDeployMapper.isTopicDeployed(topicName);
+    }
+
+    @Override
     public TopicDeployEntity getTopicConfByeRecKey(String recordKey) {
         return topicDeployMapper.getTopicConfByeRecKey(recordKey);
     }
@@ -603,21 +608,58 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public boolean updTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result) {
+    public boolean updTopicCtrlConf(TopicCtrlEntity entity,
+                                    StringBuilder sBuffer,
+                                    ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicCtrlMapper.updTopicCtrlConf(entity, result);
+        if (topicCtrlMapper.updTopicCtrlConf(entity, result)) {
+            TopicCtrlEntity oldEntity =
+                    (TopicCtrlEntity) result.getRetData();
+            TopicCtrlEntity curEntity =
+                    topicCtrlMapper.getTopicCtrlConf(entity.getTopicName());
+            sBuffer.append("[updTopicCtrlConf], ")
+                    .append(entity.getModifyUser())
+                    .append(" updated record from :").append(oldEntity.toString())
+                    .append(" to ").append(curEntity.toString());
+            logger.info(sBuffer.toString());
+        } else {
+            sBuffer.append("[updTopicCtrlConf], ")
+                    .append("failure to update topic control record : ")
+                    .append(result.getErrInfo());
+            logger.warn(sBuffer.toString());
+        }
+        sBuffer.delete(0, sBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
-    public boolean delTopicCtrlConf(String topicName, ProcessResult result) {
+    public boolean delTopicCtrlConf(String operator,
+                                    String topicName,
+                                    StringBuilder sBuffer,
+                                    ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        return topicCtrlMapper.delTopicCtrlConf(topicName, result);
+        if (topicCtrlMapper.delTopicCtrlConf(topicName, result)) {
+            TopicCtrlEntity entity =
+                    (TopicCtrlEntity) result.getRetData();
+            if (entity != null) {
+                sBuffer.append("[delTopicCtrlConf], ").append(operator)
+                        .append(" deleted topic control record :").append(entity.toString());
+                logger.info(sBuffer.toString());
+            }
+        } else {
+            sBuffer.append("[delTopicCtrlConf], ")
+                    .append("failure to delete topic control record : ")
+                    .append(result.getErrInfo());
+            logger.warn(sBuffer.toString());
+        }
+        sBuffer.delete(0, sBuffer.length());
+        return result.isSuccess();
     }
 
     @Override
@@ -628,6 +670,12 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     @Override
     public List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity) {
         return topicCtrlMapper.getTopicCtrlConf(qryEntity);
+    }
+
+    @Override
+    public Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
+                                                         TopicCtrlEntity qryEntity) {
+        return topicCtrlMapper.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
     // group configure api
@@ -718,8 +766,9 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity) {
-        return groupResCtrlMapper.getGroupResCtrlConf(qryEntity);
+    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
+                                                               GroupResCtrlEntity qryEntity) {
+        return groupResCtrlMapper.getGroupResCtrlConf(groupSet, qryEntity);
     }
 
     // group blacklist api
@@ -889,6 +938,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         }
         strBuffer.delete(0, strBuffer.length());
         return result.isSuccess();
+    }
+
+    @Override
+    public boolean isTopicNameInUsed(String topicName) {
+        return groupConsumeCtrlMapper.isTopicNameInUsed(topicName);
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 import java.util.Date;
 import java.util.Objects;
 
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.EnableStatus;
@@ -46,10 +47,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public GroupConsumeCtrlEntity(long dataVerId,
-                                  String createUser,
-                                  Date createDate) {
-        super(dataVerId, createUser, createDate);
+    public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
+                                  String groupName, String topicName) {
+        super(opInfoEntity);
+        this.groupName = groupName;
+        this.topicName = topicName;
     }
 
     public GroupConsumeCtrlEntity(String groupName, String topicName,
@@ -88,7 +90,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
                 new BdbGroupFilterCondEntity(topicName, groupName,
                         filterEnable.getCode(), filterCondStr,
                         getAttributes(), getCreateUser(), getCreateDate());
-        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setConsumeEnable(consumeEnable);
         bdbEntity.setDisableConsumeReason(disableReason);
         return bdbEntity;
@@ -169,32 +171,39 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(Boolean newConsumeEnable, String newDisableRsn,
-                                 Boolean newFilterEnable, String newFilterCondStr) {
+    public boolean updModifyInfo(long dataVerId, Boolean consumeEnable,
+                                 String disableRsn, Boolean filterEnable,
+                                 String filterCondStr) {
         boolean changed = false;
-        // check and set consumeEnable info
-        if (newConsumeEnable != null
-                && this.consumeEnable.isEnable() != newConsumeEnable) {
+        // check and set brokerPort info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
             changed = true;
-            setConsumeEnable(newConsumeEnable);
+            this.setDataVersionId(dataVerId);
+        }
+        // check and set consumeEnable info
+        if (consumeEnable != null
+                && this.consumeEnable.isEnable() != consumeEnable) {
+            changed = true;
+            setConsumeEnable(consumeEnable);
         }
         // check and set disableReason info
-        if (newDisableRsn != null
-                && !newDisableRsn.equals(disableReason)) {
+        if (disableRsn != null
+                && !disableRsn.equals(disableReason)) {
             changed = true;
-            disableReason = newDisableRsn;
+            disableReason = disableRsn;
         }
         // check and set consumeEnable info
-        if (newFilterEnable != null
-                && this.filterEnable.isEnable() != newFilterEnable) {
+        if (filterEnable != null
+                && this.filterEnable.isEnable() != filterEnable) {
             changed = true;
-            setFilterEnable(newFilterEnable);
+            setFilterEnable(filterEnable);
         }
         // check and set filterCondStr info
-        if (TStringUtils.isNotBlank(newFilterCondStr)
-                && !newFilterCondStr.equals(filterCondStr)) {
+        if (TStringUtils.isNotBlank(filterCondStr)
+                && !filterCondStr.equals(this.filterCondStr)) {
             changed = true;
-            filterCondStr = newFilterCondStr;
+            this.filterCondStr = filterCondStr;
         }
         if (changed) {
             updSerialId();
@@ -304,13 +313,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public GroupConsumeCtrlEntity clone() {
-        try {
-            GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
-            copy.setConsumeEnable(getConsumeEnable().isEnable());
-            copy.setFilterEnable(getFilterEnable().isEnable());
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
+        copy.setConsumeEnable(getConsumeEnable().isEnable());
+        copy.setFilterEnable(getFilterEnable().isEnable());
+        return copy;
     }
 }

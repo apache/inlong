@@ -18,7 +18,6 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.Tuple2;
-import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
@@ -37,6 +35,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
@@ -50,17 +49,17 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class WebTopicConfHandler extends AbstractWebHandler {
+public class WebTopicDeployHandler extends AbstractWebHandler {
 
     private static final Logger logger =
-            LoggerFactory.getLogger(WebTopicConfHandler.class);
+            LoggerFactory.getLogger(WebTopicDeployHandler.class);
 
     /**
      * Constructor
      *
      * @param master tube master
      */
-    public WebTopicConfHandler(TMaster master) {
+    public WebTopicDeployHandler(TMaster master) {
         super(master);
     }
 
@@ -142,8 +141,9 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             return sBuffer;
         }
         TopicStatus topicStatus = (TopicStatus) result.getRetData();
-        qryEntity.updModifyInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                TBaseConstants.META_VALUE_UNDEFINED, null, topicStatus, topicProps);
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                TBaseConstants.META_VALUE_UNDEFINED,
+                brokerPort, null, topicStatus, topicProps);
         Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
                 metaDataManager.getTopicConfEntityMap(topicNameSet, brokerIdSet, qryEntity);
         // build query result
@@ -457,8 +457,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, result)) {
@@ -473,19 +472,9 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             return sBuilder;
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
-        // check and get cluster default setting info
-        ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting();
-        if (defClusterSetting == null) {
-            if (!metaDataManager.addClusterDefSetting(sBuilder, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
-            }
-            defClusterSetting = metaDataManager.getClusterDefSetting();
-        }
         // get and valid TopicPropGroup info
         if (!WebParameterUtils.getTopicPropInfo(req,
-                defClusterSetting.getClsDefTopicProps(), result)) {
+                null, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -503,8 +492,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
         int inMaxMsgSizeMB = (int) result.getRetData();
          */
         List<TopicProcessResult> retInfo =
-                metaDataManager.addTopicDeployInfo(opTupleInfo.getF0(),
-                        opTupleInfo.getF1(), opTupleInfo.getF2(), brokerIdSet,
+                metaDataManager.addTopicDeployInfo(opEntity, brokerIdSet,
                         topicNameSet, topicPropInfo, sBuilder, result);
         return buildRetInfo(retInfo, sBuilder);
     }
@@ -529,11 +517,10 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get add record map
-        if (!getTopicDeployJsonSetInfo(req, true, true, opTupleInfo.getF0(),
-                opTupleInfo.getF1(), opTupleInfo.getF2(), null, sBuilder, result)) {
+        if (!getTopicDeployJsonSetInfo(req, true,
+                defOpEntity, null, sBuilder, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
@@ -568,8 +555,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return sBuilder;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, result)) {
@@ -592,8 +578,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
         TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
         // modify records
         List<TopicProcessResult> retInfo =
-                metaDataManager.modTopicConfig(opTupleInfo.getF0(),
-                        opTupleInfo.getF1(), opTupleInfo.getF2(), brokerIdSet,
+                metaDataManager.modTopicConfig(opEntity, brokerIdSet,
                         topicNameSet, topicProps, sBuilder, result);
         return buildRetInfo(retInfo, sBuilder);
     }
@@ -642,8 +627,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, result)) {
@@ -660,59 +644,37 @@ public class WebTopicConfHandler extends AbstractWebHandler {
         Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
         // modify records
         List<TopicProcessResult> retInfo =
-                metaDataManager.modRedoDelTopicConf(opTupleInfo.getF0(),
-                        opTupleInfo.getF1(), opTupleInfo.getF2(), brokerIdSet,
+                metaDataManager.modRedoDelTopicConf(opEntity, brokerIdSet,
                         topicNameSet, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
 
 
-    private boolean getTopicDeployJsonSetInfo(HttpServletRequest req, boolean required,
-                                              boolean isCreate, long dataVerId,
-                                              String operator, Date operateDate,
+    private boolean getTopicDeployJsonSetInfo(HttpServletRequest req, boolean isAdd,
+                                              BaseEntity defOpEntity,
                                               List<Map<String, String>> defValue,
                                               StringBuilder sBuilder,
                                               ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
-                WebFieldDef.TOPICJSONSET, required, defValue, result)) {
+                WebFieldDef.TOPICJSONSET, true, defValue, result)) {
             return result.success;
         }
         List<Map<String, String>> deployJsonArray =
                 (List<Map<String, String>>) result.retData1;
         // check and get cluster default setting info
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting();
-        if (defClusterSetting == null) {
-            if (!metaDataManager.addClusterDefSetting(sBuilder, result)) {
-                return result.isSuccess();
-            }
-            defClusterSetting = metaDataManager.getClusterDefSetting();
-        }
+                metaDataManager.getClusterDefSetting(false);
         TopicDeployEntity itemConf;
         Map<String, TopicDeployEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
-        HashMap<String, TopicDeployEntity> addedRecordMap = new HashMap<>();
         for (int j = 0; j < deployJsonArray.size(); j++) {
             Map<String, String> confMap = deployJsonArray.get(j);
             // check and get operation info
-            long itemDataVerId = dataVerId;
-            String itemCreator = operator;
-            Date itemCreateDate = operateDate;
-            if (!WebParameterUtils.getAUDBaseInfo(confMap, true, result)) {
+            if (!WebParameterUtils.getAUDBaseInfo(confMap, isAdd, defOpEntity, result)) {
                 return result.isSuccess();
             }
-            Tuple3<Long, String, Date> opTupleInfo =
-                    (Tuple3<Long, String, Date>) result.getRetData();
-            if (opTupleInfo.getF0() != TBaseConstants.META_VALUE_UNDEFINED) {
-                itemDataVerId = opTupleInfo.getF0();
-            }
-            if (opTupleInfo.getF1() != null) {
-                itemCreator = opTupleInfo.getF1();
-            }
-            if (opTupleInfo.getF2() != null) {
-                itemCreateDate = opTupleInfo.getF2();
-            }
+            BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
             // get topicName configure info
             if (!WebParameterUtils.getStringParamValue(confMap,
                     WebFieldDef.TOPICNAME, true, "", result)) {
@@ -749,26 +711,23 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             if (topicCtrlEntity != null) {
                 topicNameId = topicCtrlEntity.getTopicId();
             }
-            itemConf = new TopicDeployEntity(itemDataVerId, itemCreator, itemCreateDate);
-            itemConf.setTopicDeployInfo(brokerConf.getBrokerId(),
+            itemConf = new TopicDeployEntity(itemOpEntity, brokerConf.getBrokerId(),
                     brokerConf.getBrokerIp(), brokerConf.getBrokerPort(), topicName);
-            itemConf.updModifyInfo(topicNameId,
+            itemConf.updModifyInfo(itemOpEntity.getDataVerId(), topicNameId,
                     TBaseConstants.META_VALUE_UNDEFINED, null,
                     TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
             addRecordMap.put(itemConf.getRecordKey(), itemConf);
         }
         // check result
-        if (addedRecordMap.isEmpty()) {
-            if (isCreate) {
-                result.setFailResult(sBuilder
-                        .append("Not found record in ")
-                        .append(WebFieldDef.TOPICJSONSET.name)
-                        .append(" parameter!").toString());
-                sBuilder.delete(0, sBuilder.length());
-                return result.isSuccess();
-            }
+        if (addRecordMap.isEmpty()) {
+            result.setFailResult(sBuilder
+                    .append("Not found record in ")
+                    .append(WebFieldDef.TOPICJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuilder.delete(0, sBuilder.length());
+            return result.isSuccess();
         }
-        result.setSuccResult(addedRecordMap);
+        result.setSuccResult(addRecordMap);
         return result.isSuccess();
     }
 
@@ -802,7 +761,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
                 sBuilder.append(",");
             }
             sBuilder.append("{\"brokerId\":").append(entry.getBrokerId())
-                    .append("{\"topicName\":\"").append(entry.getTopicName()).append("\"")
+                    .append(",\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
@@ -835,8 +794,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Tuple3<Long, String, Date> opTupleInfo =
-                (Tuple3<Long, String, Date>) result.getRetData();
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, result)) {
@@ -853,8 +811,7 @@ public class WebTopicConfHandler extends AbstractWebHandler {
         Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
         // modify records
         List<TopicProcessResult> retInfo =
-                metaDataManager.modDelOrRmvTopicConf(opTupleInfo.getF0(),
-                        opTupleInfo.getF1(), opTupleInfo.getF2(), brokerIdSet,
+                metaDataManager.modDelOrRmvTopicConf(opEntity, brokerIdSet,
                         topicNameSet, topicStatus, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }

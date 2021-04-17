@@ -60,8 +60,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public BrokerConfEntity(long dataVerId, String createUser, Date createDate) {
-        super(dataVerId, createUser, createDate);
+    public BrokerConfEntity(BaseEntity opInfoEntity) {
+        super(opInfoEntity);
     }
 
     public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,
@@ -113,7 +113,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 topicProps.isAcceptSubscribe(), getAttributes(), isConfDataUpdated,
                 isBrokerLoaded, getCreateUser(), getCreateDate(),
                 getModifyUser(), getModifyDate());
-        bdbEntity.setDataVerId(getDataVersionId());
+        bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setRegionId(regionId);
         bdbEntity.setBrokerGroupId(groupId);
         bdbEntity.setBrokerTLSPort(brokerTLSPort);
@@ -283,10 +283,16 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(int brokerPort, int brokerTlsPort, int brokerWebPort,
-                                 int regionId, int groupId, ManageStatus manageStatus,
-                                 TopicPropGroup topicProps) {
+    public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTlsPort,
+                                 int brokerWebPort, int regionId, int groupId,
+                                 ManageStatus manageStatus, TopicPropGroup topicProps) {
         boolean changed = false;
+        // check and set dataVerId info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
+            changed = true;
+            this.setDataVersionId(dataVerId);
+        }
         // check and set brokerPort info
         if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED
                 && this.brokerPort != brokerPort) {

@@ -50,10 +50,9 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public GroupResCtrlEntity(long dataVerId,
-                              String createUser,
-                              Date createDate) {
-        super(dataVerId, createUser, createDate);
+    public GroupResCtrlEntity(BaseEntity opEntity, String groupName) {
+        super(opEntity);
+        this.groupName = groupName;
     }
 
     public GroupResCtrlEntity(String groupName,
@@ -101,7 +100,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         //Constructor
         int statusId = (this.flowCtrlStatus == EnableStatus.STATUS_ENABLE) ? 1 : 0;
         BdbGroupFlowCtrlEntity bdbEntity =
-                new BdbGroupFlowCtrlEntity(getDataVersionId(), this.groupName,
+                new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
                         this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
                         getAttributes(), getCreateUser(), getCreateDate());
         bdbEntity.setConsumeEnable(consumeEnable);
@@ -230,52 +229,58 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @return if changed
      */
-    public boolean updModifyInfo(Boolean newEnableConsume, String newDisableRsn,
-                                 Boolean newResChkEnable, int newAllowedB2CRate,
-                                 int newQryPriorityId, Boolean newFlowCtrlEnable,
-                                 int flowRuleCnt, String newFlowCtrlRuleInfo) {
+    public boolean updModifyInfo(long dataVerId, Boolean enableConsume, String disableRsn,
+                                 Boolean resChkEnable, int allowedB2CRate,
+                                 int qryPriorityId, Boolean flowCtrlEnable,
+                                 int flowRuleCnt, String flowCtrlRuleInfo) {
         boolean changed = false;
-        // check and set resCheckStatus info
-        if (newEnableConsume != null
-                && this.consumeEnable.isEnable() != newEnableConsume) {
+        // check and set dataVerId info
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.getDataVerId() != dataVerId) {
             changed = true;
-            setConsumeEnable(newEnableConsume);
+            this.setDataVersionId(dataVerId);
+        }
+        // check and set resCheckStatus info
+        if (enableConsume != null
+                && this.consumeEnable.isEnable() != enableConsume) {
+            changed = true;
+            setConsumeEnable(enableConsume);
         }
         // check and set disableReason info
-        if (TStringUtils.isNotBlank(newDisableRsn)
-                && !newDisableRsn.equals(disableReason)) {
+        if (TStringUtils.isNotBlank(disableRsn)
+                && !disableRsn.equals(disableReason)) {
             changed = true;
-            this.disableReason = newDisableRsn;
+            this.disableReason = disableRsn;
         }
         // check and set resCheckStatus info
-        if (newResChkEnable != null
-                && this.resCheckStatus.isEnable() != newResChkEnable) {
+        if (resChkEnable != null
+                && this.resCheckStatus.isEnable() != resChkEnable) {
             changed = true;
-            setResCheckStatus(newResChkEnable);
+            setResCheckStatus(resChkEnable);
         }
         // check and set allowed broker client rate
-        if (newAllowedB2CRate != TBaseConstants.META_VALUE_UNDEFINED
-                && this.allowedBrokerClientRate != newAllowedB2CRate) {
+        if (allowedB2CRate != TBaseConstants.META_VALUE_UNDEFINED
+                && this.allowedBrokerClientRate != allowedB2CRate) {
             changed = true;
-            this.allowedBrokerClientRate = newAllowedB2CRate;
+            this.allowedBrokerClientRate = allowedB2CRate;
         }
         // check and set qry priority id
-        if (newQryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
-                && this.qryPriorityId != newQryPriorityId) {
+        if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.qryPriorityId != qryPriorityId) {
             changed = true;
-            this.qryPriorityId = newQryPriorityId;
+            this.qryPriorityId = qryPriorityId;
         }
         // check and set flowCtrl info
-        if (newFlowCtrlEnable != null
-                && this.flowCtrlStatus.isEnable() != newFlowCtrlEnable) {
+        if (flowCtrlEnable != null
+                && this.flowCtrlStatus.isEnable() != flowCtrlEnable) {
             changed = true;
-            setFlowCtrlStatus(newFlowCtrlEnable);
+            setFlowCtrlStatus(flowCtrlEnable);
         }
         // check and set flowCtrlInfo info
-        if (TStringUtils.isNotBlank(newFlowCtrlRuleInfo)
-                && !newFlowCtrlRuleInfo.equals(flowCtrlInfo)) {
+        if (TStringUtils.isNotBlank(flowCtrlRuleInfo)
+                && !flowCtrlRuleInfo.equals(flowCtrlInfo)) {
             changed = true;
-            setFlowCtrlRule(flowRuleCnt, newFlowCtrlRuleInfo);
+            setFlowCtrlRule(flowRuleCnt, flowCtrlRuleInfo);
         }
         if (changed) {
             updSerialId();
@@ -395,15 +400,11 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public GroupResCtrlEntity clone() {
-        try {
-            GroupResCtrlEntity copy = (GroupResCtrlEntity) super.clone();
-            copy.setConsumeEnable(getConsumeEnable().isEnable());
-            copy.setFlowCtrlStatus(getFlowCtrlStatus());
-            copy.setResCheckStatus(getResCheckStatus());
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        GroupResCtrlEntity copy = (GroupResCtrlEntity) super.clone();
+        copy.setConsumeEnable(getConsumeEnable().isEnable());
+        copy.setFlowCtrlStatus(getFlowCtrlStatus());
+        copy.setResCheckStatus(getResCheckStatus());
+        return copy;
     }
 
 }

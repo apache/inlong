@@ -38,6 +38,8 @@ public interface GroupConsumeCtrlMapper extends AbstractMapper {
                                     String topicName,
                                     ProcessResult result);
 
+    boolean isTopicNameInUsed(String topicName);
+
     GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey);
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);

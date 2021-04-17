@@ -149,6 +149,8 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     boolean hasConfiguredTopics(int brokerId);
 
+    boolean isTopicDeployed(String topicName);
+
     TopicDeployEntity getTopicConfByeRecKey(String recordKey);
 
     List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity);
@@ -173,17 +175,51 @@ public interface MetaStoreService extends KeepAlive, Server {
     Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId);
 
     // topic control api
+    /**
+     * Add topic control configure info
+     *
+     * @param entity     the topic control info entity will be add
+     * @param sBuffer    the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
     boolean addTopicCtrlConf(TopicCtrlEntity entity,
                              StringBuilder sBuffer,
                              ProcessResult result);
 
-    boolean updTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
+    /**
+     * Update topic control configure
+     *
+     * @param entity     the topic control info entity will be update
+     * @param sBuffer    the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean updTopicCtrlConf(TopicCtrlEntity entity,
+                             StringBuilder sBuffer,
+                             ProcessResult result);
 
-    boolean delTopicCtrlConf(String topicName, ProcessResult result);
+    /**
+     * Delete topic control configure
+     *
+     * @param operator   operator
+     * @param topicName  the topicName will be deleted
+     * @param strBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    boolean delTopicCtrlConf(String operator,
+                             String topicName,
+                             StringBuilder sBuffer,
+                             ProcessResult result);
 
     TopicCtrlEntity getTopicCtrlConf(String topicName);
 
     List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity);
+
+    Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
+                                                  TopicCtrlEntity qryEntity);
+
 
     // group resource configure api
     /**
@@ -226,7 +262,8 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
-    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(GroupResCtrlEntity qryEntity);
+    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
+                                                        GroupResCtrlEntity qryEntity);
 
     // group blacklist api
     boolean addGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);
@@ -300,6 +337,8 @@ public interface MetaStoreService extends KeepAlive, Server {
                                     String recordKey,
                                     StringBuilder strBuffer,
                                     ProcessResult result);
+
+    boolean isTopicNameInUsed(String topicName);
 
     GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey);
 
