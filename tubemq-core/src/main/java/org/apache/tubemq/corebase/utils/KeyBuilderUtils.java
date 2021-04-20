@@ -38,10 +38,11 @@ public class KeyBuilderUtils {
             return ret;
         }
         String[] items = recordKey.split(TokenConstants.ATTR_SEP);
+        // return [topicName, groupName]
         if (items.length < 2) {
-            ret.setF0AndF1(items[0], items[1]);
+            ret.setF0AndF1(items[0], "");
         } else {
-            ret.setF0AndF1(items[0], items[0]);
+            ret.setF0AndF1(items[0], items[1]);
         }
         return ret;
     }

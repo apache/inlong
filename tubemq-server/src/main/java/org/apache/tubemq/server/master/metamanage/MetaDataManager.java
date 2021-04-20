@@ -51,14 +51,12 @@ import org.apache.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.TargetValidResult;
 import org.apache.tubemq.server.master.web.handler.BrokerProcessResult;
 import org.apache.tubemq.server.master.web.handler.GroupProcessResult;
 import org.apache.tubemq.server.master.web.handler.TopicProcessResult;
@@ -242,27 +240,25 @@ public class MetaDataManager implements Server {
      * Check if consume target is authorization or not
      *
      * @param consumerId
-     * @param consumerGroupName
+     * @param groupName
      * @param reqTopicSet
-     * @param reqTopicConditions
-     * @param sb
+     * @param reqTopicCondMap
+     * @param sBuffer
      * @return
      */
-    public TargetValidResult isConsumeTargetAuthorized(String consumerId,
-                                                       String consumerGroupName,
-                                                       Set<String> reqTopicSet,
-                                                       Map<String, TreeSet<String>> reqTopicConditions,
-                                                       final StringBuilder sb) {
-        // #lizard forgives
+    public boolean isConsumeTargetAuthorized(String consumerId, String groupName,
+                                             Set<String> reqTopicSet,
+                                             Map<String, TreeSet<String>> reqTopicCondMap,
+                                             StringBuilder sBuffer, ProcessResult result) {
         // check topic set
         if ((reqTopicSet == null) || (reqTopicSet.isEmpty())) {
-            return new TargetValidResult(false, TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary subscribed topic data");
+            return result.isSuccess();
         }
-
-        if ((reqTopicConditions != null) && (!reqTopicConditions.isEmpty())) {
+        if ((reqTopicCondMap != null) && (!reqTopicCondMap.isEmpty())) {
             // check if request topic set is all in the filter topic set
-            Set<String> condTopics = reqTopicConditions.keySet();
+            Set<String> condTopics = reqTopicCondMap.keySet();
             List<String> unSetTopic = new ArrayList<>();
             for (String topic : condTopics) {
                 if (!reqTopicSet.contains(topic)) {
@@ -270,146 +266,123 @@ public class MetaDataManager implements Server {
                 }
             }
             if (!unSetTopic.isEmpty()) {
-                TargetValidResult validResult =
-                        new TargetValidResult(false, TErrCodeConstants.BAD_REQUEST,
-                                sb.append("Filter's Topic not subscribed :")
-                                        .append(unSetTopic).toString());
-                sb.delete(0, sb.length());
-                return validResult;
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        sBuffer.append("Filter's Topic not subscribed :")
+                                .append(unSetTopic).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
             }
         }
         // check if consumer group is in the blacklist
-        List<String> fbdTopicList = new ArrayList<>();
-        Set<String> naTopicSet =
-                metaStoreService.getGrpBlkLstNATopicByGroupName(consumerGroupName);
-        if (naTopicSet != null) {
-            for (String topicItem : reqTopicSet) {
-                if (naTopicSet.contains(topicItem)) {
-                    fbdTopicList.add(topicItem);
-                }
+        GroupResCtrlEntity resCtrlEntity =
+                metaStoreService.getGroupResCtrlConf(groupName);
+        if (resCtrlEntity != null && !resCtrlEntity.isEnableConsume()) {
+            if (!resCtrlEntity.isEnableConsume()) {
+                result.setFailResult(TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
+                        sBuffer.append("[unAuthorized Group] ").append(consumerId)
+                                .append("'s consumerGroup in blackList by administrator, reason is ")
+                                .append(resCtrlEntity.getDisableReason()).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
             }
         }
-        if (!fbdTopicList.isEmpty()) {
-            return new TargetValidResult(false, TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
-                    sb.append("[unAuthorized Group] ").append(consumerId)
-                            .append("'s consumerGroup in blackList by administrator, topics : ")
-                            .append(fbdTopicList).toString());
-        }
-        // check if topic enabled authorization
-        ArrayList<String> enableAuthTopicList = new ArrayList<>();
-        ArrayList<String> unAuthTopicList = new ArrayList<>();
+        // check if group enable consume
+        Set<String> disableCsmTopicSet = new HashSet<>();
+        Set<String> enableFltCsmTopicSet = new HashSet<>();
         for (String topicItem : reqTopicSet) {
             if (TStringUtils.isBlank(topicItem)) {
                 continue;
             }
-
-            TopicCtrlEntity topicEntity =
-                    metaStoreService.getTopicCtrlConf(topicItem);
+            TopicCtrlEntity topicEntity = metaStoreService.getTopicCtrlConf(topicItem);
             if (topicEntity == null) {
                 continue;
             }
             if (topicEntity.isAuthCtrlEnable()) {
-                enableAuthTopicList.add(topicItem);
-                //check if consumer group is allowed to consume
+                //check if consume group is allowed to consume
                 GroupConsumeCtrlEntity ctrlEntity =
-                        metaStoreService.getConsumeCtrlByGroupAndTopic(
-                                consumerGroupName, topicItem);
+                        metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicItem);
                 if (ctrlEntity == null) {
-                    unAuthTopicList.add(topicItem);
+                    disableCsmTopicSet.add(topicItem);
+                }
+                //check if consume group is required filter consume
+                if (ctrlEntity.isEnableFilterConsume()) {
+                    enableFltCsmTopicSet.add(topicItem);
                 }
             }
         }
-        if (!unAuthTopicList.isEmpty()) {
-            return new TargetValidResult(false, TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
-                    sb.append("[unAuthorized Group] ").append(consumerId)
+        if (!disableCsmTopicSet.isEmpty()) {
+            result.setFailResult(TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
+                    sBuffer.append("[unAuthorized Group] ").append(consumerId)
                             .append("'s consumerGroup not authorized by administrator, unAuthorizedTopics : ")
-                            .append(unAuthTopicList).toString());
+                            .append(disableCsmTopicSet).toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
         }
-        if (enableAuthTopicList.isEmpty()) {
-            return new TargetValidResult(true, 200, "Ok!");
-        }
-        boolean isAllowed =
-                checkRestrictedTopics(consumerGroupName,
-                        consumerId, enableAuthTopicList, reqTopicConditions, sb);
-        if (isAllowed) {
-            return new TargetValidResult(true, 200, "Ok!");
-        } else {
-            return new TargetValidResult(false,
-                    TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN, sb.toString());
-        }
+        // check if group enable filter consume
+        return checkFilterRstrTopics(groupName, consumerId,
+                enableFltCsmTopicSet, reqTopicCondMap, sBuffer, result);
     }
 
-    private boolean checkRestrictedTopics(final String groupName, final String consumerId,
-                                          List<String> enableAuthTopicList,
-                                          Map<String, TreeSet<String>> reqTopicConditions,
-                                          final StringBuilder sb) {
-        List<String> restrictedTopics = new ArrayList<>();
-        Map<String, GroupConsumeCtrlEntity> authorizedFilterCondMap = new HashMap<>();
-        for (String topicName : enableAuthTopicList) {
-            GroupConsumeCtrlEntity ctrlEntity =
+    private boolean checkFilterRstrTopics(final String groupName, final String consumerId,
+                                          Set<String> enableFltCsmTopicSet,
+                                          Map<String, TreeSet<String>> reqTopicCondMap,
+                                          StringBuilder sBuffer, ProcessResult result) {
+        if (enableFltCsmTopicSet == null && enableFltCsmTopicSet.isEmpty()) {
+            result.setSuccResult("Ok!");
+            return result.isSuccess();
+        }
+        GroupConsumeCtrlEntity ctrlEntity;
+        for (String topicName : enableFltCsmTopicSet) {
+            ctrlEntity =
                     metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicName);
-            if (ctrlEntity != null && ctrlEntity.isEnableFilterConsume()) {
-                restrictedTopics.add(topicName);
-                authorizedFilterCondMap.put(topicName, ctrlEntity);
-            }
-        }
-        if (restrictedTopics.isEmpty()) {
-            return true;
-        }
-        boolean isAllowed = true;
-        for (String tmpTopic : restrictedTopics) {
-            GroupConsumeCtrlEntity ilterCondEntity =
-                    authorizedFilterCondMap.get(tmpTopic);
-            if (ilterCondEntity == null) {
+            if (ctrlEntity == null || !ctrlEntity.isEnableFilterConsume()) {
                 continue;
             }
-            String allowedConds = ilterCondEntity.getFilterCondStr();
-            TreeSet<String> condItemSet = reqTopicConditions.get(tmpTopic);
-            if (allowedConds.length() == 2
-                    && allowedConds.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
-                isAllowed = false;
-                sb.append("[Restricted Group] ")
-                        .append(consumerId)
-                        .append(" : ").append(groupName)
-                        .append(" not allowed to consume any data of topic ")
-                        .append(tmpTopic);
-                break;
-            } else {
-                if (condItemSet == null
-                        || condItemSet.isEmpty()) {
-                    isAllowed = false;
-                    sb.append("[Restricted Group] ")
-                            .append(consumerId)
-                            .append(" : ").append(groupName)
-                            .append(" must set the filter conditions of topic ")
-                            .append(tmpTopic);
-                    break;
-                } else {
-                    Map<String, List<String>> unAuthorizedCondMap =
-                            new HashMap<>();
-                    for (String item : condItemSet) {
-                        if (!allowedConds.contains(sb.append(TokenConstants.ARRAY_SEP)
-                                .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
-                            isAllowed = false;
-                            List<String> unAuthConds = unAuthorizedCondMap.get(tmpTopic);
-                            if (unAuthConds == null) {
-                                unAuthConds = new ArrayList<>();
-                                unAuthorizedCondMap.put(tmpTopic, unAuthConds);
-                            }
-                            unAuthConds.add(item);
-                        }
-                        sb.delete(0, sb.length());
+            String allowedCondStr = ctrlEntity.getFilterCondStr();
+            if (allowedCondStr.length() == 2
+                    && allowedCondStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : ").append(groupName)
+                                .append(" not allowed to consume any data of topic ")
+                                .append(topicName).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            TreeSet<String> condItemSet = reqTopicCondMap.get(topicName);
+            if (condItemSet == null || condItemSet.isEmpty()) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : ").append(groupName)
+                                .append(" must set the filter conditions of topic ")
+                                .append(topicName).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            Map<String, List<String>> unAuthorizedCondMap = new HashMap<>();
+            for (String item : condItemSet) {
+                if (!allowedCondStr.contains(sBuffer.append(TokenConstants.ARRAY_SEP)
+                        .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
+                    List<String> unAuthConds = unAuthorizedCondMap.get(topicName);
+                    if (unAuthConds == null) {
+                        unAuthConds = new ArrayList<>();
+                        unAuthorizedCondMap.put(topicName, unAuthConds);
                     }
-                    if (!isAllowed) {
-                        sb.append("[Restricted Group] ").append(consumerId)
-                                .append(" : unAuthorized filter conditions ")
-                                .append(unAuthorizedCondMap);
-                        break;
-                    }
+                    unAuthConds.add(item);
                 }
+                sBuffer.delete(0, sBuffer.length());
+            }
+            if (!unAuthorizedCondMap.isEmpty()) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : unAuthorized filter conditions ")
+                                .append(unAuthorizedCondMap).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
             }
         }
-        return isAllowed;
+        result.setSuccResult("Ok!");
+        return result.isSuccess();
     }
 
 
@@ -422,30 +395,53 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public BrokerProcessResult addBrokerConfig(BaseEntity opInfoEntity, int brokerId,
-                                               String brokerIp, int brokerPort,
-                                               int brokerTlsPort, int brokerWebPort,
-                                               int regionId, int groupId,
-                                               ManageStatus manageStatus,
-                                               TopicPropGroup topicProps,
-                                               StringBuilder sBuilder,
-                                               ProcessResult result) {
-        BrokerConfEntity entity = new BrokerConfEntity(opInfoEntity);
-        entity.setBrokerIdAndIp(brokerId, brokerIp);
-        entity.updModifyInfo(opInfoEntity.getDataVerId(), brokerPort, brokerTlsPort,
-                brokerWebPort, regionId, groupId, manageStatus, topicProps);
-        return addBrokerConfig(entity, sBuilder, result);
+    public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opInfoEntity,
+                                                    int brokerId, String brokerIp, int brokerPort,
+                                                    int brokerTlsPort, int brokerWebPort,
+                                                    int regionId, int groupId,
+                                                    ManageStatus mngStatus,
+                                                    TopicPropGroup topicProps,
+                                                    StringBuilder sBuilder,
+                                                    ProcessResult result) {
+        BrokerConfEntity entity =
+                new BrokerConfEntity(opInfoEntity, brokerId, brokerIp);
+        entity.updModifyInfo(opInfoEntity.getDataVerId(), brokerPort,
+                brokerTlsPort, brokerWebPort, regionId, groupId, mngStatus, topicProps);
+        return addOrUpdBrokerConfig(isAddOp, entity, sBuilder, result);
     }
 
-    public BrokerProcessResult addBrokerConfig(BrokerConfEntity entity,
-                                               StringBuilder sBuilder,
-                                               ProcessResult result) {
-        if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) != null
-                || metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    DataOpErrCode.DERR_EXISTED.getDescription());
+    public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
+                                                    StringBuilder sBuffer, ProcessResult result) {
+        if (isAddOp) {
+            if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) == null &&
+                    metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) == null) {
+                metaStoreService.addBrokerConf(entity, sBuffer, result);
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        sBuffer.append("Duplicated broker configure record! query index is :")
+                                .append("brokerId=").append(entity.getBrokerId())
+                                .append(",brokerIp=").append(entity.getBrokerIp()).toString());
+                sBuffer.delete(0, sBuffer.length());
+            }
         } else {
-            metaStoreService.addBrokerConf(entity, sBuilder, result);
+            BrokerConfEntity curEntity =
+                    metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId());
+            if (curEntity == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+            } else {
+                BrokerConfEntity newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(entity);
+                if (entity.updModifyInfo(entity.getDataVerId(), entity.getBrokerPort(),
+                        entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
+                        entity.getRegionId(), entity.getGroupId(),
+                        entity.getManageStatus(), entity.getTopicProps())) {
+                    metaStoreService.updBrokerConf(newEntity, sBuffer, result);
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            DataOpErrCode.DERR_UNCHANGED.getDescription());
+                }
+            }
         }
         return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
     }
@@ -1364,66 +1360,54 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public List<TopicProcessResult> addOrUpdTopicCtrlConf(BaseEntity opInfoEntity,
-                                                          Set<String> topicNameSet,
-                                                          int topicNameId,
-                                                          Boolean enableTopicAuth,
-                                                          int maxMsgSizeInMB,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result) {
-        TopicCtrlEntity curEntity;
-        TopicCtrlEntity newEntity;
-        List<TopicProcessResult> retInfoList = new ArrayList<>();
-        for (String topicName : topicNameSet) {
-            curEntity = metaStoreService.getTopicCtrlConf(topicName);
-            if (curEntity == null) {
-                newEntity = new TopicCtrlEntity(opInfoEntity, topicName);
-                newEntity.updModifyInfo(opInfoEntity.getDataVerId(),
-                        topicNameId, maxMsgSizeInMB, enableTopicAuth);
-                metaStoreService.addTopicCtrlConf(newEntity, sBuffer, result);
-            } else {
-                newEntity = curEntity.clone();
-                newEntity.updBaseModifyInfo(opInfoEntity);
-                if (!newEntity.updModifyInfo(opInfoEntity.getDataVerId(),
-                        topicNameId, maxMsgSizeInMB, enableTopicAuth)) {
-                    result.setSuccResult(null);
-                    retInfoList.add(new TopicProcessResult(0, topicName, result));
-                    continue;
-                }
-                metaStoreService.updTopicCtrlConf(newEntity, sBuffer, result);
-            }
-            retInfoList.add(new TopicProcessResult(0, topicName, result));
-        }
-        return retInfoList;
+    public TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
+                                                    String topicName, int topicNameId,
+                                                    Boolean enableTopicAuth, int maxMsgSizeInMB,
+                                                    StringBuilder sBuffer, ProcessResult result) {
+        TopicCtrlEntity entity =
+                new TopicCtrlEntity(opEntity, topicName);
+        entity.updModifyInfo(opEntity.getDataVerId(),
+                topicNameId, maxMsgSizeInMB, enableTopicAuth);
+        return addOrUpdTopicCtrlConf(isAddOp, entity, sBuffer, result);
     }
 
     /**
      * Add or Update topic control configure info
      *
-     * @param inEntity  the topic control info entity will be add
+     * @param entity  the topic control info entity will be add
      * @param sBuffer   the print info string buffer
      * @param result    the process result return
      * @return true if success otherwise false
      */
-    public TopicProcessResult addOrUpdTopicCtrlConf(TopicCtrlEntity inEntity,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+    public TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
+                                                    StringBuilder sBuffer, ProcessResult result) {
 
         TopicCtrlEntity curEntity =
-                metaStoreService.getTopicCtrlConf(inEntity.getTopicName());
-        if (curEntity == null) {
-            metaStoreService.addTopicCtrlConf(inEntity, sBuffer, result);
-        } else {
-            TopicCtrlEntity newEntity2 = curEntity.clone();
-            newEntity2.updBaseModifyInfo(inEntity);
-            if (!newEntity2.updModifyInfo(inEntity.getDataVerId(), inEntity.getTopicId(),
-                    inEntity.getMaxMsgSizeInMB(), inEntity.isAuthCtrlEnable())) {
-                result.setSuccResult(null);
-                return new TopicProcessResult(0, inEntity.getTopicName(), result);
+                metaStoreService.getTopicCtrlConf(entity.getTopicName());
+        if (isAddOp) {
+            if (curEntity == null) {
+                metaStoreService.addTopicCtrlConf(entity, sBuffer, result);
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        DataOpErrCode.DERR_EXISTED.getDescription());
             }
-            metaStoreService.updTopicCtrlConf(newEntity2, sBuffer, result);
+        } else {
+            if (curEntity == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+            } else {
+                TopicCtrlEntity newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(entity);
+                if (newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
+                        entity.getMaxMsgSizeInMB(), entity.isAuthCtrlEnable())) {
+                    metaStoreService.updTopicCtrlConf(newEntity, sBuffer, result);
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            DataOpErrCode.DERR_UNCHANGED.getDescription());
+                }
+            }
         }
-        return new TopicProcessResult(0, inEntity.getTopicName(), result);
+        return new TopicProcessResult(0, entity.getTopicName(), result);
     }
 
     /**
@@ -1609,18 +1593,19 @@ public class MetaDataManager implements Server {
 
     // //////////////////////////////////////////////////////////////////////////////
 
-    public GroupProcessResult addGroupResCtrlConf(BaseEntity opEntity, String groupName,
-                                                  Boolean consumeEnable, String disableRsn,
-                                                  Boolean resCheckEnable, int allowedBClientRate,
-                                                  int qryPriorityId, Boolean flowCtrlEnable,
-                                                  int flowRuleCnt, String flowCtrlInfo,
-                                                  StringBuilder sBuilder, ProcessResult result) {
+    public GroupProcessResult addOrUpdGroupResCtrlConf(boolean isAddOp, BaseEntity opEntity,
+                                                       String groupName, Boolean consumeEnable,
+                                                       String disableRsn, Boolean resCheckEnable,
+                                                       int allowedBClientRate, int qryPriorityId,
+                                                       Boolean flowCtrlEnable, int flowRuleCnt,
+                                                       String flowCtrlInfo, StringBuilder sBuilder,
+                                                       ProcessResult result) {
         GroupResCtrlEntity entity =
                 new GroupResCtrlEntity(opEntity, groupName);
         entity.updModifyInfo(opEntity.getDataVerId(),
                 consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
                 qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
-        return addGroupResCtrlConf(entity, sBuilder, result);
+        return addOrUpdGroupResCtrlConf(isAddOp, entity, sBuilder, result);
     }
 
     /**
@@ -1631,47 +1616,38 @@ public class MetaDataManager implements Server {
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    public GroupProcessResult addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                                  StringBuilder sBuilder,
-                                                  ProcessResult result) {
-        if (metaStoreService.getGroupResCtrlConf(entity.getGroupName()) != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    DataOpErrCode.DERR_EXISTED.getDescription());
+    public GroupProcessResult addOrUpdGroupResCtrlConf(boolean isAddOp,
+                                                       GroupResCtrlEntity entity,
+                                                       StringBuilder sBuilder,
+                                                       ProcessResult result) {
+        GroupResCtrlEntity curEntity =
+                metaStoreService.getGroupResCtrlConf(entity.getGroupName());
+        if (isAddOp) {
+            if (curEntity == null) {
+                metaStoreService.addGroupResCtrlConf(entity, sBuilder, result);
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        DataOpErrCode.DERR_EXISTED.getDescription());
+            }
         } else {
-            metaStoreService.addGroupResCtrlConf(entity, sBuilder, result);
+            if (curEntity == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+            } else {
+                GroupResCtrlEntity newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(entity);
+                if (newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableConsume(),
+                        entity.getDisableReason(), entity.isEnableResCheck(),
+                        entity.getAllowedBrokerClientRate(), entity.getQryPriorityId(),
+                        entity.isFlowCtrlEnable(), entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
+                    metaStoreService.updGroupResCtrlConf(newEntity, sBuilder, result);
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            DataOpErrCode.DERR_UNCHANGED.getDescription());
+                }
+            }
         }
         return new GroupProcessResult(entity.getGroupName(), null, result);
-    }
-
-    /**
-     * Update group resource control configure
-     *
-     * @return true if success otherwise false
-     */
-    public GroupProcessResult updGroupResCtrlConf(BaseEntity opEntity, String groupName,
-                                                  Boolean consumeEnable, String disableRsn,
-                                                  Boolean resCheckEnable, int allowedBClientRate,
-                                                  int qryPriorityId, Boolean flowCtrlEnable,
-                                                  int flowRuleCnt, String flowCtrlInfo,
-                                                  StringBuilder sBuilder, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                metaStoreService.getGroupResCtrlConf(groupName);
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    DataOpErrCode.DERR_NOT_EXIST.getDescription());
-            return new GroupProcessResult(groupName, null, result);
-        }
-        GroupResCtrlEntity newEntity = curEntity.clone();
-        newEntity.updBaseModifyInfo(opEntity);
-        if (newEntity.updModifyInfo(opEntity.getDataVerId(), consumeEnable, disableRsn,
-                resCheckEnable, allowedBClientRate, qryPriorityId, flowCtrlEnable,
-                flowRuleCnt, flowCtrlInfo)) {
-            metaStoreService.updGroupResCtrlConf(newEntity, sBuilder, result);
-        } else {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    DataOpErrCode.DERR_UNCHANGED.getDescription());
-        }
-        return new GroupProcessResult(groupName, null, result);
     }
 
     /**
@@ -1679,22 +1655,32 @@ public class MetaDataManager implements Server {
      *
      * @param operator   operator
      * @param groupNames the group will be deleted
-     * @param strBuffer  the print info string buffer
+     * @param sBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     public List<GroupProcessResult> delGroupResCtrlConf(String operator,
                                                         Set<String> groupNames,
-                                                        StringBuilder strBuffer,
+                                                        StringBuilder sBuffer,
                                                         ProcessResult result) {
         List<GroupProcessResult> retInfo = new ArrayList<>();
         if (groupNames == null || groupNames.isEmpty()) {
             return retInfo;
         }
         for (String groupName : groupNames) {
-            metaStoreService.delGroupResCtrlConf(operator, groupName, strBuffer, result);
+            if (metaStoreService.hasGroupConsumeCtrlConf(groupName)) {
+                result.setFailResult(DataOpErrCode.DERR_CONDITION_LACK.getCode(),
+                        sBuffer.append("Group ").append(groupName)
+                                .append(" has consume control configures,")
+                                .append(", please delete consume control configures first!")
+                                .toString());
+                sBuffer.delete(0, sBuffer.length());
+                retInfo.add(new GroupProcessResult(groupName, null, result));
+                continue;
+            }
+            metaStoreService.delGroupResCtrlConf(operator, groupName, sBuffer, result);
             retInfo.add(new GroupProcessResult(groupName, null, result));
-            strBuffer.delete(0, strBuffer.length());
+            sBuffer.delete(0, sBuffer.length());
             result.clear();
         }
         return retInfo;
@@ -1709,30 +1695,52 @@ public class MetaDataManager implements Server {
         return this.metaStoreService.getGroupResCtrlConf(groupName);
     }
 
-    public GroupProcessResult addGroupConsumeCtrlInfo(BaseEntity opInfoEntity, String groupName,
-                                                      String topicName, Boolean enableCsm,
-                                                      String disableRsn, Boolean enableFilter,
-                                                      String filterCondStr, StringBuilder sBuilder,
-                                                      ProcessResult result) {
+    public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
+                                                           String groupName, String topicName,
+                                                           Boolean enableCsm, String disableRsn,
+                                                           Boolean enableFlt, String fltCondStr,
+                                                           StringBuilder sBuilder,
+                                                           ProcessResult result) {
         GroupConsumeCtrlEntity entity =
-                new GroupConsumeCtrlEntity(opInfoEntity, groupName, topicName);
-        entity.updModifyInfo(opInfoEntity.getDataVerId(),
-                enableCsm, disableRsn, enableFilter, filterCondStr);
-        return addGroupConsumeCtrlInfo(entity, sBuilder, result);
+                new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
+        entity.updModifyInfo(opEntity.getDataVerId(),
+                enableCsm, disableRsn, enableFlt, fltCondStr);
+        return addOrUpdGroupConsumeCtrlInfo(isAddOp, entity, sBuilder, result);
     }
 
-    public GroupProcessResult addGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                                      StringBuilder sBuilder,
-                                                      ProcessResult result) {
+    public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(boolean isAddOp,
+                                                           GroupConsumeCtrlEntity entity,
+                                                           StringBuilder sBuilder,
+                                                           ProcessResult result) {
+        // add group resource control record
         if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuilder, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
-        if (metaStoreService.getConsumeCtrlByGroupAndTopic(
-                entity.getGroupName(), entity.getTopicName()) != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    DataOpErrCode.DERR_EXISTED.getDescription());
+        GroupConsumeCtrlEntity curEntity =
+                metaStoreService.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
+        if (isAddOp) {
+            if (curEntity == null) {
+                metaStoreService.addGroupConsumeCtrlConf(entity, sBuilder, result);
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        DataOpErrCode.DERR_EXISTED.getDescription());
+            }
         } else {
-            metaStoreService.addGroupConsumeCtrlConf(entity, sBuilder, result);
+            if (curEntity == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+            } else {
+                GroupConsumeCtrlEntity newEntity = curEntity.clone();
+                newEntity.updBaseModifyInfo(entity);
+                if (newEntity.updModifyInfo(entity.getDataVerId(),
+                        entity.isEnableConsume(), entity.getDisableReason(),
+                        entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
+                    metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuilder, result);
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                            DataOpErrCode.DERR_UNCHANGED.getDescription());
+                }
+            }
         }
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
@@ -1790,21 +1798,18 @@ public class MetaDataManager implements Server {
             return retInfo;
         }
         Set<String> rmvRecords = new HashSet<>();
-        if (topicNameSet != null && !topicNameSet.isEmpty()) {
-            rmvRecords.addAll(metaStoreService.getConsumeCtrlKeyByTopicName(topicNameSet));
-        }
         if (groupNameSet != null && !groupNameSet.isEmpty()) {
             rmvRecords.addAll(metaStoreService.getConsumeCtrlKeyByGroupName(groupNameSet));
         }
-        GroupProcessResult retItem;
+        if (topicNameSet != null && !topicNameSet.isEmpty()) {
+            rmvRecords.addAll(metaStoreService.getConsumeCtrlKeyByTopicName(topicNameSet));
+        }
         for (String recKey : rmvRecords) {
             Tuple2<String, String> groupTopicTuple =
                     KeyBuilderUtils.splitRecKey2GroupTopic(recKey);
             metaStoreService.delGroupConsumeCtrlConf(operator, recKey, strBuffer, result);
-            retItem = new GroupProcessResult(groupTopicTuple.getF0(),
-                    groupTopicTuple.getF1(), result);
-            retInfo.add(retItem);
-            result.clear();
+            retInfo.add(new GroupProcessResult(groupTopicTuple.getF1(),
+                    groupTopicTuple.getF0(), result));
         }
         return retInfo;
     }
@@ -1818,7 +1823,6 @@ public class MetaDataManager implements Server {
             return true;
         }
         resCtrlEntity = new GroupResCtrlEntity(opEntity, groupName);
-        resCtrlEntity.setGroupName(groupName);
         resCtrlEntity.fillDefaultValue();
         return this.metaStoreService.addGroupResCtrlConf(resCtrlEntity, sBuilder, result);
     }
@@ -1867,83 +1871,6 @@ public class MetaDataManager implements Server {
     public Map<String, List<GroupConsumeCtrlEntity>> getGroupConsumeCtrlConf(
             Set<String> groupNameSet, Set<String> topicNameSet) {
         return metaStoreService.getConsumeCtrlByGroupAndTopic(groupNameSet, topicNameSet);
-    }
-
-    /**
-     * Add consume group to blacklist
-     *
-     * @param entity     the group will be add into black list
-     * @param strBuffer  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confAddBlackListGroup(GroupBlackListEntity entity,
-                                         StringBuilder strBuffer,
-                                         ProcessResult result) {
-        if (metaStoreService.addGroupBlackListConf(entity, result)) {
-            strBuffer.append("[confAddBlackListGroup], ")
-                    .append(entity.getCreateUser())
-                    .append(" added black list group record :")
-                    .append(entity.toString());
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confAddBlackListGroup], ")
-                    .append("failure to add black list group record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
-    }
-
-    /**
-     * Delete black consume group list from store
-     *
-     * @param operator  operator
-     * @param groupName the blacklist record related to group
-     * @param topicName the blacklist record related to topic
-     *                  allow groupName or topicName is null,
-     *                  but not all null
-     * @return true if success
-     */
-    public boolean confDelBlackGroupConf(String operator,
-                                         String groupName,
-                                         String topicName,
-                                         StringBuilder strBuffer,
-                                         ProcessResult result) {
-        if (groupName == null && topicName == null) {
-            result.setSuccResult(null);
-            return true;
-        }
-        if (metaStoreService.delGroupBlackListConf(groupName, topicName, result)) {
-            strBuffer.append("[confDelBlackGroupConf], ").append(operator)
-                    .append(" deleted black list group record by index : ")
-                    .append("groupName=").append(groupName)
-                    .append(", topicName=").append(topicName);
-            logger.info(strBuffer.toString());
-        } else {
-            strBuffer.append("[confDelBlackGroupConf], ")
-                    .append("failure to delete black list group record : ")
-                    .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
-        }
-        strBuffer.delete(0, strBuffer.length());
-        return result.isSuccess();
-    }
-
-    /**
-     * Get black consumer group list via query entity
-     *
-     * @param qryEntity  the query entity
-     * @return query result
-     */
-    public List<GroupBlackListEntity> confGetBlackGroupInfo(
-            GroupBlackListEntity qryEntity) {
-        return metaStoreService.getGroupBlackListConf(qryEntity);
-    }
-
-    public Set<String> getBlkGroupTopicInfo(String groupName) {
-        return metaStoreService.getGrpBlkLstNATopicByGroupName(groupName);
     }
 
     // //////////////////////////////////////////////////////////////////////////////
