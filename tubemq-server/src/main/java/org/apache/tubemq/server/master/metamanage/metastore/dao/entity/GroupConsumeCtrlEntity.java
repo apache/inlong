@@ -126,6 +126,10 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return consumeEnable;
     }
 
+    public boolean isEnableConsume() {
+        return consumeEnable.isEnable();
+    }
+
     private void setConsumeEnable(boolean enableConsume) {
         if (enableConsume) {
             this.consumeEnable = EnableStatus.STATUS_ENABLE;

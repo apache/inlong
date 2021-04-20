@@ -179,6 +179,13 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
+    public boolean hasGroupConsumeCtrlConf(String groupName) {
+        ConcurrentHashSet<String> keySet =
+                grpConsumeCtrlGroupCache.get(groupName);
+        return (keySet != null && !keySet.isEmpty());
+    }
+
+    @Override
     public boolean delGroupConsumeCtrlConf(String groupName,
                                            String topicName,
                                            ProcessResult result) {

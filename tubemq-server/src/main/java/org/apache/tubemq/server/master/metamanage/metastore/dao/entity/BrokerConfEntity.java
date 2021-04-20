@@ -60,8 +60,10 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public BrokerConfEntity(BaseEntity opInfoEntity) {
-        super(opInfoEntity);
+    public BrokerConfEntity(BaseEntity opEntity, int brokerId, String brokerIp) {
+        super(opEntity);
+        this.brokerId = brokerId;
+        this.brokerIp = brokerIp;
     }
 
     public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,

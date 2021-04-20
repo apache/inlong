@@ -224,8 +224,10 @@ public enum WebFieldDef {
                  WebFieldType.BOOLEAN, "With topic deploy info."),
 
     TOPICCTRLSET(80, "topicCtrlJsonSet", "tCtrlSet", WebFieldType.JSONSET,
-            "The topic control info set that needs to be added or modified");
-
+            "The topic control info set that needs to be added or modified"),
+    GROUPRESCTRLSET(81, "groupResCtrlJsonSet", "gResCtrlSet",
+            WebFieldType.JSONSET,
+            "The group resource control info set that needs to be added or modified");
 
     public final int id;
     public final String name;

@@ -26,7 +26,6 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.keepalive.KeepAlive;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupBlackListEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
@@ -265,25 +264,6 @@ public interface MetaStoreService extends KeepAlive, Server {
     Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
                                                         GroupResCtrlEntity qryEntity);
 
-    // group blacklist api
-    boolean addGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);
-
-    boolean updGroupBlackListConf(GroupBlackListEntity entity, ProcessResult result);
-
-    boolean delGroupBlackListConf(String groupName,
-                                  String topicName,
-                                  ProcessResult result);
-
-    boolean delGroupBlackListConf(String recordKey, ProcessResult result);
-
-    List<GroupBlackListEntity> getGrpBlkLstConfByGroupName(String groupName);
-
-    List<GroupBlackListEntity> getGrpBlkLstConfByTopicName(String topicName);
-
-    Set<String> getGrpBlkLstNATopicByGroupName(String groupName);
-
-    List<GroupBlackListEntity> getGroupBlackListConf(GroupBlackListEntity qryEntity);
-
     // group consume control api
     /**
      * Add group consume control configure
@@ -339,6 +319,8 @@ public interface MetaStoreService extends KeepAlive, Server {
                                     ProcessResult result);
 
     boolean isTopicNameInUsed(String topicName);
+
+    boolean hasGroupConsumeCtrlConf(String groupName);
 
     GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey);
 

@@ -122,7 +122,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.allowedBrokerClientRate = 0;
         this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
         this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
-        this.flowCtrlInfo = TServerConstants.BLANK_FILTER_ITEM_STR;
+        this.flowCtrlInfo = TServerConstants.BLANK_FLOWCTRL_RULES;
         return this;
     }
 
@@ -181,6 +181,10 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
 
     public void setFlowCtrlStatus(EnableStatus flowCtrlStatus) {
         this.flowCtrlStatus = flowCtrlStatus;
+    }
+
+    public  boolean isEnableConsume() {
+        return consumeEnable.isEnable();
     }
 
     public EnableStatus getConsumeEnable() {

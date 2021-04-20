@@ -248,6 +248,22 @@ public class WebParameterUtils {
             return result.success;
         }
         int qryPriorityId = (int) result.retData1;
+        return checkQryPriorityIdValue(qryPriorityId, result);
+    }
+
+    public static boolean getQryPriorityIdParameter(Map<String, String> keyValueMap,
+                                                    boolean required, int defValue,
+                                                    int minValue, ProcessResult result) {
+        if (!getIntParamValue(keyValueMap, WebFieldDef.QRYPRIORITYID,
+                required, defValue, minValue, result)) {
+            return result.success;
+        }
+        int qryPriorityId = (int) result.retData1;
+        return checkQryPriorityIdValue(qryPriorityId, result);
+    }
+
+    private static boolean checkQryPriorityIdValue(int qryPriorityId,
+                                                   ProcessResult result) {
         if (qryPriorityId > 303 || qryPriorityId < 101) {
             result.setFailResult(new StringBuilder(512)
                     .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
@@ -270,7 +286,8 @@ public class WebParameterUtils {
                     .append(" must in ").append(allowedPriorityVal).toString());
             return false;
         }
-        return true;
+        result.setSuccResult(qryPriorityId);
+        return result.isSuccess();
     }
 
     /**
@@ -1120,7 +1137,16 @@ public class WebParameterUtils {
             result.setSuccResult(defValue);
             return result.success;
         }
-        result.setSuccResult(Boolean.parseBoolean(paramValue));
+        if (paramValue.equalsIgnoreCase("true")
+                || paramValue.equalsIgnoreCase("false")) {
+            result.setSuccResult(Boolean.parseBoolean(paramValue));
+        } else {
+            try {
+                result.setSuccResult(!(Long.parseLong(paramValue) == 0));
+            } catch (Throwable e) {
+                result.setSuccResult(defValue);
+            }
+        }
         return result.success;
     }
 
@@ -1148,7 +1174,16 @@ public class WebParameterUtils {
             result.setSuccResult(defValue);
             return result.success;
         }
-        result.setSuccResult(Boolean.parseBoolean(paramValue));
+        if (paramValue.equalsIgnoreCase("true")
+                || paramValue.equalsIgnoreCase("false")) {
+            result.setSuccResult(Boolean.parseBoolean(paramValue));
+        } else {
+            try {
+                result.setSuccResult(!(Long.parseLong(paramValue) == 0));
+            } catch (Throwable e) {
+                result.setSuccResult(defValue);
+            }
+        }
         return result.success;
     }
 
@@ -2551,8 +2586,6 @@ public class WebParameterUtils {
     public static int getAndCheckFlowRules(HttpServletRequest req,
                                            String defValue,
                                            ProcessResult result) {
-        int ruleCnt = 0;
-        StringBuilder strBuffer = new StringBuilder(512);
         // get parameter value
         String paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.name);
         if (paramValue == null) {
@@ -2560,8 +2593,33 @@ public class WebParameterUtils {
         }
         if (TStringUtils.isBlank(paramValue)) {
             result.setSuccResult(defValue);
-            return ruleCnt;
+            return 0;
         }
+        paramValue = paramValue.trim();
+        return validFlowRuleValue(paramValue, result);
+    }
+
+    // translate rule info to json format string
+    public static int getAndCheckFlowRules(Map<String, String> keyValueMap,
+                                           String defValue,
+                                           ProcessResult result) {
+        // get parameter value
+        String paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.name);
+        if (paramValue == null) {
+            paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.shortName);
+        }
+        if (TStringUtils.isBlank(paramValue)) {
+            result.setSuccResult(defValue);
+            return 0;
+        }
+        paramValue = paramValue.trim();
+        return validFlowRuleValue(paramValue, result);
+    }
+
+    private static int validFlowRuleValue(String paramValue,
+                                          ProcessResult result) {
+        int ruleCnt = 0;
+        StringBuilder strBuffer = new StringBuilder(512);
         strBuffer.append("[");
         paramValue = paramValue.trim();
         List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);

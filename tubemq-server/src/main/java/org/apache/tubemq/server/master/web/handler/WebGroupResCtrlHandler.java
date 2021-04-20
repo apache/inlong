@@ -18,6 +18,7 @@
 package org.apache.tubemq.server.master.web.handler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
 
@@ -47,29 +49,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         // register modify method
         registerModifyWebMethod("admin_add_group_resctrl_info",
                 "adminAddGroupResCtrlConf");
-        registerModifyWebMethod("admin_upd_group_resctrl_info",
+        registerModifyWebMethod("admin_batch_add_group_resctrl_info",
+                "adminBatchAddGroupResCtrlConf");
+        registerModifyWebMethod("admin_update_group_resctrl_info",
                 "adminModGroupResCtrlConf");
-        registerModifyWebMethod("admin_rmv_group_resctrl_info",
+        registerModifyWebMethod("admin_batch_update_group_resctrl_info",
+                "adminBatchUpdGroupResCtrlConf");
+        registerModifyWebMethod("admin_delete_group_resctrl_info",
                 "adminDelGroupResCtrlConf");
-
-        // register query method
-        registerQueryWebMethod("admin_query_def_flow_control_rule",
-                "adminBlankProcessFun");
-        registerQueryWebMethod("admin_query_group_flow_control_rule",
-                "adminBlankProcessFun");
-        // register modify method
-        registerModifyWebMethod("admin_set_def_flow_control_rule",
-                "adminBlankProcessFun");
-        registerModifyWebMethod("admin_set_group_flow_control_rule",
-                "adminBlankProcessFun");
-        registerModifyWebMethod("admin_rmv_def_flow_control_rule",
-                "adminBlankProcessFun");
-        registerModifyWebMethod("admin_rmv_group_flow_control_rule",
-                "adminBlankProcessFun");
-        registerModifyWebMethod("admin_upd_def_flow_control_rule",
-                "adminBlankProcessFun");
-        registerModifyWebMethod("admin_upd_group_flow_control_rule",
-                "adminBlankProcessFun");
     }
 
     /**
@@ -151,90 +138,18 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, true, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
-        // get group list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Set<String> batchGroupNames = (Set<String>) result.retData1;
-        // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.CONSUMEENABLE, false, true, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean consumeEnable = (Boolean) result.retData1;
-        // get disableReason list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.REASON, false, "", result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        String disableRsn = (String) result.retData1;
-        // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.RESCHECKENABLE, false, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean resCheckEnable = (Boolean) result.retData1;
-        // get and valid allowedBrokerClientRate info
-        if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN,
-                TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        int allowedBClientRate = (int) result.retData1;
-        // get and valid qryPriorityId info
-        if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TServerConstants.QRY_PRIORITY_DEF_VALUE,
-                TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        int qryPriorityId = (int) result.retData1;
-        // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.FLOWCTRLENABLE, false, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean flowCtrlEnable = (Boolean) result.retData1;
-        // get and flow control rule info
-        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
-                TServerConstants.BLANK_FLOWCTRL_RULES, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        String flowCtrlInfo = (String) result.retData1;
-        // add group resource record
-        GroupProcessResult retItem;
-        List<GroupProcessResult> retInfo = new ArrayList<>();
-        for (String groupName : batchGroupNames) {
-            retItem = metaDataManager.addGroupResCtrlConf(opEntity, groupName, consumeEnable,
-                    disableRsn, resCheckEnable, allowedBClientRate, qryPriorityId,
-                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
-            retInfo.add(retItem);
-        }
-        return buildRetInfo(retInfo, sBuilder);
+    public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req) {
+        return innAddOrUpdGroupResCtrlConf(req, true);
+    }
+
+    /**
+     * Add group resource control info in batch
+     *
+     * @param req
+     * @return
+     */
+    private StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req) {
+        return innBatchAddOrUpdGroupResCtrlConf(req, true);
     }
 
     /**
@@ -243,90 +158,18 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder adminModGroupResCtrlConf(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
-        // get group list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Set<String> batchGroupNames = (Set<String>) result.retData1;
-        // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.CONSUMEENABLE, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean consumeEnable = (Boolean) result.retData1;
-        // get disableReason list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.REASON, false, "", result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        String disableRsn = (String) result.retData1;
-        // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.RESCHECKENABLE, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean resCheckEnable = (Boolean) result.retData1;
-        // get and valid allowedBrokerClientRate info
-        if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        int allowedBClientRate = (int) result.retData1;
-        // get and valid qryPriorityId info
-        if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        int qryPriorityId = (int) result.retData1;
-        // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.FLOWCTRLENABLE, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Boolean flowCtrlEnable = (Boolean) result.retData1;
-        // get and flow control rule info
-        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req, null, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        String flowCtrlInfo = (String) result.retData1;
-        // modify group resource record
-        GroupProcessResult retItem;
-        List<GroupProcessResult> retInfo = new ArrayList<>();
-        for (String groupName : batchGroupNames) {
-            retItem = metaDataManager.updGroupResCtrlConf(opEntity, groupName,
-                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
-                    sBuilder, result);
-            retInfo.add(retItem);
-        }
-        return buildRetInfo(retInfo, sBuilder);
+    public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req) {
+        return innAddOrUpdGroupResCtrlConf(req, false);
+    }
+
+    /**
+     * update group resource control info in batch
+     *
+     * @param req
+     * @return
+     */
+    private StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req) {
+        return innBatchAddOrUpdGroupResCtrlConf(req, false);
     }
 
     /**
@@ -335,7 +178,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req) {
+    public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
         StringBuilder sBuilder = new StringBuilder(512);
         // valid operation authorize info
@@ -364,6 +207,231 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         return buildRetInfo(retInfo, sBuilder);
     }
 
+    private StringBuilder innAddOrUpdGroupResCtrlConf(HttpServletRequest req,
+                                                      boolean isAddOp) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        // get consumeEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.CONSUMEENABLE, false, (isAddOp ? true : null), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean consumeEnable = (Boolean) result.retData1;
+        // get disableReason info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.REASON, false, (isAddOp ? "" : null), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String disableRsn = (String) result.retData1;
+        // get resCheckStatus info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.RESCHECKENABLE, false, (isAddOp ? false : null), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean resCheckEnable = (Boolean) result.retData1;
+        // get and valid allowedBrokerClientRate info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.ALWDBCRATE,
+                false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int allowedBClientRate = (int) result.retData1;
+        // get def cluster setting info
+        ClusterSettingEntity defClusterSetting =
+                metaDataManager.getClusterDefSetting(false);
+        // get and valid qryPriorityId info
+        if (!WebParameterUtils.getQryPriorityIdParameter(req,
+                false, (isAddOp ? defClusterSetting.getQryPriorityId()
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        int qryPriorityId = (int) result.retData1;
+        // get flowCtrlEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.FLOWCTRLENABLE, false, (isAddOp ? false : null), result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Boolean flowCtrlEnable = (Boolean) result.retData1;
+        // get and flow control rule info
+        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
+                (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        String flowCtrlInfo = (String) result.retData1;
+        // add group resource record
+        GroupProcessResult retItem;
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        for (String groupName : batchGroupNames) {
+            retItem = metaDataManager.addOrUpdGroupResCtrlConf(isAddOp, opEntity, groupName,
+                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
+                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuilder, result);
+            retInfo.add(retItem);
+        }
+        return buildRetInfo(retInfo, sBuilder);
+    }
+
+
+    private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
+                                                           boolean isAddOp) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuilder = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        BaseEntity defOpEntity = (BaseEntity) result.getRetData();
+        // get group resource control json record
+        if (!getGroupResCtrlJsonSetInfo(req, isAddOp, defOpEntity, sBuilder, result)) {
+            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
+            return sBuilder;
+        }
+        Map<String, GroupResCtrlEntity> addRecordMap =
+                (Map<String, GroupResCtrlEntity>) result.getRetData();
+        // add or update group resource record
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        for (GroupResCtrlEntity newResCtrlEntity : addRecordMap.values()) {
+            retInfo.add(metaDataManager.addOrUpdGroupResCtrlConf(
+                    isAddOp, newResCtrlEntity, sBuilder, result));
+        }
+        return buildRetInfo(retInfo, sBuilder);
+    }
+
+    private boolean getGroupResCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
+                                               BaseEntity defOpEntity, StringBuilder sBuilder,
+                                               ProcessResult result) {
+        if (!WebParameterUtils.getJsonArrayParamValue(req,
+                WebFieldDef.GROUPRESCTRLSET, true, null, result)) {
+            return result.success;
+        }
+        List<Map<String, String>> ctrlJsonArray =
+                (List<Map<String, String>>) result.retData1;
+        // get default qryPriorityId
+        ClusterSettingEntity defClusterSetting =
+                metaDataManager.getClusterDefSetting(false);
+        int defQryPriorityId = defClusterSetting.getQryPriorityId();
+        // check and get topic control configure
+        GroupResCtrlEntity itemEntity;
+        Map<String, String> itemValueMap;
+        HashMap<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
+        for (int j = 0; j < ctrlJsonArray.size(); j++) {
+            itemValueMap = ctrlJsonArray.get(j);
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
+                    isAddOp, defOpEntity, result)) {
+                return result.isSuccess();
+            }
+            BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
+            // get group configure info
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.GROUPNAME, true, "", result)) {
+                return result.success;
+            }
+            String groupName = (String) result.retData1;
+            // get consumeEnable info
+            if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
+                    WebFieldDef.CONSUMEENABLE, false, (isAddOp ? true : null), result)) {
+                return result.isSuccess();
+            }
+            Boolean consumeEnable = (Boolean) result.retData1;
+            // get disableReason info
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.REASON, false, (isAddOp ? "" : null), result)) {
+                return result.isSuccess();
+            }
+            String disableRsn = (String) result.retData1;
+            // get resCheckStatus info
+            if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
+                    WebFieldDef.RESCHECKENABLE, false, (isAddOp ? false : null), result)) {
+                return result.isSuccess();
+            }
+            Boolean resCheckEnable = (Boolean) result.retData1;
+            // get and valid allowedBrokerClientRate info
+            if (!WebParameterUtils.getIntParamValue(itemValueMap, WebFieldDef.ALWDBCRATE,
+                    false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, result)) {
+                return result.isSuccess();
+            }
+            int allowedBClientRate = (int) result.retData1;
+            // get def cluster setting info
+            // get and valid qryPriorityId info
+            if (!WebParameterUtils.getQryPriorityIdParameter(itemValueMap,
+                    false, (isAddOp ? defClusterSetting.getQryPriorityId()
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
+                return result.isSuccess();
+            }
+            int qryPriorityId = (int) result.retData1;
+            // get flowCtrlEnable info
+            if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
+                    WebFieldDef.FLOWCTRLENABLE, false,
+                    (isAddOp ? false : null), result)) {
+                return result.isSuccess();
+            }
+            Boolean flowCtrlEnable = (Boolean) result.retData1;
+            // get and flow control rule info
+            int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(itemValueMap,
+                    (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), result);
+            if (!result.success) {
+                return result.isSuccess();
+            }
+            String flowCtrlInfo = (String) result.retData1;
+            itemEntity =
+                    new GroupResCtrlEntity(itemOpEntity, groupName);
+            itemEntity.updModifyInfo(itemEntity.getDataVerId(),
+                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
+                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
+            addRecordMap.put(itemEntity.getGroupName(), itemEntity);
+        }
+        // check result
+        if (addRecordMap.isEmpty()) {
+            result.setFailResult(sBuilder
+                    .append("Not found record info in ")
+                    .append(WebFieldDef.GROUPRESCTRLSET.name)
+                    .append(" parameter!").toString());
+            sBuilder.delete(0, sBuilder.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(addRecordMap);
+        return result.isSuccess();
+    }
+
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
                                        StringBuilder sBuilder) {
         int totalCnt = 0;
@@ -378,20 +446,6 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
-    }
-
-    /**
-     * blank process function
-     *
-     * @param req
-     * @return
-     */
-    public StringBuilder adminBlankProcessFun(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
-        WebParameterUtils.buildFailResult(sBuilder,
-                "Expired method, please check the latest api documentation!");
         return sBuilder;
     }
 
