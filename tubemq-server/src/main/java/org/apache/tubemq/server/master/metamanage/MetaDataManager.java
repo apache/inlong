@@ -45,6 +45,7 @@ import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.MetaStoreService;
@@ -461,22 +462,6 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-    /**
-     * Delete broker's topic configure information
-     *
-     * @param operator  operator
-     * @param brokerId  need deleted broker id
-     * @param strBuffer  the print information string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean delBrokerTopicConfig(String operator,
-                                        int brokerId,
-                                        StringBuilder strBuffer,
-                                        ProcessResult result) {
-        metaStoreService.delTopicConfByBrokerId(operator, brokerId, strBuffer, result);
-        return result.isSuccess();
-    }
 
     /**
      * Delete broker configure information
@@ -551,6 +536,145 @@ public class MetaDataManager implements Server {
                                                             Set<String> brokerIpSet,
                                                             BrokerConfEntity qryEntity) {
         return metaStoreService.getBrokerConfInfo(brokerIdSet, brokerIpSet, qryEntity);
+    }
+
+    /**
+     * Delete broker configure information
+     *
+     * @param operator  operator
+     * @param rsvData   if reserve topic's data info
+     * @param brokerIdSet  need deleted broker id set
+     * @param sBuffer  the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public List<BrokerProcessResult> delBrokerConfInfo(String operator, boolean rsvData,
+                                                       Set<Integer> brokerIdSet,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        List<BrokerProcessResult> retInfo = new ArrayList<>();
+        Map<Integer, BrokerConfEntity> cfmBrokerMap = new HashMap<>();
+        Map<Integer, BrokerConfEntity> tgtBrokerConfMap =
+                getBrokerConfInfo(brokerIdSet, null, null);
+        // check target broker configure's status
+        for (BrokerConfEntity entity : tgtBrokerConfMap.values()) {
+            if (entity == null) {
+                continue;
+            }
+            if (!isMatchDeleteConds(entity.getBrokerId(),
+                    entity.getManageStatus(), rsvData, sBuffer, result)) {
+                retInfo.add(new BrokerProcessResult(
+                        entity.getBrokerId(), entity.getBrokerIp(), result));
+            }
+            cfmBrokerMap.put(entity.getBrokerId(), entity);
+        }
+        if (cfmBrokerMap.isEmpty()) {
+            return retInfo;
+        }
+        // execute delete operation
+        for (BrokerConfEntity entry : cfmBrokerMap.values()) {
+            if (entry == null) {
+                continue;
+            }
+            delBrokerConfig(operator, entry.getBrokerId(), rsvData, sBuffer, result);
+            retInfo.add(new BrokerProcessResult(
+                    entry.getBrokerId(), entry.getBrokerIp(), result));
+        }
+        return retInfo;
+    }
+
+    private boolean isMatchDeleteConds(int brokerId, ManageStatus brokerStatus,
+                                       boolean rsvData, StringBuilder sBuffer,
+                                       ProcessResult result) {
+        Map<String, TopicDeployEntity> topicConfigMap =
+                getBrokerTopicConfEntitySet(brokerId);
+        if (topicConfigMap == null || topicConfigMap.isEmpty()) {
+            result.setSuccResult(null);
+            return result.isSuccess();
+        }
+        if (WebParameterUtils.checkBrokerInOfflining(brokerId,
+                brokerStatus.getCode(), this)) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    sBuffer.append("Illegal value: the broker is processing offline event by brokerId=")
+                            .append(brokerId).append(", please wait and try later!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        if (rsvData) {
+            for (Map.Entry<String, TopicDeployEntity> entry : topicConfigMap.entrySet()) {
+                if (entry.getValue() == null) {
+                    continue;
+                }
+                if (entry.getValue().isAcceptPublish()
+                        || entry.getValue().isAcceptSubscribe()) {
+                    result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                            sBuffer.append("The topic ").append(entry.getKey())
+                                    .append("'s acceptPublish and acceptSubscribe parameters")
+                                    .append(" must be false in broker=")
+                                    .append(brokerId)
+                                    .append(" before broker delete by reserve data method!").toString());
+                    sBuffer.delete(0, sBuffer.length());
+                    return result.isSuccess();
+                }
+            }
+        } else {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    sBuffer.append("Topic configure of broker by brokerId=")
+                            .append(brokerId)
+                            .append(" not deleted, please delete broker's topic configure first!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(null);
+        return result.isSuccess();
+    }
+
+
+    private boolean delBrokerConfig(String operator, int brokerId, boolean rsvData,
+                                    StringBuilder strBuffer, ProcessResult result) {
+        BrokerConfEntity curEntity =
+                metaStoreService.getBrokerConfByBrokerId(brokerId);
+        if (curEntity == null) {
+            result.setSuccResult(null);
+            return result.isSuccess();
+        }
+        // process topic's configure
+        Map<String, TopicDeployEntity> topicConfigMap =
+                metaStoreService.getConfiguredTopicInfo(brokerId);
+        if (topicConfigMap != null && !topicConfigMap.isEmpty()) {
+            if (rsvData) {
+                if (!metaStoreService.delTopicConfByBrokerId(operator,
+                        brokerId, strBuffer, result)) {
+                    return result.isSuccess();
+                }
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_UNCLEANED.getCode(),
+                        "The broker's topic configure uncleaned!");
+                return result.isSuccess();
+            }
+        }
+        // check broker's manage status
+        if (curEntity.getManageStatus().isOnlineStatus()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    "Broker manage status is online, please offline first!");
+            return result.isSuccess();
+        }
+        BrokerSyncStatusInfo brokerSyncStatusInfo =
+                this.brokerRunSyncManageMap.get(curEntity.getBrokerId());
+        if (brokerSyncStatusInfo != null) {
+            if (brokerSyncStatusInfo.isBrokerRegister()
+                    && (curEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
+                    && brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED)) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        "Broker is processing offline event, please wait and try later!");
+                return result.isSuccess();
+            }
+        }
+        if (metaStoreService.delBrokerConf(operator, brokerId, strBuffer, result)) {
+            this.brokerRunSyncManageMap.remove(brokerId);
+            delBrokerRunData(brokerId);
+        }
+        return result.isSuccess();
     }
 
     /**

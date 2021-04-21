@@ -122,21 +122,21 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      */
     public StringBuilder transferCurrentMaster(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         try {
             metaDataManager.transferMaster();
-            WebParameterUtils.buildSuccessResult(sBuilder,
+            WebParameterUtils.buildSuccessResult(sBuffer,
                     "TransferMaster method called, please wait 20 seconds!");
         } catch (Exception e2) {
-            WebParameterUtils.buildFailResult(sBuilder, e2.getMessage());
+            WebParameterUtils.buildFailResult(sBuffer, e2.getMessage());
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
@@ -166,17 +166,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      */
     public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check max message size
@@ -184,61 +184,60 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 WebFieldDef.MAXMSGSIZEINMB, false,
                 TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
-                result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int inMaxMsgSizeMB = (int) result.getRetData();
         // get broker port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int inBrokerPort = (int) result.getRetData();
         // get broker tls port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int inBrokerTlsPort = (int) result.getRetData();
         // get broker web port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int inBrokerWebPort = (int) result.getRetData();
         // get and valid TopicPropGroup info
         TopicPropGroup defTopicProps = new TopicPropGroup();
         defTopicProps.fillDefaultValue();
-        if (!WebParameterUtils.getTopicPropInfo(req, defTopicProps, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getTopicPropInfo(req, defTopicProps, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         defTopicProps = (TopicPropGroup) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.QRY_PRIORITY_MIN_VALUE, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int inQryPriorityId = (int) result.retData1;
         // get flowCtrlEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.FLOWCTRLENABLE, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.retData1;
         // get and flow control rule info
-        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req, null, result);
+        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req, null, sBuffer, result);
         if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String flowCtrlInfo = (String) result.retData1;
         // add or modify record
@@ -248,31 +247,31 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             if (!metaDataManager.addClusterDefSetting(opEntity, inBrokerPort,
                     inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
                     inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
-                    defTopicProps, sBuilder, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
+                    defTopicProps, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
             }
         } else {
             if (!metaDataManager.modClusterDefSetting(opEntity, inBrokerPort,
                     inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
                     inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
-                    defTopicProps, sBuilder, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
+                    defTopicProps, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
             }
         }
         curConf = metaDataManager.getClusterDefSetting(true);
         if (curConf == null) {
             WebParameterUtils.buildFailResultWithBlankData(
                     DataOpErrCode.DERR_UPD_NOT_EXIST.getCode(),
-                    DataOpErrCode.DERR_UPD_NOT_EXIST.getDescription(), sBuilder);
-            return sBuilder;
+                    DataOpErrCode.DERR_UPD_NOT_EXIST.getDescription(), sBuffer);
+            return sBuffer;
         }
         // build return result
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        curConf.toWebJsonStr(sBuilder, true, true);
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        curConf.toWebJsonStr(sBuffer, true, true);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+        return sBuffer;
     }
 
     /**
@@ -283,19 +282,19 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      */
     public StringBuilder adminQueryClusterTopicView(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.retData1;
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
         // query topic configure info
@@ -311,10 +310,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         boolean isAcceptPublish = false;
         boolean isAcceptSubscribe = false;
         boolean enableAuthControl = false;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicConfMap.entrySet()) {
             if (totalCount++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
             brokerCount = 0;
             totalCfgNumPartCount = 0;
@@ -359,7 +358,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             if (authEntity != null) {
                 enableAuthControl = authEntity.isAuthCtrlEnable();
             }
-            sBuilder.append("{\"topicName\":\"").append(entry.getKey())
+            sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"totalCfgBrokerCnt\":").append(brokerCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
@@ -368,8 +367,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     .append(",\"enableAuthControl\":").append(enableAuthControl)
                     .append("}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCount);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCount);
+        return sBuffer;
     }
 
 }
