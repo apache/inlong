@@ -120,11 +120,13 @@ public class WebParameterUtils {
         return strBuffer;
     }
 
-    public static boolean getAUDBaseInfo(HttpServletRequest req,
-                                         boolean isAdd, ProcessResult result) {
+    public static <T> boolean getAUDBaseInfo(T paramCntr, boolean isAdd,
+                                             BaseEntity defOpEntity,
+                                             StringBuilder sBuffer,
+                                             ProcessResult result) {
         // check and get data version id
-        if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
-                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
+        if (!WebParameterUtils.getLongParamValue(paramCntr, WebFieldDef.DATAVERSIONID,
+                false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
             return result.isSuccess();
         }
         long dataVerId = (long) result.retData1;
@@ -133,69 +135,33 @@ public class WebParameterUtils {
         Date createDate = null;
         if (isAdd) {
             // check create user field
-            if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.CREATEUSER, isAdd, null, result)) {
+            if (!WebParameterUtils.getStringParamValue(paramCntr, WebFieldDef.CREATEUSER,
+                    (defOpEntity == null && isAdd),
+                    (defOpEntity == null ? null : defOpEntity.getCreateUser()),
+                    sBuffer, result)) {
                 return result.isSuccess();
             }
             createUsr = (String) result.retData1;
             // check and get create date
-            if (!WebParameterUtils.getDateParameter(req,
-                    WebFieldDef.CREATEDATE, false, new Date(), result)) {
+            if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.CREATEDATE, false,
+                    (defOpEntity == null ? new Date() : defOpEntity.getCreateDate()),
+                    sBuffer, result)) {
                 return result.isSuccess();
             }
             createDate = (Date) result.retData1;
         }
         // check modify user field
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, !isAdd, createUsr, result)) {
+        if (!WebParameterUtils.getStringParamValue(paramCntr, WebFieldDef.MODIFYUSER,
+                (defOpEntity == null && !isAdd),
+                (defOpEntity == null ? createUsr : defOpEntity.getModifyUser()),
+                sBuffer, result)) {
             return result.isSuccess();
         }
         String modifyUser = (String) result.retData1;
         // check and get modify date
-        if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.MODIFYDATE, false, createDate, result)) {
-            return result.isSuccess();
-        }
-        Date modifyDate = (Date) result.retData1;
-        result.setSuccResult(new BaseEntity(dataVerId,
-                createUsr, createDate, modifyUser, modifyDate));
-        return result.isSuccess();
-    }
-
-    public static boolean getAUDBaseInfo(Map<String, String> keyValueMap, boolean isAdd,
-                                         BaseEntity defOpInfoEntity, ProcessResult result) {
-        // check and get data version id
-        if (!WebParameterUtils.getLongParamValue(keyValueMap, WebFieldDef.DATAVERSIONID,
-                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
-            return result.isSuccess();
-        }
-        long dataVerId = (long) result.retData1;
-        // check and get createUser or modifyUser
-        String createUsr = null;
-        Date createDate = null;
-        if (isAdd) {
-            // check create user field
-            if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                    WebFieldDef.CREATEUSER, false, defOpInfoEntity.getCreateUser(), result)) {
-                return result.isSuccess();
-            }
-            createUsr = (String) result.retData1;
-            // check and get create date
-            if (!WebParameterUtils.getDateParameter(keyValueMap,
-                    WebFieldDef.CREATEDATE, false, defOpInfoEntity.getCreateDate(), result)) {
-                return result.isSuccess();
-            }
-            createDate = (Date) result.retData1;
-        }
-        // check modify user field
-        if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                WebFieldDef.MODIFYUSER, false, defOpInfoEntity.getModifyUser(), result)) {
-            return result.isSuccess();
-        }
-        String modifyUser = (String) result.retData1;
-        // check and get modify date
-        if (!WebParameterUtils.getDateParameter(keyValueMap,
-                WebFieldDef.MODIFYDATE, false, defOpInfoEntity.getModifyDate(), result)) {
+        if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.MODIFYDATE, false,
+                (defOpEntity == null ? createDate : defOpEntity.getModifyDate()),
+                sBuffer, result)) {
             return result.isSuccess();
         }
         Date modifyDate = (Date) result.retData1;
@@ -212,24 +178,23 @@ public class WebParameterUtils {
      * @param result     process result
      * @return process result
      */
-    public static boolean getQueriedOperateInfo(HttpServletRequest req,
-                                                BaseEntity qryEntity,
-                                                ProcessResult result) {
+    public static boolean getQueriedOperateInfo(HttpServletRequest req, BaseEntity qryEntity,
+                                                StringBuilder sBuffer, ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
-                false, TBaseConstants.META_VALUE_UNDEFINED, result)) {
+                false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
             return result.isSuccess();
         }
         long dataVerId = (long) result.retData1;
         // check createUser user field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, false, null, result)) {
+                WebFieldDef.CREATEUSER, false, null, sBuffer, result)) {
             return result.isSuccess();
         }
         String createUser = (String) result.retData1;
         // check modify user field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, false, null, result)) {
+                WebFieldDef.MODIFYUSER, false, null, sBuffer, result)) {
             return result.isSuccess();
         }
         String modifyUser = (String) result.retData1;
@@ -240,50 +205,38 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
-    public static boolean getQryPriorityIdParameter(HttpServletRequest req,
-                                                    boolean required, int defValue,
-                                                    int minValue, ProcessResult result) {
-        if (!getIntParamValue(req, WebFieldDef.QRYPRIORITYID,
-                required, defValue, minValue, result)) {
+    public static <T> boolean getQryPriorityIdParameter(T paramCntr, boolean required,
+                                                        int defValue, int minValue,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        if (!getIntParamValue(paramCntr, WebFieldDef.QRYPRIORITYID,
+                required, defValue, minValue, sBuffer, result)) {
             return result.success;
         }
         int qryPriorityId = (int) result.retData1;
-        return checkQryPriorityIdValue(qryPriorityId, result);
-    }
-
-    public static boolean getQryPriorityIdParameter(Map<String, String> keyValueMap,
-                                                    boolean required, int defValue,
-                                                    int minValue, ProcessResult result) {
-        if (!getIntParamValue(keyValueMap, WebFieldDef.QRYPRIORITYID,
-                required, defValue, minValue, result)) {
-            return result.success;
-        }
-        int qryPriorityId = (int) result.retData1;
-        return checkQryPriorityIdValue(qryPriorityId, result);
-    }
-
-    private static boolean checkQryPriorityIdValue(int qryPriorityId,
-                                                   ProcessResult result) {
         if (qryPriorityId > 303 || qryPriorityId < 101) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" parameter: ").append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" value must be greater than or equal")
                     .append(" to 101 and less than or equal to 303!").toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId % 100)) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" parameter: the units of ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" must in ").append(allowedPriorityVal).toString());
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" parameter: the units of ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" must in ")
+                    .append(allowedPriorityVal).toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId / 100)) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" parameter: the hundreds of ").append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" must in ").append(allowedPriorityVal).toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         result.setSuccResult(qryPriorityId);
@@ -294,64 +247,46 @@ public class WebParameterUtils {
      * Decode the deletePolicy parameter value from an object value
      * the value must like {method},{digital}[s|m|h]
      *
-     * @param keyValueMap key-value map
+     * @param paramCntr   parameter container object
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if failed to parse value from the given object
      * @param result     process result of parameter value
      * @return the process result
      */
-    public static boolean getDeletePolicyParameter(Map<String, String> keyValueMap,
-                                                   boolean required, String defValue,
-                                                   ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                WebFieldDef.DELETEPOLICY, required, defValue, result)) {
+    public static <T> boolean getDeletePolicyParameter(T paramCntr, boolean required,
+                                                       String defValue, StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(paramCntr,
+                WebFieldDef.DELETEPOLICY, required, defValue, sBuffer, result)) {
             return result.isSuccess();
         }
         String delPolicy = (String) result.retData1;
         if (TStringUtils.isBlank(delPolicy)) {
             return result.isSuccess();
         }
-        return validDeletePolicyValue(delPolicy, result);
-    }
-
-    public static boolean getDeletePolicyParameter(HttpServletRequest req,
-                                                   boolean required, String defValue,
-                                                   ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.DELETEPOLICY, required, defValue, result)) {
-            return result.isSuccess();
-        }
-        String delPolicy = (String) result.retData1;
-        if (TStringUtils.isBlank(delPolicy)) {
-            return result.isSuccess();
-        }
-        return validDeletePolicyValue(delPolicy, result);
-    }
-
-    private static boolean validDeletePolicyValue(String delPolicy, ProcessResult result) {
         // check value format
         String[] tmpStrs = delPolicy.split(",");
         if (tmpStrs.length != 2) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512)
-                            .append("Value must include one and only one comma character,")
+                    sBuffer.append("Value must include one and only one comma character,")
                             .append(" the format of ").append(WebFieldDef.DELETEPOLICY.name())
                             .append(" must like {method},{digital}[m|s|h]").toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (TStringUtils.isBlank(tmpStrs[0])) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512)
-                            .append("Method value must not be blank")
-                            .append(" the format of ").append(WebFieldDef.DELETEPOLICY.name())
+                    sBuffer.append("Method value must not be blank, the format of ")
+                            .append(WebFieldDef.DELETEPOLICY.name())
                             .append(" must like {method},{digital}[m|s|h]").toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (!"delete".equalsIgnoreCase(tmpStrs[0].trim())) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512).append("Field ")
-                            .append(WebFieldDef.DELETEPOLICY.name())
+                    sBuffer.append("Field ").append(WebFieldDef.DELETEPOLICY.name())
                             .append(" only support delete method now!").toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         String validValStr = tmpStrs[1];
@@ -359,9 +294,9 @@ public class WebParameterUtils {
         if (Character.isLetter(timeUnit.charAt(0))) {
             if (!allowedDelUnits.contains(timeUnit)) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                        new StringBuilder(512).append("Field ")
-                                .append(WebFieldDef.DELETEPOLICY.name())
+                        sBuffer.append("Field ").append(WebFieldDef.DELETEPOLICY.name())
                                 .append(" only support [s|m|h] unit!").toString());
+                sBuffer.delete(0, sBuffer.length());
                 return result.isSuccess();
             }
         }
@@ -378,28 +313,31 @@ public class WebParameterUtils {
             }
         } catch (Throwable e) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512).append("The value of field ")
+                    sBuffer.append("The value of field ")
                             .append(WebFieldDef.DELETEPOLICY.name())
                             .append("'s valid duration must digits!").toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (validDuration <= 0 || validDuration > DataStoreUtils.MAX_FILE_VALID_DURATION) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512).append("The value of field ")
+                    sBuffer.append("The value of field ")
                             .append(WebFieldDef.DELETEPOLICY.name())
                             .append(" must be greater than 0 and  less than or equal to")
                             .append(DataStoreUtils.MAX_FILE_VALID_DURATION)
                             .append(" seconds!").toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (Character.isLetter(timeUnit.charAt(0))) {
-            result.setSuccResult(new StringBuilder(512).append("delete,")
+            result.setSuccResult(sBuffer.append("delete,")
                     .append(validValStr.substring(0, validValStr.length() - 1))
                     .append(timeUnit).toString());
         } else {
-            result.setSuccResult(new StringBuilder(512).append("delete,")
+            result.setSuccResult(sBuffer.append("delete,")
                     .append(validValStr).append("h").toString());
         }
+        sBuffer.delete(0, sBuffer.length());
         return result.isSuccess();
     }
 
@@ -407,10 +345,12 @@ public class WebParameterUtils {
     public static boolean getTopicStatusParamValue(HttpServletRequest req,
                                                    boolean isRequired,
                                                    TopicStatus defVal,
+                                                   StringBuilder sBuffer,
                                                    ProcessResult result) {
         // get topicStatusId field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICSTATUSID,
-                isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_OK.getCode(), result)) {
+                isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_OK.getCode(),
+                sBuffer, result)) {
             return result.isSuccess();
         }
         int paramValue = (int) result.getRetData();
@@ -419,9 +359,10 @@ public class WebParameterUtils {
             result.setSuccResult(topicStatus);
         } catch (Throwable e) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    new StringBuilder(512).append("The value of field ")
+                    sBuffer.append("The value of field ")
                             .append(WebFieldDef.TOPICSTATUSID.name())
                             .append(" invalid:").append(e.getMessage()).toString());
+            sBuffer.delete(0, sBuffer.length());
         }
         return result.isSuccess();
     }
@@ -429,269 +370,89 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value for TopicPropGroup class
      *
-     * @param req        Http Servlet Request
+     * @param paramCntr   parameter container object
      * @param defVal     default value
      * @param result     process result of parameter value
      * @return process result
      */
-    public static boolean getTopicPropInfo(HttpServletRequest req,
-                                           TopicPropGroup defVal,
-                                           ProcessResult result) {
+    public static <T> boolean getTopicPropInfo(T paramCntr, TopicPropGroup defVal,
+                                               StringBuilder sBuffer, ProcessResult result) {
         TopicPropGroup newConf = new TopicPropGroup();
         // get numTopicStores parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.NUMTOPICSTORES,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMTOPICSTORES, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getNumTopicStores()),
+                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int numTopicStores = (int) result.retData1;
-        if (numTopicStores == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            numTopicStores = defVal.getNumTopicStores();
-        }
-        newConf.setNumTopicStores(numTopicStores);
+        newConf.setNumTopicStores((int) result.retData1);
         // get numPartitions parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.NUMPARTITIONS,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_PARTITION_NUM_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMPARTITIONS, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getNumPartitions()),
+                TServerConstants.TOPIC_PARTITION_NUM_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int numPartitions = (int) result.retData1;
-        if (numPartitions == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            numPartitions = defVal.getNumPartitions();
-        }
-        newConf.setNumPartitions(numPartitions);
+        newConf.setNumPartitions((int) result.retData1);
         // get unflushThreshold parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.UNFLUSHTHRESHOLD,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHTHRESHOLD, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushThreshold()),
+                TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int unflushThreshold = (int) result.retData1;
-        if (unflushThreshold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushThreshold = defVal.getUnflushThreshold();
-        }
-        newConf.setUnflushThreshold(unflushThreshold);
+        newConf.setUnflushThreshold((int) result.retData1);
         // get unflushInterval parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.UNFLUSHINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHINTERVAL, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushInterval()),
+                TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int unflushInterval = (int) result.retData1;
-        if (unflushInterval == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushInterval = defVal.getUnflushInterval();
-        }
-        newConf.setUnflushInterval(unflushInterval);
+        newConf.setUnflushInterval((int) result.retData1);
         // get unflushDataHold parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.UNFLUSHINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHINTERVAL, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushDataHold()),
+                TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int unflushDataHold = (int) result.retData1;
-        if (unflushDataHold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushDataHold = defVal.getUnflushDataHold();
-        }
-        newConf.setUnflushDataHold(unflushDataHold);
+        newConf.setUnflushDataHold((int) result.retData1);
         // get memCacheMsgSizeInMB parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.MCACHESIZEINMB,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.MCACHESIZEINMB, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheMsgSizeInMB()),
                 TServerConstants.TOPIC_CACHESIZE_MB_MIN,
-                TServerConstants.TOPIC_CACHESIZE_MB_MAX, result)) {
+                TServerConstants.TOPIC_CACHESIZE_MB_MAX, sBuffer, result)) {
             return result.isSuccess();
         }
-        int cacheMsgSizeInMB = (int) result.retData1;
-        if (cacheMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheMsgSizeInMB = defVal.getMemCacheMsgSizeInMB();
-        }
-        newConf.setMemCacheMsgSizeInMB(cacheMsgSizeInMB);
+        newConf.setMemCacheMsgSizeInMB((int) result.retData1);
         // get memCacheFlushIntvl parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.UNFMCACHEINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_CACHEINTVL_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFMCACHEINTERVAL, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheFlushIntvl()),
+                TServerConstants.TOPIC_CACHEINTVL_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int cacheFlushIntvl = (int) result.retData1;
-        if (cacheFlushIntvl == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheFlushIntvl = defVal.getMemCacheFlushIntvl();
-        }
-        newConf.setMemCacheFlushIntvl(cacheFlushIntvl);
+        newConf.setMemCacheFlushIntvl((int) result.retData1);
         // get memCacheMsgCntInK parameter value
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.UNFMCACHECNTINK,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_CACHECNT_INK_MIN, result)) {
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFMCACHECNTINK, false,
+                (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheMsgCntInK()),
+                TServerConstants.TOPIC_CACHECNT_INK_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        int cacheMsgCntInK = (int) result.retData1;
-        if (cacheMsgCntInK == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheMsgCntInK = defVal.getMemCacheMsgCntInK();
-        }
-        newConf.setMemCacheMsgCntInK(cacheMsgCntInK);
+        newConf.setMemCacheMsgCntInK((int) result.retData1);
         // get deletePolicy parameter value
-        if (!WebParameterUtils.getDeletePolicyParameter(req,
-                false, null, result)) {
+        if (!WebParameterUtils.getDeletePolicyParameter(paramCntr, false,
+                (defVal == null ? null : defVal.getDeletePolicy()), sBuffer, result)) {
             return result.isSuccess();
         }
-        String deletePolicy = (String) result.retData1;
-        if (deletePolicy == null && defVal != null) {
-            deletePolicy = defVal.getDeletePolicy();
-        }
-        newConf.setDeletePolicy(deletePolicy);
+        newConf.setDeletePolicy((String) result.retData1);
         // get acceptPublish parameter value
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.ACCEPTPUBLISH, false, null, result)) {
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr, WebFieldDef.ACCEPTPUBLISH, false,
+                (defVal == null ? null : defVal.getAcceptPublish()), sBuffer, result)) {
             return result.isSuccess();
         }
-        Boolean acceptPublish = (Boolean) result.retData1;
-        if (acceptPublish == null && defVal != null) {
-            acceptPublish = defVal.getAcceptPublish();
-        }
-        newConf.setAcceptPublish(acceptPublish);
+        newConf.setAcceptPublish((Boolean) result.retData1);
         // get acceptSubscribe parameter value
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.ACCEPTSUBSCRIBE, false, null, result)) {
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr, WebFieldDef.ACCEPTSUBSCRIBE, false,
+                (defVal == null ? null : defVal.getAcceptSubscribe()), sBuffer, result)) {
             return result.isSuccess();
         }
-        Boolean acceptSubscribe = (Boolean) result.retData1;
-        if (acceptSubscribe == null && defVal != null) {
-            acceptSubscribe = defVal.getAcceptSubscribe();
-        }
-        newConf.setAcceptSubscribe(acceptSubscribe);
-        result.setSuccResult(newConf);
-        return result.isSuccess();
-    }
-
-    /**
-     * Parse the parameter value for TopicPropGroup class
-     *
-     * @param keyValueMap parameter key-value map
-     * @param defVal      default value
-     * @param result      process result of parameter value
-     * @return process    result
-     */
-    public static boolean getTopicPropInfo(Map<String, String> keyValueMap,
-                                           TopicPropGroup defVal,
-                                           ProcessResult result) {
-        TopicPropGroup newConf = new TopicPropGroup();
-        // get numTopicStores parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.NUMTOPICSTORES,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, result)) {
-            return result.isSuccess();
-        }
-        int numTopicStores = (int) result.retData1;
-        if (numTopicStores == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            numTopicStores = defVal.getNumTopicStores();
-        }
-        newConf.setNumTopicStores(numTopicStores);
-        // get numPartitions parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.NUMPARTITIONS,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_PARTITION_NUM_MIN, result)) {
-            return result.isSuccess();
-        }
-        int numPartitions = (int) result.retData1;
-        if (numPartitions == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            numPartitions = defVal.getNumPartitions();
-        }
-        newConf.setNumPartitions(numPartitions);
-        // get unflushThreshold parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHTHRESHOLD,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_MIN, result)) {
-            return result.isSuccess();
-        }
-        int unflushThreshold = (int) result.retData1;
-        if (unflushThreshold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushThreshold = defVal.getUnflushThreshold();
-        }
-        newConf.setUnflushThreshold(unflushThreshold);
-        // get unflushInterval parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_MIN, result)) {
-            return result.isSuccess();
-        }
-        int unflushInterval = (int) result.retData1;
-        if (unflushInterval == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushInterval = defVal.getUnflushInterval();
-        }
-        newConf.setUnflushInterval(unflushInterval);
-        // get unflushDataHold parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFLUSHINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, result)) {
-            return result.isSuccess();
-        }
-        int unflushDataHold = (int) result.retData1;
-        if (unflushDataHold == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            unflushDataHold = defVal.getUnflushDataHold();
-        }
-        newConf.setUnflushDataHold(unflushDataHold);
-        // get memCacheMsgSizeInMB parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.MCACHESIZEINMB,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_CACHESIZE_MB_MIN,
-                TServerConstants.TOPIC_CACHESIZE_MB_MAX, result)) {
-            return result.isSuccess();
-        }
-        int cacheMsgSizeInMB = (int) result.retData1;
-        if (cacheMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheMsgSizeInMB = defVal.getMemCacheMsgSizeInMB();
-        }
-        newConf.setMemCacheMsgSizeInMB(cacheMsgSizeInMB);
-        // get memCacheFlushIntvl parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFMCACHEINTERVAL,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_CACHEINTVL_MIN, result)) {
-            return result.isSuccess();
-        }
-        int cacheFlushIntvl = (int) result.retData1;
-        if (cacheFlushIntvl == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheFlushIntvl = defVal.getMemCacheFlushIntvl();
-        }
-        newConf.setMemCacheFlushIntvl(cacheFlushIntvl);
-        // get memCacheMsgCntInK parameter value
-        if (!WebParameterUtils.getIntParamValue(keyValueMap, WebFieldDef.UNFMCACHECNTINK,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.TOPIC_CACHECNT_INK_MIN, result)) {
-            return result.isSuccess();
-        }
-        int cacheMsgCntInK = (int) result.retData1;
-        if (cacheMsgCntInK == TBaseConstants.META_VALUE_UNDEFINED && defVal != null) {
-            cacheMsgCntInK = defVal.getMemCacheMsgCntInK();
-        }
-        newConf.setMemCacheMsgCntInK(cacheMsgCntInK);
-        // get deletePolicy parameter value
-        if (!WebParameterUtils.getDeletePolicyParameter(keyValueMap,
-                false, null, result)) {
-            return result.isSuccess();
-        }
-        String deletePolicy = (String) result.retData1;
-        if (deletePolicy == null && defVal != null) {
-            deletePolicy = defVal.getDeletePolicy();
-        }
-        newConf.setDeletePolicy(deletePolicy);
-        // get acceptPublish parameter value
-        if (!WebParameterUtils.getBooleanParamValue(keyValueMap,
-                WebFieldDef.ACCEPTPUBLISH, false, null, result)) {
-            return result.isSuccess();
-        }
-        Boolean acceptPublish = (Boolean) result.retData1;
-        if (acceptPublish == null && defVal != null) {
-            acceptPublish = defVal.getAcceptPublish();
-        }
-        newConf.setAcceptPublish(acceptPublish);
-        // get acceptSubscribe parameter value
-        if (!WebParameterUtils.getBooleanParamValue(keyValueMap,
-                WebFieldDef.ACCEPTSUBSCRIBE, false, null, result)) {
-            return result.isSuccess();
-        }
-        Boolean acceptSubscribe = (Boolean) result.retData1;
-        if (acceptSubscribe == null && defVal != null) {
-            acceptSubscribe = defVal.getAcceptSubscribe();
-        }
-        newConf.setAcceptSubscribe(acceptSubscribe);
+        newConf.setAcceptSubscribe((Boolean) result.retData1);
         result.setSuccResult(newConf);
         return result.isSuccess();
     }
@@ -887,19 +648,18 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an object value to a long value
      *
-     * @param req        Http Servlet Request
+     * @param paramCntr   parameter container object
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
      * @param result     process result of parameter value
      * @return process result
      */
-    public static boolean getLongParamValue(HttpServletRequest req,
-                                            WebFieldDef fieldDef,
-                                            boolean required,
-                                            long defValue,
-                                            ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+    public static <T> boolean getLongParamValue(T paramCntr, WebFieldDef fieldDef,
+                                                boolean required, long defValue,
+                                                StringBuilder sBuffer, ProcessResult result) {
+        if (!getStringParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
             return result.success;
         }
         String paramValue = (String) result.retData1;
@@ -911,34 +671,9 @@ public class WebParameterUtils {
             long paramIntVal = Long.parseLong(paramValue);
             result.setSuccResult(paramIntVal);
         } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parameter ").append(fieldDef.name)
+            result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                     .append(" parse error: ").append(e.getMessage()).toString());
-        }
-        return result.success;
-    }
-
-    public static boolean getLongParamValue(Map<String, String> keyValueMap,
-                                            WebFieldDef fieldDef,
-                                            boolean required,
-                                            long defValue,
-                                            ProcessResult result) {
-        if (!getStringParamValue(keyValueMap,
-                fieldDef, required, null, result)) {
-            return result.success;
-        }
-        String paramValue = (String) result.retData1;
-        if (paramValue == null) {
-            result.setSuccResult(defValue);
-            return result.success;
-        }
-        try {
-            long paramIntVal = Long.parseLong(paramValue);
-            result.setSuccResult(paramIntVal);
-        } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parameter ").append(fieldDef.name)
-                    .append(" parse error: ").append(e.getMessage()).toString());
+            sBuffer.delete(0, sBuffer.length());
         }
         return result.success;
     }
@@ -946,48 +681,26 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an object value to a integer value
      *
-     * @param req        Http Servlet Request
+     * @param paramCntr   parameter container object
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param result     process result of parameter value
      * @return process result
      */
-    public static boolean getIntParamValue(HttpServletRequest req,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           ProcessResult result) {
-        return getIntParamValue(req, fieldDef, required,
+    public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
+                                               boolean required, StringBuilder sBuffer,
+                                               ProcessResult result) {
+        return getIntParamValue(paramCntr, fieldDef, required,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
-                result);
+                sBuffer, result);
     }
 
     /**
      * Parse the parameter value from an object value to a integer value
      *
-     * @param req        Http Servlet Request
-     * @param fieldDef   the parameter field definition
-     * @param required   a boolean value represent whether the parameter is must required
-     * @param defValue   a default value returned if the field not exist
-     * @param minValue   min value required
-     * @param result     process result of parameter value
-     * @return process result
-     */
-    public static boolean getIntParamValue(HttpServletRequest req,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           int defValue,
-                                           int minValue,
-                                           ProcessResult result) {
-        return getIntParamValue(req, fieldDef, required, true, defValue,
-                true, minValue, false, TBaseConstants.META_VALUE_UNDEFINED, result);
-    }
-
-    /**
-     * Parse the parameter value from an object value to a integer value
-     *
-     * @param keyValueMap  parameter key value map
+     * @param paramCntr   parameter container object
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
@@ -995,20 +708,19 @@ public class WebParameterUtils {
      * @param result     process result of parameter value
      * @return process result
      */
-    public static boolean getIntParamValue(Map<String, String> keyValueMap,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           int defValue,
-                                           int minValue,
-                                           ProcessResult result) {
-        return getIntParamValue(keyValueMap, fieldDef, required, true, defValue,
-                true, minValue, false, TBaseConstants.META_VALUE_UNDEFINED, result);
+    public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
+                                               boolean required, int defValue, int minValue,
+                                               StringBuilder sBuffer, ProcessResult result) {
+        return getIntParamValue(paramCntr, fieldDef, required,
+                true, defValue, true, minValue,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                sBuffer, result);
     }
 
     /**
      * Parse the parameter value from an object value to a integer value
      *
-     * @param req        Http Servlet Request
+     * @param paramCntr  parameter container object
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
@@ -1017,73 +729,27 @@ public class WebParameterUtils {
      * @param result     process result of parameter value
      * @return process result
      */
-    public static boolean getIntParamValue(HttpServletRequest req,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           int defValue,
-                                           int minValue,
-                                           int maxValue,
-                                           ProcessResult result) {
-        return getIntParamValue(req, fieldDef, required, true, defValue,
-                true, minValue, true, maxValue, result);
+    public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
+                                               boolean required, int defValue,
+                                               int minValue, int maxValue,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
+        return getIntParamValue(paramCntr, fieldDef, required, true,
+                defValue, true, minValue, true, maxValue, sBuffer, result);
     }
 
-    public static boolean getIntParamValue(Map<String, String> keyValueMap,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           int defValue,
-                                           int minValue,
-                                           int maxValue,
-                                           ProcessResult result) {
-        return getIntParamValue(keyValueMap, fieldDef, required, true, defValue,
-                true, minValue, true, maxValue, result);
-    }
-
-    private static boolean getIntParamValue(HttpServletRequest req,
-                                            WebFieldDef fieldDef,
-                                            boolean required,
-                                            boolean hasDefVal,
-                                            int defValue,
-                                            boolean hasMinVal,
-                                            int minValue,
-                                            boolean hasMaxVal,
-                                            int maxValue,
-                                            ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+    private static <T> boolean getIntParamValue(T paramCntr,
+                                                WebFieldDef fieldDef, boolean required,
+                                                boolean hasDefVal, int defValue,
+                                                boolean hasMinVal, int minValue,
+                                                boolean hasMaxVal, int maxValue,
+                                                StringBuilder sBuffer, ProcessResult result) {
+        if (!getStringParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
             return result.success;
         }
-        return checkIntParamValue(fieldDef, hasDefVal, defValue,
-                hasMinVal, minValue, hasMaxVal, maxValue, result);
-    }
-
-    private static boolean getIntParamValue(Map<String, String> keyValueMap,
-                                            WebFieldDef fieldDef,
-                                            boolean required,
-                                            boolean hasDefVal,
-                                            int defValue,
-                                            boolean hasMinVal,
-                                            int minValue,
-                                            boolean hasMaxVal,
-                                            int maxValue,
-                                            ProcessResult result) {
-        if (!getStringParamValue(keyValueMap, fieldDef, required, null, result)) {
-            return result.success;
-        }
-        return checkIntParamValue(fieldDef, hasDefVal, defValue,
-                hasMinVal, minValue, hasMaxVal, maxValue, result);
-    }
-
-    private static boolean checkIntParamValue(WebFieldDef fieldDef,
-                                              boolean hasDefVal,
-                                              int defValue,
-                                              boolean hasMinVal,
-                                              int minValue,
-                                              boolean hasMaxVal,
-                                              int maxValue,
-                                              ProcessResult result) {
-
         if (fieldDef.isCompFieldType()) {
-            Set<Integer> tgtValueSet = new HashSet<Integer>();
+            Set<Integer> tgtValueSet = new HashSet<>();
             Set<String> valItemSet = (Set<String>) result.retData1;
             if (valItemSet.isEmpty()) {
                 if (hasDefVal) {
@@ -1094,7 +760,7 @@ public class WebParameterUtils {
             }
             for (String itemVal : valItemSet) {
                 if (!checkIntValueNorms(fieldDef, itemVal,
-                        hasMinVal, minValue, hasMaxVal, maxValue, result)) {
+                        hasMinVal, minValue, hasMaxVal, maxValue, sBuffer, result)) {
                     return result.success;
                 }
                 tgtValueSet.add((Integer) result.retData1);
@@ -1109,7 +775,7 @@ public class WebParameterUtils {
                 return result.success;
             }
             checkIntValueNorms(fieldDef, paramValue,
-                    hasMinVal, minValue, hasMaxVal, maxValue, result);
+                    hasMinVal, minValue, hasMaxVal, maxValue, sBuffer, result);
         }
         return result.success;
     }
@@ -1117,56 +783,19 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an object value to a boolean value
      *
-     * @param req         Http Servlet Request
+     * @param paramCntr   parameter container object
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
      * @param defValue    a default value returned if the field not exist
      * @param result      process result
      * @return valid result for the parameter value
      */
-    public static boolean getBooleanParamValue(HttpServletRequest req,
-                                               WebFieldDef fieldDef,
-                                               boolean required,
-                                               Boolean defValue,
-                                               ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, result)) {
-            return result.success;
-        }
-        String paramValue = (String) result.retData1;
-        if (paramValue == null) {
-            result.setSuccResult(defValue);
-            return result.success;
-        }
-        if (paramValue.equalsIgnoreCase("true")
-                || paramValue.equalsIgnoreCase("false")) {
-            result.setSuccResult(Boolean.parseBoolean(paramValue));
-        } else {
-            try {
-                result.setSuccResult(!(Long.parseLong(paramValue) == 0));
-            } catch (Throwable e) {
-                result.setSuccResult(defValue);
-            }
-        }
-        return result.success;
-    }
-
-    /**
-     * Parse the parameter value from an object value to a boolean value
-     *
-     * @param keyValueMap key value map
-     * @param fieldDef    the parameter field definition
-     * @param required    a boolean value represent whether the parameter is must required
-     * @param defValue    a default value returned if the field not exist
-     * @param result      process result
-     * @return valid result for the parameter value
-     */
-    public static boolean getBooleanParamValue(Map<String, String> keyValueMap,
-                                               WebFieldDef fieldDef,
-                                               boolean required,
-                                               Boolean defValue,
-                                               ProcessResult result) {
-        if (!getStringParamValue(keyValueMap,
-                fieldDef, required, null, result)) {
+    public static <T> boolean getBooleanParamValue(T paramCntr, WebFieldDef fieldDef,
+                                                   boolean required, Boolean defValue,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        if (!getStringParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
             return result.success;
         }
         String paramValue = (String) result.retData1;
@@ -1190,49 +819,37 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an object value
      *
-     * @param keyValueMap  Http Servlet Request
+     * @param paramCntr    parameter container object
      * @param fieldDef     the parameter field definition
      * @param required     a boolean value represent whether the parameter is must required
      * @param defValue     a default value returned if the field not exist
-     * @param result      process result
+     * @param sBuffer      string buffer
+     * @param result       process result
      * @return valid result for the parameter value
      */
-    public static boolean getStringParamValue(Map<String, String> keyValueMap,
-                                              WebFieldDef fieldDef,
-                                              boolean required,
-                                              String defValue,
-                                              ProcessResult result) {
+    public static <T> boolean getStringParamValue(T paramCntr, WebFieldDef fieldDef,
+                                                  boolean required, String defValue,
+                                                  StringBuilder sBuffer, ProcessResult result) {
+        String paramValue;
         // get parameter value
-        String paramValue = keyValueMap.get(fieldDef.name);
-        if (paramValue == null) {
-            paramValue = keyValueMap.get(fieldDef.shortName);
+        if (paramCntr instanceof Map) {
+            Map<String, String> keyValueMap =
+                    (Map<String, String>) paramCntr;
+            paramValue = keyValueMap.get(fieldDef.name);
+            if (paramValue == null) {
+                paramValue = keyValueMap.get(fieldDef.shortName);
+            }
+        } else if (paramCntr instanceof HttpServletRequest) {
+            HttpServletRequest req = (HttpServletRequest) paramCntr;
+            paramValue = req.getParameter(fieldDef.name);
+            if (paramValue == null) {
+                paramValue = req.getParameter(fieldDef.shortName);
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown parameter type!");
         }
         return checkStrParamValue(paramValue,
-                fieldDef, required, defValue, result);
-    }
-
-    /**
-     * Parse the parameter value from an HttpServletRequest
-     *
-     * @param req         Http Servlet Request
-     * @param fieldDef    the parameter field definition
-     * @param required     a boolean value represent whether the parameter is must required
-     * @param defValue     a default value returned if the field not exist
-     * @param result      process result
-     * @return valid result for the parameter value
-     */
-    public static boolean getStringParamValue(HttpServletRequest req,
-                                              WebFieldDef fieldDef,
-                                              boolean required,
-                                              String defValue,
-                                              ProcessResult result) {
-        // get parameter value
-        String paramValue = req.getParameter(fieldDef.name);
-        if (paramValue == null) {
-            paramValue = req.getParameter(fieldDef.shortName);
-        }
-        return checkStrParamValue(paramValue,
-                fieldDef, required, defValue, result);
+                fieldDef, required, defValue, sBuffer, result);
     }
 
     /**
@@ -1245,11 +862,9 @@ public class WebParameterUtils {
      * @param result      process result
      * @return valid result for the parameter value
      */
-    private static boolean checkStrParamValue(String paramValue,
-                                              WebFieldDef fieldDef,
-                                              boolean required,
-                                              String defValue,
-                                              ProcessResult result) {
+    private static boolean checkStrParamValue(String paramValue, WebFieldDef fieldDef,
+                                              boolean required, String defValue,
+                                              StringBuilder sBuffer, ProcessResult result) {
         if (TStringUtils.isNotBlank(paramValue)) {
             // Cleanup value extra characters
             paramValue = escDoubleQuotes(paramValue.trim());
@@ -1257,9 +872,9 @@ public class WebParameterUtils {
         // Check if the parameter exists
         if (TStringUtils.isBlank(paramValue)) {
             if (required) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("Parameter ").append(fieldDef.name)
+                result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                         .append(" is missing or value is null or blank!").toString());
+                sBuffer.delete(0, sBuffer.length());
             } else {
                 procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
             }
@@ -1274,7 +889,7 @@ public class WebParameterUtils {
                 if (TStringUtils.isBlank(strParamValueItem)) {
                     continue;
                 }
-                if (!checkStrValueNorms(fieldDef, strParamValueItem, result)) {
+                if (!checkStrValueNorms(fieldDef, strParamValueItem, sBuffer, result)) {
                     return result.success;
                 }
                 valItemSet.add((String) result.retData1);
@@ -1282,9 +897,9 @@ public class WebParameterUtils {
             // check if is empty result
             if (valItemSet.isEmpty()) {
                 if (required) {
-                    result.setFailResult(new StringBuilder(512)
-                            .append("Parameter ").append(fieldDef.name)
+                    result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                             .append(" is missing or value is null or blank!").toString());
+                    sBuffer.delete(0, sBuffer.length());
                 } else {
                     procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
                 }
@@ -1293,16 +908,16 @@ public class WebParameterUtils {
             // check max item count
             if (fieldDef.itemMaxCnt != TBaseConstants.META_VALUE_UNDEFINED) {
                 if (valItemSet.size() > fieldDef.itemMaxCnt) {
-                    result.setFailResult(new StringBuilder(512)
-                            .append("Parameter ").append(fieldDef.name)
+                    result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                             .append("'s item count over max allowed count (")
                             .append(fieldDef.itemMaxCnt).append(")!").toString());
+                    sBuffer.delete(0, sBuffer.length());
                 }
             }
             valItemSet.comparator();
             result.setSuccResult(valItemSet);
         } else {
-            if (!checkStrValueNorms(fieldDef, paramValue, result)) {
+            if (!checkStrValueNorms(fieldDef, paramValue, sBuffer, result)) {
                 return result.success;
             }
             result.setSuccResult(paramValue);
@@ -1321,46 +936,13 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
-                                                   BrokerConfManager confManager,
-                                                   boolean required,
-                                                   String defValue,
-                                                   ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, required, defValue, result)) {
-            return result.success;
-        }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
-        Set<String> existedTopicSet =
-                confManager.getTotalConfiguredTopicNames();
-        for (String topic : topicNameSet) {
-            if (!existedTopicSet.contains(topic)) {
-                result.setFailResult(new StringBuilder(512)
-                        .append(WebFieldDef.COMPSTOPICNAME.name)
-                        .append(" value ").append(topic)
-                        .append(" is not configure, please configure first!").toString());
-                break;
-            }
-        }
-        return result.success;
-    }
-
-    /**
-     * Get and valid topicName value
-     *
-     * @param req        Http Servlet Request
-     * @param confManager  configure manager
-     * @param required   a boolean value represent whether the parameter is must required
-     * @param defValue   a default value returned if the field not exist
-     * @param result     process result of parameter value
-     * @return process result
-     */
-    public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
                                                    MetaDataManager confManager,
                                                    boolean required,
                                                    String defValue,
+                                                   StringBuilder sBuffer,
                                                    ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, required, defValue, result)) {
+                WebFieldDef.COMPSTOPICNAME, required, defValue, sBuffer, result)) {
             return result.success;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
@@ -1368,10 +950,10 @@ public class WebParameterUtils {
                 confManager.getTotalConfiguredTopicNames();
         for (String topic : topicNameSet) {
             if (!existedTopicSet.contains(topic)) {
-                result.setFailResult(new StringBuilder(512)
-                        .append(WebFieldDef.COMPSTOPICNAME.name)
+                result.setFailResult(sBuffer.append(WebFieldDef.COMPSTOPICNAME.name)
                         .append(" value ").append(topic)
                         .append(" is not configure, please configure first!").toString());
+                sBuffer.delete(0, sBuffer.length());
                 break;
             }
         }
@@ -1381,113 +963,19 @@ public class WebParameterUtils {
     /**
      * check the filter conditions and get them in a String
      *
-     * @param req        Http Servlet Request
-     * @param required   denote whether it translate blank condition
-     * @param transBlank   whether to translate condition item
-     * @param result     process result of parameter value
+     * @param paramCntr   parameter container object
+     * @param required    denote whether it translate blank condition
+     * @param transBlank  whether to translate condition item
+     * @param result      process result of parameter value
      * @return process result
      */
-    public static boolean getFilterCondString(HttpServletRequest req,
-                                              boolean required,
-                                              boolean transBlank,
-                                              ProcessResult result) {
-        if (!getFilterCondSet(req, required, false, result)) {
+    public static <T> boolean getFilterCondString(T paramCntr, boolean required,
+                                                  boolean transBlank,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
+        if (!getFilterCondSet(paramCntr, required, false, sBuffer, result)) {
             return result.success;
         }
-        return transCondItemsToStr(transBlank, result);
-    }
-
-    /**
-     * check the filter conditions and get them in a String
-     *
-     * @param keyValueMap parameter key value map
-     * @param required   denote whether it translate blank condition
-     * @param transBlank   whether to translate condition item
-     * @param result     process result of parameter value
-     * @return process result
-     */
-    public static boolean getFilterCondString(Map<String, String> keyValueMap,
-                                              boolean required,
-                                              boolean transBlank,
-                                              ProcessResult result) {
-        if (!getFilterCondSet(keyValueMap, required, false, result)) {
-            return result.success;
-        }
-        return transCondItemsToStr(transBlank, result);
-    }
-
-
-    /**
-     * check the filter conditions and get them in a set
-     *
-     * @param req        Http Servlet Request
-     * @param required   a boolean value represent whether the parameter is must required
-     * @param transCondItem   whether to translate condition item
-     * @param result     process result of parameter value
-     * @return process result
-     */
-    public static boolean getFilterCondSet(HttpServletRequest req,
-                                           boolean required,
-                                           boolean transCondItem,
-                                           ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.FILTERCONDS, required, null, result)) {
-            return result.success;
-        }
-        if (transCondItem) {
-            return transCondItems(result);
-        }
-        return result.success;
-    }
-
-    /**
-     * check the filter conditions and get them in a set
-     *
-     * @param keyValueMap        Http Servlet Request
-     * @param required   a boolean value represent whether the parameter is must required
-     * @param transCondItem   whether to translate condition item
-     * @param result     process result of parameter value
-     * @return process result
-     */
-    private static boolean getFilterCondSet(Map<String, String> keyValueMap,
-                                            boolean required,
-                                            boolean transCondItem,
-                                            ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(keyValueMap,
-                WebFieldDef.FILTERCONDS, required, null, result)) {
-            return result.success;
-        }
-        if (transCondItem) {
-            return transCondItems(result);
-        }
-        return result.success;
-    }
-
-    /**
-     * translate filter condition item with "''"
-     */
-    private static boolean transCondItems(ProcessResult result) {
-        TreeSet<String> filterCondSet = (TreeSet<String>) result.retData1;
-        if (!filterCondSet.isEmpty()) {
-            TreeSet<String> newFilterCondSet = new TreeSet<>();
-            StringBuilder sBuilder = new StringBuilder(512);
-            for (String filterCond : filterCondSet) {
-                newFilterCondSet.add(sBuilder.append(TokenConstants.ARRAY_SEP)
-                        .append(filterCond).append(TokenConstants.ARRAY_SEP).toString());
-                sBuilder.delete(0, sBuilder.length());
-            }
-            newFilterCondSet.comparator();
-            result.setSuccResult(newFilterCondSet);
-        }
-        return result.success;
-    }
-
-    /**
-     * translate filter condition item to String
-     */
-    private static boolean transCondItemsToStr(boolean transBlank,
-                                               ProcessResult result) {
-        StringBuilder sBuffer = new StringBuilder(512);
         Set<String> filterCondSet = (Set<String>) result.retData1;
         if (filterCondSet.isEmpty()) {
             if (transBlank) {
@@ -1500,6 +988,41 @@ public class WebParameterUtils {
             }
         }
         result.setSuccResult(sBuffer.toString());
+        sBuffer.delete(0, sBuffer.length());
+        return result.success;
+    }
+
+    /**
+     * check the filter conditions and get them in a set
+     *
+     * @param paramCntr   parameter container object
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param transCondItem   whether to translate condition item
+     * @param result     process result of parameter value
+     * @return process result
+     */
+    public static <T> boolean getFilterCondSet(T paramCntr, boolean required,
+                                               boolean transCondItem,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(paramCntr,
+                WebFieldDef.FILTERCONDS, required, null, sBuffer, result)) {
+            return result.success;
+        }
+        if (transCondItem) {
+            // translate filter condition item with "''"
+            TreeSet<String> newFilterCondSet = new TreeSet<>();
+            Set<String> filterCondSet = (Set<String>) result.retData1;
+            if (!filterCondSet.isEmpty()) {
+                for (String filterCond : filterCondSet) {
+                    newFilterCondSet.add(sBuffer.append(TokenConstants.ARRAY_SEP)
+                            .append(filterCond).append(TokenConstants.ARRAY_SEP).toString());
+                    sBuffer.delete(0, sBuffer.length());
+                }
+                newFilterCondSet.comparator();
+            }
+            result.setSuccResult(newFilterCondSet);
+        }
         return result.success;
     }
 
@@ -1658,19 +1181,19 @@ public class WebParameterUtils {
     /**
      * Parse the parameter value from an string value to Date value
      *
-     * @param req         Http Servlet Request
+     * @param paramCntr   parameter container object
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
      * @param defValue    a default value returned if failed to parse value from the given object
      * @param result      process result
      * @return valid result for the parameter value
      */
-    public static boolean getDateParameter(HttpServletRequest req,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           Date defValue,
-                                           ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+    public static <T> boolean getDateParameter(T paramCntr, WebFieldDef fieldDef,
+                                               boolean required, Date defValue,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
+        if (!getStringParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
             return result.success;
         }
         String paramValue = (String) result.retData1;
@@ -1683,38 +1206,13 @@ public class WebParameterUtils {
             Date date = sdf.parse(paramValue);
             result.setSuccResult(date);
         } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parameter ").append(fieldDef.name)
+            result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                     .append(" parse error: ").append(e.getMessage()).toString());
+            sBuffer.delete(0, sBuffer.length());
         }
         return result.success;
     }
 
-    public static boolean getDateParameter(Map<String, String> keyValueMap,
-                                           WebFieldDef fieldDef,
-                                           boolean required,
-                                           Date defValue,
-                                           ProcessResult result) {
-        if (!getStringParamValue(keyValueMap,
-                fieldDef, required, null, result)) {
-            return result.success;
-        }
-        String paramValue = (String) result.retData1;
-        if (paramValue == null) {
-            result.setSuccResult(defValue);
-            return result.success;
-        }
-        try {
-            DateFormat sdf = new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            Date date = sdf.parse(paramValue);
-            result.setSuccResult(date);
-        } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parameter ").append(fieldDef.name)
-                    .append(" parse error: ").append(e.getMessage()).toString());
-        }
-        return result.success;
-    }
 
     /**
      * Valid execution authorization info
@@ -1725,12 +1223,10 @@ public class WebParameterUtils {
      * @param result     process result
      * @return valid result for the parameter value
      */
-    public static boolean validReqAuthorizeInfo(HttpServletRequest req,
-                                                WebFieldDef fieldDef,
-                                                boolean required,
-                                                TMaster master,
-                                                ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, result)) {
+    public static boolean validReqAuthorizeInfo(HttpServletRequest req, WebFieldDef fieldDef,
+                                                boolean required, TMaster master,
+                                                StringBuilder sBuffer, ProcessResult result) {
+        if (!getStringParamValue(req, fieldDef, required, null, sBuffer, result)) {
             return result.success;
         }
         String paramValue = (String) result.retData1;
@@ -1774,9 +1270,8 @@ public class WebParameterUtils {
      * @param result       process result
      * @return check result for string value of parameter
      */
-    private static boolean checkStrValueNorms(WebFieldDef fieldDef,
-                                              String paramVal,
-                                              ProcessResult result) {
+    private static boolean checkStrValueNorms(WebFieldDef fieldDef, String paramVal,
+                                              StringBuilder sBuffer, ProcessResult result) {
         paramVal = paramVal.trim();
         if (TStringUtils.isBlank(paramVal)) {
             result.setSuccResult(null);
@@ -1785,20 +1280,20 @@ public class WebParameterUtils {
         // check value's max length
         if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
             if (paramVal.length() > fieldDef.valMaxLen) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("over max length for ").append(fieldDef.name)
-                        .append(", only allow ").append(fieldDef.valMaxLen)
-                        .append(" length").toString());
+                result.setFailResult(sBuffer.append("over max length for ")
+                        .append(fieldDef.name).append(", only allow ")
+                        .append(fieldDef.valMaxLen).append(" length").toString());
+                sBuffer.delete(0, sBuffer.length());
                 return false;
             }
         }
         // check value's pattern
         if (fieldDef.regexCheck) {
             if (!paramVal.matches(fieldDef.regexDef.getPattern())) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("illegal value for ").append(fieldDef.name)
-                        .append(", value ").append(fieldDef.regexDef.getErrMsgTemp())
-                        .toString());
+                result.setFailResult(sBuffer.append("illegal value for ")
+                        .append(fieldDef.name).append(", value ")
+                        .append(fieldDef.regexDef.getErrMsgTemp()).toString());
+                sBuffer.delete(0, sBuffer.length());
                 return false;
             }
         }
@@ -1815,35 +1310,33 @@ public class WebParameterUtils {
      * param minValue      the parameter min value
      * @param hasMaxVal    whether there is a maximum
      * param maxValue      the parameter max value
+     * @param sBuffer      string buffer
      * @param result   process result
      * @return check result for string value of parameter
      */
-    private static boolean checkIntValueNorms(WebFieldDef fieldDef,
-                                              String paramValue,
-                                              boolean hasMinVal,
-                                              int minValue,
-                                              boolean hasMaxVal,
-                                              int maxValue,
-                                              ProcessResult result) {
+    private static boolean checkIntValueNorms(WebFieldDef fieldDef, String paramValue,
+                                              boolean hasMinVal, int minValue,
+                                              boolean hasMaxVal, int maxValue,
+                                              StringBuilder sBuffer, ProcessResult result) {
         try {
             int paramIntVal = Integer.parseInt(paramValue);
             if (hasMinVal && paramIntVal < minValue) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("Parameter ").append(fieldDef.name)
+                result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                         .append(" value must >= ").append(minValue).toString());
+                sBuffer.delete(0, sBuffer.length());
                 return false;
             }
             if (hasMaxVal && paramIntVal > maxValue) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("Parameter ").append(fieldDef.name)
+                result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                         .append(" value must <= ").append(maxValue).toString());
+                sBuffer.delete(0, sBuffer.length());
                 return false;
             }
             result.setSuccResult(paramIntVal);
         } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parameter ").append(fieldDef.name)
+            result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                     .append(" parse error: ").append(e.getMessage()).toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         return true;
@@ -2583,44 +2076,40 @@ public class WebParameterUtils {
     }
 
     // translate rule info to json format string
-    public static int getAndCheckFlowRules(HttpServletRequest req,
-                                           String defValue,
-                                           ProcessResult result) {
+    public static <T> int getAndCheckFlowRules(T paramCntr, String defValue,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
         // get parameter value
-        String paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.name);
-        if (paramValue == null) {
-            paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.shortName);
+        String paramValue;
+        // get parameter value
+        if (paramCntr instanceof Map) {
+            Map<String, String> keyValueMap =
+                    (Map<String, String>) paramCntr;
+            paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.name);
+            if (paramValue == null) {
+                paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.shortName);
+            }
+        } else if (paramCntr instanceof HttpServletRequest) {
+            HttpServletRequest req = (HttpServletRequest) paramCntr;
+            paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.name);
+            if (paramValue == null) {
+                paramValue = req.getParameter(WebFieldDef.FLOWCTRLSET.shortName);
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown parameter type!");
         }
         if (TStringUtils.isBlank(paramValue)) {
             result.setSuccResult(defValue);
             return 0;
         }
         paramValue = paramValue.trim();
-        return validFlowRuleValue(paramValue, result);
-    }
-
-    // translate rule info to json format string
-    public static int getAndCheckFlowRules(Map<String, String> keyValueMap,
-                                           String defValue,
-                                           ProcessResult result) {
-        // get parameter value
-        String paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.name);
-        if (paramValue == null) {
-            paramValue = keyValueMap.get(WebFieldDef.FLOWCTRLSET.shortName);
-        }
-        if (TStringUtils.isBlank(paramValue)) {
-            result.setSuccResult(defValue);
-            return 0;
-        }
-        paramValue = paramValue.trim();
-        return validFlowRuleValue(paramValue, result);
+        return validFlowRuleValue(paramValue, sBuffer, result);
     }
 
     private static int validFlowRuleValue(String paramValue,
+                                          StringBuilder sBuffer,
                                           ProcessResult result) {
         int ruleCnt = 0;
-        StringBuilder strBuffer = new StringBuilder(512);
-        strBuffer.append("[");
         paramValue = paramValue.trim();
         List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);
         FlowCtrlRuleHandler flowCtrlRuleHandler =
@@ -2630,34 +2119,37 @@ public class WebParameterUtils {
             flowCtrlItemMap =
                     flowCtrlRuleHandler.parseFlowCtrlInfo(paramValue);
         } catch (Throwable e) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Parse parameter ").append(WebFieldDef.FLOWCTRLSET.name)
+            result.setFailResult(sBuffer.append("Parse parameter ")
+                    .append(WebFieldDef.FLOWCTRLSET.name)
                     .append(" failure: '").append(e.toString()).toString());
+            sBuffer.delete(0, sBuffer.length());
             return 0;
         }
+        sBuffer.append("[");
         for (Integer typeId : ruleTypes) {
             if (typeId != null) {
                 int rules = 0;
                 List<FlowCtrlItem> flowCtrlItems = flowCtrlItemMap.get(typeId);
                 if (flowCtrlItems != null) {
                     if (ruleCnt++ > 0) {
-                        strBuffer.append(",");
+                        sBuffer.append(",");
                     }
-                    strBuffer.append("{\"type\":").append(typeId.intValue()).append(",\"rule\":[");
+                    sBuffer.append("{\"type\":").append(typeId.intValue()).append(",\"rule\":[");
                     for (FlowCtrlItem flowCtrlItem : flowCtrlItems) {
                         if (flowCtrlItem != null) {
                             if (rules++ > 0) {
-                                strBuffer.append(",");
+                                sBuffer.append(",");
                             }
-                            strBuffer = flowCtrlItem.toJsonString(strBuffer);
+                            sBuffer = flowCtrlItem.toJsonString(sBuffer);
                         }
                     }
-                    strBuffer.append("]}");
+                    sBuffer.append("]}");
                 }
             }
         }
-        strBuffer.append("]");
-        result.setSuccResult(strBuffer.toString());
+        sBuffer.append("]");
+        result.setSuccResult(sBuffer.toString());
+        sBuffer.delete(0, sBuffer.length());
         return ruleCnt;
     }
 }

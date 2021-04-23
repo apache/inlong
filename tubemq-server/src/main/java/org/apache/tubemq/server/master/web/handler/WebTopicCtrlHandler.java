@@ -78,13 +78,13 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         StringBuilder sBuffer = new StringBuilder(512);
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
-        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, result)) {
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -160,19 +160,19 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, result)) {
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, true, null, result)) {
+                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -189,41 +189,41 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
 
     private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req, boolean isAddOp) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
         // get topicNameId info
         int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
         if (topicNameSet.size() == 1) {
             if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICNAMEID,
-                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
+                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
             }
             topicNameId = (int) result.getRetData();
         }
         // get authCtrlStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.AUTHCTRLENABLE, false, (isAddOp ? false : null), result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.AUTHCTRLENABLE,
+                false, (isAddOp ? false : null), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Boolean enableTopicAuth = (Boolean) result.retData1;
         // check and get max message size
@@ -235,9 +235,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 WebFieldDef.MAXMSGSIZEINMB, false,
                 (isAddOp ? maxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         maxMsgSizeMB = (int) result.getRetData();
         // add or update records
@@ -245,43 +245,43 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
             retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(isAddOp, opEntity,
-                    topicName, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuilder, result));
+                    topicName, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result));
         }
-        return buildRetInfo(retInfo, sBuilder);
+        return buildRetInfo(retInfo, sBuffer);
     }
 
     private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req, boolean isAddOp) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get add record map
-        if (!getTopicCtrlJsonSetInfo(req, isAddOp, defOpEntity, sBuilder, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!getTopicCtrlJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Map<String, TopicCtrlEntity> addRecordMap =
                 (Map<String, TopicCtrlEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicCtrlEntity topicCtrlInfo : addRecordMap.values()) {
             retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(
-                    isAddOp, topicCtrlInfo, sBuilder, result));
+                    isAddOp, topicCtrlInfo, sBuffer, result));
         }
-        return buildRetInfo(retInfo, sBuilder);
+        return buildRetInfo(retInfo, sBuffer);
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                            BaseEntity defOpEntity, StringBuilder sBuilder,
+                                            BaseEntity defOpEntity, StringBuilder sBuffer,
                                             ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICCTRLSET, true, null, result)) {
@@ -301,13 +301,13 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             itemConfMap = ctrlJsonArray.get(j);
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemConfMap,
-                    isAddOp, defOpEntity, result)) {
+                    isAddOp, defOpEntity, sBuffer, result)) {
                 return result.isSuccess();
             }
             BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
             // get topicName configure info
             if (!WebParameterUtils.getStringParamValue(itemConfMap,
-                    WebFieldDef.TOPICNAME, true, "", result)) {
+                    WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
                 return result.success;
             }
             String topicName = (String) result.retData1;
@@ -316,20 +316,19 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                     WebFieldDef.MAXMSGSIZEINMB, false,
                     (isAddOp ? defMaxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                     TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                    TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, result)) {
+                    TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
                 return result.isSuccess();
             }
             int itemMaxMsgSizeMB = (int) result.getRetData();
             // get topicNameId field
             if (!WebParameterUtils.getIntParamValue(itemConfMap, WebFieldDef.TOPICNAMEID,
-                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, result)) {
+                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
                 return result.isSuccess();
             }
             int itemTopicNameId = (int) result.getRetData();
             // get authCtrlStatus info
-            if (!WebParameterUtils.getBooleanParamValue(itemConfMap,
-                    WebFieldDef.AUTHCTRLENABLE, false,
-                    (isAddOp ? false : null), result)) {
+            if (!WebParameterUtils.getBooleanParamValue(itemConfMap, WebFieldDef.AUTHCTRLENABLE,
+                    false, (isAddOp ? false : null), sBuffer, result)) {
                 return result.isSuccess();
             }
             Boolean enableTopicAuth = (Boolean) result.retData1;
@@ -340,11 +339,11 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         }
         // check result
         if (addRecordMap.isEmpty()) {
-            result.setFailResult(sBuilder
+            result.setFailResult(sBuffer
                     .append("Not found record info in ")
                     .append(WebFieldDef.TOPICCTRLSET.name)
                     .append(" parameter!").toString());
-            sBuilder.delete(0, sBuilder.length());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         result.setSuccResult(addRecordMap);
@@ -352,23 +351,23 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuilder) {
+                                       StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {
             if (entry == null) {
                 continue;
             }
             if (totalCnt++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
-            sBuilder.append("{\"topicName\":\"").append(entry.getTopicName()).append("\"")
+            sBuffer.append("{\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
 }

@@ -113,51 +113,51 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     private StringBuilder innSetFlowControlRule(HttpServletRequest req,
                                                 boolean do4DefFlowCtrl) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // get createUser info
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEUSER, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String createUser = (String) result.retData1;
         // check and get create date
         if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.CREATEDATE, false, new Date(), result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEDATE, false, new Date(), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Date createDate = (Date) result.retData1;
         // get rule required status info
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.STATUSID, false, 0, 0, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.STATUSID, false, 0, 0, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int statusId = (int) result.retData1;
         // get and valid priority info
-        if (!getQryPriorityIdWithCheck(req, false, 301, 101, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!getQryPriorityIdWithCheck(req, false, 301, 101, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int qryPriorityId = (int) result.retData1;
         // get group name info
-        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
         // get and flow control rule info
         int ruleCnt = getAndCheckFlowRules(req, blankFlowCtrlRules, result);
         if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String flowCtrlInfo = (String) result.retData1;
         try {
@@ -175,11 +175,11 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                                     false, createUser, createDate));
                 }
             }
-            WebParameterUtils.buildSuccessResult(sBuilder);
+            WebParameterUtils.buildSuccessResult(sBuffer);
         } catch (Exception e) {
-            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+            WebParameterUtils.buildFailResult(sBuffer, e.getMessage());
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
@@ -192,40 +192,40 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     private StringBuilder innDelGroupFlowCtrlRuleStatus(HttpServletRequest req,
                                                         boolean do4DefFlowCtrl) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // get modifyUser info
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEUSER, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String modifyUser = (String) result.retData1;
         // check and get modifyDate date
         if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.CREATEDATE, false, new Date(), result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEDATE, false, new Date(), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Date modifyDate = (Date) result.retData1;
         // get group name info
-        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
         try {
             brokerConfManager.confDeleteBdbGroupFlowCtrl(batchGroupNames);
-            WebParameterUtils.buildSuccessResult(sBuilder);
+            WebParameterUtils.buildSuccessResult(sBuffer);
         } catch (Exception e) {
-            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+            WebParameterUtils.buildFailResult(sBuffer, e.getMessage());
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
@@ -239,53 +239,52 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                                                         boolean do4DefFlowCtrl) {
         // #lizard forgives
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
         if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         // get modifyUser info
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEUSER, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String modifyUser = (String) result.retData1;
         // check and get modifyDate date
         if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.CREATEDATE, false, new Date(), result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.CREATEDATE, false, new Date(), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Date modifyDate = (Date) result.retData1;
         // get group name info
-        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!getGroupNameWithCheck(req, true, do4DefFlowCtrl, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> batchGroupNames = (Set<String>) result.retData1;
         // get rule required status info
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.STATUSID, false,
-                TBaseConstants.META_VALUE_UNDEFINED, 0, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.STATUSID,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int statusId = (int) result.retData1;
         // get and flow control rule info
         int ruleCnt = getAndCheckFlowRules(req, null, result);
         if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         String newFlowCtrlInfo = (String) result.retData1;
         // get and valid priority info
         if (!getQryPriorityIdWithCheck(req, false,
-                TBaseConstants.META_VALUE_UNDEFINED, 101, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                TBaseConstants.META_VALUE_UNDEFINED, 101, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         int qryPriorityId = (int) result.retData1;
         try {
@@ -328,11 +327,11 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                     }
                 }
             }
-            WebParameterUtils.buildSuccessResult(sBuilder);
+            WebParameterUtils.buildSuccessResult(sBuffer);
         } catch (Exception e) {
-            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
+            WebParameterUtils.buildFailResult(sBuffer, e.getMessage());
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
@@ -345,36 +344,36 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     private StringBuilder innQueryGroupFlowCtrlRule(HttpServletRequest req,
                                                     boolean do4DefFlowCtrl) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         BdbGroupFlowCtrlEntity bdbGroupFlowCtrlEntity = new BdbGroupFlowCtrlEntity();
         // get modifyUser info
         WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.CREATEUSER, false, null, result);
+                WebFieldDef.CREATEUSER, false, null, sBuffer, result);
         bdbGroupFlowCtrlEntity.setCreateUser((String) result.retData1);
         // get status id info
         WebParameterUtils.getIntParamValue(req, WebFieldDef.STATUSID, false,
-                TBaseConstants.META_VALUE_UNDEFINED, 0, result);
+                TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result);
         bdbGroupFlowCtrlEntity.setStatusId((int) result.retData1);
         // get and valid priority info
         getQryPriorityIdWithCheck(req, false,
-                TBaseConstants.META_VALUE_UNDEFINED, 101, result);
+                TBaseConstants.META_VALUE_UNDEFINED, 101, sBuffer, result);
         bdbGroupFlowCtrlEntity.setQryPriorityId((int) result.retData1);
-        getGroupNameWithCheck(req, false, do4DefFlowCtrl, result);
+        getGroupNameWithCheck(req, false, do4DefFlowCtrl, sBuffer, result);
         Set<String> batchGroupNames = (Set<String>) result.retData1;
         // query group flow ctrl infos
         List<BdbGroupFlowCtrlEntity> webGroupFlowCtrlEntities =
                 brokerConfManager.confGetBdbGroupFlowCtrl(bdbGroupFlowCtrlEntity);
         int totalCnt = 0;
         boolean found = false;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         if (do4DefFlowCtrl) {
             for (BdbGroupFlowCtrlEntity entity : webGroupFlowCtrlEntities) {
                 if (entity.getGroupName().equals(
                         TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL)) {
                     if (totalCnt++ > 0) {
-                        sBuilder.append(",");
+                        sBuffer.append(",");
                     }
-                    sBuilder = entity.toJsonString(sBuilder);
+                    sBuffer = entity.toJsonString(sBuffer);
                     break;
                 }
             }
@@ -393,14 +392,14 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                 }
                 if (found) {
                     if (totalCnt++ > 0) {
-                        sBuilder.append(",");
+                        sBuffer.append(",");
                     }
-                    sBuilder = entity.toJsonString(sBuilder);
+                    sBuffer = entity.toJsonString(sBuffer);
                 }
             }
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
     // translate rule info to json format string
@@ -460,23 +459,24 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupNameWithCheck(HttpServletRequest req, boolean required,
-                                          boolean do4DefFlowCtrl, ProcessResult result) {
+                                          boolean do4DefFlowCtrl, StringBuilder sBuffer,
+                                          ProcessResult result) {
         if (do4DefFlowCtrl) {
             result.setSuccResult(rsvGroupNameSet);
             return true;
         }
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, required, null, result)) {
+                WebFieldDef.COMPSGROUPNAME, required, null, sBuffer, result)) {
             return result.success;
         }
         Set<String> inGroupSet = (Set<String>) result.retData1;
         for (String rsvGroup : rsvGroupNameSet) {
             if (inGroupSet.contains(rsvGroup)) {
-                result.setFailResult(new StringBuilder(512)
-                        .append("Illegal value in ").append(WebFieldDef.COMPSGROUPNAME.name)
-                        .append(" parameter: '").append(rsvGroup)
-                        .append("' is a system reserved value!").toString());
+                result.setFailResult(sBuffer.append("Illegal value in ")
+                        .append(WebFieldDef.COMPSGROUPNAME.name).append(" parameter: '")
+                        .append(rsvGroup).append("' is a system reserved value!").toString());
+                sBuffer.delete(0, sBuffer.length());
                 return false;
             }
         }
@@ -485,33 +485,35 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
 
     private boolean getQryPriorityIdWithCheck(HttpServletRequest req, boolean required,
                                               int defValue, int minValue,
-                                              ProcessResult result) {
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.QRYPRIORITYID, required,
-                defValue, minValue, result)) {
+                                              StringBuilder sBuffer, ProcessResult result) {
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.QRYPRIORITYID,
+                required, defValue, minValue, sBuffer, result)) {
             return result.success;
         }
         int qryPriorityId = (int) result.retData1;
         if (qryPriorityId > 303 || qryPriorityId < 101) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" parameter: ").append(WebFieldDef.QRYPRIORITYID.name)
                     .append(" value must be greater than or equal")
                     .append(" to 101 and less than or equal to 303!").toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId % 100)) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" parameter: the units of ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" must in ").append(allowedPriorityVal).toString());
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" parameter: the units of ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" must in ")
+                    .append(allowedPriorityVal).toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         if (!allowedPriorityVal.contains(qryPriorityId / 100)) {
-            result.setFailResult(new StringBuilder(512)
-                    .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" parameter: the hundreds of ").append(WebFieldDef.QRYPRIORITYID.name)
-                    .append(" must in ").append(allowedPriorityVal).toString());
+            result.setFailResult(sBuffer.append("Illegal value in ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" parameter: the hundreds of ")
+                    .append(WebFieldDef.QRYPRIORITYID.name).append(" must in ")
+                    .append(allowedPriorityVal).toString());
+            sBuffer.delete(0, sBuffer.length());
             return false;
         }
         return true;

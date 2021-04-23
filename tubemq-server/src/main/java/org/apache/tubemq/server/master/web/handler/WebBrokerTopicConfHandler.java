@@ -731,34 +731,34 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
      */
     public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder strBuffer = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false, result)) {
-            WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
-            return strBuffer;
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.retData1;
-        strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
         Map<Integer, Set<String>> brokerTopicConfigMap =
                 brokerConfManager.getBrokerTopicConfigInfo(brokerIds);
         int dataCount = 0;
         for (Map.Entry<Integer, Set<String>> entry : brokerTopicConfigMap.entrySet()) {
             if (dataCount++ > 0) {
-                strBuffer.append(",");
+                sBuffer.append(",");
             }
-            strBuffer.append("{\"brokerId\":").append(entry.getKey()).append(",\"topicName\":[");
+            sBuffer.append("{\"brokerId\":").append(entry.getKey()).append(",\"topicName\":[");
             int topicCnt = 0;
             Set<String> topicSet = entry.getValue();
             for (String topic : topicSet) {
                 if (topicCnt++ > 0) {
-                    strBuffer.append(",");
+                    sBuffer.append(",");
                 }
-                strBuffer.append("\"").append(topic).append("\"");
+                sBuffer.append("\"").append(topic).append("\"");
             }
-            strBuffer.append("],\"topicCount\":").append(topicCnt).append("}");
+            sBuffer.append("],\"topicCount\":").append(topicCnt).append("}");
         }
-        strBuffer.append("],\"dataCount\":").append(dataCount).append("}");
-        return strBuffer;
+        sBuffer.append("],\"dataCount\":").append(dataCount).append("}");
+        return sBuffer;
     }
 
     /**
@@ -769,51 +769,51 @@ public class WebBrokerTopicConfHandler extends AbstractWebHandler {
      */
     public StringBuilder adminQuerySimpleBrokerId(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder strBuffer = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
-            WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
-            return strBuffer;
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.retData1;
         if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.WITHIP, false, false, result)) {
-            WebParameterUtils.buildFailResult(strBuffer, result.errInfo);
-            return strBuffer;
+                WebFieldDef.WITHIP, false, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         boolean withIp = (Boolean) result.retData1;
         // return result;
-        strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
         Map<String, Map<Integer, String>> opicBrokerConfigMap =
                 brokerConfManager.getTopicBrokerConfigInfo(topicNameSet);
         int dataCount = 0;
         for (Map.Entry<String, Map<Integer, String>> entry : opicBrokerConfigMap.entrySet()) {
             if (dataCount++ > 0) {
-                strBuffer.append(",");
+                sBuffer.append(",");
             }
-            strBuffer.append("{\"topicName\":\"").append(entry.getKey()).append("\",\"brokerInfo\":[");
+            sBuffer.append("{\"topicName\":\"").append(entry.getKey()).append("\",\"brokerInfo\":[");
             int topicCnt = 0;
             Map<Integer, String> brokerMap = entry.getValue();
             if (withIp) {
                 for (Map.Entry<Integer, String> entry1 : brokerMap.entrySet()) {
                     if (topicCnt++ > 0) {
-                        strBuffer.append(",");
+                        sBuffer.append(",");
                     }
-                    strBuffer.append("{\"brokerId\":").append(entry1.getKey())
+                    sBuffer.append("{\"brokerId\":").append(entry1.getKey())
                             .append(",\"brokerIp\":\"").append(entry1.getValue()).append("\"}");
                 }
             } else {
                 for (Map.Entry<Integer, String> entry1 : brokerMap.entrySet()) {
                     if (topicCnt++ > 0) {
-                        strBuffer.append(",");
+                        sBuffer.append(",");
                     }
-                    strBuffer.append(entry1.getKey());
+                    sBuffer.append(entry1.getKey());
                 }
             }
-            strBuffer.append("],\"brokerCnt\":").append(topicCnt).append("}");
+            sBuffer.append("],\"brokerCnt\":").append(topicCnt).append("}");
         }
-        strBuffer.append("],\"dataCount\":").append(dataCount).append("}");
-        return strBuffer;
+        sBuffer.append("],\"dataCount\":").append(dataCount).append("}");
+        return sBuffer;
     }
 
     /**
