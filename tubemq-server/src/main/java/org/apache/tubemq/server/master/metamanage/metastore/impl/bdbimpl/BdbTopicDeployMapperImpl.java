@@ -236,6 +236,7 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
         Set<String> qryTopicKey = null;
         ConcurrentHashSet<String> keySet;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
+        // get deploy records set by topicName
         if (topicNameSet != null && !topicNameSet.isEmpty()) {
             qryTopicKey = new HashSet<>();
             for (String topicName : topicNameSet) {
@@ -245,6 +246,7 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
                 }
             }
         }
+        // get deploy records set by brokerId
         if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
             if (qryTopicKey == null) {
                 qryTopicKey = new HashSet<>();
@@ -256,24 +258,24 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
                 }
             }
         }
+        // filter record by qryEntity
         if (qryTopicKey == null) {
-            qryTopicKey = new HashSet<>(topicConfCache.keySet());
-        }
-        if (qryTopicKey.isEmpty()) {
-            return retEntityMap;
-        }
-        for (String recordKey: qryTopicKey) {
-            TopicDeployEntity entity = topicConfCache.get(recordKey);
-            if (entity == null
-                    || (qryEntity != null && !qryEntity.isMatched(entity))) {
-                continue;
+            for (TopicDeployEntity deployEntity :  topicConfCache.values()) {
+                if (deployEntity != null && deployEntity.isMatched(qryEntity)) {
+                    items = retEntityMap.computeIfAbsent(
+                            deployEntity.getTopicName(), k -> new ArrayList<>());
+                    items.add(deployEntity);
+                }
             }
-            items = retEntityMap.get(entity.getTopicName());
-            if (items == null) {
-                items = new ArrayList<>();
-                retEntityMap.put(entity.getTopicName(), items);
+        } else {
+            for (String recKey : qryTopicKey) {
+                TopicDeployEntity deployEntity = topicConfCache.get(recKey);
+                if (deployEntity != null && deployEntity.isMatched(qryEntity)) {
+                    items = retEntityMap.computeIfAbsent(
+                            deployEntity.getTopicName(), k -> new ArrayList<>());
+                    items.add(deployEntity);
+                }
             }
-            items.add(entity);
         }
         return retEntityMap;
     }
@@ -380,31 +382,32 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<Integer, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet) {
-        Set<String> items;
+        Set<String> topicSet;
+        ConcurrentHashSet<String> deploySet;
         Map<Integer, Set<String>> retEntityMap = new HashMap<>();
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
-            brokerIdSet = new HashSet<>();
-            brokerIdSet.addAll(brokerId2TopicCacheIndex.keySet());
-        }
-        for (Integer brokerId : brokerIdSet) {
-            if (brokerId == null) {
-                continue;
-            }
-            ConcurrentHashSet<String> topicSet =
-                    brokerId2TopicCacheIndex.get(brokerId);
-            if (topicSet == null || topicSet.isEmpty()) {
-                continue;
-            }
-            items = retEntityMap.get(brokerId);
-            if (items == null) {
-                items = new HashSet<>();
-                retEntityMap.put(brokerId, items);
-            }
-            for (String topic : topicSet) {
-                if (topic == null) {
+            for (Map.Entry<Integer, ConcurrentHashSet<String>> entry
+                    : brokerId2TopicCacheIndex.entrySet()) {
+                if (entry.getKey() == null) {
                     continue;
                 }
-                items.add(topic);
+                topicSet = new HashSet<>();
+                if (entry.getValue() != null) {
+                    topicSet.addAll(entry.getValue());
+                }
+                retEntityMap.put(entry.getKey(), topicSet);
+            }
+        } else {
+            for (Integer brokerId : brokerIdSet) {
+                if (brokerId == null) {
+                    continue;
+                }
+                topicSet = new HashSet<>();
+                deploySet = brokerId2TopicCacheIndex.get(brokerId);
+                if (deploySet != null) {
+                    topicSet.addAll(deploySet);
+                }
+                retEntityMap.put(brokerId, topicSet);
             }
         }
         return retEntityMap;
@@ -412,32 +415,33 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet) {
-        Map<Integer, String> items;
+        ConcurrentHashSet<String> keySet;
+        Map<Integer, String> brokerInfoMap;
         Map<String, Map<Integer, String>> retEntityMap = new HashMap<>();
         if (topicNameSet == null || topicNameSet.isEmpty()) {
-            topicNameSet = new HashSet<>();
-            topicNameSet.addAll(topicNameCacheIndex.keySet());
-        }
-        for (String topicName : topicNameSet) {
-            if (topicName == null) {
-                continue;
-            }
-            ConcurrentHashSet<String> keySet =
-                    topicNameCacheIndex.get(topicName);
-            if (keySet == null || keySet.isEmpty()) {
-                continue;
-            }
-            for (String key : keySet) {
-                TopicDeployEntity entity = topicConfCache.get(key);
-                if (entity == null) {
+            for (TopicDeployEntity entry : topicConfCache.values()) {
+                if (entry == null) {
                     continue;
                 }
-                items = retEntityMap.get(topicName);
-                if (items == null) {
-                    items = new HashMap<>();
-                    retEntityMap.put(topicName, items);
+                brokerInfoMap = retEntityMap.computeIfAbsent(
+                        entry.getTopicName(), k -> new HashMap<>());
+                brokerInfoMap.put(entry.getBrokerId(), entry.getBrokerIp());
+            }
+        } else {
+            for (String topicName : topicNameSet) {
+                if (topicName == null) {
+                    continue;
                 }
-                items.put(entity.getBrokerId(), entity.getBrokerIp());
+                brokerInfoMap = retEntityMap.computeIfAbsent(topicName, k -> new HashMap<>());
+                keySet = topicNameCacheIndex.get(topicName);
+                if (keySet != null) {
+                    for (String key : keySet) {
+                        TopicDeployEntity entry = topicConfCache.get(key);
+                        if (entry != null) {
+                            brokerInfoMap.put(entry.getBrokerId(), entry.getBrokerIp());
+                        }
+                    }
+                }
             }
         }
         return retEntityMap;

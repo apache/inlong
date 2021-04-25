@@ -34,12 +34,13 @@ public class BaseEntity implements Serializable, Cloneable {
     private long dataVersionId =
             TServerConstants.DEFAULT_DATA_VERSION;    // 0: default version， other: version
     private long serialId = TBaseConstants.META_VALUE_UNDEFINED;
-    private String createUser = "";      //create user
-    private Date createDate = null;        //create date
-    private String modifyUser = "";      //modify user
-    private Date modifyDate = null;        //modify date
-    private String attributes = "";        //attribute info
-
+    private String createUser = "";        // create user
+    private Date createDate = null;        // create date
+    private String modifyUser = "";       // modify user
+    private Date modifyDate = null;        // modify date
+    private String attributes = "";        // attribute info
+    private String createDateStr = "";     // create data string
+    private String modifyDateStr = "";     // create data string
 
     public BaseEntity() {
 
@@ -57,9 +58,9 @@ public class BaseEntity implements Serializable, Cloneable {
     public BaseEntity(BaseEntity other) {
         this.dataVersionId = other.dataVersionId;
         this.createUser = other.createUser;
-        this.createDate = other.createDate;
+        this.setCreateDate(other.createDate);
         this.modifyUser = other.modifyUser;
-        this.modifyDate = other.modifyDate;
+        this.setModifyDate(other.modifyDate);
     }
 
     public BaseEntity(long dataVersionId, String createUser, Date createDate) {
@@ -77,15 +78,9 @@ public class BaseEntity implements Serializable, Cloneable {
                       String modifyUser, Date modifyDate) {
         this.dataVersionId = dataVersionId;
         this.createUser = createUser;
-        this.createDate = createDate;
+        this.setCreateDate(createDate);
         this.modifyUser = modifyUser;
-        this.modifyDate = modifyDate;
-    }
-
-    public void setModifyInfo(long newDataVerId, String operator, Date opDate) {
-        this.dataVersionId = newDataVerId;
-        this.modifyUser = operator;
-        this.modifyDate = opDate;
+        this.setModifyDate(modifyDate);
     }
 
     public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
@@ -98,7 +93,7 @@ public class BaseEntity implements Serializable, Cloneable {
         if (opInfoEntity.getCreateDate() != null
                 && !Objects.equals(createDate, opInfoEntity.getCreateDate())) {
             changed = true;
-            this.createDate = opInfoEntity.getCreateDate();
+            this.setCreateDate(opInfoEntity.getCreateDate());
         }
         if (TStringUtils.isNotBlank(opInfoEntity.getModifyUser())
                 && !Objects.equals(modifyUser, opInfoEntity.getModifyUser())) {
@@ -108,7 +103,7 @@ public class BaseEntity implements Serializable, Cloneable {
         if (opInfoEntity.getModifyDate() != null
                 && !Objects.equals(modifyDate, opInfoEntity.getModifyDate())) {
             changed = true;
-            this.modifyDate = opInfoEntity.getModifyDate();
+            this.setModifyDate(opInfoEntity.getModifyDate());
         }
         if (TStringUtils.isNotBlank(opInfoEntity.getAttributes())
                 && !Objects.equals(attributes, opInfoEntity.getAttributes())) {
@@ -137,7 +132,7 @@ public class BaseEntity implements Serializable, Cloneable {
         if (newCreateDate != null
                 && !Objects.equals(createDate, newCreateDate)) {
             changed = true;
-            this.createDate = newCreateDate;
+            this.setCreateDate(newCreateDate);
         }
         if (TStringUtils.isNotBlank(newModifyUser)
                 && !Objects.equals(modifyUser, newModifyUser)) {
@@ -147,7 +142,7 @@ public class BaseEntity implements Serializable, Cloneable {
         if (newModifyDate != null
                 && !Objects.equals(modifyDate, newModifyDate)) {
             changed = true;
-            this.modifyDate = newModifyDate;
+            this.setModifyDate(newModifyDate);
         }
         if (TStringUtils.isNotBlank(newAttributes)
                 && !Objects.equals(attributes, newAttributes)) {
@@ -206,6 +201,14 @@ public class BaseEntity implements Serializable, Cloneable {
         return modifyDate;
     }
 
+    public String getCreateDateStr() {
+        return createDateStr;
+    }
+
+    public String getModifyDateStr() {
+        return modifyDateStr;
+    }
+
     public String toJsonString(Gson gson) {
         return gson.toJson(this);
     }
@@ -247,24 +250,31 @@ public class BaseEntity implements Serializable, Cloneable {
     StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
             sBuilder.append(",\"dataVersionId\":").append(dataVersionId)
+                    .append(",\"serialId\":").append(serialId)
                     .append(",\"createUser\":\"").append(createUser).append("\"")
-                    .append(",\"createDate\":\"")
-                    .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate)).append("\"")
+                    .append(",\"createDate\":\"").append(createDateStr).append("\"")
                     .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
-                    .append(",\"modifyDate\":\"")
-                    .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate)).append("\"")
+                    .append(",\"modifyDate\":\"").append(modifyDateStr).append("\"")
                     .append(",\"attributes\":\"").append(attributes).append("\"");
         } else {
             sBuilder.append(",\"dVerId\":").append(dataVersionId)
                     .append(",\"cur\":\"").append(createUser).append("\"")
-                    .append(",\"cDate\":\"")
-                    .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate)).append("\"")
+                    .append(",\"cDate\":\"").append(createDateStr).append("\"")
                     .append(",\"mur\":\"").append(modifyUser).append("\"")
-                    .append(",\"mDate\":\"")
-                    .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate)).append("\"")
+                    .append(",\"mDate\":\"").append(modifyDateStr).append("\"")
                     .append(",\"attrs\":\"").append(attributes).append("\"");
         }
         return sBuilder;
+    }
+
+    private void setModifyDate(Date date) {
+        this.modifyDate = date;
+        this.modifyDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
+    }
+
+    private void setCreateDate(Date date) {
+        this.createDate = date;
+        this.createDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
     }
 
     @Override

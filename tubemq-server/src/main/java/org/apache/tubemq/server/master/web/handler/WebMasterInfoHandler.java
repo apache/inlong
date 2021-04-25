@@ -72,6 +72,11 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // register modify method
         registerModifyWebMethod("admin_set_cluster_default_setting",
                 "adminSetClusterDefSetting");
+
+        // Deprecated methods begin
+        // query method
+        registerQueryWebMethod("admin_query_def_flow_control_rule",
+                "adminQueryDefGroupFlowCtrlRule");
     }
 
     /**

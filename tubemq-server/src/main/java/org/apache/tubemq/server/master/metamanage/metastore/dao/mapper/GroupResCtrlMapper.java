@@ -35,6 +35,13 @@ public interface GroupResCtrlMapper extends AbstractMapper {
 
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
-    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
+    /**
+     * Get group resource control entity
+     *
+     * @param groupNameSet need query group name set
+     * @param qryEntity   must not null
+     * @return  group resource control info by groupName's key
+     */
+    Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
                                                         GroupResCtrlEntity qryEntity);
 }

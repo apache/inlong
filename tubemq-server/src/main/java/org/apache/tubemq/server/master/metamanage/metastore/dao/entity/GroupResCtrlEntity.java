@@ -220,7 +220,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.flowCtrlInfo = flowCtrlInfo;
     }
 
-    private void setConsumeEnable(boolean enableConsume) {
+    public void setConsumeEnable(boolean enableConsume) {
         if (enableConsume) {
             this.consumeEnable = EnableStatus.STATUS_ENABLE;
         } else {

@@ -280,53 +280,53 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
-    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
-            Set<String> groupNameSet, Set<String> topicNameSet) {
+    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
+            Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
+        ConcurrentHashSet<String> recSet;
+        Set<String> qryHitRecSet = null;
+        Map<String, List<GroupConsumeCtrlEntity>> retEntityMap = new HashMap<>();
+        // filter group items
+        if (groupSet != null && !groupSet.isEmpty()) {
+            qryHitRecSet = new HashSet<>();
+            for (String group : groupSet) {
+                recSet = grpConsumeCtrlGroupCache.get(group);
+                if (recSet != null && !recSet.isEmpty()) {
+                    qryHitRecSet.addAll(recSet);
+                }
+            }
+        }
+        // filter topic items
+        if (topicSet != null && !topicSet.isEmpty()) {
+            if (qryHitRecSet == null) {
+                qryHitRecSet = new HashSet<>();
+            }
+            for (String topic : topicSet) {
+                recSet = grpConsumeCtrlTopicCache.get(topic);
+                if (recSet != null && !recSet.isEmpty()) {
+                    qryHitRecSet.addAll(recSet);
+                }
+            }
+        }
+        // get matched records
         GroupConsumeCtrlEntity tmpEntity;
         List<GroupConsumeCtrlEntity> itemLst;
-        ConcurrentHashSet<String> recSet;
-        Set<String> hitKeys = new HashSet<>();
-        Map<String, List<GroupConsumeCtrlEntity>> retEntityMap = new HashMap<>();
-        if (((groupNameSet == null) || (groupNameSet.isEmpty()))
-                && ((topicNameSet == null) || (topicNameSet.isEmpty()))) {
+        if (qryHitRecSet == null) {
             for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
-                itemLst = retEntityMap.get(entity.getGroupName());
-                if (itemLst == null) {
-                    itemLst = new ArrayList<>();
-                    retEntityMap.put(entity.getTopicName(), itemLst);
+                if (entity != null && entity.isMatched(qryEntry)) {
+                    itemLst = retEntityMap.computeIfAbsent(
+                            entity.getGroupName(), k -> new ArrayList<>());
+                    itemLst.add(entity);
                 }
-                itemLst.add(entity);
-            }
-            return retEntityMap;
-        }
-        if ((groupNameSet == null) || (groupNameSet.isEmpty())) {
-            for (String topicName : topicNameSet) {
-                recSet = grpConsumeCtrlTopicCache.get(topicName);
-                if (recSet == null || recSet.isEmpty()) {
-                    continue;
-                }
-                hitKeys.addAll(recSet);
             }
         } else {
-            for (String groupName : groupNameSet) {
-                recSet = grpConsumeCtrlGroupCache.get(groupName);
-                if (recSet == null || recSet.isEmpty()) {
-                    continue;
+            for (String recKey : qryHitRecSet) {
+                tmpEntity = grpConsumeCtrlCache.get(recKey);
+                if (tmpEntity != null && tmpEntity.isMatched(qryEntry)) {
+                    itemLst = retEntityMap.computeIfAbsent(
+                            tmpEntity.getGroupName(), k -> new ArrayList<>());
+                    itemLst.add(tmpEntity);
                 }
-                hitKeys.addAll(recSet);
             }
-        }
-        for (String key : hitKeys) {
-            tmpEntity = grpConsumeCtrlCache.get(key);
-            if (tmpEntity == null) {
-                continue;
-            }
-            itemLst = retEntityMap.get(tmpEntity.getTopicName());
-            if (itemLst == null) {
-                itemLst = new ArrayList<>();
-                retEntityMap.put(tmpEntity.getTopicName(), itemLst);
-            }
-            itemLst.add(tmpEntity);
         }
         return retEntityMap;
     }

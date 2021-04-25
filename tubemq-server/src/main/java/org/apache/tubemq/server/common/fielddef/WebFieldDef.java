@@ -218,8 +218,8 @@ public enum WebFieldDef {
              RegexDef.TMP_IPV4ADDRESS),
     ISRESERVEDDATA(77, "isReservedData", "isRsvDt",
             WebFieldType.BOOLEAN, "Whether to keep topic data in the broker"),
-    WITHCTRLINFO(78, "ctrlData", "cD",
-              WebFieldType.BOOLEAN, "With topic control data info."),
+    WITHGROUPAUTHINFO(78, "withGroupAuthInfo", "wGAI",
+              WebFieldType.BOOLEAN, "With topic group authorize info."),
     WITHDEPLOYINFO(79, "withDeployInfo", "wDI",
                  WebFieldType.BOOLEAN, "With topic deploy info."),
 
@@ -227,7 +227,14 @@ public enum WebFieldDef {
             "The topic control info set that needs to be added or modified"),
     GROUPRESCTRLSET(81, "groupResCtrlJsonSet", "gResCtrlSet",
             WebFieldType.JSONSET,
-            "The group resource control info set that needs to be added or modified");
+            "The group resource control info set that needs to be added or modified"),
+    @Deprecated
+    OLDALWDBCRATE(82, "allowedBClientRate", "abcr", WebFieldType.INT,
+            "Allowed broker client rate, same as alwdBrokerClientRate", RegexDef.TMP_NUMBER),
+    @Deprecated
+    GROUPJSONSET(83, "groupNameJsonSet", "gJsonSet", WebFieldType.JSONSET,
+            "The black list group set that needs to be added or modified");
+
 
     public final int id;
     public final String name;

@@ -31,6 +31,7 @@ import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
+import org.apache.tubemq.server.common.statusdef.TopicStsChgType;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
@@ -44,15 +45,11 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDepl
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 
 
 public class WebTopicDeployHandler extends AbstractWebHandler {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(WebTopicDeployHandler.class);
 
     /**
      * Constructor
@@ -68,184 +65,140 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     @Override
     public void registerWebApiMethod() {
         // register query method
-        registerQueryWebMethod("admin_query_topic_info",
-                "adminQueryTopicCfgEntityAndRunInfo");
+        registerQueryWebMethod("admin_query_topic_deploy_info",
+                "adminNewQueryTopicCfgAndRunInfo");
         registerQueryWebMethod("admin_query_broker_topic_config_info",
                 "adminQueryBrokerTopicCfgAndRunInfo");
         registerQueryWebMethod("admin_query_topicName",
                 "adminQuerySimpleTopicName");
         registerQueryWebMethod("admin_query_brokerId",
                 "adminQuerySimpleBrokerId");
+
         // register modify method
+        registerModifyWebMethod("admin_add_topic_deploy_info",
+                "adminAddTopicDeployInfo");
+        registerModifyWebMethod("admin_bath_add_topic_deploy_info",
+                "adminBatchAddTopicDeployInfo");
+        registerModifyWebMethod("admin_update_topic_deploy_info",
+                "adminModifyTopicDeployInfo");
+        registerModifyWebMethod("admin_batch_update_topic_deploy_info",
+                "adminBatchUpdTopicDeployInfo");
+        registerModifyWebMethod("admin_delete_topic_deploy_info",
+                "adminDelTopicDeployInfo");
+        registerModifyWebMethod("admin_redo_deleted_topic_deploy_info",
+                "adminRedoDeletedTopicDeployInfo");
+        registerModifyWebMethod("admin_remove_topic_deploy_info",
+                "adminRmvTopicDeployInfo");
+
+        // Deprecated methods begin
+        // query
+        registerQueryWebMethod("admin_query_topic_info",
+                "adminOldQueryTopicCfgAndRunInfo");
+        // modify
         registerModifyWebMethod("admin_add_new_topic_record",
-                "adminAddTopicEntityInfo");
+                "adminAddTopicDeployInfo");
         registerModifyWebMethod("admin_bath_add_new_topic_record",
-                "adminBatchAddTopicEntityInfo");
+                "adminBatchAddTopicDeployInfo");
         registerModifyWebMethod("admin_modify_topic_info",
-                "adminModifyTopicEntityInfo");
+                "adminModifyTopicDeployInfo");
         registerModifyWebMethod("admin_delete_topic_info",
-                "adminDeleteTopicEntityInfo");
+                "adminDelTopicDeployInfo");
         registerModifyWebMethod("admin_redo_deleted_topic_info",
-                "adminRedoDeleteTopicEntityInfo");
+                "adminRedoDeletedTopicDeployInfo");
         registerModifyWebMethod("admin_remove_topic_info",
-                "adminRemoveTopicEntityInfo");
+                "adminRmvTopicDeployInfo");
+        // Deprecated methods end
     }
 
+
     /**
-     * Query topic info
+     * Query topic info with new format return
      *
      * @param req
      * @return
      */
-    public StringBuilder adminQueryTopicCfgEntityAndRunInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        TopicDeployEntity qryEntity = new TopicDeployEntity();
-        // get queried operation info, for createUser, modifyUser, dataVersionId
-        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        // check and get topicName field
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
-        // check and get brokerId field
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
-        // get brokerPort field
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int brokerPort = (int) result.getRetData();
-        // get and valid topicProps info
-        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
-        // get and valid TopicStatusId info
-        if (!WebParameterUtils.getTopicStatusParamValue(req,
-                false, TopicStatus.STATUS_TOPIC_UNDEFINED, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        TopicStatus topicStatus = (TopicStatus) result.getRetData();
-        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
-                TBaseConstants.META_VALUE_UNDEFINED,
-                brokerPort, null, topicStatus, topicProps);
-        Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
-                metaDataManager.getTopicConfEntityMap(topicNameSet, brokerIdSet, qryEntity);
-        // build query result
-        return buildQueryResult(sBuffer, true, topicDeployInfoMap);
+    public StringBuilder adminNewQueryTopicCfgAndRunInfo(HttpServletRequest req) {
+        return innQueryTopicConfAndRunInfo(req, true);
     }
 
-    private StringBuilder buildQueryResult(StringBuilder sBuffer,
-                                           boolean withAuthInfo,
-                                           Map<String, List<TopicDeployEntity>> topicDeployInfoMap) {
-        // build query result
-        int totalCnt = 0;
-        int totalCfgNumPartCount = 0;
-        int totalRunNumPartCount = 0;
-        boolean isSrvAcceptPublish = false;
-        boolean isSrvAcceptSubscribe = false;
-        boolean isAcceptPublish = false;
-        boolean isAcceptSubscribe = false;
-        ManageStatus manageStatus;
-        Tuple2<Boolean, Boolean> pubSubStatus;
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
-            totalCfgNumPartCount = 0;
-            totalRunNumPartCount = 0;
-            isSrvAcceptPublish = false;
-            isSrvAcceptSubscribe = false;
-            isAcceptPublish = false;
-            isAcceptSubscribe = false;
-            TopicCtrlEntity ctrlEntity =
-                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
-            ctrlEntity.toWebJsonStr(sBuffer, true, false);
-            sBuffer.append(",\"deployInfo\":[");
-            int brokerCount = 0;
-            for (TopicDeployEntity entity : entry.getValue()) {
-                if (brokerCount++ > 0) {
-                    sBuffer.append(",");
-                }
-                totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
-                entity.toWebJsonStr(sBuffer, true, false);
-                sBuffer.append("\",\"runInfo\":{");
-                BrokerConfEntity brokerConfEntity =
-                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
-                String strManageStatus = "-";
-                if (brokerConfEntity != null) {
-                    manageStatus = brokerConfEntity.getManageStatus();
-                    strManageStatus = manageStatus.getDescription();
-                    pubSubStatus = manageStatus.getPubSubStatus();
-                    isAcceptPublish = pubSubStatus.getF0();
-                    isAcceptSubscribe = pubSubStatus.getF1();
-                }
-                BrokerInfo broker = new BrokerInfo(entity.getBrokerId(),
-                        entity.getBrokerIp(), entity.getBrokerPort());
-                TopicInfo topicInfo =
-                        topicPSInfoManager.getTopicInfo(entity.getTopicName(), broker);
-                if (topicInfo == null) {
-                    sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
-                            .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
-                } else {
-                    if (isAcceptPublish) {
-                        sBuffer.append("\"acceptPublish\":").append(topicInfo.isAcceptPublish());
-                        if (topicInfo.isAcceptPublish()) {
-                            isSrvAcceptPublish = true;
-                        }
-                    } else {
-                        sBuffer.append("\"acceptPublish\":false");
-                    }
-                    if (isAcceptSubscribe) {
-                        sBuffer.append(",\"acceptSubscribe\":").append(topicInfo.isAcceptSubscribe());
-                        if (topicInfo.isAcceptSubscribe()) {
-                            isSrvAcceptSubscribe = true;
-                        }
-                    } else {
-                        sBuffer.append(",\"acceptSubscribe\":false");
-                    }
-                    totalRunNumPartCount += topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
-                    sBuffer.append(",\"numPartitions\":").append(topicInfo.getPartitionNum())
-                            .append(",\"numTopicStores\":").append(topicInfo.getTopicStoreNum())
-                            .append(",\"brokerManageStatus\":\"").append(strManageStatus).append("\"");
-                }
-                sBuffer.append("}}");
-            }
-            sBuffer.append("],\"infoCount\":").append(brokerCount)
-                    .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
-                    .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
-                    .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
-                    .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount);
-            if (withAuthInfo) {
-                sBuffer.append(",\"authConsumeGroup\":[");
-                List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
-                        metaDataManager.getConsumeCtrlByTopic(entry.getKey());
-                int countJ = 0;
-                for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
-                    if (countJ++ > 0) {
-                        sBuffer.append(",");
-                    }
-                    groupEntity.toWebJsonStr(sBuffer, true, false);
-                }
-                sBuffer.append("],\"groupCount\":").append(countJ);
-            }
-            sBuffer.append("}");
-        }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
-        return sBuffer;
+    /**
+     * Query topic info with old format return
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminOldQueryTopicCfgAndRunInfo(HttpServletRequest req) {
+        return innQueryTopicConfAndRunInfo(req, false);
+    }
+
+    /**
+     * Add new topic deployment record
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminAddTopicDeployInfo(HttpServletRequest req) {
+        return innAddOrUpdTopicDeployInfo(req, true);
+    }
+
+    /**
+     * Modify topic deployment info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminModifyTopicDeployInfo(HttpServletRequest req) {
+        return innAddOrUpdTopicDeployInfo(req, false);
+    }
+
+    /**
+     * Add new topic deployment record in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchAddTopicDeployInfo(HttpServletRequest req) {
+        return innBatchAddOrUpdTopicDeployInfo(req, true);
+    }
+
+    /**
+     * Add new topic deployment record in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchUpdTopicDeployInfo(HttpServletRequest req) {
+        return innBatchAddOrUpdTopicDeployInfo(req, false);
+    }
+
+    /**
+     * Delete topic info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminDelTopicDeployInfo(HttpServletRequest req) {
+        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_SOFT_DELETE);
+    }
+
+    /**
+     * Remove topic info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminRmvTopicDeployInfo(HttpServletRequest req) {
+        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_REMOVE);
+    }
+
+    /**
+     * Redo delete topic info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminRedoDeletedTopicDeployInfo(HttpServletRequest req) {
+        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_REDO_SFDEL);
     }
 
     /**
@@ -350,35 +303,35 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      */
     public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req) {
         ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+        StringBuilder sBuffer = new StringBuilder(512);
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false, sBuilder, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.retData1;
         Map<Integer, Set<String>> brokerTopicConfigMap =
                 metaDataManager.getBrokerTopicConfigInfo(brokerIds);
         // build query result
         int dataCount = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<Integer, Set<String>> entry : brokerTopicConfigMap.entrySet()) {
             if (dataCount++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
-            sBuilder.append("{\"brokerId\":").append(entry.getKey()).append(",\"topicName\":[");
+            sBuffer.append("{\"brokerId\":").append(entry.getKey()).append(",\"topicName\":[");
             int topicCnt = 0;
             Set<String> topicSet = entry.getValue();
             for (String topic : topicSet) {
                 if (topicCnt++ > 0) {
-                    sBuilder.append(",");
+                    sBuffer.append(",");
                 }
-                sBuilder.append("\"").append(topic).append("\"");
+                sBuffer.append("\"").append(topic).append("\"");
             }
-            sBuilder.append("],\"topicCount\":").append(topicCnt).append("}");
+            sBuffer.append("],\"topicCount\":").append(topicCnt).append("}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, dataCount);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, dataCount);
+        return sBuffer;
     }
 
     /**
@@ -437,12 +390,315 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     /**
-     * Add new topic record
+     * Query topic info
      *
      * @param req
      * @return
      */
-    public StringBuilder adminAddTopicEntityInfo(HttpServletRequest req) {
+    private StringBuilder innQueryTopicConfAndRunInfo(HttpServletRequest req, boolean isNewVer) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuffer = new StringBuilder(512);
+        TopicDeployEntity qryEntity = new TopicDeployEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.retData1;
+        // check and get brokerId field
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+        // get brokerPort field
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int brokerPort = (int) result.getRetData();
+        // get and valid topicProps info
+        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
+        // get withGroupAuthInfo field
+        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.WITHGROUPAUTHINFO,
+                false, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Boolean withGroupAuthInfo = (Boolean) result.getRetData();
+        // get and valid TopicStatusId info
+        if (!WebParameterUtils.getTopicStatusParamValue(req,
+                false, TopicStatus.STATUS_TOPIC_UNDEFINED, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        TopicStatus topicStatus = (TopicStatus) result.getRetData();
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                TBaseConstants.META_VALUE_UNDEFINED,
+                brokerPort, null, topicStatus, topicProps);
+        Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
+                metaDataManager.getTopicConfEntityMap(topicNameSet, brokerIdSet, qryEntity);
+        // build query result
+        if (isNewVer) {
+            return buildNewQueryResult(withGroupAuthInfo, sBuffer, topicDeployInfoMap);
+        } else {
+            return buildOldQueryResult(sBuffer, topicDeployInfoMap);
+        }
+    }
+
+    private StringBuilder buildOldQueryResult(StringBuilder sBuffer,
+                                              Map<String, List<TopicDeployEntity>> topicDeployInfoMap) {
+        // build query result
+        int totalCnt = 0;
+        int maxMsgSizeInMB = 0;
+        int totalCfgNumPartCount = 0;
+        int totalRunNumPartCount = 0;
+        boolean enableAuthCtrl;
+        boolean isSrvAcceptPublish = false;
+        boolean isSrvAcceptSubscribe = false;
+        boolean isAcceptPublish = false;
+        boolean isAcceptSubscribe = false;
+        ManageStatus manageStatus;
+        Tuple2<Boolean, Boolean> pubSubStatus;
+        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        ClusterSettingEntity defSetting = metaDataManager.getClusterDefSetting(false);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
+            totalCfgNumPartCount = 0;
+            totalRunNumPartCount = 0;
+            isSrvAcceptPublish = false;
+            isSrvAcceptSubscribe = false;
+            isAcceptPublish = false;
+            isAcceptSubscribe = false;
+            enableAuthCtrl = false;
+            TopicCtrlEntity ctrlEntity =
+                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
+            if (ctrlEntity != null) {
+                maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
+                enableAuthCtrl = ctrlEntity.getAuthCtrlStatus().isEnable();
+            }
+            sBuffer.append("{\"topicName\":\"").append(entry.getKey())
+                    .append("\",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
+                    .append(",\"topicInfo\":[");
+            int brokerCount = 0;
+            for (TopicDeployEntity entity : entry.getValue()) {
+                if (brokerCount++ > 0) {
+                    sBuffer.append(",");
+                }
+                totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
+                entity.toWebJsonStr(sBuffer, true, false);
+                sBuffer.append("\",\"runInfo\":{");
+                BrokerConfEntity brokerConfEntity =
+                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
+                String strManageStatus = "-";
+                if (brokerConfEntity != null) {
+                    manageStatus = brokerConfEntity.getManageStatus();
+                    strManageStatus = manageStatus.getDescription();
+                    pubSubStatus = manageStatus.getPubSubStatus();
+                    isAcceptPublish = pubSubStatus.getF0();
+                    isAcceptSubscribe = pubSubStatus.getF1();
+                }
+                BrokerInfo broker = new BrokerInfo(entity.getBrokerId(),
+                        entity.getBrokerIp(), entity.getBrokerPort());
+                TopicInfo topicInfo =
+                        topicPSInfoManager.getTopicInfo(entity.getTopicName(), broker);
+                if (topicInfo == null) {
+                    sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
+                            .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
+                } else {
+                    if (isAcceptPublish) {
+                        sBuffer.append("\"acceptPublish\":").append(topicInfo.isAcceptPublish());
+                        if (topicInfo.isAcceptPublish()) {
+                            isSrvAcceptPublish = true;
+                        }
+                    } else {
+                        sBuffer.append("\"acceptPublish\":false");
+                    }
+                    if (isAcceptSubscribe) {
+                        sBuffer.append(",\"acceptSubscribe\":").append(topicInfo.isAcceptSubscribe());
+                        if (topicInfo.isAcceptSubscribe()) {
+                            isSrvAcceptSubscribe = true;
+                        }
+                    } else {
+                        sBuffer.append(",\"acceptSubscribe\":false");
+                    }
+                    totalRunNumPartCount += topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
+                    sBuffer.append(",\"numPartitions\":").append(topicInfo.getPartitionNum())
+                            .append(",\"numTopicStores\":").append(topicInfo.getTopicStoreNum())
+                            .append(",\"brokerManageStatus\":\"").append(strManageStatus).append("\"");
+                }
+                sBuffer.append("}}");
+            }
+            sBuffer.append("],\"infoCount\":").append(brokerCount)
+                    .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
+                    .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
+                    .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
+                    .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
+                    .append(",\"authData\":[");
+            if (enableAuthCtrl) {
+                sBuffer.append("\"enableAuthControl\":").append(enableAuthCtrl)
+                        .append(",\"createUser\":\"").append(ctrlEntity.getModifyUser())
+                        .append("\",\"createDate\":\"").append(ctrlEntity.getModifyDateStr())
+                        .append("\",\"authConsumeGroup\":[");
+                List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
+                        metaDataManager.getConsumeCtrlByTopic(entry.getKey());
+                int itemCount = 0;
+                for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
+                    if (itemCount++ > 0) {
+                        sBuffer.append(",");
+                    }
+                    sBuffer.append("{\"groupName\":\"").append(groupEntity.getGroupName())
+                            .append("\",\"createUser\":\"").append(groupEntity.getCreateUser())
+                            .append("\",\"createDate\":\"").append(groupEntity.getCreateDateStr())
+                            .append("\",\"modifyUser\":\"").append(groupEntity.getModifyUser())
+                            .append("\",\"modifyDate\":\"").append(groupEntity.getModifyDateStr())
+                            .append("\"}");
+                }
+                sBuffer.append("],\"groupCount\":").append(itemCount).append(",\"authFilterCondSet\":[");
+                itemCount = 0;
+                int condStatusId = 1;
+                for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
+                    if (itemCount++ > 0) {
+                        sBuffer.append(",");
+                    }
+                    condStatusId = 0;
+                    if (groupEntity.getFilterEnable().isEnable()) {
+                        condStatusId = 2;
+                    }
+                    sBuffer.append("{\"groupName\":\"").append(groupEntity.getGroupName())
+                            .append("\",\"condStatus\":").append(condStatusId);
+                    if (!groupEntity.getFilterEnable().isEnable()) {
+                        sBuffer.append(",\"filterConds\":\"\"");
+                    } else {
+                        sBuffer.append(",\"filterConds\":\"")
+                                .append(groupEntity.getFilterCondStr()).append("\"");
+                    }
+                    sBuffer.append(",\"createDate\":\"").append(groupEntity.getCreateDateStr())
+                            .append("\",\"modifyUser\":\"").append(groupEntity.getModifyUser())
+                            .append("\",\"modifyDate\":\"").append(groupEntity.getModifyDateStr())
+                            .append("\"}");
+                }
+                sBuffer.append("],\"filterCount\":").append(itemCount);
+            }
+            sBuffer.append("}}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
+    }
+
+    private StringBuilder buildNewQueryResult(boolean withAuthInfo,
+                                              StringBuilder sBuffer,
+                                              Map<String, List<TopicDeployEntity>> topicDeployMap) {
+        // build query result
+        int totalCnt = 0;
+        int totalCfgNumPartCount = 0;
+        int totalRunNumPartCount = 0;
+        boolean isSrvAcceptPublish = false;
+        boolean isSrvAcceptSubscribe = false;
+        boolean isAcceptPublish = false;
+        boolean isAcceptSubscribe = false;
+        ManageStatus manageStatus;
+        Tuple2<Boolean, Boolean> pubSubStatus;
+        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployMap.entrySet()) {
+            totalCfgNumPartCount = 0;
+            totalRunNumPartCount = 0;
+            isSrvAcceptPublish = false;
+            isSrvAcceptSubscribe = false;
+            isAcceptPublish = false;
+            isAcceptSubscribe = false;
+            TopicCtrlEntity ctrlEntity =
+                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+            ctrlEntity.toWebJsonStr(sBuffer, true, false);
+            sBuffer.append(",\"deployInfo\":[");
+            int brokerCount = 0;
+            for (TopicDeployEntity entity : entry.getValue()) {
+                if (brokerCount++ > 0) {
+                    sBuffer.append(",");
+                }
+                totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
+                entity.toWebJsonStr(sBuffer, true, false);
+                sBuffer.append("\",\"runInfo\":{");
+                BrokerConfEntity brokerConfEntity =
+                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
+                String strManageStatus = "-";
+                if (brokerConfEntity != null) {
+                    manageStatus = brokerConfEntity.getManageStatus();
+                    strManageStatus = manageStatus.getDescription();
+                    pubSubStatus = manageStatus.getPubSubStatus();
+                    isAcceptPublish = pubSubStatus.getF0();
+                    isAcceptSubscribe = pubSubStatus.getF1();
+                }
+                BrokerInfo broker = new BrokerInfo(entity.getBrokerId(),
+                        entity.getBrokerIp(), entity.getBrokerPort());
+                TopicInfo topicInfo =
+                        topicPSInfoManager.getTopicInfo(entity.getTopicName(), broker);
+                if (topicInfo == null) {
+                    sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
+                            .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
+                } else {
+                    if (isAcceptPublish) {
+                        sBuffer.append("\"acceptPublish\":").append(topicInfo.isAcceptPublish());
+                        if (topicInfo.isAcceptPublish()) {
+                            isSrvAcceptPublish = true;
+                        }
+                    } else {
+                        sBuffer.append("\"acceptPublish\":false");
+                    }
+                    if (isAcceptSubscribe) {
+                        sBuffer.append(",\"acceptSubscribe\":").append(topicInfo.isAcceptSubscribe());
+                        if (topicInfo.isAcceptSubscribe()) {
+                            isSrvAcceptSubscribe = true;
+                        }
+                    } else {
+                        sBuffer.append(",\"acceptSubscribe\":false");
+                    }
+                    totalRunNumPartCount += topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
+                    sBuffer.append(",\"numPartitions\":").append(topicInfo.getPartitionNum())
+                            .append(",\"numTopicStores\":").append(topicInfo.getTopicStoreNum())
+                            .append(",\"brokerManageStatus\":\"").append(strManageStatus).append("\"");
+                }
+                sBuffer.append("}}");
+            }
+            sBuffer.append("],\"infoCount\":").append(brokerCount)
+                    .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
+                    .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
+                    .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
+                    .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount);
+            if (withAuthInfo) {
+                sBuffer.append(",\"groupAuthInfo\":[");
+                List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
+                        metaDataManager.getConsumeCtrlByTopic(entry.getKey());
+                int countJ = 0;
+                for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
+                    if (countJ++ > 0) {
+                        sBuffer.append(",");
+                    }
+                    groupEntity.toWebJsonStr(sBuffer, true, false);
+                }
+                sBuffer.append("],\"groupCount\":").append(countJ);
+            }
+            sBuffer.append("}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
+    }
+
+    private StringBuilder innAddOrUpdTopicDeployInfo(HttpServletRequest req, boolean isAddOp) {
         ProcessResult result = new ProcessResult();
         StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
@@ -452,7 +708,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -477,31 +733,25 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return sBuffer;
         }
         TopicPropGroup topicPropInfo = (TopicPropGroup) result.getRetData();
-        /* check max message size
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.MAXMSGSIZEINMB, false,
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
-                result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuilder;
+        // set valid topicStatus info
+        TopicStatus topicStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;
+        if (isAddOp) {
+            topicStatus = TopicStatus.STATUS_TOPIC_OK;
         }
-        int inMaxMsgSizeMB = (int) result.getRetData();
-         */
-        List<TopicProcessResult> retInfo =
-                metaDataManager.addTopicDeployInfo(opEntity, brokerIdSet,
-                        topicNameSet, topicPropInfo, sBuffer, result);
+        // add record
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        for (String topicName : topicNameSet) {
+            for (Integer brokerId : brokerIdSet) {
+                retInfo.add(metaDataManager.addOrUpdTopicDeployInfo(isAddOp,
+                        opEntity, brokerId, topicName, topicStatus,
+                        topicPropInfo, sBuffer, result));
+            }
+        }
         return buildRetInfo(retInfo, sBuffer);
     }
 
-    /**
-     * Add new topic record in batch
-     *
-     * @param req
-     * @return
-     */
-    public StringBuilder adminBatchAddTopicEntityInfo(HttpServletRequest req) {
+    private StringBuilder innBatchAddOrUpdTopicDeployInfo(HttpServletRequest req,
+                                                          boolean isAddOp) {
         ProcessResult result = new ProcessResult();
         StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
@@ -511,14 +761,13 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return sBuffer;
         }
         // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get add record map
-        if (!getTopicDeployJsonSetInfo(req, true,
-                defOpEntity, null, sBuffer, result)) {
+        if (!getTopicDeployJsonSetInfo(req, true, defOpEntity, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -526,150 +775,29 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 (Map<String, TopicDeployEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicDeployEntity topicDeployInfo : addRecordMap.values()) {
-            retInfo.add(metaDataManager.addTopicDeployInfo(topicDeployInfo, sBuffer, result));
+            retInfo.add(metaDataManager.addOrUpdTopicDeployInfo(isAddOp,
+                    topicDeployInfo, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
     }
 
-    /**
-     * Modify topic info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    // #lizard forgives
-    public StringBuilder adminModifyTopicEntityInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
-        // check and get topicName info
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
-        // check and get brokerId info
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
-        // get and valid TopicPropGroup info
-        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
-        // modify records
-        List<TopicProcessResult> retInfo =
-                metaDataManager.modTopicConfig(opEntity, brokerIdSet,
-                        topicNameSet, topicProps, sBuffer, result);
-        return buildRetInfo(retInfo, sBuffer);
-    }
-
-    /**
-     * Delete topic info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminDeleteTopicEntityInfo(HttpServletRequest req) {
-        return innModifyTopicStatusEntityInfo(req, TopicStatus.STATUS_TOPIC_SOFT_DELETE);
-    }
-
-    /**
-     * Remove topic info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminRemoveTopicEntityInfo(HttpServletRequest req) {
-        return innModifyTopicStatusEntityInfo(req, TopicStatus.STATUS_TOPIC_SOFT_REMOVE);
-    }
-
-    /**
-     * Redo delete topic info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    // #lizard forgives
-    public StringBuilder adminRedoDeleteTopicEntityInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
-        // check and get topicName info
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
-        // check and get brokerId info
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
-        // modify records
-        List<TopicProcessResult> retInfo =
-                metaDataManager.modRedoDelTopicConf(opEntity, brokerIdSet,
-                        topicNameSet, sBuffer, result);
-        return buildRetInfo(retInfo, sBuffer);
-    }
-
-
-
-    private boolean getTopicDeployJsonSetInfo(HttpServletRequest req, boolean isAdd,
-                                              BaseEntity defOpEntity,
-                                              List<Map<String, String>> defValue,
-                                              StringBuilder sBuffer,
+    private boolean getTopicDeployJsonSetInfo(HttpServletRequest req, boolean isAddOp,
+                                              BaseEntity defOpEntity, StringBuilder sBuffer,
                                               ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
-                WebFieldDef.TOPICJSONSET, true, defValue, result)) {
+                WebFieldDef.TOPICJSONSET, true, null, result)) {
             return result.success;
         }
         List<Map<String, String>> deployJsonArray =
                 (List<Map<String, String>>) result.retData1;
-        // check and get cluster default setting info
-        ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(false);
         TopicDeployEntity itemConf;
         Map<String, TopicDeployEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
         for (int j = 0; j < deployJsonArray.size(); j++) {
             Map<String, String> confMap = deployJsonArray.get(j);
             // check and get operation info
-            if (!WebParameterUtils.getAUDBaseInfo(confMap, isAdd, defOpEntity, sBuffer, result)) {
+            if (!WebParameterUtils.getAUDBaseInfo(confMap,
+                    isAddOp, defOpEntity, sBuffer, result)) {
                 return result.isSuccess();
             }
             BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
@@ -687,21 +815,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     (BrokerConfEntity) result.getRetData();
             // get and valid TopicPropGroup info
             if (!WebParameterUtils.getTopicPropInfo(confMap,
-                    defClusterSetting.getClsDefTopicProps(), sBuffer, result)) {
+                    (isAddOp ? brokerConf.getTopicProps() : null), sBuffer, result)) {
                 return result.isSuccess();
             }
             TopicPropGroup topicPropInfo = (TopicPropGroup) result.getRetData();
-            /* check max message size
-            if (!WebParameterUtils.getIntParamValue(confMap,
-                    WebFieldDef.MAXMSGSIZEINMB, false,
-                    TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                    TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                    TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
-                    result)) {
-                return result.isSuccess();
-            }
-            int inMaxMsgSizeMB = (int) result.getRetData();
-             */
             // get topicNameId field
             int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
             TopicCtrlEntity topicCtrlEntity =
@@ -709,11 +826,16 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             if (topicCtrlEntity != null) {
                 topicNameId = topicCtrlEntity.getTopicId();
             }
-            itemConf = new TopicDeployEntity(itemOpEntity, brokerConf.getBrokerId(),
-                    brokerConf.getBrokerIp(), brokerConf.getBrokerPort(), topicName);
+            // set valid topicStatus info
+            TopicStatus topicStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;
+            if (isAddOp) {
+                topicStatus = TopicStatus.STATUS_TOPIC_OK;
+            }
+            itemConf = new TopicDeployEntity(itemOpEntity,
+                    brokerConf.getBrokerId(), topicName);
             itemConf.updModifyInfo(itemOpEntity.getDataVerId(), topicNameId,
-                    TBaseConstants.META_VALUE_UNDEFINED, null,
-                    TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
+                    brokerConf.getBrokerPort(), brokerConf.getBrokerIp(),
+                    topicStatus, topicPropInfo);
             addRecordMap.put(itemConf.getRecordKey(), itemConf);
         }
         // check result
@@ -751,34 +873,33 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuilder) {
+                                       StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
-            sBuilder.append("{\"brokerId\":").append(entry.getBrokerId())
+            sBuffer.append("{\"brokerId\":").append(entry.getBrokerId())
                     .append(",\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
 
     /**
-     * Internal method to perform deletion and removal of topic
+     * Internal method to perform topic deploy status change
      *
      * @param req
-     * @param topicStatus
+     * @param chgType
      * @return
      */
-    // #lizard forgives
-    private StringBuilder innModifyTopicStatusEntityInfo(HttpServletRequest req,
-                                                         TopicStatus topicStatus) {
+    private StringBuilder innModifyTopicDeployStatusInfo(HttpServletRequest req,
+                                                         TopicStsChgType chgType) {
         ProcessResult result = new ProcessResult();
         StringBuilder sBuffer = new StringBuilder(512);
         // valid operation authorize info
@@ -807,10 +928,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
-        // modify records
-        List<TopicProcessResult> retInfo =
-                metaDataManager.modDelOrRmvTopicConf(opEntity, brokerIdSet,
-                        topicNameSet, topicStatus, sBuffer, result);
+        // modify record status
+        List<TopicProcessResult> retInfo = new ArrayList<>();
+        for (Integer brokerId : brokerIdSet) {
+            for (String topicName : topicNameSet) {
+                retInfo.add(metaDataManager.updTopicDeployStatusInfo(opEntity,
+                        brokerId, topicName, chgType, sBuffer, result));
+            }
+        }
         return buildRetInfo(retInfo, sBuffer);
     }
 

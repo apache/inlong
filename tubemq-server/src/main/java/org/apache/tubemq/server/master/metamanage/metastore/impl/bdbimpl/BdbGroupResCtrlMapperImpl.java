@@ -24,7 +24,6 @@ import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -165,23 +164,23 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     }
 
     @Override
-    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupSet,
+    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
                                                                GroupResCtrlEntity qryEntity) {
         GroupResCtrlEntity entity;
-        Set<String> qryKeySet =  new HashSet<>();
         Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
-        if (groupSet == null || groupSet.isEmpty()) {
-            qryKeySet.addAll(groupBaseCtrlCache.keySet());
-        } else {
-            qryKeySet.addAll(groupSet);
-        }
-        for (String group : qryKeySet) {
-            entity = groupBaseCtrlCache.get(group);
-            if (entity == null
-                    || (qryEntity != null && !qryEntity.isMatched(qryEntity))) {
-                continue;
+        if (groupNameSet == null || groupNameSet.isEmpty()) {
+            for (GroupResCtrlEntity dataEntity : groupBaseCtrlCache.values()) {
+                if (dataEntity != null && dataEntity.isMatched(qryEntity)) {
+                    retMap.put(dataEntity.getGroupName(), dataEntity);
+                }
             }
-            retMap.put(entity.getGroupName(), entity);
+        } else {
+            for (String groupName : groupNameSet) {
+                entity = groupBaseCtrlCache.get(groupName);
+                if (entity != null && entity.isMatched(qryEntity)) {
+                    retMap.put(entity.getGroupName(), entity);
+                }
+            }
         }
         return retMap;
     }

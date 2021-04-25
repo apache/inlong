@@ -912,9 +912,9 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
-            Set<String> groupNameSet, Set<String> topicNameSet) {
-        return groupConsumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupNameSet, topicNameSet);
+    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
+            Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
+        return groupConsumeCtrlMapper.getConsumeCtrlInfoMap(groupSet, topicSet, qryEntry);
     }
 
     @Override

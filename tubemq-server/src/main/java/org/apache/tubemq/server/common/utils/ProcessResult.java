@@ -65,7 +65,7 @@ public class ProcessResult {
 
     public void setSuccResult(Object retData) {
         this.success = true;
-        this.errInfo = "";
+        this.errInfo = "Ok!";
         this.errCode = TErrCodeConstants.SUCCESS;
         this.retData1 = retData;
     }
