@@ -35,28 +35,23 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     private String recordKey = "";
     private String topicName = "";
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
+    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;  // topic status
+    private TopicPropGroup topicProps = new TopicPropGroup();
     private String brokerIp =  "";
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerAddress = "";
-    // topic id, require globally unique
     private int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
-    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;  // topic status
-    private TopicPropGroup topicProps = new TopicPropGroup();
 
 
     public TopicDeployEntity() {
         super();
     }
 
-    public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId,
-                             String brokerIp, int brokerPort, String topicName) {
+    public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId, String topicName) {
         super(opInfoEntity);
         this.brokerId = brokerId;
-        this.brokerIp = brokerIp;
-        this.brokerPort = brokerPort;
         this.topicName = topicName;
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
-        this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
     }
 
     public TopicDeployEntity(String topicName, int topicId, int brokerId,
@@ -69,6 +64,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.topicNameId = topicId;
         this.deployStatus = deployStatus;
         this.topicProps = topicProps;
+        this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
+
     }
 
     public TopicDeployEntity(BdbTopicConfEntity bdbEntity) {
@@ -110,8 +107,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         return bdbEntity;
     }
 
-    public void setTopicDeployInfo(int brokerId, String brokerIp,
-                                   int brokerPort, String topicName) {
+    private void setTopicDeployInfo(int brokerId, String brokerIp,
+                                    int brokerPort, String topicName) {
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;
@@ -281,7 +278,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
                 && !target.getTopicName().equals(this.topicName))
                 || (TStringUtils.isNotBlank(target.getBrokerIp())
                 && !target.getBrokerIp().equals(this.brokerIp))
-                || !target.getTopicProps().isMatched(topicProps)
+                || !topicProps.isMatched(target.topicProps)
                 || (target.getTopicStatus() != TopicStatus.STATUS_TOPIC_UNDEFINED
                 && target.getTopicStatus() != this.deployStatus)) {
             return false;

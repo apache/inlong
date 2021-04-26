@@ -1026,6 +1026,27 @@ public class WebParameterUtils {
         return result.success;
     }
 
+
+    public static boolean isFilterSetFullIncluded(
+            Set<String> qryFilterSet, String confFilterStr) {
+        if (qryFilterSet == null || qryFilterSet.isEmpty()) {
+            return true;
+        }
+        if (confFilterStr == null
+                || (confFilterStr.length() == 2
+                && confFilterStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR))) {
+            return false;
+        }
+        boolean allInc = true;
+        for (String filterCond : qryFilterSet) {
+            if (!confFilterStr.contains(filterCond)) {
+                allInc = false;
+                break;
+            }
+        }
+        return allInc;
+    }
+
     /**
      * Parse the parameter value from an json dict
      *

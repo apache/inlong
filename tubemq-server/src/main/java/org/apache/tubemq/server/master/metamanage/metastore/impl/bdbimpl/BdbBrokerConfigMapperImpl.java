@@ -232,7 +232,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         for (Integer brokerId : qryBrokerKey) {
             BrokerConfEntity entity = brokerConfCache.get(brokerId);
             if (entity == null
-                    || (qryEntity != null && !qryEntity.isMatched(entity))) {
+                    || (qryEntity != null && !entity.isMatched(qryEntity))) {
                 continue;
             }
             retMap.put(entity.getBrokerId(), entity);

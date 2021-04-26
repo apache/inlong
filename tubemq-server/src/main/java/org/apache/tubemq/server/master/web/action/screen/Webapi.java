@@ -32,10 +32,12 @@ import org.apache.tubemq.server.master.web.handler.AbstractWebHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminTopicAuthHandler;
 import org.apache.tubemq.server.master.web.handler.WebBrokerDefConfHandler;
-import org.apache.tubemq.server.master.web.handler.WebBrokerTopicConfHandler;
+import org.apache.tubemq.server.master.web.handler.WebGroupConsumeCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebGroupResCtrlHandler;
 import org.apache.tubemq.server.master.web.handler.WebMasterInfoHandler;
 import org.apache.tubemq.server.master.web.handler.WebOtherInfoHandler;
+import org.apache.tubemq.server.master.web.handler.WebTopicCtrlHandler;
+import org.apache.tubemq.server.master.web.handler.WebTopicDeployHandler;
 import org.apache.tubemq.server.master.web.simplemvc.Action;
 import org.apache.tubemq.server.master.web.simplemvc.RequestContext;
 
@@ -56,12 +58,14 @@ public class Webapi implements Action {
     public Webapi(TMaster master) {
         this.master = master;
         registerHandler(new WebBrokerDefConfHandler(this.master));
-        registerHandler(new WebBrokerTopicConfHandler(this.master));
-        registerHandler(new WebAdminGroupCtrlHandler(this.master));
-        registerHandler(new WebAdminTopicAuthHandler(this.master));
+        registerHandler(new WebTopicCtrlHandler(this.master));
+        registerHandler(new WebTopicDeployHandler(this.master));
+        registerHandler(new WebGroupConsumeCtrlHandler(this.master));
         registerHandler(new WebGroupResCtrlHandler(this.master));
         registerHandler(new WebMasterInfoHandler(this.master));
         registerHandler(new WebOtherInfoHandler(this.master));
+        registerHandler(new WebAdminGroupCtrlHandler(this.master));
+        registerHandler(new WebAdminTopicAuthHandler(this.master));
     }
 
     @Override

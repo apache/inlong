@@ -47,6 +47,14 @@ public interface TopicDeployMapper extends AbstractMapper {
 
     TopicDeployEntity getTopicConfByeRecKey(String recordKey);
 
+    /**
+     * Get broker topic entity, if query entity is null, return all topic entity
+     *
+     * @param topicNameSet need query topic name set
+     * @param brokerIdSet  need query broker id set
+     * @param qryEntity   must not null
+     * @return  topic deploy info by topicName's key
+     */
     Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
                                                          Set<Integer> brokerIdSet,
                                                          TopicDeployEntity qryEntity);

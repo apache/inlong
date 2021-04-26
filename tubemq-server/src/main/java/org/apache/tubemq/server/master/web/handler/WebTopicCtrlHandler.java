@@ -296,7 +296,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         // check and get topic control configure
         TopicCtrlEntity itemConf;
         Map<String, String> itemConfMap;
-        HashMap<String, TopicCtrlEntity> addRecordMap = new HashMap<>();
+        Map<String, TopicCtrlEntity> addRecordMap = new HashMap<>();
         for (int j = 0; j < ctrlJsonArray.size(); j++) {
             itemConfMap = ctrlJsonArray.get(j);
             // check and get operation info

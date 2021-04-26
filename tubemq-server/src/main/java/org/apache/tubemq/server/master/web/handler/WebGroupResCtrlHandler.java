@@ -148,7 +148,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req) {
+    public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req) {
         return innBatchAddOrUpdGroupResCtrlConf(req, true);
     }
 
@@ -168,7 +168,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req) {
+    public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req) {
         return innBatchAddOrUpdGroupResCtrlConf(req, false);
     }
 
@@ -299,7 +299,6 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         return buildRetInfo(retInfo, sBuffer);
     }
 
-
     private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
                                                            boolean isAddOp) {
         ProcessResult result = new ProcessResult();
@@ -348,7 +347,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         // check and get topic control configure
         GroupResCtrlEntity itemEntity;
         Map<String, String> itemValueMap;
-        HashMap<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
+        Map<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
         for (int j = 0; j < ctrlJsonArray.size(); j++) {
             itemValueMap = ctrlJsonArray.get(j);
             // check and get operation info
@@ -433,20 +432,20 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuilder) {
+                                       StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
-            sBuilder.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
+            sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
 }

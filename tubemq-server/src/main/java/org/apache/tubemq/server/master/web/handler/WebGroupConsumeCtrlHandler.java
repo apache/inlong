@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
@@ -112,19 +111,19 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         Set<String> filterCondSet = (Set<String>) result.retData1;
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 consumeEnable, null, filterEnable, null);
-        Map<String, List<GroupConsumeCtrlEntity>> qryResultSet =
-                metaDataManager.getGroupConsumeCtrlConf(groupSet, topicNameSet);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
+                metaDataManager.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        for (List<GroupConsumeCtrlEntity> consumeCtrlEntityList : qryResultSet.values()) {
+        for (List<GroupConsumeCtrlEntity> consumeCtrlEntityList : qryResultMap.values()) {
             if (consumeCtrlEntityList == null || consumeCtrlEntityList.isEmpty()) {
                 continue;
             }
             for (GroupConsumeCtrlEntity entity : consumeCtrlEntityList) {
                 if (entity == null
-                        || !entity.isMatched(qryEntity)
-                        || !isFilterItemAllIncluded(filterCondSet, entity.getFilterCondStr())) {
+                        || !WebParameterUtils.isFilterSetFullIncluded(
+                                filterCondSet, entity.getFilterCondStr())) {
                     continue;
                 }
                 if (totalCnt++ > 0) {
@@ -357,7 +356,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         // parse groupCsmJsonSet field info
         GroupConsumeCtrlEntity itemConf;
         Map<String, String> itemsMap;
-        HashMap<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
+        Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
                 metaDataManager.getTotalConfiguredTopicNames();
         for (int j = 0; j < filterJsonArray.size(); j++) {
@@ -425,22 +424,4 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         return result.isSuccess();
     }
 
-    private boolean isFilterItemAllIncluded(Set<String> filterCondSet, String filterConsStr) {
-        if (filterCondSet == null || filterCondSet.isEmpty()) {
-            return true;
-        }
-        if (filterConsStr == null
-                || (filterConsStr.length() == 2
-                && filterConsStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR))) {
-            return false;
-        }
-        boolean allInc = true;
-        for (String filterCond : filterCondSet) {
-            if (!filterConsStr.contains(filterCond)) {
-                allInc = false;
-                break;
-            }
-        }
-        return allInc;
-    }
 }

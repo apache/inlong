@@ -326,8 +326,8 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
 
-    Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupAndTopic(
-            Set<String> groupNameSet, Set<String> topicNameSet);
+    Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
+            Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry);
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);
 
