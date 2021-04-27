@@ -31,7 +31,6 @@ import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -61,22 +60,32 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // register query method
         registerQueryWebMethod("admin_query_master_group_info",
                 "getGroupAddressStrInfo");
-        registerQueryWebMethod("admin_query_cluster_default_setting",
-                "adminQueryClusterDefSetting");
         registerQueryWebMethod("admin_query_cluster_topic_view",
                 "adminQueryClusterTopicView");
+        registerQueryWebMethod("admin_query_cluster_default_setting",
+                "adminQueryClusterDefSetting");
 
         // register modify method
         registerModifyWebMethod("admin_transfer_current_master",
                 "transferCurrentMaster");
-        // register modify method
         registerModifyWebMethod("admin_set_cluster_default_setting",
                 "adminSetClusterDefSetting");
+        registerModifyWebMethod("admin_update_cluster_default_setting",
+                "adminUpdClusterDefSetting");
 
         // Deprecated methods begin
         // query method
         registerQueryWebMethod("admin_query_def_flow_control_rule",
-                "adminQueryDefGroupFlowCtrlRule");
+                "adminQueryDefFlowCtrlRule");
+        // register modify method
+        registerModifyWebMethod("admin_set_def_flow_control_rule",
+                "adminSetDefFlowControlRule");
+        registerModifyWebMethod("admin_rmv_def_flow_control_rule",
+                "adminDelDefFlowControlRule");
+        registerModifyWebMethod("admin_upd_def_flow_control_rule",
+                "adminModDefFlowCtrlRule");
+
+        // Deprecated methods end
     }
 
     /**
@@ -149,135 +158,63 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      *
      * @param req
      * @return
-     * @throws Exception
      */
     public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
-        StringBuilder sBuilder = new StringBuilder(512);
-        ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(true);
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
-        if (defClusterSetting != null) {
-            defClusterSetting.toWebJsonStr(sBuilder, true, true);
-        }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, 1);
-        return sBuilder;
+        StringBuilder sBuffer = new StringBuilder(512);
+        return buildRetInfo(sBuffer, true);
     }
 
     /**
-     * Add or modify cluster default setting
+     * query default flow control rule
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req) {
+        StringBuilder sBuffer = new StringBuilder(512);
+        return buildRetInfo(sBuffer, false);
+    }
+
+    /**
+     * Add cluster default setting
      *
      * @param req
      * @return
      */
     public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        // check and get operation info
-        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
-        // check max message size
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.MAXMSGSIZEINMB, false,
-                TBaseConstants.META_VALUE_UNDEFINED,
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int inMaxMsgSizeMB = (int) result.getRetData();
-        // get broker port info
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int inBrokerPort = (int) result.getRetData();
-        // get broker tls port info
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int inBrokerTlsPort = (int) result.getRetData();
-        // get broker web port info
-        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
-                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int inBrokerWebPort = (int) result.getRetData();
-        // get and valid TopicPropGroup info
-        TopicPropGroup defTopicProps = new TopicPropGroup();
-        defTopicProps.fillDefaultValue();
-        if (!WebParameterUtils.getTopicPropInfo(req, defTopicProps, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        defTopicProps = (TopicPropGroup) result.getRetData();
-        // get and valid qryPriorityId info
-        if (!WebParameterUtils.getQryPriorityIdParameter(req,
-                false, TBaseConstants.META_VALUE_UNDEFINED,
-                TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        int inQryPriorityId = (int) result.retData1;
-        // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Boolean flowCtrlEnable = (Boolean) result.retData1;
-        // get and flow control rule info
-        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req, null, sBuffer, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        String flowCtrlInfo = (String) result.retData1;
-        // add or modify record
-        ClusterSettingEntity newConf = null;
-        ClusterSettingEntity curConf = metaDataManager.getClusterDefSetting(true);
-        if (curConf == null) {
-            if (!metaDataManager.addClusterDefSetting(opEntity, inBrokerPort,
-                    inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
-                    inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
-                    defTopicProps, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-                return sBuffer;
-            }
-        } else {
-            if (!metaDataManager.modClusterDefSetting(opEntity, inBrokerPort,
-                    inBrokerTlsPort, inBrokerWebPort, inMaxMsgSizeMB,
-                    inQryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo,
-                    defTopicProps, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-                return sBuffer;
-            }
-        }
-        curConf = metaDataManager.getClusterDefSetting(true);
-        if (curConf == null) {
-            WebParameterUtils.buildFailResultWithBlankData(
-                    DataOpErrCode.DERR_UPD_NOT_EXIST.getCode(),
-                    DataOpErrCode.DERR_UPD_NOT_EXIST.getDescription(), sBuffer);
-            return sBuffer;
-        }
-        // build return result
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        curConf.toWebJsonStr(sBuffer, true, true);
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
-        return sBuffer;
+        return innAddOrUpdDefFlowControlRule(req, true, true);
     }
+
+    /**
+     * Modify cluster default setting
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req) {
+        return innAddOrUpdDefFlowControlRule(req, false, true);
+    }
+
+    /**
+     * add default flow control rule
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req) {
+        return innAddOrUpdDefFlowControlRule(req, true, false);
+    }
+
+    /**
+     * update default flow control rule
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req) {
+        return innAddOrUpdDefFlowControlRule(req, false, false);
+    }
+
 
     /**
      * Query cluster topic overall view
@@ -294,14 +231,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIds = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query topic configure info
         Map<String, List<TopicDeployEntity>> topicConfMap =
                 metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
@@ -376,4 +313,155 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         return sBuffer;
     }
 
+    /**
+     * delete flow control rule
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuffer = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // add or modify record
+        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity,
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, Boolean.FALSE, 0,
+                TServerConstants.BLANK_FLOWCTRL_RULES, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        return buildRetInfo(sBuffer, false);
+    }
+
+
+    /**
+     * add default flow control rule
+     *
+     * @param req
+     * @param isAddOp
+     * @param isNewVer
+     * @return
+     */
+    private StringBuilder innAddOrUpdDefFlowControlRule(HttpServletRequest req,
+                                                        boolean isAddOp, boolean isNewVer) {
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuffer = new StringBuilder(512);
+        // valid operation authorize info
+        if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check max message size
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.MAXMSGSIZEINMB, false,
+                TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int maxMsgSizeMB = (int) result.getRetData();
+        // get broker port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int inBrokerPort = (int) result.getRetData();
+        // get broker tls port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int inBrokerTlsPort = (int) result.getRetData();
+        // get broker web port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int inBrokerWebPort = (int) result.getRetData();
+        // get and valid TopicPropGroup info
+        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        TopicPropGroup defTopicProps = (TopicPropGroup) result.getRetData();
+        // get and valid qryPriorityId info
+        if (!WebParameterUtils.getQryPriorityIdParameter(req,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int inQryPriorityId = (int) result.getRetData();
+        // get flowCtrlEnable info
+        if (isNewVer) {
+            if (!WebParameterUtils.getBooleanParamValue(req,
+                    WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
+            }
+        } else {
+            if (!WebParameterUtils.getFlowCtrlStatusParamValue(req,
+                    false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
+            }
+        }
+        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        // get and flow control rule info
+        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
+                (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        String flowCtrlInfo = (String) result.getRetData();
+        // add or modify record
+        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
+                inBrokerTlsPort, inBrokerWebPort, maxMsgSizeMB, inQryPriorityId,
+                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, defTopicProps, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        return buildRetInfo(sBuffer, isNewVer);
+    }
+
+
+    private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
+        ClusterSettingEntity curConf =
+                metaDataManager.getClusterDefSetting(true);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        if (curConf != null) {
+            if (isNewVer) {
+                curConf.toWebJsonStr(sBuffer, true, true);
+            } else {
+                curConf.toOldVerFlowCtrlWebJsonStr(sBuffer, true);
+            }
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+        return sBuffer;
+    }
 }

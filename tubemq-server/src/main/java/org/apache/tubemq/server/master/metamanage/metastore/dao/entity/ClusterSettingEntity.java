@@ -301,6 +301,34 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
+    /**
+     * Serialize field to old version json format
+     *
+     * @param sBuilder   build container
+     * @param isLongName if return field key is long name
+     * @return
+     */
+    public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuilder,
+                                                    boolean isLongName) {
+        int statusId = gloFlowCtrlStatus.isEnable() ? 1 : 0;
+        if (isLongName) {
+            sBuilder.append("{\"statusId\":").append(statusId)
+                    .append(",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
+                    .append(",\"qryPriorityId\":").append(qryPriorityId)
+                    .append(",\"ruleCnt\":").append(gloFlowCtrlRuleCnt)
+                    .append(",\"flowCtrlInfo\":").append(gloFlowCtrlRuleInfo);
+        } else {
+            sBuilder.append("{\"statusId\":").append(statusId)
+                    .append(",\"mxMsgInMB\":").append(maxMsgSizeInMB)
+                    .append(",\"qryPriId\":").append(qryPriorityId)
+                    .append(",\"fCtrlCnt\":").append(gloFlowCtrlRuleCnt)
+                    .append(",\"fCtrlInfo\":").append(gloFlowCtrlRuleInfo);
+        }
+        super.toWebJsonStr(sBuilder, isLongName);
+        sBuilder.append("}");
+        return sBuilder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

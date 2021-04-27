@@ -46,6 +46,8 @@ public interface GroupConsumeCtrlMapper extends AbstractMapper {
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);
 
+    List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName);
+
     Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet);
 
     Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupSet);

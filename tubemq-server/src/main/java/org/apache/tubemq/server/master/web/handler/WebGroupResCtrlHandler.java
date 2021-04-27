@@ -81,21 +81,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> inGroupSet = (Set<String>) result.retData1;
-        // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.CONSUMEENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Boolean consumeEnable = (Boolean) result.retData1;
+        Set<String> inGroupSet = (Set<String>) result.getRetData();
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean resCheckEnable = (Boolean) result.retData1;
+        Boolean resCheckEnable = (Boolean) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -103,15 +96,15 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        int inQryPriorityId = (int) result.retData1;
+        int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.retData1;
-        entity.updModifyInfo(entity.getDataVerId(), consumeEnable, null,
+        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        entity.updModifyInfo(entity.getDataVerId(),
                 resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
@@ -199,7 +192,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> batchGroupNames = (Set<String>) result.retData1;
+        Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // delete group resource record
         List<GroupProcessResult> retInfo =
                 metaDataManager.delGroupResCtrlConf(opEntity.getModifyUser(),
@@ -229,28 +222,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> batchGroupNames = (Set<String>) result.retData1;
-        // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.CONSUMEENABLE,
-                false, (isAddOp ? true : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        Boolean consumeEnable = (Boolean) result.retData1;
-        // get disableReason info
-        if (!WebParameterUtils.getStringParamValue(req, WebFieldDef.REASON,
-                false, (isAddOp ? "" : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
-        String disableRsn = (String) result.retData1;
+        Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.RESCHECKENABLE,
                 false, (isAddOp ? false : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean resCheckEnable = (Boolean) result.retData1;
+        Boolean resCheckEnable = (Boolean) result.getRetData();
         // get and valid allowedBrokerClientRate info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.ALWDBCRATE,
                 false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -259,7 +238,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        int allowedBClientRate = (int) result.retData1;
+        int allowedBClientRate = (int) result.getRetData();
         // get def cluster setting info
         ClusterSettingEntity defClusterSetting =
                 metaDataManager.getClusterDefSetting(false);
@@ -271,14 +250,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        int qryPriorityId = (int) result.retData1;
+        int qryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
         if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.FLOWCTRLENABLE,
                 false, (isAddOp ? false : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.retData1;
+        Boolean flowCtrlEnable = (Boolean) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
@@ -286,15 +265,13 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        String flowCtrlInfo = (String) result.retData1;
+        String flowCtrlInfo = (String) result.getRetData();
         // add group resource record
-        GroupProcessResult retItem;
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            retItem = metaDataManager.addOrUpdGroupResCtrlConf(isAddOp, opEntity, groupName,
-                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result);
-            retInfo.add(retItem);
+            retInfo.add(metaDataManager.addOrUpdGroupResCtrlConf(isAddOp, opEntity, groupName,
+                    resCheckEnable, allowedBClientRate, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
     }
@@ -339,7 +316,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return result.success;
         }
         List<Map<String, String>> ctrlJsonArray =
-                (List<Map<String, String>>) result.retData1;
+                (List<Map<String, String>>) result.getRetData();
         // get default qryPriorityId
         ClusterSettingEntity defClusterSetting =
                 metaDataManager.getClusterDefSetting(false);
@@ -361,25 +338,13 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
                 return result.success;
             }
-            String groupName = (String) result.retData1;
-            // get consumeEnable info
-            if (!WebParameterUtils.getBooleanParamValue(itemValueMap, WebFieldDef.CONSUMEENABLE,
-                    false, (isAddOp ? true : null), sBuffer, result)) {
-                return result.isSuccess();
-            }
-            Boolean consumeEnable = (Boolean) result.retData1;
-            // get disableReason info
-            if (!WebParameterUtils.getStringParamValue(itemValueMap,
-                    WebFieldDef.REASON, false, (isAddOp ? "" : null), sBuffer, result)) {
-                return result.isSuccess();
-            }
-            String disableRsn = (String) result.retData1;
+            String groupName = (String) result.getRetData();
             // get resCheckStatus info
             if (!WebParameterUtils.getBooleanParamValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
                     false, (isAddOp ? false : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean resCheckEnable = (Boolean) result.retData1;
+            Boolean resCheckEnable = (Boolean) result.getRetData();
             // get and valid allowedBrokerClientRate info
             if (!WebParameterUtils.getIntParamValue(itemValueMap, WebFieldDef.ALWDBCRATE,
                     false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -387,7 +352,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                     TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, sBuffer, result)) {
                 return result.isSuccess();
             }
-            int allowedBClientRate = (int) result.retData1;
+            int allowedBClientRate = (int) result.getRetData();
             // get def cluster setting info
             // get and valid qryPriorityId info
             if (!WebParameterUtils.getQryPriorityIdParameter(itemValueMap,
@@ -396,26 +361,26 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                     TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
                 return result.isSuccess();
             }
-            int qryPriorityId = (int) result.retData1;
+            int qryPriorityId = (int) result.getRetData();
             // get flowCtrlEnable info
             if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
                     WebFieldDef.FLOWCTRLENABLE, false,
                     (isAddOp ? false : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean flowCtrlEnable = (Boolean) result.retData1;
+            Boolean flowCtrlEnable = (Boolean) result.getRetData();
             // get and flow control rule info
             int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(itemValueMap,
                     (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
-            if (!result.success) {
+            if (!result.isSuccess()) {
                 return result.isSuccess();
             }
-            String flowCtrlInfo = (String) result.retData1;
+            String flowCtrlInfo = (String) result.getRetData();
             itemEntity =
                     new GroupResCtrlEntity(itemOpEntity, groupName);
             itemEntity.updModifyInfo(itemEntity.getDataVerId(),
-                    consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
+                    resCheckEnable, allowedBClientRate, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
             addRecordMap.put(itemEntity.getGroupName(), itemEntity);
         }
         // check result

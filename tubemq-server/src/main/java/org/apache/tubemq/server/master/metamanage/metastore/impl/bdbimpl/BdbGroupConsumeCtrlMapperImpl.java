@@ -245,6 +245,24 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
+    public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
+        ConcurrentHashSet<String> keySet =
+                grpConsumeCtrlGroupCache.get(groupName);
+        if (keySet == null || keySet.isEmpty()) {
+            return Collections.emptyList();
+        }
+        GroupConsumeCtrlEntity entity;
+        List<GroupConsumeCtrlEntity> result = new ArrayList<>();
+        for (String recordKey : keySet) {
+            entity = grpConsumeCtrlCache.get(recordKey);
+            if (entity != null) {
+                result.add(entity);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicNameSet) {
         ConcurrentHashSet<String> qrySet;
         Set<String> retResult = new HashSet<>();

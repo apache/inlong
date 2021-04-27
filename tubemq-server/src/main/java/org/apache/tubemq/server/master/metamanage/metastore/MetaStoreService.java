@@ -203,7 +203,7 @@ public interface MetaStoreService extends KeepAlive, Server {
      *
      * @param operator   operator
      * @param topicName  the topicName will be deleted
-     * @param strBuffer  the print info string buffer
+     * @param sBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
@@ -302,7 +302,7 @@ public interface MetaStoreService extends KeepAlive, Server {
     boolean delGroupConsumeCtrlConf(String operator,
                                     String groupName,
                                     String topicName,
-                                    StringBuilder strBuffer,
+                                    StringBuilder sBuffer,
                                     ProcessResult result);
     /**
      * Delete group consume control configure
@@ -330,6 +330,8 @@ public interface MetaStoreService extends KeepAlive, Server {
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry);
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName);
+
+    List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName);
 
     Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet);
 

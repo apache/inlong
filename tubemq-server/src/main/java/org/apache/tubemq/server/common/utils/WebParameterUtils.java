@@ -59,65 +59,65 @@ public class WebParameterUtils {
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
 
 
-    public static StringBuilder buildFailResult(StringBuilder strBuffer, String errMsg) {
-        return strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+    public static StringBuilder buildFailResult(StringBuilder sBuffer, String errMsg) {
+        return sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                 .append(errMsg).append("\"}");
     }
 
     public static StringBuilder buildFailResultWithBlankData(String errMsg,
-                                                             StringBuilder strBuffer) {
-        return buildFailResultWithBlankData(400, errMsg, strBuffer);
+                                                             StringBuilder sBuffer) {
+        return buildFailResultWithBlankData(400, errMsg, sBuffer);
     }
 
     public static StringBuilder buildFailResultWithBlankData(int errcode, String errMsg,
-                                                             StringBuilder strBuffer) {
-        return strBuffer.append("{\"result\":false,\"errCode\":").append(errcode)
+                                                             StringBuilder sBuffer) {
+        return sBuffer.append("{\"result\":false,\"errCode\":").append(errcode)
                 .append(",\"errMsg\":\"").append(errMsg).append("\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessResult(StringBuilder strBuffer) {
-        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    public static StringBuilder buildSuccessResult(StringBuilder sBuffer) {
+        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessResult(StringBuilder strBuffer, String appendInfo) {
-        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"").
-                append(appendInfo).append("\"}");
+    public static StringBuilder buildSuccessResult(StringBuilder sBuffer, String appendInfo) {
+        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"").
+                append(appendInfo).append("\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessWithDataRetBegin(StringBuilder strBuffer) {
-        return strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+    public static StringBuilder buildSuccessWithDataRetBegin(StringBuilder sBuffer) {
+        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
     }
 
     public static StringBuilder buildSuccessWithDataRetEnd(
-            StringBuilder strBuffer, int totalCnt) {
-        return strBuffer.append("],\"count\":").append(totalCnt).append("}");
+            StringBuilder sBuffer, int totalCnt) {
+        return sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
     public static StringBuilder buildSuccWithData(long dataVerId,
-                                                  StringBuilder strBuffer) {
+                                                  StringBuilder sBuffer) {
         List<Long> dataVerIds = new ArrayList<>(1);
         dataVerIds.add(dataVerId);
-        return buildSuccWithData("Ok", dataVerIds, strBuffer);
+        return buildSuccWithData("Ok", dataVerIds, sBuffer);
     }
 
     public static StringBuilder buildSuccWithData(String errMsg,
                                                   List<Long> dataVerIds,
-                                                  StringBuilder strBuffer) {
+                                                  StringBuilder sBuffer) {
         int count = 0;
-        strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")
                 .append(errMsg).append("\",\"data\":[");
         for (Long dataVerId : dataVerIds) {
             if (dataVerId == null) {
                 continue;
             }
             if (count++ > 0) {
-                strBuffer.append(",");
+                sBuffer.append(",");
             }
-            strBuffer.append("{\"").append(WebFieldDef.DATAVERSIONID.name)
+            sBuffer.append("{\"").append(WebFieldDef.DATAVERSIONID.name)
                     .append("\":").append(dataVerId).append("}");
         }
-        strBuffer.append("],\"count\":").append(count).append("}");
-        return strBuffer;
+        sBuffer.append("],\"count\":").append(count).append("}");
+        return sBuffer;
     }
 
     public static <T> boolean getAUDBaseInfo(T paramCntr, boolean isAdd,
@@ -129,7 +129,7 @@ public class WebParameterUtils {
                 false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
             return result.isSuccess();
         }
-        long dataVerId = (long) result.retData1;
+        long dataVerId = (long) result.getRetData();
         // check and get createUser or modifyUser
         String createUsr = "";
         Date createDate = null;
@@ -141,14 +141,14 @@ public class WebParameterUtils {
                     sBuffer, result)) {
                 return result.isSuccess();
             }
-            createUsr = (String) result.retData1;
+            createUsr = (String) result.getRetData();
             // check and get create date
             if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.CREATEDATE, false,
                     (defOpEntity == null ? new Date() : defOpEntity.getCreateDate()),
                     sBuffer, result)) {
                 return result.isSuccess();
             }
-            createDate = (Date) result.retData1;
+            createDate = (Date) result.getRetData();
         }
         // check modify user field
         if (!WebParameterUtils.getStringParamValue(paramCntr, WebFieldDef.MODIFYUSER,
@@ -157,14 +157,14 @@ public class WebParameterUtils {
                 sBuffer, result)) {
             return result.isSuccess();
         }
-        String modifyUser = (String) result.retData1;
+        String modifyUser = (String) result.getRetData();
         // check and get modify date
         if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.MODIFYDATE, false,
                 (defOpEntity == null ? createDate : defOpEntity.getModifyDate()),
                 sBuffer, result)) {
             return result.isSuccess();
         }
-        Date modifyDate = (Date) result.retData1;
+        Date modifyDate = (Date) result.getRetData();
         result.setSuccResult(new BaseEntity(dataVerId,
                 createUsr, createDate, modifyUser, modifyDate));
         return result.isSuccess();
@@ -185,22 +185,21 @@ public class WebParameterUtils {
                 false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
             return result.isSuccess();
         }
-        long dataVerId = (long) result.retData1;
+        long dataVerId = (long) result.getRetData();
         // check createUser user field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.CREATEUSER, false, null, sBuffer, result)) {
             return result.isSuccess();
         }
-        String createUser = (String) result.retData1;
+        String createUser = (String) result.getRetData();
         // check modify user field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.MODIFYUSER, false, null, sBuffer, result)) {
             return result.isSuccess();
         }
-        String modifyUser = (String) result.retData1;
+        String modifyUser = (String) result.getRetData();
         // set query keys
-        qryEntity.updBaseModifyInfo(dataVerId,
-                createUser, null, modifyUser, null, null);
+        qryEntity.updQueryKeyInfo(dataVerId, createUser, modifyUser);
         result.setSuccResult(qryEntity);
         return result.isSuccess();
     }
@@ -211,9 +210,9 @@ public class WebParameterUtils {
                                                         ProcessResult result) {
         if (!getIntParamValue(paramCntr, WebFieldDef.QRYPRIORITYID,
                 required, defValue, minValue, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        int qryPriorityId = (int) result.retData1;
+        int qryPriorityId = (int) result.getRetData();
         if (qryPriorityId > 303 || qryPriorityId < 101) {
             result.setFailResult(sBuffer.append("Illegal value in ")
                     .append(WebFieldDef.QRYPRIORITYID.name)
@@ -260,7 +259,7 @@ public class WebParameterUtils {
                 WebFieldDef.DELETEPOLICY, required, defValue, sBuffer, result)) {
             return result.isSuccess();
         }
-        String delPolicy = (String) result.retData1;
+        String delPolicy = (String) result.getRetData();
         if (TStringUtils.isBlank(delPolicy)) {
             return result.isSuccess();
         }
@@ -660,12 +659,12 @@ public class WebParameterUtils {
                                                 StringBuilder sBuffer, ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String paramValue = (String) result.retData1;
+        String paramValue = (String) result.getRetData();
         if (paramValue == null) {
             result.setSuccResult(defValue);
-            return result.success;
+            return result.isSuccess();
         }
         try {
             long paramIntVal = Long.parseLong(paramValue);
@@ -675,7 +674,36 @@ public class WebParameterUtils {
                     .append(" parse error: ").append(e.getMessage()).toString());
             sBuffer.delete(0, sBuffer.length());
         }
-        return result.success;
+        return result.isSuccess();
+    }
+
+    /**
+     * Parse the parameter value from an object value to a Boolean value
+     *
+     * @param paramCntr   parameter container object
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   default value
+     * @param result     process result of parameter value
+     * @return process result
+     */
+    public static <T> boolean getFlowCtrlStatusParamValue(T paramCntr, boolean required,
+                                                          Boolean defValue, StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        // check and get statusId field
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.STATUSID, required,
+                TBaseConstants.META_VALUE_UNDEFINED, 0, 1, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        int paramValue = (int) result.getRetData();
+        if (paramValue == TBaseConstants.META_VALUE_UNDEFINED) {
+            return defValue;
+        } else {
+            if (paramValue == 1) {
+                return Boolean.TRUE;
+            } else {
+                return Boolean.FALSE;
+            }
+        }
     }
 
     /**
@@ -746,38 +774,38 @@ public class WebParameterUtils {
                                                 StringBuilder sBuffer, ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         if (fieldDef.isCompFieldType()) {
             Set<Integer> tgtValueSet = new HashSet<>();
-            Set<String> valItemSet = (Set<String>) result.retData1;
+            Set<String> valItemSet = (Set<String>) result.getRetData();
             if (valItemSet.isEmpty()) {
                 if (hasDefVal) {
                     tgtValueSet.add(defValue);
                 }
                 result.setSuccResult(tgtValueSet);
-                return result.success;
+                return result.isSuccess();
             }
             for (String itemVal : valItemSet) {
                 if (!checkIntValueNorms(fieldDef, itemVal,
                         hasMinVal, minValue, hasMaxVal, maxValue, sBuffer, result)) {
-                    return result.success;
+                    return result.isSuccess();
                 }
                 tgtValueSet.add((Integer) result.retData1);
             }
             result.setSuccResult(tgtValueSet);
         } else {
-            String paramValue = (String) result.retData1;
+            String paramValue = (String) result.getRetData();
             if (paramValue == null) {
                 if (hasDefVal) {
                     result.setSuccResult(defValue);
                 }
-                return result.success;
+                return result.isSuccess();
             }
             checkIntValueNorms(fieldDef, paramValue,
                     hasMinVal, minValue, hasMaxVal, maxValue, sBuffer, result);
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -796,12 +824,12 @@ public class WebParameterUtils {
                                                    ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String paramValue = (String) result.retData1;
+        String paramValue = (String) result.getRetData();
         if (paramValue == null) {
             result.setSuccResult(defValue);
-            return result.success;
+            return result.isSuccess();
         }
         if (paramValue.equalsIgnoreCase("true")
                 || paramValue.equalsIgnoreCase("false")) {
@@ -813,7 +841,7 @@ public class WebParameterUtils {
                 result.setSuccResult(defValue);
             }
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -878,7 +906,7 @@ public class WebParameterUtils {
             } else {
                 procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
             }
-            return result.success;
+            return result.isSuccess();
         }
         // check if value is norm;
         if (fieldDef.isCompFieldType()) {
@@ -890,7 +918,7 @@ public class WebParameterUtils {
                     continue;
                 }
                 if (!checkStrValueNorms(fieldDef, strParamValueItem, sBuffer, result)) {
-                    return result.success;
+                    return result.isSuccess();
                 }
                 valItemSet.add((String) result.retData1);
             }
@@ -903,7 +931,7 @@ public class WebParameterUtils {
                 } else {
                     procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
                 }
-                return result.success;
+                return result.isSuccess();
             }
             // check max item count
             if (fieldDef.itemMaxCnt != TBaseConstants.META_VALUE_UNDEFINED) {
@@ -918,11 +946,11 @@ public class WebParameterUtils {
             result.setSuccResult(valItemSet);
         } else {
             if (!checkStrValueNorms(fieldDef, paramValue, sBuffer, result)) {
-                return result.success;
+                return result.isSuccess();
             }
             result.setSuccResult(paramValue);
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -943,9 +971,9 @@ public class WebParameterUtils {
                                                    ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, required, defValue, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         Set<String> existedTopicSet =
                 confManager.getTotalConfiguredTopicNames();
         for (String topic : topicNameSet) {
@@ -957,7 +985,7 @@ public class WebParameterUtils {
                 break;
             }
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -974,9 +1002,9 @@ public class WebParameterUtils {
                                                   StringBuilder sBuffer,
                                                   ProcessResult result) {
         if (!getFilterCondSet(paramCntr, required, false, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        Set<String> filterCondSet = (Set<String>) result.retData1;
+        Set<String> filterCondSet = (Set<String>) result.getRetData();
         if (filterCondSet.isEmpty()) {
             if (transBlank) {
                 sBuffer.append(TServerConstants.BLANK_FILTER_ITEM_STR);
@@ -989,7 +1017,7 @@ public class WebParameterUtils {
         }
         result.setSuccResult(sBuffer.toString());
         sBuffer.delete(0, sBuffer.length());
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -1007,12 +1035,12 @@ public class WebParameterUtils {
                                                ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.FILTERCONDS, required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         if (transCondItem) {
             // translate filter condition item with "''"
             TreeSet<String> newFilterCondSet = new TreeSet<>();
-            Set<String> filterCondSet = (Set<String>) result.retData1;
+            Set<String> filterCondSet = (Set<String>) result.getRetData();
             if (!filterCondSet.isEmpty()) {
                 for (String filterCond : filterCondSet) {
                     newFilterCondSet.add(sBuffer.append(TokenConstants.ARRAY_SEP)
@@ -1023,7 +1051,7 @@ public class WebParameterUtils {
             }
             result.setSuccResult(newFilterCondSet);
         }
-        return result.success;
+        return result.isSuccess();
     }
 
 
@@ -1080,7 +1108,7 @@ public class WebParameterUtils {
             } else {
                 result.setSuccResult(defValue);
             }
-            return result.success;
+            return result.isSuccess();
         }
         try {
             paramValue = URLDecoder.decode(paramValue,
@@ -1098,7 +1126,7 @@ public class WebParameterUtils {
             } else {
                 result.setSuccResult(defValue);
             }
-            return result.success;
+            return result.isSuccess();
         }
         if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
             if (paramValue.length() > fieldDef.valMaxLen) {
@@ -1106,7 +1134,7 @@ public class WebParameterUtils {
                         .append("Parameter ").append(fieldDef.name)
                         .append("'s length over max allowed length (")
                         .append(fieldDef.valMaxLen).append(")!").toString());
-                return result.success;
+                return result.isSuccess();
             }
         }
         // parse data
@@ -1120,7 +1148,7 @@ public class WebParameterUtils {
                     .append(" value parse failure, error is ")
                     .append(e.getMessage()).append("!").toString());
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -1156,7 +1184,7 @@ public class WebParameterUtils {
             } else {
                 result.setSuccResult(defValue);
             }
-            return result.success;
+            return result.isSuccess();
         }
         try {
             paramValue = URLDecoder.decode(paramValue,
@@ -1174,7 +1202,7 @@ public class WebParameterUtils {
             } else {
                 result.setSuccResult(defValue);
             }
-            return result.success;
+            return result.isSuccess();
         }
         if (fieldDef.valMaxLen != TBaseConstants.META_VALUE_UNDEFINED) {
             if (paramValue.length() > fieldDef.valMaxLen) {
@@ -1182,7 +1210,7 @@ public class WebParameterUtils {
                         .append("Parameter ").append(fieldDef.name)
                         .append("'s length over max allowed length (")
                         .append(fieldDef.valMaxLen).append(")!").toString());
-                return result.success;
+                return result.isSuccess();
             }
         }
         // parse data
@@ -1196,7 +1224,7 @@ public class WebParameterUtils {
                     .append(" value parse failure, error is ")
                     .append(e.getMessage()).append("!").toString());
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -1215,12 +1243,12 @@ public class WebParameterUtils {
                                                ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String paramValue = (String) result.retData1;
+        String paramValue = (String) result.getRetData();
         if (paramValue == null) {
             result.setSuccResult(defValue);
-            return result.success;
+            return result.isSuccess();
         }
         try {
             DateFormat sdf = new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
@@ -1231,7 +1259,7 @@ public class WebParameterUtils {
                     .append(" parse error: ").append(e.getMessage()).toString());
             sBuffer.delete(0, sBuffer.length());
         }
-        return result.success;
+        return result.isSuccess();
     }
 
 
@@ -1248,15 +1276,15 @@ public class WebParameterUtils {
                                                 boolean required, TMaster master,
                                                 StringBuilder sBuffer, ProcessResult result) {
         if (!getStringParamValue(req, fieldDef, required, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String paramValue = (String) result.retData1;
+        String paramValue = (String) result.getRetData();
         if (paramValue != null) {
             if (!paramValue.equals(master.getMasterConfig().getConfModAuthToken())) {
                 result.setFailResult("Illegal access, unauthorized request!");
             }
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -1280,7 +1308,7 @@ public class WebParameterUtils {
         } else {
             result.setSuccResult(defValue);
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
