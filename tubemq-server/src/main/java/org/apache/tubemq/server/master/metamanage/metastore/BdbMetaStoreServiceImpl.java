@@ -821,7 +821,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     public boolean delGroupConsumeCtrlConf(String operator,
                                            String groupName,
                                            String topicName,
-                                           StringBuilder strBuffer,
+                                           StringBuilder sBuffer,
                                            ProcessResult result) {
         // check current status
         if (groupName == null && topicName == null) {
@@ -832,18 +832,18 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (groupConsumeCtrlMapper.delGroupConsumeCtrlConf(groupName, topicName, result)) {
-            strBuffer.append("[delGroupConsumeCtrlConf], ").append(operator)
+            sBuffer.append("[delGroupConsumeCtrlConf], ").append(operator)
                     .append(" deleted group consume control record by index : ")
                     .append("groupName=").append(groupName)
                     .append(", topicName=").append(topicName);
-            logger.info(strBuffer.toString());
+            logger.info(sBuffer.toString());
         } else {
-            strBuffer.append("[delGroupConsumeCtrlConf], ")
+            sBuffer.append("[delGroupConsumeCtrlConf], ")
                     .append("failure to delete group consume control record : ")
                     .append(result.getErrInfo());
-            logger.warn(strBuffer.toString());
+            logger.warn(sBuffer.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        sBuffer.delete(0, sBuffer.length());
         return result.isSuccess();
     }
 
@@ -893,6 +893,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName) {
         return groupConsumeCtrlMapper.getConsumeCtrlByTopicName(topicName);
+    }
+
+    @Override
+    public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
+        return groupConsumeCtrlMapper.getConsumeCtrlByGroupName(groupName);
     }
 
     @Override

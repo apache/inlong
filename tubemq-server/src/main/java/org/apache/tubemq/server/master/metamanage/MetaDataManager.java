@@ -275,19 +275,6 @@ public class MetaDataManager implements Server {
                 return result.isSuccess();
             }
         }
-        // check if consumer group is in the blacklist
-        GroupResCtrlEntity resCtrlEntity =
-                metaStoreService.getGroupResCtrlConf(groupName);
-        if (resCtrlEntity != null && !resCtrlEntity.isEnableConsume()) {
-            if (!resCtrlEntity.isEnableConsume()) {
-                result.setFailResult(TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
-                        sBuffer.append("[unAuthorized Group] ").append(consumerId)
-                                .append("'s consumerGroup in blackList by administrator, reason is ")
-                                .append(resCtrlEntity.getDisableReason()).toString());
-                sBuffer.delete(0, sBuffer.length());
-                return result.isSuccess();
-            }
-        }
         // check if group enable consume
         Set<String> disableCsmTopicSet = new HashSet<>();
         Set<String> enableFltCsmTopicSet = new HashSet<>();
@@ -300,13 +287,13 @@ public class MetaDataManager implements Server {
                 continue;
             }
             if (topicEntity.isAuthCtrlEnable()) {
-                //check if consume group is allowed to consume
+                // check if consume group is allowed to consume
                 GroupConsumeCtrlEntity ctrlEntity =
                         metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicItem);
-                if (ctrlEntity == null) {
+                if (ctrlEntity == null || !ctrlEntity.isEnableConsume()) {
                     disableCsmTopicSet.add(topicItem);
                 }
-                //check if consume group is required filter consume
+                // check if consume group is required filter consume
                 if (ctrlEntity.isEnableFilterConsume()) {
                     enableFltCsmTopicSet.add(topicItem);
                 }
@@ -324,6 +311,69 @@ public class MetaDataManager implements Server {
         return checkFilterRstrTopics(groupName, consumerId,
                 enableFltCsmTopicSet, reqTopicCondMap, sBuffer, result);
     }
+
+    private boolean checkConsumeRstrTopics(final String groupName, final String consumerId,
+                                          Set<String> enableFltCsmTopicSet,
+                                          Map<String, TreeSet<String>> reqTopicCondMap,
+                                          StringBuilder sBuffer, ProcessResult result) {
+        if (enableFltCsmTopicSet == null && enableFltCsmTopicSet.isEmpty()) {
+            result.setSuccResult("Ok!");
+            return result.isSuccess();
+        }
+        GroupConsumeCtrlEntity ctrlEntity;
+        for (String topicName : enableFltCsmTopicSet) {
+            ctrlEntity =
+                    metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicName);
+            if (ctrlEntity == null || !ctrlEntity.isEnableFilterConsume()) {
+                continue;
+            }
+            String allowedCondStr = ctrlEntity.getFilterCondStr();
+            if (allowedCondStr.length() == 2
+                    && allowedCondStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : ").append(groupName)
+                                .append(" not allowed to consume any data of topic ")
+                                .append(topicName).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            TreeSet<String> condItemSet = reqTopicCondMap.get(topicName);
+            if (condItemSet == null || condItemSet.isEmpty()) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : ").append(groupName)
+                                .append(" must set the filter conditions of topic ")
+                                .append(topicName).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            Map<String, List<String>> unAuthorizedCondMap = new HashMap<>();
+            for (String item : condItemSet) {
+                if (!allowedCondStr.contains(sBuffer.append(TokenConstants.ARRAY_SEP)
+                        .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
+                    List<String> unAuthConds = unAuthorizedCondMap.get(topicName);
+                    if (unAuthConds == null) {
+                        unAuthConds = new ArrayList<>();
+                        unAuthorizedCondMap.put(topicName, unAuthConds);
+                    }
+                    unAuthConds.add(item);
+                }
+                sBuffer.delete(0, sBuffer.length());
+            }
+            if (!unAuthorizedCondMap.isEmpty()) {
+                result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
+                        sBuffer.append("[Restricted Group] ").append(consumerId)
+                                .append(" : unAuthorized filter conditions ")
+                                .append(unAuthorizedCondMap).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+        }
+        result.setSuccResult("Ok!");
+        return result.isSuccess();
+    }
+
 
     private boolean checkFilterRstrTopics(final String groupName, final String consumerId,
                                           Set<String> enableFltCsmTopicSet,
@@ -393,23 +443,23 @@ public class MetaDataManager implements Server {
     /**
      * Add broker configure information
      *
-     * @param sBuilder   the print information string buffer
+     * @param sBuffer   the print information string buffer
      * @param result     the process result return
      * @return true if success otherwise false
-     */
+    */
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opInfoEntity,
                                                     int brokerId, String brokerIp, int brokerPort,
                                                     int brokerTlsPort, int brokerWebPort,
                                                     int regionId, int groupId,
                                                     ManageStatus mngStatus,
                                                     TopicPropGroup topicProps,
-                                                    StringBuilder sBuilder,
+                                                    StringBuilder sBuffer,
                                                     ProcessResult result) {
         BrokerConfEntity entity =
                 new BrokerConfEntity(opInfoEntity, brokerId, brokerIp);
         entity.updModifyInfo(opInfoEntity.getDataVerId(), brokerPort,
                 brokerTlsPort, brokerWebPort, regionId, groupId, mngStatus, topicProps);
-        return addOrUpdBrokerConfig(isAddOp, entity, sBuilder, result);
+        return addOrUpdBrokerConfig(isAddOp, entity, sBuffer, result);
     }
 
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
@@ -1452,6 +1502,48 @@ public class MetaDataManager implements Server {
     }
 
     /**
+     * Add or Update topic control configure info
+     *
+     * @param sBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
+    public TopicProcessResult addOrUpdTopicCtrlConf(BaseEntity opEntity, String topicName,
+                                                    Boolean enableTopicAuth, StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        TopicCtrlEntity entity =
+                new TopicCtrlEntity(opEntity, topicName);
+        entity.updModifyInfo(opEntity.getDataVerId(),
+                TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, enableTopicAuth);
+        return addOrUpdTopicCtrlConf(entity, sBuffer, result);
+    }
+
+    public TopicProcessResult addOrUpdTopicCtrlConf(TopicCtrlEntity entity,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        TopicCtrlEntity newEntity;
+        TopicCtrlEntity curEntity =
+                metaStoreService.getTopicCtrlConf(entity.getTopicName());
+        if (curEntity == null) {
+            newEntity = new TopicCtrlEntity(entity, entity.getTopicName());
+            newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
+                    entity.getMaxMsgSizeInMB(), entity.isAuthCtrlEnable());
+            metaStoreService.addTopicCtrlConf(newEntity, sBuffer, result);
+        } else {
+            newEntity = curEntity.clone();
+            newEntity.updBaseModifyInfo(entity);
+            if (newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
+                    entity.getMaxMsgSizeInMB(), entity.isAuthCtrlEnable())) {
+                metaStoreService.updTopicCtrlConf(newEntity, sBuffer, result);
+            } else {
+                result.setSuccResult(null);
+            }
+        }
+        return new TopicProcessResult(0, entity.getTopicName(), result);
+    }
+
+    /**
      * Delete topic control configure
      *
      * @param operator   operator
@@ -1652,6 +1744,39 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
+    /**
+     * Update cluster default setting
+     *
+     * @return true if success otherwise false
+     */
+    public boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
+                                             int brokerTlsPort, int brokerWebPort,
+                                             int maxMsgSizeMB, int qryPriorityId,
+                                             Boolean flowCtrlEnable, int flowRuleCnt,
+                                             String flowCtrlInfo, TopicPropGroup topicProps,
+                                             StringBuilder strBuffer, ProcessResult result) {
+        ClusterSettingEntity newConf;
+        ClusterSettingEntity curConf = metaStoreService.getClusterConfig();
+        if (curConf == null) {
+            newConf = new ClusterSettingEntity(opEntity);
+            newConf.fillDefaultValue();
+            newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
+                    brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
+            metaStoreService.addClusterConfig(newConf, strBuffer, result);
+        } else {
+            newConf = curConf.clone();
+            newConf.updBaseModifyInfo(opEntity);
+            if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
+                    brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
+                    flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
+                metaStoreService.updClusterConfig(newConf, strBuffer, result);
+            } else {
+                result.setSuccResult(null);
+            }
+        }
+        return result.isSuccess();
+    }
 
     public ClusterSettingEntity getClusterDefSetting(boolean isMustConf) {
         ClusterSettingEntity curClsSetting =
@@ -1665,37 +1790,35 @@ public class MetaDataManager implements Server {
     // //////////////////////////////////////////////////////////////////////////////
 
     public GroupProcessResult addOrUpdGroupResCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                       String groupName, Boolean consumeEnable,
-                                                       String disableRsn, Boolean resCheckEnable,
+                                                       String groupName, Boolean resCheckEnable,
                                                        int allowedBClientRate, int qryPriorityId,
                                                        Boolean flowCtrlEnable, int flowRuleCnt,
-                                                       String flowCtrlInfo, StringBuilder sBuilder,
+                                                       String flowCtrlInfo, StringBuilder sBuffer,
                                                        ProcessResult result) {
         GroupResCtrlEntity entity =
                 new GroupResCtrlEntity(opEntity, groupName);
-        entity.updModifyInfo(opEntity.getDataVerId(),
-                consumeEnable, disableRsn, resCheckEnable, allowedBClientRate,
+        entity.updModifyInfo(opEntity.getDataVerId(), resCheckEnable, allowedBClientRate,
                 qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
-        return addOrUpdGroupResCtrlConf(isAddOp, entity, sBuilder, result);
+        return addOrUpdGroupResCtrlConf(isAddOp, entity, sBuffer, result);
     }
 
     /**
      * Add group resource control configure info
      *
      * @param entity     the group resource control info entity will be add
-     * @param sBuilder  the print info string buffer
+     * @param sBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     public GroupProcessResult addOrUpdGroupResCtrlConf(boolean isAddOp,
                                                        GroupResCtrlEntity entity,
-                                                       StringBuilder sBuilder,
+                                                       StringBuilder sBuffer,
                                                        ProcessResult result) {
         GroupResCtrlEntity curEntity =
                 metaStoreService.getGroupResCtrlConf(entity.getGroupName());
         if (isAddOp) {
             if (curEntity == null) {
-                metaStoreService.addGroupResCtrlConf(entity, sBuilder, result);
+                metaStoreService.addGroupResCtrlConf(entity, sBuffer, result);
             } else {
                 result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
                         DataOpErrCode.DERR_EXISTED.getDescription());
@@ -1707,11 +1830,10 @@ public class MetaDataManager implements Server {
             } else {
                 GroupResCtrlEntity newEntity = curEntity.clone();
                 newEntity.updBaseModifyInfo(entity);
-                if (newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableConsume(),
-                        entity.getDisableReason(), entity.isEnableResCheck(),
+                if (newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableResCheck(),
                         entity.getAllowedBrokerClientRate(), entity.getQryPriorityId(),
                         entity.isFlowCtrlEnable(), entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
-                    metaStoreService.updGroupResCtrlConf(newEntity, sBuilder, result);
+                    metaStoreService.updGroupResCtrlConf(newEntity, sBuffer, result);
                 } else {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                             DataOpErrCode.DERR_UNCHANGED.getDescription());
@@ -1730,17 +1852,28 @@ public class MetaDataManager implements Server {
      * @param result    the process result return
      * @return true if success otherwise false
      */
-    public GroupProcessResult enOrDisConsumeCtrlConf(BaseEntity opEntity, String groupName,
-                                                     boolean enableConsume, String disReason,
-                                                     StringBuilder sBuffer, ProcessResult result) {
+    // Attention: compatible implementation for the old API
+    public GroupProcessResult addOrUpdGroupResCtrlConf(BaseEntity opEntity, String groupName,
+                                                       Boolean resChkEnable, int allowedB2CRate,
+                                                       StringBuilder sBuffer, ProcessResult result) {
         GroupResCtrlEntity newEntity = new GroupResCtrlEntity(opEntity, groupName);
-        newEntity.updModifyInfo(opEntity.getDataVerId(), enableConsume, disReason,
-                null, TBaseConstants.META_VALUE_UNDEFINED,
+        newEntity.updModifyInfo(opEntity.getDataVerId(), resChkEnable, allowedB2CRate,
                 TBaseConstants.META_VALUE_UNDEFINED, null,
                 TBaseConstants.META_VALUE_UNDEFINED, null);
         return addOrUpdGroupResCtrlConf(newEntity, sBuffer, result);
     }
 
+    // Attention: compatible implementation for the old API
+    public GroupProcessResult addOrUpdGroupResCtrlConf(BaseEntity opEntity, String groupName,
+                                                       int qryPriorityId, Boolean flowCtrlEnable,
+                                                       int flowRuleCnt, String flowCtrlRuleInfo,
+                                                       StringBuilder sBuffer, ProcessResult result) {
+        GroupResCtrlEntity newEntity = new GroupResCtrlEntity(opEntity, groupName);
+        newEntity.updModifyInfo(opEntity.getDataVerId(), null,
+                TBaseConstants.META_VALUE_UNDEFINED, qryPriorityId,
+                flowCtrlEnable, flowRuleCnt, flowCtrlRuleInfo);
+        return addOrUpdGroupResCtrlConf(newEntity, sBuffer, result);
+    }
     /**
      * add or update if present configure info
      *
@@ -1749,6 +1882,7 @@ public class MetaDataManager implements Server {
      * @param result    the process result return
      * @return true if success otherwise false
      */
+    // Attention: compatible implementation for the old API
     public GroupProcessResult addOrUpdGroupResCtrlConf(GroupResCtrlEntity entity,
                                                        StringBuilder sBuffer,
                                                        ProcessResult result) {
@@ -1758,16 +1892,14 @@ public class MetaDataManager implements Server {
         if (curEntity == null) {
             newEntity = new GroupResCtrlEntity(entity, entity.getGroupName());
             newEntity.fillDefaultValue();
-            newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableConsume(),
-                    entity.getDisableReason(), entity.isEnableResCheck(),
+            newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableResCheck(),
                     entity.getAllowedBrokerClientRate(), entity.getQryPriorityId(),
                     entity.isFlowCtrlEnable(), entity.getRuleCnt(), entity.getFlowCtrlInfo());
             metaStoreService.addGroupResCtrlConf(newEntity, sBuffer, result);
         } else {
             newEntity = curEntity.clone();
             newEntity.updBaseModifyInfo(entity);
-            if (newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableConsume(),
-                    entity.getDisableReason(), entity.isEnableResCheck(),
+            if (newEntity.updModifyInfo(entity.getDataVerId(), entity.isEnableResCheck(),
                     entity.getAllowedBrokerClientRate(), entity.getQryPriorityId(),
                     entity.isFlowCtrlEnable(), entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
                 metaStoreService.updGroupResCtrlConf(newEntity, sBuffer, result);
@@ -1827,28 +1959,32 @@ public class MetaDataManager implements Server {
                                                            String groupName, String topicName,
                                                            Boolean enableCsm, String disableRsn,
                                                            Boolean enableFlt, String fltCondStr,
-                                                           StringBuilder sBuilder,
+                                                           StringBuilder sBuffer,
                                                            ProcessResult result) {
         GroupConsumeCtrlEntity entity =
                 new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
         entity.updModifyInfo(opEntity.getDataVerId(),
                 enableCsm, disableRsn, enableFlt, fltCondStr);
-        return addOrUpdGroupConsumeCtrlInfo(isAddOp, entity, sBuilder, result);
+        return addOrUpdGroupConsumeCtrlInfo(isAddOp, entity, sBuffer, result);
     }
 
     public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(boolean isAddOp,
                                                            GroupConsumeCtrlEntity entity,
-                                                           StringBuilder sBuilder,
+                                                           StringBuilder sBuffer,
                                                            ProcessResult result) {
         // add group resource control record
-        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuilder, result)) {
+        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuffer, result)) {
+            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
+        }
+        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
+                entity.getModifyUser(), sBuffer, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         GroupConsumeCtrlEntity curEntity =
                 metaStoreService.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
         if (isAddOp) {
             if (curEntity == null) {
-                metaStoreService.addGroupConsumeCtrlConf(entity, sBuilder, result);
+                metaStoreService.addGroupConsumeCtrlConf(entity, sBuffer, result);
             } else {
                 result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
                         DataOpErrCode.DERR_EXISTED.getDescription());
@@ -1863,7 +1999,7 @@ public class MetaDataManager implements Server {
                 if (newEntity.updModifyInfo(entity.getDataVerId(),
                         entity.isEnableConsume(), entity.getDisableReason(),
                         entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
-                    metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuilder, result);
+                    metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuffer, result);
                 } else {
                     result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                             DataOpErrCode.DERR_UNCHANGED.getDescription());
@@ -1873,10 +2009,60 @@ public class MetaDataManager implements Server {
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
+    // Attention: compatible implementation for the old API
+    public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(BaseEntity opEntity, String groupName,
+                                                           String topicName, Boolean enableCsm,
+                                                           String disReason, Boolean enableFlt,
+                                                           String fltCondStr, StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        GroupConsumeCtrlEntity entity =
+                new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
+        entity.updModifyInfo(opEntity.getDataVerId(),
+                enableCsm, disReason, enableFlt, fltCondStr);
+        return addOrUpdGroupConsumeCtrlInfo(entity, sBuffer, result);
+    }
+
+    // Attention: compatible implementation for the old API
+    public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        // add group resource control record
+        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuffer, result)) {
+            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
+        }
+        // add topic control record
+        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
+                entity.getModifyUser(), sBuffer, result)) {
+            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
+        }
+        GroupConsumeCtrlEntity newEntity;
+        GroupConsumeCtrlEntity curEntity =
+                metaStoreService.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
+        if (curEntity == null) {
+            newEntity = new GroupConsumeCtrlEntity(entity,
+                    entity.getGroupName(), entity.getTopicName());
+            newEntity.updModifyInfo(entity.getDataVerId(),
+                    entity.isEnableConsume(), entity.getDisableReason(),
+                    entity.isEnableFilterConsume(), entity.getFilterCondStr());
+            metaStoreService.addGroupConsumeCtrlConf(newEntity, sBuffer, result);
+        } else {
+            newEntity = curEntity.clone();
+            newEntity.updBaseModifyInfo(entity);
+            if (newEntity.updModifyInfo(entity.getDataVerId(),
+                    entity.isEnableConsume(), entity.getDisableReason(),
+                    entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
+                metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuffer, result);
+            } else {
+                result.setSuccResult(null);
+            }
+        }
+        return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
+    }
+
     public GroupProcessResult modGroupConsumeCtrlInfo(BaseEntity opEntity, String groupName,
                                                       String topicName, Boolean enableCsm,
                                                       String disableRsn, Boolean enableFilter,
-                                                      String filterCondStr, StringBuilder sBuilder,
+                                                      String filterCondStr, StringBuilder sBuffer,
                                                       ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicName);
@@ -1889,7 +2075,7 @@ public class MetaDataManager implements Server {
         newEntity.updBaseModifyInfo(opEntity);
         if (newEntity.updModifyInfo(opEntity.getDataVerId(),
                 enableCsm, disableRsn, enableFilter, filterCondStr)) {
-            metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuilder, result);
+            metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuffer, result);
         } else {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     DataOpErrCode.DERR_UNCHANGED.getDescription());
@@ -1898,7 +2084,7 @@ public class MetaDataManager implements Server {
     }
 
     public GroupProcessResult modGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                                      StringBuilder sBuilder,
+                                                      StringBuilder sBuffer,
                                                       ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 metaStoreService.getConsumeCtrlByGroupAndTopic(
@@ -1908,17 +2094,21 @@ public class MetaDataManager implements Server {
                     DataOpErrCode.DERR_NOT_EXIST.getDescription());
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
-        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuilder, result)) {
+        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuffer, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
-        metaStoreService.updGroupConsumeCtrlConf(entity, sBuilder, result);
+        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
+                entity.getModifyUser(), sBuffer, result)) {
+            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
+        }
+        metaStoreService.updGroupConsumeCtrlConf(entity, sBuffer, result);
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
     public List<GroupProcessResult> delGroupConsumeCtrlConf(String operator,
                                                             Set<String> groupNameSet,
                                                             Set<String> topicNameSet,
-                                                            StringBuilder strBuffer,
+                                                            StringBuilder sBuffer,
                                                             ProcessResult result) {
         List<GroupProcessResult> retInfo = new ArrayList<>();
         if ((groupNameSet == null || groupNameSet.isEmpty())
@@ -1935,7 +2125,7 @@ public class MetaDataManager implements Server {
         for (String recKey : rmvRecords) {
             Tuple2<String, String> groupTopicTuple =
                     KeyBuilderUtils.splitRecKey2GroupTopic(recKey);
-            metaStoreService.delGroupConsumeCtrlConf(operator, recKey, strBuffer, result);
+            metaStoreService.delGroupConsumeCtrlConf(operator, recKey, sBuffer, result);
             retInfo.add(new GroupProcessResult(groupTopicTuple.getF1(),
                     groupTopicTuple.getF0(), result));
         }
@@ -1943,7 +2133,7 @@ public class MetaDataManager implements Server {
     }
 
     private boolean addIfAbsentGroupResConf(BaseEntity opEntity, String groupName,
-                                            StringBuilder sBuilder, ProcessResult result) {
+                                            StringBuilder sBuffer, ProcessResult result) {
         GroupResCtrlEntity resCtrlEntity =
                 this.metaStoreService.getGroupResCtrlConf(groupName);
         if (resCtrlEntity != null) {
@@ -1952,7 +2142,7 @@ public class MetaDataManager implements Server {
         }
         resCtrlEntity = new GroupResCtrlEntity(opEntity, groupName);
         resCtrlEntity.fillDefaultValue();
-        return this.metaStoreService.addGroupResCtrlConf(resCtrlEntity, sBuilder, result);
+        return this.metaStoreService.addGroupResCtrlConf(resCtrlEntity, sBuffer, result);
     }
 
     /**

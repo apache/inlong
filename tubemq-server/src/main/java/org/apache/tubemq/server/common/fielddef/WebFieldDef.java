@@ -233,7 +233,17 @@ public enum WebFieldDef {
             "Allowed broker client rate, same as alwdBrokerClientRate", RegexDef.TMP_NUMBER),
     @Deprecated
     GROUPJSONSET(83, "groupNameJsonSet", "gJsonSet", WebFieldType.JSONSET,
-            "The black list group set that needs to be added or modified");
+            "The black list group set that needs to be added or modified"),
+    REJOINWAIT(84, "reJoinWait", "rjWait", WebFieldType.INT,
+            "The duration for consumer rejoin rebalance", RegexDef.TMP_NUMBER),
+
+    COMPSCONSUMERID(85, "consumerId", "csmId", WebFieldType.COMPSTRING,
+            "consumer id", TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH,
+                   RegexDef.TMP_CONSUMERID),
+    ISENABLE(86, "isEnable", "isEnable",
+            WebFieldType.BOOLEAN, "With status if enable.");
+
+
 
 
     public final int id;

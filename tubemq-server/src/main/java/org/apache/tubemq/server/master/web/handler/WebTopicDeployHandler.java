@@ -215,14 +215,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         Map<Integer, List<TopicDeployEntity>> queryResult =
                 metaDataManager.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
         // build query result
@@ -309,7 +309,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIds = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         Map<Integer, Set<String>> brokerTopicConfigMap =
                 metaDataManager.getBrokerTopicConfigInfo(brokerIds);
         // build query result
@@ -348,13 +348,13 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHIP, false, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        boolean withIp = (Boolean) result.retData1;
+        boolean withIp = (Boolean) result.getRetData();
         Map<String, Map<Integer, String>> topicBrokerConfigMap =
                 metaDataManager.getTopicBrokerConfigInfo(topicNameSet);
         // build query result
@@ -410,14 +410,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         // get brokerPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
@@ -719,14 +719,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId info
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         // get and valid TopicPropGroup info
         if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -789,7 +789,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return result.success;
         }
         List<Map<String, String>> deployJsonArray =
-                (List<Map<String, String>>) result.retData1;
+                (List<Map<String, String>>) result.getRetData();
         TopicDeployEntity itemConf;
         Map<String, TopicDeployEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
@@ -806,7 +806,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
                 return result.success;
             }
-            String topicName = (String) result.retData1;
+            String topicName = (String) result.getRetData();
             // get broker configure info
             if (!getBrokerConfInfo(confMap, sBuffer, result)) {
                 return result.isSuccess();
@@ -920,14 +920,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId info
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         // modify record status
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (Integer brokerId : brokerIdSet) {

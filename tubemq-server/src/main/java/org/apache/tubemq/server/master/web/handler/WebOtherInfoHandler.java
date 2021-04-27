@@ -76,21 +76,21 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> inGroupNameSet = (Set<String>) result.retData1;
+        Set<String> inGroupNameSet = (Set<String>) result.getRetData();
         if (inGroupNameSet.isEmpty()) {
             if (!WebParameterUtils.getStringParamValue(req,
                     WebFieldDef.COMPSCONSUMEGROUP, false, null, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
                 return sBuffer;
             }
-            inGroupNameSet = (Set<String>) result.retData1;
+            inGroupNameSet = (Set<String>) result.getRetData();
         }
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         Set<String> queryGroupSet =
                 topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
@@ -139,7 +139,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 return sBuffer;
             }
         }
-        String strConsumeGroup = (String) result.retData1;
+        String strConsumeGroup = (String) result.getRetData();
         try {
             boolean isBandConsume = false;
             boolean isNotAllocate = false;

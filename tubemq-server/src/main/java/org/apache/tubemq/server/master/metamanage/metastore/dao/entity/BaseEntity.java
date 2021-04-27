@@ -85,16 +85,6 @@ public class BaseEntity implements Serializable, Cloneable {
 
     public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
         boolean changed = false;
-        if (TStringUtils.isNotBlank(opInfoEntity.getCreateUser())
-                && !Objects.equals(createUser, opInfoEntity.getCreateUser())) {
-            changed = true;
-            this.createUser = opInfoEntity.getCreateUser();
-        }
-        if (opInfoEntity.getCreateDate() != null
-                && !Objects.equals(createDate, opInfoEntity.getCreateDate())) {
-            changed = true;
-            this.setCreateDate(opInfoEntity.getCreateDate());
-        }
         if (TStringUtils.isNotBlank(opInfoEntity.getModifyUser())
                 && !Objects.equals(modifyUser, opInfoEntity.getModifyUser())) {
             changed = true;
@@ -113,6 +103,28 @@ public class BaseEntity implements Serializable, Cloneable {
         return changed;
     }
 
+    public boolean updQueryKeyInfo(long newDataVerId,
+                                   String newCreateUser,
+                                   String newModifyUser) {
+        boolean changed = false;
+        // check and set dataVersionId field
+        if (newDataVerId != TBaseConstants.META_VALUE_UNDEFINED
+                && this.dataVersionId != newDataVerId) {
+            changed = true;
+            this.dataVersionId = newDataVerId;
+        }
+        if (TStringUtils.isNotBlank(newCreateUser)
+                && !Objects.equals(createUser, newCreateUser)) {
+            changed = true;
+            this.createUser = newCreateUser;
+        }
+        if (TStringUtils.isNotBlank(newModifyUser)
+                && !Objects.equals(modifyUser, newModifyUser)) {
+            changed = true;
+            this.modifyUser = newModifyUser;
+        }
+        return changed;
+    }
 
     public boolean updBaseModifyInfo(long newDataVerId, String newCreateUser,
                                      Date newCreateDate, String newModifyUser,

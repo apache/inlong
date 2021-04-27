@@ -103,14 +103,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIds = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // get brokerIp info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPBROKERIP, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> brokerIpSet = (Set<String>) result.retData1;
+        Set<String> brokerIpSet = (Set<String>) result.getRetData();
         // get brokerPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
@@ -174,21 +174,21 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get isInclude info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ISINCLUDE, false, true, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean isInclude = (Boolean) result.retData1;
+        Boolean isInclude = (Boolean) result.getRetData();
         // get withTopic info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHTOPIC, false, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean withTopic = (Boolean) result.retData1;
+        Boolean withTopic = (Boolean) result.getRetData();
         // fill query entity fields
         qryEntity.updModifyInfo(qryEntity.getDataVerId(), brokerPort, brokerTlsPort,
                 brokerWebPort, regionId, groupId, mngStatus, brokerProps);
@@ -281,14 +281,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Boolean isReservedData = (Boolean) result.retData1;
+        Boolean isReservedData = (Boolean) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        Set<Integer> brokerIds = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         List<BrokerProcessResult> retInfo =
                 metaDataManager.delBrokerConfInfo(opEntity.getModifyUser(),
                         isReservedData, brokerIds, sBuffer, result);
@@ -390,7 +390,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
                 return sBuffer;
             }
-            Set<Integer> brokerIdSet = (Set<Integer>) result.retData1;
+            Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
             for (Integer brokerId : brokerIdSet) {
                 retInfo.add(metaDataManager.addOrUpdBrokerConfig(isAddOp, opEntity,
                         brokerId, "", brokerPort, brokerTlsPort, brokerWebPort,
@@ -525,7 +525,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             return result.success;
         }
         List<Map<String, String>> brokerJsonArray =
-                (List<Map<String, String>>) result.retData1;
+                (List<Map<String, String>>) result.getRetData();
         // check and get cluster default setting info
         ClusterSettingEntity defClusterSetting =
                 metaDataManager.getClusterDefSetting(false);
@@ -607,7 +607,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                         WebFieldDef.BROKERID, true, sBuffer, result)) {
                     return result.isSuccess();
                 }
-                Integer brokerId = (Integer) result.retData1;
+                Integer brokerId = (Integer) result.getRetData();
                 itemEntity = new BrokerConfEntity(itemOpEntity, brokerId, "");
                 itemEntity.updModifyInfo(itemOpEntity.getDataVerId(), brokerPort, brokerTlsPort,
                         brokerWebPort, regionId, groupId, mngStatus, brokerProps);
@@ -653,7 +653,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 WebFieldDef.BROKERIP, true, null, sBuffer, result)) {
             return result.success;
         }
-        String brokerIp = (String) result.retData1;
+        String brokerIp = (String) result.getRetData();
         // get brokerId
         if (!WebParameterUtils.getIntParamValue(paramCntr,
                 WebFieldDef.BROKERID, true, 0, 0, sBuffer, result)) {
@@ -708,7 +708,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 ManageStatus.STATUS_MANAGE_OFFLINE.getCode(), sBuffer, result)) {
             return result.success;
         }
-        int manageStatusId = (int) result.retData1;
+        int manageStatusId = (int) result.getRetData();
         try {
             ManageStatus mngStatus = ManageStatus.valueOf(manageStatusId);
             result.setSuccResult(mngStatus);
