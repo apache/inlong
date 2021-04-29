@@ -66,6 +66,13 @@ public enum ManageStatus {
         return new Tuple2<>(isAcceptPublish, isAcceptSubscribe);
     }
 
+    public boolean isAcceptSubscribe() {
+        return isAcceptSubscribe;
+    }
+
+    public boolean isAcceptPublish() {
+        return isAcceptPublish;
+    }
 
     public static ManageStatus valueOf(int code) {
         for (ManageStatus status : ManageStatus.values()) {

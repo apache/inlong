@@ -117,8 +117,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminNewQueryTopicCfgAndRunInfo(HttpServletRequest req) {
-        return innQueryTopicConfAndRunInfo(req, true);
+    public StringBuilder adminNewQueryTopicCfgAndRunInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        return innQueryTopicConfAndRunInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -127,8 +129,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminOldQueryTopicCfgAndRunInfo(HttpServletRequest req) {
-        return innQueryTopicConfAndRunInfo(req, false);
+    public StringBuilder adminOldQueryTopicCfgAndRunInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        return innQueryTopicConfAndRunInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -137,8 +141,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddTopicDeployInfo(HttpServletRequest req) {
-        return innAddOrUpdTopicDeployInfo(req, true);
+    public StringBuilder adminAddTopicDeployInfo(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        return innAddOrUpdTopicDeployInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -147,8 +153,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModifyTopicDeployInfo(HttpServletRequest req) {
-        return innAddOrUpdTopicDeployInfo(req, false);
+    public StringBuilder adminModifyTopicDeployInfo(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        return innAddOrUpdTopicDeployInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -157,8 +165,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddTopicDeployInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdTopicDeployInfo(req, true);
+    public StringBuilder adminBatchAddTopicDeployInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        return innBatchAddOrUpdTopicDeployInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -167,8 +177,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchUpdTopicDeployInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdTopicDeployInfo(req, false);
+    public StringBuilder adminBatchUpdTopicDeployInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        return innBatchAddOrUpdTopicDeployInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -177,8 +189,11 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDelTopicDeployInfo(HttpServletRequest req) {
-        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_SOFT_DELETE);
+    public StringBuilder adminDelTopicDeployInfo(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        return innModifyTopicDeployStatusInfo(req,
+                sBuffer, result, TopicStsChgType.STATUS_CHANGE_SOFT_DELETE);
     }
 
     /**
@@ -187,8 +202,11 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminRmvTopicDeployInfo(HttpServletRequest req) {
-        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_REMOVE);
+    public StringBuilder adminRmvTopicDeployInfo(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        return innModifyTopicDeployStatusInfo(req,
+                sBuffer, result, TopicStsChgType.STATUS_CHANGE_REMOVE);
     }
 
     /**
@@ -197,8 +215,11 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminRedoDeletedTopicDeployInfo(HttpServletRequest req) {
-        return innModifyTopicDeployStatusInfo(req, TopicStsChgType.STATUS_CHANGE_REDO_SFDEL);
+    public StringBuilder adminRedoDeletedTopicDeployInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        return innModifyTopicDeployStatusInfo(req,
+                sBuffer, result, TopicStsChgType.STATUS_CHANGE_REDO_SFDEL);
     }
 
     /**
@@ -207,9 +228,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryBrokerTopicCfgAndRunInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryBrokerTopicCfgAndRunInfo(HttpServletRequest req,
+                                                            StringBuilder sBuffer,
+                                                            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -301,9 +322,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -340,9 +361,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQuerySimpleBrokerId(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQuerySimpleBrokerId(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -395,9 +416,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder innQueryTopicConfAndRunInfo(HttpServletRequest req, boolean isNewVer) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    private StringBuilder innQueryTopicConfAndRunInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result,
+                                                      boolean isNewVer) {
         TopicDeployEntity qryEntity = new TopicDeployEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -698,15 +720,10 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         return sBuffer;
     }
 
-    private StringBuilder innAddOrUpdTopicDeployInfo(HttpServletRequest req, boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    private StringBuilder innAddOrUpdTopicDeployInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result,
+                                                     boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -751,15 +768,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdTopicDeployInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result,
                                                           boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -899,15 +910,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innModifyTopicDeployStatusInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result,
                                                          TopicStsChgType chgType) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

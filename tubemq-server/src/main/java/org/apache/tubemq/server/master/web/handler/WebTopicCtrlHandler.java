@@ -73,9 +73,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -114,8 +114,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req) {
-        return innAddOrUpdTopicCtrlInfo(req, true);
+    public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
+        return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
 
     }
 
@@ -125,8 +127,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdTopicCtrlInfo(req, true);
+    public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -135,8 +139,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req) {
-        return innAddOrUpdTopicCtrlInfo(req, false);
+    public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
+        return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -145,8 +151,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdTopicCtrlInfo(req, false);
+    public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -155,15 +163,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -187,15 +189,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         return buildRetInfo(retInfo, sBuffer);
     }
 
-    private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req, boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result,
+                                                   boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -249,15 +246,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         return buildRetInfo(retInfo, sBuffer);
     }
 
-    private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req, boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result,
+                                                        boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

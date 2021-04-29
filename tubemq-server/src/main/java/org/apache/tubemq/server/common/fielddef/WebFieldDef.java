@@ -241,9 +241,18 @@ public enum WebFieldDef {
             "consumer id", TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH,
                    RegexDef.TMP_CONSUMERID),
     ISENABLE(86, "isEnable", "isEnable",
-            WebFieldType.BOOLEAN, "With status if enable.");
+            WebFieldType.BOOLEAN, "With status if enable."),
+    RELREASON(87, "relReason", "rRsn", WebFieldType.STRING,
+            "Release reason", TBaseConstants.META_MAX_OPREASON_LENGTH),
+    WITHDETAIL(88, "withDetail", "wDtl",
+            WebFieldType.BOOLEAN, "With broker configure detail info."),
+    ONLYABNORMAL(89, "onlyAbnormal", "oAbn",
+               WebFieldType.BOOLEAN, "only query abnormal broker info."),
 
-
+    ONLYAUTOFBD(90, "onlyAutoForbidden", "oAfb",
+                 WebFieldType.BOOLEAN, "only auto forbidden abnormal broker info."),
+    ONLYENABLETLS(91, "onlyEnableTLS", "oEtls",
+                WebFieldType.BOOLEAN, "only enable tls broker info.");
 
 
     public final int id;

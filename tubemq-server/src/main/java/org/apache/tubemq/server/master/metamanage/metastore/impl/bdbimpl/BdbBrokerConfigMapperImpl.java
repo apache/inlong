@@ -23,6 +23,7 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -223,19 +224,20 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
                 }
             }
         }
+        // get broker configures
         if (qryBrokerKey == null) {
-            qryBrokerKey = new HashSet<>(brokerConfCache.keySet());
-        }
-        if (qryBrokerKey.isEmpty()) {
-            return retMap;
-        }
-        for (Integer brokerId : qryBrokerKey) {
-            BrokerConfEntity entity = brokerConfCache.get(brokerId);
-            if (entity == null
-                    || (qryEntity != null && !entity.isMatched(qryEntity))) {
-                continue;
+            for (BrokerConfEntity entity :  brokerConfCache.values()) {
+                if (entity != null && entity.isMatched(qryEntity)) {
+                    retMap.put(entity.getBrokerId(), entity);
+                }
             }
-            retMap.put(entity.getBrokerId(), entity);
+        } else {
+            for (Integer brokerId : qryBrokerKey) {
+                BrokerConfEntity entity = brokerConfCache.get(brokerId);
+                if (entity != null && entity.isMatched(qryEntity)) {
+                    retMap.put(entity.getBrokerId(), entity);
+                }
+            }
         }
         return retMap;
     }

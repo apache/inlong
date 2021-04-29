@@ -94,14 +94,15 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req  HttpServletRequest
      * @return
      */
-    public StringBuilder getGroupAddressStrInfo(HttpServletRequest req) {
-        StringBuilder strBuffer = new StringBuilder(512);
+    public StringBuilder getGroupAddressStrInfo(HttpServletRequest req,
+                                                StringBuilder sBuffer,
+                                                ProcessResult result) {
         ClusterGroupVO clusterGroupVO = metaDataManager.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
             WebParameterUtils.buildFailResultWithBlankData(
-                    500, "GetBrokerGroup info error", strBuffer);
+                    500, "GetBrokerGroup info error", sBuffer);
         } else {
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
+            sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
                     .append(clusterGroupVO.getGroupName()).append("\",\"isPrimaryNodeActive\":")
                     .append(clusterGroupVO.isPrimaryNodeActive()).append(",\"data\":[");
             int count = 0;
@@ -112,9 +113,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                         continue;
                     }
                     if (count++ > 0) {
-                        strBuffer.append(",");
+                        sBuffer.append(",");
                     }
-                    strBuffer.append("{\"index\":").append(count).append(",\"name\":\"").append(node.getNodeName())
+                    sBuffer.append("{\"index\":").append(count)
+                            .append(",\"name\":\"").append(node.getNodeName())
                             .append("\",\"hostName\":\"").append(node.getHostName())
                             .append("\",\"port\":\"").append(node.getPort())
                             .append("\",\"statusInfo\":{").append("\"nodeStatus\":\"")
@@ -122,10 +124,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                             .append(node.getJoinTime()).append("\"}}");
                 }
             }
-            strBuffer.append("],\"count\":").append(count).append(",\"groupStatus\":\"")
+            sBuffer.append("],\"count\":").append(count).append(",\"groupStatus\":\"")
                     .append(clusterGroupVO.getGroupStatus()).append("\"}");
         }
-        return strBuffer;
+        return sBuffer;
     }
 
     /**
@@ -134,15 +136,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req  HttpServletRequest
      * @return
      */
-    public StringBuilder transferCurrentMaster(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder transferCurrentMaster(HttpServletRequest req,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
         try {
             metaDataManager.transferMaster();
             WebParameterUtils.buildSuccessResult(sBuffer,
@@ -159,8 +155,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
         return buildRetInfo(sBuffer, true);
     }
 
@@ -170,8 +167,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req) {
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         return buildRetInfo(sBuffer, false);
     }
 
@@ -181,8 +179,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
-        return innAddOrUpdDefFlowControlRule(req, true, true);
+    public StringBuilder adminSetClusterDefSetting(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, true);
     }
 
     /**
@@ -191,8 +191,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req) {
-        return innAddOrUpdDefFlowControlRule(req, false, true);
+    public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, true);
     }
 
     /**
@@ -201,8 +203,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req) {
-        return innAddOrUpdDefFlowControlRule(req, true, false);
+    public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, false);
     }
 
     /**
@@ -211,8 +215,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req) {
-        return innAddOrUpdDefFlowControlRule(req, false, false);
+    public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, false);
     }
 
 
@@ -222,9 +228,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryClusterTopicView(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryClusterTopicView(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
@@ -319,15 +325,9 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -356,15 +356,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innAddOrUpdDefFlowControlRule(HttpServletRequest req,
-                                                        boolean isAddOp, boolean isNewVer) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result,
+                                                        boolean isAddOp,
+                                                        boolean isNewVer) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

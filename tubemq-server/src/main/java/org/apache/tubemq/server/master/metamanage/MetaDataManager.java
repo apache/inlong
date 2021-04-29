@@ -480,7 +480,9 @@ public class MetaDataManager implements Server {
                     metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId());
             if (curEntity == null) {
                 result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                        sBuffer.append("Not found broker configure by brokerId=")
+                                .append(entity.getBrokerId()).toString());
+                sBuffer.delete(0, sBuffer.length());
             } else {
                 BrokerConfEntity newEntity = curEntity.clone();
                 newEntity.updBaseModifyInfo(entity);
@@ -489,9 +491,17 @@ public class MetaDataManager implements Server {
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
                     metaStoreService.updBrokerConf(newEntity, sBuffer, result);
+                    // update broker configure change status
+                    BrokerSyncStatusInfo brokerSyncStatusInfo =
+                            getBrokerRunSyncStatusInfo(entity.getBrokerId());
+                    if (result.isSuccess()) {
+                        if (brokerSyncStatusInfo != null) {
+                            updateBrokerConfChanged(entity.getBrokerId(),
+                                    true, true, sBuffer, result);
+                        }
+                    }
                 } else {
-                    result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                            DataOpErrCode.DERR_UNCHANGED.getDescription());
+                    result.setSuccResult(null);
                 }
             }
         }
@@ -587,6 +597,109 @@ public class MetaDataManager implements Server {
                                                             Set<String> brokerIpSet,
                                                             BrokerConfEntity qryEntity) {
         return metaStoreService.getBrokerConfInfo(brokerIdSet, brokerIpSet, qryEntity);
+    }
+
+    /**
+     * Change broker configure status
+     *
+     * @param opEntity      operator
+     * @param brokerIdSet   need deleted broker id set
+     * @param newMngStatus  manage status
+     * @param sBuffer       the print information string buffer
+     * @param result        the process result return
+     * @return true if success otherwise false
+     */
+    public List<BrokerProcessResult> changeBrokerConfStatus(BaseEntity opEntity,
+                                                            Set<Integer> brokerIdSet,
+                                                            ManageStatus newMngStatus,
+                                                            StringBuilder sBuffer,
+                                                            ProcessResult result) {
+        BrokerConfEntity curEntry;
+        BrokerConfEntity newEntry;
+        List<BrokerProcessResult> retInfo = new ArrayList<>();
+        // check target broker configure's status
+        for (Integer brokerId : brokerIdSet) {
+            curEntry = metaStoreService.getBrokerConfByBrokerId(brokerId);
+            if (curEntry == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        "The broker configure not exist!");
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            if (curEntry.getManageStatus() == newMngStatus) {
+                result.setSuccResult(null);
+                retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
+                continue;
+            }
+            if (newMngStatus == ManageStatus.STATUS_MANAGE_OFFLINE) {
+                if (curEntry.getManageStatus().getCode()
+                        < ManageStatus.STATUS_MANAGE_ONLINE.getCode()) {
+                    result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                            sBuffer.append("Broker by brokerId=").append(brokerId)
+                                    .append(" on draft status, not need offline operate!")
+                                    .toString());
+                    sBuffer.delete(0, sBuffer.length());
+                    retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                    continue;
+                }
+            }
+            newEntry = curEntry.clone();
+            newEntry.updBaseModifyInfo(opEntity);
+            if (newEntry.updModifyInfo(opEntity.getDataVerId(),
+                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                    TBaseConstants.META_VALUE_UNDEFINED, newMngStatus, null)) {
+                metaStoreService.updBrokerConf(newEntry, sBuffer, result);
+                if (result.isSuccess()) {
+                    triggerBrokerConfDataSync(newEntry,
+                            curEntry.getManageStatus().getCode(), true, sBuffer, result);
+                }
+            } else {
+                result.setSuccResult(null);
+            }
+            retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
+        }
+        return retInfo;
+    }
+
+    /**
+     * Change broker configure status
+     *
+     * @param opEntity      operator
+     * @param brokerIdSet   need deleted broker id set
+     * @param sBuffer       the print information string buffer
+     * @param result        the process result return
+     * @return true if success otherwise false
+     */
+    public List<BrokerProcessResult> reloadBrokerConfInfo(BaseEntity opEntity,
+                                                          Set<Integer> brokerIdSet,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        BrokerConfEntity curEntry;
+        List<BrokerProcessResult> retInfo = new ArrayList<>();
+        // check target broker configure's status
+        for (Integer brokerId : brokerIdSet) {
+            curEntry = metaStoreService.getBrokerConfByBrokerId(brokerId);
+            if (curEntry == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        "The broker configure not exist!");
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            if (!curEntry.getManageStatus().isOnlineStatus()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        sBuffer.append("The broker manage status by brokerId=").append(brokerId)
+                                .append(" not in online status, can't reload this configure! ")
+                                .toString());
+                sBuffer.delete(0, sBuffer.length());
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            triggerBrokerConfDataSync(curEntry,
+                    curEntry.getManageStatus().getCode(), true, sBuffer, result);
+            retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
+        }
+        return retInfo;
     }
 
     /**
