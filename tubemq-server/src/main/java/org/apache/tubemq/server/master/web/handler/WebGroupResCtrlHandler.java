@@ -65,9 +65,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
         // build query entity
         GroupResCtrlEntity entity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -131,8 +131,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req) {
-        return innAddOrUpdGroupResCtrlConf(req, true);
+    public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
+        return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
     /**
@@ -141,8 +143,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupResCtrlConf(req, true);
+    public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
     /**
@@ -151,8 +155,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req) {
-        return innAddOrUpdGroupResCtrlConf(req, false);
+    public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
+        return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
     /**
@@ -161,8 +167,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupResCtrlConf(req, false);
+    public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
     /**
@@ -171,15 +179,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -201,15 +203,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupResCtrlConf(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result,
                                                       boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -277,15 +273,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result,
                                                            boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

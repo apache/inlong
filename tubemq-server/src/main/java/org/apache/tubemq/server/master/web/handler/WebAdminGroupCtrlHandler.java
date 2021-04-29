@@ -103,9 +103,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity entity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -157,9 +157,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -216,9 +216,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -298,9 +298,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
         // build query entity
         GroupResCtrlEntity entity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -359,15 +359,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req,
+                                                StringBuilder sBuffer,
+                                                ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -405,15 +399,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -441,15 +429,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -488,15 +470,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -534,15 +510,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -570,15 +540,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -611,8 +575,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req) {
-        return innAddOrModGroupFilterCondInfo(req, true);
+    public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrModGroupFilterCondInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -621,8 +587,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req) {
-        return innAddOrModGroupFilterCondInfo(req, false);
+    public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrModGroupFilterCondInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -631,8 +599,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupFilterCondInfo(req, true);
+    public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -641,8 +611,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupFilterCondInfo(req, false);
+    public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -651,15 +623,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -697,15 +663,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -772,8 +732,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req) {
-        return innAddOrUpdConsumeGroupSettingInfo(req, true);
+    public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -782,8 +744,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req) {
-        return innAddOrUpdConsumeGroupSettingInfo(req, false);
+    public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -792,15 +756,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -829,15 +787,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -886,15 +838,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innAddOrUpdConsumeGroupSettingInfo(HttpServletRequest req,
+                                                             StringBuilder sBuffer,
+                                                             ProcessResult result,
                                                              boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -947,15 +893,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innAddOrModGroupFilterCondInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result,
                                                          boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -1013,15 +953,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innBatchAddOrUpdGroupFilterCondInfo(HttpServletRequest req,
+                                                              StringBuilder sBuffer,
+                                                              ProcessResult result,
                                                               boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

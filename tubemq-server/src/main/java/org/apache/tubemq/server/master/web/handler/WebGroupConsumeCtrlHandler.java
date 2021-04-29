@@ -65,9 +65,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryGroupConsumeCtrlInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -142,8 +142,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminAddGroupConsumeCtrlInfo(HttpServletRequest req) {
-        return innAddOrUpdGroupConsumeCtrlInfo(req, true);
+    public StringBuilder adminAddGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        return innAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -152,8 +154,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchAddGroupConsumeCtrlInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupConsumeCtrlInfo(req, true);
+    public StringBuilder adminBatchAddGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        return innBatchAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -162,8 +166,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminModGroupConsumeCtrlInfo(HttpServletRequest req) {
-        return innAddOrUpdGroupConsumeCtrlInfo(req, false);
+    public StringBuilder adminModGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        return innAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -172,8 +178,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminBatchModGroupConsumeCtrlInfo(HttpServletRequest req) {
-        return innBatchAddOrUpdGroupConsumeCtrlInfo(req, false);
+    public StringBuilder adminBatchModGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        return innBatchAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
@@ -182,15 +190,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDelGroupConsumeCtrlInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDelGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -220,15 +222,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result,
                                                           boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -292,15 +288,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                               StringBuilder sBuffer,
+                                                               ProcessResult result,
                                                                boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);

@@ -67,9 +67,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder getSubscribeInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(1024);
+    public StringBuilder getSubscribeInfo(HttpServletRequest req,
+                                          StringBuilder sBuffer,
+                                          ProcessResult result) {
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
@@ -127,9 +127,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
      * @return output as JSON
      */
     // #lizard forgives
-    public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(1024);
+    public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         // get group name
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {

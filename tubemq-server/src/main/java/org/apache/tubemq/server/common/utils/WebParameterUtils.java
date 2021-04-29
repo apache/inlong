@@ -1266,16 +1266,16 @@ public class WebParameterUtils {
     /**
      * Valid execution authorization info
      * @param req        Http Servlet Request
-     * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param master     current master object
      * @param result     process result
      * @return valid result for the parameter value
      */
-    public static boolean validReqAuthorizeInfo(HttpServletRequest req, WebFieldDef fieldDef,
-                                                boolean required, TMaster master,
-                                                StringBuilder sBuffer, ProcessResult result) {
-        if (!getStringParamValue(req, fieldDef, required, null, sBuffer, result)) {
+    public static boolean validReqAuthorizeInfo(HttpServletRequest req, boolean required,
+                                                TMaster master, StringBuilder sBuffer,
+                                                ProcessResult result) {
+        if (!getStringParamValue(req, WebFieldDef.ADMINAUTHTOKEN,
+                required, null, sBuffer, result)) {
             return result.isSuccess();
         }
         String paramValue = (String) result.getRetData();

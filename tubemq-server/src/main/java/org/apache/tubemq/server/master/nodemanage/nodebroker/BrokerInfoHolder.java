@@ -33,7 +33,6 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.tubemq.server.master.web.handler.WebBrokerDefConfHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,12 +272,9 @@ public class BrokerInfoHolder {
                     oldEntity.isBrokerLoaded(), oldEntity.getRecordCreateUser(),
                     oldEntity.getRecordCreateDate(), "Broker AutoReport",
                     new Date());
-            boolean isNeedFastStart =
-                WebBrokerDefConfHandler.isBrokerStartNeedFast(brokerConfManager,
-                    newEntity.getBrokerId(), oldEntity.getManageStatus(), newEntity.getManageStatus());
             brokerConfManager.confModBrokerDefaultConfig(newEntity);
             brokerConfManager.triggerBrokerConfDataSync(newEntity,
-                oldEntity.getManageStatus(), isNeedFastStart);
+                oldEntity.getManageStatus(), true);
             return true;
         } catch (Throwable e1) {
             return false;

@@ -146,7 +146,9 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         return manageStatus;
     }
 
-
+    public String getManageStatusStr() {
+        return manageStatus.getDescription();
+    }
 
     public void setManageStatus(ManageStatus manageStatus) {
         this.manageStatus = manageStatus;
@@ -400,6 +402,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
                     .append(",\"brokerWebPort\":").append(brokerWebPort)
                     .append(",\"manageStatus\":\"").append(manageSts).append("\"")
+                    .append(",\"acceptPublish\":").append(manageStatus.isAcceptPublish())
+                    .append(",\"acceptSubscribe\":").append(manageStatus.isAcceptSubscribe())
                     .append(",\"isConfChanged\":").append(isConfDataUpdated)
                     .append(",\"isConfLoaded\":").append(isBrokerLoaded)
                     .append(",\"regionId\":").append(regionId)
@@ -411,6 +415,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"bTlsPort\":").append(brokerTLSPort)
                     .append(",\"bWebPort\":").append(brokerWebPort)
                     .append(",\"mSts\":\"").append(manageSts).append("\"")
+                    .append(",\"accPub\":").append(manageStatus.isAcceptPublish())
+                    .append(",\"accSub\":").append(manageStatus.isAcceptSubscribe())
                     .append(",\"isConfChg\":").append(isConfDataUpdated)
                     .append(",\"isConfLd\":").append(isBrokerLoaded)
                     .append(",\"rId\":").append(regionId)

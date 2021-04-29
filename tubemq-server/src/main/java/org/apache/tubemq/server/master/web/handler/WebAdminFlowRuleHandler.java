@@ -66,9 +66,9 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminQueryGroupFlowCtrlRule(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
+    public StringBuilder adminQueryGroupFlowCtrlRule(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
         // build query entity
         GroupResCtrlEntity entity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -124,8 +124,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminSetGroupFlowCtrlRule(HttpServletRequest req) {
-        return innAddOrUpdGroupFlowCtrlRule(req, true);
+    public StringBuilder adminSetGroupFlowCtrlRule(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdGroupFlowCtrlRule(req, sBuffer, result, true);
     }
 
     /**
@@ -134,8 +136,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminUpdGroupFlowCtrlRule(HttpServletRequest req) {
-        return innAddOrUpdGroupFlowCtrlRule(req, false);
+    public StringBuilder adminUpdGroupFlowCtrlRule(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdGroupFlowCtrlRule(req, sBuffer, result, false);
     }
 
     /**
@@ -144,15 +148,9 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    public StringBuilder adminDelGroupFlowCtrlRule(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    public StringBuilder adminDelGroupFlowCtrlRule(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
@@ -182,15 +180,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
      * @param req
      * @return
      */
-    private StringBuilder innAddOrUpdGroupFlowCtrlRule(HttpServletRequest req, boolean isAddOp) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuffer = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
-            return sBuffer;
-        }
+    private StringBuilder innAddOrUpdGroupFlowCtrlRule(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result,
+                                                       boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
