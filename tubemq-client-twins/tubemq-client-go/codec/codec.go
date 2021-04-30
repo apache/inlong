@@ -36,40 +36,49 @@ const (
 	beginTokenLen         uint32 = 4
 )
 
-type Framer struct {
+type TransportResponse interface {
+	GetSerialNo() uint32
+	GetResponseBuf() []byte
+}
+
+type Decoder interface {
+	Decode() (TransportResponse, error)
+}
+
+type TubeMQDecoder struct {
 	reader io.Reader
 	msg    []byte
 }
 
-func New(reader io.Reader) *Framer {
+func New(reader io.Reader) *TubeMQDecoder {
 	bufferReader := bufio.NewReaderSize(reader, maxBufferSize)
-	return &Framer{
+	return &TubeMQDecoder{
 		msg:    make([]byte, defaultMsgSize),
 		reader: bufferReader,
 	}
 }
 
-func (f *Framer) Decode() (*FrameResponse, error) {
-	num, err := io.ReadFull(f.reader, f.msg[:frameHeadLen])
+func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
+	num, err := io.ReadFull(t.reader, t.msg[:frameHeadLen])
 	if err != nil {
 		return nil, err
 	}
 	if num != int(frameHeadLen) {
 		return nil, errors.New("framer: read frame header num invalid")
 	}
-	token := binary.BigEndian.Uint32(f.msg[:beginTokenLen])
+	token := binary.BigEndian.Uint32(t.msg[:beginTokenLen])
 	if token != RPCProtocolBeginToken {
 		return nil, errors.New("framer: read framer rpc protocol begin token not match")
 	}
-	num, err = io.ReadFull(f.reader, f.msg[frameHeadLen:frameHeadLen+listSizeLen])
+	num, err = io.ReadFull(t.reader, t.msg[frameHeadLen:frameHeadLen+listSizeLen])
 	if num != int(listSizeLen) {
 		return nil, errors.New("framer: read invalid list size num")
 	}
-	listSize := binary.BigEndian.Uint32(f.msg[frameHeadLen : frameHeadLen+listSizeLen])
+	listSize := binary.BigEndian.Uint32(t.msg[frameHeadLen : frameHeadLen+listSizeLen])
 	totalLen := int(frameHeadLen)
 	size := make([]byte, 4)
 	for i := 0; i < int(listSize); i++ {
-		n, err := io.ReadFull(f.reader, size)
+		n, err := io.ReadFull(t.reader, size)
 		if err != nil {
 			return nil, err
 		}
@@ -78,13 +87,13 @@ func (f *Framer) Decode() (*FrameResponse, error) {
 		}
 
 		s := int(binary.BigEndian.Uint32(size))
-		if totalLen+s > len(f.msg) {
-			data := f.msg[:totalLen]
-			f.msg = make([]byte, totalLen+s)
-			copy(f.msg, data[:])
+		if totalLen+s > len(t.msg) {
+			data := t.msg[:totalLen]
+			t.msg = make([]byte, totalLen+s)
+			copy(t.msg, data[:])
 		}
 
-		num, err = io.ReadFull(f.reader, f.msg[totalLen:totalLen+s])
+		num, err = io.ReadFull(t.reader, t.msg[totalLen:totalLen+s])
 		if err != nil {
 			return nil, err
 		}
@@ -94,31 +103,29 @@ func (f *Framer) Decode() (*FrameResponse, error) {
 		totalLen += s
 	}
 
-	data := make([]byte, totalLen - int(frameHeadLen))
-	copy(data, f.msg[frameHeadLen:totalLen])
+	data := make([]byte, totalLen-int(frameHeadLen))
+	copy(data, t.msg[frameHeadLen:totalLen])
 
-	return &FrameResponse{
-		serialNo:    binary.BigEndian.Uint32(f.msg[beginTokenLen : beginTokenLen+serialNoLen]),
+	return TubeMQResponse{
+		serialNo:    binary.BigEndian.Uint32(t.msg[beginTokenLen : beginTokenLen+serialNoLen]),
 		responseBuf: data,
 	}, nil
 }
 
-type FrameRequest struct {
-	requestID uint32
-	req       []byte
+type TubeMQRequest struct {
+	serialNo uint32
+	req      []byte
 }
 
-type FrameResponse struct {
+type TubeMQResponse struct {
 	serialNo    uint32
 	responseBuf []byte
 }
 
-func (f *FrameResponse) GetSerialNo() uint32 {
-	return f.serialNo
+func (t TubeMQResponse) GetSerialNo() uint32 {
+	return t.serialNo
 }
 
-func (f *FrameResponse) GetResponseBuf() []byte {
-	return f.responseBuf
+func (t TubeMQResponse) GetResponseBuf() []byte {
+	return t.responseBuf
 }
-
-type Codec struct{}

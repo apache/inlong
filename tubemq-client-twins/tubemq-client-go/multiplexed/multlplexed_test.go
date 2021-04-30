@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package pool
+package multiplexed
 
 import (
 	"bytes"
@@ -92,7 +92,7 @@ func TestBasicMultiplexed(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	m := New()
+	m := NewPool()
 	mc, err := m.Get(ctx, address, serialNo)
 	body := []byte("hello world")
 
@@ -109,7 +109,7 @@ func TestBasicMultiplexed(t *testing.T) {
 
 func TestConcurrentMultiplexed(t *testing.T) {
 	count := 1000
-	m := New()
+	m := NewPool()
 	wg := sync.WaitGroup{}
 	wg.Add(count)
 	for i := 0; i < count; i++ {
