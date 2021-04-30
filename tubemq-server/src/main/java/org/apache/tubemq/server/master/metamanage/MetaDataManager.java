@@ -2172,52 +2172,6 @@ public class MetaDataManager implements Server {
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
-    public GroupProcessResult modGroupConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                                      String topicName, Boolean enableCsm,
-                                                      String disableRsn, Boolean enableFilter,
-                                                      String filterCondStr, StringBuilder sBuffer,
-                                                      ProcessResult result) {
-        GroupConsumeCtrlEntity curEntity =
-                metaStoreService.getConsumeCtrlByGroupAndTopic(groupName, topicName);
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    DataOpErrCode.DERR_NOT_EXIST.getDescription());
-            return new GroupProcessResult(groupName, topicName, result);
-        }
-        GroupConsumeCtrlEntity newEntity = curEntity.clone();
-        newEntity.updBaseModifyInfo(opEntity);
-        if (newEntity.updModifyInfo(opEntity.getDataVerId(),
-                enableCsm, disableRsn, enableFilter, filterCondStr)) {
-            metaStoreService.updGroupConsumeCtrlConf(newEntity, sBuffer, result);
-        } else {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    DataOpErrCode.DERR_UNCHANGED.getDescription());
-        }
-        return new GroupProcessResult(groupName, topicName, result);
-    }
-
-    public GroupProcessResult modGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
-        GroupConsumeCtrlEntity curEntity =
-                metaStoreService.getConsumeCtrlByGroupAndTopic(
-                        entity.getGroupName(), entity.getTopicName());
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    DataOpErrCode.DERR_NOT_EXIST.getDescription());
-            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
-        }
-        if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuffer, result)) {
-            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
-        }
-        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
-                entity.getModifyUser(), sBuffer, result)) {
-            return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
-        }
-        metaStoreService.updGroupConsumeCtrlConf(entity, sBuffer, result);
-        return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
-    }
-
     public List<GroupProcessResult> delGroupConsumeCtrlConf(String operator,
                                                             Set<String> groupNameSet,
                                                             Set<String> topicNameSet,
@@ -2278,6 +2232,21 @@ public class MetaDataManager implements Server {
      */
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByTopic(String topicName) {
         return metaStoreService.getConsumeCtrlByTopicName(topicName);
+    }
+
+    public Set<String> getDisableConsumeTopicByGroupName(String groupName) {
+        Set<String> disTopicSet = new HashSet<>();
+        List<GroupConsumeCtrlEntity> qryResult =
+                metaStoreService.getConsumeCtrlByGroupName(groupName);
+        if (qryResult.isEmpty()) {
+            return disTopicSet;
+        }
+        for (GroupConsumeCtrlEntity ctrlEntity : qryResult) {
+            if (!ctrlEntity.isEnableConsume()) {
+                disTopicSet.add(ctrlEntity.getTopicName());
+            }
+        }
+        return disTopicSet;
     }
 
     /**

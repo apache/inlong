@@ -589,7 +589,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 Tuple2<Boolean, Boolean> pubSubTuple =
                         entity.getManageStatus().getPubSubStatus();
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        brokerConfManager.getBrokerRunSyncStatusInfo(entity.getBrokerId());
+                        metaDataManager.getBrokerRunSyncStatusInfo(entity.getBrokerId());
                 if (brokerSyncStatusInfo == null) {
                     sBuffer.append(",\"runStatus\":\"unRegister\",\"subStatus\":\"-\"")
                             .append(",\"isConfChanged\":\"-\",\"isConfLoaded\":\"-\",\"isBrokerOnline\":\"-\"")

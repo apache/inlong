@@ -113,17 +113,17 @@ public class BrokerSyncStatusInfo {
     }
 
     //Constructor
-    public BrokerSyncStatusInfo(BrokerConfEntity bdbEntity,
+    public BrokerSyncStatusInfo(BrokerConfEntity brokerEntity,
                                 List<String> brokerTopicSetConfInfo) {
-        updateBrokerConfigureInfo(bdbEntity.getBrokerDefaultConfInfo(),
+        updateBrokerConfigureInfo(brokerEntity.getBrokerDefaultConfInfo(),
                 brokerTopicSetConfInfo);
-        this.brokerManageStatus = bdbEntity.getManageStatus().getCode();
-        this.isBrokerConfChanged = bdbEntity.isConfDataUpdated();
-        this.isBrokerLoaded = bdbEntity.isBrokerLoaded();
-        this.brokerId = bdbEntity.getBrokerId();
-        this.brokerIp = bdbEntity.getBrokerIp();
-        this.brokerPort = bdbEntity.getBrokerPort();
-        this.brokerTLSPort = bdbEntity.getBrokerTLSPort();
+        this.brokerManageStatus = brokerEntity.getManageStatus().getCode();
+        this.isBrokerConfChanged = brokerEntity.isConfDataUpdated();
+        this.isBrokerLoaded = brokerEntity.isBrokerLoaded();
+        this.brokerId = brokerEntity.getBrokerId();
+        this.brokerIp = brokerEntity.getBrokerIp();
+        this.brokerPort = brokerEntity.getBrokerPort();
+        this.brokerTLSPort = brokerEntity.getBrokerTLSPort();
         this.isFastStart = false;
         if (this.brokerManageStatus > TStatusConstants.STATUS_MANAGE_APPLY) {
             currBrokerConfId.incrementAndGet();
