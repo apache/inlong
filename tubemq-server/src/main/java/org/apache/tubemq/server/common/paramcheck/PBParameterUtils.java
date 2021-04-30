@@ -18,7 +18,6 @@
 package org.apache.tubemq.server.common.paramcheck;
 
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +34,8 @@ import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.MasterConfig;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.slf4j.Logger;
@@ -183,7 +182,7 @@ public class PBParameterUtils {
 
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
                                                           final MasterConfig masterConfig,
-                                                          final BrokerConfManager defaultBrokerConfManager,
+                                                          final MetaDataManager defMetaDataManager,
                                                           final TopicPSInfoManager topicPSInfoManager,
                                                           final StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
@@ -204,30 +203,15 @@ public class PBParameterUtils {
                     "[Parameter error] totalSourceCount must over zero!");
             return retResult;
         }
-        BdbConsumeGroupSettingEntity offsetResetGroupEntity =
-                defaultBrokerConfManager.getBdbConsumeGroupSetting(inConsumerInfo.getGroup());
+        GroupResCtrlEntity offsetResetGroupEntity =
+                defMetaDataManager.confGetGroupResCtrlConf(inConsumerInfo.getGroup());
         if (masterConfig.isStartOffsetResetCheck()) {
-            if ((offsetResetGroupEntity == null)
-                    || (offsetResetGroupEntity.getEnableBind() != 1)) {
-                if (offsetResetGroupEntity == null) {
-                    retResult.setCheckResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            "[unauthorized subscribe] ConsumeGroup must be authorized by administrator before" +
-                                    " using bound subscribe, please contact to administrator!");
-                } else {
-                    retResult.setCheckResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            "[unauthorized subscribe] ConsumeGroup's authorization status is not enable for" +
-                                    " using bound subscribe, please contact to administrator!");
-                }
+            if (offsetResetGroupEntity == null) {
+                retResult.setCheckResult(false,
+                        TErrCodeConstants.BAD_REQUEST,
+                        "[unauthorized subscribe] ConsumeGroup must be authorized by administrator before" +
+                                " using bound subscribe, please contact to administrator!");
                 return retResult;
-            }
-            Date currentDate = new Date();
-            Date lastDate = offsetResetGroupEntity.getLastBindUsedDate();
-            if (lastDate == null
-                    || (lastDate.before(currentDate)
-                    && (int) ((lastDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 8)) > 1)) {
-                defaultBrokerConfManager.confUpdBdbConsumeGroupLastUsedTime(inConsumerInfo.getGroup());
             }
         }
         int allowRate = (offsetResetGroupEntity != null

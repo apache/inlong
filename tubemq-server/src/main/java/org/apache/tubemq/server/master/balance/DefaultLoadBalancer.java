@@ -35,9 +35,9 @@ import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorageInfo;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
@@ -64,7 +64,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param brokerHolder
      * @param topicPSInfoManager
      * @param groupSet
-     * @param brokerConfManager
+     * @param metaDataManager
      * @param defAllowBClientRate
      * @param strBuffer
      * @return
@@ -76,7 +76,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             BrokerInfoHolder brokerHolder,
             TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet,
-            BrokerConfManager brokerConfManager,
+            MetaDataManager metaDataManager,
             int defAllowBClientRate,
             final StringBuilder strBuffer) {
         // #lizard forgives
@@ -122,8 +122,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (!consumerBandInfo.isBandConsume()
                     && consumerBandInfo.getRebalanceCheckStatus() <= 0) {
                 // check if current client meet minimal requirements
-                BdbConsumeGroupSettingEntity offsetResetGroupEntity =
-                        brokerConfManager.getBdbConsumeGroupSetting(group);
+                GroupResCtrlEntity offsetResetGroupEntity =
+                        metaDataManager.confGetGroupResCtrlConf(group);
                 int confAllowBClientRate = (offsetResetGroupEntity != null
                         && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                         ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
@@ -484,7 +484,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param topicPSInfoManager
      * @param groupSet
-     * @param brokerConfManager
+     * @param metaDataManager
      * @param defAllowBClientRate
      * @param strBuffer
      * @return
@@ -494,7 +494,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet,
-            BrokerConfManager brokerConfManager,
+            MetaDataManager metaDataManager,
             int defAllowBClientRate,
             final StringBuilder strBuffer) {
         // #lizard forgives
@@ -522,8 +522,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // check if current client meet minimal requirements
             Set<String> topicSet = consumerBandInfo.getTopicSet();
-            BdbConsumeGroupSettingEntity offsetResetGroupEntity =
-                    brokerConfManager.getBdbConsumeGroupSetting(group);
+            GroupResCtrlEntity offsetResetGroupEntity =
+                    metaDataManager.confGetGroupResCtrlConf(group);
             int confAllowBClientRate = (offsetResetGroupEntity != null
                     && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                     ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
@@ -591,7 +591,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param topicPSInfoManager
      * @param groupSet
      * @param zkOffsetStorage
-     * @param defaultBrokerConfManager
+     * @param metaDataManager
      * @param strBuffer
      * @return
      */
@@ -599,9 +599,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
     public Map<String, Map<String, Map<String, Partition>>> resetBukAssign(
             ConsumerInfoHolder consumerHolder, TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet, OffsetStorage zkOffsetStorage,
-            BrokerConfManager defaultBrokerConfManager, final StringBuilder strBuffer) {
+            MetaDataManager metaDataManager, final StringBuilder strBuffer) {
         return inReBalanceCluster(false, consumerHolder,
-                topicPSInfoManager, groupSet, zkOffsetStorage, defaultBrokerConfManager, strBuffer);
+                topicPSInfoManager, groupSet, zkOffsetStorage, metaDataManager, strBuffer);
     }
 
     /**
@@ -612,7 +612,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param topicPSInfoManager
      * @param groupSet
      * @param zkOffsetStorage
-     * @param defaultBrokerConfManager
+     * @param metaDataManager
      * @param strBuffer
      * @return
      */
@@ -621,9 +621,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder, TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet, OffsetStorage zkOffsetStorage,
-            BrokerConfManager defaultBrokerConfManager, final StringBuilder strBuffer) {
+            MetaDataManager metaDataManager, final StringBuilder strBuffer) {
         return inReBalanceCluster(true, consumerHolder,
-                topicPSInfoManager, groupSet, zkOffsetStorage, defaultBrokerConfManager, strBuffer);
+                topicPSInfoManager, groupSet, zkOffsetStorage, metaDataManager, strBuffer);
     }
 
     // #lizard forgives
@@ -633,7 +633,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             TopicPSInfoManager topicPSInfoManager,
             List<String> groupSet,
             OffsetStorage zkOffsetStorage,
-            BrokerConfManager defaultBrokerConfManager,
+            MetaDataManager metaDataManager,
             final StringBuilder strBuffer) {
         // band consume reset offset
         Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap =
@@ -718,12 +718,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     partitionMap.remove(entry.getKey());
                 } else {
                     String[] partitionKeyItems = entry.getKey().split(TokenConstants.ATTR_SEP);
-                    BdbBrokerConfEntity bdbBrokerConfEntity = defaultBrokerConfManager
-                            .getBrokerDefaultConfigStoreInfo(Integer.parseInt(partitionKeyItems[0]));
-                    if (bdbBrokerConfEntity != null) {
+                    BrokerConfEntity brokerConfEntity =
+                            metaDataManager.getBrokerConfByBrokerId(Integer.parseInt(partitionKeyItems[0]));
+                    if (brokerConfEntity != null) {
                         if (partsOffsetMap.get(entry.getKey()) != null) {
                             offsetInfoList.add(new OffsetStorageInfo(partitionKeyItems[1],
-                                    bdbBrokerConfEntity.getBrokerId(),
+                                    brokerConfEntity.getBrokerId(),
                                     Integer.parseInt(partitionKeyItems[2]),
                                     partsOffsetMap.get(entry.getKey()), 0));
                         }

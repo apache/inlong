@@ -23,7 +23,6 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
-import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 
 
@@ -385,23 +384,21 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
+     * @param sBuffer   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
      * @return
      */
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
+    public StringBuilder toWebJsonStr(StringBuilder sBuffer,
                                       boolean isLongName,
                                       boolean fullFormat) {
-        String manageSts =
-                WebParameterUtils.getBrokerManageStatusStr(getManageStatus().getCode());
         if (isLongName) {
-            sBuilder.append("{\"brokerId\":").append(brokerId)
+            sBuffer.append("{\"brokerId\":").append(brokerId)
                     .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
                     .append(",\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
                     .append(",\"brokerWebPort\":").append(brokerWebPort)
-                    .append(",\"manageStatus\":\"").append(manageSts).append("\"")
+                    .append(",\"manageStatus\":\"").append(manageStatus.getDescription()).append("\"")
                     .append(",\"acceptPublish\":").append(manageStatus.isAcceptPublish())
                     .append(",\"acceptSubscribe\":").append(manageStatus.isAcceptSubscribe())
                     .append(",\"isConfChanged\":").append(isConfDataUpdated)
@@ -409,12 +406,12 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"regionId\":").append(regionId)
                     .append(",\"groupId\":").append(groupId);
         } else {
-            sBuilder.append("{\"brkId\":").append(brokerId)
+            sBuffer.append("{\"brkId\":").append(brokerId)
                     .append(",\"bIp\":\"").append(brokerIp).append("\"")
                     .append(",\"bPort\":").append(brokerPort)
                     .append(",\"bTlsPort\":").append(brokerTLSPort)
                     .append(",\"bWebPort\":").append(brokerWebPort)
-                    .append(",\"mSts\":\"").append(manageSts).append("\"")
+                    .append(",\"mSts\":\"").append(manageStatus.getDescription()).append("\"")
                     .append(",\"accPub\":").append(manageStatus.isAcceptPublish())
                     .append(",\"accSub\":").append(manageStatus.isAcceptSubscribe())
                     .append(",\"isConfChg\":").append(isConfDataUpdated)
@@ -422,12 +419,12 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"rId\":").append(regionId)
                     .append(",\"gId\":").append(groupId);
         }
-        topicProps.toWebJsonStr(sBuilder, isLongName);
-        super.toWebJsonStr(sBuilder, isLongName);
+        topicProps.toWebJsonStr(sBuffer, isLongName);
+        super.toWebJsonStr(sBuffer, isLongName);
         if (fullFormat) {
-            sBuilder.append("}");
+            sBuffer.append("}");
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**

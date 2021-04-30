@@ -27,7 +27,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.tubemq.server.master.TMaster;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.web.handler.AbstractWebHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminFlowRuleHandler;
 import org.apache.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
@@ -77,8 +77,8 @@ public class Webapi implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Server is stopping...");
             }
-            BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
-            if (!brokerConfManager.isSelfMaster()) {
+            MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
+            if (!metaDataManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
             String type = req.getParameter("type");
@@ -101,7 +101,7 @@ public class Webapi implements Action {
             }
             // check master is current node
             if (webApiRegInfo.onlyMasterOp
-                    && brokerConfManager.isPrimaryNodeActive()) {
+                    && metaDataManager.isPrimaryNodeActive()) {
                 throw new Exception(
                         "DesignatedPrimary happened...please check if the other member is down");
             }

@@ -19,18 +19,19 @@ package org.apache.tubemq.server.master.nodemanage.nodebroker;
 
 import static org.mockito.Mockito.mock;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
+import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class BrokerInfoHolderTest {
     private BrokerInfoHolder brokerInfoHolder;
-    private BrokerConfManager brokerConfManager;
+    private MetaDataManager metaDataManager;
 
     @Before
     public void setUp() throws Exception {
-        brokerConfManager = mock(BrokerConfManager.class);
-        brokerInfoHolder = new BrokerInfoHolder(10, brokerConfManager);
+        metaDataManager = mock(MetaDataManager.class);
+        brokerInfoHolder = new BrokerInfoHolder(10, metaDataManager);
     }
 
     @Test
