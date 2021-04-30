@@ -65,7 +65,6 @@ func NewPool() *Pool {
 	return m
 }
 
-
 func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*MultiplexedConnection, error) {
 	select {
 	case <-ctx.Done():
@@ -185,7 +184,7 @@ type Connection struct {
 	buffer      *writerBuffer
 	dialOpts    *DialOptions
 	state       int
-	multiplexed *Pool
+	pool        *Pool
 }
 
 func (c *Connection) new(ctx context.Context, serialNo uint32) (*MultiplexedConnection, error) {
@@ -240,7 +239,7 @@ func (c *Connection) close(lastErr error, done chan struct{}) {
 	if err != nil {
 		c.state = Closed
 		close(c.mDone)
-		c.multiplexed.connections.Delete(c)
+		c.pool.connections.Delete(c)
 	}
 }
 
