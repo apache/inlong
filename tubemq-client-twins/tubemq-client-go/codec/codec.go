@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+// Package codec defines the encoding and decoding logic between TubeMQ.
+// If the protocol of encoding and decoding is changed, only this package
+// will need to be changed.
 package codec
 
 import (
@@ -36,20 +39,27 @@ const (
 	beginTokenLen         uint32 = 4
 )
 
+// TransportResponse is the abstraction of the transport response.
 type TransportResponse interface {
+	// GetSerialNo returns the `serialNo` of the corresponding request.
 	GetSerialNo() uint32
+	// GetResponseBuf returns the body of the response.
 	GetResponseBuf() []byte
 }
 
+// Decoder is the abstraction of the decoder which is used to decode the response.
 type Decoder interface {
+	// Decode will decode the response to frame head and body.
 	Decode() (TransportResponse, error)
 }
 
+// TubeMQDecoder is the implementation of the decoder of response from TubeMQ.
 type TubeMQDecoder struct {
 	reader io.Reader
 	msg    []byte
 }
 
+// New will return a default TubeMQDecoder.
 func New(reader io.Reader) *TubeMQDecoder {
 	bufferReader := bufio.NewReaderSize(reader, maxBufferSize)
 	return &TubeMQDecoder{
@@ -58,6 +68,8 @@ func New(reader io.Reader) *TubeMQDecoder {
 	}
 }
 
+// Decode will decode the response from TubeMQ to TransportResponse according to
+// the RPC protocol of TubeMQ.
 func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	num, err := io.ReadFull(t.reader, t.msg[:frameHeadLen])
 	if err != nil {
@@ -112,20 +124,24 @@ func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	}, nil
 }
 
+// TubeMQRequest is the implementation of TubeMQ request.
 type TubeMQRequest struct {
 	serialNo uint32
 	req      []byte
 }
 
+// TubeMQResponse is the TubeMQ implementation of TransportResponse.
 type TubeMQResponse struct {
 	serialNo    uint32
 	responseBuf []byte
 }
 
+// GetSerialNo will return the SerialNo of TubeMQResponse.
 func (t TubeMQResponse) GetSerialNo() uint32 {
 	return t.serialNo
 }
 
+// GetResponseBuf will return the body of TubeMQResponse.
 func (t TubeMQResponse) GetResponseBuf() []byte {
 	return t.responseBuf
 }

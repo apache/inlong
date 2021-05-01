@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package multiplexed
+package multiplexing
 
 import (
 	"bytes"
@@ -87,7 +87,7 @@ func Encode(serialNo uint32, body []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func TestBasicMultiplexed(t *testing.T) {
+func TestBasicMultiplexing(t *testing.T) {
 	serialNo := atomic.AddUint32(&serialNo, 1)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -107,7 +107,7 @@ func TestBasicMultiplexed(t *testing.T) {
 	assert.Equal(t, mc.Write(nil), nil)
 }
 
-func TestConcurrentMultiplexed(t *testing.T) {
+func TestConcurrentMultiplexing(t *testing.T) {
 	count := 1000
 	m := NewPool()
 	wg := sync.WaitGroup{}
