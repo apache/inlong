@@ -112,6 +112,73 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*Multi
 	return c.new(ctx, serialNo)
 }
 
+func dial(ctx context.Context, address string) (net.Conn, *DialOptions, error) {
+	var timeout time.Duration
+	t, ok := ctx.Deadline()
+	if ok {
+		timeout = t.Sub(time.Now())
+	}
+	dialOpts := &DialOptions{
+		Network: "tcp",
+		Address: address,
+		Timeout: timeout,
+	}
+	select {
+	case <-ctx.Done():
+		return nil, dialOpts, ctx.Err()
+	default:
+	}
+	conn, err := dialWithTimeout(dialOpts)
+	return conn, dialOpts, err
+}
+
+func dialWithTimeout(opts *DialOptions) (net.Conn, error) {
+	if len(opts.CACertFile) == 0 {
+		return net.DialTimeout(opts.Network, opts.Address, opts.Timeout)
+	}
+
+	tlsConf := &tls.Config{}
+	if opts.CACertFile == "none" {
+		tlsConf.InsecureSkipVerify = true
+	} else {
+		if len(opts.TLSServerName) == 0 {
+			opts.TLSServerName = opts.Address
+		}
+		tlsConf.ServerName = opts.TLSServerName
+		certPool, err := getCertPool(opts.CACertFile)
+		if err != nil {
+			return nil, err
+		}
+
+		tlsConf.RootCAs = certPool
+
+		if len(opts.TLSCertFile) != 0 {
+			cert, err := tls.LoadX509KeyPair(opts.TLSCertFile, opts.TLSKeyFile)
+			if err != nil {
+				return nil, err
+			}
+			tlsConf.Certificates = []tls.Certificate{cert}
+		}
+	}
+	return tls.DialWithDialer(&net.Dialer{Timeout: opts.Timeout}, opts.Network, opts.Address, tlsConf)
+}
+
+func getCertPool(caCertFile string) (*x509.CertPool, error) {
+	if caCertFile != "root" {
+		ca, err := ioutil.ReadFile(caCertFile)
+		if err != nil {
+			return nil, err
+		}
+		certPool := x509.NewCertPool()
+		ok := certPool.AppendCertsFromPEM(ca)
+		if !ok {
+			return nil, err
+		}
+		return certPool, nil
+	}
+	return nil, nil
+}
+
 type recvReader struct {
 	ctx  context.Context
 	recv chan codec.TransportResponse
@@ -260,58 +327,6 @@ func (c *Connection) reconnect() error {
 	return nil
 }
 
-func (c *Connection) writer() {
-	var lastErr error
-	for {
-		select {
-		case <-c.done:
-			return
-		default:
-		}
-		req, err := c.buffer.get()
-		if err != nil {
-			lastErr = err
-			break
-		}
-		if err := c.write(req); err != nil {
-			lastErr = err
-			break
-		}
-	}
-	c.close(lastErr, c.done)
-}
-
-func (c *Connection) send(b []byte) error {
-	if c.state == Closed {
-		return ErrConnClosed
-	}
-
-	select {
-	case c.buffer.buffer <- b:
-		return nil
-	case <-c.mDone:
-		return c.err
-	}
-}
-
-func (c *Connection) remove(id uint32) {
-	c.mu.Lock()
-	delete(c.connections, id)
-	c.mu.Unlock()
-}
-
-func (c *Connection) write(b []byte) error {
-	sent := 0
-	for sent < len(b) {
-		n, err := c.conn.Write(b[sent:])
-		if err != nil {
-			return err
-		}
-		sent += n
-	}
-	return nil
-}
-
 // The response handling logic of the TCP connection.
 // 1. Read from the connection and decode it to the TransportResponse.
 // 2. Send the response to the corresponding multiplex connection based on the serialNo.
@@ -341,6 +356,58 @@ func (c *Connection) reader() {
 	c.close(lastErr, c.done)
 }
 
+func (c *Connection) writer() {
+	var lastErr error
+	for {
+		select {
+		case <-c.done:
+			return
+		default:
+		}
+		req, err := c.buffer.get()
+		if err != nil {
+			lastErr = err
+			break
+		}
+		if err := c.write(req); err != nil {
+			lastErr = err
+			break
+		}
+	}
+	c.close(lastErr, c.done)
+}
+
+func (c *Connection) write(b []byte) error {
+	sent := 0
+	for sent < len(b) {
+		n, err := c.conn.Write(b[sent:])
+		if err != nil {
+			return err
+		}
+		sent += n
+	}
+	return nil
+}
+
+func (c *Connection) send(b []byte) error {
+	if c.state == Closed {
+		return ErrConnClosed
+	}
+
+	select {
+	case c.buffer.buffer <- b:
+		return nil
+	case <-c.mDone:
+		return c.err
+	}
+}
+
+func (c *Connection) remove(id uint32) {
+	c.mu.Lock()
+	delete(c.connections, id)
+	c.mu.Unlock()
+}
+
 type writerBuffer struct {
 	buffer chan []byte
 	done   <-chan struct{}
@@ -353,71 +420,4 @@ func (w *writerBuffer) get() ([]byte, error) {
 	case <-w.done:
 		return nil, ErrWriteBufferDone
 	}
-}
-
-func dial(ctx context.Context, address string) (net.Conn, *DialOptions, error) {
-	var timeout time.Duration
-	t, ok := ctx.Deadline()
-	if ok {
-		timeout = t.Sub(time.Now())
-	}
-	dialOpts := &DialOptions{
-		Network: "tcp",
-		Address: address,
-		Timeout: timeout,
-	}
-	select {
-	case <-ctx.Done():
-		return nil, dialOpts, ctx.Err()
-	default:
-	}
-	conn, err := dialWithTimeout(dialOpts)
-	return conn, dialOpts, err
-}
-
-func dialWithTimeout(opts *DialOptions) (net.Conn, error) {
-	if len(opts.CACertFile) == 0 {
-		return net.DialTimeout(opts.Network, opts.Address, opts.Timeout)
-	}
-
-	tlsConf := &tls.Config{}
-	if opts.CACertFile == "none" {
-		tlsConf.InsecureSkipVerify = true
-	} else {
-		if len(opts.TLSServerName) == 0 {
-			opts.TLSServerName = opts.Address
-		}
-		tlsConf.ServerName = opts.TLSServerName
-		certPool, err := getCertPool(opts.CACertFile)
-		if err != nil {
-			return nil, err
-		}
-
-		tlsConf.RootCAs = certPool
-
-		if len(opts.TLSCertFile) != 0 {
-			cert, err := tls.LoadX509KeyPair(opts.TLSCertFile, opts.TLSKeyFile)
-			if err != nil {
-				return nil, err
-			}
-			tlsConf.Certificates = []tls.Certificate{cert}
-		}
-	}
-	return tls.DialWithDialer(&net.Dialer{Timeout: opts.Timeout}, opts.Network, opts.Address, tlsConf)
-}
-
-func getCertPool(caCertFile string) (*x509.CertPool, error) {
-	if caCertFile != "root" {
-		ca, err := ioutil.ReadFile(caCertFile)
-		if err != nil {
-			return nil, err
-		}
-		certPool := x509.NewCertPool()
-		ok := certPool.AppendCertsFromPEM(ca)
-		if !ok {
-			return nil, err
-		}
-		return certPool, nil
-	}
-	return nil, nil
 }
