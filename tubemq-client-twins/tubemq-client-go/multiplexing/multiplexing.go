@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-// Package multiplexed defines the multiplexed connection pool for sending
-// request and receiving response. After receiving the response, it will
-// be decoded and returned to the client. It is used for the underlying communication
+// Package multiplexing defines the multiplex connection pool for sending
+// request and receiving response. After receiving the response, the decoded
+// response will be returned to the client. It is used for the communication
 // with TubeMQ.
-package multiplexed
+package multiplexing
 
 import (
 	"context"
@@ -35,16 +35,17 @@ import (
 )
 
 var (
-	// ErrConnClosed indicates that the connection is closed
-	ErrConnClosed = errors.New("connection is closed")
-	// ErrChanClose indicates the recv chan is closed
-	ErrChanClose = errors.New("unexpected recv chan close")
+	// ErrConnClosed indicates the connection has been closed
+	ErrConnClosed = errors.New("connection has been closed")
+	// ErrChanClosed indicates the recv chan has been closed
+	ErrChanClosed = errors.New("unexpected recv chan closing")
 	// ErrWriteBufferDone indicates write buffer done
 	ErrWriteBufferDone = errors.New("write buffer done")
-	// ErrAssertConnectionFail indicates connection assertion error
-	ErrAssertConnectionFail = errors.New("assert connection slice fail")
+	// ErrAssertConnection indicates connection assertion error
+	ErrAssertConnection = errors.New("connection assertion error")
 )
 
+// The state of the connection.
 const (
 	Initial int = iota
 	Connected
@@ -54,10 +55,12 @@ const (
 
 const queueSize = 10000
 
+// Pool maintains the multiplex connections of different addresses.
 type Pool struct {
 	connections *sync.Map
 }
 
+// NewPool will construct a default multiplex connections pool.
 func NewPool() *Pool {
 	m := &Pool{
 		connections: new(sync.Map),
@@ -65,7 +68,10 @@ func NewPool() *Pool {
 	return m
 }
 
-func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*MultiplexedConnection, error) {
+// Get will return a multiplex connection
+// 1. If no underlying TCP connection has been created, a TCP connection will be created first.
+// 2. A new multiplex connection with the serialNo will be created and returned.
+func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*MultiplexConnection, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -76,12 +82,12 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*Multi
 		if c, ok := v.(*Connection); ok {
 			return c.new(ctx, serialNo)
 		}
-		return nil, ErrAssertConnectionFail
+		return nil, ErrAssertConnection
 	}
 
 	c := &Connection{
 		address:     address,
-		connections: make(map[uint32]*MultiplexedConnection),
+		connections: make(map[uint32]*MultiplexConnection),
 		done:        make(chan struct{}),
 		mDone:       make(chan struct{}),
 		state:       Initial,
@@ -100,23 +106,10 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*Multi
 	c.decoder = codec.New(conn)
 	c.conn = conn
 	c.state = Connected
+	c.pool = p
 	go c.reader()
 	go c.writer()
 	return c.new(ctx, serialNo)
-}
-
-type writerBuffer struct {
-	buffer chan []byte
-	done   <-chan struct{}
-}
-
-func (w *writerBuffer) get() ([]byte, error) {
-	select {
-	case req := <-w.buffer:
-		return req, nil
-	case <-w.done:
-		return nil, ErrWriteBufferDone
-	}
 }
 
 type recvReader struct {
@@ -124,14 +117,17 @@ type recvReader struct {
 	recv chan codec.TransportResponse
 }
 
-type MultiplexedConnection struct {
+// MultiplexConnection is used to multiplex a TCP connection.
+// It is distinguished by the serialNo.
+type MultiplexConnection struct {
 	serialNo uint32
 	conn     *Connection
 	reader   *recvReader
 	done     chan struct{}
 }
 
-func (mc *MultiplexedConnection) Write(b []byte) error {
+// Write uses the underlying TCP connection to send the bytes.
+func (mc *MultiplexConnection) Write(b []byte) error {
 	if err := mc.conn.send(b); err != nil {
 		mc.conn.remove(mc.serialNo)
 		return err
@@ -139,7 +135,8 @@ func (mc *MultiplexedConnection) Write(b []byte) error {
 	return nil
 }
 
-func (mc *MultiplexedConnection) Read() (codec.TransportResponse, error) {
+// Read returns the response from the multiplex connection.
+func (mc *MultiplexConnection) Read() (codec.TransportResponse, error) {
 	select {
 	case <-mc.reader.ctx.Done():
 		mc.conn.remove(mc.serialNo)
@@ -151,17 +148,19 @@ func (mc *MultiplexedConnection) Read() (codec.TransportResponse, error) {
 		if mc.conn.err != nil {
 			return nil, mc.conn.err
 		}
-		return nil, ErrChanClose
+		return nil, ErrChanClosed
 	case <-mc.done:
 		return nil, mc.conn.err
 	}
 }
 
-func (mc *MultiplexedConnection) recv(rsp *codec.TubeMQResponse) {
+func (mc *MultiplexConnection) recv(rsp *codec.TubeMQResponse) {
 	mc.reader.recv <- rsp
 	mc.conn.remove(rsp.GetSerialNo())
 }
 
+// DialOptions represents the dail options of the TCP connection.
+// If TLS is not enabled, the configuration of TLS can be ignored.
 type DialOptions struct {
 	Network       string
 	Address       string
@@ -172,11 +171,13 @@ type DialOptions struct {
 	TLSServerName string
 }
 
+// Connection represents the underlying TCP connection of the multiplex connections of an address
+// and maintains the multiplex connections.
 type Connection struct {
 	err         error
 	address     string
 	mu          sync.RWMutex
-	connections map[uint32]*MultiplexedConnection
+	connections map[uint32]*MultiplexConnection
 	decoder     codec.Decoder
 	conn        net.Conn
 	done        chan struct{}
@@ -187,14 +188,14 @@ type Connection struct {
 	pool        *Pool
 }
 
-func (c *Connection) new(ctx context.Context, serialNo uint32) (*MultiplexedConnection, error) {
+func (c *Connection) new(ctx context.Context, serialNo uint32) (*MultiplexConnection, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.err != nil {
 		return nil, c.err
 	}
 
-	vc := &MultiplexedConnection{
+	mc := &MultiplexConnection{
 		serialNo: serialNo,
 		conn:     c,
 		done:     c.mDone,
@@ -204,11 +205,11 @@ func (c *Connection) new(ctx context.Context, serialNo uint32) (*MultiplexedConn
 		},
 	}
 
-	if prevConn, ok := c.connections[serialNo]; ok {
-		close(prevConn.reader.recv)
+	if lastConn, ok := c.connections[serialNo]; ok {
+		close(lastConn.reader.recv)
 	}
-	c.connections[serialNo] = vc
-	return vc, nil
+	c.connections[serialNo] = mc
+	return mc, nil
 }
 
 func (c *Connection) close(lastErr error, done chan struct{}) {
@@ -230,7 +231,7 @@ func (c *Connection) close(lastErr error, done chan struct{}) {
 
 	c.state = Closing
 	c.err = lastErr
-	c.connections = make(map[uint32]*MultiplexedConnection)
+	c.connections = make(map[uint32]*MultiplexConnection)
 	close(c.done)
 	if c.conn != nil {
 		c.conn.Close()
@@ -311,6 +312,9 @@ func (c *Connection) write(b []byte) error {
 	return nil
 }
 
+// The response handling logic of the TCP connection.
+// 1. Read from the connection and decode it to the TransportResponse.
+// 2. Send the response to the corresponding multiplex connection based on the serialNo.
 func (c *Connection) reader() {
 	var lastErr error
 	for {
@@ -335,6 +339,20 @@ func (c *Connection) reader() {
 		mc.conn.remove(rsp.GetSerialNo())
 	}
 	c.close(lastErr, c.done)
+}
+
+type writerBuffer struct {
+	buffer chan []byte
+	done   <-chan struct{}
+}
+
+func (w *writerBuffer) get() ([]byte, error) {
+	select {
+	case req := <-w.buffer:
+		return req, nil
+	case <-w.done:
+		return nil, ErrWriteBufferDone
+	}
 }
 
 func dial(ctx context.Context, address string) (net.Conn, *DialOptions, error) {
