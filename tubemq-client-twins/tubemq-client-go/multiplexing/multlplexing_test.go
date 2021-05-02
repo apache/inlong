@@ -93,7 +93,11 @@ func TestBasicMultiplexing(t *testing.T) {
 	defer cancel()
 
 	m := NewPool()
-	mc, err := m.Get(ctx, address, serialNo)
+	opts := &DialOptions{
+		Network: "tcp",
+		Address: address,
+	}
+	mc, err := m.Get(ctx, address, serialNo, opts)
 	body := []byte("hello world")
 
 	buf, err := Encode(serialNo, body)
@@ -118,7 +122,11 @@ func TestConcurrentMultiplexing(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 			serialNo := atomic.AddUint32(&serialNo, 1)
-			mc, err := m.Get(ctx, address, serialNo)
+			opts := &DialOptions{
+				Network: "tcp",
+				Address: address,
+			}
+			mc, err := m.Get(ctx, address, serialNo, opts)
 			assert.Nil(t, err)
 
 			body := []byte("hello world" + strconv.Itoa(i))
