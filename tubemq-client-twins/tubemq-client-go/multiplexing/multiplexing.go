@@ -71,7 +71,7 @@ func NewPool() *Pool {
 // Get will return a multiplex connection
 // 1. If no underlying TCP connection has been created, a TCP connection will be created first.
 // 2. A new multiplex connection with the serialNo will be created and returned.
-func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*MultiplexConnection, error) {
+func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *DialOptions) (*MultiplexConnection, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -98,7 +98,7 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*Multi
 	}
 	p.connections.Store(address, c)
 
-	conn, dialOpts, err := dial(ctx, address)
+	conn, dialOpts, err := dial(ctx, opts)
 	c.dialOpts = dialOpts
 	if err != nil {
 		return nil, err
@@ -112,24 +112,20 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32) (*Multi
 	return c.new(ctx, serialNo)
 }
 
-func dial(ctx context.Context, address string) (net.Conn, *DialOptions, error) {
+func dial(ctx context.Context, opts *DialOptions) (net.Conn, *DialOptions, error) {
 	var timeout time.Duration
 	t, ok := ctx.Deadline()
 	if ok {
 		timeout = t.Sub(time.Now())
 	}
-	dialOpts := &DialOptions{
-		Network: "tcp",
-		Address: address,
-		Timeout: timeout,
-	}
+	opts.Timeout = timeout
 	select {
 	case <-ctx.Done():
-		return nil, dialOpts, ctx.Err()
+		return nil, opts, ctx.Err()
 	default:
 	}
-	conn, err := dialWithTimeout(dialOpts)
-	return conn, dialOpts, err
+	conn, err := dialWithTimeout(opts)
+	return conn, opts, err
 }
 
 func dialWithTimeout(opts *DialOptions) (net.Conn, error) {

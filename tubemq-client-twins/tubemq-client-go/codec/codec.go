@@ -22,15 +22,20 @@ package codec
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"io"
+
+	"github.com/golang/protobuf/proto"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
 )
 
 const (
 	RPCProtocolBeginToken uint32 = 0xFF7FF4FE
-	RPCMaxBufferSize      uint32 = 8192
-	frameHeadLen          uint32 = 8
+	RPCMaxBufferSize      int    = 8192
+	frameHeadLen          uint32 = 12
 	maxBufferSize         int    = 128 * 1024
 	defaultMsgSize        int    = 4096
 	dataLen               uint32 = 4
@@ -82,11 +87,8 @@ func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	if token != RPCProtocolBeginToken {
 		return nil, errors.New("framer: read framer rpc protocol begin token not match")
 	}
-	num, err = io.ReadFull(t.reader, t.msg[frameHeadLen:frameHeadLen+listSizeLen])
-	if num != int(listSizeLen) {
-		return nil, errors.New("framer: read invalid list size num")
-	}
-	listSize := binary.BigEndian.Uint32(t.msg[frameHeadLen : frameHeadLen+listSizeLen])
+	serialNo := binary.BigEndian.Uint32(t.msg[beginTokenLen : beginTokenLen+serialNoLen])
+	listSize := binary.BigEndian.Uint32(t.msg[beginTokenLen+serialNoLen : beginTokenLen+serialNoLen+listSizeLen])
 	totalLen := int(frameHeadLen)
 	size := make([]byte, 4)
 	for i := 0; i < int(listSize); i++ {
@@ -119,7 +121,7 @@ func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	copy(data, t.msg[frameHeadLen:totalLen])
 
 	return TubeMQResponse{
-		serialNo:    binary.BigEndian.Uint32(t.msg[beginTokenLen : beginTokenLen+serialNoLen]),
+		serialNo:    serialNo,
 		responseBuf: data,
 	}, nil
 }
@@ -144,4 +146,156 @@ func (t TubeMQResponse) GetSerialNo() uint32 {
 // GetResponseBuf will return the body of TubeMQResponse.
 func (t TubeMQResponse) GetResponseBuf() []byte {
 	return t.responseBuf
+}
+
+// RpcRequest represents the RPC request to TubeMQ.
+type RpcRequest struct {
+	RpcHeader     *protocol.RpcConnHeader
+	RequestHeader *protocol.RequestHeader
+	RequestBody   *protocol.RequestBody
+}
+
+// RpcResponse represents the RPC response from TubeMQ.
+type RpcResponse struct {
+	SerialNo          uint32
+	RpcHeader         *protocol.RpcConnHeader
+	ResponseHeader    *protocol.ResponseHeader
+	ResponseBody      *protocol.RspResponseBody
+	ResponseException *protocol.RspExceptionBody
+}
+
+// Codec represents the encoding and decoding interface.
+type Codec interface {
+	Encode(serialNo uint32, req *RpcRequest) ([]byte, error)
+	Decode([]byte) (*RpcResponse, error)
+}
+
+// TubeMQCodec is the default encoding and decoding interface for TubeMQ.
+type TubeMQCodec struct{}
+
+// Encode encodes the RpcRequest to bytes according to the TubeMQ RPC protocol.
+func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
+	data, err := encodeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	contentLen := int(dataLen) + int(dataLen) + int(dataLen) + len(data)
+	listSize := calcBlockCount(contentLen)
+
+	buf := bytes.NewBuffer(make([]byte, 0, int(frameHeadLen)+listSize*(RPCMaxBufferSize)))
+
+	if err := binary.Write(buf, binary.BigEndian, RPCProtocolBeginToken); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(buf, binary.BigEndian, serialNo); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(buf, binary.BigEndian, listSize); err != nil {
+		return nil, err
+	}
+
+	begin := 0
+	for i := 0; i < listSize; i++ {
+		blockLen := contentLen - i*RPCMaxBufferSize
+		if blockLen > RPCMaxBufferSize {
+			blockLen = RPCMaxBufferSize
+		}
+		if err := binary.Write(buf, binary.BigEndian, blockLen); err != nil {
+			return nil, err
+		}
+		if err := binary.Write(buf, binary.BigEndian, data[begin:begin+blockLen]); err != nil {
+			return nil, err
+		}
+		begin += blockLen
+	}
+	return buf.Bytes(), nil
+}
+
+func encodeRequest(req *RpcRequest) ([]byte, error) {
+	rpcHeader, err := writeDelimitedTo(req.RpcHeader)
+	if err != nil {
+		return nil, err
+	}
+	requestHeader, err := writeDelimitedTo(req.RequestHeader)
+	if err != nil {
+		return nil, err
+	}
+	requestBody, err := writeDelimitedTo(req.RequestBody)
+	if err != nil {
+		return nil, err
+	}
+	return append(append(rpcHeader, requestHeader...), requestBody...), nil
+}
+
+func calcBlockCount(contentSize int) int {
+	blockCount := contentSize / RPCMaxBufferSize
+	remained := contentSize % RPCMaxBufferSize
+	if remained > 0 {
+		blockCount++
+	}
+	return blockCount
+}
+
+func writeDelimitedTo(msg proto.Message) ([]byte, error) {
+	dataLen := proto.EncodeVarint(uint64(proto.Size(msg)))
+	data, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+	return append(dataLen, data...), nil
+}
+
+// Decode decodes the TransportResponse to RpcResponse according to the TubeMQ RPC protocol.
+func (t *TubeMQCodec) Decode(response TransportResponse) (*RpcResponse, error) {
+	data := response.GetResponseBuf()
+	rpcHeader := &protocol.RpcConnHeader{}
+	data, err := readDelimitedFrom(data, rpcHeader)
+	if err != nil {
+		return nil, err
+	}
+	rspHeader := &protocol.ResponseHeader{}
+	data, err = readDelimitedFrom(data, rspHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	if rspHeader.GetStatus() == protocol.ResponseHeader_SUCCESS {
+		rspBody := &protocol.RspResponseBody{}
+		data, err = readDelimitedFrom(data, rspBody)
+		if err != nil {
+			return nil, err
+		}
+		return &RpcResponse{
+			SerialNo:       response.GetSerialNo(),
+			RpcHeader:      rpcHeader,
+			ResponseHeader: rspHeader,
+			ResponseBody:   rspBody,
+		}, nil
+	}
+
+	rspException := &protocol.RspExceptionBody{}
+	data, err = readDelimitedFrom(data, rspException)
+	if err != nil {
+		return nil, err
+	}
+	return &RpcResponse{
+		SerialNo:          response.GetSerialNo(),
+		RpcHeader:         rpcHeader,
+		ResponseHeader:    rspHeader,
+		ResponseException: rspException,
+	}, nil
+}
+
+func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
+	size, n := proto.DecodeVarint(data)
+	if size == 0 || n != 4 {
+		return nil, errors.New("decode: invalid data len")
+	}
+
+	if err := proto.Unmarshal(data[n:n+int(size)], msg); err != nil {
+		return nil, err
+	}
+
+	return data[int(size)+n:], nil
 }
