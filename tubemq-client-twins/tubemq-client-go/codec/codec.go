@@ -30,7 +30,7 @@ import (
 const (
 	RPCProtocolBeginToken uint32 = 0xFF7FF4FE
 	RPCMaxBufferSize      uint32 = 8192
-	frameHeadLen          uint32 = 8
+	frameHeadLen          uint32 = 12
 	maxBufferSize         int    = 128 * 1024
 	defaultMsgSize        int    = 4096
 	dataLen               uint32 = 4
@@ -82,11 +82,8 @@ func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	if token != RPCProtocolBeginToken {
 		return nil, errors.New("framer: read framer rpc protocol begin token not match")
 	}
-	num, err = io.ReadFull(t.reader, t.msg[frameHeadLen:frameHeadLen+listSizeLen])
-	if num != int(listSizeLen) {
-		return nil, errors.New("framer: read invalid list size num")
-	}
-	listSize := binary.BigEndian.Uint32(t.msg[frameHeadLen : frameHeadLen+listSizeLen])
+	serialNo := binary.BigEndian.Uint32(t.msg[beginTokenLen : beginTokenLen+serialNoLen])
+	listSize := binary.BigEndian.Uint32(t.msg[beginTokenLen+serialNoLen : beginTokenLen+serialNoLen+listSizeLen])
 	totalLen := int(frameHeadLen)
 	size := make([]byte, 4)
 	for i := 0; i < int(listSize); i++ {
@@ -119,7 +116,7 @@ func (t *TubeMQDecoder) Decode() (TransportResponse, error) {
 	copy(data, t.msg[frameHeadLen:totalLen])
 
 	return TubeMQResponse{
-		serialNo:    binary.BigEndian.Uint32(t.msg[beginTokenLen : beginTokenLen+serialNoLen]),
+		serialNo:    serialNo,
 		responseBuf: data,
 	}, nil
 }
