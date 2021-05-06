@@ -191,7 +191,7 @@ func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
 	if err := binary.Write(buf, binary.BigEndian, serialNo); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(buf, binary.BigEndian, listSize); err != nil {
+	if err := binary.Write(buf, binary.BigEndian, uint32(listSize)); err != nil {
 		return nil, err
 	}
 
@@ -201,7 +201,7 @@ func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
 		if blockLen > RPCMaxBufferSize {
 			blockLen = RPCMaxBufferSize
 		}
-		if err := binary.Write(buf, binary.BigEndian, blockLen); err != nil {
+		if err := binary.Write(buf, binary.BigEndian, uint32(blockLen)); err != nil {
 			return nil, err
 		}
 		if err := binary.Write(buf, binary.BigEndian, data[begin:begin+blockLen]); err != nil {
@@ -289,7 +289,7 @@ func (t *TubeMQCodec) Decode(response TransportResponse) (*RpcResponse, error) {
 
 func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
 	size, n := proto.DecodeVarint(data)
-	if size == 0 || n != 4 {
+	if size == 0 && n == 0 {
 		return nil, errors.New("decode: invalid data len")
 	}
 
