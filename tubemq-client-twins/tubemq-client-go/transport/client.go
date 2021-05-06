@@ -7,8 +7,8 @@ import (
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
 )
 
-// ClientTransportOptions represents the transport options
-type ClientTransportOptions struct {
+// ClientOptions represents the transport options
+type ClientOptions struct {
 	Address string
 
 	CACertFile    string
@@ -17,14 +17,14 @@ type ClientTransportOptions struct {
 	TLSServerName string
 }
 
-// ClientTransport is the transport layer to TubeMQ which is used to communicate with TubeMQ
-type ClientTransport struct {
-	opts *ClientTransportOptions
+// Client is the transport layer to TubeMQ which is used to communicate with TubeMQ
+type Client struct {
+	opts *ClientOptions
 	Pool *multiplexing.Pool
 }
 
-// SendAndReceive sends the request and receive the response
-func (c *ClientTransport) SendAndReceive(ctx context.Context, serial uint32, req []byte) (codec.TransportResponse, error) {
+// SendRequest sends the request and receive the response
+func (c *Client) SendRequest(ctx context.Context, serial uint32, req []byte) (codec.Response, error) {
 	opts := &multiplexing.DialOptions{
 		Address: c.opts.Address,
 		Network: "tcp",
