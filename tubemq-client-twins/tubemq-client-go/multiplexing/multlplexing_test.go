@@ -107,7 +107,7 @@ func TestBasicMultiplexing(t *testing.T) {
 	rsp, err := mc.Read()
 	assert.Nil(t, err)
 	assert.Equal(t, serialNo, rsp.GetSerialNo())
-	assert.Equal(t, body, rsp.GetResponseBuf())
+	assert.Equal(t, body, rsp.GetBuffer())
 	assert.Equal(t, mc.Write(nil), nil)
 }
 
@@ -137,7 +137,7 @@ func TestConcurrentMultiplexing(t *testing.T) {
 			rsp, err := mc.Read()
 			assert.Nil(t, err)
 			assert.Equal(t, serialNo, rsp.GetSerialNo())
-			assert.Equal(t, body, rsp.GetResponseBuf())
+			assert.Equal(t, body, rsp.GetBuffer())
 		}(i)
 	}
 	wg.Wait()

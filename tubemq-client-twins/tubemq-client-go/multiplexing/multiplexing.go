@@ -98,7 +98,7 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *D
 	}
 	p.connections.Store(address, c)
 
-	conn, dialOpts, err := dial(ctx, address, opts)
+	conn, dialOpts, err := dial(ctx, opts)
 	c.dialOpts = dialOpts
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *D
 	return c.new(ctx, serialNo)
 }
 
-func dial(ctx context.Context, address string, opts *DialOptions) (net.Conn, *DialOptions, error) {
+func dial(ctx context.Context, opts *DialOptions) (net.Conn, *DialOptions, error) {
 	var timeout time.Duration
 	t, ok := ctx.Deadline()
 	if ok {
@@ -177,7 +177,7 @@ func getCertPool(caCertFile string) (*x509.CertPool, error) {
 
 type recvReader struct {
 	ctx  context.Context
-	recv chan codec.TransportResponse
+	recv chan codec.Response
 }
 
 // MultiplexConnection is used to multiplex a TCP connection.
@@ -199,7 +199,7 @@ func (mc *MultiplexConnection) Write(b []byte) error {
 }
 
 // Read returns the response from the multiplex connection.
-func (mc *MultiplexConnection) Read() (codec.TransportResponse, error) {
+func (mc *MultiplexConnection) Read() (codec.Response, error) {
 	select {
 	case <-mc.reader.ctx.Done():
 		mc.conn.remove(mc.serialNo)
@@ -217,7 +217,7 @@ func (mc *MultiplexConnection) Read() (codec.TransportResponse, error) {
 	}
 }
 
-func (mc *MultiplexConnection) recv(rsp *codec.TubeMQResponse) {
+func (mc *MultiplexConnection) recv(rsp codec.Response) {
 	mc.reader.recv <- rsp
 	mc.conn.remove(rsp.GetSerialNo())
 }
@@ -264,7 +264,7 @@ func (c *Connection) new(ctx context.Context, serialNo uint32) (*MultiplexConnec
 		done:     c.mDone,
 		reader: &recvReader{
 			ctx:  ctx,
-			recv: make(chan codec.TransportResponse, 1),
+			recv: make(chan codec.Response, 1),
 		},
 	}
 
@@ -324,7 +324,7 @@ func (c *Connection) reconnect() error {
 }
 
 // The response handling logic of the TCP connection.
-// 1. Read from the connection and decode it to the TransportResponse.
+// 1. Read from the connection and decode it to the Response.
 // 2. Send the response to the corresponding multiplex connection based on the serialNo.
 func (c *Connection) reader() {
 	var lastErr error
@@ -347,7 +347,7 @@ func (c *Connection) reader() {
 			continue
 		}
 		mc.reader.recv <- rsp
-		mc.conn.remove(rsp.GetSerialNo())
+		mc.conn.remove(serialNo)
 	}
 	c.close(lastErr, c.done)
 }
