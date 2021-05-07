@@ -57,5 +57,5 @@ type RpcResponse struct {
 // Codec represents the encoding and decoding interface.
 type Codec interface {
 	Encode(serialNo uint32, req *RpcRequest) ([]byte, error)
-	Decode([]byte) (*RpcResponse, error)
+	Decode(rsp Response) (*RpcResponse, error)
 }

@@ -12,9 +12,9 @@ import (
 func TestBasicEncodingDecoding(t *testing.T) {
 	// Test encode and decode Request
 	rpcHeader := &protocol.RpcConnHeader{
-		Flag: proto.Int32(1),
-		TraceId: proto.Int64(1),
-		SpanId: proto.Int64(1),
+		Flag:     proto.Int32(1),
+		TraceId:  proto.Int64(1),
+		SpanId:   proto.Int64(1),
 		ParentId: proto.Int64(1),
 	}
 	reqHeader := &protocol.RequestHeader{
@@ -22,14 +22,14 @@ func TestBasicEncodingDecoding(t *testing.T) {
 		ProtocolVer: proto.Int32(3),
 	}
 	reqBody := &protocol.RequestBody{
-		Method: proto.Int32(1),
+		Method:  proto.Int32(1),
 		Timeout: proto.Int64(1000),
 		Request: []byte("Hello world!"),
 	}
 	req := &RpcRequest{
-		RpcHeader: rpcHeader,
+		RpcHeader:     rpcHeader,
 		RequestHeader: reqHeader,
-		RequestBody: reqBody,
+		RequestBody:   reqBody,
 	}
 	b, err := encodeRequest(req)
 	assert.Nil(t, err)

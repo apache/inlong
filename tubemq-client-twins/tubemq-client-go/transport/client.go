@@ -3,6 +3,8 @@ package transport
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
+
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
 )
@@ -19,29 +21,43 @@ type ClientOptions struct {
 
 // Client is the transport layer to TubeMQ which is used to communicate with TubeMQ
 type Client struct {
-	opts *ClientOptions
-	Pool *multiplexing.Pool
+	opts  *ClientOptions
+	pool  *multiplexing.Pool
+	codec codec.Codec
 }
 
-// SendRequest sends the request and receive the response
-func (c *Client) SendRequest(ctx context.Context, serial uint32, req []byte) (codec.Response, error) {
+func New(opts *ClientOptions, pool *multiplexing.Pool) *Client {
+	return &Client{
+		opts:  opts,
+		pool:  pool,
+		codec: &codec.TubeMQCodec{},
+	}
+}
+
+// DoRequest sends the request and decode the response
+func (c *Client) DoRequest(ctx context.Context, serialNo uint32, req *codec.RpcRequest, reqBody proto.Message) (*codec.RpcResponse, error) {
 	opts := &multiplexing.DialOptions{
 		Address: c.opts.Address,
 		Network: "tcp",
 	}
-	if c.opts.CACertFile != "none" {
+	if c.opts.CACertFile != "" {
 		opts.CACertFile = c.opts.CACertFile
 		opts.TLSCertFile = c.opts.TLSCertFile
 		opts.TLSKeyFile = c.opts.TLSKeyFile
 		opts.TLSServerName = c.opts.TLSServerName
 	}
 
-	conn, err := c.Pool.Get(ctx, c.opts.Address, serial, opts)
+	conn, err := c.pool.Get(ctx, c.opts.Address, serialNo, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := conn.Write(req); err != nil {
+	b, err := c.encodeRequest(serialNo, req, reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := conn.Write(b); err != nil {
 		return nil, err
 	}
 
@@ -49,5 +65,18 @@ func (c *Client) SendRequest(ctx context.Context, serial uint32, req []byte) (co
 	if err != nil {
 		return nil, err
 	}
-	return rsp, err
+	return c.codec.Decode(rsp)
+}
+
+func (c *Client) encodeRequest(serialNo uint32, req *codec.RpcRequest, reqBody proto.Message) ([]byte, error) {
+	body, err := proto.Marshal(reqBody)
+	if err != nil {
+		return nil, err
+	}
+	req.RequestBody.Request = body
+	b, err := c.codec.Encode(serialNo, req)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }

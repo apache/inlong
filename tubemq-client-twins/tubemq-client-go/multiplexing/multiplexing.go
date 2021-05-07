@@ -134,7 +134,7 @@ func dialWithTimeout(opts *DialOptions) (net.Conn, error) {
 	}
 
 	tlsConf := &tls.Config{}
-	if opts.CACertFile == "none" {
+	if opts.CACertFile == "" {
 		tlsConf.InsecureSkipVerify = true
 	} else {
 		if len(opts.TLSServerName) == 0 {
