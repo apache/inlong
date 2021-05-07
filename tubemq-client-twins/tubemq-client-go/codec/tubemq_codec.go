@@ -26,6 +26,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"math"
 
 	"github.com/golang/protobuf/proto"
 
@@ -91,7 +92,7 @@ func (t *TubeMQDecoder) Decode() (Response, error) {
 		s := int(binary.BigEndian.Uint32(size))
 		if totalLen+s > len(t.msg) {
 			data := t.msg[:totalLen]
-			t.msg = make([]byte, 0, max(2*len(t.msg), totalLen+s))
+			t.msg = make([]byte, 0, int(math.Max(float64(2*len(t.msg)), float64(totalLen+s))))
 			copy(t.msg, data[:])
 		}
 
@@ -133,13 +134,6 @@ func (t TubeMQResponse) GetSerialNo() uint32 {
 // GetResponseBuf will return the body of Response.
 func (t TubeMQResponse) GetBuffer() []byte {
 	return t.Buffer
-}
-
-func max(x, y int) int {
-	if x < y {
-		return y
-	}
-	return x
 }
 
 // TubeMQCodec is the default encoding and decoding interface for TubeMQ.
@@ -218,7 +212,7 @@ func writeDelimitedTo(msg proto.Message) ([]byte, error) {
 	return append(dataLen, data...), nil
 }
 
-// Decode decodes the TransportResponse to RpcResponse according to the TubeMQ RPC protocol.
+// Decode decodes the Response to RpcResponse according to the TubeMQ RPC protocol.
 func (t *TubeMQCodec) Decode(response Response) (*RpcResponse, error) {
 	data := response.GetBuffer()
 	rpcHeader := &protocol.RpcConnHeader{}
