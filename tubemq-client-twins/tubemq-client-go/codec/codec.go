@@ -48,4 +48,10 @@ type RPCResponse interface {
 	GetSerialNo() uint32
 	// Decode decodes the Response.
 	Decode(response Response) error
+	// GetException returns the exception msg.
+	GetException() string
+	// GetStackTrace returns the stack track msg.
+	GetStackTrace() string
+	// GetResponseBody returns the response bod.
+	GetResponseBody() []byte
 }

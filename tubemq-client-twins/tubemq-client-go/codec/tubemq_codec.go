@@ -243,6 +243,21 @@ func (t *TubeMQRPCResponse) GetSerialNo() uint32 {
 	return t.SerialNo
 }
 
+// GetException returns the exception of TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) GetException() string {
+	return t.ResponseException.GetExceptionName()
+}
+
+// GetStackTrace returns the stack trace of TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) GetStackTrace() string {
+	return t.ResponseException.GetStackTrace()
+}
+
+// GetResponseBody returns the response body of TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) GetResponseBody() []byte {
+	return t.ResponseBody.GetData()
+}
+
 // Decode decodes the Response to RPCResponse according to the TubeMQ RPC protocol.
 func (t *TubeMQRPCResponse) Decode(response Response) error {
 	data := response.GetBuffer()
