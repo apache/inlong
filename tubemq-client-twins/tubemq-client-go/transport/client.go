@@ -40,21 +40,20 @@ type ClientOptions struct {
 
 // Client is the transport layer to TubeMQ which is used to communicate with TubeMQ
 type Client struct {
-	opts  *ClientOptions
-	pool  *multiplexing.Pool
-	codec codec.Codec
+	opts *ClientOptions
+	pool *multiplexing.Pool
 }
 
+// New return a default transport client.
 func New(opts *ClientOptions, pool *multiplexing.Pool) *Client {
 	return &Client{
-		opts:  opts,
-		pool:  pool,
-		codec: &codec.TubeMQCodec{},
+		opts: opts,
+		pool: pool,
 	}
 }
 
-// DoRequest sends the request and decode the response
-func (c *Client) DoRequest(ctx context.Context, serialNo uint32, req *codec.RpcRequest, reqBody proto.Message) (*codec.RpcResponse, error) {
+// DoRequest sends the request and return the decoded response
+func (c *Client) DoRequest(ctx context.Context, req codec.RpcRequest, reqBody proto.Message) (codec.RpcResponse, error) {
 	opts := &multiplexing.DialOptions{
 		Address: c.opts.Address,
 		Network: "tcp",
@@ -66,12 +65,12 @@ func (c *Client) DoRequest(ctx context.Context, serialNo uint32, req *codec.RpcR
 		opts.TLSServerName = c.opts.TLSServerName
 	}
 
-	conn, err := c.pool.Get(ctx, c.opts.Address, serialNo, opts)
+	conn, err := c.pool.Get(ctx, c.opts.Address, req.GetSerialNo(), opts)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := c.encodeRequest(serialNo, req, reqBody)
+	b, err := req.Encode(reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -84,18 +83,11 @@ func (c *Client) DoRequest(ctx context.Context, serialNo uint32, req *codec.RpcR
 	if err != nil {
 		return nil, err
 	}
-	return c.codec.Decode(rsp)
-}
 
-func (c *Client) encodeRequest(serialNo uint32, req *codec.RpcRequest, reqBody proto.Message) ([]byte, error) {
-	body, err := proto.Marshal(reqBody)
+	t := &codec.TubeMQRPCResponse{}
+	err = t.Decode(rsp)
 	if err != nil {
 		return nil, err
 	}
-	req.RequestBody.Request = body
-	b, err := c.codec.Encode(serialNo, req)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return t, err
 }

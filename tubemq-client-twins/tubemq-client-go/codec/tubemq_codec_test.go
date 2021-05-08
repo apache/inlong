@@ -43,7 +43,7 @@ func TestBasicEncodingDecoding(t *testing.T) {
 		Timeout: proto.Int64(1000),
 		Request: []byte("Hello world!"),
 	}
-	req := &RpcRequest{
+	req := &TubeMQRPCRequest{
 		RpcHeader:     rpcHeader,
 		RequestHeader: reqHeader,
 		RequestBody:   reqBody,

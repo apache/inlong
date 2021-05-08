@@ -20,10 +20,6 @@
 // will need to be changed.
 package codec
 
-import (
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
-)
-
 // Response is the abstraction of the transport response.
 type Response interface {
 	// GetSerialNo returns the `serialNo` of the corresponding request.
@@ -38,20 +34,18 @@ type Decoder interface {
 	Decode() (Response, error)
 }
 
-// RpcRequest represents the RPC request to TubeMQ.
-type RpcRequest struct {
-	RpcHeader     *protocol.RpcConnHeader
-	RequestHeader *protocol.RequestHeader
-	RequestBody   *protocol.RequestBody
+// RpcRequest represents the RPC request protocol.
+type RpcRequest interface {
+	// GetSerialNo returns the `serialNo` of the corresponding request.
+	GetSerialNo() uint32
+	Encode(reqBody interface{}) ([]byte, error)
 }
 
 // RpcResponse represents the RPC response from TubeMQ.
-type RpcResponse struct {
-	SerialNo          uint32
-	RpcHeader         *protocol.RpcConnHeader
-	ResponseHeader    *protocol.ResponseHeader
-	ResponseBody      *protocol.RspResponseBody
-	ResponseException *protocol.RspExceptionBody
+type RpcResponse interface {
+	// GetSerialNo returns the `serialNo` of the corresponding request.
+	GetSerialNo() uint32
+	Decode(response Response) error
 }
 
 // Codec represents the encoding and decoding interface.

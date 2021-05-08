@@ -136,12 +136,23 @@ func (t TubeMQResponse) GetBuffer() []byte {
 	return t.Buffer
 }
 
-// TubeMQCodec is the default encoding and decoding interface for TubeMQ.
-type TubeMQCodec struct{}
+// TubeMQRPCRequest represents the request protocol of TubeMQ.
+type TubeMQRPCRequest struct {
+	SerialNo      uint32
+	RpcHeader     *protocol.RpcConnHeader
+	RequestHeader *protocol.RequestHeader
+	RequestBody   *protocol.RequestBody
+}
 
 // Encode encodes the RpcRequest to bytes according to the TubeMQ RPC protocol.
-func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
-	data, err := encodeRequest(req)
+func (t *TubeMQRPCRequest) Encode(reqBody proto.Message) ([]byte, error) {
+	reqBodyBuf, err := proto.Marshal(reqBody)
+	if err != nil {
+		return nil, err
+	}
+	t.RequestBody.Request = reqBodyBuf
+
+	data, err := encodeRequest(t)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +165,7 @@ func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
 	if err := binary.Write(buf, binary.BigEndian, RPCProtocolBeginToken); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(buf, binary.BigEndian, serialNo); err != nil {
+	if err := binary.Write(buf, binary.BigEndian, t.SerialNo); err != nil {
 		return nil, err
 	}
 	if err := binary.Write(buf, binary.BigEndian, uint32(listSize)); err != nil {
@@ -178,7 +189,7 @@ func (t *TubeMQCodec) Encode(serialNo uint32, req *RpcRequest) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func encodeRequest(req *RpcRequest) ([]byte, error) {
+func encodeRequest(req *TubeMQRPCRequest) ([]byte, error) {
 	rpcHeader, err := writeDelimitedTo(req.RpcHeader)
 	if err != nil {
 		return nil, err
@@ -212,45 +223,55 @@ func writeDelimitedTo(msg proto.Message) ([]byte, error) {
 	return append(dataLen, data...), nil
 }
 
+// TubeMQRPCResponse represents the response protocol of TubeMQ.
+type TubeMQRPCResponse struct {
+	SerialNo          uint32
+	RpcHeader         *protocol.RpcConnHeader
+	ResponseHeader    *protocol.ResponseHeader
+	ResponseBody      *protocol.RspResponseBody
+	ResponseException *protocol.RspExceptionBody
+}
+
+// GetSerialNo returns the SerialNo of TubeMQRPCResponse
+func (t *TubeMQRPCResponse) GetSerialNo() uint32 {
+	return t.SerialNo
+}
+
 // Decode decodes the Response to RpcResponse according to the TubeMQ RPC protocol.
-func (t *TubeMQCodec) Decode(response Response) (*RpcResponse, error) {
+func (t *TubeMQRPCResponse) Decode(response Response) error {
 	data := response.GetBuffer()
 	rpcHeader := &protocol.RpcConnHeader{}
 	data, err := readDelimitedFrom(data, rpcHeader)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rspHeader := &protocol.ResponseHeader{}
 	data, err = readDelimitedFrom(data, rspHeader)
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	t.SerialNo = response.GetSerialNo()
+	t.RpcHeader = rpcHeader
+	t.ResponseHeader = rspHeader
 
 	if rspHeader.GetStatus() == protocol.ResponseHeader_SUCCESS {
 		rspBody := &protocol.RspResponseBody{}
 		data, err = readDelimitedFrom(data, rspBody)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return &RpcResponse{
-			SerialNo:       response.GetSerialNo(),
-			RpcHeader:      rpcHeader,
-			ResponseHeader: rspHeader,
-			ResponseBody:   rspBody,
-		}, nil
+		t.ResponseBody = rspBody
+		return nil
 	}
 
 	rspException := &protocol.RspExceptionBody{}
 	data, err = readDelimitedFrom(data, rspException)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &RpcResponse{
-		SerialNo:          response.GetSerialNo(),
-		RpcHeader:         rpcHeader,
-		ResponseHeader:    rspHeader,
-		ResponseException: rspException,
-	}, nil
+	t.ResponseException = rspException
+	return nil
 }
 
 func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
