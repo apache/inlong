@@ -53,7 +53,7 @@ func New(opts *ClientOptions, pool *multiplexing.Pool) *Client {
 }
 
 // DoRequest sends the request and return the decoded response
-func (c *Client) DoRequest(ctx context.Context, req codec.RpcRequest, reqBody proto.Message) (codec.RpcResponse, error) {
+func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest, reqBody proto.Message) (codec.RPCResponse, error) {
 	opts := &multiplexing.DialOptions{
 		Address: c.opts.Address,
 		Network: "tcp",
@@ -70,7 +70,7 @@ func (c *Client) DoRequest(ctx context.Context, req codec.RpcRequest, reqBody pr
 		return nil, err
 	}
 
-	b, err := req.Encode(reqBody)
+	b, err := req.Encode()
 	if err != nil {
 		return nil, err
 	}

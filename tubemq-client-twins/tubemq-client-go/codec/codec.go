@@ -34,22 +34,18 @@ type Decoder interface {
 	Decode() (Response, error)
 }
 
-// RpcRequest represents the RPC request protocol.
-type RpcRequest interface {
+// RPCRequest represents the RPC request protocol.
+type RPCRequest interface {
 	// GetSerialNo returns the `serialNo` of the corresponding request.
 	GetSerialNo() uint32
-	Encode(reqBody interface{}) ([]byte, error)
+	// Encode encodes the RPCRequest to bytes.
+	Encode() ([]byte, error)
 }
 
-// RpcResponse represents the RPC response from TubeMQ.
-type RpcResponse interface {
+// RPCResponse represents the RPC response from TubeMQ.
+type RPCResponse interface {
 	// GetSerialNo returns the `serialNo` of the corresponding request.
 	GetSerialNo() uint32
+	// Decode decodes the Response.
 	Decode(response Response) error
-}
-
-// Codec represents the encoding and decoding interface.
-type Codec interface {
-	Encode(serialNo uint32, req *RpcRequest) ([]byte, error)
-	Decode(rsp Response) (*RpcResponse, error)
 }

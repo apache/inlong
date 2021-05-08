@@ -142,11 +142,12 @@ type TubeMQRPCRequest struct {
 	RpcHeader     *protocol.RpcConnHeader
 	RequestHeader *protocol.RequestHeader
 	RequestBody   *protocol.RequestBody
+	Body          proto.Message
 }
 
-// Encode encodes the RpcRequest to bytes according to the TubeMQ RPC protocol.
-func (t *TubeMQRPCRequest) Encode(reqBody proto.Message) ([]byte, error) {
-	reqBodyBuf, err := proto.Marshal(reqBody)
+// Encode encodes the RPCRequest to bytes according to the TubeMQ RPC protocol.
+func (t *TubeMQRPCRequest) Encode() ([]byte, error) {
+	reqBodyBuf, err := proto.Marshal(t.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +238,7 @@ func (t *TubeMQRPCResponse) GetSerialNo() uint32 {
 	return t.SerialNo
 }
 
-// Decode decodes the Response to RpcResponse according to the TubeMQ RPC protocol.
+// Decode decodes the Response to RPCResponse according to the TubeMQ RPC protocol.
 func (t *TubeMQRPCResponse) Decode(response Response) error {
 	data := response.GetBuffer()
 	rpcHeader := &protocol.RpcConnHeader{}
