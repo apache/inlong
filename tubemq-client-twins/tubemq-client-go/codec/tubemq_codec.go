@@ -145,6 +145,11 @@ type TubeMQRPCRequest struct {
 	Body          proto.Message
 }
 
+// GetSerialNo returns the serialNo.
+func (t *TubeMQRPCRequest) GetSerialNo() uint32 {
+	return t.SerialNo
+}
+
 // Encode encodes the RPCRequest to bytes according to the TubeMQ RPC protocol.
 func (t *TubeMQRPCRequest) Encode() ([]byte, error) {
 	reqBodyBuf, err := proto.Marshal(t.Body)

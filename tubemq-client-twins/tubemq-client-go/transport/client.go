@@ -22,8 +22,6 @@ package transport
 import (
 	"context"
 
-	"github.com/golang/protobuf/proto"
-
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
 )
@@ -53,7 +51,7 @@ func New(opts *ClientOptions, pool *multiplexing.Pool) *Client {
 }
 
 // DoRequest sends the request and return the decoded response
-func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest, reqBody proto.Message) (codec.RPCResponse, error) {
+func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest) (codec.RPCResponse, error) {
 	opts := &multiplexing.DialOptions{
 		Address: c.opts.Address,
 		Network: "tcp",
