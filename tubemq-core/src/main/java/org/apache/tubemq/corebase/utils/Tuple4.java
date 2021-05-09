@@ -17,27 +17,21 @@
 
 package org.apache.tubemq.corebase.utils;
 
-public class Tuple2<T0, T1> {
+public class Tuple4<T0, T1, T2, T3> {
 
     /** Field 0 of the tuple. */
     private T0 f0 = null;
     /** Field 1 of the tuple. */
     private T1 f1 = null;
-
+    /** Field 2 of the tuple. */
+    private T2 f2 = null;
+    /** Field 3 of the tuple. */
+    private T3 f3 = null;
     /**
      * Creates a new tuple where all fields are null.
      */
-    public Tuple2() {
+    public Tuple4() {
 
-    }
-
-    /**
-     * Creates a new tuple with field 0 specified.
-     *
-     * @param value0 The value for field 0
-     */
-    public Tuple2(T0 value0) {
-        this.f0 = value0;
     }
 
     /**
@@ -45,9 +39,11 @@ public class Tuple2<T0, T1> {
      *
      * @param value0 The value for field 0
      * @param value1 The value for field 1
+     * @param value2 The value for field 2
+     * @param value3 The value for field 3
      */
-    public Tuple2(T0 value0, T1 value1) {
-        setF0AndF1(value0, value1);
+    public Tuple4(T0 value0, T1 value1, T2 value2, T3 value3) {
+        setFieldsValue(value0, value1, value2, value3);
     }
 
     public T0 getF0() {
@@ -58,14 +54,19 @@ public class Tuple2<T0, T1> {
         return f1;
     }
 
-    /**
-     * Set all field values
-     *
-     * @param value0 The value for field 0
-     * @param value1 The value for field 1
-     */
-    public void setF0AndF1(T0 value0, T1 value1) {
+    public T2 getF2() {
+        return f2;
+    }
+
+    public T3 getF3() {
+        return f3;
+    }
+
+    public void setFieldsValue(T0 value0, T1 value1, T2 value2, T3 value3) {
         this.f0 = value0;
         this.f1 = value1;
+        this.f2 = value2;
+        this.f3 = value3;
     }
+
 }
