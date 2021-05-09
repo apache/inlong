@@ -51,4 +51,9 @@ public abstract class AbstractSamplePrint {
     public abstract void printExceptionCaught(Throwable e);
 
     public abstract void printExceptionCaught(Throwable e, String hostName, String nodeName);
+
+    public abstract void printWarn(String err);
+
+    public abstract void printError(String err);
+
 }

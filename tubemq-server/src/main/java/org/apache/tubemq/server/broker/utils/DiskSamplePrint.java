@@ -117,4 +117,13 @@ public class DiskSamplePrint extends AbstractSamplePrint {
         }
     }
 
+    @Override
+    public void printWarn(String err) {
+        //
+    }
+
+    @Override
+    public void printError(String err) {
+        //
+    }
 }

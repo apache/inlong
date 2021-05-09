@@ -1014,15 +1014,20 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
                 this.defMetaDataManager.getBrokerRunSyncManageMap();
         // update broker status
-        List<String> brokerTopicSetConfInfo =
+        Map<String, String> brokerTopicSetConfInfo =
                 this.defMetaDataManager.getBrokerTopicStrConfigInfo(brokerConfEntity, strBuffer);
+        List<String> brokerTopicSetConfInfoList =
+                new ArrayList<>(brokerTopicSetConfInfo.size());
+        for (String topicItem : brokerTopicSetConfInfo.values()) {
+            brokerTopicSetConfInfoList.add(topicItem);
+        }
         BrokerSyncStatusInfo brokerStatusInfo =
-                new BrokerSyncStatusInfo(brokerConfEntity, brokerTopicSetConfInfo);
+                new BrokerSyncStatusInfo(brokerConfEntity, brokerTopicSetConfInfoList);
         brokerSyncStatusMap.put(brokerConfEntity.getBrokerId(), brokerStatusInfo);
         brokerStatusInfo.updateCurrBrokerConfInfo(brokerConfEntity.getManageStatus().getCode(),
                 brokerConfEntity.isConfDataUpdated(), brokerConfEntity.isBrokerLoaded(),
-                brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfo, false);
-        if (brokerTopicSetConfInfo.isEmpty()) {
+                brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, false);
+        if (brokerTopicSetConfInfoList.isEmpty()) {
             needFastStart = true;
         }
         brokerStatusInfo.setFastStart(needFastStart);
@@ -1035,7 +1040,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             brokerStatusInfo.setBrokerReportInfo(true,
                     brokerStatusInfo.getLastPushBrokerConfId(),
                     brokerStatusInfo.getLastPushBrokerCheckSumId(), true,
-                    brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfo, true,
+                    brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, true,
                     request.getBrokerOnline(), overtls);
         }
         this.defMetaDataManager.removeBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
@@ -1197,6 +1202,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(e.getMessage());
             return builder.build();
         }
+
         // update broker status
         brokerSyncStatusInfo.setBrokerReportInfo(false, request.getCurBrokerConfId(),
                 request.getConfCheckSumId(), request.getTakeConfInfo(),
@@ -1260,7 +1266,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         builder.setTakeRemoveTopicInfo(true);
         builder.addAllRemoveTopicConfInfo(defMetaDataManager
-                .getBrokerRemovedTopicStrConfigInfo(brokerConfigEntry, strBuffer));
+                .getBrokerRemovedTopicStrConfigInfo(brokerConfigEntry, strBuffer).values());
         if (brokerSyncStatusInfo.needSyncConfDataToBroker()) {
             builder.setTakeConfInfo(true);
             builder.setBrokerDefaultConfInfo(brokerSyncStatusInfo

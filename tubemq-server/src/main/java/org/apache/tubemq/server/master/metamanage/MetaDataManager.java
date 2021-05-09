@@ -147,10 +147,15 @@ public class MetaDataManager implements Server {
                 boolean needFastStart = false;
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
                         this.brokerRunSyncManageMap.get(entity.getBrokerId());
-                List<String> brokerTopicSetConfInfo = getBrokerTopicStrConfigInfo(entity, sBuffer);
+                Map<String, String> brokerTopicSetConfInfo = getBrokerTopicStrConfigInfo(entity, sBuffer);
+                List<String> brokerTopicSetConfInfoList =
+                        new ArrayList<>(brokerTopicSetConfInfo.size());
+                for (String topicItem : brokerTopicSetConfInfo.values()) {
+                    brokerTopicSetConfInfoList.add(topicItem);
+                }
                 if (brokerSyncStatusInfo == null) {
                     brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(entity, brokerTopicSetConfInfo);
+                            new BrokerSyncStatusInfo(entity, brokerTopicSetConfInfoList);
                     BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
                             brokerRunSyncManageMap.putIfAbsent(entity.getBrokerId(),
                                     brokerSyncStatusInfo);
@@ -164,7 +169,7 @@ public class MetaDataManager implements Server {
                 brokerSyncStatusInfo.setFastStart(needFastStart);
                 brokerSyncStatusInfo.updateCurrBrokerConfInfo(entity.getManageStatus().getCode(),
                         entity.isConfDataUpdated(), entity.isBrokerLoaded(),
-                        entity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfo, false);
+                        entity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, false);
             }
         }
         isStarted = true;
@@ -866,13 +871,18 @@ public class MetaDataManager implements Server {
             return result.isSuccess();
         }
         String curBrokerConfStr = curEntity.getBrokerDefaultConfInfo();
-        List<String> curBrokerTopicConfStrSet =
+        Map<String, String> curBrokerTopicConfStrSet =
                 getBrokerTopicStrConfigInfo(curEntity, strBuffer);
+        List<String> brokerTopicSetConfInfoList =
+                new ArrayList<>(curBrokerTopicConfStrSet.size());
+        for (String topicItem : curBrokerTopicConfStrSet.values()) {
+            brokerTopicSetConfInfoList.add(topicItem);
+        }
         BrokerSyncStatusInfo brokerSyncStatusInfo =
                 this.brokerRunSyncManageMap.get(entity.getBrokerId());
         if (brokerSyncStatusInfo == null) {
             brokerSyncStatusInfo =
-                    new BrokerSyncStatusInfo(entity, curBrokerTopicConfStrSet);
+                    new BrokerSyncStatusInfo(entity, brokerTopicSetConfInfoList);
             BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
                     brokerRunSyncManageMap.putIfAbsent(entity.getBrokerId(), brokerSyncStatusInfo);
             if (tmpBrokerSyncStatusInfo != null) {
@@ -901,7 +911,7 @@ public class MetaDataManager implements Server {
                             || oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ);
             brokerSyncStatusInfo.updateCurrBrokerConfInfo(curManageStatus,
                     curEntity.isConfDataUpdated(), curEntity.isBrokerLoaded(), curBrokerConfStr,
-                    curBrokerTopicConfStrSet, isOnlineUpdate);
+                    brokerTopicSetConfInfoList, isOnlineUpdate);
         } else {
             brokerSyncStatusInfo.setBrokerOffline();
         }
@@ -1085,10 +1095,15 @@ public class MetaDataManager implements Server {
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
                         brokerRunSyncManageMap.get(curEntity.getBrokerId());
                 if (brokerSyncStatusInfo == null) {
-                    List<String> newBrokerTopicConfStrSet =
+                    Map<String, String> newBrokerTopicConfStrSet =
                             getBrokerTopicStrConfigInfo(curEntity, strBuffer);
+                    List<String> brokerTopicSetConfInfoList =
+                            new ArrayList<>(newBrokerTopicConfStrSet.size());
+                    for (String topicItem : newBrokerTopicConfStrSet.values()) {
+                        brokerTopicSetConfInfoList.add(topicItem);
+                    }
                     brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(curEntity, newBrokerTopicConfStrSet);
+                            new BrokerSyncStatusInfo(curEntity, brokerTopicSetConfInfoList);
                     BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
                             brokerRunSyncManageMap.putIfAbsent(curEntity.getBrokerId(), brokerSyncStatusInfo);
                     if (tmpBrokerSyncStatusInfo != null) {
@@ -1111,10 +1126,15 @@ public class MetaDataManager implements Server {
                 BrokerSyncStatusInfo brokerSyncStatusInfo =
                         brokerRunSyncManageMap.get(curEntity.getBrokerId());
                 if (brokerSyncStatusInfo == null) {
-                    List<String> newBrokerTopicConfStrSet =
+                    Map<String, String> newBrokerTopicConfStrSet =
                             getBrokerTopicStrConfigInfo(curEntity, strBuffer);
+                    List<String> brokerTopicSetConfInfoList =
+                            new ArrayList<>(newBrokerTopicConfStrSet.size());
+                    for (String topicItem : newBrokerTopicConfStrSet.values()) {
+                        brokerTopicSetConfInfoList.add(topicItem);
+                    }
                     brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(curEntity, newBrokerTopicConfStrSet);
+                            new BrokerSyncStatusInfo(curEntity, brokerTopicSetConfInfoList);
                     BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
                             brokerRunSyncManageMap.putIfAbsent(curEntity.getBrokerId(),
                                     brokerSyncStatusInfo);
@@ -1446,23 +1466,24 @@ public class MetaDataManager implements Server {
                 recordKey, strBuffer, result);
     }
 
-    public List<String> getBrokerTopicStrConfigInfo(
+    public Map<String, String> getBrokerTopicStrConfigInfo(
             BrokerConfEntity brokerConfEntity, StringBuilder sBuffer) {
         return inGetTopicConfStrInfo(brokerConfEntity, false, sBuffer);
     }
 
-    public List<String> getBrokerRemovedTopicStrConfigInfo(
+    public Map<String, String> getBrokerRemovedTopicStrConfigInfo(
             BrokerConfEntity brokerConfEntity, StringBuilder sBuffer) {
         return inGetTopicConfStrInfo(brokerConfEntity, true, sBuffer);
     }
 
-    private List<String> inGetTopicConfStrInfo(BrokerConfEntity brokerEntity,
-                                               boolean isRemoved, StringBuilder sBuffer) {
-        List<String> topicConfStrs = new ArrayList<>();
+    private Map<String, String> inGetTopicConfStrInfo(BrokerConfEntity brokerEntity,
+                                                      boolean isRemoved,
+                                                      StringBuilder sBuffer) {
+        Map<String, String> topicConfStrMap = new HashMap<>();
         Map<String, TopicDeployEntity> topicEntityMap =
                 metaStoreService.getConfiguredTopicInfo(brokerEntity.getBrokerId());
         if (topicEntityMap.isEmpty()) {
-            return topicConfStrs;
+            return topicConfStrMap;
         }
         TopicPropGroup defTopicProps = brokerEntity.getTopicProps();
         ClusterSettingEntity clusterDefConf =
@@ -1549,10 +1570,10 @@ public class MetaDataManager implements Server {
             } else {
                 sBuffer.append(TokenConstants.ATTR_SEP).append(maxMsgSize);
             }
-            topicConfStrs.add(sBuffer.toString());
+            topicConfStrMap.put(topicEntity.getTopicName(), sBuffer.toString());
             sBuffer.delete(0, sBuffer.length());
         }
-        return topicConfStrs;
+        return topicConfStrMap;
     }
 
     // /////////////////////////////////////////////////////////////////////////////////
