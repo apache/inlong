@@ -22,17 +22,23 @@ package codec
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"io"
 	"math"
+	"sync/atomic"
+
+	"github.com/golang/protobuf/proto"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
 )
 
 const (
 	// The default begin token of TubeMQ RPC protocol.
 	RPCProtocolBeginToken uint32 = 0xFF7FF4FE
 	// The default max buffer size the RPC response.
-	RPCMaxBufferSize uint32 = 8192
+	RPCMaxBufferSize int    = 8192
 	frameHeadLen     uint32 = 12
 	maxBufferSize    int    = 128 * 1024
 	defaultMsgSize   int    = 4096
@@ -41,6 +47,11 @@ const (
 	serialNoLen      uint32 = 4
 	beginTokenLen    uint32 = 4
 )
+
+var serialNo uint32
+func NewSerialNo() uint32 {
+	return atomic.AddUint32(&serialNo, 1)
+}
 
 // TubeMQDecoder is the implementation of the decoder of response from TubeMQ.
 type TubeMQDecoder struct {
@@ -130,3 +141,158 @@ func (t TubeMQResponse) GetSerialNo() uint32 {
 func (t TubeMQResponse) GetBuffer() []byte {
 	return t.Buffer
 }
+
+// TubeMQRPCRequest represents the request protocol of TubeMQ.
+type TubeMQRPCRequest struct {
+	serialNo      uint32
+	RpcHeader     *protocol.RpcConnHeader
+	RequestHeader *protocol.RequestHeader
+	RequestBody   *protocol.RequestBody
+	Body          proto.Message
+}
+
+// GetSerialNo returns the serialNo.
+func (t *TubeMQRPCRequest) GetSerialNo() uint32 {
+	return t.serialNo
+}
+
+// Marshal marshals the RPCRequest to bytes according to the TubeMQ RPC protocol.
+func (t *TubeMQRPCRequest) Marshal() ([]byte, error) {
+	reqBodyBuf, err := proto.Marshal(t.Body)
+	if err != nil {
+		return nil, err
+	}
+	t.RequestBody.Request = reqBodyBuf
+
+	data, err := encodeRequest(t)
+	if err != nil {
+		return nil, err
+	}
+
+	contentLen := int(dataLen) + int(dataLen) + int(dataLen) + len(data)
+	listSize := calcBlockCount(contentLen)
+
+	buf := bytes.NewBuffer(make([]byte, 0, int(frameHeadLen)+listSize*(RPCMaxBufferSize)))
+
+	if err := binary.Write(buf, binary.BigEndian, RPCProtocolBeginToken); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(buf, binary.BigEndian, t.GetSerialNo()); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(buf, binary.BigEndian, uint32(listSize)); err != nil {
+		return nil, err
+	}
+
+	begin := 0
+	for i := 0; i < listSize; i++ {
+		blockLen := contentLen - i*RPCMaxBufferSize
+		if blockLen > RPCMaxBufferSize {
+			blockLen = RPCMaxBufferSize
+		}
+		if err := binary.Write(buf, binary.BigEndian, uint32(blockLen)); err != nil {
+			return nil, err
+		}
+		if err := binary.Write(buf, binary.BigEndian, data[begin:begin+blockLen]); err != nil {
+			return nil, err
+		}
+		begin += blockLen
+	}
+	return buf.Bytes(), nil
+}
+
+func encodeRequest(req *TubeMQRPCRequest) ([]byte, error) {
+	rpcHeader, err := writeDelimitedTo(req.RpcHeader)
+	if err != nil {
+		return nil, err
+	}
+	requestHeader, err := writeDelimitedTo(req.RequestHeader)
+	if err != nil {
+		return nil, err
+	}
+	requestBody, err := writeDelimitedTo(req.RequestBody)
+	if err != nil {
+		return nil, err
+	}
+	return append(append(rpcHeader, requestHeader...), requestBody...), nil
+}
+
+func calcBlockCount(contentSize int) int {
+	blockCount := contentSize / RPCMaxBufferSize
+	remained := contentSize % RPCMaxBufferSize
+	if remained > 0 {
+		blockCount++
+	}
+	return blockCount
+}
+
+func writeDelimitedTo(msg proto.Message) ([]byte, error) {
+	dataLen := proto.EncodeVarint(uint64(proto.Size(msg)))
+	data, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+	return append(dataLen, data...), nil
+}
+
+// TubeMQRPCResponse represents the response protocol of TubeMQ.
+type TubeMQRPCResponse struct {
+	RpcHeader         *protocol.RpcConnHeader
+	ResponseHeader    *protocol.ResponseHeader
+	ResponseBody      *protocol.RspResponseBody
+	ResponseException *protocol.RspExceptionBody
+}
+
+// GetDebugMsg returns the debug msg of TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) GetDebugMsg() string {
+	return t.ResponseException.String()
+}
+
+// Unmarshal unmarshals the Response to RPCResponse according to the TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) Unmarshal(data []byte) error {
+	rpcHeader := &protocol.RpcConnHeader{}
+	data, err := readDelimitedFrom(data, rpcHeader)
+	if err != nil {
+		return err
+	}
+	rspHeader := &protocol.ResponseHeader{}
+	data, err = readDelimitedFrom(data, rspHeader)
+	if err != nil {
+		return err
+	}
+
+	t.RpcHeader = rpcHeader
+	t.ResponseHeader = rspHeader
+
+	if rspHeader.GetStatus() != protocol.ResponseHeader_SUCCESS {
+		rspException := &protocol.RspExceptionBody{}
+		data, err = readDelimitedFrom(data, rspException)
+		if err != nil {
+			return err
+		}
+		t.ResponseException = rspException
+		return nil
+	}
+
+	rspBody := &protocol.RspResponseBody{}
+	data, err = readDelimitedFrom(data, rspBody)
+	if err != nil {
+		return err
+	}
+	t.ResponseBody = rspBody
+	return nil
+}
+
+func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
+	size, n := proto.DecodeVarint(data)
+	if size == 0 && n == 0 {
+		return nil, errors.New("decode: invalid data len")
+	}
+
+	if err := proto.Unmarshal(data[n:n+int(size)], msg); err != nil {
+		return nil, err
+	}
+
+	return data[int(size)+n:], nil
+}
+

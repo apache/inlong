@@ -33,3 +33,19 @@ type Decoder interface {
 	// Decode will decode the response to frame head and body.
 	Decode() (Response, error)
 }
+
+// RPCRequest represents the RPC request protocol.
+type RPCRequest interface {
+	// GetSerialNo returns the `serialNo` of the corresponding request.
+	GetSerialNo() uint32
+	// Marshal marshals the RPCRequest to bytes.
+	Marshal() ([]byte, error)
+}
+
+// RPCResponse represents the RPC response from TubeMQ.
+type RPCResponse interface {
+	// Unmarshal unmarshals the bytes array.
+	Unmarshal([]byte) error
+	// GetDebugMsg returns the debug msg.
+	GetDebugMsg() string
+}
