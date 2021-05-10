@@ -27,6 +27,7 @@ import (
 	"errors"
 	"io"
 	"math"
+	"sync/atomic"
 
 	"github.com/golang/protobuf/proto"
 
@@ -46,6 +47,11 @@ const (
 	serialNoLen      uint32 = 4
 	beginTokenLen    uint32 = 4
 )
+
+var serialNo uint32
+func NewSerialNo() uint32 {
+	return atomic.AddUint32(&serialNo, 1)
+}
 
 // TubeMQDecoder is the implementation of the decoder of response from TubeMQ.
 type TubeMQDecoder struct {
@@ -138,7 +144,7 @@ func (t TubeMQResponse) GetBuffer() []byte {
 
 // TubeMQRPCRequest represents the request protocol of TubeMQ.
 type TubeMQRPCRequest struct {
-	SerialNo      uint32
+	serialNo      uint32
 	RpcHeader     *protocol.RpcConnHeader
 	RequestHeader *protocol.RequestHeader
 	RequestBody   *protocol.RequestBody
@@ -147,11 +153,11 @@ type TubeMQRPCRequest struct {
 
 // GetSerialNo returns the serialNo.
 func (t *TubeMQRPCRequest) GetSerialNo() uint32 {
-	return t.SerialNo
+	return t.serialNo
 }
 
-// Encode encodes the RPCRequest to bytes according to the TubeMQ RPC protocol.
-func (t *TubeMQRPCRequest) Encode() ([]byte, error) {
+// Marshal marshals the RPCRequest to bytes according to the TubeMQ RPC protocol.
+func (t *TubeMQRPCRequest) Marshal() ([]byte, error) {
 	reqBodyBuf, err := proto.Marshal(t.Body)
 	if err != nil {
 		return nil, err
@@ -171,7 +177,7 @@ func (t *TubeMQRPCRequest) Encode() ([]byte, error) {
 	if err := binary.Write(buf, binary.BigEndian, RPCProtocolBeginToken); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(buf, binary.BigEndian, t.SerialNo); err != nil {
+	if err := binary.Write(buf, binary.BigEndian, t.GetSerialNo()); err != nil {
 		return nil, err
 	}
 	if err := binary.Write(buf, binary.BigEndian, uint32(listSize)); err != nil {
@@ -231,36 +237,19 @@ func writeDelimitedTo(msg proto.Message) ([]byte, error) {
 
 // TubeMQRPCResponse represents the response protocol of TubeMQ.
 type TubeMQRPCResponse struct {
-	SerialNo          uint32
 	RpcHeader         *protocol.RpcConnHeader
 	ResponseHeader    *protocol.ResponseHeader
 	ResponseBody      *protocol.RspResponseBody
 	ResponseException *protocol.RspExceptionBody
 }
 
-// GetSerialNo returns the SerialNo of TubeMQRPCResponse
-func (t *TubeMQRPCResponse) GetSerialNo() uint32 {
-	return t.SerialNo
+// GetDebugMsg returns the debug msg of TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) GetDebugMsg() string {
+	return t.ResponseException.String()
 }
 
-// GetException returns the exception of TubeMQ RPC protocol.
-func (t *TubeMQRPCResponse) GetException() string {
-	return t.ResponseException.GetExceptionName()
-}
-
-// GetStackTrace returns the stack trace of TubeMQ RPC protocol.
-func (t *TubeMQRPCResponse) GetStackTrace() string {
-	return t.ResponseException.GetStackTrace()
-}
-
-// GetResponseBody returns the response body of TubeMQ RPC protocol.
-func (t *TubeMQRPCResponse) GetResponseBody() []byte {
-	return t.ResponseBody.GetData()
-}
-
-// Decode decodes the Response to RPCResponse according to the TubeMQ RPC protocol.
-func (t *TubeMQRPCResponse) Decode(response Response) error {
-	data := response.GetBuffer()
+// Unmarshal unmarshals the Response to RPCResponse according to the TubeMQ RPC protocol.
+func (t *TubeMQRPCResponse) Unmarshal(data []byte) error {
 	rpcHeader := &protocol.RpcConnHeader{}
 	data, err := readDelimitedFrom(data, rpcHeader)
 	if err != nil {
@@ -272,26 +261,25 @@ func (t *TubeMQRPCResponse) Decode(response Response) error {
 		return err
 	}
 
-	t.SerialNo = response.GetSerialNo()
 	t.RpcHeader = rpcHeader
 	t.ResponseHeader = rspHeader
 
-	if rspHeader.GetStatus() == protocol.ResponseHeader_SUCCESS {
-		rspBody := &protocol.RspResponseBody{}
-		data, err = readDelimitedFrom(data, rspBody)
+	if rspHeader.GetStatus() != protocol.ResponseHeader_SUCCESS {
+		rspException := &protocol.RspExceptionBody{}
+		data, err = readDelimitedFrom(data, rspException)
 		if err != nil {
 			return err
 		}
-		t.ResponseBody = rspBody
+		t.ResponseException = rspException
 		return nil
 	}
 
-	rspException := &protocol.RspExceptionBody{}
-	data, err = readDelimitedFrom(data, rspException)
+	rspBody := &protocol.RspResponseBody{}
+	data, err = readDelimitedFrom(data, rspBody)
 	if err != nil {
 		return err
 	}
-	t.ResponseException = rspException
+	t.ResponseBody = rspBody
 	return nil
 }
 

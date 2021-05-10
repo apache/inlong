@@ -26,8 +26,8 @@ import (
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
 )
 
-// ClientOptions represents the transport options
-type ClientOptions struct {
+// Options represents the transport options
+type Options struct {
 	Address string
 
 	CACertFile    string
@@ -38,12 +38,12 @@ type ClientOptions struct {
 
 // Client is the transport layer to TubeMQ which is used to communicate with TubeMQ
 type Client struct {
-	opts *ClientOptions
+	opts *Options
 	pool *multiplexing.Pool
 }
 
 // New return a default transport client.
-func New(opts *ClientOptions, pool *multiplexing.Pool) *Client {
+func New(opts *Options, pool *multiplexing.Pool) *Client {
 	return &Client{
 		opts: opts,
 		pool: pool,
@@ -68,7 +68,7 @@ func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest) (codec.RPC
 		return nil, err
 	}
 
-	b, err := req.Encode()
+	b, err := req.Marshal()
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest) (codec.RPC
 	}
 
 	t := &codec.TubeMQRPCResponse{}
-	err = t.Decode(rsp)
+	err = t.Unmarshal(rsp.GetBuffer())
 	if err != nil {
 		return nil, err
 	}

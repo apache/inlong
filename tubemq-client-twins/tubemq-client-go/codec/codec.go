@@ -38,20 +38,14 @@ type Decoder interface {
 type RPCRequest interface {
 	// GetSerialNo returns the `serialNo` of the corresponding request.
 	GetSerialNo() uint32
-	// Encode encodes the RPCRequest to bytes.
-	Encode() ([]byte, error)
+	// Marshal marshals the RPCRequest to bytes.
+	Marshal() ([]byte, error)
 }
 
 // RPCResponse represents the RPC response from TubeMQ.
 type RPCResponse interface {
-	// GetSerialNo returns the `serialNo` of the corresponding request.
-	GetSerialNo() uint32
-	// Decode decodes the Response.
-	Decode(response Response) error
-	// GetException returns the exception msg.
-	GetException() string
-	// GetStackTrace returns the stack track msg.
-	GetStackTrace() string
-	// GetResponseBody returns the response bod.
-	GetResponseBody() []byte
+	// Unmarshal unmarshals the bytes array.
+	Unmarshal([]byte) error
+	// GetDebugMsg returns the debug msg.
+	GetDebugMsg() string
 }
