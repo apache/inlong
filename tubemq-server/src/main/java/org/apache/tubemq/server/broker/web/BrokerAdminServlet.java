@@ -436,7 +436,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         final String topicName = (String) result.retData1;
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.PARTITIONID, true, -1, 0, result)) {
+                WebFieldDef.PARTITIONID, false, -1, 0, result)) {
             WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
             return;
         }
