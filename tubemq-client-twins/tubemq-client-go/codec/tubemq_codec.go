@@ -295,3 +295,4 @@ func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
 
 	return data[int(size)+n:], nil
 }
+
