@@ -18,9 +18,7 @@
 package org.apache.tubemq.server.master.nodemanage.nodebroker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.cluster.BrokerInfo;
-import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
@@ -40,35 +37,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BrokerInfoHolder {
+public class BrokerAbnHolder {
     private static final Logger logger =
-            LoggerFactory.getLogger(BrokerInfoHolder.class);
-    private final ConcurrentHashMap<Integer/* brokerId */, BrokerInfo> brokerInfoMap =
-            new ConcurrentHashMap<>();
+            LoggerFactory.getLogger(BrokerAbnHolder.class);
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerAbnInfo> brokerAbnormalMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerFbdInfo> brokerForbiddenMap =
             new ConcurrentHashMap<>();
     private final int maxAutoForbiddenCnt;
     private final MetaDataManager metaDataManager;
-    private AtomicInteger brokerTotalCount = new AtomicInteger(0);
     private AtomicInteger brokerForbiddenCount = new AtomicInteger(0);
 
 
-    public BrokerInfoHolder(final int maxAutoForbiddenCnt,
-                            final MetaDataManager metaDataManager) {
+    public BrokerAbnHolder(final int maxAutoForbiddenCnt,
+                           final MetaDataManager metaDataManager) {
         this.maxAutoForbiddenCnt = maxAutoForbiddenCnt;
         this.metaDataManager = metaDataManager;
-    }
-
-    public BrokerInfo getBrokerInfo(int brokerId) {
-        return brokerInfoMap.get(brokerId);
-    }
-
-    public void setBrokerInfo(int brokerId, BrokerInfo brokerInfo) {
-        if (brokerInfoMap.put(brokerId, brokerInfo) == null) {
-            this.brokerTotalCount.incrementAndGet();
-        }
     }
 
     public void updateBrokerReportStatus(int brokerId,
@@ -156,44 +140,15 @@ public class BrokerInfoHolder {
         }
     }
 
-    public void setBrokerHeartBeatReqStatus(int brokerId,
-                                            ClientMaster.HeartResponseM2B.Builder builder) {
+    public Tuple2<Boolean, Boolean> getBrokerAutoFbdStatus(int brokerId) {
+        Tuple2<Boolean, Boolean> retTuple = new Tuple2<>(false, false);
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.get(brokerId);
         if (brokerFbdInfo == null) {
-            builder.setStopWrite(false);
-            builder.setStopRead(false);
-        } else {
-            switch (brokerFbdInfo.newStatus) {
-                case STATUS_MANAGE_ONLINE_NOT_READ: {
-                    builder.setStopWrite(false);
-                    builder.setStopRead(true);
-                }
-                break;
-                case STATUS_MANAGE_ONLINE_NOT_WRITE: {
-                    builder.setStopWrite(true);
-                    builder.setStopRead(false);
-                }
-                break;
-                case STATUS_MANAGE_OFFLINE: {
-                    builder.setStopWrite(true);
-                    builder.setStopRead(true);
-                }
-                break;
-                case STATUS_MANAGE_ONLINE:
-                default: {
-                    builder.setStopWrite(false);
-                    builder.setStopRead(false);
-                }
-            }
+            return retTuple;
         }
-    }
-
-    public Map<Integer, BrokerInfo> getBrokerInfos(Collection<Integer> brokerIds) {
-        HashMap<Integer, BrokerInfo> brokerMap = new HashMap<>();
-        for (Integer brokerId : brokerIds) {
-            brokerMap.put(brokerId, brokerInfoMap.get(brokerId));
-        }
-        return brokerMap;
+        retTuple.setF0AndF1(brokerFbdInfo.newStatus.isAcceptPublish(),
+                brokerFbdInfo.newStatus.isAcceptSubscribe());
+        return retTuple;
     }
 
     /**
@@ -202,25 +157,15 @@ public class BrokerInfoHolder {
      * @param brokerId
      * @return the deleted broker info
      */
-    public BrokerInfo removeBroker(Integer brokerId) {
-        BrokerInfo brokerInfo = brokerInfoMap.remove(brokerId);
+    public void removeBroker(Integer brokerId) {
         brokerAbnormalMap.remove(brokerId);
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.remove(brokerId);
-        if (brokerInfo != null) {
-            this.brokerTotalCount.decrementAndGet();
-        }
         if (brokerFbdInfo != null) {
             this.brokerForbiddenCount.decrementAndGet();
         }
-        return brokerInfo;
-    }
-
-    public Map<Integer, BrokerInfo> getBrokerInfoMap() {
-        return brokerInfoMap;
     }
 
     public void clear() {
-        brokerInfoMap.clear();
         brokerForbiddenCount.set(0);
         brokerAbnormalMap.clear();
         brokerForbiddenMap.clear();

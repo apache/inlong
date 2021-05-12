@@ -23,8 +23,7 @@ import org.apache.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 
 
@@ -33,8 +32,7 @@ public interface LoadBalancer {
     Map<String, Map<String, List<Partition>>> balanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder,
-            BrokerInfoHolder brokerHolder,
-            TopicPSInfoManager topicPSInfoManager,
+            BrokerRunManager brokerRunManager,
             List<String> groups,
             MetaDataManager metaDataManager,
             int defAllowBClientRate,
@@ -43,21 +41,21 @@ public interface LoadBalancer {
     Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder,
-            TopicPSInfoManager topicPSInfoManager,
+            BrokerRunManager brokerRunManager,
             List<String> groups,
             OffsetStorage zkOffsetStorage,
             MetaDataManager metaDataManager,
             final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
-                                                        TopicPSInfoManager topicPSInfoManager,
+                                                        BrokerRunManager brokerRunManager,
                                                         List<String> groups,
                                                         MetaDataManager metaDataManager,
                                                         int defAllowBClientRate,
                                                         final StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,
-                                                                    TopicPSInfoManager topicPSInfoManager,
+                                                                    BrokerRunManager brokerRunManager,
                                                                     List<String> groups,
                                                                     OffsetStorage zkOffsetStorage,
                                                                     MetaDataManager metaDataManager,

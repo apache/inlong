@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
@@ -32,9 +31,13 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 
+
+
 public class BrokerTopicInfoView {
-    private ConcurrentHashMap<String/* topicName */, TopicInfoView>
-            topicConfInfoMap = new ConcurrentHashMap<>();
+    public AtomicLong topicChangeId = new AtomicLong(0);
+    private ConcurrentHashMap<String/* topicName */,
+            ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap =
+            new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>>
             brokerIdIndexMap = new ConcurrentHashMap<>();
 
@@ -44,7 +47,7 @@ public class BrokerTopicInfoView {
 
     // remove broker all topic info
     public void rmvBrokerTopicInfo(int brokerId) {
-        TopicInfoView topicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         // remove pub info
         ConcurrentHashSet<String> topicSet =
                 brokerIdIndexMap.remove(brokerId);
@@ -57,11 +60,12 @@ public class BrokerTopicInfoView {
             }
             topicInfoView = topicConfInfoMap.get(topic);
             if (topicInfoView == null
-                    || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                    || topicInfoView.isEmpty()) {
                 continue;
             }
-            topicInfoView.rmvBrokerTopicInfo(brokerId);
+            topicInfoView.remove(brokerId);
         }
+        topicChangeId.set(System.currentTimeMillis());
     }
 
     /**
@@ -72,8 +76,7 @@ public class BrokerTopicInfoView {
      *                    if topicInfoMap is null, reserve current configure;
      *                    if topicInfoMap is empty, clear current configure.
      */
-    public void updBrokerTopicConfInfo(int brokerId,
-                                       Map<String, TopicInfo> topicInfoMap) {
+    public void updBrokerTopicConfInfo(int brokerId, Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return;
         }
@@ -90,6 +93,7 @@ public class BrokerTopicInfoView {
         rmvBrokerTopicInfo(brokerId, delTopicSet);
         // add or update TopicInfo
         repBrokerTopicInfo(brokerId, topicInfoMap);
+        topicChangeId.set(System.currentTimeMillis());
     }
 
     /**
@@ -98,9 +102,9 @@ public class BrokerTopicInfoView {
      * @param topicSet need query topic set
      */
     public int getMaxTopicBrokerCnt(Set<String> topicSet) {
-        int maxCount = -1;
         int tmpSize;
-        TopicInfoView topicInfoView;
+        int maxCount = -1;
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         if (topicSet == null || topicSet.isEmpty()) {
             return maxCount;
         }
@@ -110,10 +114,10 @@ public class BrokerTopicInfoView {
             }
             topicInfoView = topicConfInfoMap.get(topic);
             if (topicInfoView == null
-                    || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                    || topicInfoView.isEmpty()) {
                 continue;
             }
-            tmpSize = topicInfoView.curMapSize.get();
+            tmpSize = topicInfoView.size();
             if (maxCount < tmpSize) {
                 maxCount = tmpSize;
             }
@@ -122,20 +126,24 @@ public class BrokerTopicInfoView {
     }
 
     /**
-     * Gets the list of topic partitions whose subscribe status is enabled
+     * Gets the map of topic partitions whose subscribe status is enabled
      *
      * @param topicSet need query topic set
      */
-    public List<Partition> getAcceptSubParts(Set<String> topicSet,
+    public Map<String, Partition> getAcceptSubParts(Set<String> topicSet,
                                              Set<Integer> enableSubBrokerIdSet) {
-        List<Partition> partList = new ArrayList<>();
+        Map<String, Partition> partMap = new HashMap<>();
         if (topicSet == null || topicSet.isEmpty()) {
-            return partList;
+            return partMap;
         }
+        List<Partition> tmpPartList;
         for (String topic : topicSet) {
-            partList.addAll(getAcceptSubParts(topic, enableSubBrokerIdSet));
+            tmpPartList = getAcceptSubParts(topic, enableSubBrokerIdSet);
+            for (Partition partition : tmpPartList) {
+                partMap.put(partition.getPartitionKey(), partition);
+            }
         }
-        return partList;
+        return partMap;
     }
 
     /**
@@ -143,20 +151,20 @@ public class BrokerTopicInfoView {
      *
      * @param topic need query topic set
      */
-    public List<Partition> getAcceptSubParts(String topic,
-                                             Set<Integer> enableSubBrokerIdSet) {
+    public List<Partition> getAcceptSubParts(String topic, Set<Integer> enableSubBrokerIdSet) {
+        Partition tmpPart;
         TopicInfo topicInfo;
         List<Partition> partList = new ArrayList<>();
         if (topic == null) {
             return partList;
         }
-        TopicInfoView topicInfoView = topicConfInfoMap.get(topic);
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView =
+                topicConfInfoMap.get(topic);
         if (topicInfoView == null
-                || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                || topicInfoView.isEmpty()) {
             return partList;
         }
-        for (Map.Entry<Integer, TopicInfo> entry
-                : topicInfoView.brokerTopicInfoMap.entrySet()) {
+        for (Map.Entry<Integer, TopicInfo> entry : topicInfoView.entrySet()) {
             if (entry.getKey() == null
                     || entry.getValue() == null
                     || !enableSubBrokerIdSet.contains(entry.getKey())) {
@@ -184,21 +192,22 @@ public class BrokerTopicInfoView {
     public Map<String, String> getAcceptPubPartInfo(Set<String> topicSet,
                                                     Set<Integer> enablePubBrokerIdSet) {
         TopicInfo topicInfo;
-        TopicInfoView topicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         Map<String, String> topicPartStrMap = new HashMap<>();
-        Map<String, StringBuilder> topicPartBufferMap =
-                new HashMap<>();
+        Map<String, StringBuilder> topicPartBufferMap = new HashMap<>();
+        if (topicSet == null || topicSet.isEmpty()) {
+            return topicPartStrMap;
+        }
         for (String topic : topicSet) {
             if (topic == null) {
                 continue;
             }
             topicInfoView = topicConfInfoMap.get(topic);
             if (topicInfoView == null
-                    || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                    || topicInfoView.isEmpty()) {
                 continue;
             }
-            for (Map.Entry<Integer, TopicInfo> entry
-                    : topicInfoView.brokerTopicInfoMap.entrySet()) {
+            for (Map.Entry<Integer, TopicInfo> entry : topicInfoView.entrySet()) {
                 if (entry.getKey() == null
                         || entry.getValue() == null
                         || !enablePubBrokerIdSet.contains(entry.getKey())) {
@@ -238,11 +247,12 @@ public class BrokerTopicInfoView {
      * @return null or topicInfo configure
      */
     public TopicInfo getBrokerPushedTopicInfo(int brokerId, String topic) {
-        TopicInfoView topicInfoView = topicConfInfoMap.get(topic);
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView =
+                topicConfInfoMap.get(topic);
         if (topicInfoView == null) {
             return null;
         }
-        return topicInfoView.brokerTopicInfoMap.get(brokerId);
+        return topicInfoView.get(brokerId);
     }
 
     /**
@@ -252,7 +262,7 @@ public class BrokerTopicInfoView {
      */
     public List<TopicInfo> getBrokerPushedTopicInfo(int brokerId) {
         TopicInfo topicInfo;
-        TopicInfoView topicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         List<TopicInfo> topicInfoList = new ArrayList<>();
         ConcurrentHashSet<String> topicSet = brokerIdIndexMap.get(brokerId);
         if (topicSet == null) {
@@ -264,10 +274,10 @@ public class BrokerTopicInfoView {
             }
             topicInfoView = topicConfInfoMap.get(topic);
             if (topicInfoView == null
-                    || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                    || topicInfoView.isEmpty()) {
                 continue;
             }
-            topicInfo = topicInfoView.brokerTopicInfoMap.get(brokerId);
+            topicInfo = topicInfoView.get(brokerId);
             if (topicInfo == null) {
                 continue;
             }
@@ -282,9 +292,8 @@ public class BrokerTopicInfoView {
         if (delTopicSet == null || delTopicSet.isEmpty()) {
             return;
         }
-        ConcurrentHashSet<String> topicSet =
-                brokerIdIndexMap.get(brokerId);
-        TopicInfoView topicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
+        ConcurrentHashSet<String> topicSet = brokerIdIndexMap.get(brokerId);
         if (topicSet == null || topicSet.isEmpty()) {
             return;
         }
@@ -292,10 +301,10 @@ public class BrokerTopicInfoView {
             topicSet.remove(topic);
             topicInfoView = topicConfInfoMap.get(topic);
             if ((topicInfoView == null)
-                    || topicInfoView.brokerTopicInfoMap.isEmpty()) {
+                    || topicInfoView.isEmpty()) {
                 continue;
             }
-            topicInfoView.rmvBrokerTopicInfo(brokerId);
+            topicInfoView.remove(brokerId);
         }
     }
 
@@ -306,22 +315,22 @@ public class BrokerTopicInfoView {
             return;
         }
         // add topic info
-        TopicInfoView newTopicInfoView;
-        TopicInfoView curTopicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> newTopicInfoView;
+        ConcurrentHashMap<Integer, TopicInfo> curTopicInfoView;
         for (TopicInfo topicInfo : topicInfoMap.values()) {
             if (topicInfo == null) {
                 continue;
             }
             curTopicInfoView = topicConfInfoMap.get(topicInfo.getTopic());
             if (curTopicInfoView == null) {
-                newTopicInfoView = new TopicInfoView();
+                newTopicInfoView = new ConcurrentHashMap<Integer, TopicInfo>();
                 curTopicInfoView = topicConfInfoMap.putIfAbsent(
                         topicInfo.getTopic(), newTopicInfoView);
                 if (curTopicInfoView == null) {
                     curTopicInfoView = newTopicInfoView;
                 }
             }
-            curTopicInfoView.addOrUpdBrokerTopicInfo(brokerId, topicInfo);
+            curTopicInfoView.put(brokerId, topicInfo.clone());
         }
         // add broker index
         ConcurrentHashSet<String> curTopicSet = brokerIdIndexMap.get(brokerId);
@@ -335,38 +344,4 @@ public class BrokerTopicInfoView {
         curTopicSet.addAll(topicInfoMap.keySet());
     }
 
-    private static class TopicInfoView {
-        public AtomicInteger curMapSize = new AtomicInteger(0);
-        public AtomicLong topicChangeId = new AtomicLong(0);
-        public ConcurrentHashMap<Integer/* brokerId */, TopicInfo> brokerTopicInfoMap =
-                new ConcurrentHashMap<Integer/* brokerId */, TopicInfo>();
-
-        public TopicInfoView() {
-
-        }
-
-        public boolean rmvBrokerTopicInfo(int brokerId) {
-            TopicInfo topicInfo = brokerTopicInfoMap.remove(brokerId);
-            if (topicInfo == null) {
-                return false;
-            }
-            curMapSize.decrementAndGet();
-            topicChangeId.set(System.currentTimeMillis());
-            return true;
-        }
-
-        public boolean addOrUpdBrokerTopicInfo(int brokerId, TopicInfo topicInfo) {
-            if (topicInfo == null) {
-                return false;
-            }
-            TopicInfo newTopicInfo = topicInfo.clone();
-            TopicInfo preTopicInfo =
-                    brokerTopicInfoMap.put(brokerId, newTopicInfo);
-            if (preTopicInfo == null) {
-                curMapSize.incrementAndGet();
-            }
-            topicChangeId.set(System.currentTimeMillis());
-            return true;
-        }
-    }
 }

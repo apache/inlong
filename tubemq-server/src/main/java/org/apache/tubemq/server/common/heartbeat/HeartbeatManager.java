@@ -23,8 +23,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.exception.HeartbeatException;
+import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,10 +166,12 @@ public class HeartbeatManager {
      * Register a node as broker.
      *
      * @param nodeId the id of a node to be registered.
+     * @param createId  broker run-info block id
      * @return the timeout info for the registered node
      */
-    public TimeoutInfo regBrokerNode(final String nodeId) {
-        return this.brokerRegMap.put(nodeId, new TimeoutInfo(this.brokerTimeoutDlt));
+    public TimeoutInfo regBrokerNode(String nodeId, String createId) {
+        return this.brokerRegMap.put(nodeId,
+                new TimeoutInfo(createId, this.brokerTimeoutDlt));
     }
 
     /**
@@ -208,10 +213,18 @@ public class HeartbeatManager {
      * Unregister a node from the broker
      *
      * @param nodeId the id of node to be unregistered
-     * @return the timeout of the node
+     * @return if the timeout delete, true: success, false: failure
      */
-    public TimeoutInfo unRegBrokerNode(final String nodeId) {
-        return brokerRegMap.remove(nodeId);
+    public boolean unRegBrokerNode(String nodeId, String createId) {
+        TimeoutInfo timeoutInfo = brokerRegMap.get(nodeId);
+        if (timeoutInfo == null) {
+            return true;
+        }
+        if (!createId.equals(timeoutInfo.getSecondKey())) {
+            return false;
+        }
+        timeoutInfo = brokerRegMap.remove(nodeId);
+        return true;
     }
 
     /**
@@ -240,14 +253,26 @@ public class HeartbeatManager {
      * @param nodeId the id of node to be updated
      * @throws HeartbeatException if the timeout info of the node is not found
      */
-    public void updBrokerNode(final String nodeId) throws HeartbeatException {
+    public boolean updBrokerNode(String nodeId, String createId,
+                                 StringBuilder sBuffer, ProcessResult result) {
         TimeoutInfo timeoutInfo = brokerRegMap.get(nodeId);
         if (timeoutInfo == null) {
-            throw new HeartbeatException(new StringBuilder(512)
-                    .append("Invalid node id:").append(nodeId)
-                    .append(", you have to append node first!").toString());
+            result.setFailResult(TErrCodeConstants.HB_NO_NODE,
+                    sBuffer.append("Invalid node id:").append(nodeId)
+                            .append(", you have to append node first!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        if (createId.equals(timeoutInfo.getSecondKey())) {
+            result.setFailResult(TErrCodeConstants.HB_NO_NODE,
+                    sBuffer.append("Invalid node block id:").append(nodeId)
+                            .append(", you have to append node first!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
         }
         timeoutInfo.updTimeoutTime(this.brokerTimeoutDlt);
+        result.setSuccResult(null);
+        return result.isSuccess();
     }
 
     /**

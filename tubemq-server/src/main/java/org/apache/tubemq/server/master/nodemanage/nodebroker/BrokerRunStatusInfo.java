@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
+
 public class BrokerRunStatusInfo {
 
     private static final Logger logger =
@@ -46,7 +48,7 @@ public class BrokerRunStatusInfo {
     private final BrokerRunManager brokerRunManager;
 
     private BrokerInfo brokerInfo;
-    private long createId;
+    private String createId;
     // config change flag
     private AtomicBoolean isConfChanged = new AtomicBoolean(false);
     private AtomicLong confChangeNo =
@@ -60,7 +62,7 @@ public class BrokerRunStatusInfo {
     // broker sync data info
     BrokerSyncData brokerSyncData = new BrokerSyncData();
     // broker status conditions
-    private boolean isOnline = false;     // broker online flag
+    private boolean isOnline = false;       // broker online flag
     private boolean isDoneDataLoad = false;
     private boolean isDoneDataSub = false;
     private boolean isDoneDataPub = false;
@@ -83,7 +85,7 @@ public class BrokerRunStatusInfo {
                                     String brokerConfInfo, Map<String, String> topicConfInfoMap,
                                     boolean isOverTls) {
         resetStatusInfo();
-        this.createId = System.nanoTime();
+        this.createId = String.valueOf(System.nanoTime());
         this.brokerInfo = brokerInfo;
         long curTime = System.currentTimeMillis();
         this.isOverTLS = isOverTls;
@@ -111,20 +113,37 @@ public class BrokerRunStatusInfo {
                 && this.confChangeNo.get() != this.confLoadedNo.get()));
     }
 
-    public long getCreateId() {
+    public String getCreateId() {
         return this.createId;
     }
 
+    public boolean isOverTLS() {
+        return isOverTLS;
+    }
+
+    public BrokerInfo getBrokerInfo() {
+        return brokerInfo;
+    }
+
+    public boolean inProcessingStatus() {
+        return curStepStatus != StepStatus.STEP_STATUS_UNDEFINED;
+    }
+
+    public StepStatus getCurStepStatus() {
+        return curStepStatus;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
 
     /**
      * Get need sync to broker's data
      *
-     * @param retValue return data container, ** must not null **
-     * @return void
+     * @return return data container
      */
-    public void getNeedSyncData(Tuple4<Long,
-            Integer, String, Map<String, String>> retValue) {
-        brokerSyncData.getBrokerSyncData(retValue);
+    public Tuple4<Long, Integer, String, List<String>> getNeedSyncData() {
+        return brokerSyncData.getBrokerSyncData();
     }
 
     /**
@@ -149,6 +168,31 @@ public class BrokerRunStatusInfo {
                         repCheckSumId, isTackData, repBrokerConfInfo, repTopicConfs);
         this.isOnline = isOnline;
         goNextStatus(isRegister, isSynchronized, sBuffer);
+    }
+
+    /* Format to json */
+    public StringBuilder toJsonString(StringBuilder sBuffer) {
+        Tuple2<Boolean, Boolean> confStatusTuple = getDataSyncStatus();
+        sBuffer.append("\"BrokerRunStatusInfo\":{\"type\":\"BrokerRunStatusInfo\"")
+                .append(",\"brokerInfo\":\"").append(brokerInfo.getBrokerStrInfo())
+                .append("\",\"createId\":\"").append(createId)
+                .append("\",\"isConfChanged\":").append(confStatusTuple.getF0())
+                .append("\",\"isConfLoaded\":").append(confStatusTuple.getF1())
+                .append(",\"confChangeNo\":").append(confChangeNo.get())
+                .append(",\"curStepStatus\":\"").append(curStepStatus.getDescription())
+                .append("\",\"nextStepOpTimeInMills\":").append(nextStepOpTimeInMills)
+                .append("\",\"confLoadedNo\":").append(confLoadedNo.get())
+                .append(",\"isOnline\":").append(isOnline)
+                .append(",\"isDoneDataLoad\":").append(isDoneDataLoad)
+                .append(",\"isDoneDataSub\":").append(isDoneDataSub)
+                .append(",\"isDoneDataPub\":").append(isDoneDataPub)
+                .append(",\"isDoneDataPub\":").append(isDoneDataPub)
+                .append(",\"isOverTLS\":").append(isOverTLS)
+                .append(",\"lastBrokerSyncTime\":").append(lastBrokerSyncTime)
+                .append(",\"maxConfLoadedTimeInMs\":").append(maxConfLoadedTimeInMs)
+                .append(",\"curConfLoadTimeInMs\":").append(curConfLoadTimeInMs)
+                .append(",\"BrokerSyncData\":");
+        return brokerSyncData.toJsonString(sBuffer);
     }
 
     private void goNextStatus(boolean isRegister,

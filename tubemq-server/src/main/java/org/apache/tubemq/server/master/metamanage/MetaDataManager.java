@@ -25,28 +25,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.TokenConstants;
-import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.Server;
 import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStsChgType;
 import org.apache.tubemq.server.common.utils.ProcessResult;
-import org.apache.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.tubemq.server.master.MasterConfig;
+import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceImpl;
 import org.apache.tubemq.server.master.metamanage.metastore.MetaStoreService;
@@ -58,7 +55,8 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResC
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 import org.apache.tubemq.server.master.web.handler.BrokerProcessResult;
 import org.apache.tubemq.server.master.web.handler.GroupProcessResult;
 import org.apache.tubemq.server.master.web.handler.TopicProcessResult;
@@ -72,34 +70,27 @@ public class MetaDataManager implements Server {
 
     private static final Logger logger =
             LoggerFactory.getLogger(MetaDataManager.class);
+    private final TMaster tMaster;
     private static final ClusterSettingEntity defClusterSetting =
             new ClusterSettingEntity().fillDefaultValue();
     private final MasterReplicationConfig replicationConfig;
     private final ScheduledExecutorService scheduledExecutorService;
-    private final ConcurrentHashMap<Integer, String> brokersMap =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, String> brokersTLSMap =
-            new ConcurrentHashMap<>();
-
     private final MasterGroupStatus masterGroupStatus = new MasterGroupStatus();
 
-    private ConcurrentHashMap<Integer/* brokerId */, BrokerSyncStatusInfo> brokerRunSyncManageMap =
-            new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashMap<String/* topicName */, TopicInfo>>
-            brokerRunTopicInfoStoreMap = new ConcurrentHashMap<>();
     private volatile boolean isStarted = false;
     private volatile boolean isStopped = false;
     private MetaStoreService metaStoreService;
-    private AtomicLong brokerInfoCheckSum = new AtomicLong(System.currentTimeMillis());
-    private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private long serviceStartTime = System.currentTimeMillis();
 
 
-    public MetaDataManager(String nodeHost, String metaDataPath,
-                           MasterReplicationConfig replicationConfig) {
-        this.replicationConfig = replicationConfig;
+
+    public MetaDataManager(TMaster tMaster) {
+        this.tMaster = tMaster;
+        MasterConfig masterConfig = this.tMaster.getMasterConfig();
+        this.replicationConfig = masterConfig.getReplicationConfig();
         this.metaStoreService =
-                new BdbMetaStoreServiceImpl(nodeHost, metaDataPath, replicationConfig);
+                new BdbMetaStoreServiceImpl(masterConfig.getHostName(),
+                        masterConfig.getMetaDataPath(), this.replicationConfig);
 
         this.scheduledExecutorService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -138,40 +129,8 @@ public class MetaDataManager implements Server {
             }
         }, 0, replicationConfig.getRepStatusCheckTimeoutMs(), TimeUnit.MILLISECONDS);
         // initial running data
-        StringBuilder sBuffer = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
-        Map<Integer, BrokerConfEntity> curBrokerConfInfo =
-                this.metaStoreService.getBrokerConfInfo(null);
-        for (BrokerConfEntity entity : curBrokerConfInfo.values()) {
-            updateBrokerMaps(entity);
-            if (entity.getManageStatus().isApplied()) {
-                boolean needFastStart = false;
-                BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        this.brokerRunSyncManageMap.get(entity.getBrokerId());
-                Map<String, String> brokerTopicSetConfInfo = getBrokerTopicStrConfigInfo(entity, sBuffer);
-                List<String> brokerTopicSetConfInfoList =
-                        new ArrayList<>(brokerTopicSetConfInfo.size());
-                for (String topicItem : brokerTopicSetConfInfo.values()) {
-                    brokerTopicSetConfInfoList.add(topicItem);
-                }
-                if (brokerSyncStatusInfo == null) {
-                    brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(entity, brokerTopicSetConfInfoList);
-                    BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
-                            brokerRunSyncManageMap.putIfAbsent(entity.getBrokerId(),
-                                    brokerSyncStatusInfo);
-                    if (tmpBrokerSyncStatusInfo != null) {
-                        brokerSyncStatusInfo = tmpBrokerSyncStatusInfo;
-                    }
-                }
-                if (brokerTopicSetConfInfo.isEmpty()) {
-                    needFastStart = true;
-                }
-                brokerSyncStatusInfo.setFastStart(needFastStart);
-                brokerSyncStatusInfo.updateCurrBrokerConfInfo(entity.getManageStatus().getCode(),
-                        entity.isConfDataUpdated(), entity.isBrokerLoaded(),
-                        entity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, false);
-            }
-        }
+        BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
+        brokerRunManager.updBrokerStaticInfo(this.metaStoreService.getBrokerConfInfo(null));
         isStarted = true;
         serviceStartTime = System.currentTimeMillis();
         logger.info("BrokerConfManager StoreService Started");
@@ -213,34 +172,12 @@ public class MetaDataManager implements Server {
         }
     }
 
-    public void clearBrokerRunSyncManageData() {
-        if (!this.isStarted
-                && this.isStopped) {
-            return;
-        }
-        this.brokerRunSyncManageMap.clear();
-    }
-
     public InetSocketAddress getMasterAddress() {
         return metaStoreService.getMasterAddress();
     }
 
     public ClusterGroupVO getGroupAddressStrInfo() {
         return metaStoreService.getGroupAddressStrInfo();
-    }
-
-
-
-    public long getBrokerInfoCheckSum() {
-        return this.brokerInfoCheckSum.get();
-    }
-
-    public ConcurrentHashMap<Integer, String> getBrokersMap(boolean isOverTLS) {
-        if (isOverTLS) {
-            return brokersTLSMap;
-        } else {
-            return brokersMap;
-        }
     }
 
     /**
@@ -495,15 +432,8 @@ public class MetaDataManager implements Server {
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
-                    metaStoreService.updBrokerConf(newEntity, sBuffer, result);
-                    // update broker configure change status
-                    BrokerSyncStatusInfo brokerSyncStatusInfo =
-                            getBrokerRunSyncStatusInfo(entity.getBrokerId());
-                    if (result.isSuccess()) {
-                        if (brokerSyncStatusInfo != null) {
-                            updateBrokerConfChanged(entity.getBrokerId(),
-                                    true, true, sBuffer, result);
-                        }
+                    if (metaStoreService.updBrokerConf(newEntity, sBuffer, result)) {
+                        triggerBrokerConfDataSync(entity.getBrokerId(), sBuffer, result);
                     }
                 } else {
                     result.setSuccResult(null);
@@ -525,59 +455,6 @@ public class MetaDataManager implements Server {
                                    StringBuilder strBuffer,
                                    ProcessResult result) {
         metaStoreService.updBrokerConf(entity, strBuffer, result);
-        return result.isSuccess();
-    }
-
-
-    /**
-     * Delete broker configure information
-     *
-     * @param operator  operator
-     * @param brokerId  need deleted broker id
-     * @param strBuffer  the print information string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean confDelBrokerConfig(String operator,
-                                       int brokerId,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
-        if (!metaStoreService.checkStoreStatus(true, result)) {
-            return result.isSuccess();
-        }
-        // valid configure status
-        if (metaStoreService.hasConfiguredTopics(brokerId)) {
-            result.setFailResult(DataOpErrCode.DERR_UNCLEANED.getCode(),
-                    "The broker's topic configure uncleaned!");
-            return result.isSuccess();
-        }
-        BrokerConfEntity curEntity =
-                metaStoreService.getBrokerConfByBrokerId(brokerId);
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    "The broker configure not exist!");
-            return result.isSuccess();
-        }
-        if (curEntity.getManageStatus().isOnlineStatus()) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    "Broker manage status is online, please offline first!");
-            return result.isSuccess();
-        }
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.brokerRunSyncManageMap.get(curEntity.getBrokerId());
-        if (brokerSyncStatusInfo != null) {
-            if (brokerSyncStatusInfo.isBrokerRegister()
-                    && (curEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
-                    && brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED)) {
-                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                        "Broker is processing offline event, please wait and try later!");
-                return result.isSuccess();
-            }
-        }
-        if (metaStoreService.delBrokerConf(operator, brokerId, strBuffer, result)) {
-            this.brokerRunSyncManageMap.remove(brokerId);
-            delBrokerRunData(brokerId);
-        }
         return result.isSuccess();
     }
 
@@ -654,10 +531,8 @@ public class MetaDataManager implements Server {
                     TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                     TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                     TBaseConstants.META_VALUE_UNDEFINED, newMngStatus, null)) {
-                metaStoreService.updBrokerConf(newEntry, sBuffer, result);
-                if (result.isSuccess()) {
-                    triggerBrokerConfDataSync(newEntry,
-                            curEntry.getManageStatus().getCode(), true, sBuffer, result);
+                if (metaStoreService.updBrokerConf(newEntry, sBuffer, result)) {
+                    triggerBrokerConfDataSync(newEntry.getBrokerId(), sBuffer, result);
                 }
             } else {
                 result.setSuccResult(null);
@@ -700,8 +575,7 @@ public class MetaDataManager implements Server {
                 retInfo.add(new BrokerProcessResult(brokerId, "", result));
                 continue;
             }
-            triggerBrokerConfDataSync(curEntry,
-                    curEntry.getManageStatus().getCode(), true, sBuffer, result);
+            triggerBrokerConfDataSync(curEntry.getBrokerId(), sBuffer, result);
             retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
         }
         return retInfo;
@@ -722,55 +596,61 @@ public class MetaDataManager implements Server {
                                                        StringBuilder sBuffer,
                                                        ProcessResult result) {
         List<BrokerProcessResult> retInfo = new ArrayList<>();
-        Map<Integer, BrokerConfEntity> cfmBrokerMap = new HashMap<>();
-        Map<Integer, BrokerConfEntity> tgtBrokerConfMap =
-                getBrokerConfInfo(brokerIdSet, null, null);
-        // check target broker configure's status
-        for (BrokerConfEntity entity : tgtBrokerConfMap.values()) {
+        for (int brokerId : brokerIdSet) {
+            // check broker status
+            if (!isAllowDeleteBrokerConf(brokerId, rsvData, sBuffer, result)) {
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            BrokerConfEntity entity =
+                    metaStoreService.getBrokerConfByBrokerId(brokerId);
             if (entity == null) {
+                result.setSuccResult(null);
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
                 continue;
             }
-            if (!isMatchDeleteConds(entity.getBrokerId(),
-                    entity.getManageStatus(), rsvData, sBuffer, result)) {
-                retInfo.add(new BrokerProcessResult(
-                        entity.getBrokerId(), entity.getBrokerIp(), result));
-            }
-            cfmBrokerMap.put(entity.getBrokerId(), entity);
-        }
-        if (cfmBrokerMap.isEmpty()) {
-            return retInfo;
-        }
-        // execute delete operation
-        for (BrokerConfEntity entry : cfmBrokerMap.values()) {
-            if (entry == null) {
-                continue;
-            }
-            delBrokerConfig(operator, entry.getBrokerId(), rsvData, sBuffer, result);
-            retInfo.add(new BrokerProcessResult(
-                    entry.getBrokerId(), entry.getBrokerIp(), result));
+            delBrokerConfig(operator, entity.getBrokerId(), rsvData, sBuffer, result);
+            retInfo.add(new BrokerProcessResult(entity.getBrokerId(),
+                    entity.getBrokerIp(), result));
         }
         return retInfo;
     }
 
-    private boolean isMatchDeleteConds(int brokerId, ManageStatus brokerStatus,
-                                       boolean rsvData, StringBuilder sBuffer,
-                                       ProcessResult result) {
-        Map<String, TopicDeployEntity> topicConfigMap =
-                getBrokerTopicConfEntitySet(brokerId);
-        if (topicConfigMap == null || topicConfigMap.isEmpty()) {
+    private boolean isAllowDeleteBrokerConf(int brokerId, boolean rsvData,
+                                            StringBuilder sBuffer, ProcessResult result) {
+        BrokerConfEntity entity =
+                metaStoreService.getBrokerConfByBrokerId(brokerId);
+        if (entity == null) {
             result.setSuccResult(null);
             return result.isSuccess();
         }
-        if (WebParameterUtils.checkBrokerInOfflining(brokerId,
-                brokerStatus.getCode(), this)) {
+        // check broker's manage status
+        if (entity.getManageStatus().isOnlineStatus()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    "Broker manage status is online, please offline first!");
+            return result.isSuccess();
+        }
+        BrokerRunManager brokerRunManager = tMaster.getBrokerRunManager();
+        BrokerRunStatusInfo runStatusInfo =
+                brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        if (runStatusInfo != null
+                && entity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
+                && runStatusInfo.inProcessingStatus()) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                     sBuffer.append("Illegal value: the broker is processing offline event by brokerId=")
-                            .append(brokerId).append(", please wait and try later!").toString());
+                            .append(brokerId).append(", please offline first and try later!").toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
+        // check broker's topic configures
+        Map<String, TopicDeployEntity> topiConfMap =
+                metaStoreService.getConfiguredTopicInfo(brokerId);
+        if (topiConfMap == null || topiConfMap.isEmpty()) {
+            result.setSuccResult(null);
+            return result.isSuccess();
+        }
         if (rsvData) {
-            for (Map.Entry<String, TopicDeployEntity> entry : topicConfigMap.entrySet()) {
+            for (Map.Entry<String, TopicDeployEntity> entry : topiConfMap.entrySet()) {
                 if (entry.getValue() == null) {
                     continue;
                 }
@@ -779,8 +659,7 @@ public class MetaDataManager implements Server {
                     result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                             sBuffer.append("The topic ").append(entry.getKey())
                                     .append("'s acceptPublish and acceptSubscribe parameters")
-                                    .append(" must be false in broker=")
-                                    .append(brokerId)
+                                    .append(" must be false in broker=").append(brokerId)
                                     .append(" before broker delete by reserve data method!").toString());
                     sBuffer.delete(0, sBuffer.length());
                     return result.isSuccess();
@@ -788,8 +667,7 @@ public class MetaDataManager implements Server {
             }
         } else {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    sBuffer.append("Topic configure of broker by brokerId=")
-                            .append(brokerId)
+                    sBuffer.append("Topic configure of broker by brokerId=").append(brokerId)
                             .append(" not deleted, please delete broker's topic configure first!").toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
@@ -797,7 +675,6 @@ public class MetaDataManager implements Server {
         result.setSuccResult(null);
         return result.isSuccess();
     }
-
 
     private boolean delBrokerConfig(String operator, int brokerId, boolean rsvData,
                                     StringBuilder strBuffer, ProcessResult result) {
@@ -828,20 +705,19 @@ public class MetaDataManager implements Server {
                     "Broker manage status is online, please offline first!");
             return result.isSuccess();
         }
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.brokerRunSyncManageMap.get(curEntity.getBrokerId());
-        if (brokerSyncStatusInfo != null) {
-            if (brokerSyncStatusInfo.isBrokerRegister()
-                    && (curEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
-                    && brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED)) {
+        BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
+        BrokerRunStatusInfo runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        if (runStatusInfo != null) {
+            if ((curEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
+                    && runStatusInfo.inProcessingStatus())) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         "Broker is processing offline event, please wait and try later!");
                 return result.isSuccess();
             }
         }
         if (metaStoreService.delBrokerConf(operator, brokerId, strBuffer, result)) {
-            this.brokerRunSyncManageMap.remove(brokerId);
-            delBrokerRunData(brokerId);
+            brokerRunManager.delBrokerStaticInfo(brokerId);
+            brokerRunManager.releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId());
         }
         return result.isSuccess();
     }
@@ -849,74 +725,28 @@ public class MetaDataManager implements Server {
     /**
      * Manual reload broker config info
      *
-     * @param entity
-     * @param oldManageStatus
-     * @param needFastStart
+     * @param brokerId
+     * @param strBuffer
+     * @param result
      * @return true if success otherwise false
      * @throws Exception
      */
-    public boolean triggerBrokerConfDataSync(BrokerConfEntity entity,
-                                             int oldManageStatus,
-                                             boolean needFastStart,
+    public boolean triggerBrokerConfDataSync(int brokerId,
                                              StringBuilder strBuffer,
                                              ProcessResult result) {
         if (!metaStoreService.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        BrokerConfEntity curEntity =
-                metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId());
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    "The broker configure not exist!");
+        BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
+        BrokerRunStatusInfo runStatusInfo =
+                brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        if (runStatusInfo == null) {
+            result.setSuccResult(null);
             return result.isSuccess();
         }
-        String curBrokerConfStr = curEntity.getBrokerDefaultConfInfo();
-        Map<String, String> curBrokerTopicConfStrSet =
-                getBrokerTopicStrConfigInfo(curEntity, strBuffer);
-        List<String> brokerTopicSetConfInfoList =
-                new ArrayList<>(curBrokerTopicConfStrSet.size());
-        for (String topicItem : curBrokerTopicConfStrSet.values()) {
-            brokerTopicSetConfInfoList.add(topicItem);
-        }
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.brokerRunSyncManageMap.get(entity.getBrokerId());
-        if (brokerSyncStatusInfo == null) {
-            brokerSyncStatusInfo =
-                    new BrokerSyncStatusInfo(entity, brokerTopicSetConfInfoList);
-            BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
-                    brokerRunSyncManageMap.putIfAbsent(entity.getBrokerId(), brokerSyncStatusInfo);
-            if (tmpBrokerSyncStatusInfo != null) {
-                brokerSyncStatusInfo = tmpBrokerSyncStatusInfo;
-            }
-        }
-        if (brokerSyncStatusInfo.isBrokerRegister()
-                && brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    strBuffer.append("The broker is processing online event(")
-                    .append(brokerSyncStatusInfo.getBrokerRunStatus())
-                    .append("), please try later! ").toString());
-            strBuffer.delete(0, strBuffer.length());
-            return result.isSuccess();
-        }
-        if (brokerSyncStatusInfo.isFastStart()) {
-            brokerSyncStatusInfo.setFastStart(needFastStart);
-        }
-        int curManageStatus = curEntity.getManageStatus().getCode();
-        if (curManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE
-                || curManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE
-                || curManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
-            boolean isOnlineUpdate =
-                    (oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE
-                            || oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE
-                            || oldManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ);
-            brokerSyncStatusInfo.updateCurrBrokerConfInfo(curManageStatus,
-                    curEntity.isConfDataUpdated(), curEntity.isBrokerLoaded(), curBrokerConfStr,
-                    brokerTopicSetConfInfoList, isOnlineUpdate);
-        } else {
-            brokerSyncStatusInfo.setBrokerOffline();
-        }
-        strBuffer.append("triggered broker syncStatus info is ");
-        logger.info(brokerSyncStatusInfo.toJsonString(strBuffer, false).toString());
+        runStatusInfo.notifyDataChanged();
+        strBuffer.append("[Meta data] triggered broker syncStatus info is ");
+        logger.info(runStatusInfo.toJsonString(strBuffer).toString());
         strBuffer.delete(0, strBuffer.length());
         result.setSuccResult(null);
         return result.isSuccess();
@@ -1021,14 +851,6 @@ public class MetaDataManager implements Server {
     }
 
 
-    public ConcurrentHashMap<Integer, BrokerSyncStatusInfo> getBrokerRunSyncManageMap() {
-        return this.brokerRunSyncManageMap;
-    }
-
-    public BrokerSyncStatusInfo getBrokerRunSyncStatusInfo(int brokerId) {
-        return this.brokerRunSyncManageMap.get(brokerId);
-    }
-
     public BrokerConfEntity getBrokerConfByBrokerId(int brokerId) {
         return metaStoreService.getBrokerConfByBrokerId(brokerId);
     }
@@ -1039,154 +861,6 @@ public class MetaDataManager implements Server {
 
     public Map<String, TopicDeployEntity> getBrokerTopicConfEntitySet(int brokerId) {
         return metaStoreService.getConfiguredTopicInfo(brokerId);
-    }
-
-    public ConcurrentHashMap<String/* topicName */, TopicInfo> getBrokerRunTopicInfoMap(
-            final int brokerId) {
-        return this.brokerRunTopicInfoStoreMap.get(brokerId);
-    }
-
-    public void removeBrokerRunTopicInfoMap(final int brokerId) {
-        this.brokerRunTopicInfoStoreMap.remove(brokerId);
-    }
-
-    public void updateBrokerRunTopicInfoMap(final int brokerId,
-                                            ConcurrentHashMap<String, TopicInfo> topicInfoMap) {
-        this.brokerRunTopicInfoStoreMap.put(brokerId, topicInfoMap);
-    }
-
-    public void resetBrokerReportInfo(final int brokerId) {
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
-        if (brokerSyncStatusInfo != null) {
-            brokerSyncStatusInfo.resetBrokerReportInfo();
-        }
-        brokerRunTopicInfoStoreMap.remove(brokerId);
-    }
-
-    /**
-     * Update broker config
-     *
-     * @param brokerId
-     * @param isChanged
-     * @param isFasterStart
-     * @return true if success otherwise false
-     */
-    public boolean updateBrokerConfChanged(int brokerId,
-                                           boolean isChanged,
-                                           boolean isFasterStart,
-                                           StringBuilder strBuffer,
-                                           ProcessResult result) {
-        if (!metaStoreService.checkStoreStatus(true, result)) {
-            return result.isSuccess();
-        }
-        BrokerConfEntity curEntity =
-                metaStoreService.getBrokerConfByBrokerId(brokerId);
-        if (curEntity == null) {
-            return false;
-        }
-        // This function needs to be optimized continue
-        if (isChanged) {
-            if (!curEntity.isConfDataUpdated()) {
-                curEntity.setConfDataUpdated();
-                modBrokerConfig(curEntity, strBuffer, result);
-            }
-            if (curEntity.getManageStatus().isApplied()) {
-                BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        brokerRunSyncManageMap.get(curEntity.getBrokerId());
-                if (brokerSyncStatusInfo == null) {
-                    Map<String, String> newBrokerTopicConfStrSet =
-                            getBrokerTopicStrConfigInfo(curEntity, strBuffer);
-                    List<String> brokerTopicSetConfInfoList =
-                            new ArrayList<>(newBrokerTopicConfStrSet.size());
-                    for (String topicItem : newBrokerTopicConfStrSet.values()) {
-                        brokerTopicSetConfInfoList.add(topicItem);
-                    }
-                    brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(curEntity, brokerTopicSetConfInfoList);
-                    BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
-                            brokerRunSyncManageMap.putIfAbsent(curEntity.getBrokerId(), brokerSyncStatusInfo);
-                    if (tmpBrokerSyncStatusInfo != null) {
-                        brokerSyncStatusInfo = tmpBrokerSyncStatusInfo;
-                    }
-                }
-                if (brokerSyncStatusInfo.isFastStart()) {
-                    brokerSyncStatusInfo.setFastStart(isFasterStart);
-                }
-                if (!brokerSyncStatusInfo.isBrokerConfChanged()) {
-                    brokerSyncStatusInfo.setBrokerConfChanged();
-                }
-            }
-        } else {
-            if (curEntity.isConfDataUpdated()) {
-                curEntity.setBrokerLoaded();
-                modBrokerConfig(curEntity, strBuffer, result);
-            }
-            if (curEntity.getManageStatus().isApplied()) {
-                BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        brokerRunSyncManageMap.get(curEntity.getBrokerId());
-                if (brokerSyncStatusInfo == null) {
-                    Map<String, String> newBrokerTopicConfStrSet =
-                            getBrokerTopicStrConfigInfo(curEntity, strBuffer);
-                    List<String> brokerTopicSetConfInfoList =
-                            new ArrayList<>(newBrokerTopicConfStrSet.size());
-                    for (String topicItem : newBrokerTopicConfStrSet.values()) {
-                        brokerTopicSetConfInfoList.add(topicItem);
-                    }
-                    brokerSyncStatusInfo =
-                            new BrokerSyncStatusInfo(curEntity, brokerTopicSetConfInfoList);
-                    BrokerSyncStatusInfo tmpBrokerSyncStatusInfo =
-                            brokerRunSyncManageMap.putIfAbsent(curEntity.getBrokerId(),
-                                    brokerSyncStatusInfo);
-                    if (tmpBrokerSyncStatusInfo != null) {
-                        brokerSyncStatusInfo = tmpBrokerSyncStatusInfo;
-                    }
-                }
-                if (brokerSyncStatusInfo.isBrokerConfChanged()) {
-                    brokerSyncStatusInfo.setBrokerLoaded();
-                    brokerSyncStatusInfo.setFastStart(isFasterStart);
-                }
-            }
-        }
-        return true;
-    }
-
-    public void updateBrokerMaps(BrokerConfEntity entity) {
-        if (entity != null) {
-            String brokerReg =
-                    this.brokersMap.putIfAbsent(entity.getBrokerId(),
-                            entity.getSimpleBrokerInfo());
-            String brokerTLSReg =
-                    this.brokersTLSMap.putIfAbsent(entity.getBrokerId(),
-                            entity.getSimpleTLSBrokerInfo());
-            if (brokerReg == null
-                    || brokerTLSReg == null
-                    || !brokerReg.equals(entity.getSimpleBrokerInfo())
-                    || !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
-                if (brokerReg != null
-                        && !brokerReg.equals(entity.getSimpleBrokerInfo())) {
-                    this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
-                }
-                if (brokerTLSReg != null
-                        && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
-                    this.brokersTLSMap.put(entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
-                }
-                this.lastBrokerUpdatedTime = System.currentTimeMillis();
-                this.brokerInfoCheckSum.set(this.lastBrokerUpdatedTime);
-            }
-        }
-    }
-
-    public void delBrokerRunData(int brokerId) {
-        if (brokerId == TBaseConstants.META_VALUE_UNDEFINED) {
-            return;
-        }
-        String brokerReg = this.brokersMap.remove(brokerId);
-        String brokerTLSReg = this.brokersTLSMap.remove(brokerId);
-        if (brokerReg != null || brokerTLSReg != null) {
-            this.lastBrokerUpdatedTime = System.currentTimeMillis();
-            this.brokerInfoCheckSum.set(this.lastBrokerUpdatedTime);
-        }
     }
 
     // ////////////////////////////////////////////////////////////////////////////

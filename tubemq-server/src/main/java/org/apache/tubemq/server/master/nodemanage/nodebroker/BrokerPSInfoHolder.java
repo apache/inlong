@@ -75,6 +75,11 @@ public class BrokerPSInfoHolder {
         }
     }
 
+    public Tuple2<Boolean, Boolean> getBrokerPubStatus(int brokerId) {
+        return new Tuple2<>(enablePubBrokerIdSet.contains(brokerId),
+                enableSubBrokerIdSet.contains(brokerId));
+    }
+
     /**
      * update broker's subscribe topicInfo configures
      *
@@ -131,11 +136,11 @@ public class BrokerPSInfoHolder {
     }
 
     /**
-     * Gets the list of topic partitions whose subscribe status is enabled
+     * Gets the map of topic partitions whose subscribe status is enabled
      *
      * @param topicSet need query topic set
      */
-    public List<Partition> getAcceptSubParts(Set<String> topicSet) {
+    public Map<String, Partition> getAcceptSubParts(Set<String> topicSet) {
         return subTopicInfoView.getAcceptSubParts(topicSet, enableSubBrokerIdSet);
     }
 
