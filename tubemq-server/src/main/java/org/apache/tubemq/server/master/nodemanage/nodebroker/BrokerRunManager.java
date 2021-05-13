@@ -37,6 +37,8 @@ public interface BrokerRunManager {
 
     void updBrokerStaticInfo(Map<Integer, BrokerConfEntity> brokerConfMap);
 
+    void updBrokerStaticInfo(BrokerConfEntity entity);
+
     Tuple2<Long, Map<Integer, String>> getBrokerStaticInfo(boolean isOverTLS);
 
     void delBrokerStaticInfo(int brokerId);

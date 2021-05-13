@@ -106,29 +106,34 @@ public class DefBrokerRunManager implements BrokerRunManager {
             return;
         }
         for (BrokerConfEntity entity : brokerConfMap.values()) {
-            if (entity == null) {
-                continue;
+            updBrokerStaticInfo(entity);
+        }
+    }
+
+    @Override
+    public void updBrokerStaticInfo(BrokerConfEntity entity) {
+        if (entity == null) {
+            return;
+        }
+        String brokerReg =
+                this.brokersMap.putIfAbsent(entity.getBrokerId(),
+                        entity.getSimpleBrokerInfo());
+        String brokerTLSReg =
+                this.brokersTLSMap.putIfAbsent(entity.getBrokerId(),
+                        entity.getSimpleTLSBrokerInfo());
+        if (brokerReg == null
+                || brokerTLSReg == null
+                || !brokerReg.equals(entity.getSimpleBrokerInfo())
+                || !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
+            if (brokerReg != null
+                    && !brokerReg.equals(entity.getSimpleBrokerInfo())) {
+                this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
             }
-            String brokerReg =
-                    this.brokersMap.putIfAbsent(entity.getBrokerId(),
-                            entity.getSimpleBrokerInfo());
-            String brokerTLSReg =
-                    this.brokersTLSMap.putIfAbsent(entity.getBrokerId(),
-                            entity.getSimpleTLSBrokerInfo());
-            if (brokerReg == null
-                    || brokerTLSReg == null
-                    || !brokerReg.equals(entity.getSimpleBrokerInfo())
-                    || !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
-                if (brokerReg != null
-                        && !brokerReg.equals(entity.getSimpleBrokerInfo())) {
-                    this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
-                }
-                if (brokerTLSReg != null
-                        && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
-                    this.brokersTLSMap.put(entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
-                }
-                this.brokerInfoCheckSum.set(System.currentTimeMillis());
+            if (brokerTLSReg != null
+                    && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
+                this.brokersTLSMap.put(entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
             }
+            this.brokerInfoCheckSum.set(System.currentTimeMillis());
         }
     }
 

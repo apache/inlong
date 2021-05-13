@@ -409,7 +409,9 @@ public class MetaDataManager implements Server {
         if (isAddOp) {
             if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) == null &&
                     metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) == null) {
-                metaStoreService.addBrokerConf(entity, sBuffer, result);
+                if (metaStoreService.addBrokerConf(entity, sBuffer, result)) {
+                    this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
+                }
             } else {
                 result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
                         sBuffer.append("Duplicated broker configure record! query index is :")
