@@ -51,7 +51,7 @@ public class HeartbeatManagerTest {
                                 .append(nodeId).toString());
                     }
                 });
-        heartbeatManager.regBrokerNode("node1");
+        heartbeatManager.regBrokerNode("node1", String.valueOf(System.currentTimeMillis()));
         Assert.assertTrue(heartbeatManager.getBrokerRegMap().get("node1").getTimeoutTime() >
                 System.currentTimeMillis());
     }
