@@ -91,7 +91,7 @@
         <repository>
             <id>berkeleydb-je</id>
             <name>berkeleydb-je</name>
-            <url>https://download.oracle.com/maven/</url>
+            <url>https://maven.oracle.com/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
