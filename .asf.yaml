@@ -19,17 +19,17 @@
 # of the project and make sure to discuss the changes with dev@ before committing.
 
 github:
-  description: "Apache TubeMQ"
-  homepage: https://tubemq.apache.org/
+  description: "Apache InLong"
+  homepage: https://inlong.apache.org/
   labels:
-    - tubemq
-    - apachetubemq
-    - mq
+    - inlong
+    - apacheinlong
+    - data streaming platform
 notifications:
-  commits:      commits@tubemq.apache.org
-  issues:       commits@tubemq.apache.org
-  pullrequests_status: commits@tubemq.apache.org
-  pullrequests_comment: commits@tubemq.apache.org
-  issues_status: dev@tubemq.apache.org
-  issues_comment: commits@tubemq.apache.org
+  commits:      commits@inlong.apache.org
+  issues:       commits@inlong.apache.org
+  pullrequests_status: commits@inlong.apache.org
+  pullrequests_comment: commits@inlong.apache.org
+  issues_status: dev@inlong.apache.org
+  issues_comment: commits@inlong.apache.org
   jira_options: link label worklog
