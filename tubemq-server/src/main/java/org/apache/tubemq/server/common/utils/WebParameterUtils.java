@@ -48,7 +48,8 @@ import org.apache.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
+
+
 
 
 public class WebParameterUtils {
@@ -1167,21 +1168,6 @@ public class WebParameterUtils {
             return false;
         }
         return true;
-    }
-
-    public static boolean checkBrokerInOfflining(int brokerId,
-                                                 int manageStatus,
-                                                 MetaDataManager metaManager) {
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                metaManager.getBrokerRunSyncStatusInfo(brokerId);
-        if ((brokerSyncStatusInfo != null)
-                && (brokerSyncStatusInfo.isBrokerRegister())) {
-            if ((manageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE)
-                    && (brokerSyncStatusInfo.getBrokerRunStatus() != TStatusConstants.STATUS_SERVICE_UNDEFINED)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

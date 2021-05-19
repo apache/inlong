@@ -29,9 +29,9 @@ import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.tubemq.server.common.statusdef.StepStatus;
 import org.apache.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
@@ -42,8 +42,9 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerCon
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHolder;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
 
 /**
@@ -468,8 +469,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             return sBuffer;
         }
         String relReason = (String) result.getRetData();
-        BrokerInfoHolder brokerInfoHolder = master.getBrokerHolder();
-        brokerInfoHolder.relAutoForbiddenBrokerInfo(brokerIds, relReason);
+        BrokerAbnHolder abnHolder = master.getBrokerAbnHolder();
+        abnHolder.relAutoForbiddenBrokerInfo(brokerIds, relReason);
         WebParameterUtils.buildSuccessResult(sBuffer);
         return sBuffer;
     }
@@ -534,25 +535,26 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // query current broker configures
         Map<Integer, BrokerConfEntity> brokerConfEntityMap =
                 metaDataManager.getBrokerConfInfo(brokerIds, brokerIpSet, null);
-        BrokerInfoHolder brokerInfoHolder = master.getBrokerHolder();
-        Map<Integer, BrokerInfoHolder.BrokerAbnInfo> brokerAbnInfoMap =
-                brokerInfoHolder.getBrokerAbnormalMap();
-        Map<Integer, BrokerInfoHolder.BrokerFbdInfo> brokerFbdInfoMap =
-                brokerInfoHolder.getAutoForbiddenBrokerMapInfo();
+        BrokerAbnHolder abnHolder = master.getBrokerAbnHolder();
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
+        Map<Integer, BrokerAbnHolder.BrokerAbnInfo> brokerAbnInfoMap =
+                abnHolder.getBrokerAbnormalMap();
+        Map<Integer, BrokerAbnHolder.BrokerFbdInfo> brokerFbdInfoMap =
+                abnHolder.getAutoForbiddenBrokerMapInfo();
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerConfEntity entity : brokerConfEntityMap.values()) {
-            BrokerInfoHolder.BrokerAbnInfo brokerAbnInfo =
+            BrokerAbnHolder.BrokerAbnInfo brokerAbnInfo =
                     brokerAbnInfoMap.get(entity.getBrokerId());
             if (onlyAbnormal && brokerAbnInfo == null) {
                 continue;
             }
-            BrokerInfoHolder.BrokerFbdInfo brokerForbInfo =
+            BrokerAbnHolder.BrokerFbdInfo brokerForbInfo =
                     brokerFbdInfoMap.get(entity.getBrokerId());
             if (onlyAutoForbidden && brokerForbInfo == null) {
                 continue;
             }
-            BrokerInfo brokerInfo = brokerInfoHolder.getBrokerInfo(entity.getBrokerId());
+            BrokerInfo brokerInfo = brokerRunManager.getBrokerInfo(entity.getBrokerId());
             if (onlyEnableTLS && (brokerInfo == null || !brokerInfo.isEnableTLS())) {
                 continue;
             }
@@ -588,39 +590,41 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             } else {
                 Tuple2<Boolean, Boolean> pubSubTuple =
                         entity.getManageStatus().getPubSubStatus();
-                BrokerSyncStatusInfo brokerSyncStatusInfo =
-                        metaDataManager.getBrokerRunSyncStatusInfo(entity.getBrokerId());
-                if (brokerSyncStatusInfo == null) {
+                BrokerRunStatusInfo runStatusInfo =
+                        brokerRunManager.getBrokerRunStatusInfo(entity.getBrokerId());
+                if (runStatusInfo == null) {
                     sBuffer.append(",\"runStatus\":\"unRegister\",\"subStatus\":\"-\"")
                             .append(",\"isConfChanged\":\"-\",\"isConfLoaded\":\"-\",\"isBrokerOnline\":\"-\"")
                             .append(",\"brokerVersion\":\"-\",\"acceptPublish\":\"-\",\"acceptSubscribe\":\"-\"");
                 } else {
-                    int stepStatus = brokerSyncStatusInfo.getBrokerRunStatus();
-                    if (brokerSyncStatusInfo.isBrokerOnline()) {
-                        if (stepStatus == TStatusConstants.STATUS_SERVICE_UNDEFINED) {
+                    StepStatus stepStatus = runStatusInfo.getCurStepStatus();
+                    if (runStatusInfo.isOnline()) {
+                        if (stepStatus == StepStatus.STEP_STATUS_UNDEFINED) {
                             sBuffer.append(",\"runStatus\":\"running\",\"subStatus\":\"idle\"");
                         } else {
                             sBuffer.append(",\"runStatus\":\"running\"")
                                     .append(",\"subStatus\":\"processing_event\",\"stepOp\":")
-                                    .append(stepStatus);
+                                    .append(stepStatus.getCode());
                         }
                     } else {
-                        if (stepStatus == TStatusConstants.STATUS_SERVICE_UNDEFINED) {
+                        if (stepStatus == StepStatus.STEP_STATUS_UNDEFINED) {
                             sBuffer.append(",\"runStatus\":\"notRegister\",\"subStatus\":\"idle\"");
                         } else {
                             sBuffer.append(",\"runStatus\":\"notRegister\"")
                                     .append(",\"subStatus\":\"processing_event\",\"stepOp\":")
-                                    .append(stepStatus);
+                                    .append(stepStatus.getCode());
                         }
                     }
-                    sBuffer.append(",\"isConfChanged\":\"").append(brokerSyncStatusInfo.isBrokerConfChanged())
-                            .append("\",\"isConfLoaded\":\"").append(brokerSyncStatusInfo.isBrokerLoaded())
-                            .append("\",\"isBrokerOnline\":\"").append(brokerSyncStatusInfo.isBrokerOnline())
+                    Tuple2<Boolean, Boolean> syncTuple =
+                            runStatusInfo.getDataSyncStatus();
+                    sBuffer.append(",\"isConfChanged\":\"").append(syncTuple.getF0())
+                            .append("\",\"isConfLoaded\":\"").append(syncTuple.getF1())
+                            .append("\",\"isBrokerOnline\":\"").append(runStatusInfo.isOnline())
                             .append("\"").append(",\"brokerVersion\":\"-\",\"acceptPublish\":\"")
                             .append(pubSubTuple.getF0()).append("\",\"acceptSubscribe\":\"")
                             .append(pubSubTuple.getF1()).append("\"");
                     if (withDetail) {
-                        sBuffer = brokerSyncStatusInfo.toJsonString(sBuffer.append(","), false);
+                        sBuffer = runStatusInfo.toJsonString(sBuffer.append(","));
                     }
                 }
             }

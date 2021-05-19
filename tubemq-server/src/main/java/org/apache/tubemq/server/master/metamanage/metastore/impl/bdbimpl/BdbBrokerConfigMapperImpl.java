@@ -227,14 +227,14 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         // get broker configures
         if (qryBrokerKey == null) {
             for (BrokerConfEntity entity :  brokerConfCache.values()) {
-                if (entity != null && entity.isMatched(qryEntity)) {
+                if (entity != null && qryEntity != null && entity.isMatched(qryEntity)) {
                     retMap.put(entity.getBrokerId(), entity);
                 }
             }
         } else {
             for (Integer brokerId : qryBrokerKey) {
                 BrokerConfEntity entity = brokerConfCache.get(brokerId);
-                if (entity != null && entity.isMatched(qryEntity)) {
+                if (entity != null && qryEntity != null && entity.isMatched(qryEntity)) {
                     retMap.put(entity.getBrokerId(), entity);
                 }
             }

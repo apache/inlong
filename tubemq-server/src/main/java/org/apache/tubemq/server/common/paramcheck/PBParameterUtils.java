@@ -36,7 +36,7 @@ import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,10 +181,10 @@ public class PBParameterUtils {
     }
 
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
-                                                          final MasterConfig masterConfig,
-                                                          final MetaDataManager defMetaDataManager,
-                                                          final TopicPSInfoManager topicPSInfoManager,
-                                                          final StringBuilder strBuffer) throws Exception {
+                                                          MasterConfig masterConfig,
+                                                          MetaDataManager defMetaDataManager,
+                                                          BrokerRunManager brokerRunManager,
+                                                          StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
         if (!inConsumerInfo.isRequireBound()) {
             retResult.setCheckData(inConsumerInfo);
@@ -217,7 +217,8 @@ public class PBParameterUtils {
         int allowRate = (offsetResetGroupEntity != null
                 && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                 ? offsetResetGroupEntity.getAllowedBrokerClientRate() : masterConfig.getMaxGroupBrokerConsumeRate();
-        int maxBrokerCount = topicPSInfoManager.getTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
+        int maxBrokerCount =
+                brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
         int curBClientRate = (int) Math.floor(maxBrokerCount / inConsumerInfo.getSourceCount());
         if (curBClientRate > allowRate) {
             int minClientCnt = (int) (maxBrokerCount / allowRate);
@@ -412,7 +413,7 @@ public class PBParameterUtils {
         }
         String tmpValue = brokerId.trim();
         try {
-            Integer.parseInt(tmpValue);
+            retResult.setCheckData(Integer.parseInt(tmpValue));
         } catch (Throwable e) {
             retResult.setCheckResult(false,
                     TErrCodeConstants.BAD_REQUEST,
@@ -420,7 +421,6 @@ public class PBParameterUtils {
             strBuffer.delete(0, strBuffer.length());
             return retResult;
         }
-        retResult.setCheckData(tmpValue);
         return retResult;
     }
 

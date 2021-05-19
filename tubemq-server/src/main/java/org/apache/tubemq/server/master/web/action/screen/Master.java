@@ -36,6 +36,7 @@ import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.tubemq.server.master.web.simplemvc.Action;
@@ -216,16 +217,17 @@ public class Master implements Action {
     private void innGetBrokerInfo(final HttpServletRequest req,
                                            StringBuilder sBuilder, boolean isOldRet) {
         Map<Integer, BrokerInfo> brokerInfoMap = null;
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         String brokerIds = req.getParameter("ids");
         if (TStringUtils.isBlank(brokerIds)) {
-            brokerInfoMap = master.getBrokerHolder().getBrokerInfoMap();
+            brokerInfoMap = brokerRunManager.getBrokerInfoMap(null);
         } else {
             String[] brokerIdArr = brokerIds.split(",");
             List<Integer> idList = new ArrayList<>(brokerIdArr.length);
             for (String strId : brokerIdArr) {
                 idList.add(Integer.parseInt(strId));
             }
-            brokerInfoMap = master.getBrokerHolder().getBrokerInfos(idList);
+            brokerInfoMap = brokerRunManager.getBrokerInfoMap(idList);
         }
         if (brokerInfoMap != null) {
             int index = 1;
@@ -234,8 +236,8 @@ public class Master implements Action {
                 sBuilder.append("\n################################## ")
                         .append(index).append(". ").append(broker.toString())
                         .append(" ##################################\n");
-                TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
-                List<TopicInfo> topicInfoList = topicPSInfoManager.getBrokerPubInfoList(broker);
+                List<TopicInfo> topicInfoList =
+                        brokerRunManager.getPubBrokerPushedTopicInfo(broker.getBrokerId());
                 Map<String, TopicDeployEntity> topicConfigMap =
                         metaDataManager.getBrokerTopicConfEntitySet(broker.getBrokerId());
                 if (topicConfigMap == null) {
@@ -296,7 +298,7 @@ public class Master implements Action {
      */
     private void getUnbalanceGroupInfo(StringBuilder sBuilder) {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
                 master.getCurrentSubInfoMap();
         int currPartSize = 0;
@@ -319,7 +321,8 @@ public class Master implements Action {
                         }
                     }
                 }
-                List<Partition> partList = topicPSInfoManager.getPartitionList(topic);
+                List<Partition> partList =
+                        brokerRunManager.getSubBrokerAcceptSubParts(topic);
                 if (currPartSize != partList.size()) {
                     sBuilder.append(group).append(":").append(topic).append("\n");
                 }

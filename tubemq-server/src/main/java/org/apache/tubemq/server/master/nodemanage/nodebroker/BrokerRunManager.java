@@ -19,34 +19,63 @@ package org.apache.tubemq.server.master.nodemanage.nodebroker;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.tubemq.corebase.cluster.BrokerInfo;
+import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
+import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2B;
+import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
+import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corebase.utils.Tuple3;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 
 
 public interface BrokerRunManager {
 
-    boolean brokerRegister2M(String clientId, boolean enableTls,
-                             int tlsPort, long reportConfigId,
-                             int reportCheckSumId, boolean isTackData,
-                             String repBrokerConfInfo,
-                             List<String> repTopicConfInfo,
-                             boolean isOnline, boolean isOverTLS,
-                             StringBuilder sBuffer, ProcessResult result);
+    void updBrokerStaticInfo(Map<Integer, BrokerConfEntity> brokerConfMap);
 
-    boolean brokerHeartBeat2M(int brokerId, long reportConfigId,
-                              int reportCheckSumId, boolean isTackData,
-                              String repBrokerConfInfo,
-                              List<String> repTopicConfInfo, boolean isOnline,
+    void updBrokerStaticInfo(BrokerConfEntity entity);
+
+    Tuple2<Long, Map<Integer, String>> getBrokerStaticInfo(boolean isOverTLS);
+
+    void delBrokerStaticInfo(int brokerId);
+
+    boolean brokerRegister2M(String clientId, BrokerInfo brokerInfo,
+                             long reportConfigId, int reportCheckSumId,
+                             boolean isTackData, String repBrokerConfInfo,
+                             List<String> repTopicConfInfo, boolean isOnline,
+                             boolean isOverTLS, StringBuilder sBuffer,
+                             ProcessResult result);
+
+    boolean brokerHeartBeat2M(int brokerId, long reportConfigId, int reportCheckSumId,
+                              boolean isTackData, String repBrokerConfInfo,
+                              List<String> repTopicConfInfo,
+                              boolean isTackRmvInfo, List<String> removedTopics,
+                              int rptReadStatus, int rptWriteStatus, boolean isOnline,
                               StringBuilder sBuffer, ProcessResult result);
 
-    boolean brokerClose2M(int brokerId);
+    boolean brokerClose2M(int brokerId, StringBuilder sBuffer, ProcessResult result);
 
-    boolean brokerTimeout(int brokerId, long bookedId);
+    boolean releaseBrokerRunInfo(int brokerId, String blockId);
 
+    BrokerRunStatusInfo getBrokerRunStatusInfo(int brokerId);
+
+    Tuple2<Boolean, Boolean> getBrokerPublishStatus(int brokerId);
 
     Tuple3<ManageStatus, String, Map<String, String>> getBrokerMetaConfigInfo(int brokerId);
+
+    void setRegisterDownConfInfo(int brokerId, StringBuilder sBuffer,
+                                 RegisterResponseM2B.Builder builder);
+
+    void setHeatBeatDownConfInfo(int brokerId, StringBuilder sBuffer,
+                                 HeartResponseM2B.Builder builder);
+
+    BrokerInfo getBrokerInfo(int brokerId);
+
+    Map<Integer, BrokerInfo> getBrokerInfoMap(List<Integer> brokerIds);
 
     void updBrokerCsmConfInfo(int brokerId,
                               ManageStatus mngStatus,
@@ -55,5 +84,19 @@ public interface BrokerRunManager {
     void updBrokerPrdConfInfo(int brokerId,
                               ManageStatus mngStatus,
                               Map<String, TopicInfo> topicInfoMap);
+
+    BrokerAbnHolder getBrokerAbnHolder();
+
+    Map<String, String> getPubBrokerAcceptPubPartInfo(Set<String> topicSet);
+
+    int getSubTopicMaxBrokerCount(Set<String> topicSet);
+
+    Map<String, Partition> getSubBrokerAcceptSubParts(Set<String> topicSet);
+
+    List<Partition> getSubBrokerAcceptSubParts(String topic);
+
+    TopicInfo getPubBrokerTopicInfo(int brokerId, String topic);
+
+    List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId);
 
 }

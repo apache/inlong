@@ -23,7 +23,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -37,7 +36,7 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSe
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.tubemq.server.master.web.model.ClusterNodeVO;
 
@@ -248,7 +247,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // query topic configure info
         Map<String, List<TopicDeployEntity>> topicConfMap =
                 metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         int totalCount = 0;
         int brokerCount = 0;
         int totalCfgNumPartCount = 0;
@@ -285,11 +284,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     isAcceptPublish = pubSubStatus.getF0();
                     isAcceptSubscribe = pubSubStatus.getF1();
                 }
-                BrokerInfo broker =
-                        new BrokerInfo(entity.getBrokerId(),
-                                entity.getBrokerIp(), entity.getBrokerPort());
-                TopicInfo topicInfo = topicPSInfoManager.getTopicInfo(
-                        entity.getTopicName(), broker);
+                TopicInfo topicInfo =
+                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo != null) {
                     if (isAcceptPublish && topicInfo.isAcceptPublish()) {
                         isSrvAcceptPublish = true;

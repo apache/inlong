@@ -166,17 +166,20 @@ public class BrokerSyncData {
     /**
      * Get need sync to broker's data
      *
-     * @param retValue return data container, ** must not null **
-     * @return void
+     * @return return data container,
      */
-    public void getBrokerSyncData(Tuple4<Long,
-            Integer, String, Map<String, String>> retValue) {
+    public Tuple4<Long, Integer, String, List<String>> getBrokerSyncData() {
         if (isConfSynchronized()) {
-            retValue.setFieldsValue(syncDownDataConfId.get(), syncDownDataChkSumId,
-                    syncDownBrokerConfInfo, syncDownTopicConfInfoMap);
+            return new Tuple4<>(syncDownDataConfId.get(), syncDownDataChkSumId, null, null);
         } else {
-            retValue.setFieldsValue(syncDownDataConfId.get(),
-                    syncDownDataChkSumId, null, null);
+            List<String> topicInfoList = new ArrayList<>();
+            for (String topicInfo : syncDownTopicConfInfoMap.values()) {
+                if (topicInfo != null) {
+                    topicInfoList.add(topicInfo);
+                }
+            }
+            return new Tuple4<>(syncDownDataConfId.get(), syncDownDataChkSumId,
+                    syncDownBrokerConfInfo, topicInfoList);
         }
     }
 
@@ -212,6 +215,25 @@ public class BrokerSyncData {
                                       Map<String, String> topicConfInfoMap) {
         return !Objects.equals(syncDownBrokerConfInfo, brokerConfInfo)
                 || !Objects.equals(syncDownTopicConfInfoMap, topicConfInfoMap);
+    }
+
+    /* Format to json */
+    public StringBuilder toJsonString(StringBuilder sBuffer) {
+        sBuffer.append("{\"dataPushId\":").append(dataPushId)
+                .append(",\"mngStatus\":\"").append(mngStatus.getDescription())
+                .append("\",\"syncDownDataConfId\":").append(syncDownDataConfId.get())
+                .append(",\"syncDownDataChkSumId\":").append(syncDownDataChkSumId)
+                .append(",\"isStatusChanged\":").append(isStatusChanged)
+                .append(",\"isConfChanged\":").append(isConfChanged)
+                .append(",\"syncDownBrokerConfInfo\":\"").append(syncDownBrokerConfInfo)
+                .append("\",\"syncDownTopicConfInfoMap\":\"").append(syncDownTopicConfInfoMap.toString())
+                .append("\",\"syncUpDataConfId\":").append(syncUpDataConfId)
+                .append(",\"syncUpDataChkSumId\":").append(syncUpDataChkSumId)
+                .append(",\"syncUpBrokerConfInfo\":\"").append(syncUpBrokerConfInfo)
+                .append("\",\"syncUpTopicConfInfos\":\"").append(syncUpTopicConfInfos.toString())
+                .append("\",\"lastDataUpTime\":").append(lastDataUpTime)
+                .append("}");
+        return sBuffer;
     }
 
     /**

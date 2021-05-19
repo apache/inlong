@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
@@ -43,8 +42,8 @@ import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupCons
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
 
 
@@ -250,6 +249,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         int dataCount = 0;
         int totalStoreNum = 0;
         int totalNumPartCount = 0;
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<Integer, List<TopicDeployEntity>> entry : queryResult.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
@@ -260,8 +260,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             if (brokerConf == null) {
                 continue;
             }
-            BrokerSyncStatusInfo brokerSyncInfo =
-                    metaDataManager.getBrokerRunSyncStatusInfo(entry.getKey());
+            BrokerRunStatusInfo runStatusInfo =
+                    brokerRunManager.getBrokerRunStatusInfo(entry.getKey());
             List<TopicDeployEntity> topicDeployInfo = entry.getValue();
             // build return info item
             if (dataCount++ > 0) {
@@ -277,22 +277,24 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     brokerConf.getManageStatus().getDescription();
             Tuple2<Boolean, Boolean> pubSubStatus =
                     brokerConf.getManageStatus().getPubSubStatus();
-            if (brokerSyncInfo == null) {
+            if (runStatusInfo == null) {
                 sBuffer.append("\"acceptPublish\":\"-\"")
                         .append(",\"acceptSubscribe\":\"-\"")
                         .append(",\"totalPartitionNum\":\"-\"")
                         .append(",\"totalTopicStoreNum\":\"-\"")
                         .append(",\"brokerManageStatus\":\"-\"");
             } else {
+                Tuple2<Boolean, Boolean> publishTuple =
+                        brokerRunManager.getBrokerPublishStatus(entry.getKey());
                 if (pubSubStatus.getF0()) {
                     sBuffer.append("\"acceptPublish\":")
-                            .append(brokerSyncInfo.isAcceptPublish());
+                            .append(publishTuple.getF0());
                 } else {
                     sBuffer.append("\"acceptPublish\":false");
                 }
                 if (pubSubStatus.getF1()) {
                     sBuffer.append(",\"acceptSubscribe\":")
-                            .append(brokerSyncInfo.isAcceptSubscribe());
+                            .append(publishTuple.getF1());
                 } else {
                     sBuffer.append(",\"acceptSubscribe\":false");
                 }
@@ -494,7 +496,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         boolean isAcceptSubscribe = false;
         ManageStatus manageStatus;
         Tuple2<Boolean, Boolean> pubSubStatus;
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         ClusterSettingEntity defSetting = metaDataManager.getClusterDefSetting(false);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
@@ -533,10 +535,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     isAcceptPublish = pubSubStatus.getF0();
                     isAcceptSubscribe = pubSubStatus.getF1();
                 }
-                BrokerInfo broker = new BrokerInfo(entity.getBrokerId(),
-                        entity.getBrokerIp(), entity.getBrokerPort());
                 TopicInfo topicInfo =
-                        topicPSInfoManager.getTopicInfo(entity.getTopicName(), broker);
+                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo == null) {
                     sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
                             .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
@@ -634,7 +634,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         boolean isAcceptSubscribe = false;
         ManageStatus manageStatus;
         Tuple2<Boolean, Boolean> pubSubStatus;
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployMap.entrySet()) {
             totalCfgNumPartCount = 0;
@@ -665,10 +665,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     isAcceptPublish = pubSubStatus.getF0();
                     isAcceptSubscribe = pubSubStatus.getF1();
                 }
-                BrokerInfo broker = new BrokerInfo(entity.getBrokerId(),
-                        entity.getBrokerIp(), entity.getBrokerPort());
                 TopicInfo topicInfo =
-                        topicPSInfoManager.getTopicInfo(entity.getTopicName(), broker);
+                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo == null) {
                     sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
                             .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");

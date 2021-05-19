@@ -46,7 +46,6 @@ import org.apache.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.tubemq.corebase.cluster.SubscribeInfo;
-import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.config.TLSConfig;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestB2M;
@@ -82,8 +81,6 @@ import org.apache.tubemq.corerpc.RpcServiceFactory;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.corerpc.service.MasterService;
 import org.apache.tubemq.server.Stoppable;
-import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.aaaserver.CertificateMasterHandler;
 import org.apache.tubemq.server.common.aaaserver.CertifiedResult;
 import org.apache.tubemq.server.common.aaaserver.SimpleCertificateMasterHandler;
@@ -95,7 +92,6 @@ import org.apache.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.apache.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.tubemq.server.common.paramcheck.ParamCheckResult;
-import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.utils.HasThread;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.RowLock;
@@ -106,8 +102,9 @@ import org.apache.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
-import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerSyncStatusInfo;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHolder;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.tubemq.server.master.nodemanage.nodebroker.DefBrokerRunManager;
 import org.apache.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.apache.tubemq.server.master.nodemanage.nodeconsumer.ConsumerEventManager;
@@ -129,10 +126,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             currentSubInfo = new ConcurrentHashMap<>();
     private final RpcServiceFactory rpcServiceFactory =     //rpc service factory
             new RpcServiceFactory();
+    private final MetaDataManager defMetaDataManager;      // meta data manager
+    private final BrokerRunManager brokerRunManager;       // broker run status manager
     private final ConsumerEventManager consumerEventManager;    //consumer event manager
     private final TopicPSInfoManager topicPSInfoManager;        //topic publish/subscribe info manager
     private final ExecutorService executor;
-    private final BrokerInfoHolder brokerHolder;                //broker holder
     private final ProducerInfoHolder producerHolder;            //producer holder
     private final ConsumerInfoHolder consumerHolder;            //consumer holder
     private final RowLock masterRowLock;                        //lock
@@ -143,7 +141,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final HeartbeatManager heartbeatManager;            //heartbeat manager
     private final OffsetStorage zkOffsetStorage;                //zookeeper offset manager
     private final ShutdownHook shutdownHook;                    //shutdown hook
-    private final MetaDataManager defMetaDataManager;
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
     private AtomicLong idGenerator = new AtomicLong(0);     //id generator
@@ -172,14 +169,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.executor = Executors.newFixedThreadPool(this.masterConfig.getRebalanceParallel());
         this.visitTokenManager = new SimpleVisitTokenManager(this.masterConfig);
         this.serverAuthHandler = new SimpleCertificateMasterHandler(this.masterConfig);
+        this.heartbeatManager = new HeartbeatManager();
+        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
+                false, TBaseConstants.META_VALUE_UNDEFINED);
         this.producerHolder = new ProducerInfoHolder();
         this.consumerHolder = new ConsumerInfoHolder();
         this.consumerEventManager = new ConsumerEventManager(consumerHolder);
         this.topicPSInfoManager = new TopicPSInfoManager(this);
         this.loadBalancer = new DefaultLoadBalancer();
-        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
-                false, TBaseConstants.META_VALUE_UNDEFINED);
-        this.heartbeatManager = new HeartbeatManager();
         heartbeatManager.regConsumerCheckBusiness(masterConfig.getConsumerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
                     @Override
@@ -198,22 +195,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         new ReleaseProducer().run(nodeId);
                     }
                 });
-        heartbeatManager.regBrokerCheckBusiness(masterConfig.getBrokerHeartbeatTimeoutMs(),
-                new TimeoutListener() {
-                    @Override
-                    public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
-                        logger.info(new StringBuilder(512).append("[Broker Timeout] ")
-                                .append(nodeId).toString());
-                        new ReleaseBroker().run(nodeId);
-                    }
-                });
-
-        this.defMetaDataManager = new MetaDataManager(masterConfig.getHostName(),
-                masterConfig.getMetaDataPath(), masterConfig.getReplicationConfig());
+        this.defMetaDataManager = new MetaDataManager(this);
+        this.brokerRunManager = new DefBrokerRunManager(this);
         this.defMetaDataManager.start();
-        this.brokerHolder =
-                new BrokerInfoHolder(this.masterConfig.getMaxAutoForbiddenCnt(),
-                        this.defMetaDataManager);
         RpcConfig rpcTcpConfig = new RpcConfig();
         rpcTcpConfig.put(RpcConstants.REQUEST_TIMEOUT,
                 masterConfig.getRpcReadTimeoutMs());
@@ -275,6 +259,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
 
     public MetaDataManager getDefMetaDataManager() {
         return defMetaDataManager;
+    }
+
+    public HeartbeatManager getHeartbeatManager() {
+        return heartbeatManager;
+    }
+
+    public BrokerRunManager getBrokerRunManager() {
+        return brokerRunManager;
     }
 
     /**
@@ -342,8 +334,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
                 new HashSet<>(transTopicSet), hostName, overtls);
-        builder.setBrokerCheckSum(this.defMetaDataManager.getBrokerInfoCheckSum());
-        builder.addAllBrokerInfos(this.defMetaDataManager.getBrokersMap(overtls).values());
+        Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
+                brokerRunManager.getBrokerStaticInfo(overtls);
+        builder.setBrokerCheckSum(brokerStaticInfo.getF0());
+        builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
         ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
                 buildApprovedClientConfig(request.getAppdConfig());
@@ -433,10 +427,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 transTopicSet, hostName, overtls);
         Map<String, String> availTopicPartitions = getProducerTopicPartitionInfo(producerId);
         builder.addAllTopicInfos(availTopicPartitions.values());
-        builder.setBrokerCheckSum(defMetaDataManager.getBrokerInfoCheckSum());
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
-        if (defMetaDataManager.getBrokerInfoCheckSum() != inBrokerCheckSum) {
-            builder.addAllBrokerInfos(defMetaDataManager.getBrokersMap(overtls).values());
+        Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
+                brokerRunManager.getBrokerStaticInfo(overtls);
+        builder.setBrokerCheckSum(brokerStaticInfo.getF0());
+        if (brokerStaticInfo.getF0() != inBrokerCheckSum) {
+            builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
         }
         ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
                 buildApprovedClientConfig(request.getAppdConfig());
@@ -577,7 +573,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         sessionKey, sessionTime, sourceCount, requiredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defMetaDataManager, topicPSInfoManager, strBuffer);
+                        masterConfig, defMetaDataManager, brokerRunManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -939,6 +935,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                                  final String rmtAddress,
                                                  boolean overtls) throws Exception {
         // #lizard forgives
+        ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         RegisterResponseM2B.Builder builder = RegisterResponseM2B.newBuilder();
         builder.setSuccess(false);
@@ -946,11 +943,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setStopWrite(false);
         builder.setTakeConfInfo(false);
         // auth
-        CertifiedResult result =
+        CertifiedResult cfResult =
                 serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo());
-        if (!result.result) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+        if (!cfResult.result) {
+            builder.setErrCode(cfResult.errCode);
+            builder.setErrMsg(cfResult.errInfo);
             return builder.build();
         }
         // get clientId and check valid
@@ -964,88 +961,29 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         final String clientId = (String) paramCheckResult.checkData;
         // check authority
         checkNodeStatus(clientId, strBuffer);
-        // check broker validity
-        //
-        BrokerInfo brokerInfo =
-                new BrokerInfo(clientId, request.getEnableTls(),
-                        request.hasTlsPort() ? request.getTlsPort() : TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
-        BrokerConfEntity brokerConfEntity =
-                defMetaDataManager.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
-        if (brokerConfEntity == null) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("No broker configure info, please create first! the connecting client id is:")
-                    .append(clientId).toString());
-            return builder.build();
-        }
-        if ((!brokerInfo.getHost().equals(brokerConfEntity.getBrokerIp()))
-                || (brokerInfo.getPort() != brokerConfEntity.getBrokerPort())) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("Inconsistent broker configure,please confirm first! the connecting client id is:")
-                    .append(clientId).append(", the configure's broker address by brokerId is:")
-                    .append(brokerConfEntity.getBrokerIdAndAddress()).toString());
-            return builder.build();
-        }
-        int confTLSPort = brokerConfEntity.getBrokerTLSPort();
-        if (confTLSPort != brokerInfo.getTlsPort()) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("Inconsistent TLS configure,please confirm first! the connecting client id is:")
-                    .append(clientId).append(", the configured TLS port is:")
-                    .append(confTLSPort).append(", the broker reported TLS port is ")
-                    .append(brokerInfo.getTlsPort()).toString());
-            return builder.build();
-        }
-        if (brokerConfEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_APPLY) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("Broker's configure not online, please online configure first! " +
-                            "the connecting client id is:")
-                    .append(clientId).toString());
-            return builder.build();
-        }
         // get optional filed
-        boolean needFastStart = false;
+        ClusterSettingEntity defSetting =
+                defMetaDataManager.getClusterDefSetting(false);
         final long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
         final int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
-        ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
-                this.defMetaDataManager.getBrokerRunSyncManageMap();
-        // update broker status
-        Map<String, String> brokerTopicSetConfInfo =
-                this.defMetaDataManager.getBrokerTopicStrConfigInfo(brokerConfEntity, strBuffer);
-        List<String> brokerTopicSetConfInfoList =
-                new ArrayList<>(brokerTopicSetConfInfo.size());
-        for (String topicItem : brokerTopicSetConfInfo.values()) {
-            brokerTopicSetConfInfoList.add(topicItem);
+        int tlsPort = request.hasTlsPort()
+                ? request.getTlsPort() : defSetting.getBrokerTLSPort();
+        // build broker info
+        BrokerInfo brokerInfo =
+                new BrokerInfo(clientId, request.getEnableTls(), tlsPort);
+        // register broker run status info
+        if (!brokerRunManager.brokerRegister2M(clientId, brokerInfo,
+                request.getCurBrokerConfId(), request.getConfCheckSumId(),
+                true, request.getBrokerDefaultConfInfo(),
+                request.getBrokerTopicSetConfInfoList(), request.getBrokerOnline(),
+                overtls, strBuffer, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrInfo());
+            return builder.build();
         }
-        BrokerSyncStatusInfo brokerStatusInfo =
-                new BrokerSyncStatusInfo(brokerConfEntity, brokerTopicSetConfInfoList);
-        brokerSyncStatusMap.put(brokerConfEntity.getBrokerId(), brokerStatusInfo);
-        brokerStatusInfo.updateCurrBrokerConfInfo(brokerConfEntity.getManageStatus().getCode(),
-                brokerConfEntity.isConfDataUpdated(), brokerConfEntity.isBrokerLoaded(),
-                brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, false);
-        if (brokerTopicSetConfInfoList.isEmpty()) {
-            needFastStart = true;
-        }
-        brokerStatusInfo.setFastStart(needFastStart);
-        // set broker report info
-        if (request.getCurBrokerConfId() <= 0) {
-            brokerStatusInfo.setBrokerReportInfo(true, request.getCurBrokerConfId(),
-                    request.getConfCheckSumId(), true, request.getBrokerDefaultConfInfo(),
-                    request.getBrokerTopicSetConfInfoList(), true, request.getBrokerOnline(), overtls);
-        } else {
-            brokerStatusInfo.setBrokerReportInfo(true,
-                    brokerStatusInfo.getLastPushBrokerConfId(),
-                    brokerStatusInfo.getLastPushBrokerCheckSumId(), true,
-                    brokerConfEntity.getBrokerDefaultConfInfo(), brokerTopicSetConfInfoList, true,
-                    request.getBrokerOnline(), overtls);
-        }
-        this.defMetaDataManager.removeBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
-        brokerHolder.setBrokerInfo(brokerInfo.getBrokerId(), brokerInfo);
-        heartbeatManager.regBrokerNode(String.valueOf(brokerInfo.getBrokerId()));
+        // print broker register log
         logger.info(strBuffer.append("[Broker Register] ").append(clientId)
             .append(" report, configureId=").append(request.getCurBrokerConfId())
             .append(",readStatusRpt=").append(request.getReadStatusRpt())
@@ -1056,9 +994,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             .append(",qryPriorityId=").append(qryPriorityId)
             .append(",checksumId=").append(request.getConfCheckSumId()).toString());
         strBuffer.delete(0, strBuffer.length());
-        if (request.getCurBrokerConfId() > 0) {
-            processBrokerReportConfigureInfo(brokerInfo, strBuffer);
-        }
         // response
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -1074,11 +1009,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         enableInfo.setEnableConsumeAuthenticate(masterConfig.isStartConsumeAuthenticate());
         enableInfo.setEnableConsumeAuthorize(masterConfig.isStartConsumeAuthorize());
         builder.setEnableBrokerInfo(enableInfo);
-        builder.setTakeConfInfo(true);
-        builder.setCurBrokerConfId(brokerStatusInfo.getLastPushBrokerConfId());
-        builder.setConfCheckSumId(brokerStatusInfo.getLastPushBrokerCheckSumId());
-        builder.setBrokerDefaultConfInfo(brokerStatusInfo.getLastPushBrokerDefaultConfInfo());
-        builder.addAllBrokerTopicSetConfInfo(brokerStatusInfo.getLastPushBrokerTopicSetConfInfo());
+        brokerRunManager.setRegisterDownConfInfo(brokerInfo.getBrokerId(), strBuffer, builder);
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         ClientMaster.ClusterConfig.Builder clusterConfigBuilder =
                 buildClusterConfig(request.getClsConfig());
@@ -1086,8 +1017,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setClsConfig(clusterConfigBuilder);
         }
         if (request.hasFlowCheckId()) {
-            ClusterSettingEntity defSetting =
-                    defMetaDataManager.getClusterDefSetting(false);
             builder.setQryPriorityId(defSetting.getQryPriorityId());
             builder.setFlowCheckId(defSetting.getSerialId());
             if (reFlowCtrlId != defSetting.getSerialId()) {
@@ -1098,16 +1027,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
         }
-        logger.info(strBuffer.append("[TMaster sync] push broker configure: brokerId = ")
-            .append(brokerStatusInfo.getBrokerId())
-            .append(",configureId=").append(brokerStatusInfo.getLastPushBrokerConfId())
-            .append(",stopWrite=").append(builder.getStopWrite())
-            .append(",stopRead=").append(builder.getStopRead())
-            .append(",checksumId=").append(brokerStatusInfo.getLastPushBrokerCheckSumId())
-            .append(",default configure is ").append(brokerStatusInfo.getLastPushBrokerDefaultConfInfo())
-            .append(",topic configure is ").append(brokerStatusInfo.getLastPushBrokerTopicSetConfInfo())
-            .toString());
-        strBuffer.delete(0, strBuffer.length());
         logger.info(strBuffer.append("[Broker Register] ").append(clientId)
                 .append(", isOverTLS=").append(overtls).toString());
         return builder.build();
@@ -1156,73 +1075,23 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(paramCheckResult.errMsg);
             return builder.build();
         }
-        final String brokerId = (String) paramCheckResult.checkData;
-        checkNodeStatus(brokerId, strBuffer);
-        BrokerInfo brokerInfo = brokerHolder.getBrokerInfo(Integer.parseInt(brokerId));
-        if (brokerInfo == null) {
-            builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer
-                    .append("Please register broker first! the connecting client id is:")
-                    .append(brokerId).toString());
-            return builder.build();
-        }
-        BrokerConfEntity brokerConfigEntry =
-                defMetaDataManager.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
-        if (brokerConfigEntry == null) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("No broker configure info, please create first! the connecting client id is:")
-                    .append(brokerInfo.toString()).toString());
-            return builder.build();
-        }
-        if (brokerConfigEntry.getManageStatus() == ManageStatus.STATUS_MANAGE_APPLY) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("Broker's configure not online, " +
-                            "please online configure first! the connecting client id is:")
-                    .append(brokerInfo.toString()).toString());
-            return builder.build();
-        }
-        ConcurrentHashMap<Integer, BrokerSyncStatusInfo> brokerSyncStatusMap =
-                this.defMetaDataManager.getBrokerRunSyncManageMap();
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                brokerSyncStatusMap.get(brokerInfo.getBrokerId());
-        if (brokerSyncStatusInfo == null) {
-            builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
-            builder.setErrMsg(strBuffer
-                    .append("Not found Broker run status info,please register first! the connecting client id is:")
-                    .append(brokerInfo.toString()).toString());
-            return builder.build();
-        }
-        // update heartbeat
-        try {
-            heartbeatManager.updBrokerNode(brokerId);
-        } catch (HeartbeatException e) {
-            builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(e.getMessage());
-            return builder.build();
-        }
-
-        // update broker status
-        brokerSyncStatusInfo.setBrokerReportInfo(false, request.getCurBrokerConfId(),
-                request.getConfCheckSumId(), request.getTakeConfInfo(),
-                request.getBrokerDefaultConfInfo(), request.getBrokerTopicSetConfInfoList(),
-                true, request.getBrokerOnline(), overtls);
-        processBrokerReportConfigureInfo(brokerInfo, strBuffer);
-        if (request.getTakeRemovedTopicInfo()) {
-            List<String> removedTopics = request.getRemovedTopicsInfoList();
-            logger.info(strBuffer.append("[Broker Report] receive broker confirmed removed topic list is ")
-                    .append(removedTopics.toString()).toString());
-            strBuffer.delete(0, strBuffer.length());
-            defMetaDataManager.clearRmvedTopicConfInfo(
-                    brokerConfigEntry.getBrokerId(), removedTopics, strBuffer, result);
-        }
-        brokerHolder.updateBrokerReportStatus(brokerInfo.getBrokerId(),
-                request.getReadStatusRpt(), request.getWriteStatusRpt());
+        int brokerId = (int) paramCheckResult.checkData;
         long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
         int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
+        checkNodeStatus(String.valueOf(brokerId), strBuffer);
+        if (!brokerRunManager.brokerHeartBeat2M(brokerId,
+                request.getCurBrokerConfId(), request.getConfCheckSumId(),
+                request.getTakeConfInfo(), request.getBrokerDefaultConfInfo(),
+                request.getBrokerTopicSetConfInfoList(), request.getTakeRemovedTopicInfo(),
+                request.getRemovedTopicsInfoList(), request.getReadStatusRpt(),
+                request.getWriteStatusRpt(), request.getBrokerOnline(),
+                strBuffer, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrInfo());
+            return builder.build();
+        }
         if (request.getTakeConfInfo()) {
             strBuffer.append("[Broker Report] heartbeat report: brokerId=")
                 .append(request.getBrokerId()).append(", configureId=")
@@ -1235,15 +1104,16 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",qryPriorityId=").append(qryPriorityId)
                 .append(",brokerOnline=").append(request.getBrokerOnline())
                 .append(",default broker configure is ").append(request.getBrokerDefaultConfInfo())
-                .append(",broker topic configure is ").append(request.getBrokerTopicSetConfInfoList())
-                .append(",current brokerSyncStatusInfo is ");
-            logger.info(brokerSyncStatusInfo.toJsonString(strBuffer, true).toString());
+                .append(",broker topic configure is ").append(request.getBrokerTopicSetConfInfoList());
             strBuffer.delete(0, strBuffer.length());
         }
         // create response
-        builder.setNeedReportData(brokerSyncStatusInfo.needReportData());
-        builder.setCurBrokerConfId(brokerSyncStatusInfo.getLastPushBrokerConfId());
-        builder.setConfCheckSumId(brokerSyncStatusInfo.getLastPushBrokerCheckSumId());
+        brokerRunManager.setHeatBeatDownConfInfo(brokerId, strBuffer, builder);
+        BrokerConfEntity brokerConfEntity =
+                defMetaDataManager.getBrokerConfByBrokerId(brokerId);
+        builder.setTakeRemoveTopicInfo(true);
+        builder.addAllRemoveTopicConfInfo(defMetaDataManager
+                .getBrokerRemovedTopicStrConfigInfo(brokerConfEntity, strBuffer).values());
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         if (request.hasFlowCheckId()) {
             ClusterSettingEntity defSetting =
@@ -1258,35 +1128,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
         }
-        brokerHolder.setBrokerHeartBeatReqStatus(brokerInfo.getBrokerId(), builder);
         ClientMaster.ClusterConfig.Builder clusterConfigBuilder =
                 buildClusterConfig(request.getClsConfig());
         if (clusterConfigBuilder != null) {
             builder.setClsConfig(clusterConfigBuilder);
-        }
-        builder.setTakeRemoveTopicInfo(true);
-        builder.addAllRemoveTopicConfInfo(defMetaDataManager
-                .getBrokerRemovedTopicStrConfigInfo(brokerConfigEntry, strBuffer).values());
-        if (brokerSyncStatusInfo.needSyncConfDataToBroker()) {
-            builder.setTakeConfInfo(true);
-            builder.setBrokerDefaultConfInfo(brokerSyncStatusInfo
-                    .getLastPushBrokerDefaultConfInfo());
-            builder.addAllBrokerTopicSetConfInfo(brokerSyncStatusInfo
-                    .getLastPushBrokerTopicSetConfInfo());
-            logger.info(strBuffer
-                .append("[Broker Report] heartbeat sync topic config: brokerId=")
-                .append(brokerId).append(", configureId=")
-                .append(brokerSyncStatusInfo.getLastPushBrokerConfId())
-                .append(",set flowCtrlId=").append(builder.getFlowCheckId())
-                .append(",stopWrite=").append(builder.getStopWrite())
-                .append(",stopRead=").append(builder.getStopRead())
-                .append(",qryPriorityId=").append(builder.getQryPriorityId())
-                .append(",checksumId=").append(brokerSyncStatusInfo.getLastPushBrokerCheckSumId())
-                .append(",default configure is ")
-                .append(brokerSyncStatusInfo.getLastPushBrokerDefaultConfInfo())
-                .append(",topic configure is ")
-                .append(brokerSyncStatusInfo.getLastPushBrokerTopicSetConfInfo())
-                .toString());
         }
         // begin:  deprecated when brokers version equal to current master version
         builder.setAuthorizedInfo(genAuthorizedInfo(null, true));
@@ -1311,14 +1156,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public CloseResponseM2B brokerCloseClientB2M(CloseRequestB2M request,
                                                  final String rmtAddress,
                                                  boolean overtls) throws Throwable {
+        ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
         CloseResponseM2B.Builder builder = CloseResponseM2B.newBuilder();
         builder.setSuccess(false);
-        CertifiedResult result =
+        CertifiedResult cfResult =
                 serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo());
-        if (!result.result) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+        if (!cfResult.result) {
+            builder.setErrCode(cfResult.errCode);
+            builder.setErrMsg(cfResult.errInfo);
             return builder.build();
         }
         ParamCheckResult paramCheckResult =
@@ -1328,12 +1174,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(paramCheckResult.errMsg);
             return builder.build();
         }
-        final String brokerId = (String) paramCheckResult.checkData;
-        checkNodeStatus(brokerId, strBuffer);
-        logger.info(strBuffer.append("[Broker Closed]").append(brokerId)
-                .append(", isOverTLS=").append(overtls).toString());
-        new ReleaseBroker().run(brokerId);
-        heartbeatManager.unRegBrokerNode(request.getBrokerId());
+        final int brokerId = (int) paramCheckResult.checkData;
+        checkNodeStatus(String.valueOf(brokerId), strBuffer);
+        if (!brokerRunManager.brokerClose2M(brokerId, strBuffer, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrInfo());
+            return builder.build();
+        }
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -1359,482 +1206,18 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @return
      */
     private Map<String, String> getProducerTopicPartitionInfo(String producerId) {
-        Map<String, String> topicPartStrMap = new HashMap<>();
-        ProducerInfo producerInfo = producerHolder.getProducerInfo(producerId);
+        ProducerInfo producerInfo =
+                producerHolder.getProducerInfo(producerId);
         if (producerInfo == null) {
-            return topicPartStrMap;
+            return new HashMap<>();
         }
         Set<String> producerInfoTopicSet =
                 producerInfo.getTopicSet();
         if ((producerInfoTopicSet == null)
                 || (producerInfoTopicSet.isEmpty())) {
-            return topicPartStrMap;
+            return new HashMap<>();
         }
-        Map<String, StringBuilder> topicPartStrBuilderMap =
-                new HashMap<>();
-        for (String topic : producerInfoTopicSet) {
-            if (topic == null) {
-                continue;
-            }
-            ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
-                    topicPSInfoManager.getBrokerPubInfo(topic);
-            if (topicInfoMap == null) {
-                continue;
-            }
-            for (Map.Entry<BrokerInfo, TopicInfo> entry : topicInfoMap.entrySet()) {
-                if (entry.getKey() == null || entry.getValue() == null) {
-                    continue;
-                }
-                if (entry.getValue().isAcceptPublish()) {
-                    StringBuilder tmpValue = topicPartStrBuilderMap.get(topic);
-                    if (tmpValue == null) {
-                        StringBuilder strBuffer =
-                                new StringBuilder(512).append(topic)
-                                        .append(TokenConstants.SEGMENT_SEP)
-                                        .append(entry.getValue().getSimpleValue());
-                        topicPartStrBuilderMap.put(topic, strBuffer);
-                    } else {
-                        tmpValue.append(TokenConstants.ARRAY_SEP)
-                                .append(entry.getValue().getSimpleValue());
-                    }
-                }
-            }
-        }
-        for (Map.Entry<String, StringBuilder> entry : topicPartStrBuilderMap.entrySet()) {
-            if (entry.getValue() != null) {
-                topicPartStrMap.put(entry.getKey(), entry.getValue().toString());
-            }
-        }
-        topicPartStrBuilderMap.clear();
-        return topicPartStrMap;
-    }
-
-    /**
-     * Update topics
-     *
-     * @param brokerInfo
-     * @param strBuffer
-     * @param curTopicInfoMap
-     * @param newTopicInfoMap
-     * @param requirePartUpdate
-     * @param requireAcceptPublish
-     * @param requireAcceptSubscribe
-     */
-    private void updateTopics(BrokerInfo brokerInfo, final StringBuilder strBuffer,
-                              Map<String/* topicName */, TopicInfo> curTopicInfoMap,
-                              Map<String/* topicName */, TopicInfo> newTopicInfoMap,
-                              boolean requirePartUpdate, boolean requireAcceptPublish,
-                              boolean requireAcceptSubscribe) {
-        List<TopicInfo> needAddTopicList = new ArrayList<>();
-        for (Map.Entry<String, TopicInfo> entry : newTopicInfoMap.entrySet()) {
-            TopicInfo newTopicInfo = entry.getValue();
-            TopicInfo oldTopicInfo = null;
-            if (curTopicInfoMap != null) {
-                oldTopicInfo = curTopicInfoMap.get(entry.getKey());
-            }
-            if (oldTopicInfo == null
-                    || oldTopicInfo.getPartitionNum() != newTopicInfo.getPartitionNum()
-                    || oldTopicInfo.getTopicStoreNum() != newTopicInfo.getTopicStoreNum()
-                    || oldTopicInfo.isAcceptPublish() != newTopicInfo.isAcceptPublish()
-                    || oldTopicInfo.isAcceptSubscribe() != newTopicInfo.isAcceptSubscribe()) {
-                if (requirePartUpdate) {
-                    if (!requireAcceptPublish) {
-                        newTopicInfo.setAcceptPublish(false);
-                    }
-                    if (!requireAcceptSubscribe) {
-                        newTopicInfo.setAcceptSubscribe(false);
-                    }
-                }
-                needAddTopicList.add(newTopicInfo);
-            }
-        }
-        updateTopicsInternal(brokerInfo, needAddTopicList, EventType.CONNECT);
-        logger.info(strBuffer.append("[addedTopicConfigMap] broker:")
-                .append(brokerInfo.toString()).append(" add topicInfo list:")
-                .append(needAddTopicList).toString());
-        strBuffer.delete(0, strBuffer.length());
-    }
-
-    /**
-     * Delete topics
-     *
-     * @param brokerInfo
-     * @param strBuffer
-     * @param curTopicInfoMap
-     * @param newTopicInfoMap
-     */
-    private void deleteTopics(BrokerInfo brokerInfo, final StringBuilder strBuffer,
-                              Map<String/* topicName */, TopicInfo> curTopicInfoMap,
-                              Map<String/* topicName */, TopicInfo> newTopicInfoMap) {
-        List<TopicInfo> needRmvTopicList = new ArrayList<>();
-        if (curTopicInfoMap != null) {
-            for (Map.Entry<String, TopicInfo> entry : curTopicInfoMap.entrySet()) {
-                if (newTopicInfoMap.get(entry.getKey()) == null) {
-                    needRmvTopicList.add(entry.getValue());
-                }
-            }
-        }
-        updateTopicsInternal(brokerInfo, needRmvTopicList, EventType.DISCONNECT);
-        logger.info(strBuffer.append("[removedTopicConfigMap] broker:")
-                .append(brokerInfo.toString()).append(" removed topicInfo list:")
-                .append(needRmvTopicList).toString());
-        strBuffer.delete(0, strBuffer.length());
-    }
-
-    /**
-     * Process broker report configure info
-     *
-     * @param brokerInfo
-     * @param strBuffer
-     */
-    private void processBrokerReportConfigureInfo(BrokerInfo brokerInfo,
-                                                  final StringBuilder strBuffer) {
-        ProcessResult result = new ProcessResult();
-        // #lizard forgives
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.defMetaDataManager.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
-        if (brokerSyncStatusInfo == null) {
-            logger.error(strBuffer
-                    .append("Fail to find broker run manage configure! broker is ")
-                    .append(brokerInfo.toString()).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return;
-        }
-        boolean requireAcceptPublish = false;
-        boolean requireAcceptSubscribe = false;
-        boolean requirePartUpdate = false;
-        boolean requireSyncClient = false;
-        int brokerManageStatus = brokerSyncStatusInfo.getBrokerManageStatus();
-        int brokerRunStatus = brokerSyncStatusInfo.getBrokerRunStatus();
-        long subStepOpTimeInMills = brokerSyncStatusInfo.getSubStepOpTimeInMills();
-        boolean isBrokerRegister = brokerSyncStatusInfo.isBrokerRegister();
-        boolean isBrokerOnline = brokerSyncStatusInfo.isBrokerOnline();
-        if (!isBrokerRegister) {
-            return;
-        }
-        if (brokerManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE) {
-            if (isBrokerOnline) {
-                if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_UNDEFINED) {
-                    return;
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_WAIT_REGISTER
-                        || brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_WAIT_ONLINE) {
-                    brokerSyncStatusInfo.setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_ONLY_READ);
-                    requireAcceptSubscribe = true;
-                    requireSyncClient = true;
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_ONLY_READ) {
-                    if ((brokerSyncStatusInfo.isBrokerConfChanged())
-                            || (!brokerSyncStatusInfo.isBrokerLoaded())) {
-                        long waitTime =
-                                brokerSyncStatusInfo.isFastStart() ? masterConfig.getStepChgWaitPeriodMs()
-                                        : masterConfig.getOnlineOnlyReadToRWPeriodMs();
-                        if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                            brokerSyncStatusInfo
-                                    .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_READ_AND_WRITE);
-                            requireAcceptPublish = true;
-                            requireAcceptSubscribe = true;
-                            requireSyncClient = true;
-                        }
-                    } else {
-                        brokerSyncStatusInfo
-                                .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_READ_AND_WRITE);
-                        requireAcceptPublish = true;
-                        requireAcceptSubscribe = true;
-                        requireSyncClient = true;
-                    }
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_READ_AND_WRITE) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart() ? 0 : masterConfig.getStepChgWaitPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo.setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_UNDEFINED);
-                        brokerSyncStatusInfo.setFastStart(true);
-                        requireAcceptPublish = true;
-                        requireAcceptSubscribe = true;
-                        requireSyncClient = true;
-                        if ((brokerSyncStatusInfo.isBrokerConfChanged())
-                                || (!brokerSyncStatusInfo.isBrokerLoaded())) {
-                            defMetaDataManager.updateBrokerConfChanged(brokerInfo.getBrokerId(),
-                                    false, true, strBuffer, result);
-                        }
-                    }
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_PART_WAIT_REGISTER) {
-                    brokerSyncStatusInfo
-                            .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_PART_WAIT_ONLINE);
-                    requireAcceptSubscribe = true;
-                    requireSyncClient = true;
-                    requirePartUpdate = true;
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_PART_WAIT_ONLINE) {
-                    brokerSyncStatusInfo
-                            .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_PART_ONLY_READ);
-                    requireAcceptSubscribe = true;
-                    requireSyncClient = true;
-                    requirePartUpdate = true;
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_PART_ONLY_READ) {
-                    if ((brokerSyncStatusInfo.isBrokerConfChanged())
-                            || (!brokerSyncStatusInfo.isBrokerLoaded())) {
-                        long waitTime =
-                                brokerSyncStatusInfo.isFastStart()
-                                        ? 0 : masterConfig.getOnlineOnlyReadToRWPeriodMs();
-                        if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                            brokerSyncStatusInfo
-                                    .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_READ_AND_WRITE);
-                            requireAcceptPublish = true;
-                            requireAcceptSubscribe = true;
-                            requireSyncClient = true;
-                            requirePartUpdate = true;
-                        }
-                    } else {
-                        brokerSyncStatusInfo
-                                .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_READ_AND_WRITE);
-                        requireAcceptPublish = true;
-                        requireAcceptSubscribe = true;
-                        requireSyncClient = true;
-                        requirePartUpdate = true;
-                    }
-                }
-            } else {
-                if (brokerRunStatus != TStatusConstants.STATUS_SERVICE_TOONLINE_WAIT_ONLINE) {
-                    brokerSyncStatusInfo
-                            .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOONLINE_WAIT_ONLINE);
-                    requireSyncClient = true;
-                }
-            }
-        } else {
-            if (!isBrokerOnline
-                    || brokerRunStatus == TStatusConstants.STATUS_SERVICE_UNDEFINED) {
-                return;
-            }
-            if (brokerManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
-                if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_ONLY_READ) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart() ? 0 : masterConfig.getStepChgWaitPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo
-                                .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE);
-                        requireAcceptSubscribe = true;
-                        requireSyncClient = true;
-                    }
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart()
-                                    ? masterConfig.getStepChgWaitPeriodMs()
-                                    : masterConfig.getOfflineOnlyReadToRWPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo.setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_UNDEFINED);
-                        brokerSyncStatusInfo.setFastStart(true);
-                        requireAcceptSubscribe = true;
-                        requireSyncClient = true;
-                    }
-                }
-            } else if (brokerManageStatus == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
-                if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOONLINE_ONLY_WRITE) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart() ? 0 : masterConfig.getStepChgWaitPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo
-                                .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE);
-                        requireAcceptPublish = true;
-                        requireSyncClient = true;
-                    }
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart() ? masterConfig.getStepChgWaitPeriodMs()
-                                    : masterConfig.getOfflineOnlyReadToRWPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo.setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_UNDEFINED);
-                        brokerSyncStatusInfo.setFastStart(true);
-                        requireAcceptPublish = true;
-                        requireSyncClient = true;
-                    }
-                }
-            } else if (brokerManageStatus == TStatusConstants.STATUS_MANAGE_OFFLINE) {
-                if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOOFFLINE_NOT_WRITE) {
-                    brokerSyncStatusInfo
-                            .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOOFFLINE_NOT_READ_WRITE);
-                    requireAcceptSubscribe = true;
-                    requireSyncClient = true;
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOOFFLINE_NOT_READ_WRITE) {
-                    long waitTime =
-                            brokerSyncStatusInfo.isFastStart() ? 0 : masterConfig.getStepChgWaitPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo
-                                .setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE);
-                        requireSyncClient = true;
-                    }
-                } else if (brokerRunStatus == TStatusConstants.STATUS_SERVICE_TOOFFLINE_WAIT_REBALANCE) {
-                    long waitTime = brokerSyncStatusInfo.isFastStart()
-                            ? masterConfig.getStepChgWaitPeriodMs()
-                            : masterConfig.getOfflineOnlyReadToRWPeriodMs();
-                    if ((System.currentTimeMillis() - subStepOpTimeInMills) > waitTime) {
-                        brokerSyncStatusInfo.setBrokerRunStatus(TStatusConstants.STATUS_SERVICE_UNDEFINED);
-                        brokerSyncStatusInfo.setFastStart(true);
-                        requireSyncClient = true;
-                    }
-                }
-            }
-        }
-
-        if (requireSyncClient) {
-            updateTopicInfoToClient(brokerInfo, requirePartUpdate,
-                    requireAcceptPublish, requireAcceptSubscribe, strBuffer);
-        }
-    }
-
-    /**
-     * Update topic info to client
-     *
-     * @param brokerInfo
-     * @param requirePartUpdate
-     * @param requireAcceptPublish
-     * @param requireAcceptSubscribe
-     * @param strBuffer
-     */
-    private void updateTopicInfoToClient(BrokerInfo brokerInfo,
-                                         boolean requirePartUpdate,
-                                         boolean requireAcceptPublish,
-                                         boolean requireAcceptSubscribe,
-                                         final StringBuilder strBuffer) {
-        // #lizard forgives
-        // check broker status
-        BrokerSyncStatusInfo brokerSyncStatusInfo =
-                this.defMetaDataManager.getBrokerRunSyncStatusInfo(brokerInfo.getBrokerId());
-        if (brokerSyncStatusInfo == null) {
-            logger.error(strBuffer
-                    .append("Fail to find broker run manage configure, not update topic info! broker is ")
-                    .append(brokerInfo.toString()).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return;
-        }
-        // get broker config and then generate topic status record
-        String brokerDefaultConfInfo = brokerSyncStatusInfo.getReportedBrokerDefaultConfInfo();
-        int brokerManageStatusId = brokerSyncStatusInfo.getBrokerManageStatus();
-        if (TStringUtils.isBlank(brokerDefaultConfInfo)) {
-            return;
-        }
-        // get broker status and topic default config
-        boolean acceptPublish = false;
-        boolean acceptSubscribe = false;
-        if (brokerManageStatusId >= TStatusConstants.STATUS_MANAGE_ONLINE) {
-            if (brokerManageStatusId == TStatusConstants.STATUS_MANAGE_ONLINE) {
-                acceptPublish = true;
-                acceptSubscribe = true;
-            } else if (brokerManageStatusId == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE) {
-                acceptSubscribe = true;
-            } else if (brokerManageStatusId == TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ) {
-                acceptPublish = true;
-            }
-        }
-        List<String> brokerTopicSetConfInfo =
-                brokerSyncStatusInfo.getReportedBrokerTopicSetConfInfo();
-        String[] brokerDefaultConfInfoArr = brokerDefaultConfInfo.split(TokenConstants.ATTR_SEP);
-        int numPartitions = Integer.parseInt(brokerDefaultConfInfoArr[0]);
-        boolean cfgAcceptPublish = Boolean.parseBoolean(brokerDefaultConfInfoArr[1]);
-        boolean cfgAcceptSubscribe = Boolean.parseBoolean(brokerDefaultConfInfoArr[2]);
-        int numTopicStores = 1;
-        if (brokerDefaultConfInfoArr.length > 7) {
-            if (!TStringUtils.isBlank(brokerDefaultConfInfoArr[7])) {
-                numTopicStores = Integer.parseInt(brokerDefaultConfInfoArr[7]);
-            }
-        }
-        int unFlushDataHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
-        if (brokerDefaultConfInfoArr.length > 8) {
-            if (!TStringUtils.isBlank(brokerDefaultConfInfoArr[8])) {
-                unFlushDataHold = Integer.parseInt(brokerDefaultConfInfoArr[8]);
-            }
-        }
-        ConcurrentHashMap<String/* topic */, TopicInfo> newTopicInfoMap =
-                new ConcurrentHashMap<>();
-        // according to broker status and default config, topic config, make up current status record
-        for (String strTopicConfInfo : brokerTopicSetConfInfo) {
-            if (TStringUtils.isBlank(strTopicConfInfo)) {
-                continue;
-            }
-            String[] topicConfInfoArr =
-                    strTopicConfInfo.split(TokenConstants.ATTR_SEP);
-            final String tmpTopic = topicConfInfoArr[0];
-            int tmpPartNum = numPartitions;
-            if (!TStringUtils.isBlank(topicConfInfoArr[1])) {
-                tmpPartNum = Integer.parseInt(topicConfInfoArr[1]);
-            }
-            boolean tmpAcceptPublish = cfgAcceptPublish;
-            if (!TStringUtils.isBlank(topicConfInfoArr[2])) {
-                tmpAcceptPublish = Boolean.parseBoolean(topicConfInfoArr[2]);
-            }
-            if (!acceptPublish) {
-                tmpAcceptPublish = acceptPublish;
-            } else {
-                if (!requirePartUpdate) {
-                    if (!requireAcceptPublish) {
-                        tmpAcceptPublish = false;
-                    }
-                }
-            }
-            int tmpNumTopicStores = numTopicStores;
-            if (!TStringUtils.isBlank(topicConfInfoArr[8])) {
-                tmpNumTopicStores = Integer.parseInt(topicConfInfoArr[8]);
-                tmpNumTopicStores = tmpNumTopicStores > 0 ? tmpNumTopicStores : numTopicStores;
-            }
-            boolean tmpAcceptSubscribe = cfgAcceptSubscribe;
-            if (!TStringUtils.isBlank(topicConfInfoArr[3])) {
-                tmpAcceptSubscribe = Boolean.parseBoolean(topicConfInfoArr[3]);
-            }
-            if (!acceptSubscribe) {
-                tmpAcceptSubscribe = acceptSubscribe;
-            } else {
-                if (!requirePartUpdate) {
-                    if (!requireAcceptSubscribe) {
-                        tmpAcceptSubscribe = false;
-                    }
-                }
-            }
-            newTopicInfoMap.put(tmpTopic, new TopicInfo(brokerInfo, tmpTopic,
-                    tmpPartNum, tmpNumTopicStores, tmpAcceptPublish, tmpAcceptSubscribe));
-        }
-
-        ConcurrentHashMap<String/* topicName */, TopicInfo> oldTopicInfoMap =
-                defMetaDataManager.getBrokerRunTopicInfoMap(brokerInfo.getBrokerId());
-        deleteTopics(brokerInfo, strBuffer, oldTopicInfoMap, newTopicInfoMap);
-        updateTopics(brokerInfo, strBuffer, oldTopicInfoMap, newTopicInfoMap,
-                requirePartUpdate, requireAcceptPublish, requireAcceptSubscribe);
-        defMetaDataManager.updateBrokerRunTopicInfoMap(brokerInfo.getBrokerId(), newTopicInfoMap);
-    }
-
-    /**
-     * Update topic internal
-     *
-     * @param broker
-     * @param topicList
-     * @param type
-     */
-    private void updateTopicsInternal(BrokerInfo broker,
-                                      List<TopicInfo> topicList,
-                                      EventType type) {
-        List<TopicInfo> cloneTopicList = new ArrayList<>();
-        for (TopicInfo topicInfo : topicList) {
-            cloneTopicList.add(topicInfo.clone());
-        }
-        for (TopicInfo topicInfo : cloneTopicList) {
-            Integer lid = null;
-            try {
-                lid = this.masterRowLock.getLock(null, StringUtils.getBytesUtf8(topicInfo.getTopic()), true);
-                ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
-                        topicPSInfoManager.getBrokerPubInfo(topicInfo.getTopic());
-                if (topicInfoMap == null) {
-                    topicInfoMap = new ConcurrentHashMap<>();
-                    topicPSInfoManager.setBrokerPubInfo(topicInfo.getTopic(), topicInfoMap);
-                }
-                if (EventType.CONNECT == type) {
-                    topicInfoMap.put(broker, topicInfo);
-                } else {
-                    topicInfoMap.remove(broker);
-                }
-            } catch (IOException e) {
-                logger.error("Get lock error!", e);
-            } finally {
-                if (lid != null) {
-                    this.masterRowLock.releaseRowLock(lid);
-                }
-            }
-        }
+        return brokerRunManager.getPubBrokerAcceptPubPartInfo(producerInfoTopicSet);
     }
 
     @Override
@@ -1945,13 +1328,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap = this.loadBalancer.bukAssign(consumerHolder,
-                    topicPSInfoManager, groups, defMetaDataManager,
+                    brokerRunManager, groups, defMetaDataManager,
                     masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.balanceCluster(currentSubInfo,
-                    consumerHolder, brokerHolder, topicPSInfoManager, groups,
-                    defMetaDataManager, masterConfig.getMaxGroupBrokerConsumeRate(),
-                    strBuffer);
+                    consumerHolder, brokerRunManager, groups, defMetaDataManager,
+                    masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
         }
         // allocate partitions to consumers
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
@@ -2079,11 +1461,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap =  this.loadBalancer.resetBukAssign(consumerHolder,
-                    topicPSInfoManager, groups, this.zkOffsetStorage,
+                    brokerRunManager, groups, this.zkOffsetStorage,
                     this.defMetaDataManager, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.resetBalanceCluster(currentSubInfo,
-                    consumerHolder, topicPSInfoManager, groups, this.zkOffsetStorage,
+                    consumerHolder, brokerRunManager, groups, this.zkOffsetStorage,
                     this.defMetaDataManager, strBuffer);
         }
         // filter
@@ -2419,8 +1801,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return topicPSInfoManager;
     }
 
-    public BrokerInfoHolder getBrokerHolder() {
-        return brokerHolder;
+    public BrokerAbnHolder getBrokerAbnHolder() {
+        return brokerRunManager.getBrokerAbnHolder();
     }
 
     public ProducerInfoHolder getProducerHolder() {
@@ -2493,22 +1875,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 if (lid != null) {
                     masterRowLock.releaseRowLock(lid);
                 }
-            }
-        }
-    }
-
-    private class ReleaseBroker extends AbstractReleaseRunner {
-        @Override
-        void run(String arg) {
-            int brokerId = Integer.parseInt(arg);
-            BrokerInfo broker = brokerHolder.removeBroker(brokerId);
-            if (broker != null) {
-                List<TopicInfo> topicInfoList =
-                        topicPSInfoManager.getBrokerPubInfoList(broker);
-                if (topicInfoList != null) {
-                    updateTopicsInternal(broker, topicInfoList, EventType.DISCONNECT);
-                }
-                defMetaDataManager.resetBrokerReportInfo(broker.getBrokerId());
             }
         }
     }
