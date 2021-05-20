@@ -330,20 +330,22 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
         List<GroupConsumeCtrlEntity> itemLst;
         if (qryHitRecSet == null) {
             for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
-                if (entity != null && entity.isMatched(qryEntry)) {
-                    itemLst = retEntityMap.computeIfAbsent(
-                            entity.getGroupName(), k -> new ArrayList<>());
-                    itemLst.add(entity);
+                if (entity == null || (qryEntry != null && !entity.isMatched(qryEntry))) {
+                    continue;
                 }
+                itemLst = retEntityMap.computeIfAbsent(
+                        entity.getGroupName(), k -> new ArrayList<>());
+                itemLst.add(entity);
             }
         } else {
             for (String recKey : qryHitRecSet) {
                 tmpEntity = grpConsumeCtrlCache.get(recKey);
-                if (tmpEntity != null && tmpEntity.isMatched(qryEntry)) {
-                    itemLst = retEntityMap.computeIfAbsent(
-                            tmpEntity.getGroupName(), k -> new ArrayList<>());
-                    itemLst.add(tmpEntity);
+                if (tmpEntity == null || (qryEntry != null && !tmpEntity.isMatched(qryEntry))) {
+                    continue;
                 }
+                itemLst = retEntityMap.computeIfAbsent(
+                        tmpEntity.getGroupName(), k -> new ArrayList<>());
+                itemLst.add(tmpEntity);
             }
         }
         return retEntityMap;
@@ -356,7 +358,7 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
             retEntitys.addAll(grpConsumeCtrlCache.values());
         } else {
             for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
-                if (entity.isMatched(qryEntity)) {
+                if (entity != null && entity.isMatched(qryEntity)) {
                     retEntitys.add(entity);
                 }
             }

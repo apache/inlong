@@ -87,31 +87,45 @@ public class WebParameterUtils {
         return sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
+    /**
+     * Parse the parameter value required for add update and delete
+     *
+     * @param paramCntr   parameter container object
+     * @param isAdd       if add operation
+     * @param defOpEntity default value set,
+     *                   if not null, it must fill required field values
+     * @param sBuffer     string buffer
+     * @param result      process result of parameter value
+     * @return the process result
+     */
     public static <T> boolean getAUDBaseInfo(T paramCntr, boolean isAdd,
                                              BaseEntity defOpEntity,
                                              StringBuilder sBuffer,
                                              ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(paramCntr, WebFieldDef.DATAVERSIONID,
-                false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
+                false, (defOpEntity == null ?
+                        TBaseConstants.META_VALUE_UNDEFINED : defOpEntity.getDataVerId()),
+                sBuffer, result)) {
             return result.isSuccess();
         }
         long dataVerId = (long) result.getRetData();
         // check and get createUser or modifyUser
-        String createUsr = "";
-        Date createDate = null;
+        String createUsr = null;
+        Date createDate = new Date();
         if (isAdd) {
             // check create user field
             if (!WebParameterUtils.getStringParamValue(paramCntr, WebFieldDef.CREATEUSER,
-                    (defOpEntity == null && isAdd),
-                    (defOpEntity == null ? null : defOpEntity.getCreateUser()),
+                    defOpEntity == null,
+                    (defOpEntity == null ? createUsr : defOpEntity.getCreateUser()),
                     sBuffer, result)) {
                 return result.isSuccess();
             }
             createUsr = (String) result.getRetData();
             // check and get create date
             if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.CREATEDATE, false,
-                    (defOpEntity == null ? new Date() : defOpEntity.getCreateDate()),
+                    ((defOpEntity == null || defOpEntity.getCreateDate() == null) ?
+                            createDate : defOpEntity.getCreateDate()),
                     sBuffer, result)) {
                 return result.isSuccess();
             }
@@ -127,7 +141,8 @@ public class WebParameterUtils {
         String modifyUser = (String) result.getRetData();
         // check and get modify date
         if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.MODIFYDATE, false,
-                (defOpEntity == null ? createDate : defOpEntity.getModifyDate()),
+                ((defOpEntity == null || defOpEntity.getModifyDate() == null) ?
+                        createDate : defOpEntity.getModifyDate()),
                 sBuffer, result)) {
             return result.isSuccess();
         }
@@ -680,7 +695,7 @@ public class WebParameterUtils {
         if (TStringUtils.isBlank(paramValue)) {
             if (required) {
                 result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
-                        .append(" is missing or value is null or blank!").toString());
+                        .append(" is missing or value is blank!").toString());
                 sBuffer.delete(0, sBuffer.length());
             } else {
                 procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
@@ -705,7 +720,7 @@ public class WebParameterUtils {
             if (valItemSet.isEmpty()) {
                 if (required) {
                     result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
-                            .append(" is missing or value is null or blank!").toString());
+                            .append(" is missing or value is blank!").toString());
                     sBuffer.delete(0, sBuffer.length());
                 } else {
                     procStringDefValue(fieldDef.isCompFieldType(), defValue, result);
@@ -883,7 +898,7 @@ public class WebParameterUtils {
             if (required) {
                 result.setFailResult(new StringBuilder(512)
                         .append("Parameter ").append(fieldDef.name)
-                        .append(" is missing or value is null or blank!").toString());
+                        .append(" is missing or value is blank!").toString());
             } else {
                 result.setSuccResult(defValue);
             }
@@ -959,7 +974,7 @@ public class WebParameterUtils {
             if (required) {
                 result.setFailResult(new StringBuilder(512)
                         .append("Parameter ").append(fieldDef.name)
-                        .append(" is missing or value is null or blank!").toString());
+                        .append(" is missing or value is blank!").toString());
             } else {
                 result.setSuccResult(defValue);
             }
@@ -1035,7 +1050,9 @@ public class WebParameterUtils {
             result.setSuccResult(date);
         } catch (Throwable e) {
             result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
-                    .append(" parse error: ").append(e.getMessage()).toString());
+                    .append("'s value ").append(paramValue)
+                    .append(" parse error, required value format is ")
+                    .append(TBaseConstants.META_TMP_DATE_VALUE).toString());
             sBuffer.delete(0, sBuffer.length());
         }
         return result.isSuccess();
@@ -1060,7 +1077,7 @@ public class WebParameterUtils {
         String paramValue = (String) result.getRetData();
         if (paramValue != null) {
             if (!paramValue.equals(master.getMasterConfig().getConfModAuthToken())) {
-                result.setFailResult("Illegal access, unauthorized request!");
+                result.setFailResult("illegal access, unauthorized request!");
             }
         }
         return result.isSuccess();

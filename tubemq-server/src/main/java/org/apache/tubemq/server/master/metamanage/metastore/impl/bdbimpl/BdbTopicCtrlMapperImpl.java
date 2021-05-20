@@ -174,7 +174,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
             retEntitys.addAll(topicCtrlCache.values());
         } else {
             for (TopicCtrlEntity entity : topicCtrlCache.values()) {
-                if (entity.isMatched(qryEntity)) {
+                if (entity != null && entity.isMatched(qryEntity)) {
                     retEntitys.add(entity);
                 }
             }
@@ -194,9 +194,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
         }
         for (String topicName : qryKeySet) {
             TopicCtrlEntity entity = topicCtrlCache.get(topicName);
-            if (entity == null
-                    || (qryEntity != null
-                    && !entity.isMatched(qryEntity))) {
+            if (entity == null || (qryEntity != null && !entity.isMatched(qryEntity))) {
                 continue;
             }
             retEntityMap.put(topicName, entity);

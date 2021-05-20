@@ -163,10 +163,12 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
     public void setDeletePolicy(String deletePolicy) {
-        this.deletePolicy = deletePolicy;
-        Tuple2<CuPolType, Long> parsedRet = parseDelPolicy(deletePolicy);
-        this.fileCuPolicyType = parsedRet.getF0();
-        this.retPeriodInMs = parsedRet.getF1();
+        if (TStringUtils.isNotBlank(deletePolicy)) {
+            this.deletePolicy = deletePolicy;
+            Tuple2<CuPolType, Long> parsedRet = parseDelPolicy(deletePolicy);
+            this.fileCuPolicyType = parsedRet.getF0();
+            this.retPeriodInMs = parsedRet.getF1();
+        }
     }
 
     public String getDeletePolicy() {

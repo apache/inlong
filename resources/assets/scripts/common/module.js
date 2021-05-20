@@ -1070,12 +1070,12 @@ CheckBox.prototype.process = function (type, $target, dialogInstance, ext, callb
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',
@@ -1126,12 +1126,12 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',

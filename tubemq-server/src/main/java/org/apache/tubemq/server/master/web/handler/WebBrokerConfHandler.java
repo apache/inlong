@@ -400,15 +400,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
-        // get and valid broker manage status info
-        if (!getManageStatusParamValue(false, req, sBuffer, result)) {
+        // get and valid broker read or write status info
+        if (!getAcceptReadAndWriteParamValue(req, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        ManageStatus mngStatus = (ManageStatus) result.getRetData();
+        Tuple2<Boolean, Boolean> rdWtTpl =
+                (Tuple2<Boolean, Boolean>) result.getRetData();
+        // change broker status
         List<BrokerProcessResult> retInfo =
-                metaDataManager.changeBrokerConfStatus(opEntity,
-                        brokerIds, mngStatus, sBuffer, result);
+                metaDataManager.changeBrokerRWStatus(opEntity,
+                        brokerIds, rdWtTpl, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
@@ -779,15 +781,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     private boolean isValidRecord(Set<String> qryTopicSet, Boolean isInclude,
                                   TopicStatus topicStatus,
                                   Map<String, TopicDeployEntity> topicConfEntityMap) {
-        if ((topicConfEntityMap == null) || (topicConfEntityMap.isEmpty())) {
-            if ((qryTopicSet.isEmpty() || !isInclude)
-                    && topicStatus == TopicStatus.STATUS_TOPIC_UNDEFINED) {
-                return true;
+        if (topicConfEntityMap == null || topicConfEntityMap.isEmpty()) {
+            if ((qryTopicSet != null && !qryTopicSet.isEmpty())
+                    || topicStatus != TopicStatus.STATUS_TOPIC_UNDEFINED) {
+                return false;
             }
-            return false;
+            return true;
         }
         // first search topic if match require
-        if (!qryTopicSet.isEmpty()) {
+        if (qryTopicSet != null && !qryTopicSet.isEmpty()) {
             boolean matched = false;
             Set<String> curTopics = topicConfEntityMap.keySet();
             if (isInclude) {
@@ -811,12 +813,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
         }
         // second check topic status if match
-        for (TopicDeployEntity topicConfEntity : topicConfEntityMap.values()) {
-            if (topicConfEntity.getDeployStatus() == topicStatus) {
-                return true;
+        if (topicStatus != TopicStatus.STATUS_TOPIC_UNDEFINED) {
+            for (TopicDeployEntity topicConfEntity : topicConfEntityMap.values()) {
+                if (topicConfEntity.getDeployStatus() == topicStatus) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -965,8 +970,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             sBuffer.append("{\"brokerId\":").append(entry.getBrokerId())
-                    .append("{\"brokerIp\":\"").append(entry.getBrokerIp()).append("\"")
-                    .append(",\"success\":").append(entry.isSuccess())
+                    .append(",\"brokerIp\":\"").append(entry.getBrokerIp())
+                    .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
@@ -1087,6 +1092,32 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
         }
         result.setSuccResult(mngStatus);
+        return result.isSuccess();
+    }
+
+    private <T> boolean getAcceptReadAndWriteParamValue(T paramCntr,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        // compatible with old version api
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr,
+                WebFieldDef.ACCEPTPUBLISH, false, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean publishParam = (Boolean) result.getRetData();
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr,
+                WebFieldDef.ACCEPTSUBSCRIBE, false, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean subscribeParam = (Boolean) result.getRetData();
+        if (publishParam == null && subscribeParam == null) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    sBuffer.append("Fields ").append(WebFieldDef.ACCEPTPUBLISH.name)
+                            .append(" or ").append(WebFieldDef.ACCEPTSUBSCRIBE.name)
+                            .append(" must exist at this method!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(new Tuple2<Boolean, Boolean>(publishParam, subscribeParam));
         return result.isSuccess();
     }
 

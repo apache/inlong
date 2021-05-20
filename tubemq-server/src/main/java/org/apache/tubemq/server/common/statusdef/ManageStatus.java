@@ -36,12 +36,12 @@ public enum ManageStatus {
 
 
     ManageStatus(int code, String description,
-                 boolean isAcceptPublish,
-                 boolean isAcceptSubscribe) {
+                 boolean acceptPublish,
+                 boolean acceptSubscribe) {
         this.code = code;
         this.description = description;
-        this.isAcceptPublish = isAcceptPublish;
-        this.isAcceptSubscribe = isAcceptSubscribe;
+        this.isAcceptPublish = acceptPublish;
+        this.isAcceptSubscribe = acceptSubscribe;
     }
 
     public boolean isOnlineStatus() {
@@ -82,6 +82,35 @@ public enum ManageStatus {
         }
         throw new IllegalArgumentException(String.format(
                 "unknown broker manage status code %s", code));
+    }
+
+    public static ManageStatus getNewStatus(ManageStatus oldStatus,
+                                            Boolean acceptPublish,
+                                            Boolean acceptSubscribe) {
+        if (acceptPublish == null && acceptSubscribe == null) {
+            return oldStatus;
+        }
+        boolean newPublish = oldStatus.isAcceptPublish;
+        boolean newSubscribe = oldStatus.isAcceptSubscribe;
+        if (acceptPublish != null) {
+            newPublish = acceptPublish;
+        }
+        if (acceptSubscribe != null) {
+            newSubscribe = acceptSubscribe;
+        }
+        if (newPublish) {
+            if (newSubscribe) {
+                return ManageStatus.STATUS_MANAGE_ONLINE;
+            } else {
+                return ManageStatus.STATUS_MANAGE_ONLINE_NOT_READ;
+            }
+        } else {
+            if (newSubscribe) {
+                return ManageStatus.STATUS_MANAGE_ONLINE_NOT_WRITE;
+            } else {
+                return ManageStatus.STATUS_MANAGE_OFFLINE;
+            }
+        }
     }
 
 }

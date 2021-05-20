@@ -81,7 +81,6 @@ public class Webapi implements Action {
             if (!metaDataManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
-            String type = req.getParameter("type");
             String method = req.getParameter("method");
             String strCallbackFun = req.getParameter("callback");
             if ((TStringUtils.isNotEmpty(strCallbackFun))
@@ -89,15 +88,12 @@ public class Webapi implements Action {
                     && (strCallbackFun.matches(TBaseConstants.META_TMP_CALLBACK_STRING_VALUE))) {
                 strCallbackFun = strCallbackFun.trim();
             }
-            if (type == null) {
-                throw new Exception("Please take with type parameter!");
-            }
             if (method == null) {
                 throw new Exception("Please take with method parameter!");
             }
             WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
             if (webApiRegInfo == null) {
-                throw new Exception("Unsupported method!");
+                throw new Exception("unsupported method!");
             }
             // check master is current node
             if (webApiRegInfo.onlyMasterOp

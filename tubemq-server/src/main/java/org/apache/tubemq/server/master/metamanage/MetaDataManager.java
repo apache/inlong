@@ -545,6 +545,64 @@ public class MetaDataManager implements Server {
     }
 
     /**
+     * Change broker read write status
+     *
+     * @param opEntity      operator
+     * @param brokerIdSet   need deleted broker id set
+     * @param rdWtTpl       need changed read or write status
+     * @param sBuffer       the print information string buffer
+     * @param result        the process result return
+     * @return true if success otherwise false
+     */
+    public List<BrokerProcessResult> changeBrokerRWStatus(BaseEntity opEntity,
+                                                          Set<Integer> brokerIdSet,
+                                                          Tuple2<Boolean, Boolean> rdWtTpl,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        BrokerConfEntity curEntry;
+        BrokerConfEntity newEntry;
+        List<BrokerProcessResult> retInfo = new ArrayList<>();
+        // check target broker configure's status
+        for (Integer brokerId : brokerIdSet) {
+            curEntry = metaStoreService.getBrokerConfByBrokerId(brokerId);
+            if (curEntry == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        "The broker configure not exist!");
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            if (curEntry.getManageStatus().getCode()
+                    < ManageStatus.STATUS_MANAGE_ONLINE.getCode()) {
+                result.setFailResult(DataOpErrCode.DERR_CONDITION_LACK.getCode(),
+                        "The broker configure under draft status, please online first!");
+                retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            ManageStatus newMngStatus = ManageStatus.getNewStatus(
+                    curEntry.getManageStatus(), rdWtTpl.getF0(), rdWtTpl.getF1());
+            if (curEntry.getManageStatus() == newMngStatus) {
+                result.setSuccResult(null);
+                retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
+                continue;
+            }
+            newEntry = curEntry.clone();
+            newEntry.updBaseModifyInfo(opEntity);
+            if (newEntry.updModifyInfo(opEntity.getDataVerId(),
+                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                    TBaseConstants.META_VALUE_UNDEFINED, newMngStatus, null)) {
+                if (metaStoreService.updBrokerConf(newEntry, sBuffer, result)) {
+                    triggerBrokerConfDataSync(newEntry.getBrokerId(), sBuffer, result);
+                }
+            } else {
+                result.setSuccResult(null);
+            }
+            retInfo.add(new BrokerProcessResult(brokerId, curEntry.getBrokerIp(), result));
+        }
+        return retInfo;
+    }
+
+    /**
      * Change broker configure status
      *
      * @param opEntity      operator
@@ -571,7 +629,7 @@ public class MetaDataManager implements Server {
             if (!curEntry.getManageStatus().isOnlineStatus()) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         sBuffer.append("The broker manage status by brokerId=").append(brokerId)
-                                .append(" not in online status, can't reload this configure! ")
+                                .append(" is not in online status, can't reload this configure! ")
                                 .toString());
                 sBuffer.delete(0, sBuffer.length());
                 retInfo.add(new BrokerProcessResult(brokerId, "", result));
