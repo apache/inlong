@@ -330,7 +330,7 @@ public class WebParameterUtils {
                                                    ProcessResult result) {
         // get topicStatusId field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICSTATUSID,
-                isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_OK.getCode(),
+                isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_UNDEFINED.getCode(),
                 sBuffer, result)) {
             return result.isSuccess();
         }
@@ -341,7 +341,7 @@ public class WebParameterUtils {
         } catch (Throwable e) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     sBuffer.append("The value of field ")
-                            .append(WebFieldDef.TOPICSTATUSID.name())
+                            .append(WebFieldDef.TOPICSTATUSID.name)
                             .append(" invalid:").append(e.getMessage()).toString());
             sBuffer.delete(0, sBuffer.length());
         }

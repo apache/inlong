@@ -59,7 +59,7 @@ public interface BrokerRunManager {
 
     boolean brokerClose2M(int brokerId, StringBuilder sBuffer, ProcessResult result);
 
-    boolean releaseBrokerRunInfo(int brokerId, String blockId);
+    boolean releaseBrokerRunInfo(int brokerId, String blockId, boolean isTimeout);
 
     BrokerRunStatusInfo getBrokerRunStatusInfo(int brokerId);
 

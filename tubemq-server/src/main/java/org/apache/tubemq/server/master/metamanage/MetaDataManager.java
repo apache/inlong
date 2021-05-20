@@ -430,7 +430,7 @@ public class MetaDataManager implements Server {
             } else {
                 BrokerConfEntity newEntity = curEntity.clone();
                 newEntity.updBaseModifyInfo(entity);
-                if (entity.updModifyInfo(entity.getDataVerId(), entity.getBrokerPort(),
+                if (newEntity.updModifyInfo(entity.getDataVerId(), entity.getBrokerPort(),
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
@@ -657,16 +657,36 @@ public class MetaDataManager implements Server {
                                                        ProcessResult result) {
         List<BrokerProcessResult> retInfo = new ArrayList<>();
         for (int brokerId : brokerIdSet) {
-            // check broker status
-            if (!isAllowDeleteBrokerConf(brokerId, rsvData, sBuffer, result)) {
-                retInfo.add(new BrokerProcessResult(brokerId, "", result));
-                continue;
-            }
+            // get broker configure
             BrokerConfEntity entity =
                     metaStoreService.getBrokerConfByBrokerId(brokerId);
             if (entity == null) {
                 result.setSuccResult(null);
                 retInfo.add(new BrokerProcessResult(brokerId, "", result));
+                continue;
+            }
+            // check broker's manage status
+            if (entity.getManageStatus().isOnlineStatus()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        "Broker manage status is online, please offline first!");
+                retInfo.add(new BrokerProcessResult(brokerId, entity.getBrokerIp(), result));
+                continue;
+            }
+            BrokerRunManager brokerRunManager = tMaster.getBrokerRunManager();
+            BrokerRunStatusInfo runStatusInfo =
+                    brokerRunManager.getBrokerRunStatusInfo(brokerId);
+            if (runStatusInfo != null
+                    && entity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
+                    && runStatusInfo.inProcessingStatus()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        sBuffer.append("Illegal value: the broker is processing offline event by brokerId=")
+                                .append(brokerId).append(", please offline first and try later!").toString());
+                sBuffer.delete(0, sBuffer.length());
+                retInfo.add(new BrokerProcessResult(brokerId, entity.getBrokerIp(), result));
+                continue;
+            }
+            if (!chkBrokerTopicConfAllowed(brokerId, rsvData, sBuffer, result)) {
+                retInfo.add(new BrokerProcessResult(brokerId, entity.getBrokerIp(), result));
                 continue;
             }
             delBrokerConfig(operator, entity.getBrokerId(), rsvData, sBuffer, result);
@@ -676,32 +696,8 @@ public class MetaDataManager implements Server {
         return retInfo;
     }
 
-    private boolean isAllowDeleteBrokerConf(int brokerId, boolean rsvData,
-                                            StringBuilder sBuffer, ProcessResult result) {
-        BrokerConfEntity entity =
-                metaStoreService.getBrokerConfByBrokerId(brokerId);
-        if (entity == null) {
-            result.setSuccResult(null);
-            return result.isSuccess();
-        }
-        // check broker's manage status
-        if (entity.getManageStatus().isOnlineStatus()) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    "Broker manage status is online, please offline first!");
-            return result.isSuccess();
-        }
-        BrokerRunManager brokerRunManager = tMaster.getBrokerRunManager();
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunManager.getBrokerRunStatusInfo(brokerId);
-        if (runStatusInfo != null
-                && entity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
-                && runStatusInfo.inProcessingStatus()) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    sBuffer.append("Illegal value: the broker is processing offline event by brokerId=")
-                            .append(brokerId).append(", please offline first and try later!").toString());
-            sBuffer.delete(0, sBuffer.length());
-            return result.isSuccess();
-        }
+    private boolean chkBrokerTopicConfAllowed(int brokerId, boolean rsvData,
+                                              StringBuilder sBuffer, ProcessResult result) {
         // check broker's topic configures
         Map<String, TopicDeployEntity> topiConfMap =
                 metaStoreService.getConfiguredTopicInfo(brokerId);
@@ -725,14 +721,13 @@ public class MetaDataManager implements Server {
                     return result.isSuccess();
                 }
             }
-        } else {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    sBuffer.append("Topic configure of broker by brokerId=").append(brokerId)
-                            .append(" not deleted, please delete broker's topic configure first!").toString());
-            sBuffer.delete(0, sBuffer.length());
+            result.setSuccResult(null);
             return result.isSuccess();
         }
-        result.setSuccResult(null);
+        result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                sBuffer.append("The topic configure(s) of broker by brokerId=").append(brokerId)
+                        .append(" not deleted, please delete topic configure first!").toString());
+        sBuffer.delete(0, sBuffer.length());
         return result.isSuccess();
     }
 
@@ -766,10 +761,10 @@ public class MetaDataManager implements Server {
             return result.isSuccess();
         }
         BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
-        BrokerRunStatusInfo runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
-        if (runStatusInfo != null) {
+        BrokerRunStatusInfo runInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        if (runInfo != null) {
             if ((curEntity.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
-                    && runStatusInfo.inProcessingStatus())) {
+                    && runInfo.inProcessingStatus())) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         "Broker is processing offline event, please wait and try later!");
                 return result.isSuccess();
@@ -777,7 +772,9 @@ public class MetaDataManager implements Server {
         }
         if (metaStoreService.delBrokerConf(operator, brokerId, strBuffer, result)) {
             brokerRunManager.delBrokerStaticInfo(brokerId);
-            brokerRunManager.releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId());
+            if (runInfo != null) {
+                brokerRunManager.releaseBrokerRunInfo(brokerId, runInfo.getCreateId(), false);
+            }
         }
         return result.isSuccess();
     }

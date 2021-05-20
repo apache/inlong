@@ -104,7 +104,6 @@
                                 <th>acceptSubscribe</th>
                                 <th>unflushThreshold</th>
                                 <th>unflushInterval</th>
-                                <th>deleteWhen</th>
                                 <th>deletePolicy</th>
                             </tr>
                             </thead>
@@ -136,7 +135,6 @@
                                 <th>acceptSubscribe</th>
                                 <th>unflushThreshold</th>
                                 <th>unflushInterval</th>
-                                <th>deleteWhen</th>
                                 <th>deletePolicy</th>
                             </tr>
                             </thead>
@@ -168,7 +166,6 @@
                                 <th>acceptSubscribe</th>
                                 <th>unflushThreshold</th>
                                 <th>unflushInterval</th>
-                                <th>deleteWhen</th>
                                 <th>deletePolicy</th>
                             </tr>
                             </thead>

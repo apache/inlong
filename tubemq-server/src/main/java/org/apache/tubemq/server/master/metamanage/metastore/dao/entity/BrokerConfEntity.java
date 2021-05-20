@@ -375,7 +375,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 || (target.getManageStatus() != ManageStatus.STATUS_MANAGE_UNDEFINED
                 && target.getManageStatus() != this.manageStatus)
                 || (target.getBrokerWebPort() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerWebPort() != this.brokerWebPort)) {
+                && target.getBrokerWebPort() != this.brokerWebPort)
+                || !this.topicProps.isMatched(target.getTopicProps())) {
             return false;
         }
         return true;

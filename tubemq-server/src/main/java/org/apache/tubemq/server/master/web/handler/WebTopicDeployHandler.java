@@ -524,7 +524,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
-                sBuffer.append("\",\"runInfo\":{");
+                sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
                         metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 String strManageStatus = "-";
@@ -569,7 +569,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
                     .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
-                    .append(",\"authData\":[");
+                    .append(",\"authData\":{");
             if (enableAuthCtrl) {
                 sBuffer.append("\"enableAuthControl\":").append(enableAuthCtrl)
                         .append(",\"createUser\":\"").append(ctrlEntity.getModifyUser())
@@ -654,7 +654,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
-                sBuffer.append("\",\"runInfo\":{");
+                sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
                         metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 String strManageStatus = "-";
