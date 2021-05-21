@@ -394,11 +394,16 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         int inBrokerWebPort = (int) result.getRetData();
         // get and valid TopicPropGroup info
-        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
+        TopicPropGroup defProps = null;
+        if (isAddOp) {
+            defProps = new TopicPropGroup();
+            defProps.fillDefaultValue();
+        }
+        if (!WebParameterUtils.getTopicPropInfo(req, defProps, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        TopicPropGroup defTopicProps = (TopicPropGroup) result.getRetData();
+        TopicPropGroup inTopicProps = (TopicPropGroup) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -433,7 +438,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // add or modify record
         if (!metaDataManager.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
                 inBrokerTlsPort, inBrokerWebPort, maxMsgSizeMB, inQryPriorityId,
-                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, defTopicProps, sBuffer, result)) {
+                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, inTopicProps, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }

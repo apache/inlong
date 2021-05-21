@@ -361,15 +361,11 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
 
     @Override
     public TopicDeployEntity clone() {
-        try {
-            TopicDeployEntity copy = (TopicDeployEntity) super.clone();
-            if (copy.topicProps != null) {
-                copy.topicProps = getTopicProps().clone();
-            }
-            copy.setDeployStatus(getDeployStatus());
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
+        TopicDeployEntity copy = (TopicDeployEntity) super.clone();
+        if (copy.topicProps != null) {
+            copy.topicProps = getTopicProps().clone();
         }
+        copy.setDeployStatus(getDeployStatus());
+        return copy;
     }
 }

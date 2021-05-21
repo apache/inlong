@@ -285,11 +285,16 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet, Set<String> topicNameSet) {
         List<TopicDeployEntity> items;
         Set<String> qryTopicKey = null;
         ConcurrentHashSet<String> keySet;
         Map<Integer, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
+        if (brokerIdSet != null) {
+            for (Integer brokerId : brokerIdSet) {
+                retEntityMap.put(brokerId, new ArrayList<>());
+            }
+        }
         if (topicNameSet != null && !topicNameSet.isEmpty()) {
             qryTopicKey = new HashSet<>();
             for (String topicName : topicNameSet) {
@@ -321,11 +326,8 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
             if (entity == null) {
                 continue;
             }
-            items = retEntityMap.get(entity.getBrokerId());
-            if (items == null) {
-                items = new ArrayList<>();
-                retEntityMap.put(entity.getBrokerId(), items);
-            }
+            items = retEntityMap.computeIfAbsent(
+                    entity.getBrokerId(), k -> new ArrayList<>());
             items.add(entity);
         }
         return retEntityMap;
@@ -342,11 +344,8 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
         if (((topicSet == null) || (topicSet.isEmpty()))
                 && ((brokerIdSet == null) || (brokerIdSet.isEmpty()))) {
             for (TopicDeployEntity entity : topicConfCache.values()) {
-                itemLst = retEntityMap.get(entity.getTopicName());
-                if (itemLst == null) {
-                    itemLst = new ArrayList<>();
-                    retEntityMap.put(entity.getTopicName(), itemLst);
-                }
+                itemLst = retEntityMap.computeIfAbsent(
+                        entity.getTopicName(), k -> new ArrayList<>());
                 itemLst.add(entity);
             }
             return retEntityMap;
@@ -373,11 +372,8 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
             if (tmpEntity == null) {
                 continue;
             }
-            itemLst = retEntityMap.get(tmpEntity.getTopicName());
-            if (itemLst == null) {
-                itemLst = new ArrayList<>();
-                retEntityMap.put(tmpEntity.getTopicName(), itemLst);
-            }
+            itemLst = retEntityMap.computeIfAbsent(
+                    tmpEntity.getTopicName(), k -> new ArrayList<>());
             itemLst.add(tmpEntity);
         }
         return retEntityMap;
@@ -452,9 +448,7 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Set<String> getConfiguredTopicSet() {
-        Set<String> topicNames = new HashSet<>();
-        topicNames.addAll(topicNameCacheIndex.keySet());
-        return topicNames;
+        return new HashSet<>(topicNameCacheIndex.keySet());
     }
 
     @Override

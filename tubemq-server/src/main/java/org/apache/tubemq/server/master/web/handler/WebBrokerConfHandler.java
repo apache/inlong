@@ -219,6 +219,11 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 metaDataManager.getBrokerConfInfo(brokerIds, brokerIpSet, qryEntity);
         // build query result
         int totalCnt = 0;
+        boolean isConfUpdated;
+        boolean isConfLoaded;
+        Tuple2<Boolean, Boolean> syncTuple;
+        BrokerRunStatusInfo runStatusInfo;
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerConfEntity entity : qryResult.values()) {
             Map<String, TopicDeployEntity> topicConfEntityMap =
@@ -229,7 +234,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
-            entity.toWebJsonStr(sBuffer, true, false);
+            isConfUpdated = false;
+            isConfLoaded = false;
+            runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(entity.getBrokerId());
+            if (runStatusInfo != null) {
+                syncTuple = runStatusInfo.getDataSyncStatus();
+                isConfUpdated = syncTuple.getF0();
+                isConfLoaded = syncTuple.getF1();
+            }
+            entity.toWebJsonStr(sBuffer, isConfUpdated, isConfLoaded, true, false);
             addTopicInfo(withTopic, sBuffer, topicConfEntityMap);
             sBuffer.append("}");
         }

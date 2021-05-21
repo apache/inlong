@@ -560,8 +560,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
-        return topicDeployMapper.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+            Set<Integer> brokerIdSet,  Set<String> topicNameSet) {
+        return topicDeployMapper.getTopicDeployInfoMap(brokerIdSet, topicNameSet);
     }
 
 

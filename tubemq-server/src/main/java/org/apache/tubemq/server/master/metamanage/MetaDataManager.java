@@ -939,12 +939,20 @@ public class MetaDataManager implements Server {
             sBuffer.delete(0, sBuffer.length());
             return new TopicProcessResult(brokerId, "", result);
         }
+        TopicPropGroup newProps;
+        if (isAddOp) {
+            TopicPropGroup defProps = brokerConf.getTopicProps();
+            newProps = defProps.clone();
+            newProps.updModifyInfo(topicPropInfo);
+        } else {
+            newProps = topicPropInfo;
+        }
         TopicDeployEntity deployConf =
                 new TopicDeployEntity(opEntity, brokerId, topicName);
         deployConf.setTopicProps(brokerConf.getTopicProps());
         deployConf.updModifyInfo(opEntity.getDataVerId(),
                 TBaseConstants.META_VALUE_UNDEFINED, brokerConf.getBrokerPort(),
-                brokerConf.getBrokerIp(), deployStatus, topicPropInfo);
+                brokerConf.getBrokerIp(), deployStatus, newProps);
         return addOrUpdTopicDeployInfo(isAddOp, deployConf, sBuffer, result);
     }
 
@@ -1176,9 +1184,11 @@ public class MetaDataManager implements Server {
      *
      * @return topic entity map
      */
-    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                       Set<Integer> brokerIdSet) {
-        return metaStoreService.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<Integer> brokerIdSet,
+                                                                       Set<String> topicNameSet) {
+        Map<Integer, BrokerConfEntity> qryBrokerInfoMap =
+                metaStoreService.getBrokerConfInfo(brokerIdSet, null, null);
+        return metaStoreService.getTopicDeployInfoMap(qryBrokerInfoMap.keySet(), topicNameSet);
     }
 
     public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(

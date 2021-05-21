@@ -249,8 +249,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         TopicCtrlEntity itemConf;
         Map<String, TopicCtrlEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
-        for (int j = 0; j < deployJsonArray.size(); j++) {
-            Map<String, String> confMap = deployJsonArray.get(j);
+        for (Map<String, String> confMap : deployJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(confMap,
                     true, defOpEntity, sBuffer, result)) {

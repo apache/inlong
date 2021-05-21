@@ -240,7 +240,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
      * @param sBuilder
      * @return
      */
-    StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
             sBuilder.append(",\"numTopicStores\":").append(numTopicStores)
                     .append(",\"numPartitions\":").append(numPartitions)
@@ -330,6 +330,95 @@ public class TopicPropGroup implements Serializable, Cloneable {
                 && fileCuPolicyType == other.fileCuPolicyType;
     }
 
+    /**
+     * update subclass field values
+     *
+     * @return if changed
+     */
+    public boolean updModifyInfo(TopicPropGroup other) {
+        boolean changed = false;
+        // check and set numTopicStores info
+        if (other.numTopicStores != TBaseConstants.META_VALUE_UNDEFINED
+                && this.numTopicStores != other.numTopicStores) {
+            changed = true;
+            this.numTopicStores = other.numTopicStores;
+        }
+        // check and set numPartitions info
+        if (other.numPartitions != TBaseConstants.META_VALUE_UNDEFINED
+                && this.numPartitions != other.numPartitions) {
+            changed = true;
+            this.numPartitions = other.numPartitions;
+        }
+        // check and set unflushThreshold info
+        if (other.unflushThreshold != TBaseConstants.META_VALUE_UNDEFINED
+                && this.unflushThreshold != other.unflushThreshold) {
+            changed = true;
+            this.unflushThreshold = other.unflushThreshold;
+        }
+        // check and set unflushInterval info
+        if (other.unflushInterval != TBaseConstants.META_VALUE_UNDEFINED
+                && this.unflushInterval != other.unflushInterval) {
+            changed = true;
+            this.unflushInterval = other.unflushInterval;
+        }
+        // check and set unflushInterval info
+        if (other.unflushDataHold != TBaseConstants.META_VALUE_UNDEFINED
+                && this.unflushDataHold != other.unflushDataHold) {
+            changed = true;
+            this.unflushDataHold = other.unflushDataHold;
+        }
+        // check and set memCacheMsgSizeInMB info
+        if (other.memCacheMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED
+                && this.memCacheMsgSizeInMB != other.memCacheMsgSizeInMB) {
+            changed = true;
+            this.memCacheMsgSizeInMB = other.memCacheMsgSizeInMB;
+        }
+        // check and set memCacheMsgCntInK info
+        if (other.memCacheMsgCntInK != TBaseConstants.META_VALUE_UNDEFINED
+                && this.memCacheMsgCntInK != other.memCacheMsgCntInK) {
+            changed = true;
+            this.memCacheMsgCntInK = other.memCacheMsgCntInK;
+        }
+        // check and set memCacheFlushIntvl info
+        if (other.memCacheFlushIntvl != TBaseConstants.META_VALUE_UNDEFINED
+                && this.memCacheFlushIntvl != other.memCacheFlushIntvl) {
+            changed = true;
+            this.memCacheFlushIntvl = other.memCacheFlushIntvl;
+        }
+        // check and set acceptPublish info
+        if (other.acceptPublish != null
+                && !Objects.equals(this.acceptPublish, other.acceptPublish)) {
+            changed = true;
+            this.acceptPublish = other.acceptPublish;
+        }
+        // check and set acceptSubscribe info
+        if (other.acceptSubscribe != null
+                && !Objects.equals(this.acceptSubscribe, other.acceptSubscribe)) {
+            changed = true;
+            this.acceptSubscribe = other.acceptSubscribe;
+        }
+        // check and set dataStoreType info
+        if (other.dataStoreType != TBaseConstants.META_VALUE_UNDEFINED
+                && this.dataStoreType != other.dataStoreType) {
+            changed = true;
+            this.dataStoreType = other.dataStoreType;
+        }
+        // check and set filterCondStr info
+        if (TStringUtils.isNotBlank(other.dataPath)
+                && !Objects.equals(this.dataPath, other.dataPath)) {
+            changed = true;
+            this.dataPath = other.dataPath;
+        }
+        // check and set deletePolicy info
+        if (TStringUtils.isNotBlank(other.deletePolicy)
+                && !Objects.equals(this.deletePolicy, other.deletePolicy)) {
+            changed = true;
+            setDeletePolicy(other.deletePolicy);
+        }
+        return changed;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -356,8 +445,12 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
     @Override
-    public TopicPropGroup clone() throws CloneNotSupportedException {
-        return (TopicPropGroup) super.clone();
+    public TopicPropGroup clone() {
+        try {
+            return (TopicPropGroup) super.clone();
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
 

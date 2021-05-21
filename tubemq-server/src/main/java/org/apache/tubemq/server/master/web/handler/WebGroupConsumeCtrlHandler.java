@@ -345,12 +345,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 (List<Map<String, String>>) result.getRetData();
         // parse groupCsmJsonSet field info
         GroupConsumeCtrlEntity itemConf;
-        Map<String, String> itemsMap;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
                 metaDataManager.getTotalConfiguredTopicNames();
-        for (int j = 0; j < filterJsonArray.size(); j++) {
-            itemsMap = filterJsonArray.get(j);
+        for (Map<String, String> itemsMap : filterJsonArray) {
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
                 return result.success;
