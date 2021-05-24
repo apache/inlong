@@ -49,6 +49,7 @@ const (
 )
 
 var serialNo uint32
+
 func NewSerialNo() uint32 {
 	return atomic.AddUint32(&serialNo, 1)
 }
@@ -149,6 +150,12 @@ type TubeMQRPCRequest struct {
 	RequestHeader *protocol.RequestHeader
 	RequestBody   *protocol.RequestBody
 	Body          proto.Message
+}
+
+func NewRPCRequest() *TubeMQRPCRequest {
+	return &TubeMQRPCRequest{
+		serialNo: NewSerialNo(),
+	}
 }
 
 // GetSerialNo returns the serialNo.
@@ -295,4 +302,3 @@ func readDelimitedFrom(data []byte, msg proto.Message) ([]byte, error) {
 
 	return data[int(size)+n:], nil
 }
-
