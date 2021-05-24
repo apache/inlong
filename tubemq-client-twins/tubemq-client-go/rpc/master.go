@@ -18,6 +18,8 @@
 package rpc
 
 import (
+	"context"
+
 	"github.com/golang/protobuf/proto"
 
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
@@ -89,7 +91,10 @@ func (c *rpcClient) RegisterRequestC2M(metadata *metadata.Metadata, sub *client.
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
-	rsp, err := c.client.DoRequest(c.ctx, req)
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := c.client.DoRequest(ctx, req)
 	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
 		if v.ResponseException != nil {
 			return nil, errs.New(errs.RetResponseException, err.Error())
@@ -157,7 +162,9 @@ func (c *rpcClient) HeartRequestC2M(metadata *metadata.Metadata, sub *client.Sub
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	rsp, err := c.client.DoRequest(c.ctx, req)
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := c.client.DoRequest(ctx, req)
 	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
 		if v.ResponseException != nil {
 			return nil, errs.New(errs.RetResponseException, err.Error())
@@ -196,7 +203,9 @@ func (c *rpcClient) CloseRequestC2M(metadata *metadata.Metadata, sub *client.Sub
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	rsp, err := c.client.DoRequest(c.ctx, req)
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := c.client.DoRequest(ctx, req)
 	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
 		if v.ResponseException != nil {
 			return nil, errs.New(errs.RetResponseException, err.Error())

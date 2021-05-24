@@ -19,8 +19,6 @@
 package rpc
 
 import (
-	"context"
-
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
@@ -57,16 +55,14 @@ type RPCClient interface {
 type rpcClient struct {
 	pool   *multiplexing.Pool
 	client *transport.Client
-	ctx    context.Context
 	config *config.Config
 }
 
 // New returns a default TubeMQ rpc Client
-func New(pool *multiplexing.Pool, opts *transport.Options, ctx context.Context, config *config.Config) RPCClient {
+func New(pool *multiplexing.Pool, opts *transport.Options, config *config.Config) RPCClient {
 	return &rpcClient{
 		pool:   pool,
 		client: transport.New(opts, pool),
-		ctx:    ctx,
 		config: config,
 	}
 }
