@@ -23,12 +23,19 @@ import (
 )
 
 const (
-	RetMarshalFailure    = 1
+	// RetMarshalFailure represents the error code of marshal error.
+	RetMarshalFailure = 1
+	// RetResponseException represents the error code of response exception.
 	RetResponseException = 2
-	RetUnMarshalFailure  = 3
-	RetAssertionFailure  = 4
+	// RetUnMarshalFailure represents the error code of unmarshal error.
+	RetUnMarshalFailure = 3
+	// RetAssertionFailure represents the error code of assertion error.
+	RetAssertionFailure = 4
+	// RetRequestFailure represents the error code of request error.
+	RetRequestFailure = 5
 )
 
+// ErrAssertionFailure represents RetAssertionFailure error.
 var ErrAssertionFailure = New(RetAssertionFailure, "AssertionFailure")
 
 // Error provides a TubeMQ-specific error container
@@ -37,10 +44,12 @@ type Error struct {
 	Msg  string
 }
 
+// Error() implements the Error interface.
 func (e *Error) Error() string {
 	return fmt.Sprintf("code: %d, msg:%s", e.Code, e.Msg)
 }
 
+// New returns a self-defined error.
 func New(code int32, msg string) error {
 	err := &Error{
 		Code: code,

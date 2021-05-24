@@ -30,16 +30,16 @@ import (
 )
 
 const (
-	MasterProducerRegister = iota + 1
-	MasterProducerHeartbeat
-	MasterProducerClose
-	MasterConsumerRegister
-	MasterConsumerHeartbeat
-	MasterConsumerClose
+	masterProducerRegister = iota + 1
+	masterProducerHeartbeat
+	masterProducerClose
+	masterConsumerRegister
+	masterConsumerHeartbeat
+	masterConsumerClose
 )
 
 // RegisterRequestRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) RegisterRequestC2M(metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
+func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
 	reqC2M := &protocol.RegisterRequestC2M{
 		ClientId:         proto.String(sub.GetClientID()),
 		HostName:         proto.String(metadata.GetNode().GetHost()),
@@ -83,34 +83,30 @@ func (c *rpcClient) RegisterRequestC2M(metadata *metadata.Metadata, sub *client.
 		Flag: proto.Int32(0),
 	}
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(AdminService),
+		ServiceType: proto.Int32(masterService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(MasterConsumerRegister),
+		Method:  proto.Int32(masterConsumerRegister),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, err.Error())
-		}
-		rspM2C := &protocol.RegisterResponseM2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspM2C)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspM2C, nil
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspM2C := &protocol.RegisterResponseM2C{}
+	err = proto.Unmarshal(rspBody.Data, rspM2C)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspM2C, nil
 }
 
 // HeartRequestC2M implements the HeartRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) HeartRequestC2M(metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartResponseM2C, error) {
+func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartResponseM2C, error) {
 	reqC2M := &protocol.HeartRequestC2M{
 		ClientId:            proto.String(sub.GetClientID()),
 		GroupName:           proto.String(metadata.GetSubscribeInfo().GetGroup()),
@@ -151,36 +147,33 @@ func (c *rpcClient) HeartRequestC2M(metadata *metadata.Metadata, sub *client.Sub
 	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(AdminService),
+		ServiceType: proto.Int32(masterService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(MasterConsumerHeartbeat),
+		Method:  proto.Int32(masterConsumerHeartbeat),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, err.Error())
-		}
-		rspM2C := &protocol.HeartResponseM2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspM2C)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspM2C, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspM2C := &protocol.HeartResponseM2C{}
+	err = proto.Unmarshal(rspBody.Data, rspM2C)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspM2C, nil
 }
 
 // CloseRequestC2M implements the CloseRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) CloseRequestC2M(metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CloseResponseM2C, error) {
+func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CloseResponseM2C, error) {
 	reqC2M := &protocol.CloseRequestC2M{
 		ClientId:  proto.String(sub.GetClientID()),
 		GroupName: proto.String(metadata.GetSubscribeInfo().GetGroup()),
@@ -192,30 +185,27 @@ func (c *rpcClient) CloseRequestC2M(metadata *metadata.Metadata, sub *client.Sub
 	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(AdminService),
+		ServiceType: proto.Int32(masterService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(MasterConsumerClose),
+		Method:  proto.Int32(masterConsumerClose),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, err.Error())
-		}
-		rspM2C := &protocol.CloseResponseM2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspM2C)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspM2C, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspM2C := &protocol.CloseResponseM2C{}
+	err = proto.Unmarshal(rspBody.Data, rspM2C)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspM2C, nil
 }
