@@ -27,14 +27,14 @@ import (
 
 // RmtDataCache represents the data returned from TubeMQ.
 type RmtDataCache struct {
-	consumerID       string
-	groupName        string
-	underGroupCtrl   bool
-	defFlowCtrlID    int64
-	groupFlowCtrlID  int64
-	subscribeInfo    []*metadata.SubscribeInfo
-	rebalanceResults []*metadata.ConsumerEvent
-	mu               sync.Mutex
+	consumerID         string
+	groupName          string
+	underGroupCtrl     bool
+	defFlowCtrlID      int64
+	groupFlowCtrlID    int64
+	subscribeInfo      []*metadata.SubscribeInfo
+	rebalanceResults   []*metadata.ConsumerEvent
+	mu                 sync.Mutex
 	brokerToPartitions map[*metadata.Node][]*metadata.Partition
 }
 

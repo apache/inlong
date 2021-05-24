@@ -30,26 +30,26 @@ import (
 )
 
 const (
-	Register   = 31
-	Unregister = 32
+	register   = 31
+	unregister = 32
 )
 
 const (
-	BrokerProducerRegister = iota + 11
-	BrokerProducerHeartbeat
-	BrokerProducerSendMsg
-	BrokerProducerClose
-	BrokerConsumerRegister
-	BrokerConsumerHeartbeat
-	BrokerConsumerGetMsg
-	BrokerConsumerCommit
-	BrokerConsumerClose
+	brokerProducerRegister = iota + 11
+	brokerProducerHeartbeat
+	brokerProducerSendMsg
+	brokerProducerClose
+	brokerConsumerRegister
+	brokerConsumerHeartbeat
+	brokerConsumerGetMsg
+	brokerConsumerCommit
+	brokerConsumerClose
 )
 
 // RegisterRequestC2B implements the RegisterRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) RegisterRequestC2B(metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
+func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
 	reqC2B := &protocol.RegisterRequestC2B{
-		OpType:        proto.Int32(Register),
+		OpType:        proto.Int32(register),
 		ClientId:      proto.String(sub.GetClientID()),
 		GroupName:     proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		TopicName:     proto.String(metadata.GetSubscribeInfo().GetPartition().GetTopic()),
@@ -78,35 +78,32 @@ func (c *rpcClient) RegisterRequestC2B(metadata *metadata.Metadata, sub *client.
 		Flag: proto.Int32(0),
 	}
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(ReadService),
+		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(BrokerConsumerRegister),
+		Method:  proto.Int32(brokerConsumerRegister),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
-		}
-		rspC2B := &protocol.RegisterResponseB2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspC2B)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspC2B, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspC2B := &protocol.RegisterResponseB2C{}
+	err = proto.Unmarshal(rspBody.Data, rspC2B)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspC2B, nil
 }
 
 // UnregisterRequestC2B implements the UnregisterRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) UnregisterRequestC2B(metadata metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
+func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
 	reqC2B := &protocol.RegisterRequestC2B{
-		OpType:      proto.Int32(Unregister),
+		OpType:      proto.Int32(unregister),
 		ClientId:    proto.String(sub.GetClientID()),
 		GroupName:   proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		TopicName:   proto.String(metadata.GetSubscribeInfo().GetPartition().GetTopic()),
@@ -123,33 +120,30 @@ func (c *rpcClient) UnregisterRequestC2B(metadata metadata.Metadata, sub *client
 		return nil, errs.New(errs.RetMarshalFailure, err.Error())
 	}
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(ReadService),
+		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(BrokerConsumerRegister),
+		Method:  proto.Int32(brokerConsumerRegister),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
-		}
-		rspC2B := &protocol.RegisterResponseB2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspC2B)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspC2B, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspC2B := &protocol.RegisterResponseB2C{}
+	err = proto.Unmarshal(rspBody.Data, rspC2B)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspC2B, nil
 }
 
 // GetMessageRequestC2B implements the GetMessageRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) GetMessageRequestC2B(metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.GetMessageResponseB2C, error) {
+func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.GetMessageResponseB2C, error) {
 	reqC2B := &protocol.GetMessageRequestC2B{
 		ClientId:           proto.String(sub.GetClientID()),
 		PartitionId:        proto.Int32(metadata.GetSubscribeInfo().GetPartition().GetPartitionID()),
@@ -168,33 +162,30 @@ func (c *rpcClient) GetMessageRequestC2B(metadata *metadata.Metadata, sub *clien
 		return nil, errs.New(errs.RetMarshalFailure, err.Error())
 	}
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(ReadService),
+		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(BrokerConsumerGetMsg),
+		Method:  proto.Int32(brokerConsumerGetMsg),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
-		}
-		rspC2B := &protocol.GetMessageResponseB2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspC2B)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspC2B, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspC2B := &protocol.GetMessageResponseB2C{}
+	err = proto.Unmarshal(rspBody.Data, rspC2B)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspC2B, nil
 }
 
 // CommitOffsetRequestC2B implements the CommitOffsetRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) CommitOffsetRequestC2B(metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CommitOffsetResponseB2C, error) {
+func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CommitOffsetResponseB2C, error) {
 	reqC2B := &protocol.CommitOffsetRequestC2B{
 		ClientId:         proto.String(sub.GetClientID()),
 		TopicName:        proto.String(metadata.GetSubscribeInfo().GetPartition().GetTopic()),
@@ -211,33 +202,30 @@ func (c *rpcClient) CommitOffsetRequestC2B(metadata *metadata.Metadata, sub *cli
 		return nil, errs.New(errs.RetMarshalFailure, err.Error())
 	}
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(ReadService),
+		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(BrokerConsumerHeartbeat),
+		Method:  proto.Int32(brokerConsumerHeartbeat),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
-		}
-		rspC2B := &protocol.CommitOffsetResponseB2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspC2B)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspC2B, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspC2B := &protocol.CommitOffsetResponseB2C{}
+	err = proto.Unmarshal(rspBody.Data, rspC2B)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspC2B, nil
 }
 
 // HeartbeatRequestC2B implements the HeartbeatRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) HeartbeatRequestC2B(metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartBeatResponseB2C, error) {
+func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartBeatResponseB2C, error) {
 	reqC2B := &protocol.HeartBeatRequestC2B{
 		ClientId:      proto.String(sub.GetClientID()),
 		GroupName:     proto.String(metadata.GetSubscribeInfo().GetGroup()),
@@ -256,30 +244,27 @@ func (c *rpcClient) HeartbeatRequestC2B(metadata *metadata.Metadata, sub *client
 	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
-		ServiceType: proto.Int32(ReadService),
+		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(BrokerConsumerHeartbeat),
+		Method:  proto.Int32(brokerConsumerHeartbeat),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-	defer cancel()
-	rsp, err := c.client.DoRequest(ctx, req)
-	if v, ok := rsp.(*codec.TubeMQRPCResponse); ok {
-		if v.ResponseException != nil {
-			return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
-		}
-		rspC2B := &protocol.HeartBeatResponseB2C{}
-		err := proto.Unmarshal(v.ResponseBody.Data, rspC2B)
-		if err != nil {
-			return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
-		}
-		return rspC2B, nil
+
+	rspBody, err := c.doRequest(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errs.ErrAssertionFailure
+
+	rspC2B := &protocol.HeartBeatResponseB2C{}
+	err = proto.Unmarshal(rspBody.Data, rspC2B)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+	return rspC2B, nil
 }
