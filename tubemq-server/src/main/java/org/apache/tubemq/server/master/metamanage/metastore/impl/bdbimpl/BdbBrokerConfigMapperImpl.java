@@ -192,7 +192,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
             }
         } else {
             for (BrokerConfEntity entity : brokerConfCache.values()) {
-                if (entity.isMatched(qryEntity)) {
+                if (entity != null && entity.isMatched(qryEntity)) {
                     retMap.put(entity.getBrokerId(), entity);
                 }
             }
@@ -208,35 +208,39 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
                                                             Set<String> brokerIpSet,
                                                             BrokerConfEntity qryEntity) {
-        Set<Integer> qryBrokerKey = null;
+        Set<Integer> qryBrokerKeySet = null;
         Map<Integer, BrokerConfEntity> retMap = new HashMap<>();
         if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
-            qryBrokerKey = new HashSet<>(brokerIdSet);
+            qryBrokerKeySet = new HashSet<>(brokerIdSet);
         }
         if (brokerIpSet != null && !brokerIpSet.isEmpty()) {
-            if (qryBrokerKey == null) {
-                qryBrokerKey = new HashSet<>();
+            if (qryBrokerKeySet == null) {
+                qryBrokerKeySet = new HashSet<>();
             }
             for (String brokerIp : brokerIpSet) {
                 Integer brokerId = brokerIpIndexCache.get(brokerIp);
                 if (brokerId != null) {
-                    qryBrokerKey.add(brokerId);
+                    qryBrokerKeySet.add(brokerId);
                 }
             }
         }
         // get broker configures
-        if (qryBrokerKey == null) {
+        if (qryBrokerKeySet == null) {
             for (BrokerConfEntity entity :  brokerConfCache.values()) {
-                if (entity != null && qryEntity != null && entity.isMatched(qryEntity)) {
-                    retMap.put(entity.getBrokerId(), entity);
+                if (entity == null
+                        || (qryEntity != null && !entity.isMatched(qryEntity))) {
+                    continue;
                 }
+                retMap.put(entity.getBrokerId(), entity);
             }
         } else {
-            for (Integer brokerId : qryBrokerKey) {
+            for (Integer brokerId : qryBrokerKeySet) {
                 BrokerConfEntity entity = brokerConfCache.get(brokerId);
-                if (entity != null && qryEntity != null && entity.isMatched(qryEntity)) {
-                    retMap.put(entity.getBrokerId(), entity);
+                if (entity == null
+                        || (qryEntity != null && !entity.isMatched(qryEntity))) {
+                    continue;
                 }
+                retMap.put(entity.getBrokerId(), entity);
             }
         }
         return retMap;

@@ -166,7 +166,7 @@ public interface MetaStoreService extends KeepAlive, Server {
             Set<String> topicNameSet, Set<Integer> brokerIdSet, TopicDeployEntity qryEntity);
 
     Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<String> topicNameSet, Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet, Set<String> topicNameSet);
 
     Map<String/* topicName */, List<TopicDeployEntity>> getTopicDepInfoByTopicBrokerId(
             Set<String> topicSet, Set<Integer> brokerIdSet);

@@ -313,10 +313,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         int defQryPriorityId = defClusterSetting.getQryPriorityId();
         // check and get topic control configure
         GroupResCtrlEntity itemEntity;
-        Map<String, String> itemValueMap;
         Map<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
-        for (int j = 0; j < ctrlJsonArray.size(); j++) {
-            itemValueMap = ctrlJsonArray.get(j);
+        for (Map<String, String> itemValueMap : ctrlJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
                     isAddOp, defOpEntity, sBuffer, result)) {

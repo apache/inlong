@@ -186,7 +186,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         }
         TopicStatus topicStatus = (TopicStatus) result.getRetData();
         // get and valid broker manage status info
-        if (!getManageStatusParamValue(false, req, sBuffer, result)) {
+        if (!getManageStatusParamValue(req, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -219,6 +219,11 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 metaDataManager.getBrokerConfInfo(brokerIds, brokerIpSet, qryEntity);
         // build query result
         int totalCnt = 0;
+        boolean isConfUpdated;
+        boolean isConfLoaded;
+        Tuple2<Boolean, Boolean> syncTuple;
+        BrokerRunStatusInfo runStatusInfo;
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerConfEntity entity : qryResult.values()) {
             Map<String, TopicDeployEntity> topicConfEntityMap =
@@ -229,8 +234,16 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
-            entity.toWebJsonStr(sBuffer, true, false);
-            sBuffer = addTopicInfo(withTopic, sBuffer, topicConfEntityMap);
+            isConfUpdated = false;
+            isConfLoaded = false;
+            runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(entity.getBrokerId());
+            if (runStatusInfo != null) {
+                syncTuple = runStatusInfo.getDataSyncStatus();
+                isConfUpdated = syncTuple.getF0();
+                isConfLoaded = syncTuple.getF1();
+            }
+            entity.toWebJsonStr(sBuffer, isConfUpdated, isConfLoaded, true, false);
+            addTopicInfo(withTopic, sBuffer, topicConfEntityMap);
             sBuffer.append("}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
@@ -400,15 +413,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
-        // get and valid broker manage status info
-        if (!getManageStatusParamValue(false, req, sBuffer, result)) {
+        // get and valid broker read or write status info
+        if (!getAcceptReadAndWriteParamValue(req, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
-        ManageStatus mngStatus = (ManageStatus) result.getRetData();
+        Tuple2<Boolean, Boolean> rdWtTpl =
+                (Tuple2<Boolean, Boolean>) result.getRetData();
+        // change broker status
         List<BrokerProcessResult> retInfo =
-                metaDataManager.changeBrokerConfStatus(opEntity,
-                        brokerIds, mngStatus, sBuffer, result);
+                metaDataManager.changeBrokerRWStatus(opEntity,
+                        brokerIds, rdWtTpl, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
@@ -713,7 +728,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                     ManageStatus.STATUS_MANAGE_APPLY, brokerProps, sBuffer, result));
         } else {
             // get and valid broker manage status info
-            if (!getManageStatusParamValue(false, req, sBuffer, result)) {
+            if (!getManageStatusParamValue(req, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
                 return sBuffer;
             }
@@ -779,15 +794,12 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     private boolean isValidRecord(Set<String> qryTopicSet, Boolean isInclude,
                                   TopicStatus topicStatus,
                                   Map<String, TopicDeployEntity> topicConfEntityMap) {
-        if ((topicConfEntityMap == null) || (topicConfEntityMap.isEmpty())) {
-            if ((qryTopicSet.isEmpty() || !isInclude)
-                    && topicStatus == TopicStatus.STATUS_TOPIC_UNDEFINED) {
-                return true;
-            }
-            return false;
+        if (topicConfEntityMap == null || topicConfEntityMap.isEmpty()) {
+            return ((qryTopicSet == null || qryTopicSet.isEmpty())
+                    && topicStatus == TopicStatus.STATUS_TOPIC_UNDEFINED);
         }
         // first search topic if match require
-        if (!qryTopicSet.isEmpty()) {
+        if (qryTopicSet != null && !qryTopicSet.isEmpty()) {
             boolean matched = false;
             Set<String> curTopics = topicConfEntityMap.keySet();
             if (isInclude) {
@@ -811,12 +823,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
         }
         // second check topic status if match
-        for (TopicDeployEntity topicConfEntity : topicConfEntityMap.values()) {
-            if (topicConfEntity.getDeployStatus() == topicStatus) {
-                return true;
+        if (topicStatus != TopicStatus.STATUS_TOPIC_UNDEFINED) {
+            for (TopicDeployEntity topicConfEntity : topicConfEntityMap.values()) {
+                if (topicConfEntity.getDeployStatus() == topicStatus) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -860,8 +875,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // check and get broker configure
         BrokerConfEntity itemEntity;
         HashMap<Integer, BrokerConfEntity> addedRecordMap = new HashMap<>();
-        for (int j = 0; j < brokerJsonArray.size(); j++) {
-            Map<String, String> brokerObject = brokerJsonArray.get(j);
+        for (Map<String, String> brokerObject : brokerJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(brokerObject,
                     isAddOp, defOpEntity, sBuffer, result)) {
@@ -927,7 +941,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 addedRecordMap.put(itemEntity.getBrokerId(), itemEntity);
             } else {
                 // get and valid broker manage status info
-                if (!getManageStatusParamValue(false, req, sBuffer, result)) {
+                if (!getManageStatusParamValue(req, sBuffer, result)) {
                     return result.isSuccess();
                 }
                 ManageStatus mngStatus = (ManageStatus) result.getRetData();
@@ -965,8 +979,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             sBuffer.append("{\"brokerId\":").append(entry.getBrokerId())
-                    .append("{\"brokerIp\":\"").append(entry.getBrokerIp()).append("\"")
-                    .append(",\"success\":").append(entry.isSuccess())
+                    .append(",\"brokerIp\":\"").append(entry.getBrokerIp())
+                    .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
@@ -1025,15 +1039,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         return result.isSuccess();
     }
 
-    private <T> boolean getManageStatusParamValue(boolean isAddOp, T paramCntr,
+    private <T> boolean getManageStatusParamValue(T paramCntr,
                                                   StringBuilder sBuffer,
                                                   ProcessResult result) {
         // get manage status id value
         if (!WebParameterUtils.getIntParamValue(paramCntr,
                 WebFieldDef.MANAGESTATUS, false,
-                (isAddOp ? ManageStatus.STATUS_MANAGE_APPLY.getCode()
-                        : ManageStatus.STATUS_MANAGE_UNDEFINED.getCode()),
-                ManageStatus.STATUS_MANAGE_APPLY.getCode(),
+                ManageStatus.STATUS_MANAGE_UNDEFINED.getCode(),
+                ManageStatus.STATUS_MANAGE_ONLINE.getCode(),
                 ManageStatus.STATUS_MANAGE_OFFLINE.getCode(), sBuffer, result)) {
             return result.isSuccess();
         }
@@ -1049,44 +1062,32 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        if (mngStatus == ManageStatus.STATUS_MANAGE_UNDEFINED) {
-            // compatible with old version api
-            if (!WebParameterUtils.getBooleanParamValue(paramCntr,
-                    WebFieldDef.ACCEPTPUBLISH, false, null, sBuffer, result)) {
-                return result.isSuccess();
-            }
-            Boolean publishParam = (Boolean) result.getRetData();
-            if (!WebParameterUtils.getBooleanParamValue(paramCntr,
-                    WebFieldDef.ACCEPTSUBSCRIBE, false, null, sBuffer, result)) {
-                return result.isSuccess();
-            }
-            Boolean subscribeParam = (Boolean) result.getRetData();
-            if (publishParam == null && subscribeParam == null) {
-                mngStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
-            } else if (publishParam != null && subscribeParam != null) {
-                if (publishParam) {
-                    if (subscribeParam) {
-                        mngStatus = ManageStatus.STATUS_MANAGE_ONLINE;
-                    } else {
-                        mngStatus = ManageStatus.STATUS_MANAGE_ONLINE_NOT_READ;
-                    }
-                } else {
-                    if (subscribeParam) {
-                        mngStatus = ManageStatus.STATUS_MANAGE_ONLINE_NOT_WRITE;
-                    } else {
-                        mngStatus = ManageStatus.STATUS_MANAGE_OFFLINE;
-                    }
-                }
-            } else {
-                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                        sBuffer.append("Fields ").append(WebFieldDef.ACCEPTPUBLISH.name)
-                                .append(" and ").append(WebFieldDef.ACCEPTSUBSCRIBE.name)
-                                .append(" must exist at the same time!").toString());
-                sBuffer.delete(0, sBuffer.length());
-                return result.isSuccess();
-            }
-        }
         result.setSuccResult(mngStatus);
+        return result.isSuccess();
+    }
+
+    private <T> boolean getAcceptReadAndWriteParamValue(T paramCntr,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr,
+                WebFieldDef.ACCEPTPUBLISH, false, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean publishParam = (Boolean) result.getRetData();
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr,
+                WebFieldDef.ACCEPTSUBSCRIBE, false, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean subscribeParam = (Boolean) result.getRetData();
+        if (publishParam == null && subscribeParam == null) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    sBuffer.append("Fields ").append(WebFieldDef.ACCEPTPUBLISH.name)
+                            .append(" or ").append(WebFieldDef.ACCEPTSUBSCRIBE.name)
+                            .append(" must exist at this method!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(new Tuple2<>(publishParam, subscribeParam));
         return result.isSuccess();
     }
 

@@ -993,12 +993,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         List<Map<String, String>> groupJsonArray =
                 (List<Map<String, String>>) result.getRetData();
         GroupConsumeCtrlEntity itemEntity;
-        Map<String, String> itemValueMap;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
                 metaDataManager.getTotalConfiguredTopicNames();
-        for (int j = 0; j < groupJsonArray.size(); j++) {
-            itemValueMap = groupJsonArray.get(j);
+        for (Map<String, String> itemValueMap : groupJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
                     isAddOp, defOpEntity, sBuffer, result)) {
@@ -1125,12 +1123,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         List<Map<String, String>> groupJsonArray =
                 (List<Map<String, String>>) result.getRetData();
         GroupConsumeCtrlEntity itemEntity;
-        Map<String, String> itemValueMap;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
                 metaDataManager.getTotalConfiguredTopicNames();
-        for (int j = 0; j < groupJsonArray.size(); j++) {
-            itemValueMap = groupJsonArray.get(j);
+        for (Map<String, String> itemValueMap : groupJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
                     true, defOpEntity, sBuffer, result)) {

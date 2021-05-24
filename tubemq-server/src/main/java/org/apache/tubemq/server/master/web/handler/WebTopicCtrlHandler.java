@@ -286,10 +286,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         int defMaxMsgSizeMB = defClusterSetting.getMaxMsgSizeInMB();
         // check and get topic control configure
         TopicCtrlEntity itemConf;
-        Map<String, String> itemConfMap;
         Map<String, TopicCtrlEntity> addRecordMap = new HashMap<>();
-        for (int j = 0; j < ctrlJsonArray.size(); j++) {
-            itemConfMap = ctrlJsonArray.get(j);
+        for (Map<String, String> itemConfMap : ctrlJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemConfMap,
                     isAddOp, defOpEntity, sBuffer, result)) {

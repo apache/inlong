@@ -45,14 +45,17 @@ public class BrokerPSInfoHolder {
      * remove broker all configure info
      *
      * @param brokerId broker id index
+     * @param isTimeout if broker is timeout
      */
-    public void rmvBrokerAllPushedInfo(int brokerId) {
+    public void rmvBrokerAllPushedInfo(int brokerId, boolean isTimeout) {
         // remove broker status Info
         enablePubBrokerIdSet.remove(brokerId);
         enableSubBrokerIdSet.remove(brokerId);
-        // remove broker topic info
-        subTopicInfoView.rmvBrokerTopicInfo(brokerId);
-        pubTopicInfoView.rmvBrokerTopicInfo(brokerId);
+        if (!isTimeout) {
+            // remove broker topic info
+            subTopicInfoView.rmvBrokerTopicInfo(brokerId);
+            pubTopicInfoView.rmvBrokerTopicInfo(brokerId);
+        }
     }
 
     /**

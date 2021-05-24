@@ -298,7 +298,6 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
         'brokerId': '0',
         'brokerIp': '',
         'brokerPort': '8123',
-        'deleteWhen': '0 0 6,18 * * ?',
         'deletePolicy': 'delete,168h',
         'numPartitions': '3',
         'unflushThreshold': '1000',
@@ -327,13 +326,6 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
             '                        <div class="cnt">' +
             '                            <input type="text" class="m" value="'
             + data.brokerIp + '" name="brokerIp">' +
-            '                        </div>' +
-            '                    </div>' +
-            '                    <div class="row">' +
-            '                        <div class="tit">deleteWhen</div>' +
-            '                        <div class="cnt">' +
-            '                            <input type="text" class="m" value="'
-            + data.deleteWhen + '" name="deleteWhen">' +
             '                        </div>' +
             '                    </div>' +
             '                    <div class="row">' +
@@ -448,23 +440,23 @@ Dialog.prototype.confirmTopicInfo = function (type, topicName, selectedBrokerid,
     var types = {
         'delete': {
             'text': '删除',
-            'api': 'admin_delete_topic_info'
+            'api': 'admin_delete_topic_deploy_info'
         },
         'allowPub': {
             'text': '允许可发布',
-            'api': 'admin_modify_topic_info&modifyUser=webapi&acceptPublish=true'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi&acceptPublish=true'
         },
         'disPub': {
             'text': '禁止可发布',
-            'api': 'admin_modify_topic_info&modifyUser=webapi&acceptPublish=false'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi&acceptPublish=false'
         },
         'allowSub': {
             'text': '允许可订阅',
-            'api': 'admin_modify_topic_info&modifyUser=webapi&acceptSubscribe=true'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi&acceptSubscribe=true'
         },
         'disSub': {
             'text': '禁止可订阅',
-            'api': 'admin_modify_topic_info&modifyUser=webapi&acceptSubscribe=false'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi&acceptSubscribe=false'
         }
     };
 
@@ -664,16 +656,15 @@ Dialog.prototype.addTopicInfo = function (type, topicName, data) {
     var types = {
         'add': {
             'text': '新增',
-            'api': 'admin_add_new_topic_record&createUser=webapi'
+            'api': 'admin_add_topic_deploy_info&createUser=webapi'
         },
         'mod': {
             'text': '修改',
-            'api': 'admin_modify_topic_info&modifyUser=webapi'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi'
         }
     };
     data = data || {
             'topicName': '',
-            'deleteWhen': '0 0 6,18 * * ?',
             'deletePolicy': 'delete,168h',
             'numPartitions': '3',
             'unflushThreshold': '1000',
@@ -696,13 +687,6 @@ Dialog.prototype.addTopicInfo = function (type, topicName, data) {
             '                        <div class="cnt">' +
             '                            <input type="text" class="m" value="'
             + data.topicName + '" name="topicName">' +
-            '                        </div>' +
-            '                    </div>' +
-            '                    <div class="row">' +
-            '                        <div class="tit">deleteWhen</div>' +
-            '                        <div class="cnt">' +
-            '                            <input type="text" class="m" value="'
-            + data.deleteWhen + '" name="deleteWhen">' +
             '                        </div>' +
             '                    </div>' +
             '                    <div class="row">' +
@@ -783,11 +767,11 @@ Dialog.prototype.confirmBroker2Topic = function (type, topicName, formData) {
     var types = {
         'add': {
             'text': '新增',
-            'api': 'admin_add_new_topic_record&createUser=webapi'
+            'api': 'admin_add_topic_deploy_info&createUser=webapi'
         },
         'mod': {
             'text': '修改',
-            'api': 'admin_modify_topic_info&modifyUser=webapi'
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi'
         }
     };
 
@@ -1070,12 +1054,12 @@ CheckBox.prototype.process = function (type, $target, dialogInstance, ext, callb
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',
@@ -1126,12 +1110,12 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',
@@ -1166,15 +1150,15 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
     var types = {
         'delete': {
             'text': '删除',
-            'api': 'admin_delete_topic_info'
+            'api': 'admin_delete_topic_deploy_info'
         },
         'pub': {
             'text': '允许可发布',
-            'api': 'admin_modify_topic_info&modifyUser=webapi&acceptPublish='
+            'api': 'admin_update_topic_deploy_info&modifyUser=webapi&acceptPublish='
         },
         'sub': {
             'text': '删除',
-            'api': 'admin_delete_topic_info'
+            'api': 'admin_delete_topic_deploy_info'
         }
     };
 

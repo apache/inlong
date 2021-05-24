@@ -42,8 +42,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     // broker web port
     private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
     private ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
-    private boolean isConfDataUpdated = false;  //conf data update flag
-    private boolean isBrokerLoaded = false;     //broker conf load flag
     private int regionId = TBaseConstants.META_VALUE_UNDEFINED;
     private int groupId = TBaseConstants.META_VALUE_UNDEFINED;
     private TopicPropGroup topicProps = new TopicPropGroup();
@@ -68,7 +66,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,
                             int brokerTLSPort, int brokerWebPort, ManageStatus manageStatus,
                             int regionId, int groupId, TopicPropGroup defTopicProps,
-                            boolean isConfDataUpdated, boolean isBrokerLoaded,
                             long dataVersionId, String createUser,
                             Date createDate, String modifyUser, Date modifyDate) {
         super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
@@ -78,8 +75,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         this.brokerWebPort = brokerWebPort;
         this.topicProps = defTopicProps;
         this.manageStatus = manageStatus;
-        this.isConfDataUpdated = isConfDataUpdated;
-        this.isBrokerLoaded = isBrokerLoaded;
     }
 
     public BrokerConfEntity(BdbBrokerConfEntity bdbEntity) {
@@ -100,8 +95,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                         bdbEntity.getDftDeletePolicy(), bdbEntity.getDataStoreType(),
                         bdbEntity.getDataPath());
         this.manageStatus = ManageStatus.valueOf(bdbEntity.getManageStatus());
-        this.isConfDataUpdated = bdbEntity.isConfDataUpdated();
-        this.isBrokerLoaded = bdbEntity.isBrokerLoaded();
         setAttributes(bdbEntity.getAttributes());
     }
 
@@ -111,8 +104,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 topicProps.getNumPartitions(), topicProps.getUnflushThreshold(),
                 topicProps.getUnflushInterval(), "", topicProps.getDeletePolicy(),
                 manageStatus.getCode(), topicProps.isAcceptPublish(),
-                topicProps.isAcceptSubscribe(), getAttributes(), isConfDataUpdated,
-                isBrokerLoaded, getCreateUser(), getCreateDate(),
+                topicProps.isAcceptSubscribe(), getAttributes(), true,
+                false, getCreateUser(), getCreateDate(),
                 getModifyUser(), getModifyDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setRegionId(regionId);
@@ -151,24 +144,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
 
     public void setManageStatus(ManageStatus manageStatus) {
         this.manageStatus = manageStatus;
-    }
-
-    public void setConfDataUpdated() {
-        this.isBrokerLoaded = false;
-        this.isConfDataUpdated = true;
-    }
-
-    public void setBrokerLoaded() {
-        this.isBrokerLoaded = true;
-        this.isConfDataUpdated = false;
-    }
-
-    public boolean isConfDataUpdated() {
-        return this.isConfDataUpdated;
-    }
-
-    public boolean isBrokerLoaded() {
-        return this.isBrokerLoaded;
     }
 
     public void setBrokerIpAndPort(String brokerIp, int brokerPort) {
@@ -375,7 +350,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 || (target.getManageStatus() != ManageStatus.STATUS_MANAGE_UNDEFINED
                 && target.getManageStatus() != this.manageStatus)
                 || (target.getBrokerWebPort() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerWebPort() != this.brokerWebPort)) {
+                && target.getBrokerWebPort() != this.brokerWebPort)
+                || !this.topicProps.isMatched(target.getTopicProps())) {
             return false;
         }
         return true;
@@ -390,8 +366,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * @return
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+                                      boolean isConfUpdated, boolean isConfLoaded,
+                                      boolean isLongName, boolean fullFormat) {
         if (isLongName) {
             sBuffer.append("{\"brokerId\":").append(brokerId)
                     .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
@@ -401,8 +377,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"manageStatus\":\"").append(manageStatus.getDescription()).append("\"")
                     .append(",\"acceptPublish\":").append(manageStatus.isAcceptPublish())
                     .append(",\"acceptSubscribe\":").append(manageStatus.isAcceptSubscribe())
-                    .append(",\"isConfChanged\":").append(isConfDataUpdated)
-                    .append(",\"isConfLoaded\":").append(isBrokerLoaded)
+                    .append(",\"isConfChanged\":").append(isConfUpdated)
+                    .append(",\"isConfLoaded\":").append(isConfLoaded)
                     .append(",\"regionId\":").append(regionId)
                     .append(",\"groupId\":").append(groupId);
         } else {
@@ -414,8 +390,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                     .append(",\"mSts\":\"").append(manageStatus.getDescription()).append("\"")
                     .append(",\"accPub\":").append(manageStatus.isAcceptPublish())
                     .append(",\"accSub\":").append(manageStatus.isAcceptSubscribe())
-                    .append(",\"isConfChg\":").append(isConfDataUpdated)
-                    .append(",\"isConfLd\":").append(isBrokerLoaded)
+                    .append(",\"isConfChg\":").append(isConfUpdated)
+                    .append(",\"isConfLd\":").append(isConfLoaded)
                     .append(",\"rId\":").append(regionId)
                     .append(",\"gId\":").append(groupId);
         }
@@ -459,8 +435,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 && brokerPort == other.brokerPort
                 && brokerTLSPort == other.brokerTLSPort
                 && brokerWebPort == other.brokerWebPort
-                && isConfDataUpdated == other.isConfDataUpdated
-                && isBrokerLoaded == other.isBrokerLoaded
                 && regionId == other.regionId
                 && groupId == other.groupId
                 && Objects.equals(brokerIp, other.brokerIp)
@@ -491,23 +465,18 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), brokerId, brokerIp, brokerPort, brokerTLSPort,
-                brokerWebPort, manageStatus, isConfDataUpdated, isBrokerLoaded, regionId,
-                groupId, topicProps, brokerAddress, brokerFullInfo, brokerSimpleInfo,
-                brokerTLSSimpleInfo, brokerTLSFullInfo);
+                brokerWebPort, manageStatus, regionId, groupId, topicProps, brokerAddress,
+                brokerFullInfo, brokerSimpleInfo, brokerTLSSimpleInfo, brokerTLSFullInfo);
     }
 
     @Override
     public BrokerConfEntity clone() {
-        try {
-            BrokerConfEntity copy = (BrokerConfEntity) super.clone();
-            copy.setManageStatus(getManageStatus());
-            if (copy.getTopicProps() != null) {
-                copy.setTopicProps(getTopicProps().clone());
-            }
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
+        BrokerConfEntity copy = (BrokerConfEntity) super.clone();
+        copy.setManageStatus(getManageStatus());
+        if (copy.getTopicProps() != null) {
+            copy.setTopicProps(getTopicProps().clone());
         }
+        return copy;
     }
 
 }

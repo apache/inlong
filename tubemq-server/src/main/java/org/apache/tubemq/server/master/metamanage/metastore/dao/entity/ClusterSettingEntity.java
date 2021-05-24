@@ -64,24 +64,23 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
     // Constructor by BdbClusterSettingEntity
     public ClusterSettingEntity(BdbClusterSettingEntity bdbEntity) {
-        super(bdbEntity.getConfigId(), bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
-        this.brokerPort = bdbEntity.getBrokerPort();
-        this.brokerTLSPort = bdbEntity.getBrokerTLSPort();
-        this.brokerWebPort = bdbEntity.getBrokerWebPort();
-        this.clsDefTopicProps =
-                new TopicPropGroup(bdbEntity.getNumTopicStores(), bdbEntity.getNumPartitions(),
-                        bdbEntity.getUnflushThreshold(), bdbEntity.getUnflushInterval(),
-                        bdbEntity.getUnflushDataHold(), bdbEntity.getMemCacheMsgSizeInMB(),
-                        bdbEntity.getMemCacheMsgCntInK(), bdbEntity.getMemCacheFlushIntvl(),
-                        bdbEntity.isAcceptPublish(), bdbEntity.isAcceptSubscribe(),
-                        bdbEntity.getDeletePolicy(), bdbEntity.getDefDataType(),
-                        bdbEntity.getDefDataPath());
-        this.maxMsgSizeInB = bdbEntity.getMaxMsgSizeInB();
-        this.maxMsgSizeInMB =
-                this.maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE;
-        this.qryPriorityId = bdbEntity.getQryPriorityId();
-        setEnableFlowCtrl(bdbEntity.getEnableGloFlowCtrl());
-        setGloFlowCtrlInfo(bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo());
+        super(bdbEntity.getModifyUser(), bdbEntity.getModifyDate(),
+                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        fillDefaultValue();
+        TopicPropGroup defTopicProps =
+                new TopicPropGroup(bdbEntity.getNumTopicStores(),
+                        bdbEntity.getNumPartitions(), bdbEntity.getUnflushThreshold(),
+                        bdbEntity.getUnflushInterval(), bdbEntity.getUnflushDataHold(),
+                        bdbEntity.getMemCacheMsgSizeInMB(), bdbEntity.getMemCacheMsgCntInK(),
+                        bdbEntity.getMemCacheFlushIntvl(), bdbEntity.isAcceptPublish(),
+                        bdbEntity.isAcceptSubscribe(), bdbEntity.getDeletePolicy(),
+                        bdbEntity.getDefDataType(), bdbEntity.getDefDataPath());
+        updModifyInfo(bdbEntity.getConfigId(), bdbEntity.getBrokerPort(),
+                bdbEntity.getBrokerTLSPort(), bdbEntity.getBrokerWebPort(),
+                (bdbEntity.getMaxMsgSizeInB() / TBaseConstants.META_MB_UNIT_SIZE),
+                bdbEntity.getQryPriorityId(), bdbEntity.getEnableGloFlowCtrl(),
+                bdbEntity.getGloFlowCtrlCnt(), bdbEntity.getGloFlowCtrlInfo(),
+                defTopicProps);
         setAttributes(bdbEntity.getAttributes());
     }
 
@@ -353,14 +352,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
     @Override
     public ClusterSettingEntity clone() {
-        try {
-            ClusterSettingEntity copy = (ClusterSettingEntity) super.clone();
-            copy.setGloFlowCtrlStatus(getGloFlowCtrlStatus());
-            copy.setClsDefTopicProps(getClsDefTopicProps().clone());
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        ClusterSettingEntity copy = (ClusterSettingEntity) super.clone();
+        copy.setGloFlowCtrlStatus(getGloFlowCtrlStatus());
+        copy.setClsDefTopicProps(getClsDefTopicProps().clone());
+        return copy;
     }
 
     private void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {

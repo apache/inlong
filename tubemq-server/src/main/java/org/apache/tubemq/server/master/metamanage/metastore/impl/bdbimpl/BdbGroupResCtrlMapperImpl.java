@@ -165,21 +165,23 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
-                                                               GroupResCtrlEntity qryEntity) {
-        GroupResCtrlEntity entity;
+                                                               GroupResCtrlEntity qryEntry) {
         Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
         if (groupNameSet == null || groupNameSet.isEmpty()) {
-            for (GroupResCtrlEntity dataEntity : groupBaseCtrlCache.values()) {
-                if (dataEntity != null && dataEntity.isMatched(qryEntity)) {
-                    retMap.put(dataEntity.getGroupName(), dataEntity);
+            for (GroupResCtrlEntity entry : groupBaseCtrlCache.values()) {
+                if (entry == null || (qryEntry != null && !entry.isMatched(qryEntry))) {
+                    continue;
                 }
+                retMap.put(entry.getGroupName(), entry);
             }
         } else {
+            GroupResCtrlEntity entry;
             for (String groupName : groupNameSet) {
-                entity = groupBaseCtrlCache.get(groupName);
-                if (entity != null && entity.isMatched(qryEntity)) {
-                    retMap.put(entity.getGroupName(), entity);
+                entry = groupBaseCtrlCache.get(groupName);
+                if (entry == null || (qryEntry != null && !entry.isMatched(qryEntry))) {
+                    continue;
                 }
+                retMap.put(entry.getGroupName(), entry);
             }
         }
         return retMap;

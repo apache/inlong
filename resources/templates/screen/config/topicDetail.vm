@@ -79,7 +79,6 @@
                                 <th>numPartitions</th>
                                 <th>unflushThreshold</th>
                                 <th>unflushInterval</th>
-                                <th>deleteWhen</th>
                                 <th>deletePolicy</th>
                                 <th>acceptPublish</th>
                                 <th>acceptSubscribe</th>

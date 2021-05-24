@@ -244,7 +244,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         Map<Integer, List<TopicDeployEntity>> queryResult =
-                metaDataManager.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+                metaDataManager.getTopicDeployInfoMap(brokerIdSet, topicNameSet);
         // build query result
         int dataCount = 0;
         int totalStoreNum = 0;
@@ -524,7 +524,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
-                sBuffer.append("\",\"runInfo\":{");
+                sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
                         metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 String strManageStatus = "-";
@@ -569,7 +569,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
                     .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
-                    .append(",\"authData\":[");
+                    .append(",\"authData\":{");
             if (enableAuthCtrl) {
                 sBuffer.append("\"enableAuthControl\":").append(enableAuthCtrl)
                         .append(",\"createUser\":\"").append(ctrlEntity.getModifyUser())
@@ -654,7 +654,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
-                sBuffer.append("\",\"runInfo\":{");
+                sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
                         metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 String strManageStatus = "-";
@@ -776,7 +776,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get add record map
-        if (!getTopicDeployJsonSetInfo(req, true, defOpEntity, sBuffer, result)) {
+        if (!getTopicDeployJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -802,8 +802,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         TopicDeployEntity itemConf;
         Map<String, TopicDeployEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
-        for (int j = 0; j < deployJsonArray.size(); j++) {
-            Map<String, String> confMap = deployJsonArray.get(j);
+        for (Map<String, String> confMap : deployJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(confMap,
                     isAddOp, defOpEntity, sBuffer, result)) {

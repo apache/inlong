@@ -32,7 +32,7 @@ import org.apache.tubemq.server.common.utils.WebParameterUtils;
 public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
-            TServerConstants.DEFAULT_DATA_VERSION;    // 0: default version， other: version
+            TBaseConstants.META_VALUE_UNDEFINED;    // -2: undefined, other: version
     private long serialId = TBaseConstants.META_VALUE_UNDEFINED;
     private String createUser = "";        // create user
     private Date createDate = null;        // create date
@@ -266,15 +266,15 @@ public class BaseEntity implements Serializable, Cloneable {
                     .append(",\"createUser\":\"").append(createUser).append("\"")
                     .append(",\"createDate\":\"").append(createDateStr).append("\"")
                     .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
-                    .append(",\"modifyDate\":\"").append(modifyDateStr).append("\"")
-                    .append(",\"attributes\":\"").append(attributes).append("\"");
+                    .append(",\"modifyDate\":\"").append(modifyDateStr).append("\"");
+                    //.append(",\"attributes\":\"").append(attributes).append("\"");
         } else {
             sBuilder.append(",\"dVerId\":").append(dataVersionId)
                     .append(",\"cur\":\"").append(createUser).append("\"")
                     .append(",\"cDate\":\"").append(createDateStr).append("\"")
                     .append(",\"mur\":\"").append(modifyUser).append("\"")
-                    .append(",\"mDate\":\"").append(modifyDateStr).append("\"")
-                    .append(",\"attrs\":\"").append(attributes).append("\"");
+                    .append(",\"mDate\":\"").append(modifyDateStr).append("\"");
+                    //.append(",\"attrs\":\"").append(attributes).append("\"");
         }
         return sBuilder;
     }

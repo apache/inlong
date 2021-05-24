@@ -86,7 +86,8 @@ public class DefBrokerRunManager implements BrokerRunManager {
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
                         logger.info(new StringBuilder(512).append("[Broker Timeout] ")
                                 .append(nodeId).toString());
-                        releaseBrokerRunInfo(Integer.parseInt(nodeId), nodeInfo.getSecondKey());
+                        releaseBrokerRunInfo(Integer.parseInt(nodeId),
+                                nodeInfo.getSecondKey(), true);
                     }
                 });
     }
@@ -292,7 +293,7 @@ public class DefBrokerRunManager implements BrokerRunManager {
             return result.isSuccess();
         }
         boolean isOverTls = runStatusInfo.isOverTLS();
-        releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId());
+        releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId(), false);
         logger.info(sBuffer.append("[Broker Closed]").append(brokerId)
                 .append(" unregister success, isOverTLS=").append(isOverTls).toString());
         result.setSuccResult(null);
@@ -429,18 +430,20 @@ public class DefBrokerRunManager implements BrokerRunManager {
     }
 
     @Override
-    public boolean releaseBrokerRunInfo(int brokerId, String blockId) {
+    public boolean releaseBrokerRunInfo(int brokerId, String blockId, boolean isTimeout) {
         StringBuilder sBuffer = new StringBuilder(512);
         BrokerRunStatusInfo runStatusInfo =
                 brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
             logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
-                    .append(" release failure, run-info has deleted before!").toString());
+                    .append(", isTimeout=").append(isTimeout)
+                    .append(", release failure, run-info has deleted before!").toString());
             return false;
         }
         if (!blockId.equals(runStatusInfo.getCreateId())) {
             logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
-                    .append(" release failure, run-info has been replaced by new register!")
+                    .append(", isTimeout=").append(isTimeout)
+                    .append(", release failure, run-info has been replaced by new register!")
                     .toString());
             return false;
         }
@@ -450,9 +453,10 @@ public class DefBrokerRunManager implements BrokerRunManager {
         }
         brokerTotalCount.decrementAndGet();
         brokerAbnHolder.removeBroker(brokerId);
-        brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId);
-        logger.info(sBuffer.append("[Broker Release] brokerId=")
-                .append(brokerId).append("  release success!").toString());
+        brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId, isTimeout);
+        logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
+                .append(", isTimeout=").append(isTimeout)
+                .append(", release success!").toString());
         return true;
     }
 
