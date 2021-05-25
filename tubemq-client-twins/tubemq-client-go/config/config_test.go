@@ -49,6 +49,3 @@ func TestParseAddress(t *testing.T) {
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 }
-
-
-
