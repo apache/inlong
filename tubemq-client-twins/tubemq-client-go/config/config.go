@@ -31,11 +31,11 @@ import (
 type Config struct {
 	// Net is the namespace for network-level properties used by Broker and Master.
 	Net struct {
-		// How long to wait for a response.
+		// ReadTimeout represents how long to wait for a response.
 		ReadTimeout time.Duration
 		// TLS based authentication with broker and master.
 		TLS struct {
-			// Whether or not to use TLS.
+			// Enable represents whether or not to use TLS.
 			Enable bool
 			// CACertFile for TLS.
 			CACertFile string
@@ -46,13 +46,13 @@ type Config struct {
 			// TTSServerName for TLS.
 			TLSServerName string
 		}
-		// Account based authentication with broker and master.
+		// Auth represents the account based authentication with broker and master.
 		Auth struct {
-			// Whether or not to use authentication.
+			// Enable represents whether or not to use authentication.
 			Enable bool
-			// Username of authentication.
+			// Username for authentication.
 			UserName string
-			// Password of authentication.
+			// Password for authentication.
 			Password string
 		}
 	}
@@ -60,53 +60,54 @@ type Config struct {
 	// Consumer is the namespace for configuration related to consume messages,
 	// used by the consumer
 	Consumer struct {
-		// The addresses of master.
+		// Masters is the addresses of master.
 		Masters []string
-		// The consumption topic.
+		// Topic of the consumption.
 		Topic string
-		// The initial offset to use if no offset was previously committed.
+		// ConsumerPosition is the initial offset to use if no offset was previously committed.
 		ConsumePosition int
-		// The consumer group name.
+		// Group is the consumer group name.
 		Group string
-		// Whether or not to specify the offset.
+		// BoundConsume represents whether or not to specify the offset.
 		BoundConsume bool
 		// SessionKey is defined by the client.
 		// The session key will be the same in a batch.
 		SessionKey string
-		// The number of consumers in a batch.
+		// SourceCount is the number of consumers in a batch.
 		SourceCount int
-		// If multiple consumers want to reset the offset of the same partition,
-		// whether the server or not to use the biggest offset
-		// the server will use the biggest offset if set.
-		// Otherwise the server will use the smallest offset.
+		// SelectBig specifies if multiple consumers want to reset the offset of the same partition,
+		// whether or not to use the biggest offset.
+		// The server will use the biggest offset if set, otherwise the server will use the smallest offset.
 		SelectBig bool
-		// If the confirm request timeouts, whether this batch of data should be considered as successful.
+		// RollbackIfConfirmTimeout represents if the confirm request timeouts,
+		// whether or not this batch of data should be considered as successful.
 		// This batch of data will not be considered as successful if set.
 		RollbackIfConfirmTimeout bool
-		// The maximum interval for the client to report subscription information.
+		// MaxSubInfoReportInterval is maximum interval for the client to report subscription information.
 		MaxSubInfoReportInterval int
-		// The maximum interval to check the partition.
+		// MaxPartCheckPeriod is the maximum interval to check the partition.
 		MaxPartCheckPeriod time.Duration
-		// The interval to check the partition.
+		// PartCheckSlice is the interval to check the partition.
 		PartCheckSlice time.Duration
-		// The maximum wait time the offset of a partition has reached the maximum offset.
+		// MsgNotFoundWait is the maximum wait time the offset of a partition has reached the maximum offset.
 		MsgNotFoundWait time.Duration
-		// How long to wait when the server is rebalancing and the partition is being occupied by the client.
+		// RebConfirmWait represents how long to wait
+		// when the server is rebalancing and the partition is being occupied by the client.
 		RebConfirmWait time.Duration
-		// The maximum wait time a partition consumption command is released.
+		// MaxConfirmWait is the maximum wait time a partition consumption command is released.
 		MaxConfirmWait time.Duration
-		// How long to wait when shutdown is called and the server is rebalancing.
+		// ShutdownRebWait represents how long to wait when shutdown is called and the server is rebalancing.
 		ShutdownRebWait time.Duration
 	}
 
 	// Heartbeat is the namespace for configuration related to heartbeat messages,
 	// used by the consumer
 	Heartbeat struct {
-		// How frequently to send heartbeat.
+		// Interval represents how frequently to send heartbeat.
 		Interval time.Duration
-		// The total number of times to retry sending heartbeat.
+		// MaxRetryTimes is the total number of times to retry sending heartbeat.
 		MaxRetryTimes int
-		// The heartbeat timeout after a heartbeat failure.
+		// AfterFail is the heartbeat timeout after a heartbeat failure.
 		AfterFail time.Duration
 	}
 }
