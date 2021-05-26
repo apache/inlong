@@ -21,7 +21,7 @@ package org.apache.tubemq.server.common.statusdef;
 public enum EnableStatus {
     STATUS_UNDEFINE(-2, "Undefined."),
     STATUS_DISABLE(0, "Disable."),
-    STATUS_ENABLE(1, "Enable.");
+    STATUS_ENABLE(2, "Enable.");
 
     private int code;
     private String description;

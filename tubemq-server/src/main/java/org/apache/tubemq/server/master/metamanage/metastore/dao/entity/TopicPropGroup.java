@@ -24,7 +24,7 @@ import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.statusdef.CuPolType;
+import org.apache.tubemq.server.common.statusdef.CleanPolType;
 
 
 /*
@@ -47,7 +47,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
     private String dataPath = "";   //data path
     private String deletePolicy = "";        // delete policy
     // Retention period, unit ms
-    private CuPolType fileCuPolicyType = CuPolType.CU_POL_DELETE;
+    private CleanPolType cleanPolicyType = CleanPolType.CLEAN_POL_DELETE;
     private long retPeriodInMs = TBaseConstants.META_VALUE_UNDEFINED;
 
     public TopicPropGroup() {
@@ -72,7 +72,9 @@ public class TopicPropGroup implements Serializable, Cloneable {
         this.acceptSubscribe = acceptSubscribe;
         setDeletePolicy(deletePolicy);
         this.dataStoreType = dataStoreType;
-        this.dataPath = dataPath;
+        if (dataPath != null) {
+            this.dataPath = dataPath;
+        }
     }
 
     public int getNumTopicStores() {
@@ -165,8 +167,8 @@ public class TopicPropGroup implements Serializable, Cloneable {
     public void setDeletePolicy(String deletePolicy) {
         if (TStringUtils.isNotBlank(deletePolicy)) {
             this.deletePolicy = deletePolicy;
-            Tuple2<CuPolType, Long> parsedRet = parseDelPolicy(deletePolicy);
-            this.fileCuPolicyType = parsedRet.getF0();
+            Tuple2<CleanPolType, Long> parsedRet = parseDelPolicy(deletePolicy);
+            this.cleanPolicyType = parsedRet.getF0();
             this.retPeriodInMs = parsedRet.getF1();
         }
     }
@@ -179,8 +181,8 @@ public class TopicPropGroup implements Serializable, Cloneable {
         return retPeriodInMs;
     }
 
-    public CuPolType getFileCuPolicyType() {
-        return fileCuPolicyType;
+    public CleanPolType getCleanPolicyType() {
+        return cleanPolicyType;
     }
 
     public void setDataStoreInfo(int dataStoreType, String dataPath) {
@@ -327,7 +329,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
                 && Objects.equals(acceptSubscribe, other.acceptSubscribe)
                 && Objects.equals(dataPath, other.dataPath)
                 && Objects.equals(deletePolicy, other.deletePolicy)
-                && fileCuPolicyType == other.fileCuPolicyType;
+                && cleanPolicyType == other.cleanPolicyType;
     }
 
     /**
@@ -436,7 +438,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
         return Objects.hash(numTopicStores, numPartitions, unflushThreshold,
                 unflushInterval, unflushDataHold, memCacheMsgSizeInMB, memCacheMsgCntInK,
                 memCacheFlushIntvl, acceptPublish, acceptSubscribe, dataStoreType,
-                dataPath, deletePolicy, fileCuPolicyType, retPeriodInMs);
+                dataPath, deletePolicy, cleanPolicyType, retPeriodInMs);
     }
 
     @Override
@@ -454,7 +456,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
 
-    private Tuple2<CuPolType, Long> parseDelPolicy(String delPolicy) {
+    private Tuple2<CleanPolType, Long> parseDelPolicy(String delPolicy) {
         long validDuration = 0;
         String[] tmpStrs = delPolicy.split(",");
         String validValStr = tmpStrs[1];
@@ -468,7 +470,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
         } else {
             validDuration = Long.parseLong(validValStr) * 3600000;
         }
-        return new Tuple2<>(CuPolType.CU_POL_DELETE, validDuration);
+        return new Tuple2<>(CleanPolType.CLEAN_POL_DELETE, validDuration);
     }
 
 }

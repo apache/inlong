@@ -1453,65 +1453,6 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-
-    /**
-     * Add if absent topic control configure info
-     *
-     * @param deployEntity  the topic deploy info will be add
-     * @param strBuffer     the print info string buffer
-     * @param result        the process result return
-     * @return true if success otherwise false
-     */
-    public void addIfAbsentTopicCtrlConf(TopicDeployEntity deployEntity,
-                                         StringBuilder strBuffer,
-                                         ProcessResult result) {
-        TopicCtrlEntity curEntity =
-                metaStoreService.getTopicCtrlConf(deployEntity.getTopicName());
-        if (curEntity != null) {
-            return;
-        }
-        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
-        if (defSetting != null) {
-            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-        }
-        curEntity = new TopicCtrlEntity(deployEntity.getTopicName(),
-                deployEntity.getTopicId(), maxMsgSizeInMB, deployEntity.getCreateUser());
-        metaStoreService.addTopicCtrlConf(curEntity, strBuffer, result);
-        return;
-    }
-
-    /**
-     * Add if absent topic control configure info
-     *
-     * @param topicNameSet  the topic name will be add
-     * @param operator the topic name id will be add
-     * @param operator   operator
-     * @param sBuffer  the print info string buffer
-     */
-    public boolean addIfAbsentTopicCtrlConf(Set<String> topicNameSet, String operator,
-                                            StringBuilder sBuffer, ProcessResult result) {
-        TopicCtrlEntity curEntity;
-        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
-        if (defSetting != null) {
-            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-        }
-        for (String topicName : topicNameSet) {
-            curEntity = metaStoreService.getTopicCtrlConf(topicName);
-            if (curEntity != null) {
-                continue;
-            }
-            curEntity = new TopicCtrlEntity(topicName,
-                    TBaseConstants.META_VALUE_UNDEFINED, maxMsgSizeInMB, operator);
-            if (!metaStoreService.addTopicCtrlConf(curEntity, sBuffer, result)) {
-                return result.isSuccess();
-            }
-        }
-        result.setSuccResult(null);
-        return result.isSuccess();
-    }
-
     /**
      * Add if absent topic control configure info
      *

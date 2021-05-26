@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TokenConstants;
@@ -61,20 +60,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         super(opEntity);
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
-    }
-
-    public BrokerConfEntity(int brokerId, String brokerIp, int brokerPort,
-                            int brokerTLSPort, int brokerWebPort, ManageStatus manageStatus,
-                            int regionId, int groupId, TopicPropGroup defTopicProps,
-                            long dataVersionId, String createUser,
-                            Date createDate, String modifyUser, Date modifyDate) {
-        super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
-        setBrokerIpAndAllPort(brokerId, brokerIp, brokerPort, brokerTLSPort);
-        this.regionId = regionId;
-        this.groupId = groupId;
-        this.brokerWebPort = brokerWebPort;
-        this.topicProps = defTopicProps;
-        this.manageStatus = manageStatus;
     }
 
     public BrokerConfEntity(BdbBrokerConfEntity bdbEntity) {
@@ -129,11 +114,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         this.brokerId = brokerId;
     }
 
-    public void setBrokerIdAndIp(int brokerId, String brokerIp) {
-        this.brokerId = brokerId;
-        this.brokerIp = brokerIp;
-    }
-
     public ManageStatus getManageStatus() {
         return manageStatus;
     }
@@ -144,12 +124,6 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
 
     public void setManageStatus(ManageStatus manageStatus) {
         this.manageStatus = manageStatus;
-    }
-
-    public void setBrokerIpAndPort(String brokerIp, int brokerPort) {
-        this.brokerPort = brokerPort;
-        this.brokerIp = brokerIp;
-        this.buildStrInfo();
     }
 
     public String getBrokerAddress() {

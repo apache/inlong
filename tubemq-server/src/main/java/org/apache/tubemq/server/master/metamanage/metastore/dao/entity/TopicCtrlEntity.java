@@ -61,27 +61,12 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         this.topicName = topicName;
     }
 
-    public TopicCtrlEntity(String topicName, int topicNameId,
-                           boolean enableAuth, int maxMsgSizeInB,
-                           long dataVersionId, String createUser,
-                           Date createDate, String modifyUser, Date modifyDate) {
-        super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
-        this.topicName = topicName;
-        this.topicNameId = topicNameId;
-        this.fillMaxMsgSize(maxMsgSizeInB);
-        if (enableAuth) {
-            this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
-    }
-
     public TopicCtrlEntity(BdbTopicAuthControlEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.topicName = bdbEntity.getTopicName();
         this.topicNameId = bdbEntity.getTopicId();
-        this.fillMaxMsgSize(maxMsgSizeInB);
+        this.fillMaxMsgSizeInB(bdbEntity.getMaxMsgSize());
         if (bdbEntity.isEnableAuthControl()) {
             this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
         } else {
@@ -93,7 +78,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     public BdbTopicAuthControlEntity buildBdbTopicAuthControlEntity() {
         BdbTopicAuthControlEntity bdbEntity =
                 new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
-                        getAttributes(), getCreateUser(), getCreateDate());
+                        getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setTopicId(topicNameId);
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setMaxMsgSize(maxMsgSizeInB);
@@ -166,17 +151,19 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set modified field
         if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            int newMaxMsgSizeB =
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(newMaxMsgSizeMB);
-            if (this.maxMsgSizeInB != newMaxMsgSizeB) {
+            int tmpMaxMsgSizeInMB =
+                    SettingValidUtils.validAndGetMsgSizeInMB(newMaxMsgSizeMB);
+            if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
                 changed = true;
-                this.maxMsgSizeInB = newMaxMsgSizeB;
-                this.maxMsgSizeInMB = newMaxMsgSizeMB;
+                this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
+                this.maxMsgSizeInB =
+                        SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
             }
         }
         // check and set authCtrlStatus info
         if (enableTopicAuth != null
-                && this.authCtrlStatus.isEnable() != enableTopicAuth) {
+                && (this.authCtrlStatus == EnableStatus.STATUS_UNDEFINE
+                || this.authCtrlStatus.isEnable() != enableTopicAuth)) {
             setEnableAuthCtrl(enableTopicAuth);
             changed = true;
         }
@@ -241,10 +228,14 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
-    private void fillMaxMsgSize(int maxMsgSizeInB) {
-        this.maxMsgSizeInB = maxMsgSizeInB;
-        this.maxMsgSizeInMB =
-                maxMsgSizeInB / TBaseConstants.META_MB_UNIT_SIZE;
+    private void fillMaxMsgSizeInB(int maxMsgSizeInB) {
+        int tmpMaxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+        if (maxMsgSizeInB > TBaseConstants.META_MB_UNIT_SIZE) {
+            tmpMaxMsgSizeInMB = SettingValidUtils.validAndGetMsgSizeBtoMB(maxMsgSizeInB);
+        }
+        this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
+        this.maxMsgSizeInB =
+                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(this.maxMsgSizeInMB);
     }
 
     /**

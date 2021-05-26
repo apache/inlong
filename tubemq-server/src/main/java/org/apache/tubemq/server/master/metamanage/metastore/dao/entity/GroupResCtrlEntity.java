@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
@@ -43,6 +42,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     private String flowCtrlInfo = "";  // flow control info
 
 
+    // only for query
     public GroupResCtrlEntity() {
         super();
     }
@@ -50,22 +50,6 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     public GroupResCtrlEntity(BaseEntity opEntity, String groupName) {
         super(opEntity);
         this.groupName = groupName;
-    }
-
-    public GroupResCtrlEntity(String groupName, int qryPriorityId,
-                              boolean enableFlowCtrl, int ruleCnt,
-                              String flowCtrlInfo, String createUser,
-                              Date createDate) {
-        super(createUser, createDate);
-        this.groupName = groupName;
-        if (enableFlowCtrl) {
-            this.flowCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
-        this.qryPriorityId = qryPriorityId;
-        this.ruleCnt = ruleCnt;
-        this.flowCtrlInfo = flowCtrlInfo;
     }
 
     public GroupResCtrlEntity(BdbGroupFlowCtrlEntity bdbEntity) {
@@ -80,6 +64,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         } else {
             this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
         }
+        this.resCheckStatus = bdbEntity.getResCheckStatus();
+        this.allowedBrokerClientRate = bdbEntity.getAllowedBrokerClientRate();
         setAttributes(bdbEntity.getAttributes());
     }
 
@@ -89,7 +75,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         BdbGroupFlowCtrlEntity bdbEntity =
                 new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
                         this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
-                        getAttributes(), getCreateUser(), getCreateDate());
+                        getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setResCheckStatus(resCheckStatus);
         bdbEntity.setAllowedBrokerClientRate(allowedBrokerClientRate);
         return bdbEntity;
@@ -105,6 +91,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.allowedBrokerClientRate = 0;
         this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
         this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        this.ruleCnt = 0;
         this.flowCtrlInfo = TServerConstants.BLANK_FLOWCTRL_RULES;
         return this;
     }
@@ -205,7 +192,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set resCheckStatus info
         if (resChkEnable != null
-                && this.resCheckStatus.isEnable() != resChkEnable) {
+                && (this.resCheckStatus == EnableStatus.STATUS_UNDEFINE
+                || this.resCheckStatus.isEnable() != resChkEnable)) {
             changed = true;
             setResCheckStatus(resChkEnable);
         }
@@ -223,7 +211,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set flowCtrl info
         if (flowCtrlEnable != null
-                && this.flowCtrlStatus.isEnable() != flowCtrlEnable) {
+                && (this.flowCtrlStatus == EnableStatus.STATUS_UNDEFINE
+                || this.flowCtrlStatus.isEnable() != flowCtrlEnable)) {
             changed = true;
             setFlowCtrlStatus(flowCtrlEnable);
         }
