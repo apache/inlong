@@ -28,24 +28,24 @@ func TestParseAddress(t *testing.T) {
 	address := "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=Group&tlsEnable=false&msgNotFoundWait=10000&heartbeatMaxRetryTimes=6"
 	c, err := ParseAddress(address)
 	assert.Nil(t, err)
-	assert.Equal(t, c.Consumer.masters, []string{"127.0.0.1:9092", "127.0.0.1:9093"})
-	assert.Equal(t, c.Consumer.topic, "Topic")
+	assert.Equal(t, c.Consumer.Masters, []string{"127.0.0.1:9092", "127.0.0.1:9093"})
+	assert.Equal(t, c.Consumer.Topic, "Topic")
 	assert.Equal(t, c.Consumer.Group, "Group")
-	assert.Equal(t, c.Consumer.msgNotFoundWait, 10000 * time.Millisecond)
+	assert.Equal(t, c.Consumer.MsgNotFoundWait, 10000*time.Millisecond)
 
 	assert.Equal(t, c.Net.TLS.Enable, false)
 
-	assert.Equal(t, c.Heartbeat.maxRetryTimes, 6)
+	assert.Equal(t, c.Heartbeat.MaxRetryTimes, 6)
 
 	address = ""
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 
-	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&ttt"
+	address = "127.0.0.1:9092,127.0.0.1:9093?Topic=Topic&ttt"
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 
-	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&ttt=ttt"
+	address = "127.0.0.1:9092,127.0.0.1:9093?Topic=Topic&ttt=ttt"
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 }
