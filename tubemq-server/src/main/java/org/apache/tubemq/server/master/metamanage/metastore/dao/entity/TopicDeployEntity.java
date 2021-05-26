@@ -84,6 +84,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
                         getModifyUser(), getModifyDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setTopicId(topicNameId);
+        bdbEntity.setTopicStatusId(deployStatus.getCode());
+        bdbEntity.setDataStore(topicProps.getDataStoreType(), topicProps.getDataPath());
         bdbEntity.setNumTopicStores(topicProps.getNumTopicStores());
         bdbEntity.setMemCacheMsgSizeInMB(topicProps.getMemCacheMsgSizeInMB());
         bdbEntity.setMemCacheMsgCntInK(topicProps.getMemCacheMsgCntInK());

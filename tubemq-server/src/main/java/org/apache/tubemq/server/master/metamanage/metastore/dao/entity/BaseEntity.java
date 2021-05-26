@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.TServerConstants;
@@ -33,7 +34,8 @@ public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
             TBaseConstants.META_VALUE_UNDEFINED;    // -2: undefined, other: version
-    private long serialId = TBaseConstants.META_VALUE_UNDEFINED;
+    private final AtomicLong serialId =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private String createUser = "";        // create user
     private Date createDate = null;        // create date
     private String modifyUser = "";       // modify user
@@ -57,7 +59,7 @@ public class BaseEntity implements Serializable, Cloneable {
         this.setCreateDate(other.createDate);
         this.modifyUser = other.modifyUser;
         this.setModifyDate(other.modifyDate);
-        this.serialId = other.serialId;
+        this.serialId.set(other.serialId.get());
         this.attributes = other.attributes;
     }
 
@@ -159,11 +161,16 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     public long getSerialId() {
-        return serialId;
+        return serialId.get();
     }
 
     protected void updSerialId() {
-        this.serialId = System.currentTimeMillis();
+        if (serialId.get() == TBaseConstants.META_VALUE_UNDEFINED) {
+            this.serialId.set(System.currentTimeMillis());
+        } else {
+            this.serialId.incrementAndGet();
+        }
+
     }
 
     public String getModifyUser() {
@@ -223,7 +230,7 @@ public class BaseEntity implements Serializable, Cloneable {
     StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
             sBuilder.append(",\"dataVersionId\":").append(dataVersionId)
-                    .append(",\"serialId\":").append(serialId)
+                    .append(",\"serialId\":").append(serialId.get())
                     .append(",\"createUser\":\"").append(createUser).append("\"")
                     .append(",\"createDate\":\"").append(createDateStr).append("\"")
                     .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
@@ -231,6 +238,7 @@ public class BaseEntity implements Serializable, Cloneable {
                     //.append(",\"attributes\":\"").append(attributes).append("\"");
         } else {
             sBuilder.append(",\"dVerId\":").append(dataVersionId)
+                    .append(",\"serialId\":").append(serialId.get())
                     .append(",\"cur\":\"").append(createUser).append("\"")
                     .append(",\"cDate\":\"").append(createDateStr).append("\"")
                     .append(",\"mur\":\"").append(modifyUser).append("\"")
@@ -260,7 +268,7 @@ public class BaseEntity implements Serializable, Cloneable {
         }
         BaseEntity that = (BaseEntity) o;
         return dataVersionId == that.dataVersionId &&
-                serialId == that.serialId &&
+                serialId.get() == that.serialId.get() &&
                 Objects.equals(createUser, that.createUser) &&
                 Objects.equals(createDate, that.createDate) &&
                 Objects.equals(modifyUser, that.modifyUser) &&
@@ -270,7 +278,7 @@ public class BaseEntity implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataVersionId, serialId, createUser,
+        return Objects.hash(dataVersionId, serialId.get(), createUser,
                 createDate, modifyUser, modifyDate, attributes);
     }
 

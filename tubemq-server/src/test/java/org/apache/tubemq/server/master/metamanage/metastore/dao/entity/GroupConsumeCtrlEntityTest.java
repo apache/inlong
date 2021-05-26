@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
+import java.util.Calendar;
 import java.util.Date;
 import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.junit.Assert;
@@ -59,8 +60,13 @@ public class GroupConsumeCtrlEntityTest {
         String disableRsn = "disable";
         boolean filterEnable = true;
         String newFilterCondStr = "[1,2,4]";
+        Date newDate = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(newDate);
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        newDate = c.getTime();
         BaseEntity opInfoEntity =
-                new BaseEntity(newDataVerId, "modify", new Date());
+                new BaseEntity(newDataVerId, "modify", newDate);
         GroupConsumeCtrlEntity ctrlEntry2 = ctrlEntry1.clone();
         Assert.assertTrue(ctrlEntry2.isMatched(ctrlEntry1));
         ctrlEntry2.updBaseModifyInfo(opInfoEntity);
