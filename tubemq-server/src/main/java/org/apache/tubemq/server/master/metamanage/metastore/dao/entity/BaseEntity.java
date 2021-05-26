@@ -46,10 +46,6 @@ public class BaseEntity implements Serializable, Cloneable {
 
     }
 
-    public BaseEntity(long dataVersionId) {
-        this.dataVersionId = dataVersionId;
-    }
-
     public BaseEntity(String createUser, Date createDate) {
         this(TServerConstants.DEFAULT_DATA_VERSION,
                 createUser, createDate, createUser, createDate);
@@ -61,6 +57,8 @@ public class BaseEntity implements Serializable, Cloneable {
         this.setCreateDate(other.createDate);
         this.modifyUser = other.modifyUser;
         this.setModifyDate(other.modifyDate);
+        this.serialId = other.serialId;
+        this.attributes = other.attributes;
     }
 
     public BaseEntity(long dataVersionId, String createUser, Date createDate) {
@@ -81,6 +79,7 @@ public class BaseEntity implements Serializable, Cloneable {
         this.setCreateDate(createDate);
         this.modifyUser = modifyUser;
         this.setModifyDate(modifyDate);
+        updSerialId();
     }
 
     public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
@@ -122,44 +121,6 @@ public class BaseEntity implements Serializable, Cloneable {
                 && !Objects.equals(modifyUser, newModifyUser)) {
             changed = true;
             this.modifyUser = newModifyUser;
-        }
-        return changed;
-    }
-
-    public boolean updBaseModifyInfo(long newDataVerId, String newCreateUser,
-                                     Date newCreateDate, String newModifyUser,
-                                     Date newModifyDate, String newAttributes) {
-        boolean changed = false;
-        // check and set dataVersionId field
-        if (newDataVerId != TBaseConstants.META_VALUE_UNDEFINED
-                && this.dataVersionId != newDataVerId) {
-            changed = true;
-            this.dataVersionId = newDataVerId;
-        }
-        if (TStringUtils.isNotBlank(newCreateUser)
-                && !Objects.equals(createUser, newCreateUser)) {
-            changed = true;
-            this.createUser = newCreateUser;
-        }
-        if (newCreateDate != null
-                && !Objects.equals(createDate, newCreateDate)) {
-            changed = true;
-            this.setCreateDate(newCreateDate);
-        }
-        if (TStringUtils.isNotBlank(newModifyUser)
-                && !Objects.equals(modifyUser, newModifyUser)) {
-            changed = true;
-            this.modifyUser = newModifyUser;
-        }
-        if (newModifyDate != null
-                && !Objects.equals(modifyDate, newModifyDate)) {
-            changed = true;
-            this.setModifyDate(newModifyDate);
-        }
-        if (TStringUtils.isNotBlank(newAttributes)
-                && !Objects.equals(attributes, newAttributes)) {
-            changed = true;
-            this.attributes = newAttributes;
         }
         return changed;
     }

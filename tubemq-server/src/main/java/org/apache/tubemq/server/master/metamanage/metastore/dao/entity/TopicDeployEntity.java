@@ -17,7 +17,6 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
@@ -52,20 +51,6 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.brokerId = brokerId;
         this.topicName = topicName;
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
-    }
-
-    public TopicDeployEntity(String topicName, int topicId, int brokerId,
-                             String brokerIp, int brokerPort,
-                             TopicPropGroup topicProps, TopicStatus deployStatus,
-                             long dataVersionId, String createUser,
-                             Date createDate, String modifyUser, Date modifyDate) {
-        super(dataVersionId, createUser, createDate, modifyUser, modifyDate);
-        setTopicDeployInfo(brokerId, brokerIp, brokerPort, topicName);
-        this.topicNameId = topicId;
-        this.deployStatus = deployStatus;
-        this.topicProps = topicProps;
-        this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
-
     }
 
     public TopicDeployEntity(BdbTopicConfEntity bdbEntity) {

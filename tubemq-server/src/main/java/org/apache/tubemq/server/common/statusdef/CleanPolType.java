@@ -18,14 +18,14 @@
 package org.apache.tubemq.server.common.statusdef;
 
 
-public enum CuPolType {
-    CU_POL_DELETE(0, "Delete");
+public enum CleanPolType {
+    CLEAN_POL_DELETE(0, "Delete");
 
     private int code;
     private String description;
 
 
-    CuPolType(int code, String description) {
+    CleanPolType(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -35,8 +35,8 @@ public enum CuPolType {
     }
 
 
-    public static CuPolType valueOf(int code) {
-        for (CuPolType status : CuPolType.values()) {
+    public static CleanPolType valueOf(int code) {
+        for (CleanPolType status : CleanPolType.values()) {
             if (status.getCode() == code) {
                 return status;
             }

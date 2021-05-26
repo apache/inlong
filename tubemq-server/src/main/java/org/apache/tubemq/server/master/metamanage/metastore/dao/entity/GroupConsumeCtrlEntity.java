@@ -17,9 +17,7 @@
 
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
-
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
@@ -54,20 +52,6 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         this.topicName = topicName;
     }
 
-    public GroupConsumeCtrlEntity(String groupName, String topicName,
-                                  EnableStatus consumeEnable,
-                                  String disableReason,
-                                  EnableStatus filterEnable,
-                                  String filterCondStr, String createUser,
-                                  Date createDate) {
-        super(createUser, createDate);
-        this.setGroupAndTopic(groupName, topicName);
-        this.consumeEnable = consumeEnable;
-        this.disableReason = disableReason;
-        this.filterEnable = filterEnable;
-        this.filterCondStr = filterCondStr;
-    }
-
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
@@ -89,7 +73,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         BdbGroupFilterCondEntity bdbEntity =
                 new BdbGroupFilterCondEntity(topicName, groupName,
                         filterEnable.getCode(), filterCondStr,
-                        getAttributes(), getCreateUser(), getCreateDate());
+                        getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setConsumeEnable(consumeEnable);
         bdbEntity.setDisableConsumeReason(disableReason);
@@ -187,7 +171,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set consumeEnable info
         if (consumeEnable != null
-                && this.consumeEnable.isEnable() != consumeEnable) {
+                && (this.consumeEnable == EnableStatus.STATUS_UNDEFINE
+                || this.consumeEnable.isEnable() != consumeEnable)) {
             changed = true;
             setConsumeEnable(consumeEnable);
         }
@@ -199,7 +184,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set consumeEnable info
         if (filterEnable != null
-                && this.filterEnable.isEnable() != filterEnable) {
+                && (this.filterEnable == EnableStatus.STATUS_UNDEFINE
+                || this.filterEnable.isEnable() != filterEnable)) {
             changed = true;
             setFilterEnable(filterEnable);
         }

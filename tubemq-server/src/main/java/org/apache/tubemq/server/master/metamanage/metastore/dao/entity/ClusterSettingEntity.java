@@ -96,11 +96,15 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
                         clsDefTopicProps.isAcceptSubscribe(), clsDefTopicProps.getDeletePolicy(),
                         this.qryPriorityId, this.maxMsgSizeInB, getAttributes(),
                         getModifyUser(), getModifyDate());
-        bdbEntity.setDefDataPath(clsDefTopicProps.getDataPath());
+        if (TStringUtils.isNotBlank(clsDefTopicProps.getDataPath())) {
+            bdbEntity.setDefDataPath(clsDefTopicProps.getDataPath());
+        }
         bdbEntity.setDefDataType(clsDefTopicProps.getDataStoreType());
         bdbEntity.setEnableGloFlowCtrl(enableFlowCtrl());
         bdbEntity.setGloFlowCtrlCnt(gloFlowCtrlRuleCnt);
-        bdbEntity.setGloFlowCtrlInfo(gloFlowCtrlRuleInfo);
+        if (TStringUtils.isNotBlank(gloFlowCtrlRuleInfo)) {
+            bdbEntity.setGloFlowCtrlInfo(gloFlowCtrlRuleInfo);
+        }
         return bdbEntity;
     }
 
@@ -158,12 +162,13 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set modified field
         if (maxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            int newMaxMsgSizeB =
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeMB);
-            if (this.maxMsgSizeInB != newMaxMsgSizeB) {
+            int tmpMaxMsgSizeInMB =
+                    SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeMB);
+            if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
                 changed = true;
-                this.maxMsgSizeInB = newMaxMsgSizeB;
-                this.maxMsgSizeInMB = maxMsgSizeMB;
+                this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
+                this.maxMsgSizeInB =
+                        SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
             }
         }
         // check and set qry priority id
@@ -174,7 +179,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set flowCtrl info
         if (flowCtrlEnable != null
-                && this.gloFlowCtrlStatus.isEnable() != flowCtrlEnable) {
+                && (this.gloFlowCtrlStatus == EnableStatus.STATUS_UNDEFINE
+                || this.gloFlowCtrlStatus.isEnable() != flowCtrlEnable)) {
             changed = true;
             setEnableFlowCtrl(flowCtrlEnable);
         }
