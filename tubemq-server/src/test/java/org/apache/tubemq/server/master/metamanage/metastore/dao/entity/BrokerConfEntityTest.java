@@ -18,10 +18,8 @@
 package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
-import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.utils.SettingValidUtils;
-import org.apache.tubemq.server.common.statusdef.EnableStatus;
-import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
+import org.apache.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,90 +29,170 @@ import org.junit.Test;
 public class BrokerConfEntityTest {
 
     @Test
-    public void trokerConfEntityTest() {
+    public void brokerConfEntityTest() {
         // case 1
-        String topicName = "test_1";
-        boolean enableAuthControl = false;
-        String attributes = "";
-        String createUser = "creater";
-        Date createDate = new Date();
-        int maxMsgSizeInB = 12222;
-        BdbTopicAuthControlEntity bdbEntity1 =
-                new BdbTopicAuthControlEntity(topicName,
-                        enableAuthControl, attributes, createUser, createDate);
-        TopicCtrlEntity ctrlEntity1 = new TopicCtrlEntity(bdbEntity1);
-        // check bdbEntity1
-        Assert.assertEquals(bdbEntity1.getTopicName(), topicName);
-        Assert.assertEquals(bdbEntity1.getTopicId(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(bdbEntity1.isEnableAuthControl(), enableAuthControl);
-        Assert.assertEquals(bdbEntity1.getMaxMsgSize(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(bdbEntity1.getCreateUser(), createUser);
-        Assert.assertEquals(bdbEntity1.getCreateDate(), createDate);
-        Assert.assertEquals(bdbEntity1.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED);
-        bdbEntity1.setMaxMsgSize(maxMsgSizeInB);
-        Assert.assertEquals(bdbEntity1.getMaxMsgSize(), maxMsgSizeInB);
-        // check ctrlEntity1
-        Assert.assertEquals(ctrlEntity1.getTopicName(), topicName);
-        Assert.assertEquals(ctrlEntity1.getTopicId(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(ctrlEntity1.getAuthCtrlStatus(), EnableStatus.STATUS_DISABLE);
-        Assert.assertEquals(ctrlEntity1.getMaxMsgSizeInB(),
-                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
-        Assert.assertEquals(ctrlEntity1.getMaxMsgSizeInMB(),
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
-        Assert.assertEquals(ctrlEntity1.getCreateUser(), createUser);
-        Assert.assertEquals(ctrlEntity1.getCreateDate(), createDate);
-        Assert.assertEquals(ctrlEntity1.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED);
+        int brokerId1 = 22;
+        String brokerIp1 = "127.0.0.1";
+        int brokerPort1 = 555;
+        int numPartitions1 = 2;
+        int unflushThreshold1 = 3;
+        int unflushInterval1 = 4;
+        String deleteWhen1 = "";
+        String deletePolicy1 = "delete,5h";
+        int manageStatus1 = 1;
+        boolean acceptPublish1 = true;
+        boolean acceptSubscribe1 = false;
+        String attributes1 = "key1=test&key2=tas";
+        boolean isConfDataUpdated1 = true;
+        boolean isBrokerLoaded1 = false;
+        String createUser1 = "creater";
+        Date createDate1 = new Date();
+        String modifyUser1 = "modifyer";
+        Date modifyDate1 = new Date();
+        BdbBrokerConfEntity bdbEntity1 =
+                new BdbBrokerConfEntity(brokerId1, brokerIp1, brokerPort1, numPartitions1,
+                        unflushThreshold1, unflushInterval1, deleteWhen1, deletePolicy1,
+                        manageStatus1, acceptPublish1, acceptSubscribe1, attributes1,
+                        isConfDataUpdated1, isBrokerLoaded1, createUser1, createDate1,
+                        modifyUser1, modifyDate1);
+        BrokerConfEntity confEntity1 = new BrokerConfEntity(bdbEntity1);
+        // check confEntity1
+        Assert.assertEquals(confEntity1.getBrokerId(), brokerId1);
+        Assert.assertEquals(confEntity1.getBrokerIp(), brokerIp1);
+        Assert.assertEquals(confEntity1.getBrokerPort(), brokerPort1);
+        Assert.assertEquals(confEntity1.getBrokerTLSPort(), bdbEntity1.getBrokerTLSPort());
+        Assert.assertEquals(confEntity1.getBrokerWebPort(), bdbEntity1.getBrokerWebPort());
+        Assert.assertEquals(confEntity1.getGroupId(), bdbEntity1.getBrokerGroupId());
+        Assert.assertEquals(confEntity1.getManageStatus().getCode(), bdbEntity1.getManageStatus());
+        Assert.assertEquals(confEntity1.getRegionId(), bdbEntity1.getRegionId());
+        Assert.assertEquals(confEntity1.getCreateUser(), bdbEntity1.getRecordCreateUser());
+        Assert.assertEquals(confEntity1.getModifyUser(), bdbEntity1.getRecordModifyUser());
+        Assert.assertEquals(confEntity1.getCreateDate(), bdbEntity1.getRecordCreateDate());
+        Assert.assertEquals(confEntity1.getModifyDate(), bdbEntity1.getRecordModifyDate());
+        TopicPropGroup props1 = confEntity1.getTopicProps();
+        Assert.assertEquals(props1.getNumTopicStores(), bdbEntity1.getNumTopicStores());
+        Assert.assertEquals(props1.getNumPartitions(), bdbEntity1.getDftNumPartitions());
+        Assert.assertEquals(props1.getUnflushThreshold(), bdbEntity1.getDftUnflushThreshold());
+        Assert.assertEquals(props1.getUnflushInterval(), bdbEntity1.getDftUnflushInterval());
+        Assert.assertEquals(props1.getUnflushDataHold(), bdbEntity1.getDftUnFlushDataHold());
+        Assert.assertEquals(props1.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
+        Assert.assertEquals(props1.getMemCacheFlushIntvl(), bdbEntity1.getDftMemCacheFlushIntvl());
+        Assert.assertEquals(props1.getMemCacheMsgCntInK(), bdbEntity1.getDftMemCacheMsgCntInK());
+        Assert.assertEquals(props1.getAcceptPublish(), bdbEntity1.isAcceptPublish());
+        Assert.assertEquals(props1.getAcceptSubscribe(), bdbEntity1.isAcceptSubscribe());
+        Assert.assertEquals(props1.getDataStoreType(), bdbEntity1.getDataStoreType());
+        Assert.assertEquals(props1.getDataPath(), "");
+        Assert.assertEquals(props1.getDeletePolicy(), bdbEntity1.getDftDeletePolicy());
         // case 2
-        long dataVerId2 = 555;
-        int topicId2 = 222;
-        String topicName2 = "test_1";
-        boolean enableAuthControl2 = true;
-        String attributes2 = "";
-        String createUser2 = "creater2";
-        Date createDate2 = new Date();
-        int maxMsgSizeInB2 = 14;
-        TopicCtrlEntity ctrlEntity2 = ctrlEntity1.clone();
-        Assert.assertTrue(ctrlEntity2.isDataEquals(ctrlEntity1));
-        BaseEntity opInfoEntry = new BaseEntity(dataVerId2, createUser2, createDate2);
-        Assert.assertTrue(ctrlEntity2.updBaseModifyInfo(opInfoEntry));
-        Assert.assertTrue(ctrlEntity2.updModifyInfo(opInfoEntry.getDataVerId(),
-                topicId2, maxMsgSizeInB2, enableAuthControl2));
-        Assert.assertFalse(ctrlEntity2.isDataEquals(ctrlEntity1));
-        Assert.assertFalse(ctrlEntity2.isMatched(ctrlEntity1));
-        // check ctrlEntity2
-        Assert.assertEquals(ctrlEntity2.getTopicName(), topicName);
-        Assert.assertEquals(ctrlEntity2.getTopicId(), topicId2);
-        Assert.assertEquals(ctrlEntity2.getAuthCtrlStatus(), EnableStatus.STATUS_ENABLE);
-        Assert.assertEquals(ctrlEntity2.getMaxMsgSizeInB(),
-                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInB2));
-        Assert.assertEquals(ctrlEntity2.getMaxMsgSizeInMB(), maxMsgSizeInB2);
-        Assert.assertEquals(ctrlEntity2.getCreateUser(), createUser);
-        Assert.assertEquals(ctrlEntity2.getCreateDate(), createDate);
-        Assert.assertEquals(ctrlEntity2.getModifyUser(), createUser2);
-        Assert.assertEquals(ctrlEntity2.getModifyDate(), createDate2);
-        Assert.assertEquals(ctrlEntity2.getDataVerId(), dataVerId2);
+        int dataVerId1 = 25;
+        int regionId1 = 95343;
+        int numTopicStores1 = 9;
+        int brokerTLSPort1 = 666;
+        int brokerWebPort1 = 888;
+        int memCacheFlushIntvl1 = 200;
+        int memCacheMsgCntInK1 = 250;
+        int memCacheMsgSizeInMB1 = 3;
+        int unFlushDataHold1 = 1000;
+        int groupId1 = 55;
+        int dataType1 = 2;
+        String dataPath1 = "/test";
+        bdbEntity1.setRegionId(regionId1);
+        bdbEntity1.setDataVerId(dataVerId1);
+        bdbEntity1.setBrokerGroupId(groupId1);
+        bdbEntity1.setBrokerTLSPort(brokerTLSPort1);
+        bdbEntity1.setBrokerWebPort(brokerWebPort1);
+        bdbEntity1.setNumTopicStores(numTopicStores1);
+        bdbEntity1.setDftMemCacheFlushIntvl(memCacheFlushIntvl1);
+        bdbEntity1.setDftMemCacheMsgCntInK(memCacheMsgCntInK1);
+        bdbEntity1.setDftMemCacheMsgSizeInMB(memCacheMsgSizeInMB1);
+        bdbEntity1.setDftUnFlushDataHold(unFlushDataHold1);
+        bdbEntity1.setDataStore(dataType1, dataPath1);
+        BrokerConfEntity confEntity2 = new BrokerConfEntity(bdbEntity1);
+        Assert.assertEquals(confEntity2.getBrokerId(), bdbEntity1.getBrokerId());
+        Assert.assertEquals(confEntity2.getBrokerIp(), bdbEntity1.getBrokerIp());
+        Assert.assertEquals(confEntity2.getBrokerPort(), bdbEntity1.getBrokerPort());
+        Assert.assertEquals(confEntity2.getBrokerTLSPort(), bdbEntity1.getBrokerTLSPort());
+        Assert.assertEquals(confEntity2.getBrokerWebPort(), bdbEntity1.getBrokerWebPort());
+        Assert.assertEquals(confEntity2.getGroupId(), bdbEntity1.getBrokerGroupId());
+        Assert.assertEquals(confEntity2.getManageStatus().getCode(), bdbEntity1.getManageStatus());
+        Assert.assertEquals(confEntity2.getRegionId(), bdbEntity1.getRegionId());
+        TopicPropGroup props2 = confEntity2.getTopicProps();
+        Assert.assertEquals(props2.getNumTopicStores(), bdbEntity1.getNumTopicStores());
+        Assert.assertEquals(props2.getNumPartitions(), bdbEntity1.getDftNumPartitions());
+        Assert.assertEquals(props2.getUnflushThreshold(), bdbEntity1.getDftUnflushThreshold());
+        Assert.assertEquals(props2.getUnflushInterval(), bdbEntity1.getDftUnflushInterval());
+        Assert.assertEquals(props2.getUnflushDataHold(), bdbEntity1.getDftUnFlushDataHold());
+        Assert.assertEquals(props2.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
+        Assert.assertEquals(props2.getMemCacheFlushIntvl(), bdbEntity1.getDftMemCacheFlushIntvl());
+        Assert.assertEquals(props2.getMemCacheMsgCntInK(), bdbEntity1.getDftMemCacheMsgCntInK());
+        Assert.assertEquals(props2.getAcceptPublish(), bdbEntity1.isAcceptPublish());
+        Assert.assertEquals(props2.getAcceptSubscribe(), bdbEntity1.isAcceptSubscribe());
+        Assert.assertEquals(props2.getDataStoreType(), bdbEntity1.getDataStoreType());
+        Assert.assertEquals(props2.getDataPath(), bdbEntity1.getDataPath());
+        Assert.assertEquals(props2.getDeletePolicy(), bdbEntity1.getDftDeletePolicy());
+        // check value
+        Assert.assertEquals(confEntity2.getDataVerId(), dataVerId1);
+        Assert.assertEquals(confEntity2.getBrokerId(), brokerId1);
+        Assert.assertEquals(confEntity2.getBrokerIp(), brokerIp1);
+        Assert.assertEquals(confEntity2.getBrokerPort(), brokerPort1);
+        Assert.assertEquals(confEntity2.getBrokerTLSPort(), brokerTLSPort1);
+        Assert.assertEquals(confEntity2.getBrokerWebPort(), brokerWebPort1);
+        Assert.assertEquals(confEntity2.getGroupId(), groupId1);
+        Assert.assertEquals(confEntity2.getManageStatus().getCode(), manageStatus1);
+        Assert.assertEquals(confEntity2.getRegionId(), regionId1);
+        Assert.assertEquals(props2.getNumTopicStores(), numTopicStores1);
+        Assert.assertEquals(props2.getNumPartitions(), numPartitions1);
+        Assert.assertEquals(props2.getUnflushThreshold(), unflushThreshold1);
+        Assert.assertEquals(props2.getUnflushInterval(), unflushInterval1);
+        Assert.assertEquals(props2.getUnflushDataHold(), unFlushDataHold1);
+        Assert.assertEquals(props2.getMemCacheMsgSizeInMB(), memCacheMsgSizeInMB1);
+        Assert.assertEquals(props2.getMemCacheFlushIntvl(), memCacheFlushIntvl1);
+        Assert.assertEquals(props2.getMemCacheMsgCntInK(), memCacheMsgCntInK1);
+        Assert.assertEquals(props2.getAcceptPublish(), acceptPublish1);
+        Assert.assertEquals(props2.getAcceptSubscribe(), acceptSubscribe1);
+        Assert.assertEquals(props2.getDataStoreType(), dataType1);
+        Assert.assertEquals(props2.getDataPath(), dataPath1);
+        Assert.assertEquals(props2.getDeletePolicy(), deletePolicy1);
+        Assert.assertEquals(confEntity2.getCreateUser(), createUser1);
+        Assert.assertEquals(confEntity2.getModifyUser(), modifyUser1);
+        Assert.assertEquals(confEntity2.getCreateDate(), createDate1);
+        Assert.assertEquals(confEntity2.getModifyDate(), modifyDate1);
         // case 3
-        BdbTopicAuthControlEntity bdbEntity3 =
-                ctrlEntity2.buildBdbTopicAuthControlEntity();
-        Assert.assertEquals(bdbEntity3.getTopicName(), ctrlEntity2.getTopicName());
-        Assert.assertEquals(bdbEntity3.getTopicId(), ctrlEntity2.getTopicId());
-        Assert.assertEquals(bdbEntity3.isEnableAuthControl(),
-                ctrlEntity2.getAuthCtrlStatus().isEnable());
-        Assert.assertEquals(bdbEntity3.getMaxMsgSize(), ctrlEntity2.getMaxMsgSizeInB());
-        Assert.assertEquals(bdbEntity3.getCreateUser(), ctrlEntity2.getModifyUser());
-        Assert.assertEquals(bdbEntity3.getCreateDate(), ctrlEntity2.getModifyDate());
-        Assert.assertEquals(bdbEntity3.getDataVerId(), ctrlEntity2.getDataVerId());
-        // case 4
-        TopicCtrlEntity ctrlEntity4 = new TopicCtrlEntity(bdbEntity3);
-        // check ctrlEntity4
-        Assert.assertTrue(ctrlEntity4.isDataEquals(ctrlEntity2));
-        Assert.assertEquals(ctrlEntity4.getTopicName(), ctrlEntity2.getTopicName());
-        Assert.assertEquals(ctrlEntity4.getTopicId(), ctrlEntity2.getTopicId());
-        Assert.assertEquals(ctrlEntity4.getAuthCtrlStatus(), ctrlEntity2.getAuthCtrlStatus());
-        Assert.assertEquals(ctrlEntity4.getMaxMsgSizeInB(), ctrlEntity2.getMaxMsgSizeInB());
-        Assert.assertEquals(ctrlEntity4.getCreateUser(), ctrlEntity2.getModifyUser());
-        Assert.assertEquals(ctrlEntity4.getCreateDate(), ctrlEntity2.getModifyDate());
-        Assert.assertEquals(ctrlEntity4.getDataVerId(), ctrlEntity2.getDataVerId());
+        long dataVerId3 = 777;
+        int brokerPort3 = 29;
+        int brokerTlsPort3 = 39;
+        int brokerWebPort3 = 49;
+        int regionId3 = 59;
+        int groupId3 = 69;
+        ManageStatus manageStatus3 = ManageStatus.STATUS_MANAGE_OFFLINE;
+        int numTopicStores3 = 1;
+        int numPartitions3 = 2;
+        int unflushThreshold3 = 3;
+        int unflushInterval3 = 4;
+        int unflushDataHold3 = 5;
+        int memCacheMsgSizeInMB3 = 6;
+        int memCacheMsgCntInK3 = 7;
+        int memCacheFlushIntvl3 = 8;
+        boolean acceptPublish3 = true;
+        boolean acceptSubscribe3 = false;
+        String deletePolicy3 = "delete,12h";
+        int dataStoreType3 = 9;
+        String dataPath3 = "testasest";
+        TopicPropGroup topicProps3 =
+                new TopicPropGroup(numTopicStores3, numPartitions3, unflushThreshold3,
+                        unflushInterval3, unflushDataHold3, memCacheMsgSizeInMB3,
+                        memCacheMsgCntInK3, memCacheFlushIntvl3, acceptPublish3,
+                        acceptSubscribe3, deletePolicy3, dataStoreType3, dataPath3);
+        BrokerConfEntity confEntity31 = confEntity2.clone();
+        Assert.assertTrue(confEntity31.isDataEquals(confEntity2));
+        Assert.assertTrue(confEntity31.updModifyInfo(dataVerId3, brokerPort3,
+                brokerTlsPort3, brokerWebPort3, regionId3, groupId3, manageStatus3, topicProps3));
+        BdbBrokerConfEntity bdbEntry3 =
+                confEntity31.buildBdbBrokerConfEntity();
+        BrokerConfEntity confEntity32 = new BrokerConfEntity(bdbEntry3);
+        Assert.assertTrue(confEntity32.isDataEquals(confEntity31));
+
+
     }
 
 }
