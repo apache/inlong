@@ -136,11 +136,12 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity8.getCreateDateStr(), "");
         Assert.assertEquals(baseEntity8.getModifyDateStr(), "");
         // case 9
-        BaseEntity baseEntity9 = (BaseEntity) baseEntity6.clone();
+        BaseEntity baseEntity9 =  baseEntity6.clone();
         Assert.assertEquals(baseEntity9, baseEntity6);
-        baseEntity9.setAttributes("aaaaabbbbccccddd");
         ThreadUtils.sleep(2000);
         baseEntity9.updSerialId();
+        baseEntity9.setDataVersionId(222223333);
+        baseEntity9.setAttributes("aaaaabbbbccccddd");
         baseEntity9.updQueryKeyInfo(newDataVerId, newCreateUser, newModifyUser);
         Assert.assertNotEquals(baseEntity6.getDataVerId(), baseEntity9.getDataVerId());
         Assert.assertNotEquals(baseEntity6.getSerialId(), baseEntity9.getSerialId());
