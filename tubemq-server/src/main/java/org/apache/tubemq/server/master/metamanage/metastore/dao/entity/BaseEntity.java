@@ -34,7 +34,7 @@ public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
             TBaseConstants.META_VALUE_UNDEFINED;    // -2: undefined, other: version
-    private final AtomicLong serialId =
+    private AtomicLong serialId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private String createUser = "";        // create user
     private Date createDate = null;        // create date
@@ -165,12 +165,7 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     protected void updSerialId() {
-        if (serialId.get() == TBaseConstants.META_VALUE_UNDEFINED) {
-            this.serialId.set(System.currentTimeMillis());
-        } else {
-            this.serialId.incrementAndGet();
-        }
-
+        this.serialId.set(System.currentTimeMillis());
     }
 
     public String getModifyUser() {
@@ -283,9 +278,13 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public BaseEntity clone() {
         try {
-            return super.clone();
+            BaseEntity copy = (BaseEntity) super.clone();
+            if (copy != null) {
+                copy.serialId = new AtomicLong(this.serialId.get());
+            }
+            return copy;
         } catch (Throwable e) {
             return null;
         }
