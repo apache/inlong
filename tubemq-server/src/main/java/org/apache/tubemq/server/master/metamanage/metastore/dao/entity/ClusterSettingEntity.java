@@ -64,7 +64,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
     // Constructor by BdbClusterSettingEntity
     public ClusterSettingEntity(BdbClusterSettingEntity bdbEntity) {
-        super(bdbEntity.getModifyUser(), bdbEntity.getModifyDate(),
+        super(bdbEntity.getConfigId(),
+                bdbEntity.getCreateUser(), bdbEntity.getCreateDate(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
         fillDefaultValue();
         TopicPropGroup defTopicProps =
@@ -99,6 +100,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         if (TStringUtils.isNotBlank(clsDefTopicProps.getDataPath())) {
             bdbEntity.setDefDataPath(clsDefTopicProps.getDataPath());
         }
+        bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setDefDataType(clsDefTopicProps.getDataStoreType());
         bdbEntity.setEnableGloFlowCtrl(enableFlowCtrl());
         bdbEntity.setGloFlowCtrlCnt(gloFlowCtrlRuleCnt);

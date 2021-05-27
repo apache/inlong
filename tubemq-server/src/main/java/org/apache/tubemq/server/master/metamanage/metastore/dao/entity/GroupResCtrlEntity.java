@@ -54,7 +54,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
 
     public GroupResCtrlEntity(BdbGroupFlowCtrlEntity bdbEntity) {
         super(bdbEntity.getSerialId(),
-                bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
+                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        setCreateInfo(bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.groupName = bdbEntity.getGroupName();
         this.qryPriorityId = bdbEntity.getQryPriorityId();
         this.ruleCnt = bdbEntity.getRuleCnt();
@@ -76,6 +77,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
                 new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
                         this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
                         getAttributes(), getModifyUser(), getModifyDate());
+        bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setResCheckStatus(resCheckStatus);
         bdbEntity.setAllowedBrokerClientRate(allowedBrokerClientRate);
         return bdbEntity;

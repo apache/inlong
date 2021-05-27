@@ -63,7 +63,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
 
     public TopicCtrlEntity(BdbTopicAuthControlEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
-                bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
+                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        setCreateInfo(bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.topicName = bdbEntity.getTopicName();
         this.topicNameId = bdbEntity.getTopicId();
         this.fillMaxMsgSizeInB(bdbEntity.getMaxMsgSize());
@@ -79,6 +80,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         BdbTopicAuthControlEntity bdbEntity =
                 new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
                         getAttributes(), getModifyUser(), getModifyDate());
+        bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setTopicId(topicNameId);
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setMaxMsgSize(maxMsgSizeInB);
