@@ -24,13 +24,18 @@ import (
 
 func init() {
 	s := &ipSelector{}
-	s.indexes = make(map[string]int)
+	s.services = make(map[string]*ipServices)
 	Register("ip", s)
 	Register("dns", s)
 }
 
 type ipSelector struct {
-	indexes map[string]int
+	services map[string]*ipServices
+}
+
+type ipServices struct {
+	nextIndex int
+	addresses []string
 }
 
 // Select implements Selector interface.
@@ -50,15 +55,22 @@ func (s *ipSelector) Select(serviceName string) (*Node, error) {
 		}, nil
 	}
 
+	var addresses []string
 	nextIndex := 0
-	if index, ok := s.indexes[serviceName]; ok {
-		nextIndex = index
+	if _, ok := s.services[serviceName]; !ok {
+		addresses = strings.Split(serviceName, ",")
+	} else {
+		services := s.services[serviceName]
+		addresses = services.addresses
+		nextIndex = services.nextIndex
 	}
 
-	addresses := strings.Split(serviceName, ",")
 	address := addresses[nextIndex]
 	nextIndex = (nextIndex + 1) % num
-	s.indexes[serviceName] = nextIndex
+	s.services[serviceName] = &ipServices{
+		addresses: addresses,
+		nextIndex: nextIndex,
+	}
 
 	node := &Node{
 		ServiceName: serviceName,
