@@ -18,6 +18,11 @@
 // package selector defines the route selector which is responsible for service discovery.
 package selector
 
+import (
+	"errors"
+	"fmt"
+)
+
 // Selector is abstraction of route selector which can return an available address
 // from the service name.
 type Selector interface {
@@ -35,9 +40,11 @@ func Register(name string, s Selector) {
 }
 
 // Get returns the corresponding selector.
-func Get(name string) Selector {
-	s := selectors[name]
-	return s
+func Get(name string) (Selector, error) {
+	if _, ok := selectors[name]; !ok {
+		return nil, errors.New(fmt.Sprintf("selector %s is invalid", name))
+	}
+	return selectors[name], nil
 }
 
 // Node represents the service node.
