@@ -47,8 +47,8 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(bdbEntity1.getTopicId(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(bdbEntity1.isEnableAuthControl(), enableAuthControl);
         Assert.assertEquals(bdbEntity1.getMaxMsgSize(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(bdbEntity1.getCreateUser(), createUser);
-        Assert.assertEquals(bdbEntity1.getCreateDate(), createDate);
+        Assert.assertEquals(bdbEntity1.getModifyUser(), createUser);
+        Assert.assertEquals(bdbEntity1.getModifyDate(), createDate);
         Assert.assertEquals(bdbEntity1.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED);
         bdbEntity1.setMaxMsgSize(maxMsgSizeInB);
         Assert.assertEquals(bdbEntity1.getMaxMsgSize(), maxMsgSizeInB);
@@ -62,6 +62,8 @@ public class TopicCtrlEntityTest {
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
         Assert.assertEquals(ctrlEntity1.getCreateUser(), createUser);
         Assert.assertEquals(ctrlEntity1.getCreateDate(), createDate);
+        Assert.assertEquals(ctrlEntity1.getModifyUser(), createUser);
+        Assert.assertEquals(ctrlEntity1.getModifyDate(), createDate);
         Assert.assertEquals(ctrlEntity1.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED);
         // case 2
         long dataVerId2 = 555;
@@ -100,8 +102,10 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(bdbEntity3.isEnableAuthControl(),
                 ctrlEntity2.getAuthCtrlStatus().isEnable());
         Assert.assertEquals(bdbEntity3.getMaxMsgSize(), ctrlEntity2.getMaxMsgSizeInB());
-        Assert.assertEquals(bdbEntity3.getCreateUser(), ctrlEntity2.getModifyUser());
-        Assert.assertEquals(bdbEntity3.getCreateDate(), ctrlEntity2.getModifyDate());
+        Assert.assertEquals(bdbEntity3.getModifyUser(), ctrlEntity2.getModifyUser());
+        Assert.assertEquals(bdbEntity3.getStrModifyDate(), ctrlEntity2.getModifyDateStr());
+        Assert.assertEquals(bdbEntity3.getCreateUser(), ctrlEntity2.getCreateUser());
+        Assert.assertEquals(bdbEntity3.getStrCreateDate(), ctrlEntity2.getCreateDateStr());
         Assert.assertEquals(bdbEntity3.getDataVerId(), ctrlEntity2.getDataVerId());
         // case 4
         TopicCtrlEntity ctrlEntity4 = new TopicCtrlEntity(bdbEntity3);
@@ -111,8 +115,10 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity4.getTopicId(), ctrlEntity2.getTopicId());
         Assert.assertEquals(ctrlEntity4.getAuthCtrlStatus(), ctrlEntity2.getAuthCtrlStatus());
         Assert.assertEquals(ctrlEntity4.getMaxMsgSizeInB(), ctrlEntity2.getMaxMsgSizeInB());
-        Assert.assertEquals(ctrlEntity4.getCreateUser(), ctrlEntity2.getModifyUser());
-        Assert.assertEquals(ctrlEntity4.getCreateDate(), ctrlEntity2.getModifyDate());
+        Assert.assertEquals(ctrlEntity4.getCreateUser(), ctrlEntity2.getCreateUser());
+        Assert.assertEquals(ctrlEntity4.getCreateDateStr(), ctrlEntity2.getCreateDateStr());
+        Assert.assertEquals(ctrlEntity4.getModifyUser(), ctrlEntity2.getModifyUser());
+        Assert.assertEquals(ctrlEntity4.getModifyDateStr(), ctrlEntity2.getModifyDateStr());
         Assert.assertEquals(ctrlEntity4.getDataVerId(), ctrlEntity2.getDataVerId());
     }
 

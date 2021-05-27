@@ -40,6 +40,9 @@ public class BdbGroupFilterCondEntity implements Serializable {
     private String consumerGroupName;
     private int controlStatus = -2;   // -2: undefine; 0: not started; 1:started, not limited; 2: started, limited
     private String attributes;
+    // ** Based on the data compatibility consideration of the original version:
+    //     the creation information in this example is the last modified information,
+    //     and the modified information is the creation information
     private String createUser;
     private Date createDate;
 
@@ -49,7 +52,7 @@ public class BdbGroupFilterCondEntity implements Serializable {
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
                                     int controlStatus, String filterCondStr,
-                                    String createUser, Date createDate) {
+                                    String modifyUser, Date modifyDate) {
         this.recordKey =
                 new StringBuilder(512)
                         .append(topicName)
@@ -59,13 +62,13 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.consumerGroupName = consumerGroupName;
         this.controlStatus = controlStatus;
         setFilterCondStr(filterCondStr);
-        this.createUser = createUser;
-        this.createDate = createDate;
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
     }
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
                                     int controlStatus, String filterCondStr,
-                                    String attributes, String createUser, Date createDate) {
+                                    String attributes, String modifyUser, Date modifyDate) {
         this.recordKey =
                 new StringBuilder(512)
                         .append(topicName)
@@ -74,8 +77,8 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.topicName = topicName;
         this.consumerGroupName = consumerGroupName;
         this.controlStatus = controlStatus;
-        this.createUser = createUser;
-        this.createDate = createDate;
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
         this.attributes = attributes;
         setFilterCondStr(filterCondStr);
     }
@@ -157,20 +160,12 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.controlStatus = controlStatus;
     }
 
-    public String getCreateUser() {
+    public String getModifyUser() {
         return createUser;
     }
 
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public Date getCreateDate() {
+    public Date getModifyDate() {
         return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
     }
 
     public String getAttributes() {
@@ -210,6 +205,41 @@ public class BdbGroupFilterCondEntity implements Serializable {
                         String.valueOf(dataVerId));
     }
 
+    // for
+    public void setCreateInfo(String createUser, Date createDate) {
+        if (TStringUtils.isNotBlank(createUser)) {
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+        }
+        if (createDate != null) {
+            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+        }
+    }
+
+    public String getCreateUser() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+    }
+
+    public Date getCreateDate() {
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+    }
+
+    public String getStrModifyDate() {
+        return WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+    }
+
+    public String getStrCreateDate() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -218,8 +248,10 @@ public class BdbGroupFilterCondEntity implements Serializable {
                 .append("consumerGroupName", consumerGroupName)
                 .append("controlStatus", controlStatus)
                 .append("attributes", attributes)
-                .append("createUser", createUser)
-                .append("createDate", createDate)
+                .append("createUser", getCreateUser())
+                .append("createDate", getStrCreateDate())
+                .append("modifyUser", createUser)
+                .append("modifyDate", getStrModifyDate())
                 .toString();
     }
 
@@ -230,9 +262,10 @@ public class BdbGroupFilterCondEntity implements Serializable {
                 .append("\",\"consumerGroupName\":\"").append(consumerGroupName)
                 .append("\",\"filterConds\":\"").append(attributes)
                 .append("\",\"condStatus\":").append(controlStatus)
-                .append(",\"createUser\":\"").append(createUser)
-                .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append(",\"createUser\":\"").append(getCreateUser())
+                .append("\",\"createDate\":\"").append(getStrCreateDate())
+                .append("\",\"modifyUser\":\"").append(createUser)
+                .append("\",\"modifyDate\":\"").append(getStrModifyDate())
                 .append("\"}");
     }
 }

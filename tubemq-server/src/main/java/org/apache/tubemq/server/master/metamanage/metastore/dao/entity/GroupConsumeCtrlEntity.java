@@ -54,7 +54,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
 
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
-                bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
+                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        setCreateInfo(bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.setGroupAndTopic(bdbEntity.getConsumerGroupName(), bdbEntity.getTopicName());
         if (bdbEntity.getControlStatus() == 2) {
             this.filterEnable = EnableStatus.STATUS_ENABLE;
@@ -74,6 +75,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
                 new BdbGroupFilterCondEntity(topicName, groupName,
                         filterEnable.getCode(), filterCondStr,
                         getAttributes(), getModifyUser(), getModifyDate());
+        bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setConsumeEnable(consumeEnable);
         bdbEntity.setDisableConsumeReason(disableReason);

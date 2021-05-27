@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
@@ -242,8 +243,7 @@ public class WebParameterUtilsTest {
         retEntry = (BaseEntity) result.getRetData();
         Assert.assertEquals(String.valueOf(retEntry.getDataVerId()),
                 paramCntrMap.get(WebFieldDef.DATAVERSIONID.name));
-        Assert.assertEquals(retEntry.getCreateUser(),
-                paramCntrMap.get(WebFieldDef.CREATEUSER.name));
+        Assert.assertTrue(TStringUtils.isBlank(retEntry.getCreateUser()));
         Assert.assertEquals(retEntry.getModifyUser(),
                 paramCntrMap.get(WebFieldDef.MODIFYUSER.name));
         Assert.assertEquals(WebParameterUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),

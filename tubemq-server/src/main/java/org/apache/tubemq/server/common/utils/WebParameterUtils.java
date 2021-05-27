@@ -1538,9 +1538,24 @@ public class WebParameterUtils {
     }
 
     public static String date2yyyyMMddHHmmss(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat sdf =
+                new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
         return sdf.format(date);
     }
+
+    public static Date yyyyMMddHHmmss2date(String dateStr) {
+        if (dateStr == null) {
+            return null;
+        }
+        SimpleDateFormat sdf =
+                new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
+        try {
+            return sdf.parse(dateStr);
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
 
     public static String checkParamCommonRequires(final String paramName, final String paramValue,
                                                    boolean required) throws Exception {

@@ -29,6 +29,7 @@ import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 
 
+
 // AbstractEntity: entity's abstract class
 public class BaseEntity implements Serializable, Cloneable {
 
@@ -55,10 +56,8 @@ public class BaseEntity implements Serializable, Cloneable {
 
     public BaseEntity(BaseEntity other) {
         this.dataVersionId = other.dataVersionId;
-        this.createUser = other.createUser;
-        this.setCreateDate(other.createDate);
-        this.modifyUser = other.modifyUser;
-        this.setModifyDate(other.modifyDate);
+        setCreateInfo(other.createUser, other.createDate);
+        setModifyInfo(other.modifyUser, other.modifyDate);
         this.serialId.set(other.serialId.get());
         this.attributes = other.attributes;
     }
@@ -77,10 +76,8 @@ public class BaseEntity implements Serializable, Cloneable {
                       String createUser, Date createDate,
                       String modifyUser, Date modifyDate) {
         this.dataVersionId = dataVersionId;
-        this.createUser = createUser;
-        this.setCreateDate(createDate);
-        this.modifyUser = modifyUser;
-        this.setModifyDate(modifyDate);
+        setCreateInfo(createUser, createDate);
+        setModifyInfo(modifyUser, modifyDate);
         updSerialId();
     }
 
@@ -142,6 +139,20 @@ public class BaseEntity implements Serializable, Cloneable {
 
     public String getAttributes() {
         return attributes;
+    }
+
+    public void setCreateInfo(String creater, Date createDate) {
+        if (TStringUtils.isNotBlank(creater)) {
+            this.createUser = creater;
+        }
+        setCreateDate(createDate);
+    }
+
+    public void setModifyInfo(String modifyUser, Date modifyDate) {
+        if (TStringUtils.isNotBlank(modifyUser)) {
+            this.modifyUser = modifyUser;
+        }
+        setModifyDate(modifyDate);
     }
 
     public void setAttributes(String attributes) {
@@ -244,11 +255,17 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     private void setModifyDate(Date date) {
+        if (date == null) {
+            return;
+        }
         this.modifyDate = date;
         this.modifyDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
     }
 
     private void setCreateDate(Date date) {
+        if (date == null) {
+            return;
+        }
         this.createDate = date;
         this.createDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
     }

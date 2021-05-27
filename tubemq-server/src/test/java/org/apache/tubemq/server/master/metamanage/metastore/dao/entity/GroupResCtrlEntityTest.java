@@ -64,8 +64,8 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(bdbEntity2.getStatusId(), 1);
         Assert.assertEquals(bdbEntity2.getFlowCtrlInfo(), flowCtrlInfo);
         Assert.assertEquals(bdbEntity2.getRuleCnt(), ruleCnt);
-        Assert.assertEquals(bdbEntity2.getCreateUser(), createUser);
-        Assert.assertEquals(bdbEntity2.getCreateDate(), createDate);
+        Assert.assertEquals(bdbEntity2.getModifyUser(), createUser);
+        Assert.assertEquals(bdbEntity2.getModifyDate(), createDate);
         Assert.assertEquals(bdbEntity2.getSerialId(), dataVerId);
         bdbEntity2.setResCheckStatus(EnableStatus.STATUS_ENABLE);
         // case 3
@@ -78,8 +78,10 @@ public class GroupResCtrlEntityTest {
         Assert.assertTrue(resEntry3.getFlowCtrlStatus().isEnable());
         Assert.assertEquals(bdbEntity2.getFlowCtrlInfo(), resEntry3.getFlowCtrlInfo());
         Assert.assertEquals(bdbEntity2.getRuleCnt(), resEntry3.getRuleCnt());
-        Assert.assertEquals(bdbEntity2.getCreateUser(), resEntry3.getCreateUser());
-        Assert.assertEquals(bdbEntity2.getCreateDate(), resEntry3.getCreateDate());
+        Assert.assertEquals(bdbEntity2.getModifyUser(), resEntry3.getModifyUser());
+        Assert.assertEquals(bdbEntity2.getModifyDate(), resEntry3.getModifyDate());
+        Assert.assertEquals(bdbEntity2.getModifyUser(), resEntry3.getCreateUser());
+        Assert.assertEquals(bdbEntity2.getModifyDate(), resEntry3.getCreateDate());
         Assert.assertEquals(bdbEntity2.getSerialId(), resEntry3.getDataVerId());
         // case 4
         long newDataVerId = 99;
@@ -110,6 +112,8 @@ public class GroupResCtrlEntityTest {
         Assert.assertNotEquals(resEntry4.getRuleCnt(), resEntry3.getRuleCnt());
         Assert.assertEquals(resEntry4.getCreateUser(), resEntry3.getCreateUser());
         Assert.assertEquals(resEntry4.getCreateDate(), resEntry3.getCreateDate());
+        Assert.assertEquals(resEntry4.getModifyUser(), resEntry3.getModifyUser());
+        Assert.assertEquals(resEntry4.getModifyDate(), resEntry3.getModifyDate());
         Assert.assertNotEquals(resEntry4.getDataVerId(), resEntry3.getDataVerId());
         // case 5
         BdbGroupFlowCtrlEntity bdbEntity5 = resEntry4.buildBdbGroupFlowCtrlEntity();
@@ -120,7 +124,11 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(bdbEntity5.getStatusId(), 0);
         Assert.assertEquals(bdbEntity5.getRuleCnt(), newFlowRuleCnt);
         Assert.assertEquals(bdbEntity5.getFlowCtrlInfo(), newFlowCtrlRuleInfo);
-        Assert.assertEquals(bdbEntity5.getGroupName(), resEntry3.getGroupName());
+        Assert.assertEquals(bdbEntity5.getGroupName(), bdbEntity5.getGroupName());
+        Assert.assertEquals(resEntry4.getCreateUser(), bdbEntity5.getCreateUser());
+        Assert.assertEquals(resEntry4.getCreateDateStr(), bdbEntity5.getStrCreateDate());
+        Assert.assertEquals(resEntry4.getModifyUser(), bdbEntity5.getModifyUser());
+        Assert.assertEquals(resEntry4.getModifyDateStr(), bdbEntity5.getStrModifyDate());
 
 
 

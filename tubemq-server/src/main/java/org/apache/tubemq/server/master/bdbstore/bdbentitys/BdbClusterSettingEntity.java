@@ -341,6 +341,40 @@ public class BdbClusterSettingEntity implements Serializable {
                 this.attributes, TStoreConstants.TOKEN_FLOW_CTRL_INFO);
     }
 
+    public void setCreateInfo(String creater, Date createDate) {
+        if (TStringUtils.isNotBlank(creater)) {
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_USER, creater);
+        }
+        if (createDate != null) {
+            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+        }
+    }
+
+    public String getCreateUser() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+    }
+
+    public Date getCreateDate() {
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+    }
+
+    public String getStrCreateDate() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+    }
+
+    public String getStrModifyDate() {
+        return WebParameterUtils.date2yyyyMMddHHmmss(modifyDate);
+    }
+
     /**
      * Serialize field to json format
      *
@@ -373,9 +407,11 @@ public class BdbClusterSettingEntity implements Serializable {
         }
         return sBuilder.append(",\"qryPriorityId\":").append(qryPriorityId)
                 .append(",\"attributes\":\"").append(attributes).append("\"")
+                .append(",\"createUser\":\"").append(getCreateUser()).append("\"")
+                .append(",\"createDate\":\"").append(getStrCreateDate()).append("\"")
                 .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
                 .append(",\"modifyDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate))
+                .append(getStrModifyDate())
                 .append("\"}");
     }
 
@@ -406,8 +442,10 @@ public class BdbClusterSettingEntity implements Serializable {
         }
         return sBuilder.append("qryPriorityId", qryPriorityId)
                 .append("attributes", attributes)
+                .append("createUser", getCreateUser())
+                .append("createDate", getStrCreateDate())
                 .append("modifyUser", modifyUser)
-                .append("modifyDate", modifyDate)
+                .append("modifyDate", getStrModifyDate())
                 .toString();
     }
 }

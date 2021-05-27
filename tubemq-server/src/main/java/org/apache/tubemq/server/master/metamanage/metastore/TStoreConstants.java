@@ -45,4 +45,8 @@ public final class TStoreConstants {
     public static final String TOKEN_MCACHE_MSG_CNT = "memCacheMsgCntInK";
     public static final String TOKEN_MCACHE_MSG_SIZE = "memCacheMsgSizeInMB";
     public static final String TOKEN_MCACHE_FLUSH_INTVL = "memCacheFlushIntvl";
+    public static final String TOKEN_CREATE_USER = "creater";
+    public static final String TOKEN_CREATE_DATE = "createDate";
+    public static final String TOKEN_MODIFY_USER = "modifier";
+    public static final String TOKEN_MODIFY_DATE = "modifyDate";
 }

@@ -49,8 +49,8 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(bdbEntity1.getControlStatus(), 2);
         Assert.assertTrue(ctrlEntry1.getFilterEnable().isEnable());
         Assert.assertEquals(ctrlEntry1.getConsumeEnable(), bdbEntity1.getConsumeEnable());
-        Assert.assertEquals(ctrlEntry1.getCreateUser(), bdbEntity1.getCreateUser());
-        Assert.assertEquals(ctrlEntry1.getCreateDate(), bdbEntity1.getCreateDate());
+        Assert.assertEquals(ctrlEntry1.getCreateUser(), bdbEntity1.getModifyUser());
+        Assert.assertEquals(ctrlEntry1.getCreateDate(), bdbEntity1.getModifyDate());
         Assert.assertEquals(ctrlEntry1.getAttributes(), bdbEntity1.getAttributes());
         Assert.assertEquals(ctrlEntry1.getDisableReason(), bdbEntity1.getDisableConsumeReason());
         Assert.assertEquals(ctrlEntry1.getRecordKey(), bdbEntity1.getRecordKey());
@@ -80,10 +80,10 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(bdbEntity3.getControlStatus(), 2);
         Assert.assertTrue(ctrlEntry2.getFilterEnable().isEnable());
         Assert.assertEquals(ctrlEntry2.getConsumeEnable(), bdbEntity3.getConsumeEnable());
-        Assert.assertEquals(opInfoEntity.getCreateUser(), bdbEntity3.getCreateUser());
-        Assert.assertEquals(opInfoEntity.getCreateDate(), bdbEntity3.getCreateDate());
-        Assert.assertNotEquals(ctrlEntry2.getCreateDate(), bdbEntity3.getCreateDate());
-        Assert.assertNotEquals(ctrlEntry2.getCreateUser(), bdbEntity3.getCreateUser());
+        Assert.assertEquals(opInfoEntity.getCreateUser(), bdbEntity3.getModifyUser());
+        Assert.assertEquals(opInfoEntity.getCreateDate(), bdbEntity3.getModifyDate());
+        Assert.assertNotEquals(ctrlEntry2.getCreateDate(), bdbEntity3.getModifyDate());
+        Assert.assertNotEquals(ctrlEntry2.getCreateUser(), bdbEntity3.getModifyUser());
         Assert.assertEquals(ctrlEntry2.getAttributes(), bdbEntity3.getAttributes());
         Assert.assertEquals(ctrlEntry2.getDisableReason(), bdbEntity3.getDisableConsumeReason());
         Assert.assertEquals(ctrlEntry2.getRecordKey(), bdbEntity3.getRecordKey());
