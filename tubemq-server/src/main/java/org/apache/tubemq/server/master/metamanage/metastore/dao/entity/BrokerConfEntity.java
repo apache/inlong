@@ -309,26 +309,23 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         if (!super.isMatched(target)) {
             return false;
         }
-        if ((target.getBrokerId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerId() != this.brokerId)
-                || (TStringUtils.isNotBlank(target.getBrokerIp())
-                && !target.getBrokerIp().equals(this.brokerIp))
-                || (target.getBrokerPort() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerPort() != this.brokerPort)
-                || (target.getBrokerTLSPort() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerTLSPort() != this.brokerTLSPort)
-                || (target.getRegionId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getRegionId() != this.regionId)
-                || (target.getGroupId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getGroupId() != this.groupId)
-                || (target.getManageStatus() != ManageStatus.STATUS_MANAGE_UNDEFINED
-                && target.getManageStatus() != this.manageStatus)
-                || (target.getBrokerWebPort() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerWebPort() != this.brokerWebPort)
-                || !this.topicProps.isMatched(target.getTopicProps())) {
-            return false;
-        }
-        return true;
+        return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerId() == this.brokerId)
+                && (TStringUtils.isBlank(target.getBrokerIp())
+                || target.getBrokerIp().equals(this.brokerIp))
+                && (target.getBrokerPort() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerPort() == this.brokerPort)
+                && (target.getBrokerTLSPort() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerTLSPort() == this.brokerTLSPort)
+                && (target.getRegionId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getRegionId() == this.regionId)
+                && (target.getGroupId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getGroupId() == this.groupId)
+                && (target.getManageStatus() == ManageStatus.STATUS_MANAGE_UNDEFINED
+                || target.getManageStatus() == this.manageStatus)
+                && (target.getBrokerWebPort() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerWebPort() == this.brokerWebPort)
+                && this.topicProps.isMatched(target.getTopicProps());
     }
 
     /**

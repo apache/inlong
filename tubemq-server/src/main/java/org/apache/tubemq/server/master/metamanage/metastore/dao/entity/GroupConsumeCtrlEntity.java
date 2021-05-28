@@ -216,17 +216,14 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         if (!super.isMatched(target)) {
             return false;
         }
-        if ((TStringUtils.isNotBlank(target.getTopicName())
-                && !target.getTopicName().equals(this.topicName))
-                || (TStringUtils.isNotBlank(target.getGroupName())
-                && !target.getGroupName().equals(this.groupName))
-                || (target.getConsumeEnable() != EnableStatus.STATUS_UNDEFINE
-                && target.getConsumeEnable() != this.consumeEnable)
-                || (target.getFilterEnable() != EnableStatus.STATUS_UNDEFINE
-                && target.getFilterEnable() != this.filterEnable)) {
-            return false;
-        }
-        return true;
+        return (TStringUtils.isBlank(target.getTopicName())
+                || target.getTopicName().equals(this.topicName))
+                && (TStringUtils.isBlank(target.getGroupName())
+                || target.getGroupName().equals(this.groupName))
+                && (target.getConsumeEnable() == EnableStatus.STATUS_UNDEFINE
+                || target.getConsumeEnable() == this.consumeEnable)
+                && (target.getFilterEnable() == EnableStatus.STATUS_UNDEFINE
+                || target.getFilterEnable() == this.filterEnable);
     }
 
     /**

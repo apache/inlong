@@ -257,20 +257,17 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         if (!super.isMatched(target)) {
             return false;
         }
-        if ((target.getBrokerId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getBrokerId() != this.brokerId)
-                || (target.getTopicId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getTopicId() != this.topicNameId)
-                || (TStringUtils.isNotBlank(target.getTopicName())
-                && !target.getTopicName().equals(this.topicName))
-                || (TStringUtils.isNotBlank(target.getBrokerIp())
-                && !target.getBrokerIp().equals(this.brokerIp))
-                || !topicProps.isMatched(target.topicProps)
-                || (target.getTopicStatus() != TopicStatus.STATUS_TOPIC_UNDEFINED
-                && target.getTopicStatus() != this.deployStatus)) {
-            return false;
-        }
-        return true;
+        return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerId() == this.brokerId)
+                && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getTopicId() == this.topicNameId)
+                && (TStringUtils.isBlank(target.getTopicName())
+                || target.getTopicName().equals(this.topicName))
+                && (TStringUtils.isBlank(target.getBrokerIp())
+                || target.getBrokerIp().equals(this.brokerIp))
+                && topicProps.isMatched(target.topicProps)
+                && (target.getTopicStatus() == TopicStatus.STATUS_TOPIC_UNDEFINED
+                || target.getTopicStatus() == this.deployStatus);
     }
 
     /**

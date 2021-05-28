@@ -244,19 +244,16 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         if (!super.isMatched(target)) {
             return false;
         }
-        if ((target.getQryPriorityId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getQryPriorityId() != this.qryPriorityId)
-                || (TStringUtils.isNotBlank(target.getGroupName())
-                && !target.getGroupName().equals(this.groupName))
-                || (target.getResCheckStatus() != EnableStatus.STATUS_UNDEFINE
-                && target.getResCheckStatus() != this.resCheckStatus)
-                || (target.getFlowCtrlStatus() != EnableStatus.STATUS_UNDEFINE
-                && target.getFlowCtrlStatus() != this.flowCtrlStatus)
-                || (target.getAllowedBrokerClientRate() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getAllowedBrokerClientRate() != this.allowedBrokerClientRate)) {
-            return false;
-        }
-        return true;
+        return (target.getQryPriorityId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getQryPriorityId() == this.qryPriorityId)
+                && (TStringUtils.isBlank(target.getGroupName())
+                || target.getGroupName().equals(this.groupName))
+                && (target.getResCheckStatus() == EnableStatus.STATUS_UNDEFINE
+                || target.getResCheckStatus() == this.resCheckStatus)
+                && (target.getFlowCtrlStatus() == EnableStatus.STATUS_UNDEFINE
+                || target.getFlowCtrlStatus() == this.flowCtrlStatus)
+                && (target.getAllowedBrokerClientRate() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
     }
 
     /**

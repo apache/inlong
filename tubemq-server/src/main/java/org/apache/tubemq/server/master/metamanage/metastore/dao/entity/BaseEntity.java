@@ -176,7 +176,15 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     protected void updSerialId() {
-        this.serialId.set(System.currentTimeMillis());
+        long curSerialId;
+        long newSerialId;
+        do {
+            curSerialId = this.serialId.get();
+            newSerialId = System.currentTimeMillis();
+            if (newSerialId == curSerialId) {
+                newSerialId++;
+            }
+        } while (!this.serialId.compareAndSet(curSerialId, newSerialId));
     }
 
     public String getModifyUser() {
@@ -215,15 +223,12 @@ public class BaseEntity implements Serializable, Cloneable {
         if (target == null) {
             return true;
         }
-        if ((target.getDataVerId() != TBaseConstants.META_VALUE_UNDEFINED
-                && this.getDataVerId() != target.getDataVerId())
-                || (TStringUtils.isNotBlank(target.getCreateUser())
-                && !target.getCreateUser().equals(createUser))
-                || (TStringUtils.isNotBlank(target.getModifyUser())
-                && !target.getModifyUser().equals(modifyUser))) {
-            return false;
-        }
-        return true;
+        return (target.getDataVerId() == TBaseConstants.META_VALUE_UNDEFINED
+                || this.getDataVerId() == target.getDataVerId())
+                && (TStringUtils.isBlank(target.getCreateUser())
+                || target.getCreateUser().equals(createUser))
+                && (TStringUtils.isBlank(target.getModifyUser())
+                || target.getModifyUser().equals(modifyUser));
     }
 
     /**
@@ -233,7 +238,7 @@ public class BaseEntity implements Serializable, Cloneable {
      * @param isLongName if return field key is long name
      * @return
      */
-    StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
+    public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
             sBuilder.append(",\"dataVersionId\":").append(dataVersionId)
                     .append(",\"serialId\":").append(serialId.get())
