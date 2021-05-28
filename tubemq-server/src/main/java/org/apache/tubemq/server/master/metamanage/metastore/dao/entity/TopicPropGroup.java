@@ -209,31 +209,28 @@ public class TopicPropGroup implements Serializable, Cloneable {
         if (target == null) {
             return true;
         }
-        if ((target.getNumTopicStores() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getNumTopicStores() != this.numTopicStores)
-                || (target.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getNumPartitions() != this.numPartitions)
-                || (target.getUnflushThreshold() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getUnflushThreshold() != this.unflushThreshold)
-                || (target.getUnflushInterval() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getUnflushInterval() != this.unflushInterval)
-                || (target.getUnflushDataHold() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getUnflushDataHold() != this.unflushDataHold)
-                || (target.getMemCacheMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getMemCacheMsgSizeInMB() != this.memCacheMsgSizeInMB)
-                || (target.getMemCacheMsgCntInK() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getMemCacheMsgCntInK() != this.memCacheMsgCntInK)
-                || (target.getMemCacheFlushIntvl() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getMemCacheFlushIntvl() != this.memCacheFlushIntvl)
-                || (target.getAcceptPublish() != null
-                && target.getAcceptPublish() != this.acceptPublish)
-                || (target.getAcceptSubscribe() != null
-                && target.getAcceptSubscribe() != this.acceptSubscribe)
-                || (TStringUtils.isNotBlank(target.getDeletePolicy())
-                && !target.getDeletePolicy().equals(this.deletePolicy))) {
-            return false;
-        }
-        return true;
+        return (target.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getNumTopicStores() == this.numTopicStores)
+                && (target.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getNumPartitions() == this.numPartitions)
+                && (target.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getUnflushThreshold() == this.unflushThreshold)
+                && (target.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getUnflushInterval() == this.unflushInterval)
+                && (target.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getUnflushDataHold() == this.unflushDataHold)
+                && (target.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getMemCacheMsgSizeInMB() == this.memCacheMsgSizeInMB)
+                && (target.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getMemCacheMsgCntInK() == this.memCacheMsgCntInK)
+                && (target.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
+                && (target.getAcceptPublish() == null
+                || target.getAcceptPublish() == this.acceptPublish)
+                && (target.getAcceptSubscribe() == null
+                || target.getAcceptSubscribe() == this.acceptSubscribe)
+                && (TStringUtils.isBlank(target.getDeletePolicy())
+                || target.getDeletePolicy().equals(this.deletePolicy));
     }
 
     /**

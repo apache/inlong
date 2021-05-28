@@ -188,17 +188,14 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         if (!super.isMatched(target)) {
             return false;
         }
-        if ((target.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getMaxMsgSizeInB() != this.maxMsgSizeInB)
-                || (TStringUtils.isNotBlank(target.getTopicName())
-                && !target.getTopicName().equals(this.topicName))
-                || (target.getAuthCtrlStatus() != EnableStatus.STATUS_UNDEFINE
-                && target.getAuthCtrlStatus() != this.authCtrlStatus)
-                || (target.getTopicId() != TBaseConstants.META_VALUE_UNDEFINED
-                && target.getTopicId() != this.topicNameId)) {
-            return false;
-        }
-        return true;
+        return (target.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getMaxMsgSizeInB() == this.maxMsgSizeInB)
+                && (TStringUtils.isBlank(target.getTopicName())
+                || target.getTopicName().equals(this.topicName))
+                && (target.getAuthCtrlStatus() == EnableStatus.STATUS_UNDEFINE
+                || target.getAuthCtrlStatus() == this.authCtrlStatus)
+                && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getTopicId() == this.topicNameId);
     }
 
     /**

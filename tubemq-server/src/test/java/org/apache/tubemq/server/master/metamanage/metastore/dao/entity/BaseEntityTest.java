@@ -19,7 +19,6 @@ package org.apache.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
 import org.apache.tubemq.corebase.TBaseConstants;
-import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.junit.Assert;
@@ -138,7 +137,6 @@ public class BaseEntityTest {
         // case 9
         BaseEntity baseEntity9 =  baseEntity6.clone();
         Assert.assertEquals(baseEntity9, baseEntity6);
-        ThreadUtils.sleep(2000);
         baseEntity9.updSerialId();
         baseEntity9.setDataVersionId(222223333);
         baseEntity9.setAttributes("aaaaabbbbccccddd");
