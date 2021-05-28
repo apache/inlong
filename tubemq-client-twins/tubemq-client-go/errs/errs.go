@@ -33,6 +33,8 @@ const (
 	RetAssertionFailure = 4
 	// RetRequestFailure represents the error code of request error.
 	RetRequestFailure = 5
+	// RetSelectorNotExist = 6
+	RetSelectorNotExist = 6
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.
