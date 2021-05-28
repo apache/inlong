@@ -19,8 +19,9 @@
 package selector
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 // Selector is abstraction of route selector which can return an available address
@@ -42,7 +43,7 @@ func Register(name string, s Selector) {
 // Get returns the corresponding selector.
 func Get(name string) (Selector, error) {
 	if _, ok := selectors[name]; !ok {
-		return nil, errors.New(fmt.Sprintf("selector %s is invalid", name))
+		return nil, errs.New(errs.RetSelectorNotExist, fmt.Sprintf("selector %s is invalid", name))
 	}
 	return selectors[name], nil
 }
