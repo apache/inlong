@@ -509,6 +509,12 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             enableAuthCtrl = false;
             TopicCtrlEntity ctrlEntity =
                     metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+            if (ctrlEntity == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                sBuffer.append(",");
+            }
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
             if (ctrlEntity != null) {
                 maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
@@ -645,6 +651,12 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             isAcceptSubscribe = false;
             TopicCtrlEntity ctrlEntity =
                     metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+            if (ctrlEntity == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                sBuffer.append(",");
+            }
             ctrlEntity.toWebJsonStr(sBuffer, true, false);
             sBuffer.append(",\"deployInfo\":[");
             int brokerCount = 0;
@@ -657,6 +669,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
                         metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
+
                 String strManageStatus = "-";
                 if (brokerConfEntity != null) {
                     manageStatus = brokerConfEntity.getManageStatus();

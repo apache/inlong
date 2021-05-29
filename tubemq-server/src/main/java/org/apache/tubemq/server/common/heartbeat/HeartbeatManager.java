@@ -263,7 +263,7 @@ public class HeartbeatManager {
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        if (createId.equals(timeoutInfo.getSecondKey())) {
+        if (!createId.equals(timeoutInfo.getSecondKey())) {
             result.setFailResult(TErrCodeConstants.HB_NO_NODE,
                     sBuffer.append("Invalid node block id:").append(nodeId)
                             .append(", you have to append node first!").toString());

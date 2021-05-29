@@ -285,8 +285,9 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         // check and set topicProps info
         if (topicProps != null
                 && !topicProps.isDataEquals(this.topicProps)) {
-            changed = true;
-            this.topicProps = topicProps;
+            if (this.topicProps.updModifyInfo(topicProps)) {
+                changed = true;
+            }
         }
         if (changed) {
             updSerialId();

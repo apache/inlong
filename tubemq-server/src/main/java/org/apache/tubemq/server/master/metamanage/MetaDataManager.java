@@ -839,7 +839,7 @@ public class MetaDataManager implements Server {
             if (topicEntity != null
                     && topicEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE) {
                 confDelTopicConfInfo(topicEntity.getModifyUser(),
-                        topicEntity.getRecordKey(), strBuffer, result);
+                        topicEntity.getRecordKey(), topicEntity.getBrokerId(), strBuffer, result);
             }
         }
         result.setSuccResult(null);
@@ -874,7 +874,8 @@ public class MetaDataManager implements Server {
             if (topicEntity == null) {
                 continue;
             }
-            confDelTopicConfInfo(operator, topicEntity.getRecordKey(), strBuffer, result);
+            confDelTopicConfInfo(operator, topicEntity.getRecordKey(),
+                    topicEntity.getBrokerId(), strBuffer, result);
         }
         result.setSuccResult(null);
         return result.isSuccess();
@@ -982,7 +983,9 @@ public class MetaDataManager implements Server {
                 metaStoreService.getTopicConfByeRecKey(deployEntity.getRecordKey());
         if (isAddOp) {
             if (curEntity == null) {
-                metaStoreService.addTopicConf(deployEntity, sBuffer, result);
+                if (metaStoreService.addTopicConf(deployEntity, sBuffer, result)) {
+                    triggerBrokerConfDataSync(deployEntity.getBrokerId(), sBuffer, result);
+                }
             } else {
                 if (curEntity.isValidTopicStatus()) {
                     result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
@@ -1071,7 +1074,9 @@ public class MetaDataManager implements Server {
                                 .append(curEntity.getTopicName()).toString());
                 sBuffer.delete(0, sBuffer.length());
             } else {
-                metaStoreService.updTopicConf(newEntity, sBuffer, result);
+                if (metaStoreService.updTopicConf(newEntity, sBuffer, result)) {
+                    triggerBrokerConfDataSync(deployEntity.getBrokerId(), sBuffer, result);
+                }
             }
             return new TopicProcessResult(deployEntity.getBrokerId(),
                     deployEntity.getTopicName(), result);
@@ -1152,7 +1157,9 @@ public class MetaDataManager implements Server {
         if (newEntity.updModifyInfo(opEntity.getDataVerId(),
                 curEntity.getTopicId(), brokerConf.getBrokerPort(),
                 brokerConf.getBrokerIp(), topicStatus, null)) {
-            metaStoreService.updTopicConf(newEntity, sBuffer, result);
+            if (metaStoreService.updTopicConf(newEntity, sBuffer, result)) {
+                triggerBrokerConfDataSync(newEntity.getBrokerId(), sBuffer, result);
+            }
         } else {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     sBuffer.append("Data not changed for brokerId=")
@@ -1196,15 +1203,15 @@ public class MetaDataManager implements Server {
         return metaStoreService.getTopicDepInfoByTopicBrokerId(topicNameSet, brokerIdSet);
     }
 
-
-
-
     private boolean confDelTopicConfInfo(String operator,
                                          String recordKey,
-                                         StringBuilder strBuffer,
+                                         int brokerId,
+                                         StringBuilder sBuffer,
                                          ProcessResult result) {
-        return metaStoreService.delTopicConf(operator,
-                recordKey, strBuffer, result);
+        if (metaStoreService.delTopicConf(operator, recordKey, sBuffer, result)) {
+            return triggerBrokerConfDataSync(brokerId, sBuffer, result);
+        }
+        return false;
     }
 
     public Map<String, String> getBrokerTopicStrConfigInfo(
@@ -1227,8 +1234,7 @@ public class MetaDataManager implements Server {
             return topicConfStrMap;
         }
         TopicPropGroup defTopicProps = brokerEntity.getTopicProps();
-        ClusterSettingEntity clusterDefConf =
-                metaStoreService.getClusterConfig();
+        ClusterSettingEntity clusterDefConf = getClusterDefSetting(false);
         int defMsgSizeInB = clusterDefConf.getMaxMsgSizeInB();
         for (TopicDeployEntity topicEntity : topicEntityMap.values()) {
             /*
@@ -1464,7 +1470,7 @@ public class MetaDataManager implements Server {
     public boolean addIfAbsentTopicCtrlConf(String topicName, String operator,
                                             StringBuilder sBuffer, ProcessResult result) {
         int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        ClusterSettingEntity defSetting = metaStoreService.getClusterConfig();
+        ClusterSettingEntity defSetting = getClusterDefSetting(false);
         if (defSetting != null) {
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
         }

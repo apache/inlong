@@ -176,15 +176,17 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     protected void updSerialId() {
-        long curSerialId;
-        long newSerialId;
+        long curSerialId = this.serialId.get();
+        long newSerialId = System.currentTimeMillis();
         do {
-            curSerialId = this.serialId.get();
-            newSerialId = System.currentTimeMillis();
-            if (newSerialId == curSerialId) {
-                newSerialId++;
+            if (newSerialId > curSerialId) {
+                if (this.serialId.compareAndSet(curSerialId, newSerialId)) {
+                    break;
+                }
             }
-        } while (!this.serialId.compareAndSet(curSerialId, newSerialId));
+            curSerialId = this.serialId.get();
+            newSerialId = curSerialId + 10;
+        } while (true);
     }
 
     public String getModifyUser() {

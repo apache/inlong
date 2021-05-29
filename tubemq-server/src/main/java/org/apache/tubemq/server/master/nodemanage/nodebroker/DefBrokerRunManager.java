@@ -374,8 +374,10 @@ public class DefBrokerRunManager implements BrokerRunManager {
         builder.setStopWrite(autoFbdTuple.getF0());
         builder.setStopRead(autoFbdTuple.getF1());
         if (retTuple.getF2() == null) {
+            builder.setNeedReportData(false);
             builder.setTakeConfInfo(false);
         } else {
+            builder.setNeedReportData(true);
             builder.setTakeConfInfo(true);
             builder.setBrokerDefaultConfInfo(retTuple.getF2());
             builder.addAllBrokerTopicSetConfInfo(retTuple.getF3());

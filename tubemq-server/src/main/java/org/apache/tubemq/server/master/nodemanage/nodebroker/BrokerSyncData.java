@@ -61,6 +61,7 @@ public class BrokerSyncData {
     private int syncUpDataChkSumId = TBaseConstants.META_VALUE_UNDEFINED;
     private String syncUpBrokerConfInfo;
     private List<String> syncUpTopicConfInfos = new ArrayList<>();
+    Map<String, TopicInfo> syncUpTopicInfoMap = new HashMap<>();
     private long lastDataUpTime = 0;
 
     public BrokerSyncData() {
@@ -123,6 +124,7 @@ public class BrokerSyncData {
 
     /**
      * Book the report data by broker
+     * @param brokerInfo      broker info
      * @param syncDataConfId   data configure id
      * @param syncDataChkSumId data check-sum id
      * @param isTakeData  if carry the data info
@@ -131,7 +133,8 @@ public class BrokerSyncData {
      *
      * @return whether the broker data synchronized
      */
-    public boolean bookBrokerReportInfo(long syncDataConfId, int syncDataChkSumId,
+    public boolean bookBrokerReportInfo(BrokerInfo brokerInfo,
+                                        long syncDataConfId, int syncDataChkSumId,
                                         boolean isTakeData, String syncBrokerConfInfo,
                                         List<String> syncTopicConfInfos) {
         this.syncUpDataConfId = syncDataConfId;
@@ -143,6 +146,7 @@ public class BrokerSyncData {
             } else {
                 this.syncUpTopicConfInfos = syncTopicConfInfos;
             }
+            this.syncUpTopicInfoMap = parseTopicInfoConf(brokerInfo);
             this.lastDataUpTime = System.currentTimeMillis();
         }
         return isConfSynchronized();
@@ -185,15 +189,12 @@ public class BrokerSyncData {
 
     /**
      * Get the broker publish info
-     * @param brokerInfo broker info
      * @return need sync data
      *         f0 : manage status
      *         f1 : topic configure
      */
-    public Tuple2<ManageStatus, Map<String, TopicInfo>> getBrokerPublishInfo(
-            final BrokerInfo brokerInfo) {
-        Map<String, TopicInfo> topicInfoMap = parseTopicInfoConf(brokerInfo);
-        return new Tuple2<>(mngStatus, topicInfoMap);
+    public Tuple2<ManageStatus, Map<String, TopicInfo>> getBrokerPublishInfo() {
+        return new Tuple2<>(mngStatus, syncUpTopicInfoMap);
     }
 
     public long getDataPushId() {

@@ -164,7 +164,7 @@ public class BrokerRunStatusInfo {
                                      List<String> repTopicConfs,
                                      StringBuilder sBuffer) {
         boolean isSynchronized =
-                brokerSyncData.bookBrokerReportInfo(repConfigId,
+                brokerSyncData.bookBrokerReportInfo(brokerInfo, repConfigId,
                         repCheckSumId, isTackData, repBrokerConfInfo, repTopicConfs);
         this.isOnline = isOnline;
         goNextStatus(isRegister, isSynchronized, sBuffer);
@@ -347,7 +347,7 @@ public class BrokerRunStatusInfo {
             return;
         }
         Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
-                brokerSyncData.getBrokerPublishInfo(brokerInfo);
+                brokerSyncData.getBrokerPublishInfo();
         brokerRunManager.updBrokerCsmConfInfo(brokerInfo.getBrokerId(),
                 syncData.getF0(), syncData.getF1());
         isDoneDataSub = true;
@@ -358,7 +358,7 @@ public class BrokerRunStatusInfo {
             return;
         }
         Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
-                brokerSyncData.getBrokerPublishInfo(brokerInfo);
+                brokerSyncData.getBrokerPublishInfo();
         brokerRunManager.updBrokerPrdConfInfo(brokerInfo.getBrokerId(),
                 syncData.getF0(), syncData.getF1());
         isDoneDataPub = true;

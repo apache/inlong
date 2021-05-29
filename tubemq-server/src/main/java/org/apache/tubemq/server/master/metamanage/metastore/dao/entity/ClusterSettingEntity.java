@@ -194,8 +194,9 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         // check and set clsDefTopicProps info
         if (defTopicProps != null
                 && !defTopicProps.isDataEquals(clsDefTopicProps)) {
-            changed = true;
-            clsDefTopicProps = defTopicProps;
+            if (clsDefTopicProps.updModifyInfo(defTopicProps)) {
+                changed = true;
+            }
         }
         if (changed) {
             updSerialId();
