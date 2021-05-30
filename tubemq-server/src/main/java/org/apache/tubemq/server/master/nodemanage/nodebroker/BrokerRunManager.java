@@ -77,9 +77,9 @@ public interface BrokerRunManager {
 
     Map<Integer, BrokerInfo> getBrokerInfoMap(List<Integer> brokerIds);
 
-    void updBrokerCsmConfInfo(int brokerId,
-                              ManageStatus mngStatus,
-                              Map<String, TopicInfo> topicInfoMap);
+    boolean updBrokerCsmConfInfo(int brokerId,
+                                 ManageStatus mngStatus,
+                                 Map<String, TopicInfo> topicInfoMap);
 
     void updBrokerPrdConfInfo(int brokerId,
                               ManageStatus mngStatus,

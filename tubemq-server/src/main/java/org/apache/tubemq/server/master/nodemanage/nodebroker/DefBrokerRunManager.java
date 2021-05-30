@@ -463,17 +463,15 @@ public class DefBrokerRunManager implements BrokerRunManager {
     }
 
     @Override
-    public void updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
-                                     Map<String, TopicInfo> topicInfoMap) {
+    public boolean updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
+                                        Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
-        brokerPubSubInfo.updBrokerSubTopicConfInfo(brokerId, topicInfoMap);
-
+        return brokerPubSubInfo.updBrokerSubTopicConfInfo(brokerId, topicInfoMap);
     }
 
     @Override
     public void updBrokerPrdConfInfo(int brokerId, ManageStatus mngStatus,
                                      Map<String, TopicInfo> topicInfoMap) {
-        brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
         brokerPubSubInfo.updBrokerPubTopicConfInfo(brokerId, topicInfoMap);
     }
 

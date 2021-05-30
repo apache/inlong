@@ -294,18 +294,6 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
     /**
-     * check TopicPropGroup's partition or storeblock changed
-     * @return if changed
-     */
-    public boolean isPartOrStoreChanged(TopicPropGroup other) {
-        if (this.numPartitions != other.numPartitions
-                || this.numTopicStores != other.numTopicStores) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * check if subclass fields is equals
      *
      * @param other  check object

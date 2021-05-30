@@ -24,8 +24,8 @@ public enum StepStatus {
     STEP_STATUS_LOAD_DATA(1, "load_data", 0),
     STEP_STATUS_WAIT_ONLINE(2, "wait_online", 0),
     STEP_STATUS_WAIT_SYNC(3, "wait_sync", 0),
-    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 60000),
-    STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 30000);
+    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 55000),
+    STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 25000);
 
     private int code;
     private String description;

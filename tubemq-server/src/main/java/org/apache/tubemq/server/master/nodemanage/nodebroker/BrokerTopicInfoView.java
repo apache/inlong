@@ -30,7 +30,7 @@ import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
-
+import org.apache.tubemq.corebase.utils.Tuple2;
 
 
 public class BrokerTopicInfoView {
@@ -76,24 +76,39 @@ public class BrokerTopicInfoView {
      *                    if topicInfoMap is null, reserve current configure;
      *                    if topicInfoMap is empty, clear current configure.
      */
-    public void updBrokerTopicConfInfo(int brokerId, Map<String, TopicInfo> topicInfoMap) {
+    public void updBrokerTopicConfInfo(int brokerId,
+                                       Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return;
         }
         // get removed topic info
-        Set<String> delTopicSet = new HashSet<>();
-        ConcurrentHashSet<String> curTopicSet = brokerIdIndexMap.get(brokerId);
-        if (curTopicSet != null) {
-            for (String topic : curTopicSet) {
-                if (!topicInfoMap.containsKey(topic)) {
-                    delTopicSet.add(topic);
-                }
-            }
-        }
-        rmvBrokerTopicInfo(brokerId, delTopicSet);
+        rmvBrokerTopicInfo(brokerId, topicInfoMap);
         // add or update TopicInfo
         repBrokerTopicInfo(brokerId, topicInfoMap);
         topicChangeId.set(System.currentTimeMillis());
+    }
+
+    /**
+     * update broker's topicInfo configures
+     *
+     * @param brokerId broker id index
+     * @param topicInfoMap broker's topic configure info,
+     *                    if topicInfoMap is null, reserve current configure;
+     *                    if topicInfoMap is empty, clear current configure.
+     * @return if fast sync data
+     */
+    public boolean fastUpdBrokerTopicConfInfo(int brokerId,
+                                              Map<String, TopicInfo> topicInfoMap) {
+        if (topicInfoMap == null) {
+            return true;
+        }
+        // get removed topic info
+        rmvBrokerTopicInfo(brokerId, topicInfoMap);
+        // update TopicInfo and judge if fast update
+        Tuple2<Boolean, Boolean> retTuple =
+                updBrokerTopicInfo(brokerId, topicInfoMap);
+        topicChangeId.set(System.currentTimeMillis());
+        return retTuple.getF1();
     }
 
     /**
@@ -287,25 +302,40 @@ public class BrokerTopicInfoView {
     }
 
     // remove broker special topic info
-    private void rmvBrokerTopicInfo(int brokerId,
-                                    Set<String> delTopicSet) {
-        if (delTopicSet == null || delTopicSet.isEmpty()) {
-            return;
+    private boolean rmvBrokerTopicInfo(int brokerId,
+                                       Map<String, TopicInfo> topicInfoMap) {
+        boolean changed = false;
+        Set<String> delTopicSet = new HashSet<>();
+        ConcurrentHashSet<String> curTopicSet = brokerIdIndexMap.get(brokerId);
+        if (curTopicSet != null) {
+            for (String topic : curTopicSet) {
+                if (!topicInfoMap.containsKey(topic)) {
+                    delTopicSet.add(topic);
+                }
+            }
+        }
+        if (delTopicSet.isEmpty()) {
+            return false;
         }
         ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         ConcurrentHashSet<String> topicSet = brokerIdIndexMap.get(brokerId);
         if (topicSet == null || topicSet.isEmpty()) {
-            return;
+            return changed;
         }
         for (String topic : delTopicSet) {
-            topicSet.remove(topic);
+            if (topicSet.remove(topic)) {
+                changed = true;
+            }
             topicInfoView = topicConfInfoMap.get(topic);
             if ((topicInfoView == null)
                     || topicInfoView.isEmpty()) {
                 continue;
             }
-            topicInfoView.remove(brokerId);
+            if (topicInfoView.remove(brokerId) != null) {
+                changed = true;
+            }
         }
+        return changed;
     }
 
     // add or update broker special topic info
@@ -342,6 +372,42 @@ public class BrokerTopicInfoView {
             }
         }
         curTopicSet.addAll(topicInfoMap.keySet());
+    }
+
+    // update current broker special topic info
+    private Tuple2<Boolean, Boolean> updBrokerTopicInfo(int brokerId,
+                                                        Map<String, TopicInfo> topicInfoMap) {
+        boolean isFastUpd = true;
+        boolean isChanged = false;
+        boolean isFastSync = true;
+        if (topicInfoMap == null || topicInfoMap.isEmpty()) {
+            return new Tuple2<>(isChanged, isFastSync);
+        }
+        Tuple2<Boolean, Boolean> retResult;
+        ConcurrentHashMap<Integer, TopicInfo> curTopicInfoView;
+        for (TopicInfo newTopicInfo : topicInfoMap.values()) {
+            if (newTopicInfo == null) {
+                continue;
+            }
+            curTopicInfoView = topicConfInfoMap.get(newTopicInfo.getTopic());
+            if (curTopicInfoView == null) {
+                isFastSync = false;
+                continue;
+            }
+            TopicInfo curTopicInfo = curTopicInfoView.get(brokerId);
+            if (curTopicInfo == null) {
+                isFastSync = false;
+                continue;
+            }
+            retResult = curTopicInfo.updAndJudgeTopicInfo(newTopicInfo);
+            if (retResult.getF0() && !isChanged) {
+                isChanged = true;
+            }
+            if (retResult.getF1() && isFastSync) {
+                isFastSync = false;
+            }
+        }
+        return new Tuple2<>(isChanged, isFastSync);
     }
 
 }

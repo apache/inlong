@@ -90,13 +90,15 @@ public class BrokerPSInfoHolder {
      * @param topicInfoMap broker's topic configure info,
      *                    if topicInfoMap is null, reserve current configure;
      *                    if topicInfoMap is empty, clear current configure.
+     * @return if fast sync data
      */
-    public void updBrokerSubTopicConfInfo(int brokerId,
+    public boolean updBrokerSubTopicConfInfo(int brokerId,
                                           Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
-            return;
+            return true;
         }
         subTopicInfoView.updBrokerTopicConfInfo(brokerId, topicInfoMap);
+        return pubTopicInfoView.fastUpdBrokerTopicConfInfo(brokerId, topicInfoMap);
     }
 
     /**
@@ -113,20 +115,6 @@ public class BrokerPSInfoHolder {
             return;
         }
         pubTopicInfoView.updBrokerTopicConfInfo(brokerId, topicInfoMap);
-    }
-
-    /**
-     * update broker manage status and topicInfo configures
-     *
-     * @param brokerId broker id index
-     * @param mngStatus broker's manage status
-     * @param topicInfoMap broker's topic configure info
-     */
-    public void updateBrokerPushedInfo(int brokerId, ManageStatus mngStatus,
-                                       Map<String, TopicInfo> topicInfoMap) {
-        updBrokerMangeStatus(brokerId, mngStatus);
-        updBrokerSubTopicConfInfo(brokerId, topicInfoMap);
-        updBrokerPubTopicConfInfo(brokerId, topicInfoMap);
     }
 
     /**

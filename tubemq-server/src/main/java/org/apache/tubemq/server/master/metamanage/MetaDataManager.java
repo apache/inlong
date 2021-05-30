@@ -950,7 +950,6 @@ public class MetaDataManager implements Server {
         }
         TopicDeployEntity deployConf =
                 new TopicDeployEntity(opEntity, brokerId, topicName);
-        deployConf.setTopicProps(brokerConf.getTopicProps());
         deployConf.updModifyInfo(opEntity.getDataVerId(),
                 TBaseConstants.META_VALUE_UNDEFINED, brokerConf.getBrokerPort(),
                 brokerConf.getBrokerIp(), deployStatus, newProps);

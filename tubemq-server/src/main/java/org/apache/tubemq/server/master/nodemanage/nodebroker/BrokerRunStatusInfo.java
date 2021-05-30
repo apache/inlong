@@ -186,7 +186,6 @@ public class BrokerRunStatusInfo {
                 .append(",\"isDoneDataLoad\":").append(isDoneDataLoad)
                 .append(",\"isDoneDataSub\":").append(isDoneDataSub)
                 .append(",\"isDoneDataPub\":").append(isDoneDataPub)
-                .append(",\"isDoneDataPub\":").append(isDoneDataPub)
                 .append(",\"isOverTLS\":").append(isOverTLS)
                 .append(",\"lastBrokerSyncTime\":").append(lastBrokerSyncTime)
                 .append(",\"maxConfLoadedTimeInMs\":").append(maxConfLoadedTimeInMs)
@@ -214,7 +213,10 @@ public class BrokerRunStatusInfo {
             break;
 
             case STEP_STATUS_WAIT_SUBSCRIBE: {
-                execSyncDataToSub();
+                if (execSyncDataToSub()) {
+                    execSyncDataToPub();
+                    curStepStatus = StepStatus.STEP_STATUS_WAIT_PUBLISH;
+                }
             }
             break;
 
@@ -342,15 +344,16 @@ public class BrokerRunStatusInfo {
         }
     }
 
-    private void execSyncDataToSub() {
+    private boolean execSyncDataToSub() {
         if (isDoneDataSub) {
-            return;
+            return true;
         }
         Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
                 brokerSyncData.getBrokerPublishInfo();
-        brokerRunManager.updBrokerCsmConfInfo(brokerInfo.getBrokerId(),
-                syncData.getF0(), syncData.getF1());
+        boolean needFastSync = brokerRunManager.updBrokerCsmConfInfo(
+                brokerInfo.getBrokerId(), syncData.getF0(), syncData.getF1());
         isDoneDataSub = true;
+        return needFastSync;
     }
 
     private void execSyncDataToPub() {

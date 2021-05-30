@@ -19,6 +19,7 @@ package org.apache.tubemq.corebase.cluster;
 
 import java.io.Serializable;
 import org.apache.tubemq.corebase.TokenConstants;
+import org.apache.tubemq.corebase.utils.Tuple2;
 
 
 public class TopicInfo implements Serializable {
@@ -72,6 +73,21 @@ public class TopicInfo implements Serializable {
 
     public void setAcceptSubscribe(boolean acceptSubscribe) {
         this.acceptSubscribe = acceptSubscribe;
+    }
+
+    // return result <isChanged, isScaleOut>
+    public Tuple2<Boolean, Boolean> updAndJudgeTopicInfo(TopicInfo newTopicInfo) {
+        boolean isChanged = false;
+        if (this.acceptPublish != newTopicInfo.acceptPublish) {
+            isChanged = true;
+            this.acceptPublish = newTopicInfo.acceptPublish;
+        }
+        if (this.acceptSubscribe != newTopicInfo.acceptSubscribe) {
+            isChanged = true;
+            this.acceptSubscribe = newTopicInfo.acceptSubscribe;
+        }
+        return new Tuple2<>(isChanged, (this.partitionNum != newTopicInfo.partitionNum
+                || this.topicStoreNum != newTopicInfo.topicStoreNum));
     }
 
     public int getTopicStoreNum() {

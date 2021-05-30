@@ -146,7 +146,12 @@ public class BrokerSyncData {
             } else {
                 this.syncUpTopicConfInfos = syncTopicConfInfos;
             }
-            this.syncUpTopicInfoMap = parseTopicInfoConf(brokerInfo);
+            Map<String, TopicInfo> tmpInfoMap = parseTopicInfoConf(brokerInfo);
+            if (tmpInfoMap == null) {
+                this.syncUpTopicInfoMap = new HashMap<>();
+            } else {
+                this.syncUpTopicInfoMap = tmpInfoMap;
+            }
             this.lastDataUpTime = System.currentTimeMillis();
         }
         return isConfSynchronized();
