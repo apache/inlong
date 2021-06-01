@@ -24,8 +24,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.tubemq.server.common.statusdef.CleanPolType;
 import org.apache.tubemq.server.common.utils.ProcessResult;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -254,16 +256,45 @@ public class WebParameterUtilsTest {
     public void getTopicPropInfoTest() {
         boolean retValue;
         TopicPropGroup retEntry;
-        TopicPropGroup defOpEntity = new TopicPropGroup();
+        TopicPropGroup defOpEntity;
         StringBuilder sBuffer = new StringBuilder(512);
         ProcessResult result = new ProcessResult();
         Map<String, String> paramCntrMap = new HashMap<>();
         // case 1
+        paramCntrMap.put(WebFieldDef.NUMTOPICSTORES.name, "1");
+        paramCntrMap.put(WebFieldDef.NUMPARTITIONS.name, "2");
+        paramCntrMap.put(WebFieldDef.UNFLUSHTHRESHOLD.name, "3");
+        paramCntrMap.put(WebFieldDef.UNFLUSHINTERVAL.name, "4");
+        paramCntrMap.put(WebFieldDef.UNFLUSHDATAHOLD.name, "5");
+        paramCntrMap.put(WebFieldDef.MCACHESIZEINMB.name, "2");
+        paramCntrMap.put(WebFieldDef.UNFMCACHECNTINK.name, "7");
+        paramCntrMap.put(WebFieldDef.UNFMCACHEINTERVAL.name, "4000");
+        paramCntrMap.put(WebFieldDef.ACCEPTPUBLISH.name, "true");
+        paramCntrMap.put(WebFieldDef.ACCEPTSUBSCRIBE.name, "false");
+        paramCntrMap.put(WebFieldDef.DATASTORETYPE.name, "9");
+        paramCntrMap.put(WebFieldDef.DATAPATH.name, "test");
+        paramCntrMap.put(WebFieldDef.DELETEPOLICY.name, "delete,2h");
         retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap,
                 null, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (TopicPropGroup) result.getRetData();
+        Assert.assertEquals(retEntry.getNumTopicStores(),
+                Integer.parseInt(paramCntrMap.get(WebFieldDef.NUMPARTITIONS.name)));
+        // case 2
+        paramCntrMap.clear();
+        defOpEntity = new TopicPropGroup();
+        defOpEntity.fillDefaultValue();
+        paramCntrMap.put(WebFieldDef.ACCEPTPUBLISH.name, "0");
+        paramCntrMap.put(WebFieldDef.NUMTOPICSTORES.name, "9");
+        paramCntrMap.put(WebFieldDef.UNFMCACHECNTINK.name, "100");
+        retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap,
+                defOpEntity, sBuffer, result);
+        Assert.assertTrue(retValue);
+        Assert.assertTrue(result.isSuccess());
+        retEntry = (TopicPropGroup) result.getRetData();
+
+
     }
 
 }

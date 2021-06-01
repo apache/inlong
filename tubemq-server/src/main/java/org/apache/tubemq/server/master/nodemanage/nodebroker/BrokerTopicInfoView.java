@@ -31,14 +31,15 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
 import org.apache.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.tubemq.corebase.utils.Tuple2;
+import org.apache.tubemq.server.common.utils.SerialIdUtils;
 
 
 public class BrokerTopicInfoView {
     public AtomicLong topicChangeId = new AtomicLong(0);
-    private ConcurrentHashMap<String/* topicName */,
+    private final ConcurrentHashMap<String/* topicName */,
             ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap =
             new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>>
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>>
             brokerIdIndexMap = new ConcurrentHashMap<>();
 
     public BrokerTopicInfoView() {
@@ -65,7 +66,7 @@ public class BrokerTopicInfoView {
             }
             topicInfoView.remove(brokerId);
         }
-        topicChangeId.set(System.currentTimeMillis());
+        SerialIdUtils.updTimeStampSerialIdValue(this.topicChangeId);
     }
 
     /**
@@ -85,7 +86,7 @@ public class BrokerTopicInfoView {
         rmvBrokerTopicInfo(brokerId, topicInfoMap);
         // add or update TopicInfo
         repBrokerTopicInfo(brokerId, topicInfoMap);
-        topicChangeId.set(System.currentTimeMillis());
+        SerialIdUtils.updTimeStampSerialIdValue(this.topicChangeId);
     }
 
     /**
@@ -107,7 +108,7 @@ public class BrokerTopicInfoView {
         // update TopicInfo and judge if fast update
         Tuple2<Boolean, Boolean> retTuple =
                 updBrokerTopicInfo(brokerId, topicInfoMap);
-        topicChangeId.set(System.currentTimeMillis());
+        SerialIdUtils.updTimeStampSerialIdValue(this.topicChangeId);
         return retTuple.getF1();
     }
 
@@ -167,7 +168,6 @@ public class BrokerTopicInfoView {
      * @param topic need query topic set
      */
     public List<Partition> getAcceptSubParts(String topic, Set<Integer> enableSubBrokerIdSet) {
-        Partition tmpPart;
         TopicInfo topicInfo;
         List<Partition> partList = new ArrayList<>();
         if (topic == null) {
@@ -377,7 +377,6 @@ public class BrokerTopicInfoView {
     // update current broker special topic info
     private Tuple2<Boolean, Boolean> updBrokerTopicInfo(int brokerId,
                                                         Map<String, TopicInfo> topicInfoMap) {
-        boolean isFastUpd = true;
         boolean isChanged = false;
         boolean isFastSync = true;
         if (topicInfoMap == null || topicInfoMap.isEmpty()) {

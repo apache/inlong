@@ -20,23 +20,27 @@ package org.apache.tubemq.server.common.statusdef;
 
 public enum StepStatus {
 
-    STEP_STATUS_UNDEFINED(-2, "idle", 0),
-    STEP_STATUS_LOAD_DATA(1, "load_data", 0),
-    STEP_STATUS_WAIT_ONLINE(2, "wait_online", 0),
-    STEP_STATUS_WAIT_SYNC(3, "wait_sync", 0),
-    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 55000),
-    STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 25000);
+    STEP_STATUS_UNDEFINED(-2, "idle", 0, 0),
+    STEP_STATUS_LOAD_DATA(1, "load_data", 0, 0),
+    STEP_STATUS_WAIT_ONLINE(2, "wait_online", 0, 0),
+    STEP_STATUS_WAIT_SYNC(3, "wait_sync", 0, 0),
+    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 55000, 40000),
+    STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 25000, 10000);
 
     private int code;
     private String description;
-    private long delayDurInMs;
+    private long normalDelayDurIdnMs;
+    private long shortDelayDurIdnMs;
 
 
 
-    StepStatus(int code, String description, long delayDurInMs) {
+
+    StepStatus(int code, String description,
+               long normalDelayDurIdnMs, long shortDelayDurIdnMs) {
         this.code = code;
         this.description = description;
-        this.delayDurInMs = delayDurInMs;
+        this.normalDelayDurIdnMs = normalDelayDurIdnMs;
+        this.shortDelayDurIdnMs = shortDelayDurIdnMs;
     }
 
     public int getCode() {
@@ -47,8 +51,12 @@ public enum StepStatus {
         return description;
     }
 
-    public long getDelayDurInMs() {
-        return delayDurInMs;
+    public long getNormalDelayDurInMs() {
+        return normalDelayDurIdnMs;
+    }
+
+    public long getShortDelayDurIdnMs() {
+        return shortDelayDurIdnMs;
     }
 
     public static StepStatus valueOf(int code) {

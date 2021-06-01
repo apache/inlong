@@ -29,12 +29,14 @@ import org.apache.tubemq.server.common.statusdef.ManageStatus;
 
 public class BrokerPSInfoHolder {
     // broker manage status
-    private ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet = new ConcurrentHashSet<>();
-    private ConcurrentHashSet<Integer/* brokerId */> enableSubBrokerIdSet = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet =
+            new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<Integer/* brokerId */> enableSubBrokerIdSet =
+            new ConcurrentHashSet<>();
     // broker subscribe topic view info
-    private BrokerTopicInfoView subTopicInfoView = new BrokerTopicInfoView();
+    private final BrokerTopicInfoView subTopicInfoView = new BrokerTopicInfoView();
     // broker publish topic view info
-    private BrokerTopicInfoView pubTopicInfoView = new BrokerTopicInfoView();
+    private final BrokerTopicInfoView pubTopicInfoView = new BrokerTopicInfoView();
 
 
     public BrokerPSInfoHolder() {
@@ -45,17 +47,14 @@ public class BrokerPSInfoHolder {
      * remove broker all configure info
      *
      * @param brokerId broker id index
-     * @param isTimeout if broker is timeout
      */
-    public void rmvBrokerAllPushedInfo(int brokerId, boolean isTimeout) {
+    public void rmvBrokerAllPushedInfo(int brokerId) {
         // remove broker status Info
         enablePubBrokerIdSet.remove(brokerId);
         enableSubBrokerIdSet.remove(brokerId);
-        if (!isTimeout) {
-            // remove broker topic info
-            subTopicInfoView.rmvBrokerTopicInfo(brokerId);
-            pubTopicInfoView.rmvBrokerTopicInfo(brokerId);
-        }
+        // remove broker topic info
+        subTopicInfoView.rmvBrokerTopicInfo(brokerId);
+        pubTopicInfoView.rmvBrokerTopicInfo(brokerId);
     }
 
     /**
@@ -66,12 +65,12 @@ public class BrokerPSInfoHolder {
      */
     public void updBrokerMangeStatus(int brokerId, ManageStatus mngStatus) {
         Tuple2<Boolean, Boolean> pubSubStatus = mngStatus.getPubSubStatus();
-        if (pubSubStatus.getF0() == Boolean.TRUE) {
+        if (pubSubStatus.getF0()) {
             enablePubBrokerIdSet.add(brokerId);
         } else {
             enablePubBrokerIdSet.remove(brokerId);
         }
-        if (pubSubStatus.getF1() == Boolean.TRUE) {
+        if (pubSubStatus.getF1()) {
             enableSubBrokerIdSet.add(brokerId);
         } else {
             enableSubBrokerIdSet.remove(brokerId);

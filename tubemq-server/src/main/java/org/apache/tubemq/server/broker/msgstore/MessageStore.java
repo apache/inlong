@@ -38,7 +38,6 @@ import org.apache.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.ThreadUtils;
 import org.apache.tubemq.server.broker.BrokerConfig;
-import org.apache.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.tubemq.server.broker.msgstore.disk.MsgFileStatisInfo;
@@ -603,12 +602,7 @@ public class MessageStore implements Closeable {
 
     private int validAndGetMemCacheSize(TopicMetadata topicMetadata) {
         int memCacheSize = topicMetadata.getMemCacheMsgSize();
-        if (memCacheSize <= topicMetadata.getMinMemCacheSize()) {
-            logger.info(new StringBuilder(512)
-                    .append("[Data Store] ").append(getTopic())
-                    .append(" writeCacheMaxSize changed, from ")
-                    .append(memCacheSize).append(" to ")
-                    .append(ClusterConfigHolder.getMinMemCacheSize()).toString());
+        if (memCacheSize < topicMetadata.getMinMemCacheSize()) {
             memCacheSize = topicMetadata.getMinMemCacheSize();
         }
         return memCacheSize;

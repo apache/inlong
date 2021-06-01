@@ -34,7 +34,6 @@ import org.apache.tubemq.corebase.utils.CheckSum;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
 import org.apache.tubemq.corebase.utils.Tuple4;
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class BrokerSyncData {
     // current data push id
     private long dataPushId;
     // data need to sync
-    private AtomicLong syncDownDataConfId =
+    private final AtomicLong syncDownDataConfId =
             new AtomicLong(System.currentTimeMillis());
     private int syncDownDataChkSumId;
     private ManageStatus mngStatus;
@@ -64,16 +63,9 @@ public class BrokerSyncData {
     Map<String, TopicInfo> syncUpTopicInfoMap = new HashMap<>();
     private long lastDataUpTime = 0;
 
+
     public BrokerSyncData() {
 
-    }
-
-    public BrokerSyncData(long dataPushId,
-                          ManageStatus mngStatus,
-                          String brokerConfInfo,
-                          Map<String, String> topicConfInfoMap) {
-        updBrokerSyncData(true, dataPushId,
-                mngStatus, brokerConfInfo, topicConfInfoMap);
     }
 
     /**
@@ -148,7 +140,7 @@ public class BrokerSyncData {
             }
             Map<String, TopicInfo> tmpInfoMap = parseTopicInfoConf(brokerInfo);
             if (tmpInfoMap == null) {
-                this.syncUpTopicInfoMap = new HashMap<>();
+                this.syncUpTopicInfoMap.clear();
             } else {
                 this.syncUpTopicInfoMap = tmpInfoMap;
             }
@@ -237,6 +229,7 @@ public class BrokerSyncData {
                 .append(",\"syncUpDataChkSumId\":").append(syncUpDataChkSumId)
                 .append(",\"syncUpBrokerConfInfo\":\"").append(syncUpBrokerConfInfo)
                 .append("\",\"syncUpTopicConfInfos\":\"").append(syncUpTopicConfInfos.toString())
+                .append("\",\"syncUpTopicInfoMap\":\"").append(syncUpTopicInfoMap.toString())
                 .append("\",\"lastDataUpTime\":").append(lastDataUpTime)
                 .append("}");
         return sBuffer;
@@ -262,12 +255,6 @@ public class BrokerSyncData {
         if (brokerConfInfoAttrs.length > 7) {
             if (!TStringUtils.isBlank(brokerConfInfoAttrs[7])) {
                 numTopicStores = Integer.parseInt(brokerConfInfoAttrs[7]);
-            }
-        }
-        int unFlushDataHold = TServerConstants.CFG_DEFAULT_DATA_UNFLUSH_HOLD;
-        if (brokerConfInfoAttrs.length > 8) {
-            if (!TStringUtils.isBlank(brokerConfInfoAttrs[8])) {
-                unFlushDataHold = Integer.parseInt(brokerConfInfoAttrs[8]);
             }
         }
         Map<String, TopicInfo> topicInfoMap = new HashMap<>();

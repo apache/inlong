@@ -388,7 +388,7 @@ public class WebParameterUtils {
         }
         newConf.setUnflushInterval((int) result.retData1);
         // get unflushDataHold parameter value
-        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHINTERVAL, false,
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHDATAHOLD, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushDataHold()),
                 TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, sBuffer, result)) {
             return result.isSuccess();

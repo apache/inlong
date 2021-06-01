@@ -50,14 +50,15 @@ public class BrokerRunStatusInfo {
     private BrokerInfo brokerInfo;
     private String createId;
     // config change flag
-    private AtomicBoolean isConfChanged = new AtomicBoolean(false);
-    private AtomicLong confChangeNo =
+    private final AtomicBoolean isConfChanged =
+            new AtomicBoolean(false);
+    private final AtomicLong confChangeNo =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // data sync status
     private StepStatus curStepStatus;
     private volatile long nextStepOpTimeInMills = 0;
     // current loaded change No.
-    private AtomicLong confLoadedNo =
+    private final AtomicLong confLoadedNo =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // broker sync data info
     BrokerSyncData brokerSyncData = new BrokerSyncData();
@@ -94,7 +95,7 @@ public class BrokerRunStatusInfo {
         this.brokerSyncData.updBrokerSyncData(true,
                 confChangeNo.get(), mngStatus, brokerConfInfo, topicConfInfoMap);
         this.curStepStatus = StepStatus.STEP_STATUS_WAIT_ONLINE;
-        this.nextStepOpTimeInMills = curTime + curStepStatus.getDelayDurInMs();
+        this.nextStepOpTimeInMills = curTime + curStepStatus.getNormalDelayDurInMs();
     }
 
     public void notifyDataChanged() {
@@ -216,6 +217,8 @@ public class BrokerRunStatusInfo {
                 if (execSyncDataToSub()) {
                     execSyncDataToPub();
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_PUBLISH;
+                    nextStepOpTimeInMills =
+                            System.currentTimeMillis() + curStepStatus.getShortDelayDurIdnMs();
                 }
             }
             break;
@@ -253,7 +256,7 @@ public class BrokerRunStatusInfo {
                     resetStatusInfo();
                     curStepStatus = StepStatus.STEP_STATUS_LOAD_DATA;
                     nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getDelayDurInMs();
+                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
             break;
@@ -267,7 +270,7 @@ public class BrokerRunStatusInfo {
                             curStepStatus = StepStatus.STEP_STATUS_WAIT_SYNC;
                         }
                         nextStepOpTimeInMills =
-                                System.currentTimeMillis() + curStepStatus.getDelayDurInMs();
+                                System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                     }
                 }
             }
@@ -281,7 +284,7 @@ public class BrokerRunStatusInfo {
                         curStepStatus = StepStatus.STEP_STATUS_WAIT_SYNC;
                     }
                     nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getDelayDurInMs();
+                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
             break;
@@ -289,11 +292,9 @@ public class BrokerRunStatusInfo {
             case STEP_STATUS_WAIT_SYNC: {
                 if (isSynchronized) {
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_SUBSCRIBE;
-                } else {
-                    curStepStatus = StepStatus.STEP_STATUS_WAIT_SYNC;
+                    nextStepOpTimeInMills =
+                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
-                nextStepOpTimeInMills =
-                        System.currentTimeMillis() + curStepStatus.getDelayDurInMs();
             }
             break;
 
@@ -301,7 +302,7 @@ public class BrokerRunStatusInfo {
                 if (isDoneDataSub && System.currentTimeMillis() > nextStepOpTimeInMills) {
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_PUBLISH;
                     nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getDelayDurInMs();
+                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
             break;
@@ -394,11 +395,8 @@ public class BrokerRunStatusInfo {
      * @return true if need report data otherwise false
      */
     private boolean needForceSyncData() {
-        if (System.currentTimeMillis() - this.lastBrokerSyncTime
-                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION) {
-            return true;
-        }
-        return false;
+        return System.currentTimeMillis() - this.lastBrokerSyncTime
+                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
     }
 
 }

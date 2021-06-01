@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
 import org.apache.tubemq.corebase.cluster.BrokerInfo;
@@ -40,6 +39,7 @@ import org.apache.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.tubemq.server.common.utils.ProcessResult;
+import org.apache.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.tubemq.server.master.MasterConfig;
 import org.apache.tubemq.server.master.TMaster;
 import org.apache.tubemq.server.master.metamanage.MetaDataManager;
@@ -56,21 +56,23 @@ public class DefBrokerRunManager implements BrokerRunManager {
     private final MetaDataManager metaDataManager;
     private final HeartbeatManager heartbeatManager;
     // broker string info
-    private AtomicLong brokerInfoCheckSum = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong brokerInfoCheckSum =
+            new AtomicLong(System.currentTimeMillis());
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private final ConcurrentHashMap<Integer, String> brokersMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, String> brokersTLSMap =
             new ConcurrentHashMap<>();
-
     // broker sync FSM
-    private AtomicInteger brokerTotalCount = new AtomicInteger(0);
-    private ConcurrentHashMap<Integer/* brokerId */, BrokerRunStatusInfo> brokerRunSyncManageMap =
+    private final AtomicInteger brokerTotalCount =
+            new AtomicInteger(0);
+    // brokerId -- broker run status info map
+    private final ConcurrentHashMap<Integer, BrokerRunStatusInfo> brokerRunSyncManageMap =
             new ConcurrentHashMap<>();
     // broker abnormal holder
     private final BrokerAbnHolder brokerAbnHolder;
     // broker topic configure for consumer and producer
-    private BrokerPSInfoHolder brokerPubSubInfo = new BrokerPSInfoHolder();
+    private final BrokerPSInfoHolder brokerPubSubInfo = new BrokerPSInfoHolder();
 
 
     public DefBrokerRunManager(TMaster tMaster) {
@@ -134,7 +136,7 @@ public class DefBrokerRunManager implements BrokerRunManager {
                     && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
                 this.brokersTLSMap.put(entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
             }
-            this.brokerInfoCheckSum.set(System.currentTimeMillis());
+            SerialIdUtils.updTimeStampSerialIdValue(this.brokerInfoCheckSum);
         }
     }
 
@@ -146,7 +148,7 @@ public class DefBrokerRunManager implements BrokerRunManager {
         String brokerReg = this.brokersMap.remove(brokerId);
         String brokerTLSReg = this.brokersTLSMap.remove(brokerId);
         if (brokerReg != null || brokerTLSReg != null) {
-            this.brokerInfoCheckSum.set(System.currentTimeMillis());
+            SerialIdUtils.updTimeStampSerialIdValue(this.brokerInfoCheckSum);
         }
     }
 
@@ -455,7 +457,7 @@ public class DefBrokerRunManager implements BrokerRunManager {
         }
         brokerTotalCount.decrementAndGet();
         brokerAbnHolder.removeBroker(brokerId);
-        brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId, isTimeout);
+        brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId);
         logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
                 .append(", isTimeout=").append(isTimeout)
                 .append(", release success!").toString());

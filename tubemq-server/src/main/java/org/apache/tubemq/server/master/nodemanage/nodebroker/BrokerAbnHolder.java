@@ -46,7 +46,8 @@ public class BrokerAbnHolder {
             new ConcurrentHashMap<>();
     private final int maxAutoForbiddenCnt;
     private final MetaDataManager metaDataManager;
-    private AtomicInteger brokerForbiddenCount = new AtomicInteger(0);
+    private final AtomicInteger brokerForbiddenCount =
+            new AtomicInteger(0);
 
 
     public BrokerAbnHolder(final int maxAutoForbiddenCnt,
@@ -154,8 +155,7 @@ public class BrokerAbnHolder {
     /**
      * Remove broker info and decrease total broker count and forbidden broker count
      *
-     * @param brokerId
-     * @return the deleted broker info
+     * @param brokerId the deleted broker id
      */
     public void removeBroker(Integer brokerId) {
         brokerAbnormalMap.remove(brokerId);
