@@ -278,7 +278,7 @@ public class WebParameterUtilsTest {
         Assert.assertTrue(result.isSuccess());
         retEntry = (TopicPropGroup) result.getRetData();
         Assert.assertEquals(retEntry.getNumTopicStores(),
-                Integer.parseInt(paramCntrMap.get(WebFieldDef.NUMPARTITIONS.name)));
+                Integer.parseInt(paramCntrMap.get(WebFieldDef.NUMTOPICSTORES.name)));
         // case 2
         paramCntrMap.clear();
         defOpEntity = new TopicPropGroup();
