@@ -25,6 +25,14 @@ type ConsumerEvent struct {
 	subscribeInfo []*SubscribeInfo
 }
 
+func NewEvent(rebalanceID int64, eventType int32, subscribeInfo []*SubscribeInfo) *ConsumerEvent {
+	return &ConsumerEvent{
+		rebalanceID:   rebalanceID,
+		eventType:     eventType,
+		subscribeInfo: subscribeInfo,
+	}
+}
+
 // GetRebalanceID returns the rebalanceID of a consumer event.
 func (c *ConsumerEvent) GetRebalanceID() int64 {
 	return c.rebalanceID

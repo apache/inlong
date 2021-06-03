@@ -45,3 +45,23 @@ func (m *Metadata) GetReadStatus() int32 {
 func (m *Metadata) GetReportTimes() bool {
 	return m.reportTimes
 }
+
+// SetNode sets the node.
+func (m *Metadata) SetNode(node *Node) {
+	m.node = node
+}
+
+// SetSubscribeInfo sets the subscribeInfo.
+func (m *Metadata) SetSubscribeInfo(sub *SubscribeInfo) {
+	m.subscribeInfo = sub
+}
+
+// ReadStatus sets the status.
+func (m *Metadata) SetReadStatus(status int32) {
+	m.readStatus = status
+}
+
+// SetReportTimes sets the reportTimes.
+func (m *Metadata) SetReportTimes(reportTimes bool) {
+	m.reportTimes = reportTimes
+}

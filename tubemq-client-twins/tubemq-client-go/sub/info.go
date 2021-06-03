@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-// Package client defines the api and information
-// which can be exposed to user.
-package client
+// package sub defines the subscription information of a client.
+package sub
 
 import (
+	"strconv"
+	"time"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
 )
 
 // InvalidOffset represents the offset which is invalid.
-const InValidOffset = -1
+const InValidOffset = -2
 
 // SubInfo represents the sub information of the client.
 type SubInfo struct {
@@ -44,6 +47,46 @@ type SubInfo struct {
 	topicFilters          map[string][]string
 	authInfo              *protocol.AuthorizedInfo
 	masterCertificateInfo *protocol.MasterCertificateInfo
+}
+
+// NewSubInfo parses the subscription from the config to SubInfo.
+func NewSubInfo(config *config.Config) *SubInfo {
+	s := &SubInfo{
+		boundConsume:    config.Consumer.BoundConsume,
+		subscribedTime:  time.Now().UnixNano() / int64(time.Millisecond),
+		firstRegistered: false,
+		topics:          config.Consumer.Topics,
+		topicFilters:    config.Consumer.TopicFilters,
+	}
+	s.topicConds = make([]string, 0, len(config.Consumer.TopicFilters))
+	for topic, filters := range config.Consumer.TopicFilters {
+		cond := topic + "#"
+		count := 0
+		for _, filter := range filters {
+			if count > 0 {
+				cond += ","
+			}
+			cond += filter
+		}
+		s.topicConds = append(s.topicConds, cond)
+	}
+	if config.Consumer.BoundConsume {
+		s.sessionKey = config.Consumer.SessionKey
+		s.sourceCount = int32(config.Consumer.SourceCount)
+		s.selectBig = config.Consumer.SelectBig
+		assignedPartitions := config.Consumer.PartitionOffset
+		count := 0
+		for partition, offset := range assignedPartitions {
+			if count > 0 {
+				s.boundPartitions += ","
+			}
+			s.boundPartitions += partition
+			s.boundPartitions += "="
+			s.boundPartitions += strconv.Itoa(int(offset))
+			count++
+		}
+	}
+	return s
 }
 
 // GetClientID returns the client ID.
@@ -124,6 +167,32 @@ func (s *SubInfo) GetAuthorizedInfo() *protocol.AuthorizedInfo {
 	return s.authInfo
 }
 
+// GetMasterCertifateInfo returns the masterCertificateInfo.
 func (s *SubInfo) GetMasterCertificateIInfo() *protocol.MasterCertificateInfo {
 	return s.masterCertificateInfo
+}
+
+// FirstRegistered sets the firstRegistered to true.
+func (s *SubInfo) FirstRegistered() {
+	s.firstRegistered = true
+}
+
+// SetAuthorizedInfo sets the authorizedInfo.
+func (s *SubInfo) SetAuthorizedInfo(auth *protocol.AuthorizedInfo) {
+	s.authInfo = auth
+}
+
+// SetMasterCertificateInfo sets the masterCertificateInfo.
+func (s *SubInfo) SetMasterCertificateInfo(info *protocol.MasterCertificateInfo) {
+	s.masterCertificateInfo = info
+}
+
+// SetIsNotAllocated sets the notAllocated.
+func (s *SubInfo) SetIsNotAllocated(isNotAllocated bool) {
+	s.notAllocated = isNotAllocated
+}
+
+// SetClientID sets the clientID.
+func (s *SubInfo) SetClientID(clientID string) {
+	s.clientID = clientID
 }

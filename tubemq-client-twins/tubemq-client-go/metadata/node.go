@@ -19,6 +19,7 @@ package metadata
 
 import (
 	"strconv"
+	"strings"
 )
 
 // Node represents the metadata of a node.
@@ -27,6 +28,43 @@ type Node struct {
 	host    string
 	port    uint32
 	address string
+}
+
+// NewNode constructs a node from a given string.
+// If the given string is invalid, it will return error.
+func NewNode(isBroker bool, node string) (*Node, error) {
+	res := strings.Split(node, ":")
+	nodeID := 0
+	host := ""
+	port := 8123
+	var err error
+	if isBroker {
+		nodeID, err = strconv.Atoi(res[0])
+		if err != nil {
+			return nil, err
+		}
+		host = res[1]
+		if len(res) >= 3 {
+			port, err = strconv.Atoi(res[2])
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		host = res[0]
+		if len(res) >= 2 {
+			port, err = strconv.Atoi(res[1])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return &Node{
+		id:      uint32(nodeID),
+		host:    host,
+		port:    uint32(port),
+		address: host + ":" + strconv.Itoa(port),
+	}, nil
 }
 
 // GetID returns the id of a node.
@@ -52,4 +90,20 @@ func (n *Node) GetAddress() string {
 // String returns the metadata of a node as a string.
 func (n *Node) String() string {
 	return strconv.Itoa(int(n.id)) + ":" + n.host + ":" + strconv.Itoa(int(n.port))
+}
+
+// SetHost sets the host.
+func (n *Node) SetHost(host string) {
+	n.host = host
+}
+
+// SetAddress sets the address.
+func (n *Node) SetAddress(address string) error {
+	port, err := strconv.Atoi(strings.Split(address, ":")[1])
+	if err != nil {
+		return err
+	}
+	n.address = address
+	n.port = uint32(port)
+	return nil
 }

@@ -19,16 +19,46 @@ package metadata
 
 import (
 	"strconv"
+	"strings"
 )
 
 // Partition represents the metadata of a partition.
 type Partition struct {
 	topic        string
-	Broker       *Node
+	broker       *Node
 	partitionID  int32
 	partitionKey string
 	offset       int64
 	lastConsumed bool
+}
+
+func NewPartition(partition string) (*Partition, error) {
+	var b *Node
+	var topic string
+	var partitionID int
+	var err error
+	pos := strings.Index(partition, "#")
+	if pos != -1 {
+		broker := partition[:pos]
+		b, err = NewNode(true, broker)
+		if err != nil {
+			return nil, err
+		}
+		p := partition[pos+1:]
+		pos = strings.Index(p, ":")
+		if pos != -1 {
+			topic = p[0:pos]
+			partitionID, err = strconv.Atoi(p[pos+1:])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return &Partition{
+		topic:       topic,
+		broker:      b,
+		partitionID: int32(partitionID),
+	}, nil
 }
 
 // GetLastConsumed returns lastConsumed of a partition.
@@ -51,7 +81,15 @@ func (p *Partition) GetTopic() string {
 	return p.topic
 }
 
+func (p *Partition) GetBroker() *Node {
+	return p.broker
+}
+
 // String returns the metadata of a Partition as a string.
 func (p *Partition) String() string {
-	return p.Broker.String() + "#" + p.topic + "@" + strconv.Itoa(int(p.partitionID))
+	return p.broker.String() + "#" + p.topic + "@" + strconv.Itoa(int(p.partitionID))
+}
+
+func (p *Partition) SetLastConsumed(lastConsumed bool) {
+	p.lastConsumed = lastConsumed
 }
