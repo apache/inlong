@@ -33,12 +33,18 @@ const (
 	RetAssertionFailure = 4
 	// RetRequestFailure represents the error code of request error.
 	RetRequestFailure = 5
-	// RetSelectorNotExist = 6
-	RetSelectorNotExist = 6
+	// RetSelectorNotExist represents the selector not exists.
+	RetSelectorNotExist        = 6
+	RetErrHBNoNode             = 411
+	RetCertificateFailure      = 415
+	RetConsumeGroupForbidden   = 450
+	RetConsumeContentForbidden = 455
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.
-var ErrAssertionFailure = New(RetAssertionFailure, "AssertionFailure")
+var (
+	ErrAssertionFailure = New(RetAssertionFailure, "AssertionFailure")
+)
 
 // Error provides a TubeMQ-specific error container
 type Error struct {

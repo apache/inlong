@@ -29,7 +29,7 @@ import (
 // Config defines multiple configuration options.
 // Refer to: https://github.com/apache/incubator-inlong/blob/3249de37acf054a9c43677131cfbb09fc6d366d1/tubemq-client/src/main/java/org/apache/tubemq/client/config/ConsumerConfig.java
 type Config struct {
-	// Net is the namespace for network-level properties used by Broker and Master.
+	// Net is the namespace for network-level properties used by broker and Master.
 	Net struct {
 		// ReadTimeout represents how long to wait for a response.
 		ReadTimeout time.Duration
@@ -61,9 +61,13 @@ type Config struct {
 	// used by the consumer
 	Consumer struct {
 		// Masters is the addresses of master.
-		Masters []string
-		// Topic of the consumption.
-		Topic string
+		Masters string
+		// Topics of the consumption.
+		Topics []string
+		// TopicFilters is the map of topic to filters.
+		TopicFilters map[string][]string
+		// PartitionOffset is the map of partition to its corresponding offset.
+		PartitionOffset map[string]int64
 		// ConsumerPosition is the initial offset to use if no offset was previously committed.
 		ConsumePosition int
 		// Group is the consumer group name.
@@ -152,7 +156,7 @@ func ParseAddress(address string) (config *Config, err error) {
 		return nil, fmt.Errorf("address format invalid: address: %v, token: %v", address, tokens)
 	}
 
-	c.Consumer.Masters = strings.Split(tokens[0], ",")
+	c.Consumer.Masters = tokens[0]
 
 	tokens = strings.Split(tokens[1], "&")
 	if len(tokens) == 0 {
@@ -190,8 +194,8 @@ func getConfigFromToken(config *Config, values []string) error {
 		config.Net.TLS.TLSServerName = values[1]
 	case "group":
 		config.Consumer.Group = values[1]
-	case "topic":
-		config.Consumer.Topic = values[1]
+	case "topics":
+		config.Consumer.Topics = strings.Split(values[1], ",")
 	case "consumePosition":
 		config.Consumer.ConsumePosition, err = strconv.Atoi(values[1])
 	case "boundConsume":

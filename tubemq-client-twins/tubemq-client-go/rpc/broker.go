@@ -22,11 +22,13 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/remote"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/sub"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
 )
 
 const (
@@ -47,14 +49,14 @@ const (
 )
 
 // RegisterRequestC2B implements the RegisterRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
+func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseB2C, error) {
 	reqC2B := &protocol.RegisterRequestC2B{
 		OpType:        proto.Int32(register),
 		ClientId:      proto.String(sub.GetClientID()),
 		GroupName:     proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		TopicName:     proto.String(metadata.GetSubscribeInfo().GetPartition().GetTopic()),
 		PartitionId:   proto.Int32(metadata.GetSubscribeInfo().GetPartition().GetPartitionID()),
-		QryPriorityId: proto.Int32(metadata.GetSubscribeInfo().GetQryPriorityID()),
+		QryPriorityId: proto.Int32(r.GetQryPriorityID()),
 		ReadStatus:    proto.Int32(metadata.GetReadStatus()),
 		AuthInfo:      sub.GetAuthorizedInfo(),
 	}
@@ -66,7 +68,7 @@ func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.M
 		}
 	}
 	offset := sub.GetAssignedPartOffset(metadata.GetSubscribeInfo().GetPartition().GetPartitionKey())
-	if offset != client.InValidOffset {
+	if offset != util.InvalidValue {
 		reqC2B.CurrOffset = proto.Int64(offset)
 	}
 	data, err := proto.Marshal(reqC2B)
@@ -87,7 +89,7 @@ func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.M
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +103,7 @@ func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.M
 }
 
 // UnregisterRequestC2B implements the UnregisterRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata metadata.Metadata, sub *client.SubInfo) (*protocol.RegisterResponseB2C, error) {
+func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.RegisterResponseB2C, error) {
 	reqC2B := &protocol.RegisterRequestC2B{
 		OpType:      proto.Int32(unregister),
 		ClientId:    proto.String(sub.GetClientID()),
@@ -129,7 +131,7 @@ func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata metadata.
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +145,7 @@ func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata metadata.
 }
 
 // GetMessageRequestC2B implements the GetMessageRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.GetMessageResponseB2C, error) {
+func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.GetMessageResponseB2C, error) {
 	reqC2B := &protocol.GetMessageRequestC2B{
 		ClientId:           proto.String(sub.GetClientID()),
 		PartitionId:        proto.Int32(metadata.GetSubscribeInfo().GetPartition().GetPartitionID()),
@@ -171,7 +173,7 @@ func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +187,7 @@ func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata
 }
 
 // CommitOffsetRequestC2B implements the CommitOffsetRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CommitOffsetResponseB2C, error) {
+func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CommitOffsetResponseB2C, error) {
 	reqC2B := &protocol.CommitOffsetRequestC2B{
 		ClientId:         proto.String(sub.GetClientID()),
 		TopicName:        proto.String(metadata.GetSubscribeInfo().GetPartition().GetTopic()),
@@ -206,12 +208,12 @@ func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metada
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
-		Method:  proto.Int32(brokerConsumerHeartbeat),
+		Method:  proto.Int32(brokerConsumerCommit),
 		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -225,12 +227,12 @@ func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metada
 }
 
 // HeartbeatRequestC2B implements the HeartbeatRequestC2B interface according to TubeMQ RPC protocol.
-func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartBeatResponseB2C, error) {
+func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartBeatResponseB2C, error) {
 	reqC2B := &protocol.HeartBeatRequestC2B{
 		ClientId:      proto.String(sub.GetClientID()),
 		GroupName:     proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		ReadStatus:    proto.Int32(metadata.GetReadStatus()),
-		QryPriorityId: proto.Int32(metadata.GetSubscribeInfo().GetQryPriorityID()),
+		QryPriorityId: proto.Int32(r.GetQryPriorityID()),
 		AuthInfo:      sub.GetAuthorizedInfo(),
 	}
 	partitions := r.GetPartitionByBroker(metadata.GetNode())
@@ -256,7 +258,7 @@ func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.
 		Flag: proto.Int32(0),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}

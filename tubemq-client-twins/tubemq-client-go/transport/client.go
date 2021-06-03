@@ -28,8 +28,6 @@ import (
 
 // Options represents the transport options
 type Options struct {
-	Address string
-
 	CACertFile    string
 	TLSCertFile   string
 	TLSKeyFile    string
@@ -51,9 +49,9 @@ func New(opts *Options, pool *multiplexing.Pool) *Client {
 }
 
 // DoRequest sends the request and return the decoded response
-func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest) (codec.RPCResponse, error) {
+func (c *Client) DoRequest(ctx context.Context, address string, req codec.RPCRequest) (codec.RPCResponse, error) {
 	opts := &multiplexing.DialOptions{
-		Address: c.opts.Address,
+		Address: address,
 		Network: "tcp",
 	}
 	if c.opts.CACertFile != "" {
@@ -63,7 +61,7 @@ func (c *Client) DoRequest(ctx context.Context, req codec.RPCRequest) (codec.RPC
 		opts.TLSServerName = c.opts.TLSServerName
 	}
 
-	conn, err := c.pool.Get(ctx, c.opts.Address, req.GetSerialNo(), opts)
+	conn, err := c.pool.Get(ctx, address, req.GetSerialNo(), opts)
 	if err != nil {
 		return nil, err
 	}

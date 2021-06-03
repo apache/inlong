@@ -22,11 +22,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/remote"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/sub"
 )
 
 const (
@@ -39,7 +40,7 @@ const (
 )
 
 // RegisterRequestRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
+func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
 	reqC2M := &protocol.RegisterRequestC2M{
 		ClientId:         proto.String(sub.GetClientID()),
 		HostName:         proto.String(metadata.GetNode().GetHost()),
@@ -48,7 +49,7 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 		SessionTime:      proto.Int64(sub.GetSubscribedTime()),
 		DefFlowCheckId:   proto.Int64(r.GetDefFlowCtrlID()),
 		GroupFlowCheckId: proto.Int64(r.GetGroupFlowCtrlID()),
-		QryPriorityId:    proto.Int32(metadata.GetSubscribeInfo().GetQryPriorityID()),
+		QryPriorityId:    proto.Int32(r.GetQryPriorityID()),
 		AuthInfo:         sub.GetMasterCertificateIInfo(),
 	}
 	reqC2M.TopicList = make([]string, 0, len(sub.GetTopics()))
@@ -92,7 +93,7 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -106,14 +107,14 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 }
 
 // HeartRequestC2M implements the HeartRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo, r *client.RmtDataCache) (*protocol.HeartResponseM2C, error) {
+func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error) {
 	reqC2M := &protocol.HeartRequestC2M{
 		ClientId:            proto.String(sub.GetClientID()),
 		GroupName:           proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		DefFlowCheckId:      proto.Int64(r.GetDefFlowCtrlID()),
 		GroupFlowCheckId:    proto.Int64(r.GetGroupFlowCtrlID()),
 		ReportSubscribeInfo: proto.Bool(false),
-		QryPriorityId:       proto.Int32(metadata.GetSubscribeInfo().GetQryPriorityID()),
+		QryPriorityId:       proto.Int32(r.GetQryPriorityID()),
 	}
 	event := r.PollEventResult()
 	if event != nil || metadata.GetReportTimes() {
@@ -159,7 +160,7 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 		Flag: proto.Int32(0),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +174,7 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 }
 
 // CloseRequestC2M implements the CloseRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *client.SubInfo) (*protocol.CloseResponseM2C, error) {
+func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CloseResponseM2C, error) {
 	reqC2M := &protocol.CloseRequestC2M{
 		ClientId:  proto.String(sub.GetClientID()),
 		GroupName: proto.String(metadata.GetSubscribeInfo().GetGroup()),
@@ -197,7 +198,7 @@ func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Meta
 		Flag: proto.Int32(0),
 	}
 
-	rspBody, err := c.doRequest(ctx, req)
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
 		return nil, err
 	}
