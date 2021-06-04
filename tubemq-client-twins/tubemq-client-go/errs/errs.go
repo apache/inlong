@@ -35,15 +35,27 @@ const (
 	RetRequestFailure = 5
 	// RetSelectorNotExist represents the selector not exists.
 	RetSelectorNotExist        = 6
+	RetErrMoved                = 301
+	RetErrForbidden            = 403
+	RetErrNotFound             = 404
+	RetErrNoPartAssigned       = 406
+	RetErrAllPartWaiting       = 407
+	RetErrAllPartInUse         = 408
 	RetErrHBNoNode             = 411
+	RetErrDuplicatePartition   = 412
 	RetCertificateFailure      = 415
 	RetConsumeGroupForbidden   = 450
 	RetConsumeContentForbidden = 455
+	RetErrServiceUnavailable   = 503
+	RetErrConsumeSpeedLimit    = 550
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.
 var (
 	ErrAssertionFailure = New(RetAssertionFailure, "AssertionFailure")
+	ErrNoPartAssigned   = New(RetErrNoPartAssigned, "No partition info in local cache, please retry later!")
+	ErrAllPartWaiting   = New(RetErrAllPartWaiting, "All partitions reach max position, please retry later!")
+	ErrAllPartInUse     = New(RetErrAllPartInUse, "No idle partition to consume, please retry later!")
 )
 
 // Error provides a TubeMQ-specific error container

@@ -19,7 +19,10 @@
 package util
 
 import (
+	"fmt"
 	"net"
+	"strconv"
+	"strings"
 )
 
 // InValidValue of TubeMQ config.
@@ -71,4 +74,18 @@ func GenBrokerAuthenticateToken(username string, password string) string {
 // GenMasterAuthenticateToken generates the master authenticate token.
 func GenMasterAuthenticateToken(username string, password string) string {
 	return ""
+}
+
+// ParseConfirmContext parses the confirmcontext to partition key and bookedTime.
+func ParseConfirmContext(confirmContext string) (string, int64, error) {
+	res := strings.Split(confirmContext, "@")
+	if len(res) == 0 {
+		return "", 0, fmt.Errorf("illegal confirmContext content: unregular value format")
+	}
+	partitionKey := res[0]
+	bookedTime, err := strconv.ParseInt(res[1], 10, 64)
+	if err != nil {
+		return "", 0, err
+	}
+	return partitionKey, bookedTime, nil
 }

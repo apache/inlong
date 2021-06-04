@@ -19,6 +19,8 @@ package client
 
 import (
 	"context"
+	"encoding/binary"
+	"hash/crc32"
 	"os"
 	"strconv"
 	"sync/atomic"
@@ -187,7 +189,53 @@ func (c *consumer) processAuthorizedToken(info *protocol.MasterAuthorizedInfo) {
 
 // GetMessage implementation of TubeMQ consumer.
 func (c *consumer) GetMessage() (*ConsumerResult, error) {
-	panic("implement me")
+	err := c.checkPartitionErr()
+	if err != nil {
+		return nil, err
+	}
+	partition, err := c.rmtDataCache.SelectPartition()
+	if err != nil {
+		return nil, err
+	}
+	confirmContext := partition.GetPartitionKey() + "@" + strconv.Itoa(int(time.Now().UnixNano()/int64(time.Millisecond)))
+	isFiltered := c.subInfo.IsFiltered(partition.GetTopic())
+	pi := &PeerInfo{
+		brokerHost:   partition.GetBroker().GetHost(),
+		partitionID:  uint32(partition.GetPartitionID()),
+		partitionKey: partition.GetPartitionKey(),
+		currOffset:   util.InvalidValue,
+	}
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(partition.GetBroker().GetAddress())
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	sub.SetPartition(partition)
+	m.SetSubscribeInfo(sub)
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := c.client.GetMessageRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
+	if err != nil {
+		return nil, err
+	}
+	cs := &ConsumerResult{
+		topicName:      partition.GetTopic(),
+		confirmContext: confirmContext,
+		peerInfo:       pi,
+	}
+	if !rsp.GetSuccess() {
+		err := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false)
+		return cs, err
+	}
+	msgs, err := c.processGetMessageRspB2C(pi, isFiltered, partition, confirmContext, rsp)
+	if err != nil {
+		return cs, err
+	}
+	cs.messages = msgs
+	return cs, err
 }
 
 // Confirm implementation of TubeMQ consumer.
@@ -353,4 +401,134 @@ func (c *consumer) getConsumeReadStatus(isFirstReg bool) int32 {
 		}
 	}
 	return int32(readStatus)
+}
+
+func (c *consumer) checkPartitionErr() error {
+	startTime := time.Now().UnixNano() / int64(time.Millisecond)
+	for {
+		ret := c.rmtDataCache.GetCurConsumeStatus()
+		if ret == 0 {
+			return nil
+		}
+		if c.config.Consumer.MaxPartCheckPeriod >= 0 &&
+			time.Now().UnixNano()/int64(time.Millisecond)-startTime >= c.config.Consumer.MaxPartCheckPeriod.Milliseconds() {
+			switch ret {
+			case errs.RetErrNoPartAssigned:
+				return errs.ErrNoPartAssigned
+			case errs.RetErrAllPartInUse:
+				return errs.ErrAllPartInUse
+			case errs.RetErrAllPartWaiting:
+				return errs.ErrAllPartWaiting
+			}
+		}
+		time.Sleep(c.config.Consumer.PartCheckSlice)
+	}
+}
+
+func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partition *metadata.Partition, confirmContext string, rsp *protocol.GetMessageResponseB2C) ([]*Message, error) {
+	limitDlt := int64(300)
+	escLimit := rsp.GetEscFlowCtrl()
+	now := time.Now().UnixNano() / int64(time.Millisecond)
+	switch rsp.GetErrCode() {
+	case 200:
+		dataDleVal := util.InvalidValue
+		if rsp.GetCurrDataDlt() >= 0 {
+			dataDleVal = rsp.GetCurrDataDlt()
+		}
+		currOffset := util.InvalidValue
+		if rsp.GetCurrOffset() >= 0 {
+			currOffset = rsp.GetCurrOffset()
+		}
+		msgSize, msgs := c.convertMessages(filtered, partition.GetTopic(), rsp)
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset)
+		cd := metadata.NewConsumeData(time.Duration(now)*time.Millisecond, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
+		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
+		pi.currOffset = currOffset
+		return msgs, nil
+	case errs.RetErrHBNoNode, errs.RetCertificateFailure, errs.RetErrDuplicatePartition:
+		partitionKey, _, err := util.ParseConfirmContext(confirmContext)
+		if err != nil {
+			return nil, err
+		}
+		c.rmtDataCache.RemovePartition([]string{partitionKey})
+		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	case errs.RetErrConsumeSpeedLimit:
+		defDltTime := int64(rsp.GetMinLimitTime())
+		if defDltTime == 0 {
+			defDltTime = c.config.Consumer.MsgNotFoundWait.Milliseconds()
+		}
+		cd := metadata.NewConsumeData(time.Duration(now), rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
+		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
+		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	case errs.RetErrNotFound:
+		limitDlt = c.config.Consumer.MsgNotFoundWait.Milliseconds()
+	case errs.RetErrForbidden:
+		limitDlt = 2000
+	case errs.RetErrMoved:
+		limitDlt = 200
+	case errs.RetErrServiceUnavailable:
+	}
+	if rsp.GetErrCode() != 200 {
+		cd := metadata.NewConsumeData(time.Duration(now), rsp.GetErrCode(), false, 0, limitDlt, util.InvalidValue, rsp.GetRequireSlow())
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
+		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
+		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
+		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	}
+	return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+}
+
+func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.GetMessageResponseB2C) (int, []*Message) {
+	msgSize := 0
+	if len(rsp.GetMessages()) == 0 {
+		return msgSize, nil
+	}
+
+	msgs := make([]*Message, 0, len(rsp.GetMessages()))
+	for _, m := range rsp.GetMessages() {
+		checkSum := uint64(crc32.Update(0, crc32.IEEETable, m.GetPayLoadData())) & 0x7FFFFFFFF
+		if int32(checkSum) != m.GetCheckSum() {
+			continue
+		}
+		readPos := 0
+		dataLen := len(m.GetPayLoadData())
+		properties := make(map[string]string)
+		if m.GetFlag()&0x01 == 1 {
+			if len(m.GetPayLoadData()) < 4 {
+				continue
+			}
+			attrLen := int(binary.BigEndian.Uint64(m.GetPayLoadData()))
+			readPos += 4
+			dataLen -= 4
+
+			//attribute := m.GetPayLoadData()[readPos:readPos+attrLen]
+			readPos -= attrLen
+			dataLen -= attrLen
+			// todo util.Split(attribute, properties, ",", "=")
+			if filtered {
+				topicFilters := c.subInfo.GetTopicFilters()
+				if msgKey, ok := properties["$msgType$"]; ok {
+					if filters, ok := topicFilters[topic]; ok {
+						for _, filter := range filters {
+							if filter == msgKey {
+								continue
+							}
+						}
+					}
+				}
+			}
+		}
+		msg := &Message{
+			topic:      topic,
+			flag:       m.GetFlag(),
+			id:         m.GetMessageId(),
+			properties: properties,
+			dataLen:    int32(dataLen),
+			data:       string(m.GetPayLoadData()[:readPos]),
+		}
+		msgs = append(msgs, msg)
+		msgSize += dataLen
+	}
+	return msgSize, msgs
 }

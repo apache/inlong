@@ -20,6 +20,7 @@ package metadata
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Partition represents the metadata of a partition.
@@ -30,6 +31,29 @@ type Partition struct {
 	partitionKey string
 	offset       int64
 	lastConsumed bool
+	consumeData  *ConsumeData
+}
+
+type ConsumeData struct {
+	time        time.Duration
+	errCode     int32
+	escLimit    bool
+	msgSize     int32
+	dltLimit    int64
+	curDataDlt  int64
+	requireSlow bool
+}
+
+func NewConsumeData(time time.Duration, errCode int32, escLimit bool, msgSize int32, dltLimit int64, curDataDlt int64, requireSlow bool) *ConsumeData {
+	return &ConsumeData{
+		time:        time,
+		errCode:     errCode,
+		escLimit:    escLimit,
+		msgSize:     msgSize,
+		dltLimit:    dltLimit,
+		curDataDlt:  curDataDlt,
+		requireSlow: requireSlow,
+	}
 }
 
 func NewPartition(partition string) (*Partition, error) {
@@ -92,4 +116,8 @@ func (p *Partition) String() string {
 
 func (p *Partition) SetLastConsumed(lastConsumed bool) {
 	p.lastConsumed = lastConsumed
+}
+
+func (p *Partition) BookConsumeData(data *ConsumeData) {
+	p.consumeData = data
 }

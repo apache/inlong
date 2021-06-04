@@ -19,9 +19,11 @@
 package remote
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
 )
@@ -44,10 +46,11 @@ type RmtDataCache struct {
 	qryPriorityID      int32
 	partitions         map[string]*metadata.Partition
 	usedPartitions     map[string]int64
-	indexPartitions    map[string]bool
+	indexPartitions    []string
 	partitionTimeouts  map[string]*time.Timer
 	topicPartitions    map[string]map[string]bool
 	partitionRegBooked map[string]bool
+	partitionOffset    map[string]int64
 }
 
 // NewRmtDataCache returns a default rmtDataCache.
@@ -61,7 +64,7 @@ func NewRmtDataCache() *RmtDataCache {
 		brokerPartitions:   make(map[*metadata.Node]map[string]bool),
 		partitions:         make(map[string]*metadata.Partition),
 		usedPartitions:     make(map[string]int64),
-		indexPartitions:    make(map[string]bool),
+		indexPartitions:    make([]string, 0, 0),
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
@@ -240,10 +243,10 @@ func (r *RmtDataCache) resetIdlePartition(partitionKey string, reuse bool) {
 		timer.Stop()
 		delete(r.partitionTimeouts, partitionKey)
 	}
-	delete(r.indexPartitions, partitionKey)
+	r.removeFromIndexPartitions(partitionKey)
 	if reuse {
 		if _, ok := r.partitions[partitionKey]; ok {
-			r.indexPartitions[partitionKey] = true
+			r.indexPartitions = append(r.indexPartitions, partitionKey)
 		}
 	}
 }
@@ -341,4 +344,114 @@ func (r *RmtDataCache) IsFirstRegister(partitionKey string) bool {
 		r.partitionRegBooked[partitionKey] = true
 	}
 	return r.partitionRegBooked[partitionKey]
+}
+
+func (r *RmtDataCache) GetCurConsumeStatus() int32 {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if len(r.partitions) == 0 {
+		return errs.RetErrNoPartAssigned
+	}
+	if len(r.indexPartitions) == 0 {
+		if len(r.usedPartitions) == 0 {
+			return errs.RetErrAllPartInUse
+		} else {
+			return errs.RetErrAllPartWaiting
+		}
+	}
+	return 0
+}
+
+func (r *RmtDataCache) SelectPartition() (*metadata.Partition, error) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if len(r.partitions) == 0 {
+		return nil, errs.ErrNoPartAssigned
+	} else {
+		if len(r.indexPartitions) == 0 {
+			if len(r.usedPartitions) == 0 {
+				return nil, errs.ErrAllPartInUse
+			} else {
+				return nil, errs.ErrAllPartWaiting
+			}
+		}
+	}
+
+	partitionKey := r.indexPartitions[0]
+	r.indexPartitions = r.indexPartitions[1:]
+	if partition, ok := r.partitions[partitionKey]; !ok {
+		return nil, errs.ErrAllPartInUse
+	} else {
+		r.usedPartitions[partitionKey] = time.Now().UnixNano() / int64(time.Millisecond)
+		return partition, nil
+	}
+}
+
+func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, confirmContext string, isConsumed bool) error {
+	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
+	if err != nil {
+		return err
+	}
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if _, ok := r.partitions[partitionKey]; !ok {
+		delete(r.usedPartitions, partitionKey)
+		r.removeFromIndexPartitions(partitionKey)
+		return fmt.Errorf("not found the partition in Consume Partition set")
+	} else {
+		if t, ok := r.usedPartitions[partitionKey]; !ok {
+			r.removeFromIndexPartitions(partitionKey)
+			r.indexPartitions = append(r.indexPartitions, partitionKey)
+		} else {
+			if t == bookedTime {
+				delete(r.usedPartitions, partitionKey)
+				r.removeFromIndexPartitions(partitionKey)
+				delay := 0
+				if checkDelay {
+					// todo add ProcConsumeResult
+					//delay = partition.ProcConsumerResult()
+				}
+				if delay > 10 {
+					r.partitionTimeouts[partitionKey] = time.AfterFunc(time.Duration(delay)*time.Millisecond, func() {
+						r.resetIdlePartition(partitionKey, true)
+					})
+				} else {
+					r.indexPartitions = append(r.indexPartitions, partitionKey)
+				}
+			} else {
+				return fmt.Errorf("illegel confirmContext content: context not equal")
+			}
+		}
+	}
+	return nil
+}
+
+func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
+	pos := 0
+	for i, p := range r.indexPartitions {
+		if p == partitionKey {
+			pos = i
+			break
+		}
+	}
+	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
+}
+
+func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64) {
+	if currOffset >= 0 {
+		r.dataBookMu.Lock()
+		defer r.dataBookMu.Unlock()
+		r.partitionOffset[partitionKey] = currOffset
+	}
+}
+
+func (r *RmtDataCache) BookConsumeData(partitionKey string, data *metadata.ConsumeData) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if partition, ok := r.partitions[partitionKey]; ok {
+		partition.BookConsumeData(data)
+	}
 }

@@ -25,6 +25,10 @@ const (
 
 // ConsumerResult of a consumption.
 type ConsumerResult struct {
+	topicName      string
+	confirmContext string
+	peerInfo       *PeerInfo
+	messages       []*Message
 }
 
 // ConsumerOffset of a consumption,
