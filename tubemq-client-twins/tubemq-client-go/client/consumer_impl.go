@@ -203,9 +203,6 @@ func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
 func (c *consumer) processRebalanceEvent() {
 	for {
 		event := c.rmtDataCache.TakeEvent()
-		if event == nil {
-			continue
-		}
 		if event.GetEventStatus() == int32(util.InvalidValue) && event.GetRebalanceID() == util.InvalidValue {
 			break
 		}
@@ -213,10 +210,10 @@ func (c *consumer) processRebalanceEvent() {
 		switch event.GetEventType() {
 		case 2, 20:
 			c.disconnect2Broker(event)
-			c.rmtDataCache.OfferEvent(event)
+			c.rmtDataCache.OfferEventResult(event)
 		case 1, 10:
 			c.connect2Broker(event)
-			c.rmtDataCache.OfferEvent(event)
+			c.rmtDataCache.OfferEventResult(event)
 		}
 	}
 }
