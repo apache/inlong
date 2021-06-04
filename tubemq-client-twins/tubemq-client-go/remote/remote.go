@@ -35,9 +35,11 @@ type RmtDataCache struct {
 	groupFlowCtrlID    int64
 	partitionSubInfo   map[string]*metadata.SubscribeInfo
 	rebalanceResults   []*metadata.ConsumerEvent
-	eventMu            sync.Mutex
+	eventWriteMu       sync.Mutex
+	eventReadMu        sync.Mutex
 	metaMu             sync.Mutex
 	dataBookMu         sync.Mutex
+	eventReadCond      *sync.Cond
 	brokerPartitions   map[*metadata.Node]map[string]bool
 	qryPriorityID      int32
 	partitions         map[string]*metadata.Partition
@@ -50,7 +52,7 @@ type RmtDataCache struct {
 
 // NewRmtDataCache returns a default rmtDataCache.
 func NewRmtDataCache() *RmtDataCache {
-	return &RmtDataCache{
+	r := &RmtDataCache{
 		defFlowCtrlID:      util.InvalidValue,
 		groupFlowCtrlID:    util.InvalidValue,
 		qryPriorityID:      int32(util.InvalidValue),
@@ -64,6 +66,8 @@ func NewRmtDataCache() *RmtDataCache {
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
 	}
+	r.eventReadCond = sync.NewCond(&r.eventReadMu)
+	return r
 }
 
 // GetUnderGroupCtrl returns the underGroupCtrl.
@@ -104,8 +108,8 @@ func (r *RmtDataCache) GetQryPriorityID() int32 {
 
 // PollEventResult polls the first event result from the rebalanceResults.
 func (r *RmtDataCache) PollEventResult() *metadata.ConsumerEvent {
-	r.eventMu.Lock()
-	defer r.eventMu.Unlock()
+	r.eventWriteMu.Lock()
+	defer r.eventWriteMu.Unlock()
 	if len(r.rebalanceResults) > 0 {
 		event := r.rebalanceResults[0]
 		r.rebalanceResults = r.rebalanceResults[1:]
@@ -145,19 +149,20 @@ func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID i
 
 }
 
-// OfferEvent offers an consumer event.
+// OfferEvent offers an consumer event and notifies the consumer method.
 func (r *RmtDataCache) OfferEvent(event *metadata.ConsumerEvent) {
-	r.eventMu.Lock()
-	defer r.eventMu.Unlock()
+	r.eventReadMu.Lock()
+	defer r.eventReadMu.Unlock()
 	r.rebalanceResults = append(r.rebalanceResults, event)
+	r.eventReadCond.Broadcast()
 }
 
 // TakeEvent takes an event from the rebalanceResults.
 func (r *RmtDataCache) TakeEvent() *metadata.ConsumerEvent {
-	r.eventMu.Lock()
-	defer r.eventMu.Unlock()
-	if len(r.rebalanceResults) == 0 {
-		return nil
+	r.eventReadMu.Lock()
+	defer r.eventReadMu.Unlock()
+	for len(r.rebalanceResults) == 0 {
+		r.eventReadCond.Wait()
 	}
 	event := r.rebalanceResults[0]
 	r.rebalanceResults = r.rebalanceResults[1:]
@@ -166,9 +171,17 @@ func (r *RmtDataCache) TakeEvent() *metadata.ConsumerEvent {
 
 // ClearEvent clears all the events.
 func (r *RmtDataCache) ClearEvent() {
-	r.eventMu.Lock()
-	defer r.eventMu.Unlock()
+	r.eventWriteMu.Lock()
+	defer r.eventWriteMu.Unlock()
 	r.rebalanceResults = r.rebalanceResults[:0]
+}
+
+// OfferEventResult offers an consumer event.
+func (r *RmtDataCache) OfferEventResult(event *metadata.ConsumerEvent) {
+	r.eventWriteMu.Lock()
+	defer r.eventWriteMu.Unlock()
+
+	r.rebalanceResults = append(r.rebalanceResults, event)
 }
 
 // RemoveAndGetPartition removes the given partitions.
