@@ -44,7 +44,7 @@ type RmtDataCache struct {
 	qryPriorityID      int32
 	partitions         map[string]*metadata.Partition
 	usedPartitions     map[string]int64
-	indexPartitions    map[string]bool
+	indexPartitions    []string
 	partitionTimeouts  map[string]*time.Timer
 	topicPartitions    map[string]map[string]bool
 	partitionRegBooked map[string]bool
@@ -61,7 +61,7 @@ func NewRmtDataCache() *RmtDataCache {
 		brokerPartitions:   make(map[*metadata.Node]map[string]bool),
 		partitions:         make(map[string]*metadata.Partition),
 		usedPartitions:     make(map[string]int64),
-		indexPartitions:    make(map[string]bool),
+		indexPartitions:    make([]string, 0, 0),
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
@@ -240,10 +240,10 @@ func (r *RmtDataCache) resetIdlePartition(partitionKey string, reuse bool) {
 		timer.Stop()
 		delete(r.partitionTimeouts, partitionKey)
 	}
-	delete(r.indexPartitions, partitionKey)
+	r.removeFromIndexPartitions(partitionKey)
 	if reuse {
 		if _, ok := r.partitions[partitionKey]; ok {
-			r.indexPartitions[partitionKey] = true
+			r.indexPartitions = append(r.indexPartitions, partitionKey)
 		}
 	}
 }
@@ -341,4 +341,15 @@ func (r *RmtDataCache) IsFirstRegister(partitionKey string) bool {
 		r.partitionRegBooked[partitionKey] = true
 	}
 	return r.partitionRegBooked[partitionKey]
+}
+
+func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
+	pos := 0
+	for i, p := range r.indexPartitions {
+		if p == partitionKey {
+			pos = i
+			break
+		}
+	}
+	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
 }

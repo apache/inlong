@@ -58,15 +58,15 @@ func NewSubscribeInfo(subscribeInfo string) (*SubscribeInfo, error) {
 	var err error
 	pos := strings.Index(subscribeInfo, "#")
 	if pos != -1 {
-		consumerInfo := subscribeInfo[:pos]
-		partitionInfo := subscribeInfo[pos+1:]
+		consumerInfo := strings.TrimSpace(subscribeInfo[:pos])
+		partitionInfo := strings.TrimSpace(subscribeInfo[pos+1:])
 		partition, err = NewPartition(partitionInfo)
 		if err != nil {
 			return nil, err
 		}
 		pos = strings.Index(consumerInfo, "@")
-		consumerID = consumerInfo[:pos]
-		group = consumerInfo[pos+1:]
+		consumerID = strings.TrimSpace(consumerInfo[:pos])
+		group = strings.TrimSpace(consumerInfo[pos+1:])
 	}
 	return &SubscribeInfo{
 		group:      group,
