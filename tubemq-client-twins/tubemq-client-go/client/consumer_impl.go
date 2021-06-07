@@ -493,7 +493,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 		}
 		readPos := 0
 		dataLen := len(m.GetPayLoadData())
-		properties := make(map[string]string)
+		var properties map[string]string
 		if m.GetFlag()&0x01 == 1 {
 			if len(m.GetPayLoadData()) < 4 {
 				continue
@@ -502,10 +502,10 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 			readPos += 4
 			dataLen -= 4
 
-			//attribute := m.GetPayLoadData()[readPos:readPos+attrLen]
+			attribute := m.GetPayLoadData()[readPos:readPos+attrLen]
 			readPos -= attrLen
 			dataLen -= attrLen
-			// todo util.Split(attribute, properties, ",", "=")
+			properties := util.SplitToMap(string(attribute), ",", "=")
 			if filtered {
 				topicFilters := c.subInfo.GetTopicFilters()
 				if msgKey, ok := properties["$msgType$"]; ok {

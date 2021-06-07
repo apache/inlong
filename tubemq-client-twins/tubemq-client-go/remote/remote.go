@@ -411,7 +411,7 @@ func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, con
 				r.removeFromIndexPartitions(partitionKey)
 				delay := 0
 				if checkDelay {
-					// todo add ProcConsumeResult
+					// todo add ProcConsumeResult(need flow control support)
 					//delay = partition.ProcConsumerResult()
 				}
 				if delay > 10 {

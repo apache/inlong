@@ -63,16 +63,16 @@ func NewPartition(partition string) (*Partition, error) {
 	var err error
 	pos := strings.Index(partition, "#")
 	if pos != -1 {
-		broker := partition[:pos]
+		broker := strings.TrimSpace(partition[:pos])
 		b, err = NewNode(true, broker)
 		if err != nil {
 			return nil, err
 		}
-		p := partition[pos+1:]
+		p := strings.TrimSpace(partition[pos+1:])
 		pos = strings.Index(p, ":")
 		if pos != -1 {
-			topic = p[0:pos]
-			partitionID, err = strconv.Atoi(p[pos+1:])
+			topic = strings.TrimSpace(p[0:pos])
+			partitionID, err = strconv.Atoi(strings.TrimSpace(p[pos+1:]))
 			if err != nil {
 				return nil, err
 			}
