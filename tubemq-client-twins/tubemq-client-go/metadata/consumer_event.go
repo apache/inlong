@@ -17,6 +17,13 @@
 
 package metadata
 
+const (
+	Disconnect     = 2
+	OnlyDisconnect = 20
+	Connect        = 1
+	OnlyConnect    = 10
+)
+
 // ConsumerEvent represents the metadata of a consumer event
 type ConsumerEvent struct {
 	rebalanceID   int64

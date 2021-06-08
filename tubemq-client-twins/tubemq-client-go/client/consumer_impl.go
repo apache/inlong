@@ -61,6 +61,7 @@ type consumer struct {
 	masterHBRetry    int
 	heartbeatManager *heartbeatManager
 	unreportedTimes  int
+	done             chan struct{}
 }
 
 // NewConsumer returns a consumer which is constructed by a given config.
@@ -70,7 +71,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		return nil, err
 	}
 
-	clientID := newClientID(config.Consumer.Group)
+	clientID := newClient(config.Consumer.Group)
 	pool := multiplexing.NewPool()
 	opts := &transport.Options{}
 	if config.Net.TLS.Enable {
@@ -118,46 +119,48 @@ func (c *consumer) register2Master(needChange bool) error {
 		c.master = node
 	}
 	for c.master.HasNext {
-		ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-
-		m := &metadata.Metadata{}
-		node := &metadata.Node{}
-		node.SetHost(util.GetLocalHost())
-		node.SetAddress(c.master.Address)
-		m.SetNode(node)
-		sub := &metadata.SubscribeInfo{}
-		sub.SetGroup(c.config.Consumer.Group)
-		m.SetSubscribeInfo(sub)
-
-		auth := &protocol.AuthenticateInfo{}
-		c.genMasterAuthenticateToken(auth, true)
-		mci := &protocol.MasterCertificateInfo{
-			AuthInfo: auth,
-		}
-		c.subInfo.SetMasterCertificateInfo(mci)
-
-		rsp, err := c.client.RegisterRequestC2M(ctx, m, c.subInfo, c.rmtDataCache)
+		rsp, err := c.sendRegRequest2Master()
 		if err != nil {
-			cancel()
 			return err
 		}
 		if rsp.GetSuccess() {
 			c.masterHBRetry = 0
 			c.processRegisterResponseM2C(rsp)
-			cancel()
 			return nil
 		} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
-			cancel()
 			return nil
 		} else {
 			c.master, err = c.selector.Select(c.config.Consumer.Masters)
-			cancel()
 			if err != nil {
 				return err
 			}
 		}
 	}
 	return nil
+}
+
+func (c *consumer) sendRegRequest2Master() (*protocol.RegisterResponseM2C, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(c.master.Address)
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	m.SetSubscribeInfo(sub)
+
+	auth := &protocol.AuthenticateInfo{}
+	c.genMasterAuthenticateToken(auth, true)
+	mci := &protocol.MasterCertificateInfo{
+		AuthInfo: auth,
+	}
+	c.subInfo.SetMasterCertificateInfo(mci)
+
+	rsp, err := c.client.RegisterRequestC2M(ctx, m, c.subInfo, c.rmtDataCache)
+	return rsp, err
 }
 
 func (c *consumer) processRegisterResponseM2C(rsp *protocol.RegisterResponseM2C) {
@@ -202,18 +205,24 @@ func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
 
 func (c *consumer) processRebalanceEvent() {
 	for {
-		event := c.rmtDataCache.TakeEvent()
-		if event.GetEventStatus() == int32(util.InvalidValue) && event.GetRebalanceID() == util.InvalidValue {
+		select {
+		case event, ok := <-c.rmtDataCache.EventCh:
+			if ok {
+				if event.GetEventStatus() == int32(util.InvalidValue) && event.GetRebalanceID() == util.InvalidValue {
+					break
+				}
+				c.rmtDataCache.ClearEvent()
+				switch event.GetEventType() {
+				case metadata.Disconnect, metadata.OnlyDisconnect:
+					c.disconnect2Broker(event)
+					c.rmtDataCache.OfferEventResult(event)
+				case metadata.Connect, metadata.OnlyConnect:
+					c.connect2Broker(event)
+					c.rmtDataCache.OfferEventResult(event)
+				}
+			}
+		case <-c.done:
 			break
-		}
-		c.rmtDataCache.ClearEvent()
-		switch event.GetEventType() {
-		case 2, 20:
-			c.disconnect2Broker(event)
-			c.rmtDataCache.OfferEventResult(event)
-		case 1, 10:
-			c.connect2Broker(event)
-			c.rmtDataCache.OfferEventResult(event)
 		}
 	}
 }
@@ -237,24 +246,28 @@ func (c *consumer) unregister2Broker(unRegPartitions map[*metadata.Node][]*metad
 
 	for _, partitions := range unRegPartitions {
 		for _, partition := range partitions {
-			ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-
-			m := &metadata.Metadata{}
-			node := &metadata.Node{}
-			node.SetHost(util.GetLocalHost())
-			node.SetAddress(partition.GetBroker().GetAddress())
-			m.SetNode(node)
-			m.SetReadStatus(1)
-			sub := &metadata.SubscribeInfo{}
-			sub.SetGroup(c.config.Consumer.Group)
-			sub.SetConsumerID(c.clientID)
-			sub.SetPartition(partition)
-			m.SetSubscribeInfo(sub)
-
-			c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
-			cancel()
+			c.sendUnregisterReq2Broker(partition)
 		}
 	}
+}
+
+func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(partition.GetBroker().GetAddress())
+	m.SetNode(node)
+	m.SetReadStatus(1)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	sub.SetConsumerID(c.clientID)
+	sub.SetPartition(partition)
+	m.SetSubscribeInfo(sub)
+
+	c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
 }
 
 func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
@@ -262,23 +275,12 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 		unsubPartitions := c.rmtDataCache.FilterPartitions(event.GetSubscribeInfo())
 		if len(unsubPartitions) > 0 {
 			for _, partition := range unsubPartitions {
-				m := &metadata.Metadata{}
+
 				node := &metadata.Node{}
 				node.SetHost(util.GetLocalHost())
 				node.SetAddress(partition.GetBroker().GetAddress())
-				m.SetNode(node)
-				sub := &metadata.SubscribeInfo{}
-				sub.SetGroup(c.config.Consumer.Group)
-				sub.SetConsumerID(c.clientID)
-				sub.SetPartition(partition)
-				m.SetSubscribeInfo(sub)
-				isFirstRegister := c.rmtDataCache.IsFirstRegister(partition.GetPartitionKey())
-				m.SetReadStatus(c.getConsumeReadStatus(isFirstRegister))
-				auth := c.genBrokerAuthenticInfo(true)
-				c.subInfo.SetAuthorizedInfo(auth)
 
-				ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
-				rsp, err := c.client.RegisterRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
+				rsp, err := c.sendRegisterReq2Broker(partition, node)
 				if err != nil {
 					//todo add log
 				}
@@ -286,24 +288,39 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 					c.rmtDataCache.AddNewPartition(partition)
 					c.heartbeatManager.registerBroker(node)
 				}
-				cancel()
 			}
 		}
 	}
 	c.subInfo.FirstRegistered()
-	event.SetEventStatus(2)
+	event.SetEventStatus(metadata.Disconnect)
 }
 
-func newClientIndex() uint64 {
-	return atomic.AddUint64(&clientIndex, 1)
+func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition, node *metadata.Node) (*protocol.RegisterResponseB2C, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+
+	m := &metadata.Metadata{}
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	sub.SetConsumerID(c.clientID)
+	sub.SetPartition(partition)
+	m.SetSubscribeInfo(sub)
+	isFirstRegister := c.rmtDataCache.IsFirstRegister(partition.GetPartitionKey())
+	m.SetReadStatus(c.getConsumeReadStatus(isFirstRegister))
+	auth := c.genBrokerAuthenticInfo(true)
+	c.subInfo.SetAuthorizedInfo(auth)
+
+	rsp, err := c.client.RegisterRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
+	return rsp, err
 }
 
-func newClientID(group string) string {
+func newClient(group string) string {
 	return group + "_" +
 		util.GetLocalHost() + "_" +
 		strconv.Itoa(os.Getpid()) + "_" +
 		strconv.Itoa(int(time.Now().Unix()*1000)) + "_" +
-		strconv.Itoa(int(newClientIndex())) + "_" +
+		strconv.Itoa(int(atomic.AddUint64(&clientID, 1))) + "_" +
 		tubeMQClientVersion
 }
 
