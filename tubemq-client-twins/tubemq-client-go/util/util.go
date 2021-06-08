@@ -90,13 +90,14 @@ func ParseConfirmContext(confirmContext string) (string, int64, error) {
 	return partitionKey, bookedTime, nil
 }
 
+// SplitToMap split the given string by the two step strings to map.
 func SplitToMap(source string, step1 string, step2 string) map[string]string {
 	pos1 := 0
 	pos2 := strings.Index(source, step1)
 	pos3 := 0
 	m := make(map[string]string)
 	for pos2 != -1 {
-		itemStr := strings.TrimSpace(source[pos1:pos2-pos1])
+		itemStr := strings.TrimSpace(source[pos1 : pos2-pos1])
 		if len(itemStr) == 0 {
 			continue
 		}
@@ -116,7 +117,7 @@ func SplitToMap(source string, step1 string, step2 string) map[string]string {
 	if pos1 != len(source) {
 		itemStr := strings.TrimSpace(source[pos1:])
 		pos3 = strings.Index(itemStr, step2)
-		if pos3 != - 1{
+		if pos3 != -1 {
 			key := strings.TrimSpace(itemStr[:pos3])
 			val := strings.TrimSpace(itemStr[pos3+len(step2):])
 			if len(key) > 0 {

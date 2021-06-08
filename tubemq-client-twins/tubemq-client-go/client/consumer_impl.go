@@ -430,7 +430,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 	escLimit := rsp.GetEscFlowCtrl()
 	now := time.Now().UnixNano() / int64(time.Millisecond)
 	switch rsp.GetErrCode() {
-	case 200:
+	case errs.RetSuccess:
 		dataDleVal := util.InvalidValue
 		if rsp.GetCurrDataDlt() >= 0 {
 			dataDleVal = rsp.GetCurrDataDlt()
@@ -441,7 +441,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		}
 		msgSize, msgs := c.convertMessages(filtered, partition.GetTopic(), rsp)
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset)
-		cd := metadata.NewConsumeData(time.Duration(now)*time.Millisecond, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
+		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		pi.currOffset = currOffset
 		return msgs, nil
@@ -457,7 +457,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		if defDltTime == 0 {
 			defDltTime = c.config.Consumer.MsgNotFoundWait.Milliseconds()
 		}
-		cd := metadata.NewConsumeData(time.Duration(now), rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
+		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
@@ -469,8 +469,8 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		limitDlt = 200
 	case errs.RetErrServiceUnavailable:
 	}
-	if rsp.GetErrCode() != 200 {
-		cd := metadata.NewConsumeData(time.Duration(now), rsp.GetErrCode(), false, 0, limitDlt, util.InvalidValue, rsp.GetRequireSlow())
+	if rsp.GetErrCode() != errs.RetSuccess {
+		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, util.InvalidValue, rsp.GetRequireSlow())
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
@@ -502,7 +502,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 			readPos += 4
 			dataLen -= 4
 
-			attribute := m.GetPayLoadData()[readPos:readPos+attrLen]
+			attribute := m.GetPayLoadData()[readPos : readPos+attrLen]
 			readPos -= attrLen
 			dataLen -= attrLen
 			properties := util.SplitToMap(string(attribute), ",", "=")

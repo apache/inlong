@@ -35,6 +35,7 @@ const (
 	RetRequestFailure = 5
 	// RetSelectorNotExist represents the selector not exists.
 	RetSelectorNotExist        = 6
+	RetSuccess                 = 200
 	RetErrMoved                = 301
 	RetErrForbidden            = 403
 	RetErrNotFound             = 404
