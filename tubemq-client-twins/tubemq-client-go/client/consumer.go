@@ -19,10 +19,6 @@
 // which can be exposed to user.
 package client
 
-const (
-	tubeMQClientVersion = "0.1.0"
-)
-
 // ConsumerResult of a consumption.
 type ConsumerResult struct {
 }
@@ -31,7 +27,7 @@ type ConsumerResult struct {
 type ConsumerOffset struct {
 }
 
-var clientIndex uint64
+var clientID uint64
 
 // Consumer is an interface that abstracts behavior of TubeMQ's consumer
 type Consumer interface {
