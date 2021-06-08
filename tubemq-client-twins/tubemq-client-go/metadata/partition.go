@@ -32,6 +32,7 @@ type Partition struct {
 	lastConsumed bool
 }
 
+// NewPartition parses a partition from the given string.
 func NewPartition(partition string) (*Partition, error) {
 	var b *Node
 	var topic string
@@ -81,6 +82,7 @@ func (p *Partition) GetTopic() string {
 	return p.topic
 }
 
+// GetBroker returns the broker.
 func (p *Partition) GetBroker() *Node {
 	return p.broker
 }
@@ -90,6 +92,7 @@ func (p *Partition) String() string {
 	return p.broker.String() + "#" + p.topic + "@" + strconv.Itoa(int(p.partitionID))
 }
 
+// SetLastConsumed sets the last consumed.
 func (p *Partition) SetLastConsumed(lastConsumed bool) {
 	p.lastConsumed = lastConsumed
 }
