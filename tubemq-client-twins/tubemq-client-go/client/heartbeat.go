@@ -95,17 +95,14 @@ func (h *heartbeatManager) consumerHB2Master() {
 
 	retry := 0
 	for retry < h.consumer.config.Heartbeat.MaxRetryTimes {
-		ctx, cancel := context.WithTimeout(context.Background(), h.consumer.config.Net.ReadTimeout)
-		rsp, err := h.consumer.client.HeartRequestC2M(ctx, m, h.consumer.subInfo, h.consumer.rmtDataCache)
+		rsp, err := h.sendHeartbeatC2M(m)
 		if err != nil {
-			cancel()
+			continue
 		}
 		if rsp.GetSuccess() {
-			cancel()
 			h.processHBResponseM2C(rsp)
 			break
 		} else if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
-			cancel()
 			h.consumer.masterHBRetry++
 			address := h.consumer.master.Address
 			go h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
@@ -120,12 +117,18 @@ func (h *heartbeatManager) consumerHB2Master() {
 			}
 			return
 		}
-		cancel()
 	}
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	hm := h.heartbeats[h.consumer.master.Address]
 	hm.timer.Reset(h.nextHeartbeatInterval())
+}
+
+func (h *heartbeatManager) sendHeartbeatC2M(m *metadata.Metadata) (*protocol.HeartResponseM2C, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), h.consumer.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := h.consumer.client.HeartRequestC2M(ctx, m, h.consumer.subInfo, h.consumer.rmtDataCache)
+	return rsp, err
 }
 
 func (h *heartbeatManager) processHBResponseM2C(rsp *protocol.HeartResponseM2C) {
@@ -158,7 +161,7 @@ func (h *heartbeatManager) processHBResponseM2C(rsp *protocol.HeartResponseM2C) 
 			subscribeInfo = append(subscribeInfo, s)
 		}
 		e := metadata.NewEvent(event.GetRebalanceId(), event.GetOpType(), subscribeInfo)
-		h.consumer.rmtDataCache.OfferEvent(e)
+		h.consumer.rmtDataCache.OfferEventAndNotify(e)
 	}
 }
 
@@ -179,16 +182,12 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 		h.resetBrokerTimer(broker)
 		return
 	}
-	m := &metadata.Metadata{}
-	m.SetReadStatus(h.consumer.getConsumeReadStatus(false))
-	m.SetNode(broker)
-	ctx, cancel := context.WithTimeout(context.Background(), h.consumer.config.Net.ReadTimeout)
-	defer cancel()
 
-	rsp, err := h.consumer.client.HeartbeatRequestC2B(ctx, m, h.consumer.subInfo, h.consumer.rmtDataCache)
+	rsp, err := h.sendHeartbeatC2B(broker)
 	if err != nil {
 		return
 	}
+
 	if rsp.GetSuccess() {
 		if rsp.GetHasPartFailure() {
 			partitionKeys := make([]string, 0, len(rsp.GetFailureInfo()))
@@ -215,6 +214,16 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 		}
 	}
 	h.resetBrokerTimer(broker)
+}
+
+func (h *heartbeatManager) sendHeartbeatC2B(broker *metadata.Node) (*protocol.HeartBeatResponseB2C, error) {
+	m := &metadata.Metadata{}
+	m.SetReadStatus(h.consumer.getConsumeReadStatus(false))
+	m.SetNode(broker)
+	ctx, cancel := context.WithTimeout(context.Background(), h.consumer.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := h.consumer.client.HeartbeatRequestC2B(ctx, m, h.consumer.subInfo, h.consumer.rmtDataCache)
+	return rsp, err
 }
 
 func (h *heartbeatManager) resetBrokerTimer(broker *metadata.Node) {

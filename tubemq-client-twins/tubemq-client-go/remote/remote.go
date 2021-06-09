@@ -45,7 +45,6 @@ type RmtDataCache struct {
 	eventReadMu        sync.Mutex
 	metaMu             sync.Mutex
 	dataBookMu         sync.Mutex
-	eventReadCond      *sync.Cond
 	brokerPartitions   map[*metadata.Node]map[string]bool
 	qryPriorityID      int32
 	partitions         map[string]*metadata.Partition
@@ -57,6 +56,8 @@ type RmtDataCache struct {
 	partitionOffset    map[string]int64
 	groupHandler       *flowctrl.RuleHandler
 	defHandler         *flowctrl.RuleHandler
+	// EventCh is the channel for consumer to consume
+	EventCh chan *metadata.ConsumerEvent
 }
 
 // NewRmtDataCache returns a default rmtDataCache.
@@ -76,8 +77,8 @@ func NewRmtDataCache() *RmtDataCache {
 		partitionRegBooked: make(map[string]bool),
 		groupHandler:       flowctrl.NewRuleHandler(),
 		defHandler:         flowctrl.NewRuleHandler(),
+		EventCh:            make(chan *metadata.ConsumerEvent, 1),
 	}
-	r.eventReadCond = sync.NewCond(&r.eventReadMu)
 	return r
 }
 
@@ -177,24 +178,14 @@ func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID i
 	}
 }
 
-// OfferEvent offers an consumer event and notifies the consumer method.
-func (r *RmtDataCache) OfferEvent(event *metadata.ConsumerEvent) {
+// OfferEventAndNotify offers an consumer event and notifies the consumer method and notify the consumer to consume.
+func (r *RmtDataCache) OfferEventAndNotify(event *metadata.ConsumerEvent) {
 	r.eventReadMu.Lock()
 	defer r.eventReadMu.Unlock()
 	r.rebalanceResults = append(r.rebalanceResults, event)
-	r.eventReadCond.Broadcast()
-}
-
-// TakeEvent takes an event from the rebalanceResults.
-func (r *RmtDataCache) TakeEvent() *metadata.ConsumerEvent {
-	r.eventReadMu.Lock()
-	defer r.eventReadMu.Unlock()
-	for len(r.rebalanceResults) == 0 {
-		r.eventReadCond.Wait()
-	}
-	event := r.rebalanceResults[0]
+	e := r.rebalanceResults[0]
 	r.rebalanceResults = r.rebalanceResults[1:]
-	return event
+	r.EventCh <- e
 }
 
 // ClearEvent clears all the events.

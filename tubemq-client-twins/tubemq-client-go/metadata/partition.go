@@ -73,6 +73,7 @@ func NewConsumeData(time int64, errCode int32, escLimit bool, msgSize int32, dlt
 	}
 }
 
+// NewPartition parses a partition from the given string.
 func NewPartition(partition string) (*Partition, error) {
 	var b *Node
 	var topic string
@@ -123,6 +124,7 @@ func (p *Partition) GetTopic() string {
 	return p.topic
 }
 
+// GetBroker returns the broker.
 func (p *Partition) GetBroker() *Node {
 	return p.broker
 }
@@ -132,7 +134,7 @@ func (p *Partition) String() string {
 	return p.broker.String() + "#" + p.topic + "@" + strconv.Itoa(int(p.partitionID))
 }
 
-// SetLastConsumed sets lastConsumed.
+// SetLastConsumed sets the last consumed.
 func (p *Partition) SetLastConsumed(lastConsumed bool) {
 	p.lastConsumed = lastConsumed
 }
