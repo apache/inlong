@@ -92,6 +92,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		client:          client,
 		visitToken:      util.InvalidValue,
 		unreportedTimes: 0,
+		done:            make(chan struct{}),
 	}
 	c.subInfo.SetClientID(clientID)
 	hbm := newHBManager(c)
