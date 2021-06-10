@@ -182,8 +182,8 @@ func (p *Pool) Close() {
 		if !ok {
 			return false
 		}
-		connection.done <- struct{}{}
-		connection.mDone <- struct{}{}
+		close(connection.done)
+		close(connection.mDone)
 		connection.conn.Close()
 		return true
 	})
