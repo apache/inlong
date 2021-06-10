@@ -236,3 +236,16 @@ func (h *heartbeatManager) resetBrokerTimer(broker *metadata.Node) {
 		hm.timer.Reset(interval)
 	}
 }
+
+func (h *heartbeatManager) close() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	for _, heartbeat := range h.heartbeats {
+		if !heartbeat.timer.Stop() {
+			<-heartbeat.timer.C
+		}
+		heartbeat.timer.Stop()
+	}
+	h.heartbeats = nil
+}

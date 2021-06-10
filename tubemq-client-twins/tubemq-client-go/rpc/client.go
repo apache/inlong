@@ -55,6 +55,8 @@ type RPCClient interface {
 	HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error)
 	// CloseRequestC2M is the rpc request for a consumer to be closed to master.
 	CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CloseResponseM2C, error)
+	// Close will close the rpc client.
+	Close()
 }
 
 // New returns a default TubeMQ rpc Client
@@ -69,6 +71,11 @@ type rpcClient struct {
 	pool   *multiplexing.Pool
 	client *transport.Client
 	config *config.Config
+}
+
+// Close will release the resource of multiplexing pool.
+func (c *rpcClient) Close() {
+	c.pool.Close()
 }
 
 func (c *rpcClient) doRequest(ctx context.Context, address string, req codec.RPCRequest) (*protocol.RspResponseBody, error) {

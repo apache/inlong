@@ -175,6 +175,20 @@ func getCertPool(caCertFile string) (*x509.CertPool, error) {
 	return nil, nil
 }
 
+// Close will release all the connections.
+func (p *Pool) Close() {
+	p.connections.Range(func(key, value interface{}) bool {
+		connection, ok := value.(*Connection)
+		if !ok {
+			return false
+		}
+		connection.done <- struct{}{}
+		connection.mDone <- struct{}{}
+		connection.conn.Close()
+		return true
+	})
+}
+
 type recvReader struct {
 	ctx  context.Context
 	recv chan codec.Response

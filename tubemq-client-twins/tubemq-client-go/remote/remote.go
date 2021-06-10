@@ -497,3 +497,20 @@ func (r *RmtDataCache) GetPartition(key string) *metadata.Partition {
 	}
 	return nil
 }
+
+// GetAllClosedBrokerParts will return the partitions which should be closed.
+func (r *RmtDataCache) GetAllClosedBrokerParts() map[*metadata.Node][]*metadata.Partition {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	brokerPartitions := make(map[*metadata.Node][]*metadata.Partition)
+	for _, partition := range r.partitions {
+		partitions, ok := brokerPartitions[partition.GetBroker()]
+		if !ok {
+			brokerPartitions[partition.GetBroker()] = []*metadata.Partition{partition}
+		} else {
+			partitions = append(partitions, partition)
+		}
+	}
+	return brokerPartitions
+}

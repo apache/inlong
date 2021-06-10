@@ -43,4 +43,6 @@ type Consumer interface {
 	Confirm(confirmContext string, consumed bool) (*ConsumerResult, error)
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
 	GetCurrConsumedInfo() (map[string]*ConsumerOffset, error)
+	// Shutdown shutdowns the consumer client.
+	Shutdown()
 }
