@@ -323,14 +323,14 @@ func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
 	panic("implement me")
 }
 
-// Shutdown implementation of TubeMQ consumer.
-func (c *consumer) Shutdown() {
+// Close implementation of TubeMQ consumer.
+func (c *consumer) Close() {
 	c.rmtDataCache.OfferEventAndNotify(&metadata.ConsumerEvent{})
 	c.close2Master()
 	c.closeAllBrokers()
 	c.heartbeatManager.close()
-	c.done <- struct{}{}
 	c.client.Close()
+	close(c.done)
 }
 
 func (c *consumer) processRebalanceEvent() {
