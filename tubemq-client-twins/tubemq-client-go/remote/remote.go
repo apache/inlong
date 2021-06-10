@@ -473,3 +473,27 @@ func (r *RmtDataCache) BookConsumeData(partitionKey string, data *metadata.Consu
 		partition.BookConsumeData(data)
 	}
 }
+
+func (r *RmtDataCache) IsPartitionInUse(partitionKey string, bookedTime int64) bool {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	bt, ok := r.usedPartitions[partitionKey]
+	if !ok {
+		return false
+	}
+	if bt != bookedTime {
+		return false
+	}
+	return true
+}
+
+func (r *RmtDataCache) GetPartition(key string) *metadata.Partition {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if partition, ok := r.partitions[key]; ok {
+		return partition
+	}
+	return nil
+}
