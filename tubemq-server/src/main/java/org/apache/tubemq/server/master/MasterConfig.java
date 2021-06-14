@@ -18,14 +18,20 @@
 package org.apache.tubemq.server.master;
 
 import java.util.Set;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TServerConstants;
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.ConfigurationUtils;
 import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.TlsConfItems;
+import org.apache.tubemq.corebase.config.constants.MasterCfgConst;
+import org.apache.tubemq.corebase.config.constants.MasterReplicaCfgConst;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.MixedUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.RpcConstants;
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fileconfig.AbstractFileConfig;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
@@ -43,44 +49,44 @@ public class MasterConfig extends AbstractFileConfig {
 
     private String hostName;
     private int port;
-    private int webPort = 8080;
+    private int webPort = MasterCfgConst.DEFAULT_MASTER_WEB_PORT;
     private MasterReplicationConfig replicationConfig = new MasterReplicationConfig();
-    private TLSConfig tlsConfig;
+    private Configuration tlsConfiguration;
     private ZKConfig zkConfig;
-    private int consumerBalancePeriodMs = 60 * 1000;
-    private int firstBalanceDelayAfterStartMs = 30 * 1000;
-    private int consumerHeartbeatTimeoutMs = 30 * 1000;
-    private int producerHeartbeatTimeoutMs = 30 * 1000;
-    private int brokerHeartbeatTimeoutMs = 30 * 1000;
+    private int consumerBalancePeriodMs = MasterCfgConst.DEFAULT_CONSUMER_BALANCE_PERIOD_MS;
+    private int firstBalanceDelayAfterStartMs = MasterCfgConst.DEFAULT_FIRST_BALANCE_DELAY_AFTER_START_MS;
+    private int consumerHeartbeatTimeoutMs = MasterCfgConst.DEFAULT_CONSUMER_HEARTBEAT_TIMEOUT_MS;
+    private int producerHeartbeatTimeoutMs = MasterCfgConst.DEFAULT_PRODUCER_HEARTBEAT_TIMEOUT_MS;
+    private int brokerHeartbeatTimeoutMs = MasterCfgConst.DEFAULT_BROKER_HEARTBEAT_TIMEOUT_MS;
     private long rpcReadTimeoutMs = RpcConstants.CFG_RPC_READ_TIMEOUT_DEFAULT_MS;
-    private long nettyWriteBufferHighWaterMark = 10 * 1024 * 1024;
-    private long nettyWriteBufferLowWaterMark = 5 * 1024 * 1024;
-    private long onlineOnlyReadToRWPeriodMs = 2 * 60 * 1000;
-    private long offlineOnlyReadToRWPeriodMs = 30 * 1000;
-    private long stepChgWaitPeriodMs = 12 * 1000;
-    private String confModAuthToken = "ASDFGHJKL";
-    private String webResourcePath = "../resources";
-    private String metaDataPath = "var/meta_data";
-    private int maxGroupBrokerConsumeRate = 50;
-    private int maxGroupRebalanceWaitPeriod = 2;
-    private int maxAutoForbiddenCnt = 5;
-    private long socketSendBuffer = -1;
-    private long socketRecvBuffer = -1;
-    private boolean startOffsetResetCheck = false;
+    private long nettyWriteBufferHighWaterMark = MasterCfgConst.DEFAULT_MASTER_NETTY_WRITE_BUFFER_HIGH_WATERMARK;
+    private long nettyWriteBufferLowWaterMark = MasterCfgConst.DEFAULT_MASTER_NETTY_WRITE_BUFFER_LOW_WATERMARK;
+    private long onlineOnlyReadToRWPeriodMs = MasterCfgConst.DEFAULT_ONLINE_ONLY_READ_TO_RW_PERIOD_MS;
+    private long offlineOnlyReadToRWPeriodMs = MasterCfgConst.DEFAULT_OFFLINE_ONLY_READ_TO_RW_PERIOD_MS;
+    private long stepChgWaitPeriodMs = MasterCfgConst.DEFAULT_STEP_CHG_WAIT_PERIOD_MS;
+    private String confModAuthToken = MasterCfgConst.DEFAULT_CONF_MOD_AUTH_TOKEN;
+    private String webResourcePath = MasterCfgConst.DEFAULT_WEB_RESOURCE_PATH;
+    private String metaDataPath = MasterCfgConst.DEFAULT_META_DATA_PATH;
+    private int maxGroupBrokerConsumeRate = MasterCfgConst.DEFAULT_MAX_GROUP_BROKER_CONSUME_RATE;
+    private int maxGroupRebalanceWaitPeriod = MasterCfgConst.DEFAULT_MAX_GROUP_REBALANCE_WAIT_PERIOD;
+    private int maxAutoForbiddenCnt = MasterCfgConst.DEFAULT_MAX_AUTO_FORBIDDEN_CNT;
+    private long socketSendBuffer = MasterCfgConst.DEFAULT_MASTER_SOCKET_SEND_BUFFER;
+    private long socketRecvBuffer = MasterCfgConst.DEFAULT_MASTER_SOCKET_RECV_BUFFER;
+    private boolean startOffsetResetCheck = MasterCfgConst.DEFAULT_START_OFFSET_RESET_CHECK;
     private int rowLockWaitDurMs =
-            TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
-    private boolean startVisitTokenCheck = false;
-    private boolean startProduceAuthenticate = false;
-    private boolean startProduceAuthorize = false;
-    private boolean startConsumeAuthenticate = false;
-    private boolean startConsumeAuthorize = false;
-    private long visitTokenValidPeriodMs = 5 * 60 * 1000;
-    private boolean needBrokerVisitAuth = false;
-    private boolean useWebProxy = false;
-    private String visitName = "";
-    private String visitPassword = "";
+        TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
+    private boolean startVisitTokenCheck = MasterCfgConst.DEFAULT_START_VISIT_TOKEN_CHECK;
+    private boolean startProduceAuthenticate = MasterCfgConst.DEFAULT_START_PRODUCE_AUTHENTICATE;
+    private boolean startProduceAuthorize = MasterCfgConst.DEFAULT_START_PRODUCE_AUTHORIZE;
+    private boolean startConsumeAuthenticate = MasterCfgConst.DEFAULT_START_CONSUME_AUTHENTICATE;
+    private boolean startConsumeAuthorize = MasterCfgConst.DEFAULT_START_CONSUME_AUTHORIZE;
+    private long visitTokenValidPeriodMs = MasterCfgConst.DEFAULT_VISIT_TOKEN_VALID_PERIOD_MS;
+    private boolean needBrokerVisitAuth = MasterCfgConst.DEFAULT_NEED_BROKER_VISIT_AUTH;
+    private boolean useWebProxy = MasterCfgConst.DEFAULT_USE_WEB_PROXY;
+    private String visitName = MasterCfgConst.DEFAULT_MASTER_VISIT_NAME;
+    private String visitPassword = MasterCfgConst.DEFAULT_MASTER_VISIT_PASSWORD;
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
-    private int rebalanceParallel = 4;
+    private int rebalanceParallel = MasterCfgConst.DEFAULT_REBALANCE_PARALLEL;
 
     /**
      * getters
@@ -95,7 +101,7 @@ public class MasterConfig extends AbstractFileConfig {
      * @return true if enabled
      */
     public boolean isTlsEnable() {
-        return this.tlsConfig.isTlsEnable();
+        return this.tlsConfiguration.get(TlsConfItems.TLS_ENABLE);
     }
 
     public int getPort() {
@@ -195,8 +201,30 @@ public class MasterConfig extends AbstractFileConfig {
         return this.replicationConfig;
     }
 
+    /**
+     * @deprecated Use {@link #getTlsConfiguration()}
+     * @return TLSConfig.
+     */
+    @Deprecated
     public TLSConfig getTlsConfig() {
-        return this.tlsConfig;
+        return TLSConfig.fromConfiguration(tlsConfiguration);
+    }
+
+    public Configuration getTlsConfiguration() {
+        return tlsConfiguration;
+    }
+
+    public void setTlsConfiguration(Configuration newConfiguration) {
+        ConfigurationUtils.updateTlsConfiguration(this.tlsConfiguration, newConfiguration);
+    }
+
+    /**
+     * use {@link #setTlsConfiguration(Configuration)} instead of this method.
+     * @param tlsConfig
+     */
+    @Deprecated
+    public void setTlsConfiguration(TLSConfig tlsConfig) {
+        setTlsConfiguration(TLSConfig.convertToConfiguration(tlsConfig));
     }
 
     public ZKConfig getZkConfig() {
@@ -268,8 +296,7 @@ public class MasterConfig extends AbstractFileConfig {
     protected void loadFileSectAttributes(final Ini iniConf) {
         this.loadSystemConf(iniConf);
         this.loadReplicationSectConf(iniConf);
-        this.tlsConfig = this.loadTlsSectConf(iniConf,
-                TBaseConstants.META_DEFAULT_MASTER_TLS_PORT);
+        this.tlsConfiguration = this.loadTlsSectConfiguration(iniConf, TBaseConstants.META_DEFAULT_MASTER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
     }
 
@@ -280,25 +307,25 @@ public class MasterConfig extends AbstractFileConfig {
      */
     // #lizard forgives
     private void loadSystemConf(final Ini iniConf) {
-        final Profile.Section masterConf = iniConf.get(SECT_TOKEN_MASTER);
+        final Profile.Section masterConf = iniConf.get(MasterCfgConst.SECT_TOKEN_MASTER);
         if (masterConf == null) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append(SECT_TOKEN_MASTER).append(" configure section is required!").toString());
+                    .append(MasterCfgConst.SECT_TOKEN_MASTER).append(" configure section is required!").toString());
         }
         Set<String> configKeySet = masterConf.keySet();
         if (configKeySet.isEmpty()) { /* Should have a least one config item */
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Empty configure item in ").append(SECT_TOKEN_MASTER)
+                    .append("Empty configure item in ").append(MasterCfgConst.SECT_TOKEN_MASTER)
                     .append(" section!").toString());
         }
 
         // port
-        this.port = this.getInt(masterConf, "port",
+        this.port = this.getInt(masterConf, MasterCfgConst.MASTER_PORT,
                 TBaseConstants.META_DEFAULT_MASTER_PORT);
 
         // hostname
-        if (TStringUtils.isNotBlank(masterConf.get("hostName"))) {
-            this.hostName = masterConf.get("hostName").trim();
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_HOST_NAME))) {
+            this.hostName = masterConf.get(MasterCfgConst.MASTER_HOST_NAME).trim();
         } else {
             try {
                 this.hostName = AddressUtils.getIPV4LocalAddress();
@@ -309,76 +336,76 @@ public class MasterConfig extends AbstractFileConfig {
             }
         }
         // web port
-        if (TStringUtils.isNotBlank(masterConf.get("webPort"))) {
-            this.webPort = this.getInt(masterConf, "webPort");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_WEB_PORT))) {
+            this.webPort = this.getInt(masterConf, MasterCfgConst.MASTER_WEB_PORT);
         }
 
         // web resource path
-        if (TStringUtils.isBlank(masterConf.get("webResourcePath"))) {
+        if (TStringUtils.isBlank(masterConf.get(MasterCfgConst.WEB_RESOURCE_PATH))) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("webResourcePath is null or Blank in ").append(SECT_TOKEN_MASTER)
-                    .append(" section!").toString());
+                .append("webResourcePath is null or Blank in ").append(MasterCfgConst.SECT_TOKEN_MASTER)
+                .append(" section!").toString());
         }
-        this.webResourcePath = masterConf.get("webResourcePath").trim();
+        this.webResourcePath = masterConf.get(MasterCfgConst.WEB_RESOURCE_PATH).trim();
 
         // meta data path
-        if (TStringUtils.isNotBlank(masterConf.get("metaDataPath"))) {
-            this.metaDataPath = masterConf.get("metaDataPath").trim();
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.META_DATA_PATH))) {
+            this.metaDataPath = masterConf.get(MasterCfgConst.META_DATA_PATH).trim();
         }
 
-        if (TStringUtils.isNotBlank(masterConf.get("consumerBalancePeriodMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.CONSUMER_BALANCE_PERIOD_MS))) {
             this.consumerBalancePeriodMs =
-                    this.getInt(masterConf, "consumerBalancePeriodMs");
+                this.getInt(masterConf, MasterCfgConst.CONSUMER_BALANCE_PERIOD_MS);
         }
 
-        if (TStringUtils.isNotBlank(masterConf.get("firstBalanceDelayAfterStartMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.FIRST_BALANCE_DELAY_AFTER_START_MS))) {
             this.firstBalanceDelayAfterStartMs =
-                    this.getInt(masterConf, "firstBalanceDelayAfterStartMs");
+                this.getInt(masterConf, MasterCfgConst.FIRST_BALANCE_DELAY_AFTER_START_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("consumerHeartbeatTimeoutMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.CONSUMER_HEARTBEAT_TIMEOUT_MS))) {
             this.consumerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "consumerHeartbeatTimeoutMs");
+                this.getInt(masterConf, MasterCfgConst.CONSUMER_HEARTBEAT_TIMEOUT_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("producerHeartbeatTimeoutMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.PRODUCER_HEARTBEAT_TIMEOUT_MS))) {
             this.producerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "producerHeartbeatTimeoutMs");
+                this.getInt(masterConf, MasterCfgConst.PRODUCER_HEARTBEAT_TIMEOUT_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("brokerHeartbeatTimeoutMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.BROKER_HEARTBEAT_TIMEOUT_MS))) {
             this.brokerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "brokerHeartbeatTimeoutMs");
+                this.getInt(masterConf, MasterCfgConst.BROKER_HEARTBEAT_TIMEOUT_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("socketSendBuffer"))) {
-            this.socketSendBuffer = this.getLong(masterConf, "socketSendBuffer");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_SOCKET_SEND_BUFFER))) {
+            this.socketSendBuffer = this.getLong(masterConf, MasterCfgConst.MASTER_SOCKET_SEND_BUFFER);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("socketRecvBuffer"))) {
-            this.socketRecvBuffer = this.getLong(masterConf, "socketRecvBuffer");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_SOCKET_RECV_BUFFER))) {
+            this.socketRecvBuffer = this.getLong(masterConf, MasterCfgConst.MASTER_SOCKET_RECV_BUFFER);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("rpcReadTimeoutMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_RPC_READ_TIMEOUT_MS))) {
             this.rpcReadTimeoutMs =
-                    this.getLong(masterConf, "rpcReadTimeoutMs");
+                this.getLong(masterConf, MasterCfgConst.MASTER_RPC_READ_TIMEOUT_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("nettyWriteBufferHighWaterMark"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_NETTY_WRITE_BUFFER_HIGH_WATERMARK))) {
             this.nettyWriteBufferHighWaterMark =
-                    this.getLong(masterConf, "nettyWriteBufferHighWaterMark");
+                this.getLong(masterConf, MasterCfgConst.MASTER_NETTY_WRITE_BUFFER_HIGH_WATERMARK);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("nettyWriteBufferLowWaterMark"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_NETTY_WRITE_BUFFER_LOW_WATERMARK))) {
             this.nettyWriteBufferLowWaterMark =
-                    this.getLong(masterConf, "nettyWriteBufferLowWaterMark");
+                this.getLong(masterConf, MasterCfgConst.MASTER_NETTY_WRITE_BUFFER_LOW_WATERMARK);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("onlineOnlyReadToRWPeriodMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.ONLINE_ONLY_READ_TO_RW_PERIOD_MS))) {
             this.onlineOnlyReadToRWPeriodMs =
-                    this.getLong(masterConf, "onlineOnlyReadToRWPeriodMs");
+                this.getLong(masterConf, MasterCfgConst.ONLINE_ONLY_READ_TO_RW_PERIOD_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("stepChgWaitPeriodMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.STEP_CHG_WAIT_PERIOD_MS))) {
             this.stepChgWaitPeriodMs =
-                    this.getLong(masterConf, "stepChgWaitPeriodMs");
+                this.getLong(masterConf, MasterCfgConst.STEP_CHG_WAIT_PERIOD_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("offlineOnlyReadToRWPeriodMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.OFFLINE_ONLY_READ_TO_RW_PERIOD_MS))) {
             this.offlineOnlyReadToRWPeriodMs =
-                    this.getLong(masterConf, "offlineOnlyReadToRWPeriodMs");
+                this.getLong(masterConf, MasterCfgConst.OFFLINE_ONLY_READ_TO_RW_PERIOD_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("confModAuthToken"))) {
-            String tmpAuthToken = masterConf.get("confModAuthToken").trim();
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.CONF_MOD_AUTH_TOKEN))) {
+            String tmpAuthToken = masterConf.get(MasterCfgConst.CONF_MOD_AUTH_TOKEN).trim();
             if (tmpAuthToken.length() > TServerConstants.CFG_MODAUTHTOKEN_MAX_LENGTH) {
                 throw new IllegalArgumentException(
                         "Invalid value: the length of confModAuthToken's value > "
@@ -386,88 +413,88 @@ public class MasterConfig extends AbstractFileConfig {
             }
             this.confModAuthToken = tmpAuthToken;
         }
-        if (TStringUtils.isNotBlank(masterConf.get("maxGroupBrokerConsumeRate"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MAX_GROUP_BROKER_CONSUME_RATE))) {
             this.maxGroupBrokerConsumeRate =
-                    this.getInt(masterConf, "maxGroupBrokerConsumeRate");
+                this.getInt(masterConf, MasterCfgConst.MAX_GROUP_BROKER_CONSUME_RATE);
             if (this.maxGroupBrokerConsumeRate <= 0) {
                 throw new IllegalArgumentException(
                         "Invalid value: maxGroupBrokerConsumeRate's value must > 0 !");
             }
         }
-        if (TStringUtils.isNotBlank(masterConf.get("maxGroupRebalanceWaitPeriod"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MAX_GROUP_REBALANCE_WAIT_PERIOD))) {
             this.maxGroupRebalanceWaitPeriod =
-                    this.getInt(masterConf, "maxGroupRebalanceWaitPeriod");
+                this.getInt(masterConf, MasterCfgConst.MAX_GROUP_REBALANCE_WAIT_PERIOD);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startOffsetResetCheck"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_OFFSET_RESET_CHECK))) {
             this.startOffsetResetCheck =
-                    this.getBoolean(masterConf, "startOffsetResetCheck");
+                this.getBoolean(masterConf, MasterCfgConst.START_OFFSET_RESET_CHECK);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("rowLockWaitDurMs"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MASTER_ROW_LOCK_WAIT_DUR_MS))) {
             this.rowLockWaitDurMs =
-                    this.getInt(masterConf, "rowLockWaitDurMs");
+                this.getInt(masterConf, MasterCfgConst.MASTER_ROW_LOCK_WAIT_DUR_MS);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("maxAutoForbiddenCnt"))) {
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.MAX_AUTO_FORBIDDEN_CNT))) {
             this.maxAutoForbiddenCnt =
-                    this.getInt(masterConf, "maxAutoForbiddenCnt");
+                this.getInt(masterConf, MasterCfgConst.MAX_AUTO_FORBIDDEN_CNT);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("visitTokenValidPeriodMs"))) {
-            long tmpPeriodMs = this.getLong(masterConf, "visitTokenValidPeriodMs");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.VISIT_TOKEN_VALID_PERIOD_MS))) {
+            long tmpPeriodMs = this.getLong(masterConf, MasterCfgConst.VISIT_TOKEN_VALID_PERIOD_MS);
             if (tmpPeriodMs < 3 * 60 * 1000) { /* Min value is 3 min */
                 tmpPeriodMs = 3 * 60 * 1000;
             }
             this.visitTokenValidPeriodMs = tmpPeriodMs;
         }
-        if (TStringUtils.isNotBlank(masterConf.get("authValidTimeStampPeriodMs"))) {
-            long tmpPeriodMs = this.getLong(masterConf, "authValidTimeStampPeriodMs");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.AUTH_VALID_TIMESTAMP_PERIOD_MS))) {
+            long tmpPeriodMs = this.getLong(masterConf, MasterCfgConst.AUTH_VALID_TIMESTAMP_PERIOD_MS);
             // must between 5,000 ms and 120,000 ms
             this.authValidTimeStampPeriodMs =
                     tmpPeriodMs < 5000 ? 5000 : tmpPeriodMs > 120000 ? 120000 : tmpPeriodMs;
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startVisitTokenCheck"))) {
-            this.startVisitTokenCheck = this.getBoolean(masterConf, "startVisitTokenCheck");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_VISIT_TOKEN_CHECK))) {
+            this.startVisitTokenCheck = this.getBoolean(masterConf, MasterCfgConst.START_VISIT_TOKEN_CHECK);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startProduceAuthenticate"))) {
-            this.startProduceAuthenticate = this.getBoolean(masterConf, "startProduceAuthenticate");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_PRODUCE_AUTHENTICATE))) {
+            this.startProduceAuthenticate = this.getBoolean(masterConf, MasterCfgConst.START_PRODUCE_AUTHENTICATE);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startProduceAuthorize"))) {
-            this.startProduceAuthorize = this.getBoolean(masterConf, "startProduceAuthorize");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_PRODUCE_AUTHORIZE))) {
+            this.startProduceAuthorize = this.getBoolean(masterConf, MasterCfgConst.START_PRODUCE_AUTHORIZE);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("useWebProxy"))) {
-            this.useWebProxy = this.getBoolean(masterConf, "useWebProxy");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.USE_WEB_PROXY))) {
+            this.useWebProxy = this.getBoolean(masterConf, MasterCfgConst.USE_WEB_PROXY);
         }
         if (!this.startProduceAuthenticate && this.startProduceAuthorize) {
             throw new IllegalArgumentException(
                     "startProduceAuthenticate must set true if startProduceAuthorize is true!");
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startConsumeAuthenticate"))) {
-            this.startConsumeAuthenticate = this.getBoolean(masterConf, "startConsumeAuthenticate");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_CONSUME_AUTHENTICATE))) {
+            this.startConsumeAuthenticate = this.getBoolean(masterConf, MasterCfgConst.START_CONSUME_AUTHENTICATE);
         }
-        if (TStringUtils.isNotBlank(masterConf.get("startConsumeAuthorize"))) {
-            this.startConsumeAuthorize = this.getBoolean(masterConf, "startConsumeAuthorize");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.START_CONSUME_AUTHORIZE))) {
+            this.startConsumeAuthorize = this.getBoolean(masterConf, MasterCfgConst.START_CONSUME_AUTHORIZE);
         }
         if (!this.startConsumeAuthenticate && this.startConsumeAuthorize) {
             throw new IllegalArgumentException(
                     "startConsumeAuthenticate must set true if startConsumeAuthorize is true!");
         }
-        if (TStringUtils.isNotBlank(masterConf.get("needBrokerVisitAuth"))) {
-            this.needBrokerVisitAuth = this.getBoolean(masterConf, "needBrokerVisitAuth");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.NEED_BROKER_VISIT_AUTH))) {
+            this.needBrokerVisitAuth = this.getBoolean(masterConf, MasterCfgConst.NEED_BROKER_VISIT_AUTH);
         }
         if (this.needBrokerVisitAuth) {
-            if (TStringUtils.isBlank(masterConf.get("visitName"))) {
+            if (TStringUtils.isBlank(masterConf.get(MasterCfgConst.MASTER_VISIT_NAME))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitName is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitName is null or Blank in ").append(MasterCfgConst.SECT_TOKEN_BROKER)
                         .append(" section!").toString());
             }
-            if (TStringUtils.isBlank(masterConf.get("visitPassword"))) {
+            if (TStringUtils.isBlank(masterConf.get(MasterCfgConst.MASTER_VISIT_PASSWORD))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitPassword is null or Blank in ").append(MasterCfgConst.SECT_TOKEN_BROKER)
                         .append(" section!").toString());
             }
-            this.visitName = masterConf.get("visitName").trim();
-            this.visitPassword = masterConf.get("visitPassword").trim();
+            this.visitName = masterConf.get(MasterCfgConst.MASTER_VISIT_NAME).trim();
+            this.visitPassword = masterConf.get(MasterCfgConst.MASTER_VISIT_PASSWORD).trim();
         }
-        if (TStringUtils.isNotBlank(masterConf.get("rebalanceParallel"))) {
-            int tmpParallel = this.getInt(masterConf, "rebalanceParallel");
+        if (TStringUtils.isNotBlank(masterConf.get(MasterCfgConst.REBALANCE_PARALLEL))) {
+            int tmpParallel = this.getInt(masterConf, MasterCfgConst.REBALANCE_PARALLEL);
             this.rebalanceParallel = MixedUtils.mid(tmpParallel, 1, 20);
         }
     }
@@ -475,63 +502,64 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Deprecated: Load Berkeley DB store section config
      * Just keep `loadBdbStoreSectConf` for backward compatibility
+     *
      * @param iniConf
      */
     private boolean loadBdbStoreSectConf(final Ini iniConf) {
-        final Profile.Section bdbSect = iniConf.get(SECT_TOKEN_BDB);
+        final Profile.Section bdbSect = iniConf.get(MasterCfgConst.SECT_TOKEN_BDB);
         if (bdbSect == null) {
             return false;
         }
         Set<String> configKeySet = bdbSect.keySet();
         if (configKeySet.isEmpty()) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Empty configure item in ").append(SECT_TOKEN_BDB)
+                    .append("Empty configure item in ").append(MasterCfgConst.SECT_TOKEN_BDB)
                     .append(" section!").toString());
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbRepGroupName"))) {
-            getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbRepGroupName");
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_REP_GROUP_NAME))) {
+            getSimilarConfigField(MasterCfgConst.SECT_TOKEN_BDB, configKeySet, MasterCfgConst.BDB_REP_GROUP_NAME);
         } else {
-            replicationConfig.setRepGroupName(bdbSect.get("bdbRepGroupName").trim());
+            replicationConfig.setRepGroupName(bdbSect.get(MasterCfgConst.BDB_REP_GROUP_NAME).trim());
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbNodeName"))) {
-            getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbNodeName");
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_NODE_NAME))) {
+            getSimilarConfigField(MasterCfgConst.SECT_TOKEN_BDB, configKeySet, MasterCfgConst.BDB_NODE_NAME);
         } else {
-            replicationConfig.setRepNodeName(bdbSect.get("bdbNodeName").trim());
+            replicationConfig.setRepNodeName(bdbSect.get(MasterCfgConst.BDB_NODE_NAME).trim());
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbNodePort"))) {
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_NODE_PORT))) {
             replicationConfig.setRepNodePort(9001);
         } else {
-            replicationConfig.setRepNodePort(getInt(bdbSect, "bdbNodePort"));
+            replicationConfig.setRepNodePort(getInt(bdbSect, MasterCfgConst.BDB_NODE_PORT));
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbEnvHome"))) {
-            getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbEnvHome");
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_ENV_HOME))) {
+            getSimilarConfigField(MasterCfgConst.SECT_TOKEN_BDB, configKeySet, MasterCfgConst.BDB_ENV_HOME);
         } else {
-            this.metaDataPath = bdbSect.get("bdbEnvHome").trim();
+            this.metaDataPath = bdbSect.get(MasterCfgConst.BDB_ENV_HOME).trim();
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbHelperHost"))) {
-            getSimilarConfigField(SECT_TOKEN_BDB, configKeySet, "bdbHelperHost");
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_HELPER_HOST))) {
+            getSimilarConfigField(MasterCfgConst.SECT_TOKEN_BDB, configKeySet, MasterCfgConst.BDB_HELPER_HOST);
         } else {
-            replicationConfig.setRepHelperHost(bdbSect.get("bdbHelperHost").trim());
+            replicationConfig.setRepHelperHost(bdbSect.get(MasterCfgConst.BDB_HELPER_HOST).trim());
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbLocalSync"))) {
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_LOCAL_SYNC))) {
             replicationConfig.setMetaLocalSyncPolicy(1);
         } else {
-            replicationConfig.setMetaLocalSyncPolicy(getInt(bdbSect, "bdbLocalSync"));
+            replicationConfig.setMetaLocalSyncPolicy(getInt(bdbSect, MasterCfgConst.BDB_LOCAL_SYNC));
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbReplicaSync"))) {
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_REPLICA_SYNC))) {
             replicationConfig.setMetaReplicaSyncPolicy(3);
         } else {
-            replicationConfig.setMetaReplicaSyncPolicy(getInt(bdbSect, "bdbReplicaSync"));
+            replicationConfig.setMetaReplicaSyncPolicy(getInt(bdbSect, MasterCfgConst.BDB_REPLICA_SYNC));
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbReplicaAck"))) {
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_REPLICA_ACK))) {
             replicationConfig.setRepReplicaAckPolicy(1);
         } else {
-            replicationConfig.setRepReplicaAckPolicy(getInt(bdbSect, "bdbReplicaAck"));
+            replicationConfig.setRepReplicaAckPolicy(getInt(bdbSect, MasterCfgConst.BDB_REPLICA_ACK));
         }
-        if (TStringUtils.isBlank(bdbSect.get("bdbStatusCheckTimeoutMs"))) {
+        if (TStringUtils.isBlank(bdbSect.get(MasterCfgConst.BDB_STATUS_CHECK_TIMEOUT_MS))) {
             replicationConfig.setRepStatusCheckTimeoutMs(10000);
         } else {
-            replicationConfig.setRepStatusCheckTimeoutMs(getLong(bdbSect, "bdbStatusCheckTimeoutMs"));
+            replicationConfig.setRepStatusCheckTimeoutMs(getLong(bdbSect, MasterCfgConst.BDB_STATUS_CHECK_TIMEOUT_MS));
         }
 
         return true;
@@ -543,47 +571,50 @@ public class MasterConfig extends AbstractFileConfig {
      * @param iniConf
      */
     private void loadReplicationSectConf(final Ini iniConf) {
-        final Profile.Section repSect = iniConf.get(SECT_TOKEN_REPLICATION);
+        final Profile.Section repSect = iniConf.get(MasterCfgConst.SECT_TOKEN_REPLICATION);
         if (repSect == null) {
             if (!this.loadBdbStoreSectConf(iniConf)) { // read [bdbStore] for backward compatibility
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append(SECT_TOKEN_REPLICATION).append(" configure section is required!").toString());
+                    .append(MasterCfgConst.SECT_TOKEN_REPLICATION).append(" configure section is required!")
+                    .toString());
             }
             logger.warn("[bdbStore] section is deprecated. " +
-                    "Please config in [replication] section.");
+                "Please config in [replication] section.");
             return;
         }
         Set<String> configKeySet = repSect.keySet();
         if (configKeySet.isEmpty()) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Empty configure item in ").append(SECT_TOKEN_REPLICATION)
+                    .append("Empty configure item in ").append(MasterCfgConst.SECT_TOKEN_REPLICATION)
                     .append(" section!").toString());
         }
-        if (TStringUtils.isNotBlank(repSect.get("repGroupName"))) {
-            replicationConfig.setRepGroupName(repSect.get("repGroupName").trim());
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.REP_GROUP_NAME))) {
+            replicationConfig.setRepGroupName(repSect.get(MasterReplicaCfgConst.REP_GROUP_NAME).trim());
         }
-        if (TStringUtils.isBlank(repSect.get("repNodeName"))) {
-            getSimilarConfigField(SECT_TOKEN_REPLICATION, configKeySet, "repNodeName");
+        if (TStringUtils.isBlank(repSect.get(MasterReplicaCfgConst.REP_NODE_NAME))) {
+            getSimilarConfigField(MasterReplicaCfgConst.SECT_TOKEN_REPLICATION, configKeySet,
+                    MasterReplicaCfgConst.REP_NODE_NAME);
         } else {
-            replicationConfig.setRepNodeName(repSect.get("repNodeName").trim());
+            replicationConfig.setRepNodeName(repSect.get(MasterReplicaCfgConst.REP_NODE_NAME).trim());
         }
-        if (TStringUtils.isNotBlank(repSect.get("repNodePort"))) {
-            replicationConfig.setRepNodePort(getInt(repSect, "repNodePort"));
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.REP_NODE_PORT))) {
+            replicationConfig.setRepNodePort(getInt(repSect, MasterReplicaCfgConst.REP_NODE_PORT));
         }
-        if (TStringUtils.isNotBlank(repSect.get("repHelperHost"))) {
-            replicationConfig.setRepHelperHost(repSect.get("repHelperHost").trim());
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.REP_HELPER_HOST))) {
+            replicationConfig.setRepHelperHost(repSect.get(MasterReplicaCfgConst.REP_HELPER_HOST).trim());
         }
-        if (TStringUtils.isNotBlank(repSect.get("metaLocalSyncPolicy"))) {
-            replicationConfig.setMetaLocalSyncPolicy(getInt(repSect, "metaLocalSyncPolicy"));
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.META_LOCAL_SYNC_POLICY))) {
+            replicationConfig.setMetaLocalSyncPolicy(getInt(repSect, MasterReplicaCfgConst.META_LOCAL_SYNC_POLICY));
         }
-        if (TStringUtils.isNotBlank(repSect.get("metaReplicaSyncPolicy"))) {
-            replicationConfig.setMetaReplicaSyncPolicy(getInt(repSect, "metaReplicaSyncPolicy"));
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.META_REPLICA_SYNC_POLICY))) {
+            replicationConfig.setMetaReplicaSyncPolicy(getInt(repSect, MasterReplicaCfgConst.META_REPLICA_SYNC_POLICY));
         }
-        if (TStringUtils.isNotBlank(repSect.get("repReplicaAckPolicy"))) {
-            replicationConfig.setRepReplicaAckPolicy(getInt(repSect, "repReplicaAckPolicy"));
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.REP_REPLICA_ACK_POLICY))) {
+            replicationConfig.setRepReplicaAckPolicy(getInt(repSect, MasterReplicaCfgConst.REP_REPLICA_ACK_POLICY));
         }
-        if (TStringUtils.isNotBlank(repSect.get("repStatusCheckTimeoutMs"))) {
-            replicationConfig.setRepStatusCheckTimeoutMs(getLong(repSect, "repStatusCheckTimeoutMs"));
+        if (TStringUtils.isNotBlank(repSect.get(MasterReplicaCfgConst.REP_STATUS_CHECK_TIMEOUT_MS))) {
+            replicationConfig.setRepStatusCheckTimeoutMs(getLong(repSect,
+                    MasterReplicaCfgConst.REP_STATUS_CHECK_TIMEOUT_MS));
         }
     }
 
@@ -618,7 +649,8 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("visitPassword", visitPassword)
                 .append("rebalanceParallel", rebalanceParallel)
                 .append(",").append(replicationConfig.toString())
-                .append(",").append(tlsConfig.toString())
+                .append(",")
+                .append("TLSConfig", new GsonBuilder().disableHtmlEscaping().create().toJson(tlsConfiguration))
                 .append(",").append(zkConfig.toString())
                 .append("}").toString();
     }

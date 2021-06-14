@@ -17,16 +17,17 @@
 
 package org.apache.tubemq.server.common.fileconfig;
 
-import org.apache.tubemq.server.common.TServerConstants;
+import org.apache.tubemq.corebase.TServerConstants;
+import org.apache.tubemq.corebase.config.constants.ZKCfgConst;
 
 public class ZKConfig {
 
-    private String zkServerAddr = "localhost:2181";
-    private String zkNodeRoot = "/tubemq";
-    private int zkSessionTimeoutMs = 180000;
-    private int zkConnectionTimeoutMs = 600000;
-    private int zkSyncTimeMs = 1000;
-    private long zkCommitPeriodMs = 5000L;
+    private String zkServerAddr = ZKCfgConst.DEFAULT_ZK_SERVER_ADDR;
+    private String zkNodeRoot = ZKCfgConst.DEFAULT_ZK_NODE_ROOT;
+    private int zkSessionTimeoutMs = ZKCfgConst.DEFAULT_ZK_SESSION_TIMEOUT_MS;
+    private int zkConnectionTimeoutMs = ZKCfgConst.DEFAULT_ZK_CONNECTION_TIMEOUT_MS;
+    private int zkSyncTimeMs = ZKCfgConst.DEFAULT_ZK_SYNC_TIME_MS;
+    private long zkCommitPeriodMs = ZKCfgConst.DEFAULT_ZK_COMMIT_PERIOD_MS;
     private int zkCommitFailRetries = TServerConstants.CFG_ZK_COMMIT_DEFAULT_RETRIES;
     public ZKConfig() {
 

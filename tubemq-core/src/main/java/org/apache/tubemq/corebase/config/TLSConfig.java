@@ -19,6 +19,7 @@ package org.apache.tubemq.corebase.config;
 
 import org.apache.tubemq.corebase.TBaseConstants;
 
+@Deprecated
 public class TLSConfig {
     private boolean tlsEnable = false;
     private int tlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
@@ -30,6 +31,41 @@ public class TLSConfig {
 
     public TLSConfig() {
 
+    }
+
+    /**
+     * generate the TLSConfig image from the given configuration.
+     * @param configuration configuration
+     * @return TSLConfig object.
+     */
+    public static TLSConfig fromConfiguration(Configuration configuration) {
+        TLSConfig tlsConfig = new TLSConfig();
+        if (configuration == null) {
+            return tlsConfig;
+        }
+        tlsConfig.tlsEnable = configuration.get(TlsConfItems.TLS_ENABLE);
+        tlsConfig.tlsPort = configuration.get(TlsConfItems.TLS_PORT);
+        tlsConfig.tlsTrustStorePath = configuration.get(TlsConfItems.TLS_TRUST_STORE_PATH);
+        tlsConfig.tlsTrustStorePassword = configuration.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD);
+        tlsConfig.tlsTwoWayAuthEnable = configuration.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE);
+        tlsConfig.tlsKeyStorePath = configuration.get(TlsConfItems.TLS_KEY_STORE_PATH);
+        tlsConfig.tlsKeyStorePassword = configuration.get(TlsConfItems.TLS_KEY_STORE_PASSWORD);
+        return tlsConfig;
+    }
+
+    public static Configuration convertToConfiguration(TLSConfig tlsConfig) {
+        Configuration tlsConfiguration = new Configuration();
+        if (tlsConfig == null) {
+            return tlsConfiguration;
+        }
+        tlsConfiguration.set(TlsConfItems.TLS_ENABLE, tlsConfig.tlsEnable);
+        tlsConfiguration.set(TlsConfItems.TLS_PORT, tlsConfig.tlsPort);
+        tlsConfiguration.set(TlsConfItems.TLS_TRUST_STORE_PATH, tlsConfig.tlsTrustStorePath);
+        tlsConfiguration.set(TlsConfItems.TLS_TRUST_STORE_PASSWORD, tlsConfig.tlsTrustStorePassword);
+        tlsConfiguration.set(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE, tlsConfig.tlsTwoWayAuthEnable);
+        tlsConfiguration.set(TlsConfItems.TLS_KEY_STORE_PATH, tlsConfig.tlsKeyStorePath);
+        tlsConfiguration.set(TlsConfItems.TLS_KEY_STORE_PASSWORD, tlsConfig.tlsKeyStorePassword);
+        return tlsConfiguration;
     }
 
     public boolean isTlsEnable() {

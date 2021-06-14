@@ -17,9 +17,11 @@
 
 package org.apache.tubemq.client.config;
 
+import com.google.gson.GsonBuilder;
 import org.apache.tubemq.client.common.TClientConstants;
 import org.apache.tubemq.corebase.cluster.MasterInfo;
-import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.TlsConfItems;
 import org.apache.tubemq.corebase.utils.AddressUtils;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corerpc.RpcConstants;
@@ -90,7 +92,7 @@ public class TubeClientConfig {
     // User password.
     private String usrPassWord = "";
     // TLS configuration.
-    private TLSConfig tlsConfig = new TLSConfig();
+    private Configuration tlsConfiguration = new Configuration();
 
     public TubeClientConfig(String masterAddrInfo) {
         this(new MasterInfo(masterAddrInfo));
@@ -394,10 +396,10 @@ public class TubeClientConfig {
         if (TStringUtils.isBlank(trustStorePassword)) {
             throw new IllegalArgumentException("Illegal parameter: trustStorePassword is Blank!");
         }
-        this.tlsConfig.setTlsEnable(true);
-        this.tlsConfig.setTlsTrustStorePath(trustStorePath);
-        this.tlsConfig.setTlsTrustStorePassword(trustStorePassword);
-        this.tlsConfig.setTlsTwoWayAuthEnable(false);
+        this.tlsConfiguration.set(TlsConfItems.TLS_ENABLE, true);
+        this.tlsConfiguration.set(TlsConfItems.TLS_TRUST_STORE_PATH, trustStorePath);
+        this.tlsConfiguration.set(TlsConfItems.TLS_TRUST_STORE_PASSWORD, trustStorePassword);
+        this.tlsConfiguration.set(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE, false);
         /*
         if (tlsTwoWayAuthEnable) {
             if (TStringUtils.isBlank(keyStorePath)) {
@@ -414,27 +416,27 @@ public class TubeClientConfig {
     }
 
     public boolean isTlsEnable() {
-        return tlsConfig.isTlsEnable();
+        return tlsConfiguration.get(TlsConfItems.TLS_ENABLE);
     }
 
     public String getTrustStorePath() {
-        return tlsConfig.getTlsTrustStorePath();
+        return tlsConfiguration.get(TlsConfItems.TLS_TRUST_STORE_PATH);
     }
 
     public String getTrustStorePassword() {
-        return tlsConfig.getTlsTrustStorePassword();
+        return tlsConfiguration.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD);
     }
 
     public boolean isEnableTLSTwoWayAuthentic() {
-        return tlsConfig.isTlsTwoWayAuthEnable();
+        return tlsConfiguration.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE);
     }
 
     public String getKeyStorePath() {
-        return tlsConfig.getTlsKeyStorePath();
+        return tlsConfiguration.get(TlsConfItems.TLS_KEY_STORE_PATH);
     }
 
     public String getKeyStorePassword() {
-        return tlsConfig.getTlsKeyStorePassword();
+        return tlsConfiguration.get(TlsConfItems.TLS_KEY_STORE_PASSWORD);
     }
 
     public boolean isEnableUserAuthentic() {
@@ -538,7 +540,7 @@ public class TubeClientConfig {
         if (!usrPassWord.equals(that.usrPassWord)) {
             return false;
         }
-        if (!this.tlsConfig.equals(that.tlsConfig)) {
+        if (!this.tlsConfiguration.equals(that.tlsConfiguration)) {
             return false;
         }
         return masterInfo.equals(that.masterInfo);
@@ -587,7 +589,8 @@ public class TubeClientConfig {
             .append(",\"usrName\":\"").append(this.usrName)
             .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
             .append("\",\"localAddress\":\"").append(localAddress)
-            .append("\",").append(this.tlsConfig.toString())
+            .append("\",").append("\"TLSConfig\":")
+            .append(new GsonBuilder().disableHtmlEscaping().create().toJson(tlsConfiguration))
             .append("}").toString();
     }
 }

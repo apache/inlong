@@ -31,9 +31,12 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tubemq.corebase.Message;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
+import org.apache.tubemq.corebase.TServerConstants;
+import org.apache.tubemq.corebase.TStatusConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.cluster.Partition;
-import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.TlsConfItems;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker.CommitOffsetRequestC2B;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker.CommitOffsetResponseB2C;
 import org.apache.tubemq.corebase.protobuf.generated.ClientBroker.GetMessageRequestC2B;
@@ -64,8 +67,6 @@ import org.apache.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.tubemq.server.broker.offset.OffsetService;
 import org.apache.tubemq.server.broker.stats.CountService;
 import org.apache.tubemq.server.broker.stats.GroupCountService;
-import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.aaaserver.CertificateBrokerHandler;
 import org.apache.tubemq.server.common.aaaserver.CertifiedResult;
 import org.apache.tubemq.server.common.exception.HeartbeatException;
@@ -159,7 +160,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 this, tubeConfig.getPort(), rpcReadConfig);
         if (this.tubeConfig.isTlsEnable()) {
             // add tls config if enable tls. support tcp and tls in different port.
-            TLSConfig tlsConfig = this.tubeConfig.getTlsConfig();
+            Configuration tlsConfig = this.tubeConfig.getTlsConfiguration();
             RpcConfig rpcTLSWriteConfig = new RpcConfig();
             rpcTLSWriteConfig.put(RpcConstants.TLS_OVER_TCP, true);
             rpcTLSWriteConfig.put(RpcConstants.NETTY_TCP_SENDBUF,
@@ -169,16 +170,16 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             rpcTLSWriteConfig.put(RpcConstants.WORKER_COUNT,
                     this.tubeConfig.getTlsWriteServiceThread());
             rpcTLSWriteConfig.put(RpcConstants.TLS_KEYSTORE_PATH,
-                    tlsConfig.getTlsKeyStorePath());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PATH));
             rpcTLSWriteConfig.put(RpcConstants.TLS_KEYSTORE_PASSWORD,
-                    tlsConfig.getTlsKeyStorePassword());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PASSWORD));
             rpcTLSWriteConfig.put(RpcConstants.TLS_TWO_WAY_AUTHENTIC,
-                    tlsConfig.isTlsTwoWayAuthEnable());
-            if (tlsConfig.isTlsTwoWayAuthEnable()) {
+                    tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE));
+            if (tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE)) {
                 rpcTLSWriteConfig.put(RpcConstants.TLS_TRUSTSTORE_PATH,
-                        tlsConfig.getTlsTrustStorePath());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PATH));
                 rpcTLSWriteConfig.put(RpcConstants.TLS_TRUSTSTORE_PASSWORD,
-                        tlsConfig.getTlsTrustStorePassword());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD));
             }
             // publish service
             tubeBroker.getRpcServiceFactory().publishService(BrokerWriteService.class,
@@ -192,16 +193,16 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             rpcTLSReadConfig.put(RpcConstants.NETTY_TCP_RECEIVEBUF,
                     this.tubeConfig.getSocketRecvBuffer());
             rpcTLSReadConfig.put(RpcConstants.TLS_KEYSTORE_PATH,
-                    tlsConfig.getTlsKeyStorePath());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PATH));
             rpcTLSReadConfig.put(RpcConstants.TLS_KEYSTORE_PASSWORD,
-                    tlsConfig.getTlsKeyStorePassword());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PASSWORD));
             rpcTLSReadConfig.put(RpcConstants.TLS_TWO_WAY_AUTHENTIC,
-                    tlsConfig.isTlsTwoWayAuthEnable());
-            if (tlsConfig.isTlsTwoWayAuthEnable()) {
+                    tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE));
+            if (tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE)) {
                 rpcTLSReadConfig.put(RpcConstants.TLS_TRUSTSTORE_PATH,
-                        tlsConfig.getTlsTrustStorePath());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PATH));
                 rpcTLSReadConfig.put(RpcConstants.TLS_TRUSTSTORE_PASSWORD,
-                        tlsConfig.getTlsTrustStorePassword());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD));
             }
             tubeBroker.getRpcServiceFactory().publishService(BrokerReadService.class,
                     this, tubeConfig.getTlsPort(), rpcTLSReadConfig);

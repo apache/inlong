@@ -36,6 +36,8 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TErrCodeConstants;
+import org.apache.tubemq.corebase.TServerConstants;
+import org.apache.tubemq.corebase.TStatusConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.balance.ConsumerEvent;
 import org.apache.tubemq.corebase.balance.EventStatus;
@@ -47,7 +49,8 @@ import org.apache.tubemq.corebase.cluster.Partition;
 import org.apache.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.tubemq.corebase.cluster.TopicInfo;
-import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.TlsConfItems;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestB2M;
 import org.apache.tubemq.corebase.protobuf.generated.ClientMaster.CloseRequestC2M;
@@ -82,8 +85,6 @@ import org.apache.tubemq.corerpc.RpcServiceFactory;
 import org.apache.tubemq.corerpc.exception.StandbyException;
 import org.apache.tubemq.corerpc.service.MasterService;
 import org.apache.tubemq.server.Stoppable;
-import org.apache.tubemq.server.common.TServerConstants;
-import org.apache.tubemq.server.common.TStatusConstants;
 import org.apache.tubemq.server.common.aaaserver.CertificateMasterHandler;
 import org.apache.tubemq.server.common.aaaserver.CertifiedResult;
 import org.apache.tubemq.server.common.aaaserver.SimpleCertificateMasterHandler;
@@ -229,20 +230,20 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         rpcServiceFactory.publishService(MasterService.class,
                 this, masterConfig.getPort(), rpcTcpConfig);
         if (masterConfig.isTlsEnable()) {
-            TLSConfig tlsConfig = masterConfig.getTlsConfig();
+            Configuration tlsConfig = masterConfig.getTlsConfiguration();
             RpcConfig rpcTlsConfig = new RpcConfig();
             rpcTlsConfig.put(RpcConstants.TLS_OVER_TCP, true);
             rpcTlsConfig.put(RpcConstants.TLS_KEYSTORE_PATH,
-                    tlsConfig.getTlsKeyStorePath());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PATH));
             rpcTlsConfig.put(RpcConstants.TLS_KEYSTORE_PASSWORD,
-                    tlsConfig.getTlsKeyStorePassword());
+                    tlsConfig.get(TlsConfItems.TLS_KEY_STORE_PASSWORD));
             rpcTlsConfig.put(RpcConstants.TLS_TWO_WAY_AUTHENTIC,
-                    tlsConfig.isTlsTwoWayAuthEnable());
-            if (tlsConfig.isTlsTwoWayAuthEnable()) {
+                    tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE));
+            if (tlsConfig.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE)) {
                 rpcTlsConfig.put(RpcConstants.TLS_TRUSTSTORE_PATH,
-                        tlsConfig.getTlsTrustStorePath());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PATH));
                 rpcTlsConfig.put(RpcConstants.TLS_TRUSTSTORE_PASSWORD,
-                        tlsConfig.getTlsTrustStorePassword());
+                        tlsConfig.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD));
             }
             rpcTlsConfig.put(RpcConstants.REQUEST_TIMEOUT,
                     masterConfig.getRpcReadTimeoutMs());
@@ -255,7 +256,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             rpcTlsConfig.put(RpcConstants.NETTY_TCP_RECEIVEBUF,
                     masterConfig.getSocketRecvBuffer());
             rpcServiceFactory.publishService(MasterService.class,
-                    this, tlsConfig.getTlsPort(), rpcTlsConfig);
+                    this, tlsConfig.get(TlsConfItems.TLS_PORT), rpcTlsConfig);
         }
         this.webServer = new WebServer(masterConfig, this);
         this.webServer.start();

@@ -23,7 +23,8 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.tubemq.server.common.TServerConstants;
+
+import org.apache.tubemq.corebase.TServerConstants;
 
 /***
  * Statistics of message memory. Contains read, write, failed, etc. It's similar to MsgFileStatisInfo.

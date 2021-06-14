@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.tubemq.corebase.TServerConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.server.broker.exception.OffsetStoreException;
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
 import org.apache.tubemq.server.common.offsetstorage.zookeeper.ZKUtil;
 import org.apache.tubemq.server.common.offsetstorage.zookeeper.ZooKeeperWatcher;

@@ -23,9 +23,9 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TServerConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
-import org.apache.tubemq.server.common.TServerConstants;
 import org.apache.tubemq.server.common.utils.WebParameterUtils;
 
 

@@ -21,10 +21,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TServerConstants;
 import org.apache.tubemq.corebase.policies.FlowCtrlResult;
 import org.apache.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.tubemq.server.broker.msgstore.MessageStoreManager;
-import org.apache.tubemq.server.common.TServerConstants;
 
 /***
  * Consumer node info, which broker contains.

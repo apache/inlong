@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TStatusConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.corebase.utils.Tuple2;
-import org.apache.tubemq.server.common.TStatusConstants;
 
 
 /***

@@ -21,7 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.ConfigurationUtils;
 import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.TlsConfItems;
+import org.apache.tubemq.corebase.config.constants.TLSCfgConst;
+import org.apache.tubemq.corebase.config.constants.ZKCfgConst;
 import org.apache.tubemq.corebase.utils.TStringUtils;
 import org.apache.tubemq.server.broker.exception.StartupException;
 import org.ini4j.Ini;
@@ -34,13 +39,6 @@ public abstract class AbstractFileConfig {
 
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractFileConfig.class);
-
-    protected static final String SECT_TOKEN_MASTER = "master";
-    protected static final String SECT_TOKEN_BROKER = "broker";
-    protected static final String SECT_TOKEN_BDB = "bdbStore";
-    protected static final String SECT_TOKEN_TLS = "tlsSetting";
-    protected static final String SECT_TOKEN_ZKEEPER = "zookeeper";
-    protected static final String SECT_TOKEN_REPLICATION = "replication";
 
     private String basePath;
     private String configPath;
@@ -197,85 +195,61 @@ public abstract class AbstractFileConfig {
         }
     }
 
+    public Configuration loadTlsSectConfiguration(final Ini iniConf, int defTlsPort) {
+        Configuration configuration = ConfigurationUtils.loadConfiguration(iniConf, TLSCfgConst.SECT_TOKEN_TLS);
+        if (configuration.get(TlsConfItems.TLS_PORT) == null) {
+            configuration.set(TlsConfItems.TLS_PORT, defTlsPort);
+        }
+        return configuration;
+    }
+
+    /**
+     * Load TLS configuration from (master/broker).ini file.
+     *
+     * @deprecated Use {@link #loadTlsSectConfiguration(Ini, int)}.
+     * @param iniConf init configuration.
+     * @param defTlsPort tls port.
+     * @return tlsConfig.
+     */
+    @Deprecated
     protected TLSConfig loadTlsSectConf(final Ini iniConf, int defTlsPort) {
-        TLSConfig tlsConfig = new TLSConfig();
-        tlsConfig.setTlsPort(defTlsPort);
-        final Profile.Section tlsSect = iniConf.get(SECT_TOKEN_TLS);
-        if (tlsSect == null) {
-            return tlsConfig;
-        }
-        Set<String> configKeySet = tlsSect.keySet();
-        if (configKeySet.isEmpty()) {
-            return tlsConfig;
-        }
-        if (TStringUtils.isNotBlank(tlsSect.get("tlsEnable"))) {
-            tlsConfig.setTlsEnable(getBoolean(tlsSect, "tlsEnable"));
-        }
-        if (tlsConfig.isTlsEnable()) {
-            tlsConfig.setTlsPort(getInt(tlsSect, "tlsPort", defTlsPort));
-            if (TStringUtils.isBlank(tlsSect.get("tlsKeyStorePath"))) {
-                getSimilarConfigField(SECT_TOKEN_TLS, configKeySet, "tlsKeyStorePath");
-            } else {
-                tlsConfig.setTlsKeyStorePath(tlsSect.get("tlsKeyStorePath").trim());
-            }
-            if (TStringUtils.isBlank(tlsSect.get("tlsKeyStorePassword"))) {
-                getSimilarConfigField(SECT_TOKEN_TLS, configKeySet, "tlsKeyStorePassword");
-            } else {
-                tlsConfig.setTlsKeyStorePassword(tlsSect.get("tlsKeyStorePassword").trim());
-            }
-            if (TStringUtils.isNotBlank(tlsSect.get("tlsTwoWayAuthEnable"))) {
-                tlsConfig.setTlsTwoWayAuthEnable(getBoolean(tlsSect, "tlsTwoWayAuthEnable"));
-            }
-            if (tlsConfig.isTlsTwoWayAuthEnable()) {
-                if (TStringUtils.isBlank(tlsSect.get("tlsTrustStorePath"))) {
-                    getSimilarConfigField(SECT_TOKEN_TLS, configKeySet, "tlsTrustStorePath");
-                } else {
-                    tlsConfig.setTlsTrustStorePath(tlsSect.get("tlsTrustStorePath").trim());
-                }
-                if (TStringUtils.isBlank(tlsSect.get("tlsTrustStorePassword"))) {
-                    getSimilarConfigField(SECT_TOKEN_TLS, configKeySet, "tlsTrustStorePassword");
-                } else {
-                    tlsConfig.setTlsTrustStorePassword(tlsSect.get("tlsTrustStorePassword").trim());
-                }
-            }
-        }
-        return tlsConfig;
+        return TLSConfig.fromConfiguration(loadTlsSectConfiguration(iniConf, defTlsPort));
     }
 
 
     protected ZKConfig loadZKeeperSectConf(final Ini iniConf) {
-        final Profile.Section zkeeperSect = iniConf.get(SECT_TOKEN_ZKEEPER);
+        final Profile.Section zkeeperSect = iniConf.get(ZKCfgConst.SECT_TOKEN_ZKEEPER);
         if (zkeeperSect == null) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append(SECT_TOKEN_ZKEEPER).append(" configure section is required!").toString());
+                .append(ZKCfgConst.SECT_TOKEN_ZKEEPER).append(" configure section is required!").toString());
         }
         Set<String> configKeySet = zkeeperSect.keySet();
         if (configKeySet.isEmpty()) {
             throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Empty configure item in ").append(SECT_TOKEN_ZKEEPER)
+                    .append("Empty configure item in ").append(ZKCfgConst.SECT_TOKEN_ZKEEPER)
                     .append(" section!").toString());
         }
         ZKConfig zkConfig = new ZKConfig();
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkServerAddr"))) {
-            zkConfig.setZkServerAddr(zkeeperSect.get("zkServerAddr").trim());
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_SERVER_ADDR))) {
+            zkConfig.setZkServerAddr(zkeeperSect.get(ZKCfgConst.ZK_SERVER_ADDR).trim());
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkNodeRoot"))) {
-            zkConfig.setZkNodeRoot(zkeeperSect.get("zkNodeRoot").trim());
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_NODE_ROOT))) {
+            zkConfig.setZkNodeRoot(zkeeperSect.get(ZKCfgConst.ZK_NODE_ROOT).trim());
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkSessionTimeoutMs"))) {
-            zkConfig.setZkSessionTimeoutMs(getInt(zkeeperSect, "zkSessionTimeoutMs"));
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_SESSION_TIMEOUT_MS))) {
+            zkConfig.setZkSessionTimeoutMs(getInt(zkeeperSect, ZKCfgConst.ZK_SESSION_TIMEOUT_MS));
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkConnectionTimeoutMs"))) {
-            zkConfig.setZkConnectionTimeoutMs(getInt(zkeeperSect, "zkConnectionTimeoutMs"));
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_CONNECTION_TIMEOUT_MS))) {
+            zkConfig.setZkConnectionTimeoutMs(getInt(zkeeperSect, ZKCfgConst.ZK_CONNECTION_TIMEOUT_MS));
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkSyncTimeMs"))) {
-            zkConfig.setZkSyncTimeMs(getInt(zkeeperSect, "zkSyncTimeMs"));
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_SYNC_TIME_MS))) {
+            zkConfig.setZkSyncTimeMs(getInt(zkeeperSect, ZKCfgConst.ZK_SYNC_TIME_MS));
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkCommitPeriodMs"))) {
-            zkConfig.setZkCommitPeriodMs(getLong(zkeeperSect, "zkCommitPeriodMs"));
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_COMMIT_PERIOD_MS))) {
+            zkConfig.setZkCommitPeriodMs(getLong(zkeeperSect, ZKCfgConst.ZK_COMMIT_PERIOD_MS));
         }
-        if (TStringUtils.isNotBlank(zkeeperSect.get("zkCommitFailRetries"))) {
-            zkConfig.setZkCommitFailRetries(getInt(zkeeperSect, "zkCommitFailRetries"));
+        if (TStringUtils.isNotBlank(zkeeperSect.get(ZKCfgConst.ZK_COMMIT_FAIL_RETRIES))) {
+            zkConfig.setZkCommitFailRetries(getInt(zkeeperSect, ZKCfgConst.ZK_COMMIT_FAIL_RETRIES));
         }
         return zkConfig;
     }

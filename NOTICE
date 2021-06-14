@@ -142,6 +142,11 @@ Apache Pulsar includes the following in its NOTICE file:
 | This product includes software developed at
 | The Apache Software Foundation (http://www.apache.org/).
 
-
+Apache Flink includes the following in its NOTICE file:
+| Apache Flink
+| Copyright 2014-2021 The Apache Software Foundation
+|
+| This product includes software developed at
+| The Apache Software Foundation (http://www.apache.org/).
 
 

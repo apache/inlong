@@ -18,17 +18,18 @@
 package org.apache.tubemq.server.common.fileconfig;
 
 import com.sleepycat.je.Durability;
+import org.apache.tubemq.corebase.config.constants.MasterReplicaCfgConst;
 
 /* Named `MasterReplicationConfig` to avoid conflict with `com.sleepycat.je.rep.ReplicationConfig` */
 public class MasterReplicationConfig {
-    private String repGroupName = "tubemqMasterGroup";
+    private String repGroupName = MasterReplicaCfgConst.DEFAULT_REP_GROUP_NAME;
     private String repNodeName;
-    private int repNodePort = 9001;
-    private String repHelperHost = "127.0.0.1:9001";
-    private int metaLocalSyncPolicy = 1;
-    private int metaReplicaSyncPolicy = 3;
-    private int repReplicaAckPolicy = 1;
-    private long repStatusCheckTimeoutMs = 10000;
+    private int repNodePort = MasterReplicaCfgConst.DEFAULT_REP_NODE_PORT;
+    private String repHelperHost = MasterReplicaCfgConst.DEFAULT_REP_HELPER_HOST;
+    private int metaLocalSyncPolicy = MasterReplicaCfgConst.DEFAULT_META_LOCAL_SYNC_POLICY;
+    private int metaReplicaSyncPolicy = MasterReplicaCfgConst.DEFAULT_META_REPLICA_SYNC_POLICY;
+    private int repReplicaAckPolicy = MasterReplicaCfgConst.DEFAULT_REP_REPLICA_ACK_POLICY;
+    private long repStatusCheckTimeoutMs = MasterReplicaCfgConst.DEFAULT_REP_STATUS_CHECK_TIMEOUT_MS;
 
     public MasterReplicationConfig() {
 

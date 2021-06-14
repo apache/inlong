@@ -18,9 +18,9 @@
 package org.apache.tubemq.server.common.fielddef;
 
 import org.apache.tubemq.corebase.TBaseConstants;
+import org.apache.tubemq.corebase.TServerConstants;
 import org.apache.tubemq.corebase.TokenConstants;
 import org.apache.tubemq.corebase.utils.RegexDef;
-import org.apache.tubemq.server.common.TServerConstants;
 
 
 public enum WebFieldDef {

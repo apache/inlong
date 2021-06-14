@@ -19,13 +19,22 @@ package org.apache.tubemq.server.master;
 
 import com.sleepycat.je.Durability;
 
+import org.apache.tubemq.corebase.config.Configuration;
+import org.apache.tubemq.corebase.config.TLSConfig;
+import org.apache.tubemq.corebase.config.TlsConfItems;
+import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-
 public class MasterConfigTest {
+
+    private String targetConfFilePath;
+    private MasterConfig masterConfig;
+    private String tlsPlaceholderInMaster = "tlsPlaceholderInMaster";
+
     @Test
     public void loadFileSectAttributes() {
 
@@ -103,5 +112,57 @@ public class MasterConfigTest {
         Assert.assertEquals(Durability.SyncPolicy.SYNC, repConfig.getMetaReplicaSyncPolicy());
         Assert.assertEquals(Durability.ReplicaAckPolicy.ALL, repConfig.getRepReplicaAckPolicy());
         Assert.assertEquals(15000, repConfig.getRepStatusCheckTimeoutMs());
+    }
+
+    @Before
+    public void init() {
+        this.targetConfFilePath = MasterConfigTest.class.getClassLoader()
+                .getResource("master-for-new-tls-test.ini").getPath();
+    }
+
+    @Test
+    public void testTlsConfiguration() {
+        testOldTlsConfig();
+        testNewTlsConfig();
+    }
+
+    private void testNewTlsConfig() {
+        masterConfig = new MasterConfig();
+        masterConfig.loadFromFile(targetConfFilePath);
+        Configuration configuration = masterConfig.getTlsConfiguration();
+        Assert.assertTrue(configuration.getBoolean(TlsConfItems.TLS_ENABLE));
+        Assert.assertEquals(80889, (int) configuration.getInteger(TlsConfItems.TLS_PORT));
+        Assert.assertEquals(tlsPlaceholderInMaster, configuration.getString(TlsConfItems.TLS_KEY_STORE_PATH));
+        Assert.assertEquals(tlsPlaceholderInMaster, configuration.get(TlsConfItems.TLS_KEY_STORE_PASSWORD));
+        Assert.assertTrue(configuration.get(TlsConfItems.TLS_TWO_WAY_AUTH_ENABLE));
+        Assert.assertEquals(tlsPlaceholderInMaster, configuration.get(TlsConfItems.TLS_TRUST_STORE_PATH));
+        Assert.assertEquals(tlsPlaceholderInMaster, configuration.get(TlsConfItems.TLS_TRUST_STORE_PASSWORD));
+
+        Configuration newConfiguration = new Configuration();
+        newConfiguration.addAll(configuration);
+        newConfiguration.set(TlsConfItems.TLS_PORT, 1);
+        newConfiguration.set("newConfigItem1", "newConfigValue");
+        masterConfig.setTlsConfiguration(newConfiguration);
+        Assert.assertEquals(1, masterConfig.getTlsConfiguration().get(TlsConfItems.TLS_PORT), 0);
+        Assert.assertNull(masterConfig.getTlsConfiguration().getString("newConfigItem1", null));
+    }
+
+    private void testOldTlsConfig() {
+        masterConfig = new MasterConfig();
+        masterConfig.loadFromFile(targetConfFilePath);
+        TLSConfig tlsConfig = masterConfig.getTlsConfig();
+        Assert.assertTrue(tlsConfig.isTlsEnable());
+        Assert.assertTrue(tlsConfig.isTlsTwoWayAuthEnable());
+        Assert.assertEquals(tlsPlaceholderInMaster, tlsConfig.getTlsKeyStorePassword());
+        Assert.assertEquals(tlsPlaceholderInMaster, tlsConfig.getTlsKeyStorePath());
+        Assert.assertEquals(tlsPlaceholderInMaster, tlsConfig.getTlsTrustStorePassword());
+        Assert.assertEquals(tlsPlaceholderInMaster, tlsConfig.getTlsTrustStorePath());
+        Assert.assertEquals(80889, tlsConfig.getTlsPort(), 0);
+
+        tlsConfig.setTlsPort(2);
+        tlsConfig.setTlsEnable(false);
+        masterConfig.setTlsConfiguration(tlsConfig);
+        Assert.assertEquals(2, masterConfig.getTlsConfig().getTlsPort(), 0);
+        Assert.assertFalse(masterConfig.isTlsEnable());
     }
 }
