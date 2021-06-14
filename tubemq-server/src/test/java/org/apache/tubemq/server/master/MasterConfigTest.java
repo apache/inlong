@@ -22,7 +22,6 @@ import com.sleepycat.je.Durability;
 import org.apache.tubemq.corebase.config.Configuration;
 import org.apache.tubemq.corebase.config.TLSConfig;
 import org.apache.tubemq.corebase.config.TlsConfItems;
-import org.apache.tubemq.server.broker.BrokerConfig;
 import org.apache.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.tubemq.server.common.fileconfig.ZKConfig;
 import org.junit.Assert;

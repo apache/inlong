@@ -17,8 +17,8 @@
 
 package org.apache.tubemq.server.master;
 
-import java.util.Set;
 import com.google.gson.GsonBuilder;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tubemq.corebase.TBaseConstants;
 import org.apache.tubemq.corebase.TServerConstants;

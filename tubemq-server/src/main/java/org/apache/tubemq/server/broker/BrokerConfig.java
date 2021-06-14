@@ -17,6 +17,7 @@
 
 package org.apache.tubemq.server.broker;
 
+import static java.lang.Math.abs;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.tubemq.corebase.TBaseConstants;
@@ -35,8 +36,6 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.Math.abs;
 
 /***
  * Config of broker. Read from broker.ini config file.
