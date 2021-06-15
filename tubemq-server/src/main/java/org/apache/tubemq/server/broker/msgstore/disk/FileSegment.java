@@ -25,6 +25,7 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tubemq.corebase.utils.CheckSum;
+import org.apache.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.tubemq.server.broker.utils.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +113,9 @@ public class FileSegment implements Segment {
                 this.cachedSize.set(this.channel.size());
                 this.flushedSize.set(this.cachedSize.get());
             } catch (final Exception e) {
+                if (e instanceof IOException) {
+                    ServiceStatusHolder.addReadIOErrCnt();
+                }
                 if (this.segmentType == SegmentType.DATA) {
                     logger.error("[File Store] Set DATA Segment cachedSize error", e);
                 } else {
@@ -133,6 +137,9 @@ public class FileSegment implements Segment {
                 }
                 this.randFile.close();
             } catch (Throwable ee) {
+                if (ee instanceof IOException) {
+                    ServiceStatusHolder.addReadIOErrCnt();
+                }
                 logger.error(new StringBuilder(512).append("[File Store] Close ")
                         .append(this.file.getAbsoluteFile().toString())
                         .append("'s ").append(segmentType).append(" file failure").toString(), ee);
@@ -152,6 +159,9 @@ public class FileSegment implements Segment {
             }
             this.randFile.close();
         } catch (Throwable e1) {
+            if (e1 instanceof IOException) {
+                ServiceStatusHolder.addReadIOErrCnt();
+            }
             logger.error("[File Store] failure to close channel ", e1);
         }
         try {
@@ -160,6 +170,9 @@ public class FileSegment implements Segment {
                     .append(file.getAbsoluteFile()).toString());
             this.file.delete();
         } catch (Throwable ee) {
+            if (ee instanceof IOException) {
+                ServiceStatusHolder.addReadIOErrCnt();
+            }
             logger.error("[File Store] failure to delete file ", ee);
         }
     }
