@@ -15,30 +15,13 @@
  * limitations under the License.
  */
 
-// Package client defines the api and information
-// which can be exposed to user.
 package client
 
-// ConsumerResult of a consumption.
-type ConsumerResult struct {
-	topicName      string
-	confirmContext string
-	peerInfo       *PeerInfo
-	messages       []*Message
-}
-
-// ConsumerOffset of a consumption,
-type ConsumerOffset struct {
-}
-
-var clientID uint64
-
-// Consumer is an interface that abstracts behavior of TubeMQ's consumer
-type Consumer interface {
-	// GetMessage receive a single message.
-	GetMessage() (*ConsumerResult, error)
-	// Confirm the consumption of a message.
-	Confirm(confirmContext string, consumed bool) (*ConsumerResult, error)
-	// GetCurrConsumedInfo returns the consumptions of the consumer.
-	GetCurrConsumedInfo() (map[string]*ConsumerOffset, error)
+type Message struct {
+	topic      string
+	data       string
+	dataLen    int32
+	id         int64
+	flag       int32
+	properties map[string]string
 }

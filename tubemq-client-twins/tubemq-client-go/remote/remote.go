@@ -19,9 +19,14 @@
 package remote
 
 import (
+	"fmt"
+	"math"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/flowctrl"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
 )
@@ -30,7 +35,8 @@ import (
 type RmtDataCache struct {
 	consumerID         string
 	groupName          string
-	underGroupCtrl     bool
+	underGroupCtrl     int32
+	lastCheck          int64
 	defFlowCtrlID      int64
 	groupFlowCtrlID    int64
 	partitionSubInfo   map[string]*metadata.SubscribeInfo
@@ -47,6 +53,9 @@ type RmtDataCache struct {
 	partitionTimeouts  map[string]*time.Timer
 	topicPartitions    map[string]map[string]bool
 	partitionRegBooked map[string]bool
+	partitionOffset    map[string]int64
+	groupHandler       *flowctrl.RuleHandler
+	defHandler         *flowctrl.RuleHandler
 	// EventCh is the channel for consumer to consume
 	EventCh chan *metadata.ConsumerEvent
 }
@@ -66,6 +75,8 @@ func NewRmtDataCache() *RmtDataCache {
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
+		groupHandler:       flowctrl.NewRuleHandler(),
+		defHandler:         flowctrl.NewRuleHandler(),
 		EventCh:            make(chan *metadata.ConsumerEvent, 1),
 	}
 	return r
@@ -73,17 +84,17 @@ func NewRmtDataCache() *RmtDataCache {
 
 // GetUnderGroupCtrl returns the underGroupCtrl.
 func (r *RmtDataCache) GetUnderGroupCtrl() bool {
-	return r.underGroupCtrl
+	return atomic.LoadInt32(&r.underGroupCtrl) == 0
 }
 
 // GetDefFlowCtrlID returns the defFlowCtrlID.
 func (r *RmtDataCache) GetDefFlowCtrlID() int64 {
-	return r.defFlowCtrlID
+	return r.defHandler.GetFlowCtrID()
 }
 
 // GetGroupFlowCtrlID returns the groupFlowCtrlID.
 func (r *RmtDataCache) GetGroupFlowCtrlID() int64 {
-	return r.groupFlowCtrlID
+	return r.groupHandler.GetFlowCtrID()
 }
 
 // GetGroupName returns the group name.
@@ -104,7 +115,7 @@ func (r *RmtDataCache) GetSubscribeInfo() []*metadata.SubscribeInfo {
 
 // GetQryPriorityID returns the QryPriorityID.
 func (r *RmtDataCache) GetQryPriorityID() int32 {
-	return r.qryPriorityID
+	return int32(r.groupHandler.GetQryPriorityID())
 }
 
 // PollEventResult polls the first event result from the rebalanceResults.
@@ -142,12 +153,29 @@ func (r *RmtDataCache) SetConsumerInfo(consumerID string, group string) {
 
 // UpdateDefFlowCtrlInfo updates the defFlowCtrlInfo.
 func (r *RmtDataCache) UpdateDefFlowCtrlInfo(flowCtrlID int64, flowCtrlInfo string) {
-
+	if flowCtrlID != r.defHandler.GetFlowCtrID() {
+		r.defHandler.UpdateDefFlowCtrlInfo(true, util.InvalidValue, flowCtrlID, flowCtrlInfo)
+	}
 }
 
 // UpdateGroupFlowCtrlInfo updates the groupFlowCtrlInfo.
 func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID int64, flowCtrlInfo string) {
-
+	if flowCtrlID != r.defHandler.GetFlowCtrID() {
+		r.groupHandler.UpdateDefFlowCtrlInfo(false, int64(qryPriorityID), flowCtrlID, flowCtrlInfo)
+	}
+	if int64(qryPriorityID) != r.groupHandler.GetQryPriorityID() {
+		r.groupHandler.SetQryPriorityID(int64(qryPriorityID))
+	}
+	cur := time.Now().UnixNano() / int64(time.Millisecond)
+	if cur-atomic.LoadInt64(&r.lastCheck) > 10000 {
+		result := r.groupHandler.GetCurDataLimit(math.MaxInt64)
+		if result != nil {
+			atomic.StoreInt32(&r.underGroupCtrl, 1)
+		} else {
+			atomic.StoreInt32(&r.underGroupCtrl, 0)
+		}
+		atomic.StoreInt64(&r.lastCheck, cur)
+	}
 }
 
 // OfferEventAndNotify offers an consumer event and notifies the consumer method and notify the consumer to consume.
@@ -334,6 +362,91 @@ func (r *RmtDataCache) IsFirstRegister(partitionKey string) bool {
 	return r.partitionRegBooked[partitionKey]
 }
 
+// GetCurConsumeStatus returns the current consumption status.
+func (r *RmtDataCache) GetCurConsumeStatus() int32 {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if len(r.partitions) == 0 {
+		return errs.RetErrNoPartAssigned
+	}
+	if len(r.indexPartitions) == 0 {
+		if len(r.usedPartitions) == 0 {
+			return errs.RetErrAllPartInUse
+		} else {
+			return errs.RetErrAllPartWaiting
+		}
+	}
+	return 0
+}
+
+// SelectPartition returns a partition which is available to be consumed.
+// If no partition can be use, an error will be returned.
+func (r *RmtDataCache) SelectPartition() (*metadata.Partition, error) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if len(r.partitions) == 0 {
+		return nil, errs.ErrNoPartAssigned
+	} else {
+		if len(r.indexPartitions) == 0 {
+			if len(r.usedPartitions) == 0 {
+				return nil, errs.ErrAllPartInUse
+			} else {
+				return nil, errs.ErrAllPartWaiting
+			}
+		}
+	}
+
+	partitionKey := r.indexPartitions[0]
+	r.indexPartitions = r.indexPartitions[1:]
+	if partition, ok := r.partitions[partitionKey]; !ok {
+		return nil, errs.ErrAllPartInUse
+	} else {
+		r.usedPartitions[partitionKey] = time.Now().UnixNano() / int64(time.Millisecond)
+		return partition, nil
+	}
+}
+
+func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, confirmContext string, isConsumed bool) error {
+	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
+	if err != nil {
+		return err
+	}
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+
+	if partition, ok := r.partitions[partitionKey]; !ok {
+		delete(r.usedPartitions, partitionKey)
+		r.removeFromIndexPartitions(partitionKey)
+		return fmt.Errorf("not found the partition in Consume Partition set")
+	} else {
+		if t, ok := r.usedPartitions[partitionKey]; !ok {
+			r.removeFromIndexPartitions(partitionKey)
+			r.indexPartitions = append(r.indexPartitions, partitionKey)
+		} else {
+			if t == bookedTime {
+				delete(r.usedPartitions, partitionKey)
+				r.removeFromIndexPartitions(partitionKey)
+				delay := int64(0)
+				if checkDelay {
+					delay = partition.ProcConsumeResult(r.defHandler, r.groupHandler, filterConsume, isConsumed)
+				}
+				if delay > 10 {
+					r.partitionTimeouts[partitionKey] = time.AfterFunc(time.Duration(delay)*time.Millisecond, func() {
+						r.resetIdlePartition(partitionKey, true)
+					})
+				} else {
+					r.indexPartitions = append(r.indexPartitions, partitionKey)
+				}
+			} else {
+				return fmt.Errorf("illegal confirmContext content: context not equal")
+			}
+		}
+	}
+	return nil
+}
+
 func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 	pos := 0
 	for i, p := range r.indexPartitions {
@@ -343,4 +456,20 @@ func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 		}
 	}
 	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
+}
+
+func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64) {
+	if currOffset >= 0 {
+		r.dataBookMu.Lock()
+		defer r.dataBookMu.Unlock()
+		r.partitionOffset[partitionKey] = currOffset
+	}
+}
+
+func (r *RmtDataCache) BookConsumeData(partitionKey string, data *metadata.ConsumeData) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if partition, ok := r.partitions[partitionKey]; ok {
+		partition.BookConsumeData(data)
+	}
 }
