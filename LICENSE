@@ -210,7 +210,7 @@
 1.1 Third party MIT license licenses
 =========
 
-1.1.1 resources/assets/lib/jquery.min.js
+1.1.1 inlong-tubemq/resources/assets/lib/jquery.min.js
  Source  : jquery 1.11.3
  License : https://github.com/jquery/jquery/blob/1.11.3/MIT-LICENSE.txt
 | Copyright 2014 jQuery Foundation and other contributors
@@ -237,7 +237,7 @@
 
 ----
 
-1.1.2 resources/assets/lib/DataTables/*
+1.1.2 inlong-tubemq/resources/assets/lib/DataTables/*
  Source  : datatables  1.10.7
  License : https://github.com/DataTables/DataTables/blob/1.10.7/license.txt
 | Copyright (c) 2008-2013 SpryMedia Limited
@@ -263,8 +263,8 @@
 
 ----
 
-1.1.3 resources/assets/public/css/style.css
-      resources/assets/public/css/ie.css
+1.1.3 inlong-tubemq/resources/assets/public/css/style.css
+      inlong-tubemq/resources/assets/public/css/ie.css
  Source  : Compass
  License :  https://github.com/Compass/compass/blob/stable/LICENSE.markdown
  | Copyright (c) 2009-2014 Christopher M. Eppstein
@@ -285,8 +285,8 @@
 1.2 Third party BSD 3-Clause license
 =========
 
-1.2.1 tubemq-client-twins/tubemq-client-cpp/src/any.h
-      tubemq-client-twins/tubemq-client-cpp/src/buffer.h
+1.2.1 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/any.h
+      inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/buffer.h
  Source  : https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
            https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7
  License : https://github.com/Qihoo360/evpp/blob/master/LICENSE
@@ -326,28 +326,32 @@
 1.3 Third party Apache 2.0 Licenses
 =========
 
-1.3.1 tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
-      tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
-      tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
+1.3.1 inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
  Source  : hbase 0.94.27 (Please note that the software have been modified.)
  License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
 
-1.3.2 tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
-      tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
+1.3.2 inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
  Source  : Apache Avro 1.7.6
  License : https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
 
-1.3.3 tubemq-client-twins/tubemq-client-cpp/src/future.h
+1.3.3 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/future.h
  Source  : Apache Pulsar
  License : https://github.com/apache/pulsar/blob/master/LICENSE
+ 
+1.3.4 codestyle/checkstyle.xml  
+ Source  ：checkstyle 8.44 (Modified from src/main/resources/google_checks.xml)
+ License : https://github.com/checkstyle/checkstyle/blob/master/LICENSE.apache20
 
 ----
 
