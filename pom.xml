@@ -84,6 +84,7 @@
     </mailingLists>
 
   <modules>
+    <module>inlong-tubemq</module>
   </modules>
 
   <properties>
@@ -181,7 +182,7 @@
           <excludes>
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
-			<exclude>/codestyle/checkstyle.xml</exclude>
+            <exclude>/codestyle/checkstyle.xml</exclude>
             <exclude>**/.*/**</exclude>
             <exclude>**/*.log</exclude>
             <exclude>**/*.json</exclude>
