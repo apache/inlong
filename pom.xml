@@ -84,6 +84,7 @@
     </mailingLists>
 
   <modules>
+    <module>inlong-common</module>
     <module>inlong-tubemq</module>
   </modules>
 
