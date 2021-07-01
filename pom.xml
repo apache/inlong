@@ -87,6 +87,7 @@
     <module>inlong-common</module>
     <module>inlong-tubemq</module>
     <module>inlong-manager</module>
+    <module>inlong-sort</module>
   </modules>
 
   <properties>
