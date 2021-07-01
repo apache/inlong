@@ -1,0 +1,64 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+logging:
+  level:
+    root: INFO
+    org:
+      apache:
+        inlong:
+          manager: debug
+
+spring:
+  datasource:
+    jdbc-url: jdbc:mysql://127.0.0.1:3306/apache_inlong_manager?serverTimezone=GMT%2b8&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true
+    username: xxxxxx
+    password: xxxxxx
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # Configure test query
+      validationQuery: SELECT 'x'
+      # Initialization size, minimum, maximum
+      initialSize: 20
+      minIdle: 20
+      maxActive: 300
+      # Configure the timeout period to wait for the connection to be acquired
+      maxWait: 600000
+      # Configure the minimum survival time of a connection in the pool, in milliseconds
+      minEvictableIdleTimeMillis: 3600000
+      # Detect when applying for connection. It is recommended to configure it to true, which does not affect performance and ensures safety
+      testWhileIdle: true
+      # Perform detection when obtaining a connection, it is recommended to close it, which affects performance
+      testOnBorrow: false
+      # Perform detection when returning the connection, it is recommended to close it, which affects performance
+      testOnReturn: false
+      # Configure filters for monitoring statistics interception, stat:monitoring statistics  log4j:log  wall:defense against SQL injection
+      filters: stat,wall
+      # Open the mergeSql function through the connectProperties property；Slow SQL records
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+# Cluster info
+cluster:
+  tube:
+    manager: http://127.0.0.1:8081
+    master: 127.0.0.1:8000,127.0.0.1:8010
+  zk:
+    url: 127.0.0.1:2181
+    root: inlong_hive

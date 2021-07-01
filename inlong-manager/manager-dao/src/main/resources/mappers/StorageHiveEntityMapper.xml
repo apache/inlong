@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="jdbc_url" jdbcType="VARCHAR" property="jdbcUrl"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
+        <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
+        <result column="primary_partition" jdbcType="VARCHAR" property="primaryPartition"/>
+        <result column="secondary_partition" jdbcType="VARCHAR" property="secondaryPartition"/>
+        <result column="partition_type" jdbcType="VARCHAR" property="partitionType"/>
+        <result column="file_format" jdbcType="VARCHAR" property="fileFormat"/>
+        <result column="field_splitter" jdbcType="VARCHAR" property="fieldSplitter"/>
+        <result column="encoding_type" jdbcType="VARCHAR" property="encodingType"/>
+        <result column="hdfs_default_fs" jdbcType="VARCHAR" property="hdfsDefaultFs"/>
+        <result column="warehouse_dir" jdbcType="VARCHAR" property="warehouseDir"/>
+        <result column="usage_interval" jdbcType="VARCHAR" property="usageInterval"/>
+        <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="opt_log" jdbcType="VARCHAR" property="optLog"/>
+        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, business_identifier, data_stream_identifier, jdbc_url, username, password, db_name, table_name,
+        primary_partition, secondary_partition, partition_type, file_format, field_splitter, encoding_type,
+        hdfs_default_fs, warehouse_dir, usage_interval, storage_period, status, previous_status,
+        is_deleted, creator, modifier, create_time, modify_time, opt_log, temp_view
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_hive
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_hive
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            order by modify_time desc
+        </where>
+    </select>
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_hive
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectCountByIdentifier" resultType="java.lang.Integer">
+        select count(1)
+        from storage_hive
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectDataStreamExists" resultType="java.lang.String">
+        select data_stream_identifier
+        from storage_hive
+        <where>
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            and data_stream_identifier in
+            <foreach collection="dsidList" open="(" close=")" separator="," index="index" item="item">
+                #{item}
+            </foreach>
+            and is_deleted = 0
+        </where>
+    </select>
+    <select id="selectSummaryByIdentifier"
+            resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo">
+        select s.id,
+               s.business_identifier,
+               s.data_stream_identifier,
+               "HIVE" as storage_type
+        from storage_hive s
+        where s.is_deleted = 0
+          and s.business_identifier = #{bid, jdbcType=VARCHAR}
+          and s.data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from storage_hive
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        insert into storage_hive (id, business_identifier, data_stream_identifier,
+                                  jdbc_url, username, password,
+                                  db_name, table_name, primary_partition,
+                                  secondary_partition, partition_type, file_format,
+                                  field_splitter, encoding_type, hdfs_default_fs,
+                                  warehouse_dir, usage_interval, storage_period,
+                                  status, previous_status, is_deleted,
+                                  creator, modifier, create_time,
+                                  modify_time, opt_log, temp_view)
+        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+                #{jdbcUrl,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{dbName,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR}, #{primaryPartition,jdbcType=VARCHAR},
+                #{secondaryPartition,jdbcType=VARCHAR}, #{partitionType,jdbcType=VARCHAR},
+                #{fileFormat,jdbcType=VARCHAR},
+                #{fieldSplitter,jdbcType=VARCHAR}, #{encodingType,jdbcType=VARCHAR}, #{hdfsDefaultFs,jdbcType=VARCHAR},
+                #{warehouseDir,jdbcType=VARCHAR}, #{usageInterval,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER},
+                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+                #{modifyTime,jdbcType=TIMESTAMP}, #{optLog,jdbcType=VARCHAR}, #{tempView,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        insert into storage_hive
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier,
+            </if>
+            <if test="jdbcUrl != null">
+                jdbc_url,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="dbName != null">
+                db_name,
+            </if>
+            <if test="tableName != null">
+                table_name,
+            </if>
+            <if test="primaryPartition != null">
+                primary_partition,
+            </if>
+            <if test="secondaryPartition != null">
+                secondary_partition,
+            </if>
+            <if test="partitionType != null">
+                partition_type,
+            </if>
+            <if test="fileFormat != null">
+                file_format,
+            </if>
+            <if test="fieldSplitter != null">
+                field_splitter,
+            </if>
+            <if test="encodingType != null">
+                encoding_type,
+            </if>
+            <if test="hdfsDefaultFs != null">
+                hdfs_default_fs,
+            </if>
+            <if test="warehouseDir != null">
+                warehouse_dir,
+            </if>
+            <if test="usageInterval != null">
+                usage_interval,
+            </if>
+            <if test="storagePeriod != null">
+                storage_period,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="optLog != null">
+                opt_log,
+            </if>
+            <if test="tempView != null">
+                temp_view,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="jdbcUrl != null">
+                #{jdbcUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="dbName != null">
+                #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="tableName != null">
+                #{tableName,jdbcType=VARCHAR},
+            </if>
+            <if test="primaryPartition != null">
+                #{primaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="secondaryPartition != null">
+                #{secondaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="partitionType != null">
+                #{partitionType,jdbcType=VARCHAR},
+            </if>
+            <if test="fileFormat != null">
+                #{fileFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="fieldSplitter != null">
+                #{fieldSplitter,jdbcType=VARCHAR},
+            </if>
+            <if test="encodingType != null">
+                #{encodingType,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsDefaultFs != null">
+                #{hdfsDefaultFs,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseDir != null">
+                #{warehouseDir,jdbcType=VARCHAR},
+            </if>
+            <if test="usageInterval != null">
+                #{usageInterval,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="optLog != null">
+                #{optLog,jdbcType=VARCHAR},
+            </if>
+            <if test="tempView != null">
+                #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        update storage_hive
+        <set>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="jdbcUrl != null">
+                jdbc_url = #{jdbcUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="dbName != null">
+                db_name = #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="tableName != null">
+                table_name = #{tableName,jdbcType=VARCHAR},
+            </if>
+            <if test="primaryPartition != null">
+                primary_partition = #{primaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="secondaryPartition != null">
+                secondary_partition = #{secondaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="partitionType != null">
+                partition_type = #{partitionType,jdbcType=VARCHAR},
+            </if>
+            <if test="fileFormat != null">
+                file_format = #{fileFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="fieldSplitter != null">
+                field_splitter = #{fieldSplitter,jdbcType=VARCHAR},
+            </if>
+            <if test="encodingType != null">
+                encoding_type = #{encodingType,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsDefaultFs != null">
+                hdfs_default_fs = #{hdfsDefaultFs,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseDir != null">
+                warehouse_dir = #{warehouseDir,jdbcType=VARCHAR},
+            </if>
+            <if test="usageInterval != null">
+                usage_interval = #{usageInterval,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                storage_period = #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="optLog != null">
+                opt_log = #{optLog,jdbcType=VARCHAR},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        update storage_hive
+        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            jdbc_url               = #{jdbcUrl,jdbcType=VARCHAR},
+            username               = #{username,jdbcType=VARCHAR},
+            password               = #{password,jdbcType=VARCHAR},
+            db_name                = #{dbName,jdbcType=VARCHAR},
+            table_name             = #{tableName,jdbcType=VARCHAR},
+            primary_partition      = #{primaryPartition,jdbcType=VARCHAR},
+            secondary_partition    = #{secondaryPartition,jdbcType=VARCHAR},
+            partition_type         = #{partitionType,jdbcType=VARCHAR},
+            file_format            = #{fileFormat,jdbcType=VARCHAR},
+            field_splitter         = #{fieldSplitter,jdbcType=VARCHAR},
+            encoding_type          = #{encodingType,jdbcType=VARCHAR},
+            hdfs_default_fs         = #{hdfsDefaultFs,jdbcType=VARCHAR},
+            warehouse_dir          = #{warehouseDir,jdbcType=VARCHAR},
+            usage_interval         = #{usageInterval,jdbcType=VARCHAR},
+            storage_period         = #{storagePeriod,jdbcType=INTEGER},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
+            opt_log                = #{optLog,jdbcType=VARCHAR},
+            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateStorageStatusById" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
+        update storage_hive
+        set status          = #{status,jdbcType=INTEGER},
+            previous_status = status,
+            opt_log         = #{optLog,jdbcType=VARCHAR},
+            modify_time     = now()
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

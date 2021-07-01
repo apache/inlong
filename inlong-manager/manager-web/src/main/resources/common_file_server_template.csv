@@ -1,0 +1,2 @@
+ip      , port  , type                            , is_inner_ip             , issue_type              , username            , password            , visible_person            , visible_group
+DataSource IP, port, "type，such as DataProxy client, LoadProxy, etc.", "Intranet or not,0: No,1: Yes","Distribution mode, such as SSH, TCS, etc", The user name of the data source IP host, the password corresponding to the above user name, "List of visible people, separated by commas", "List of visible groups, separated by commas"

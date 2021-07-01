@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.SourceDbDetailEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="access_type" jdbcType="VARCHAR" property="accessType"/>
+        <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
+        <result column="transfer_ip" jdbcType="VARCHAR" property="transferIp"/>
+        <result column="connection_name" jdbcType="VARCHAR" property="connectionName"/>
+        <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
+        <result column="table_fields" jdbcType="LONGVARCHAR" property="tableFields"/>
+        <result column="data_sql" jdbcType="LONGVARCHAR" property="dataSql"/>
+        <result column="crontab" jdbcType="VARCHAR" property="crontab"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, business_identifier, data_stream_identifier, access_type, db_name, transfer_ip, connection_name,
+        table_name, table_fields, data_sql, crontab, status, previous_status, is_deleted, creator, modifier,
+        create_time, modify_time, temp_view
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from source_db_detail
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from source_db_detail
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                and (transfer_ip like CONCAT('%', #{keyWord}, '%') or connection_name like CONCAT('%', #{keyWord}, '%'))
+            </if>
+            <if test="accessType != null and accessType != ''">
+                and access_type = #{accessType, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+    <select id="selectDetailExist" resultType="java.lang.Integer">
+        select count(1)
+        from source_db_detail
+        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR}
+          and db_name = #{dbName, jdbcType=VARCHAR}
+          and connection_name = #{connectionName, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </select>
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from source_db_detail
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from source_db_detail
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByIdentifier">
+        delete
+        from source_db_detail
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        insert into source_db_detail (id, business_identifier, data_stream_identifier,
+                                      access_type, db_name, transfer_ip, connection_name,
+                                      table_name, crontab, status,
+                                      previous_status, is_deleted, creator,
+                                      modifier, create_time, modify_time,
+                                      table_fields, data_sql, temp_view)
+        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+                #{accessType,jdbcType=VARCHAR}, #{dbName,jdbcType=VARCHAR}, #{transferIp,jdbcType=VARCHAR},
+                #{connectionName,jdbcType=VARCHAR},
+                #{tableName,jdbcType=VARCHAR}, #{crontab,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
+                #{tableFields,jdbcType=LONGVARCHAR}, #{dataSql,jdbcType=LONGVARCHAR}, #{tempView,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        insert into source_db_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier,
+            </if>
+            <if test="accessType != null">
+                access_type,
+            </if>
+            <if test="dbName != null">
+                db_name,
+            </if>
+            <if test="transferIp != null">
+                transfer_ip,
+            </if>
+            <if test="connectionName != null">
+                connection_name,
+            </if>
+            <if test="tableName != null">
+                table_name,
+            </if>
+            <if test="crontab != null">
+                crontab,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="tableFields != null">
+                table_fields,
+            </if>
+            <if test="dataSql != null">
+                data_sql,
+            </if>
+            <if test="tempView != null">
+                temp_view,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="accessType != null">
+                #{accessType,jdbcType=INTEGER},
+            </if>
+            <if test="dbName != null">
+                #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="transferIp != null">
+                #{transferIp,jdbcType=VARCHAR},
+            </if>
+            <if test="connectionName != null">
+                #{connectionName,jdbcType=VARCHAR},
+            </if>
+            <if test="tableName != null">
+                #{tableName,jdbcType=VARCHAR},
+            </if>
+            <if test="crontab != null">
+                #{crontab,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tableFields != null">
+                #{tableFields,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="dataSql != null">
+                #{dataSql,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="tempView != null">
+                #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        update source_db_detail
+        <set>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="accessType != null">
+                access_type = #{accessType,jdbcType=VARCHAR},
+            </if>
+            <if test="dbName != null">
+                db_name = #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="transferIp != null">
+                transfer_ip = #{transferIp,jdbcType=VARCHAR},
+            </if>
+            <if test="connectionName != null">
+                connection_name = #{connectionName,jdbcType=VARCHAR},
+            </if>
+            <if test="tableName != null">
+                table_name = #{tableName,jdbcType=VARCHAR},
+            </if>
+            <if test="crontab != null">
+                crontab = #{crontab,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tableFields != null">
+                table_fields = #{tableFields,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="dataSql != null">
+                data_sql = #{dataSql,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+        update source_db_detail
+        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            access_type            = #{accessType,jdbcType=VARCHAR},
+            db_name                = #{dbName,jdbcType=VARCHAR},
+            transfer_ip            = #{transferIp,jdbcType=VARCHAR},
+            connection_name        = #{connectionName,jdbcType=VARCHAR},
+            table_name             = #{tableName,jdbcType=VARCHAR},
+            crontab                = #{crontab,jdbcType=VARCHAR},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
+            table_fields           = #{tableFields,jdbcType=LONGVARCHAR},
+            data_sql               = #{dataSql,jdbcType=LONGVARCHAR},
+            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="logicDeleteByIdentifier">
+        update source_db_detail
+        set is_deleted = 1,
+            modifier   = #{operator,jdbcType=VARCHAR}
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </update>
+</mapper>
