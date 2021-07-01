@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StorageHiveClusterEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="hive_addr" jdbcType="VARCHAR" property="hiveAddr"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="warehouse_dir" jdbcType="VARCHAR" property="warehouseDir"/>
+        <result column="hdfs_defaultfs" jdbcType="VARCHAR" property="hdfsDefaultfs"/>
+        <result column="hdfs_ugi" jdbcType="VARCHAR" property="hdfsUgi"/>
+        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, type, hive_addr, username, password, warehouse_dir, hdfs_defaultfs, hdfs_ugi,
+        create_time, modify_time, cluster_tag
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_hive_cluster
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByCondition" resultType="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_hive_cluster
+        <where>
+            <if test="type != null and type != ''">
+                and type = #{type, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from storage_hive_cluster
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        insert into storage_hive_cluster (id, name, type,
+                                          hive_addr, username, password,
+                                          warehouse_dir, hdfs_defaultfs, hdfs_ugi,
+                                          create_time, modify_time, cluster_tag)
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+                #{hiveAddr,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{warehouseDir,jdbcType=VARCHAR}, #{hdfsDefaultfs,jdbcType=VARCHAR}, #{hdfsUgi,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{clusterTag,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        insert into storage_hive_cluster
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="hiveAddr != null">
+                hive_addr,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="warehouseDir != null">
+                warehouse_dir,
+            </if>
+            <if test="hdfsDefaultfs != null">
+                hdfs_defaultfs,
+            </if>
+            <if test="hdfsUgi != null">
+                hdfs_ugi,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="clusterTag != null">
+                cluster_tag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="hiveAddr != null">
+                #{hiveAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseDir != null">
+                #{warehouseDir,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsDefaultfs != null">
+                #{hdfsDefaultfs,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsUgi != null">
+                #{hdfsUgi,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="clusterTag != null">
+                #{clusterTag,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        update storage_hive_cluster
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="hiveAddr != null">
+                hive_addr = #{hiveAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseDir != null">
+                warehouse_dir = #{warehouseDir,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsDefaultfs != null">
+                hdfs_defaultfs = #{hdfsDefaultfs,jdbcType=VARCHAR},
+            </if>
+            <if test="hdfsUgi != null">
+                hdfs_ugi = #{hdfsUgi,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="clusterTag != null">
+                cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity">
+        update storage_hive_cluster
+        set name           = #{name,jdbcType=VARCHAR},
+            type           = #{type,jdbcType=VARCHAR},
+            hive_addr      = #{hiveAddr,jdbcType=VARCHAR},
+            username       = #{username,jdbcType=VARCHAR},
+            password       = #{password,jdbcType=VARCHAR},
+            warehouse_dir  = #{warehouseDir,jdbcType=VARCHAR},
+            hdfs_defaultfs = #{hdfsDefaultfs,jdbcType=VARCHAR},
+            hdfs_ugi       = #{hdfsUgi,jdbcType=VARCHAR},
+            cluster_tag    = #{clusterTag,jdbcType=VARCHAR},
+            create_time    = #{createTime,jdbcType=TIMESTAMP},
+            modify_time    = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

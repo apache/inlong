@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskDefEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskDefEntity">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="taskflow_def_id" jdbcType="BIGINT" property="taskflowDefId"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="implclass" jdbcType="VARCHAR" property="implclass"/>
+        <result column="task_name" jdbcType="VARCHAR" property="taskName"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_by" jdbcType="TIMESTAMP" property="updateBy"/>
+        <result column="delivery_id" jdbcType="BIGINT" property="deliveryId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, taskflow_def_id, parent_id, implclass, task_name, create_time, create_by,
+        update_time, update_by, delivery_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from task_def
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from task_def
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskDefEntity">
+        insert into task_def (id, taskflow_def_id, parent_id,
+                              implclass, task_name, create_time,
+                              create_by, update_time, update_by,
+                              delivery_id)
+        values (#{id,jdbcType=BIGINT}, #{taskflowDefId,jdbcType=BIGINT}, #{parentId,jdbcType=BIGINT},
+                #{implclass,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+                #{createBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=TIMESTAMP},
+                #{deliveryId,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskDefEntity">
+        insert into task_def
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="taskflowDefId != null">
+                taskflow_def_id,
+            </if>
+            <if test="parentId != null">
+                parent_id,
+            </if>
+            <if test="implclass != null">
+                implclass,
+            </if>
+            <if test="taskName != null">
+                task_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="deliveryId != null">
+                delivery_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="taskflowDefId != null">
+                #{taskflowDefId,jdbcType=BIGINT},
+            </if>
+            <if test="parentId != null">
+                #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="implclass != null">
+                #{implclass,jdbcType=VARCHAR},
+            </if>
+            <if test="taskName != null">
+                #{taskName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deliveryId != null">
+                #{deliveryId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskDefEntity">
+        update task_def
+        <set>
+            <if test="taskflowDefId != null">
+                taskflow_def_id = #{taskflowDefId,jdbcType=BIGINT},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="implclass != null">
+                implclass = #{implclass,jdbcType=VARCHAR},
+            </if>
+            <if test="taskName != null">
+                task_name = #{taskName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deliveryId != null">
+                delivery_id = #{deliveryId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskDefEntity">
+        update task_def
+        set taskflow_def_id = #{taskflowDefId,jdbcType=BIGINT},
+            parent_id       = #{parentId,jdbcType=BIGINT},
+            implclass       = #{implclass,jdbcType=VARCHAR},
+            task_name       = #{taskName,jdbcType=VARCHAR},
+            create_time     = #{createTime,jdbcType=TIMESTAMP},
+            create_by       = #{createBy,jdbcType=VARCHAR},
+            update_time     = #{updateTime,jdbcType=TIMESTAMP},
+            update_by       = #{updateBy,jdbcType=TIMESTAMP},
+            delivery_id     = #{deliveryId,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>
