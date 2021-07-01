@@ -99,24 +99,27 @@ func (h *heartbeatManager) consumerHB2Master() {
 		if err != nil {
 			continue
 		}
-		if rsp.GetSuccess() {
-			h.processHBResponseM2C(rsp)
-			break
-		} else if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
+
+		if !rsp.GetSuccess() {
 			h.consumer.masterHBRetry++
-			address := h.consumer.master.Address
-			go h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
-			if rsp.GetErrCode() != errs.RetErrHBNoNode {
-				hm := h.heartbeats[address]
-				hm.numConnections--
-				if hm.numConnections == 0 {
-					h.mu.Lock()
-					delete(h.heartbeats, address)
-					h.mu.Unlock()
+			if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
+				address := h.consumer.master.Address
+				go h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
+				if rsp.GetErrCode() != errs.RetErrHBNoNode {
+					hm := h.heartbeats[address]
+					hm.numConnections--
+					if hm.numConnections == 0 {
+						h.mu.Lock()
+						delete(h.heartbeats, address)
+						h.mu.Unlock()
+					}
 				}
+				return
 			}
-			return
 		}
+		h.consumer.masterHBRetry = 0
+		h.processHBResponseM2C(rsp)
+		break
 	}
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -187,31 +190,26 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 	if err != nil {
 		return
 	}
-
-	if rsp.GetSuccess() {
-		if rsp.GetHasPartFailure() {
-			partitionKeys := make([]string, 0, len(rsp.GetFailureInfo()))
-			for _, fi := range rsp.GetFailureInfo() {
-				pos := strings.Index(fi, ":")
-				if pos == -1 {
-					continue
-				}
-				partition, err := metadata.NewPartition(fi[pos+1:])
-				if err != nil {
-					continue
-				}
-				partitionKeys = append(partitionKeys, partition.GetPartitionKey())
-			}
-			h.consumer.rmtDataCache.RemovePartition(partitionKeys)
-		} else {
-			if rsp.GetErrCode() == errs.RetCertificateFailure {
-				partitionKeys := make([]string, 0, len(partitions))
-				for _, partition := range partitions {
-					partitionKeys = append(partitionKeys, partition.GetPartitionKey())
-				}
-				h.consumer.rmtDataCache.RemovePartition(partitionKeys)
-			}
+	partitionKeys := make([]string, 0, len(partitions))
+	if rsp.GetErrCode() == errs.RetCertificateFailure {
+		for _, partition := range partitions {
+			partitionKeys = append(partitionKeys, partition.GetPartitionKey())
 		}
+		h.consumer.rmtDataCache.RemovePartition(partitionKeys)
+	}
+	if rsp.GetSuccess() && rsp.GetHasPartFailure() {
+		for _, fi := range rsp.GetFailureInfo() {
+			pos := strings.Index(fi, ":")
+			if pos == -1 {
+				continue
+			}
+			partition, err := metadata.NewPartition(fi[pos+1:])
+			if err != nil {
+				continue
+			}
+			partitionKeys = append(partitionKeys, partition.GetPartitionKey())
+		}
+		h.consumer.rmtDataCache.RemovePartition(partitionKeys)
 	}
 	h.resetBrokerTimer(broker)
 }

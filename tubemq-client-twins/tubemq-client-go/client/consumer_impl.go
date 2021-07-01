@@ -101,18 +101,13 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 	c.subInfo.SetClientID(clientID)
 	hbm := newHBManager(c)
 	c.heartbeatManager = hbm
-	return c, nil
-}
-
-// Start implementation of tubeMQ consumer.
-func (c *consumer) Start() error {
-	err := c.register2Master(false)
+	err = c.register2Master(false)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	c.heartbeatManager.registerMaster(c.master.Address)
 	go c.processRebalanceEvent()
-	return nil
+	return c, nil
 }
 
 func (c *consumer) register2Master(needChange bool) error {
@@ -128,18 +123,20 @@ func (c *consumer) register2Master(needChange bool) error {
 		if err != nil {
 			return err
 		}
-		if rsp.GetSuccess() {
-			c.masterHBRetry = 0
-			c.processRegisterResponseM2C(rsp)
-			return nil
-		} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
-			return nil
-		} else {
-			c.master, err = c.selector.Select(c.config.Consumer.Masters)
-			if err != nil {
+		if !rsp.GetSuccess() {
+			if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
+				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+			}
+
+			if c.master, err = c.selector.Select(c.config.Consumer.Masters); err != nil {
 				return err
 			}
+			continue
 		}
+
+		c.masterHBRetry = 0
+		c.processRegisterResponseM2C(rsp)
+		return nil
 	}
 	return nil
 }
@@ -324,13 +321,16 @@ func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
 }
 
 // Close implementation of TubeMQ consumer.
-func (c *consumer) Close() {
-	c.rmtDataCache.OfferEventAndNotify(&metadata.ConsumerEvent{})
-	c.close2Master()
+func (c *consumer) Close() error {
+	close(c.done)
+	err := c.close2Master()
+	if err != nil {
+		return err
+	}
 	c.closeAllBrokers()
 	c.heartbeatManager.close()
 	c.client.Close()
-	close(c.done)
+	return nil
 }
 
 func (c *consumer) processRebalanceEvent() {
@@ -338,9 +338,6 @@ func (c *consumer) processRebalanceEvent() {
 		select {
 		case event, ok := <-c.rmtDataCache.EventCh:
 			if ok {
-				if event.GetEventStatus() == int32(util.InvalidValue) && event.GetRebalanceID() == util.InvalidValue {
-					break
-				}
 				c.rmtDataCache.ClearEvent()
 				switch event.GetEventType() {
 				case metadata.Disconnect, metadata.OnlyDisconnect:
@@ -405,7 +402,6 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 		unsubPartitions := c.rmtDataCache.FilterPartitions(event.GetSubscribeInfo())
 		if len(unsubPartitions) > 0 {
 			for _, partition := range unsubPartitions {
-
 				node := &metadata.Node{}
 				node.SetHost(util.GetLocalHost())
 				node.SetAddress(partition.GetBroker().GetAddress())
@@ -414,10 +410,13 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 				if err != nil {
 					//todo add log
 				}
-				if rsp.GetSuccess() {
-					c.rmtDataCache.AddNewPartition(partition)
-					c.heartbeatManager.registerBroker(node)
+				if !rsp.GetSuccess() {
+					//todo add log
+					return
 				}
+
+				c.rmtDataCache.AddNewPartition(partition)
+				c.heartbeatManager.registerBroker(node)
 			}
 		}
 	}

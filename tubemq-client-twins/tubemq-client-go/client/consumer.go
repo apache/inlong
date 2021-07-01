@@ -35,8 +35,6 @@ var clientID uint64
 
 // Consumer is an interface that abstracts behavior of TubeMQ's consumer
 type Consumer interface {
-	// Start starts the consumer.
-	Start() error
 	// GetMessage receive a single message.
 	GetMessage() (*ConsumerResult, error)
 	// Confirm the consumption of a message.
@@ -44,5 +42,5 @@ type Consumer interface {
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
 	GetCurrConsumedInfo() (map[string]*ConsumerOffset, error)
 	// Close closes the consumer client and release the resources.
-	Close()
+	Close() error
 }
