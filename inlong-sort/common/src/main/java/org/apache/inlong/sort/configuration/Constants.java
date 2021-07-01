@@ -41,6 +41,11 @@ public class Constants {
 
     public static final String SINK_UID = "sink_uid";
 
+    /**
+     * It uses dt as the built-in data time field name. It's a work-around solution and should be replaced by later.
+     */
+    public static final String DATA_TIME_FIELD = "dt";
+
     // ------------------------------------------------------------------------
     //  Common configs
     // ------------------------------------------------------------------------
