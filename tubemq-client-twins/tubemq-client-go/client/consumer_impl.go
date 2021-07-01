@@ -320,14 +320,24 @@ func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
 	panic("implement me")
 }
 
+// Close implementation of TubeMQ consumer.
+func (c *consumer) Close() error {
+	close(c.done)
+	err := c.close2Master()
+	if err != nil {
+		return err
+	}
+	c.closeAllBrokers()
+	c.heartbeatManager.close()
+	c.client.Close()
+	return nil
+}
+
 func (c *consumer) processRebalanceEvent() {
 	for {
 		select {
 		case event, ok := <-c.rmtDataCache.EventCh:
 			if ok {
-				if event.GetEventStatus() == int32(util.InvalidValue) && event.GetRebalanceID() == util.InvalidValue {
-					break
-				}
 				c.rmtDataCache.ClearEvent()
 				switch event.GetEventType() {
 				case metadata.Disconnect, metadata.OnlyDisconnect:
@@ -619,4 +629,39 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 		msgSize += dataLen
 	}
 	return msgSize, msgs
+}
+
+func (c *consumer) close2Master() error {
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+	defer cancel()
+
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(c.master.Address)
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	m.SetSubscribeInfo(sub)
+	auth := &protocol.AuthenticateInfo{}
+	c.genMasterAuthenticateToken(auth, true)
+	mci := &protocol.MasterCertificateInfo{
+		AuthInfo: auth,
+	}
+	c.subInfo.SetMasterCertificateInfo(mci)
+	rsp, err := c.client.CloseRequestC2M(ctx, m, c.subInfo)
+	if err != nil {
+		return err
+	}
+	if !rsp.GetSuccess() {
+		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	}
+	return nil
+}
+
+func (c *consumer) closeAllBrokers() {
+	partitions := c.rmtDataCache.GetAllClosedBrokerParts()
+	if len(partitions) > 0 {
+		c.unregister2Broker(partitions)
+	}
 }
