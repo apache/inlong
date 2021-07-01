@@ -37,6 +37,7 @@ const (
 	RetSelectorNotExist        = 6
 	RetSuccess                 = 200
 	RetErrMoved                = 301
+	RetBadRequest              = 400
 	RetErrForbidden            = 403
 	RetErrNotFound             = 404
 	RetErrNoPartAssigned       = 406
@@ -49,6 +50,7 @@ const (
 	RetConsumeContentForbidden = 455
 	RetErrServiceUnavailable   = 503
 	RetErrConsumeSpeedLimit    = 550
+	RetErrConfirmTimeout       = 2004
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.

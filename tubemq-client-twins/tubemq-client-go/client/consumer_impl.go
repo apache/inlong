@@ -20,9 +20,11 @@ package client
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
 	"hash/crc32"
 	"os"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -241,7 +243,76 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 
 // Confirm implementation of TubeMQ consumer.
 func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResult, error) {
-	panic("implement me")
+	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
+	if err != nil {
+		return nil, errs.New(errs.RetBadRequest, "illegel confirm_context content: unregular confirm_context value format")
+	}
+	topic, err := parsePartitionKeyToTopic(partitionKey)
+	if err != nil {
+		return nil, errs.New(errs.RetBadRequest, err.Error())
+	}
+	if !c.rmtDataCache.IsPartitionInUse(partitionKey, bookedTime) {
+		return nil, errs.New(errs.RetErrConfirmTimeout, "The confirm_context's value invalid!")
+	}
+	partition := c.rmtDataCache.GetPartition(partitionKey)
+	if partition == nil {
+		return nil, errs.New(errs.RetErrConfirmTimeout, "Not found the partition by confirm_context!")
+	}
+
+	rsp, err := c.sendConfirmReq2Broker(partition)
+	if err != nil {
+		return nil, err
+	}
+
+	pi := &PeerInfo{
+		brokerHost:   partition.GetBroker().GetHost(),
+		partitionID:  uint32(partition.GetPartitionID()),
+		partitionKey: partition.GetPartitionKey(),
+		currOffset:   util.InvalidValue,
+	}
+	cs := &ConsumerResult{
+		topicName: partition.GetTopic(),
+		peerInfo:  pi,
+	}
+	if !rsp.GetSuccess() {
+		return cs, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	}
+	currOffset := rsp.GetCurrOffset()
+	c.rmtDataCache.BookPartitionInfo(partitionKey, currOffset)
+	err = c.rmtDataCache.ReleasePartition(true, c.subInfo.IsFiltered(topic), confirmContext, consumed)
+	return cs, err
+}
+
+func (c *consumer) sendConfirmReq2Broker(partition *metadata.Partition) (*protocol.CommitOffsetResponseB2C, error) {
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(partition.GetBroker().GetAddress())
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	sub.SetPartition(partition)
+	m.SetSubscribeInfo(sub)
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout-500)
+	defer cancel()
+
+	rsp, err := c.client.CommitOffsetRequestC2B(ctx, m, c.subInfo)
+	return rsp, err
+}
+
+func parsePartitionKeyToTopic(partitionKey string) (string, error) {
+	pos1 := strings.Index(partitionKey, ":")
+	if pos1 == -1 {
+		return "", fmt.Errorf("illegel confirm_context content: unregular index key value format")
+	}
+	topic := partitionKey[pos1+1:]
+	pos2 := strings.LastIndex(topic, ":")
+	if pos2 == -1 {
+		return "", fmt.Errorf("illegel confirm_context content: unregular index's topic key value format")
+	}
+	topic = topic[:pos2]
+	return topic, nil
 }
 
 // GetCurrConsumedInfo implementation of TubeMQ consumer.

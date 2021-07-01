@@ -97,9 +97,10 @@ func NewPartition(partition string) (*Partition, error) {
 		}
 	}
 	return &Partition{
-		topic:       topic,
-		broker:      b,
-		partitionID: int32(partitionID),
+		topic:        topic,
+		broker:       b,
+		partitionID:  int32(partitionID),
+		strategyData: &strategyData{},
 	}, nil
 }
 
