@@ -27,8 +27,10 @@ type ConsumerResult struct {
 	messages       []*Message
 }
 
-// ConsumerOffset of a consumption,
+// ConsumerOffset of a consumption.
 type ConsumerOffset struct {
+	partitionKey string
+	currOffset   int64
 }
 
 var clientID uint64
@@ -40,7 +42,9 @@ type Consumer interface {
 	// Confirm the consumption of a message.
 	Confirm(confirmContext string, consumed bool) (*ConsumerResult, error)
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
-	GetCurrConsumedInfo() (map[string]*ConsumerOffset, error)
+	GetCurrConsumedInfo() map[string]*ConsumerOffset
 	// Close closes the consumer client and release the resources.
 	Close() error
+	// GetClientID returns the clientID of the consumer.
+	GetClientID() string
 }
