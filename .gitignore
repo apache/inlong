@@ -31,7 +31,7 @@ nb-configuration.xml
 # Maven
 log/
 target/
-dist/
+target/dist/
 
 # Python
 venv/
