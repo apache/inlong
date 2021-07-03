@@ -316,8 +316,22 @@ func parsePartitionKeyToTopic(partitionKey string) (string, error) {
 }
 
 // GetCurrConsumedInfo implementation of TubeMQ consumer.
-func (c *consumer) GetCurrConsumedInfo() (map[string]*ConsumerOffset, error) {
-	panic("implement me")
+func (c *consumer) GetCurrConsumedInfo() map[string]*ConsumerOffset {
+	partitionOffset := c.rmtDataCache.GetCurPartitionOffset()
+	consumedInfo := make(map[string]*ConsumerOffset, len(partitionOffset))
+	for partition, offset := range partitionOffset {
+		co := &ConsumerOffset{
+			partitionKey: partition,
+			currOffset:   offset,
+		}
+		consumedInfo[partition] = co
+	}
+	return consumedInfo
+}
+
+// GetClientID implementation of TubeMQ consumer.
+func (c *consumer) GetClientID() string {
+	return c.clientID
 }
 
 // Close implementation of TubeMQ consumer.

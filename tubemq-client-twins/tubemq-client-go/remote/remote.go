@@ -514,3 +514,10 @@ func (r *RmtDataCache) GetAllClosedBrokerParts() map[*metadata.Node][]*metadata.
 	}
 	return brokerPartitions
 }
+
+// GetCurPartitionOffset returns the partition to offset map.
+func (r *RmtDataCache) GetCurPartitionOffset() map[string]int64 {
+	r.dataBookMu.Lock()
+	defer r.dataBookMu.Unlock()
+	return r.partitionOffset
+}
