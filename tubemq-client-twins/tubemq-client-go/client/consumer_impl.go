@@ -32,6 +32,7 @@ import (
 
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
@@ -107,6 +108,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 	}
 	c.heartbeatManager.registerMaster(c.master.Address)
 	go c.processRebalanceEvent()
+	log.Infof("[CONSUMER] start consumer success, client=%s", clientID)
 	return c, nil
 }
 
@@ -121,13 +123,18 @@ func (c *consumer) register2Master(needChange bool) error {
 	for c.master.HasNext {
 		rsp, err := c.sendRegRequest2Master()
 		if err != nil {
+			log.Infof("[CONSUMER]register2Master error %s", err.Error())
 			return err
 		}
+
+		log.Info("register2Master response %s", rsp.String())
 		if !rsp.GetSuccess() {
 			if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
+				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.ErrMsg)
 				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 			}
 
+			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, error: %s", c.master.Address, c.clientID, rsp.ErrMsg)
 			if c.master, err = c.selector.Select(c.config.Consumer.Masters); err != nil {
 				return err
 			}
@@ -222,6 +229,7 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	defer cancel()
 	rsp, err := c.client.GetMessageRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
 	if err != nil {
+		log.Infof("[CONSUMER]GetMessage error %s", err.Error())
 		return nil, err
 	}
 	cs := &ConsumerResult{
@@ -261,6 +269,7 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResul
 
 	rsp, err := c.sendConfirmReq2Broker(partition)
 	if err != nil {
+		log.Infof("[CONSUMER]Confirm error %s", err.Error())
 		return nil, err
 	}
 
@@ -336,6 +345,7 @@ func (c *consumer) GetClientID() string {
 
 // Close implementation of TubeMQ consumer.
 func (c *consumer) Close() error {
+	log.Infof("[CONSUMER]Begin to close consumer, client=%s", c.clientID)
 	close(c.done)
 	err := c.close2Master()
 	if err != nil {
@@ -344,10 +354,12 @@ func (c *consumer) Close() error {
 	c.closeAllBrokers()
 	c.heartbeatManager.close()
 	c.client.Close()
+	log.Infof("[CONSUMER]Consumer has been closed successfully, client=%s", c.clientID)
 	return nil
 }
 
 func (c *consumer) processRebalanceEvent() {
+	log.Info("[CONSUMER]Rebalance event Handler starts!")
 	for {
 		select {
 		case event, ok := <-c.rmtDataCache.EventCh:
@@ -363,12 +375,15 @@ func (c *consumer) processRebalanceEvent() {
 				}
 			}
 		case <-c.done:
+			log.Infof("[CONSUMER]Rebalance done, client=%s", c.clientID)
 			break
 		}
 	}
+	log.Info("[CONSUMER] Rebalance event Handler stopped!")
 }
 
 func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
+	log.Tracef("[disconnect2Broker] connect event begin, client id=%s", c.clientID)
 	subscribeInfo := event.GetSubscribeInfo()
 	if len(subscribeInfo) > 0 {
 		removedPartitions := make(map[*metadata.Node][]*metadata.Partition)
@@ -377,7 +392,8 @@ func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
 			c.unregister2Broker(removedPartitions)
 		}
 	}
-	event.SetEventStatus(2)
+	event.SetEventStatus(metadata.Disconnect)
+	log.Tracef("[disconnect2Broker] connect event finished, client id=%s", c.clientID)
 }
 
 func (c *consumer) unregister2Broker(unRegPartitions map[*metadata.Node][]*metadata.Partition) {
@@ -387,6 +403,7 @@ func (c *consumer) unregister2Broker(unRegPartitions map[*metadata.Node][]*metad
 
 	for _, partitions := range unRegPartitions {
 		for _, partition := range partitions {
+			log.Tracef("unregister2Brokers, partition key=%s", partition.GetPartitionKey())
 			c.sendUnregisterReq2Broker(partition)
 		}
 	}
@@ -412,6 +429,7 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 }
 
 func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
+	log.Tracef("[connect2Broker] connect event begin, client id=%s", c.clientID)
 	if len(event.GetSubscribeInfo()) > 0 {
 		unsubPartitions := c.rmtDataCache.FilterPartitions(event.GetSubscribeInfo())
 		if len(unsubPartitions) > 0 {
@@ -422,10 +440,11 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 
 				rsp, err := c.sendRegisterReq2Broker(partition, node)
 				if err != nil {
-					//todo add log
+					log.Warnf("[connect2Broker] error %s", err.Error())
+					continue
 				}
 				if !rsp.GetSuccess() {
-					//todo add log
+					log.Warnf("[connect2Broker] err code:%d, err msg: %s", rsp.ErrCode, rsp.ErrMsg)
 					return
 				}
 
@@ -436,6 +455,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 	}
 	c.subInfo.FirstRegistered()
 	event.SetEventStatus(metadata.Disconnect)
+	log.Tracef("[connect2Broker] connect event finished, client id=%s", c.clientID)
 }
 
 func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition, node *metadata.Node) (*protocol.RegisterResponseB2C, error) {
@@ -508,8 +528,10 @@ func (c *consumer) getConsumeReadStatus(isFirstReg bool) int32 {
 	if isFirstReg {
 		if c.config.Consumer.ConsumePosition == 0 {
 			readStatus = consumeStatusFromMax
+			log.Infof("[Consumer From Max Offset], client id=", c.clientID)
 		} else if c.config.Consumer.ConsumePosition > 0 {
 			readStatus = consumeStatusFromMaxAlways
+			log.Infof("[Consumer From Max Offset Always], client id=", c.clientID)
 		}
 	}
 	return int32(readStatus)
@@ -556,6 +578,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		pi.currOffset = currOffset
+		log.Tracef("[CONSUMER] getMessage count=%ld, from %s, client=%s", len(msgs), partition.GetPartitionKey(), c.clientID)
 		return msgs, nil
 	case errs.RetErrHBNoNode, errs.RetCertificateFailure, errs.RetErrDuplicatePartition:
 		partitionKey, _, err := util.ParseConfirmContext(confirmContext)
@@ -646,6 +669,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 }
 
 func (c *consumer) close2Master() error {
+	log.Infof("[CONSUMER] close2Master begin, client id=%s", c.clientID)
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
 	defer cancel()
 
@@ -670,12 +694,15 @@ func (c *consumer) close2Master() error {
 	if !rsp.GetSuccess() {
 		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	}
+	log.Infof("[CONSUMER] close2Master finished, client id=%s", c.clientID)
 	return nil
 }
 
 func (c *consumer) closeAllBrokers() {
+	log.Infof("[CONSUMER] closeAllBrokers begin, client id=%s", c.clientID)
 	partitions := c.rmtDataCache.GetAllClosedBrokerParts()
 	if len(partitions) > 0 {
 		c.unregister2Broker(partitions)
 	}
+	log.Infof("[CONSUMER] closeAllBrokers end, client id=%s", c.clientID)
 }
