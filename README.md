@@ -1,3 +1,25 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
+
 # Apache InLong
 [![Build Status](https://travis-ci.org/apache/incubator-inlong.svg?branch=master)](https://travis-ci.org/apache/incubator-inlong)
 [![CodeCov](https://codecov.io/gh/apache/incubator-inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/incubator-inlong)
@@ -5,104 +27,70 @@
 [![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/en-us/docs/download/download.html)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
+
+- [What is Apache InLong?](#what-is-apache-inlong)
+- [Features](#features)
+- [When should I use InLong?](#when-should-i-use-inlong)
+- [Building InLong](#building-inlong)
+- [Deploying InLong](#deploying-inlong)
+- [Join the Community](#join-the-community)
+- [Documentation](#documentation)
+- [License](#license)
+
+# What is Apache InLong?
 [Apache InLong](https://inlong.apache.org)(incubating) is a one-stop data streaming platform that provides automatic, secure, distributed, and efficient data publishing and subscription capabilities. This platform helps you easily build stream-based data applications.
 
-It offers a variety of features:
+InLong was originally built at Tencent, has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster greatly meets the data reporting service requirements in the business big data scenario.
 
-* Ease of Use
-* Stability & Reliability
-* Comprehensive Features
-* Service Integration
-* Scalability
+For getting more information, please visit our project documentation at https://inlong.apache.org/en-us/ .
+<img src="https://github.com/apache/incubator-inlong-website/blob/master/img/inlong_architecture.png" align="center" alt="Apache InLong"/>
 
 
-## Contact us
+## Features
+Apache InLong offers a variety of features:
+* **Ease of Use**: a SaaS-based service platform, you can easily and quickly report, transfer, and distribute data by publishing and subscribing to data based on topics.
+* **Stability & Reliability**: derived from the actual online production environment, it delivers high-performance processing capabilities for 10 trillion-level data streams and highly reliable services for 100 billion-level data streams.
+* **Comprehensive Features**: supports various types of data access methods and can be integrated with different types of Message Queue (MQ) services, it also provides real-time data extract, transform, and load (ETL) and sorting capabilities based on rules, allows you to plug features to extend system capabilities.
+* **Service Integration**: provides unified system monitoring and alert services, it provides fine-grained metrics to facilitate data visualization, you can view the running status of queues and topic-based data statistics in a unified data metric platform, configure the alert service based on your business requirements so that users can be alerted when errors occur.
+* **Scalability**: adopts a pluggable architecture that allows you to plug modules into the system based on specific protocols, so you can replace components and add features based on your business requirements
 
-- Mailing lists
 
+## When should I use InLong?
+InLong is based on MQ and aims to provide a one-stop, practice-tested module pluggable data stream access service platform，based on this system, users can easily build stream-based data applications. It is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
+
+InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
+
+## Building InLong
+More detailed instructions can be found at [Quick Demo]() section in the documentation.
+```
+# Clone a repo
+$ git clone https://github.com/apache/incubator-inlong.git
+$ cd incubator-inlong
+
+# Build InLong
+$ mvn clean install -DskipTests
+
+# Deploy components
+ # see Deploying InLong section
+```
+
+## Deploying InLong
+InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Running InLong]()in our project documentation.
+
+
+## Join the Community
+- Ask questions on [Apache InLong Slack](https://the-asf.slack.com/archives/C01QAG6U00L)
+- Join Apache InLong mailing lists  
     | Name                                                                          | Scope                           |                                                                 |                                                                     |                                                                              |
     |:------------------------------------------------------------------------------|:--------------------------------|:----------------------------------------------------------------|:--------------------------------------------------------------------|:-----------------------------------------------------------------------------|
     | [dev@inlong.apache.org](mailto:dev@inlong.apache.org)     | Development-related discussions | [Subscribe](mailto:dev-subscribe@inlong.apache.org)   | [Unsubscribe](mailto:dev-unsubscribe@inlong.apache.org)   | [Archives](http://mail-archives.apache.org/mod_mbox/inlong-dev/)   |
+- Contributing: we always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
 
-- Home page: https://inlong.apache.org
+## Documentation
+- Home page: https://inlong.apache.org/en-us/
 - Issues: https://issues.apache.org/jira/browse/InLong
 
-
-## Contributing
-
-We always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [here](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
-
-
-
-## Build InLong
-
-### Prerequisites
-
-- Java 1.8
-- Maven 3.3+
-
-### Build Distribution Tarball
-
-- Compile and Package:
-```bash
-mvn clean package -DskipTests
-```
-- (Optional) Build Using Docker:
-```bash
-docker run -v REPLACE_WITH_SOURCE_PATH:/tubemq  apachetubemq/tubemq-build clean package -DskipTests
-```
-- Run Unit Tests:
-```bash
-mvn test
-```
-- Build Individual Module:
-```bash
-mvn clean install
-cd module-name (e.g. tubemq-client)
-mvn test
-```
-After the build, please go to `tubemq-server/target`. You can find the
-**tubemq-server-[TUBEMQ-VERSION]-bin.tar.gz** file. It is the TubeMQ deployment package, which includes
-scripts, configuration files, dependency jars and web GUI code.
-
-### Setting Up Your IDE
-
-If you want to build and debug source code in IDE, go to the project root, and run
-
-```bash
-mvn compile
-```
-
-This command will generate the Java source files from the `protoc` files, the generated files located in `target/generated-sources`.
-
-(Optional) If you want to use local `protoc` executable, you can change the configuration of `protobuf-maven-plugin` in `tubemq-core/pom.xml` as below
-
-```xml
-<configuration>
-    <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
-    <protocExecutable>/usr/local/bin/protoc</protocExecutable>
-</configuration>
-```
-
-## Deploy and Start
-
-### Deploy TubeMQ Standalone
-Standalone mode starts zookeeper/master/broker services in one docker container:
-```
-docker run -p 8080:8080 -p 8000:8000 -p 8123:8123 --name tubemq -d apachetubemq/tubemq-all:latest
-```
-After container is running, you can access ` http://127.0.0.1:8080`, and reference to next `Quick Start` chapter for experience.
-
-**Tips**: Standalone Mode is only available for development and experience, it's not designed for production environment.
-
-
-### Deploy TubeMQ Cluster
-For the detail deployment and configuration of TubeMQ cluster nodes, please refer to the introduction of [Deploy TubeMQ Cluster](https://tubemq.apache.org/en-us/docs/quick_start.html).
-
-
-
 ## License
-
 © Contributors Licensed under an [Apache-2.0](LICENSE) license.
 
 
