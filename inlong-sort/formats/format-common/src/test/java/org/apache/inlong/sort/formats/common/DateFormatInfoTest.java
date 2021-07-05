@@ -40,9 +40,6 @@ public class DateFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         Date date = Date.valueOf("2020-03-22");
 
-        assertEquals("1584806400000000", new DateFormatInfo("MICROS").serialize(date));
-        assertEquals("1584806400000", new DateFormatInfo("MILLIS").serialize(date));
-        assertEquals("1584806400", new DateFormatInfo("SECONDS").serialize(date));
         assertEquals("2020-03-22", new DateFormatInfo("yyyy-MM-dd").serialize(date));
         assertEquals("22/03/2020", new DateFormatInfo("dd/MM/yyyy").serialize(date));
         assertEquals("2020-03-22", new DateFormatInfo().serialize(date));
@@ -52,9 +49,6 @@ public class DateFormatInfoTest extends FormatInfoTestBase {
     public void testDeserialize() throws ParseException {
         Date date = Date.valueOf("2020-03-22");
 
-        assertEquals(date, new DateFormatInfo("MICROS").deserialize("1584806400000000"));
-        assertEquals(date, new DateFormatInfo("SECONDS").deserialize("1584806400"));
-        assertEquals(date, new DateFormatInfo("MILLIS").deserialize("1584806400000"));
         assertEquals(date, new DateFormatInfo("yyyy-MM-dd").deserialize("2020-03-22"));
         assertEquals(date, new DateFormatInfo("dd/MM/yyyy").deserialize("22/03/2020"));
         assertEquals(date, new DateFormatInfo().deserialize("2020-03-22"));

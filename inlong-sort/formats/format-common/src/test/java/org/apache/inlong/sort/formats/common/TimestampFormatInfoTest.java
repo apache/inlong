@@ -40,9 +40,6 @@ public class TimestampFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         Timestamp timestamp = Timestamp.valueOf("2020-03-22 11:12:13");
 
-        assertEquals("1584846733000000", new TimestampFormatInfo("MICROS").serialize(timestamp));
-        assertEquals("1584846733000", new TimestampFormatInfo("MILLIS").serialize(timestamp));
-        assertEquals("1584846733", new TimestampFormatInfo("SECONDS").serialize(timestamp));
         assertEquals("2020-03-22 11:12:13", new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").serialize(timestamp));
         assertEquals("22/03/2020 11:12:13", new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").serialize(timestamp));
         assertEquals("2020-03-22 11:12:13", new TimestampFormatInfo().serialize(timestamp));
@@ -52,9 +49,6 @@ public class TimestampFormatInfoTest extends FormatInfoTestBase {
     public void testDeserialize() throws ParseException {
         Timestamp timestamp = Timestamp.valueOf("2020-03-22 11:12:13");
 
-        assertEquals(timestamp, new TimestampFormatInfo("MICROS").deserialize("1584846733000000"));
-        assertEquals(timestamp, new TimestampFormatInfo("MILLIS").deserialize("1584846733000"));
-        assertEquals(timestamp, new TimestampFormatInfo("SECONDS").deserialize("1584846733"));
         assertEquals(timestamp, new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").deserialize("2020-03-22 11:12:13"));
         assertEquals(timestamp, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").deserialize("22/03/2020 11:12:13"));
         assertEquals(timestamp, new TimestampFormatInfo().deserialize("2020-03-22 11:12:13"));

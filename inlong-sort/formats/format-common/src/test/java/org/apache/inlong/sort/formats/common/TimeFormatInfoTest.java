@@ -40,9 +40,6 @@ public class TimeFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         Time time = Time.valueOf("11:12:13");
 
-        assertEquals("11533000000", new TimeFormatInfo("MICROS").serialize(time));
-        assertEquals("11533000", new TimeFormatInfo("MILLIS").serialize(time));
-        assertEquals("11533", new TimeFormatInfo("SECONDS").serialize(time));
         assertEquals("11:12:13", new TimeFormatInfo("hh:mm:ss").serialize(time));
         assertEquals("13/12/11", new TimeFormatInfo("ss/mm/hh").serialize(time));
         assertEquals("11:12:13", new TimeFormatInfo().serialize(time));
@@ -52,9 +49,6 @@ public class TimeFormatInfoTest extends FormatInfoTestBase {
     public void testDeserialize() throws ParseException {
         Time time = Time.valueOf("11:12:13");
 
-        assertEquals(time, new TimeFormatInfo("MICROS").deserialize("11533000000"));
-        assertEquals(time, new TimeFormatInfo("MILLIS").deserialize("11533000"));
-        assertEquals(time, new TimeFormatInfo("SECONDS").deserialize("11533"));
         assertEquals(time, new TimeFormatInfo("hh:mm:ss").deserialize("11:12:13"));
         assertEquals(time, new TimeFormatInfo("ss/mm/hh").deserialize("13/12/11"));
         assertEquals(time, new TimeFormatInfo().deserialize("11:12:13"));
