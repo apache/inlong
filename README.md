@@ -75,7 +75,7 @@ $ mvn clean install -DskipTests
 ```
 
 ## Deploying InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Running InLong]()in our project documentation.
+InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Running InLong]() in our project documentation.
 
 
 ## Join the Community
