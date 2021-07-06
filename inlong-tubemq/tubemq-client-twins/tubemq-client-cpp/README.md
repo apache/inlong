@@ -31,10 +31,9 @@
  * [Rapidjson](https://github.com/Tencent/rapidjson.git)
 
 ## Step to build
-  * install protobuf
+  * install protobuf (./configure --disable-shared CFLAGS="-fPIC" CXXFLAGS="-fPIC" && make && make install)
   * ./build_linux.sh
   * cd release/
-  * chmod +x release_linux.sh
   * ./release_linux.sh
 
 ## (Optional) build using docker
