@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
@@ -103,6 +104,7 @@ func (h *heartbeatManager) consumerHB2Master() {
 		if !rsp.GetSuccess() {
 			h.consumer.masterHBRetry++
 			if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
+				log.Warnf("[CONSUMER] hb2master found no-node or standby, re-register, client=%s", h.consumer.clientID)
 				address := h.consumer.master.Address
 				go h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
 				if rsp.GetErrCode() != errs.RetErrHBNoNode {
@@ -113,7 +115,9 @@ func (h *heartbeatManager) consumerHB2Master() {
 						delete(h.heartbeats, address)
 						h.mu.Unlock()
 					}
+					return
 				}
+				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.ErrMsg, h.consumer.clientID)
 				return
 			}
 		}
@@ -188,6 +192,7 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 
 	rsp, err := h.sendHeartbeatC2B(broker)
 	if err != nil {
+		log.Warnf("[Heartbeat2Broker] request network to failure %s", err.Error())
 		return
 	}
 	partitionKeys := make([]string, 0, len(partitions))
@@ -195,6 +200,7 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 		for _, partition := range partitions {
 			partitionKeys = append(partitionKeys, partition.GetPartitionKey())
 		}
+		log.Warnf("[Heartbeat2Broker] request (%s) CertificateFailure", broker.GetAddress())
 		h.consumer.rmtDataCache.RemovePartition(partitionKeys)
 	}
 	if rsp.GetSuccess() && rsp.GetHasPartFailure() {
@@ -207,10 +213,12 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 			if err != nil {
 				continue
 			}
+			log.Tracef("[Heartbeat2Broker] found partition(%s) hb failure!", partition.GetPartitionKey())
 			partitionKeys = append(partitionKeys, partition.GetPartitionKey())
 		}
 		h.consumer.rmtDataCache.RemovePartition(partitionKeys)
 	}
+	log.Tracef("[Heartbeat2Broker] out hb response process, add broker(%s) timer!", broker.GetAddress())
 	h.resetBrokerTimer(broker)
 }
 

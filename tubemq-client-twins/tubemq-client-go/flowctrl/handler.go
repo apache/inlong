@@ -29,6 +29,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
 )
 
@@ -103,13 +104,11 @@ func (h *RuleHandler) UpdateDefFlowCtrlInfo(isDefault bool, qrypriorityID int64,
 	}
 	h.lastUpdate = time.Now().UnixNano() / int64(time.Millisecond)
 	if isDefault {
-		// todo log
-		// LOG_INFO("[Flow Ctrl] Default FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
-		//             flowctrl_id)
+		log.Infof("[Flow Ctrl] Default FlowCtrl's flow ctrl id from %d to %d", atomic.LoadInt64(&h.flowCtrlID),
+			flowCtrlID)
 	} else {
-		// todo log
-		// LOG_INFO("[Flow Ctrl] Group FlowCtrl's flowctrl_id from %ld to %ld\n", curr_flowctrl_id,
-		//             flowctrl_id)
+		log.Infof("[Flow Ctrl] Group FlowCtrl's flow ctrl id from %d to %d", atomic.LoadInt64(&h.flowCtrlID),
+			flowCtrlID)
 	}
 	return nil
 }
