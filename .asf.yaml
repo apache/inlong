@@ -23,8 +23,12 @@ github:
   homepage: https://inlong.apache.org/
   labels:
     - inlong
-    - apacheinlong
-    - data streaming platform
+    - one-stop-service
+    - pubsub
+    - messaging
+    - data-streaming
+    - event-streaming
+
 notifications:
   commits:      commits@inlong.apache.org
   issues:       commits@inlong.apache.org
