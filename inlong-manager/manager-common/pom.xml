@@ -29,9 +29,6 @@
     <artifactId>manager-common</artifactId>
     <name>Apache InLong - Manager Common</name>
 
-    <properties>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,7 +70,6 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
-        <!--swagger-knife4j-->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
@@ -123,22 +119,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.3.4</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-boot-autoconfigure</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-boot-starter</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-            </exclusions>
+            <artifactId>pagehelper</artifactId>
         </dependency>
 
         <dependency>
@@ -159,7 +145,6 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
-            <version>1.4.1</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
