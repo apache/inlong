@@ -24,6 +24,7 @@ import static org.awaitility.Awaitility.await;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class TestFileAgent {
         if (jobs.size() == 1) {
             jobs.forEach(
                 (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
-                        .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir + "/test1.dat"))
+                    .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir + FileSystems.getDefault().getSeparator() + "test1.dat"))
             );
         }
         return result.get();
