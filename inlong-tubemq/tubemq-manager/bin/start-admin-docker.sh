@@ -16,6 +16,6 @@
 # limitations under the License.
 #
 
-START_CMD="/tubemq-admin/bin/start-manager.sh"
+START_CMD="/tubemq-admin/bin/start-admin.sh"
 exec $START_CMD &
 tail -f /dev/null
