@@ -23,7 +23,7 @@ jdk:
   - openjdk8
 
 before_cache:
-  - rm -rf $HOME/.m2/repository/org/apache/tubemq/
+  - rm -rf $HOME/.m2/repository/org/apache/inlong/
 
 cache:
   directories:

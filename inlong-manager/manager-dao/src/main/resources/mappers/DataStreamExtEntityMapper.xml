@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamExtEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="key_name" jdbcType="VARCHAR" property="keyName"/>
+        <result column="key_value" jdbcType="VARCHAR" property="keyValue"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, business_identifier, data_stream_identifier, key_name, key_value, is_deleted, modify_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream_ext
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream_ext
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <select id="selectByIdentifierAndKeyName" resultType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream_ext
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        and key_name = #{keyName, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from data_stream_ext
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteAllByIdentifier">
+        delete
+        from data_stream_ext
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        insert into data_stream_ext (id, business_identifier, data_stream_identifier, key_name,
+                                     key_value, is_deleted, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{bid, jdbcType=VARCHAR},
+                #{dsid,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR},
+                #{keyValue,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        insert into data_stream_ext
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier,
+            </if>
+            <if test="keyName != null">
+                key_name,
+            </if>
+            <if test="keyValue != null">
+                key_value,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="keyName != null">
+                #{keyName,jdbcType=VARCHAR},
+            </if>
+            <if test="keyValue != null">
+                #{keyValue,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- Bulk insert, update if it exists -->
+    <insert id="insertAll" parameterType="java.util.List">
+        insert into data_stream_ext
+        (id, business_identifier, data_stream_identifier, key_name, key_value, is_deleted)
+        values
+        <foreach collection="extList" separator="," index="index" item="item">
+            (#{item.id}, #{item.businessIdentifier}, #{item.dataStreamIdentifier}, #{item.keyName}, #{item.keyValue},
+            #{item.isDeleted})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        id = values(id),
+        business_identifier = values(business_identifier),
+        data_stream_identifier = values(data_stream_identifier),
+        key_name = values(key_name),
+        key_value = values(key_value),
+        is_deleted = values(is_deleted)
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        update data_stream_ext
+        <set>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="keyName != null">
+                key_name = #{keyName,jdbcType=VARCHAR},
+            </if>
+            <if test="keyValue != null">
+                key_value = #{keyValue,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
+        update data_stream_ext
+        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            key_name               = #{keyName,jdbcType=VARCHAR},
+            key_value              = #{keyValue,jdbcType=VARCHAR},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="logicDeleteAllByIdentifier">
+        update data_stream_ext
+        set is_deleted = 1
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </update>
+</mapper>

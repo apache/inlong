@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ <p>
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ <p>
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.AgentSysConfigEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AgentSysConfigEntity">
+        <id column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="max_retry_threads" jdbcType="INTEGER" property="maxRetryThreads"/>
+        <result column="min_retry_threads" jdbcType="INTEGER" property="minRetryThreads"/>
+        <result column="db_path" jdbcType="VARCHAR" property="dbPath"/>
+        <result column="scan_interval_sec" jdbcType="INTEGER" property="scanIntervalSec"/>
+        <result column="batch_size" jdbcType="INTEGER" property="batchSize"/>
+        <result column="msg_size" jdbcType="INTEGER" property="msgSize"/>
+        <result column="send_runnable_size" jdbcType="INTEGER" property="sendRunnableSize"/>
+        <result column="msg_queue_size" jdbcType="INTEGER" property="msgQueueSize"/>
+        <result column="max_reader_cnt" jdbcType="INTEGER" property="maxReaderCnt"/>
+        <result column="thread_manager_sleep_interval" jdbcType="INTEGER" property="threadManagerSleepInterval"/>
+        <result column="oneline_size" jdbcType="INTEGER" property="onelineSize"/>
+        <result column="clear_day_offset" jdbcType="INTEGER" property="clearDayOffset"/>
+        <result column="clear_interval_sec" jdbcType="INTEGER" property="clearIntervalSec"/>
+        <result column="buffer_size_in_bytes" jdbcType="INTEGER" property="bufferSizeInBytes"/>
+        <result column="agent_rpc_reconnect_time" jdbcType="INTEGER" property="agentRpcReconnectTime"/>
+        <result column="send_timeout_mill_sec" jdbcType="INTEGER" property="sendTimeoutMillSec"/>
+        <result column="flush_event_timeout_mill_sec" jdbcType="INTEGER" property="flushEventTimeoutMillSec"/>
+        <result column="stat_interval_sec" jdbcType="INTEGER" property="statIntervalSec"/>
+        <result column="conf_refresh_interval_secs" jdbcType="INTEGER" property="confRefreshIntervalSecs"/>
+        <result column="flow_size" jdbcType="INTEGER" property="flowSize"/>
+        <result column="bufferSize" jdbcType="INTEGER" property="buffersize"/>
+        <result column="compress" jdbcType="TINYINT" property="compress"/>
+        <result column="event_check_interval" jdbcType="INTEGER" property="eventCheckInterval"/>
+        <result column="is_calMD5" jdbcType="TINYINT" property="isCalmd5"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        ip, max_retry_threads, min_retry_threads, db_path, scan_interval_sec, batch_size,
+        msg_size, send_runnable_size, msg_queue_size, max_reader_cnt, thread_manager_sleep_interval,
+        oneline_size, clear_day_offset, clear_interval_sec, buffer_size_in_bytes, agent_rpc_reconnect_time,
+        send_timeout_mill_sec, flush_event_timeout_mill_sec, stat_interval_sec, conf_refresh_interval_secs,
+        flow_size, bufferSize, compress, event_check_interval, is_calMD5
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from agent_sys_conf
+        where ip = #{ip,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from agent_sys_conf
+        where ip = #{ip,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.AgentSysConfigEntity">
+        insert into agent_sys_conf (ip, max_retry_threads,
+                                    min_retry_threads, db_path, scan_interval_sec,
+                                    batch_size, msg_size, send_runnable_size,
+                                    msg_queue_size, max_reader_cnt, thread_manager_sleep_interval,
+                                    oneline_size, clear_day_offset, clear_interval_sec,
+                                    buffer_size_in_bytes, agent_rpc_reconnect_time,
+                                    send_timeout_mill_sec, flush_event_timeout_mill_sec,
+                                    stat_interval_sec, conf_refresh_interval_secs,
+                                    flow_size, bufferSize, compress,
+                                    event_check_interval, is_calMD5)
+        values (#{ip,jdbcType=VARCHAR}, #{maxRetryThreads,jdbcType=INTEGER},
+                #{minRetryThreads,jdbcType=INTEGER}, #{dbPath,jdbcType=VARCHAR}, #{scanIntervalSec,jdbcType=INTEGER},
+                #{batchSize,jdbcType=INTEGER}, #{msgSize,jdbcType=INTEGER}, #{sendRunnableSize,jdbcType=INTEGER},
+                #{msgQueueSize,jdbcType=INTEGER}, #{maxReaderCnt,jdbcType=INTEGER},
+                #{threadManagerSleepInterval,jdbcType=INTEGER},
+                #{onelineSize,jdbcType=INTEGER}, #{clearDayOffset,jdbcType=INTEGER},
+                #{clearIntervalSec,jdbcType=INTEGER},
+                #{bufferSizeInBytes,jdbcType=INTEGER}, #{agentRpcReconnectTime,jdbcType=INTEGER},
+                #{sendTimeoutMillSec,jdbcType=INTEGER}, #{flushEventTimeoutMillSec,jdbcType=INTEGER},
+                #{statIntervalSec,jdbcType=INTEGER}, #{confRefreshIntervalSecs,jdbcType=INTEGER},
+                #{flowSize,jdbcType=INTEGER}, #{buffersize,jdbcType=INTEGER}, #{compress,jdbcType=TINYINT},
+                #{eventCheckInterval,jdbcType=INTEGER}, #{isCalmd5,jdbcType=TINYINT})
+    </insert>
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.AgentSysConfigEntity">
+        insert into agent_sys_conf
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="maxRetryThreads != null">
+                max_retry_threads,
+            </if>
+            <if test="minRetryThreads != null">
+                min_retry_threads,
+            </if>
+            <if test="dbPath != null">
+                db_path,
+            </if>
+            <if test="scanIntervalSec != null">
+                scan_interval_sec,
+            </if>
+            <if test="batchSize != null">
+                batch_size,
+            </if>
+            <if test="msgSize != null">
+                msg_size,
+            </if>
+            <if test="sendRunnableSize != null">
+                send_runnable_size,
+            </if>
+            <if test="msgQueueSize != null">
+                msg_queue_size,
+            </if>
+            <if test="maxReaderCnt != null">
+                max_reader_cnt,
+            </if>
+            <if test="threadManagerSleepInterval != null">
+                thread_manager_sleep_interval,
+            </if>
+            <if test="onelineSize != null">
+                oneline_size,
+            </if>
+            <if test="clearDayOffset != null">
+                clear_day_offset,
+            </if>
+            <if test="clearIntervalSec != null">
+                clear_interval_sec,
+            </if>
+            <if test="bufferSizeInBytes != null">
+                buffer_size_in_bytes,
+            </if>
+            <if test="agentRpcReconnectTime != null">
+                agent_rpc_reconnect_time,
+            </if>
+            <if test="sendTimeoutMillSec != null">
+                send_timeout_mill_sec,
+            </if>
+            <if test="flushEventTimeoutMillSec != null">
+                flush_event_timeout_mill_sec,
+            </if>
+            <if test="statIntervalSec != null">
+                stat_interval_sec,
+            </if>
+            <if test="confRefreshIntervalSecs != null">
+                conf_refresh_interval_secs,
+            </if>
+            <if test="flowSize != null">
+                flow_size,
+            </if>
+            <if test="buffersize != null">
+                bufferSize,
+            </if>
+            <if test="compress != null">
+                compress,
+            </if>
+            <if test="eventCheckInterval != null">
+                event_check_interval,
+            </if>
+            <if test="isCalmd5 != null">
+                is_calMD5,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ip != null">
+                #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="maxRetryThreads != null">
+                #{maxRetryThreads,jdbcType=INTEGER},
+            </if>
+            <if test="minRetryThreads != null">
+                #{minRetryThreads,jdbcType=INTEGER},
+            </if>
+            <if test="dbPath != null">
+                #{dbPath,jdbcType=VARCHAR},
+            </if>
+            <if test="scanIntervalSec != null">
+                #{scanIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="batchSize != null">
+                #{batchSize,jdbcType=INTEGER},
+            </if>
+            <if test="msgSize != null">
+                #{msgSize,jdbcType=INTEGER},
+            </if>
+            <if test="sendRunnableSize != null">
+                #{sendRunnableSize,jdbcType=INTEGER},
+            </if>
+            <if test="msgQueueSize != null">
+                #{msgQueueSize,jdbcType=INTEGER},
+            </if>
+            <if test="maxReaderCnt != null">
+                #{maxReaderCnt,jdbcType=INTEGER},
+            </if>
+            <if test="threadManagerSleepInterval != null">
+                #{threadManagerSleepInterval,jdbcType=INTEGER},
+            </if>
+            <if test="onelineSize != null">
+                #{onelineSize,jdbcType=INTEGER},
+            </if>
+            <if test="clearDayOffset != null">
+                #{clearDayOffset,jdbcType=INTEGER},
+            </if>
+            <if test="clearIntervalSec != null">
+                #{clearIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="bufferSizeInBytes != null">
+                #{bufferSizeInBytes,jdbcType=INTEGER},
+            </if>
+            <if test="agentRpcReconnectTime != null">
+                #{agentRpcReconnectTime,jdbcType=INTEGER},
+            </if>
+            <if test="sendTimeoutMillSec != null">
+                #{sendTimeoutMillSec,jdbcType=INTEGER},
+            </if>
+            <if test="flushEventTimeoutMillSec != null">
+                #{flushEventTimeoutMillSec,jdbcType=INTEGER},
+            </if>
+            <if test="statIntervalSec != null">
+                #{statIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="confRefreshIntervalSecs != null">
+                #{confRefreshIntervalSecs,jdbcType=INTEGER},
+            </if>
+            <if test="flowSize != null">
+                #{flowSize,jdbcType=INTEGER},
+            </if>
+            <if test="buffersize != null">
+                #{buffersize,jdbcType=INTEGER},
+            </if>
+            <if test="compress != null">
+                #{compress,jdbcType=TINYINT},
+            </if>
+            <if test="eventCheckInterval != null">
+                #{eventCheckInterval,jdbcType=INTEGER},
+            </if>
+            <if test="isCalmd5 != null">
+                #{isCalmd5,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.AgentSysConfigEntity">
+        update agent_sys_conf
+        <set>
+            <if test="maxRetryThreads != null">
+                max_retry_threads = #{maxRetryThreads,jdbcType=INTEGER},
+            </if>
+            <if test="minRetryThreads != null">
+                min_retry_threads = #{minRetryThreads,jdbcType=INTEGER},
+            </if>
+            <if test="dbPath != null">
+                db_path = #{dbPath,jdbcType=VARCHAR},
+            </if>
+            <if test="scanIntervalSec != null">
+                scan_interval_sec = #{scanIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="batchSize != null">
+                batch_size = #{batchSize,jdbcType=INTEGER},
+            </if>
+            <if test="msgSize != null">
+                msg_size = #{msgSize,jdbcType=INTEGER},
+            </if>
+            <if test="sendRunnableSize != null">
+                send_runnable_size = #{sendRunnableSize,jdbcType=INTEGER},
+            </if>
+            <if test="msgQueueSize != null">
+                msg_queue_size = #{msgQueueSize,jdbcType=INTEGER},
+            </if>
+            <if test="maxReaderCnt != null">
+                max_reader_cnt = #{maxReaderCnt,jdbcType=INTEGER},
+            </if>
+            <if test="threadManagerSleepInterval != null">
+                thread_manager_sleep_interval = #{threadManagerSleepInterval,jdbcType=INTEGER},
+            </if>
+            <if test="onelineSize != null">
+                oneline_size = #{onelineSize,jdbcType=INTEGER},
+            </if>
+            <if test="clearDayOffset != null">
+                clear_day_offset = #{clearDayOffset,jdbcType=INTEGER},
+            </if>
+            <if test="clearIntervalSec != null">
+                clear_interval_sec = #{clearIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="bufferSizeInBytes != null">
+                buffer_size_in_bytes = #{bufferSizeInBytes,jdbcType=INTEGER},
+            </if>
+            <if test="agentRpcReconnectTime != null">
+                agent_rpc_reconnect_time = #{agentRpcReconnectTime,jdbcType=INTEGER},
+            </if>
+            <if test="sendTimeoutMillSec != null">
+                send_timeout_mill_sec = #{sendTimeoutMillSec,jdbcType=INTEGER},
+            </if>
+            <if test="flushEventTimeoutMillSec != null">
+                flush_event_timeout_mill_sec = #{flushEventTimeoutMillSec,jdbcType=INTEGER},
+            </if>
+            <if test="statIntervalSec != null">
+                stat_interval_sec = #{statIntervalSec,jdbcType=INTEGER},
+            </if>
+            <if test="confRefreshIntervalSecs != null">
+                conf_refresh_interval_secs = #{confRefreshIntervalSecs,jdbcType=INTEGER},
+            </if>
+            <if test="flowSize != null">
+                flow_size = #{flowSize,jdbcType=INTEGER},
+            </if>
+            <if test="buffersize != null">
+                bufferSize = #{buffersize,jdbcType=INTEGER},
+            </if>
+            <if test="compress != null">
+                compress = #{compress,jdbcType=TINYINT},
+            </if>
+            <if test="eventCheckInterval != null">
+                event_check_interval = #{eventCheckInterval,jdbcType=INTEGER},
+            </if>
+            <if test="isCalmd5 != null">
+                is_calMD5 = #{isCalmd5,jdbcType=TINYINT},
+            </if>
+        </set>
+        where ip = #{ip,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.AgentSysConfigEntity">
+        update agent_sys_conf
+        set max_retry_threads             = #{maxRetryThreads,jdbcType=INTEGER},
+            min_retry_threads             = #{minRetryThreads,jdbcType=INTEGER},
+            db_path                       = #{dbPath,jdbcType=VARCHAR},
+            scan_interval_sec             = #{scanIntervalSec,jdbcType=INTEGER},
+            batch_size                    = #{batchSize,jdbcType=INTEGER},
+            msg_size                      = #{msgSize,jdbcType=INTEGER},
+            send_runnable_size            = #{sendRunnableSize,jdbcType=INTEGER},
+            msg_queue_size                = #{msgQueueSize,jdbcType=INTEGER},
+            max_reader_cnt                = #{maxReaderCnt,jdbcType=INTEGER},
+            thread_manager_sleep_interval = #{threadManagerSleepInterval,jdbcType=INTEGER},
+            oneline_size                  = #{onelineSize,jdbcType=INTEGER},
+            clear_day_offset              = #{clearDayOffset,jdbcType=INTEGER},
+            clear_interval_sec            = #{clearIntervalSec,jdbcType=INTEGER},
+            buffer_size_in_bytes          = #{bufferSizeInBytes,jdbcType=INTEGER},
+            agent_rpc_reconnect_time      = #{agentRpcReconnectTime,jdbcType=INTEGER},
+            send_timeout_mill_sec         = #{sendTimeoutMillSec,jdbcType=INTEGER},
+            flush_event_timeout_mill_sec  = #{flushEventTimeoutMillSec,jdbcType=INTEGER},
+            stat_interval_sec             = #{statIntervalSec,jdbcType=INTEGER},
+            conf_refresh_interval_secs    = #{confRefreshIntervalSecs,jdbcType=INTEGER},
+            flow_size                     = #{flowSize,jdbcType=INTEGER},
+            bufferSize                    = #{buffersize,jdbcType=INTEGER},
+            compress                      = #{compress,jdbcType=TINYINT},
+            event_check_interval          = #{eventCheckInterval,jdbcType=INTEGER},
+            is_calMD5                     = #{isCalmd5,jdbcType=TINYINT}
+        where ip = #{ip,jdbcType=VARCHAR}
+    </update>
+</mapper>

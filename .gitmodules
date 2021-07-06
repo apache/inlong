@@ -1,4 +1,4 @@
-[submodule "tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson"]
-	path = tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson
+[submodule "inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson"]
+	path = inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/third_party/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
 	tag = v1.1.0
