@@ -87,6 +87,8 @@
     <module>inlong-common</module>
     <module>inlong-tubemq</module>
     <module>inlong-dataproxy</module>
+    <module>inlong-dataproxy-sdk</module>
+    <module>inlong-agent</module>
     <module>inlong-manager</module>
     <module>inlong-sort</module>
   </modules>
