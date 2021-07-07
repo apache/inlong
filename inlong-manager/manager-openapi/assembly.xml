@@ -17,7 +17,7 @@
   -->
 
 <assembly>
-    <id>${project.version}</id>
+    <id>bin</id>
 
     <!-- Types of packaging, if there are N, N types of packages will be printed -->
     <formats>
@@ -25,6 +25,7 @@
         <format>dir</format>
     </formats>
 
+    <baseDirectory>apache-inlong-${project.artifactId}-${project.version}-bin</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <fileSets>
