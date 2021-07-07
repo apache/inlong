@@ -64,7 +64,7 @@
                             <descriptors>
                                 <descriptor>package.xml</descriptor>
                             </descriptors>
-                            <finalName>inlong-agent</finalName>
+                            <finalName>apache-inlong-agent-${project.version}</finalName>
                         </configuration>
                     </execution>
                 </executions>
