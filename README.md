@@ -61,7 +61,7 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 
 ## Building InLong
-More detailed instructions can be found at [Quick Start](https://inlong.apache.org/en-us/docs/getting_started.html) section in the documentation.
+More detailed instructions can be found at [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) section in the documentation.
 ```
 # Clone a repo
 $ git clone https://github.com/apache/incubator-inlong.git
@@ -75,7 +75,7 @@ $ mvn clean install -DskipTests
 ```
 
 ## Deploying InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/getting_started.html) in our project documentation.
+InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
 
 
 ## Join the Community
