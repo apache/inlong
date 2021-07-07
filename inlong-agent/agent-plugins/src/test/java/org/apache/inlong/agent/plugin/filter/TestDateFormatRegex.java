@@ -65,15 +65,13 @@ public class TestDateFormatRegex {
     @Test
     public void testFileFilter() throws Exception {
         String currentDate = AgentUtils.formatCurrentTime("yyyyMMdd");
-        for (int i = 0; i < 10; i++) {
-            Paths.get(testPath.toString(), currentDate + "_" + i).toFile().createNewFile();
-        }
+        Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
         TextFileSource source = new TextFileSource();
         JobProfile profile = new JobProfile();
-        profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_\\d{1,2}").toString());
+        profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");
 
         List<Reader> readerList = source.split(profile);
-        Assert.assertEquals(10, readerList.size());
+        Assert.assertEquals(1, readerList.size());
     }
 }
