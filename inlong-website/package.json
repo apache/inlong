@@ -24,8 +24,8 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "dev": "npm start",
-    "start": "EXTEND_ESLINT=true react-app-rewired start",
-    "build": "GENERATE_SOURCEMAP=false EXTEND_ESLINT=true react-app-rewired build",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "commit": "git cz",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,js}'",
