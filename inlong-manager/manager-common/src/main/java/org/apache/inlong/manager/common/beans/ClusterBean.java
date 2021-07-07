@@ -31,6 +31,9 @@ public class ClusterBean {
     @Value("${cluster.tube.manager}")
     private String tubeManager;
 
+    @Value("${cluster.tube.clusterId}")
+    private Integer clusterId;
+
     @Value("${cluster.zk.url}")
     private String zkUrl;
 

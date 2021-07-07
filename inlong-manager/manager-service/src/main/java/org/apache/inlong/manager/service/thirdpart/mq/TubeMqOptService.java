@@ -56,8 +56,10 @@ public class TubeMqOptService {
             }
             AddTubeMqTopicRequest.AddTopicTasksBean addTopicTasksBean = request.getAddTopicTasks().get(0);
             QueryTubeTopicRequest topicRequest = QueryTubeTopicRequest.builder()
-                    .topicName(addTopicTasksBean.getTopicName()).clusterId(request.getClusterId())
-                    .user(request.getUser()).build();
+                    .topicName(addTopicTasksBean.getTopicName())
+                    .clusterId(clusterBean.getClusterId())
+                    .user(request.getUser())
+                    .build();
 
             String tubeManager = clusterBean.getTubeManager();
             TubeManagerResponse response = httpUtils

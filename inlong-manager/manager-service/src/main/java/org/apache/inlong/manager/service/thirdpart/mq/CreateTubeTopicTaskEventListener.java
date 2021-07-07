@@ -59,7 +59,6 @@ public class CreateTubeTopicTaskEventListener implements TaskEventListener {
             BusinessInfo businessInfo = businessService.get(bid);
             String topicName = businessInfo.getMqResourceObj();
             AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
-            request.setClusterId(1); // TODO is cluster id needed?
             request.setUser("inlong-manager");
             AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
             tasksBean.setTopicName(topicName);
