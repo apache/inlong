@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.thirdpart.sort;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
@@ -38,6 +39,7 @@ import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
@@ -109,12 +111,6 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
     }
 
     private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveInfo hiveStorage) {
-        // hive storage fields
-        final Stream<FieldInfo> hiveFields = hiveStorage.getHiveFieldList().stream().map(field -> {
-            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
-            return new FieldInfo(field.getFieldName(), formatInfo);
-        });
-
         // dataPath = hdfsUrl + / + warehouseDir + / + dbName + .db/ + tableName
         StringBuilder dataPathBuilder = new StringBuilder();
         String hdfsUrl = hiveStorage.getHdfsDefaultFs();
@@ -140,9 +136,19 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
             splitter = hiveStorage.getFieldSplitter().charAt(0);
         }
 
+        Stream<FieldInfo> hiveFields = hiveStorage.getHiveFieldList().stream().map(field -> {
+            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
+            return new FieldInfo(field.getFieldName(), formatInfo);
+        });
+
+        List<FieldInfo> sinkFields = hiveFields.collect(Collectors.toList());
+        FieldInfo partitionFieldInfo = new FieldInfo(hiveStorage.getPrimaryPartition(),
+                new TimestampFormatInfo("MILLIS"));
+        sinkFields.add(partitionFieldInfo);
+
         // encapsulate hive sink
         HiveSinkInfo hiveSinkInfo = new HiveSinkInfo(
-                hiveFields.toArray(FieldInfo[]::new),
+                sinkFields.toArray(new FieldInfo[0]),
                 hiveStorage.getJdbcUrl(),
                 hiveStorage.getDbName(),
                 hiveStorage.getTableName(),
@@ -150,7 +156,7 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 hiveStorage.getPassword(),
                 dataPath,
                 Stream.of(new HiveSinkInfo.HiveTimePartitionInfo(hiveStorage.getPrimaryPartition(),
-                        "yyyy-MM-dd HH:mm:ss")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
+                        "yyyMddHH")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
 
                 new HiveSinkInfo.TextFileFormat(splitter)
         );
