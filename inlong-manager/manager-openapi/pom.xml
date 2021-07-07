@@ -29,15 +29,11 @@
     <artifactId>manager-openapi</artifactId>
     <name>Apache InLong - Manager OpenAPI</name>
 
-    <properties>
-
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>manager-service</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>servlet-api</artifactId>
