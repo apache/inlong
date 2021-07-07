@@ -60,6 +60,7 @@ cluster:
   tube:
     manager: http://127.0.0.1:8081
     master: 127.0.0.1:8000,127.0.0.1:8010
+    clusterId: 1
   zk:
     url: 127.0.0.1:2181
     root: inlong_hive
