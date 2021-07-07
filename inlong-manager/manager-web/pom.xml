@@ -242,6 +242,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <finalName>apache-inlong-manager-${project.version}</finalName>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>
                     </descriptors>
