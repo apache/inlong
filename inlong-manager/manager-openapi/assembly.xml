@@ -25,6 +25,7 @@
         <format>dir</format>
     </formats>
 
+    <baseDirectory>apache-inlong-${project.artifactId}-${project.version}-bin</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <fileSets>
