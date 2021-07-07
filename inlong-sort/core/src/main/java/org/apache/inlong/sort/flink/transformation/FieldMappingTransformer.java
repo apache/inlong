@@ -27,6 +27,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 
+import static org.apache.inlong.sort.configuration.Constants.DATA_TIME_FIELD;
+
 /**
  * TODO, replace it with operator when it supports complex transformation.
  */
@@ -88,6 +90,7 @@ public class FieldMappingTransformer implements DataFlowInfoListener {
             for (int i = 0; i < sourceInfo.getFields().length; i++) {
                 final FieldInfo fieldInfo = sourceInfo.getFields()[i];
                 // use name to map field from source and sink
+                // skip time and attributes fields
                 sourceFieldIndices.put(fieldInfo.getName(), i + SOURCE_FIELD_SKIP_STEP);
             }
             final SinkInfo sinkInfo = dataFlowInfo.getSinkInfo();
@@ -95,10 +98,13 @@ public class FieldMappingTransformer implements DataFlowInfoListener {
             for (int i = 0; i < sinkInfo.getFields().length; i++) {
                 final FieldInfo fieldInfo = sinkInfo.getFields()[i];
                 final Integer fieldIndex = sourceFieldIndices.get(fieldInfo.getName());
-                if (fieldIndex == null) {
-                    indices[i] = -1;
-                } else {
+                if (fieldIndex != null) {
                     indices[i] = fieldIndex;
+                } else if (DATA_TIME_FIELD.equals(fieldInfo.getName())) {
+                    // built-in data time field
+                    indices[i] = 0;
+                } else {
+                    indices[i] = -1;
                 }
             }
         }
