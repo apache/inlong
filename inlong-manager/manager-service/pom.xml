@@ -61,6 +61,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -68,44 +69,59 @@
             <artifactId>hive-jdbc</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
+                    <artifactId>hive-llap-server</artifactId>
+                    <groupId>org.apache.hive</groupId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-metastore</artifactId>
-            <exclusions>
                 <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
+                    <artifactId>jetty-runner</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-standalone-metastore</artifactId>
-            <exclusions>
                 <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
+                    <artifactId>jetty-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlet</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-http</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-rewrite</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-webapp</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <groupId>javax.servlet</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet.jsp-api</artifactId>
+                    <groupId>javax.servlet.jsp</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-service</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>*</artifactId>
@@ -125,7 +141,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
 </project>
