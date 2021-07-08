@@ -28,10 +28,10 @@
 #======================================================================
 
 # Project name
-APPLICATION="inlong-manager-web"
+APPLICATION="InLong-Manager-API"
 
 # Project startup jar package name
-APPLICATION_JAR="manager-web.jar"
+APPLICATION_JAR="manager-api.jar"
 
 JAVA_HOME=
 export PATH=$PATH:$JAVA_HOME/bin
@@ -52,11 +52,11 @@ CONFIG_DIR=${BASE_PATH}"/conf/"
 JAR_LIBS=${BASE_PATH}"/lib/*"
 JAR_MAIN=${BASE_PATH}"/lib/"${APPLICATION_JAR}
 CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
-MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
+MAIN_CLASS=org.apache.inlong.manager.web.InLongApiApplication
 
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/log"
-LOG_FILE="${LOG_DIR}/${APPLICATION}_sout.log"
+LOG_FILE="${LOG_DIR}/sout-manager-api.log"
 # Log backup directory
 LOG_BACK_DIR="${LOG_DIR}/back/"
 
@@ -92,7 +92,7 @@ echo "" >${LOG_FILE}
 JAVA_OPT="-server -Xms4g -Xmx4g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
 
 #gc options
-JAVA_OPT="${JAVA_OPT} -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:${LOG_DIR}/gc.log"
+JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:${LOG_DIR}/gc.log"
 
 #jmx metrics
 #JAVA_OPT="${JAVA_OPT} -Dcom.sun.management.jmxremote  -Dcom.sun.management.jmxremote.port=8011  -Dcom.sun.management.jmxremote.ssl=false  -Dcom.sun.management.jmxremote.authenticate=false"

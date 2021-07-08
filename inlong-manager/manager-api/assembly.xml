@@ -25,7 +25,7 @@
         <format>dir</format>
     </formats>
 
-    <baseDirectory>apache-inlong-${project.artifactId}-${project.version}-bin</baseDirectory>
+    <baseDirectory>${project.artifactId}</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <fileSets>
@@ -61,16 +61,6 @@
             <fileMode>0755</fileMode>
             <includes>
                 <include>${project.build.finalName}.jar</include>
-            </includes>
-        </fileSet>
-
-        <!-- Contains files in the root directory -->
-        <fileSet>
-            <directory>${basedir}</directory>
-            <includes>
-                <include>NOTICE</include>
-                <include>LICENSE</include>
-                <include>*.md</include>
             </includes>
         </fileSet>
     </fileSets>

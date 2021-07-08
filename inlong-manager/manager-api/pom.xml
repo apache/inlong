@@ -26,7 +26,7 @@
         <version>0.9.0-incubating-SNAPSHOT</version>
     </parent>
 
-    <artifactId>manager-web</artifactId>
+    <artifactId>manager-api</artifactId>
     <name>Apache InLong - Manager Web</name>
 
     <dependencies>
@@ -146,7 +146,7 @@
     </dependencies>
 
     <build>
-        <finalName>manager-web</finalName>
+        <finalName>manager-api</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -181,7 +181,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -198,6 +197,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -221,14 +221,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>

@@ -28,7 +28,7 @@
 #======================================================================
 
 # Project name
-APPLICATION="inlong-manager-openapi"
+APPLICATION="InLong-Manager-OpenAPI"
 
 # Project startup jar package name
 APPLICATION_JAR="manager-openapi.jar"
@@ -56,7 +56,7 @@ MAIN_CLASS=org.apache.inlong.manager.openapi.InLongOpenApiApplication
 
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/log"
-LOG_FILE="${LOG_DIR}/${APPLICATION}_sout.log"
+LOG_FILE="${LOG_DIR}/sout-manager-openapi.log"
 # Log backup directory
 LOG_BACK_DIR="${LOG_DIR}/back/"
 
@@ -92,7 +92,7 @@ echo "" >${LOG_FILE}
 JAVA_OPT="-server -Xms2g -Xmx2g -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -XX:-OmitStackTraceInFastThrow "
 
 #gc options
-JAVA_OPT="${JAVA_OPT} -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:${LOG_DIR}/gc.log"
+JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:${LOG_DIR}/gc.log"
 
 #jmx metrics
 #JAVA_OPT="${JAVA_OPT} -Dcom.sun.management.jmxremote  -Dcom.sun.management.jmxremote.port=8011  -Dcom.sun.management.jmxremote.ssl=false  -Dcom.sun.management.jmxremote.authenticate=false"

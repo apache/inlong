@@ -46,7 +46,7 @@
     <!--Application log, time rolling output  -->
     <appender name="APP_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- The path and file name of the log file being recorded -->
-        <file>${log.path}/manager-web.log</file>
+        <file>${log.path}/manager-api.log</file>
         <!--Log file output format-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n</pattern>
