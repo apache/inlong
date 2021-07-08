@@ -25,7 +25,7 @@
 #======================================================================
 
 # Project name
-APPLICATION="inlong-manager-openapi"
+APPLICATION="InLong-Manager-OpenAPI"
 
 BIN_PATH=$(cd $(dirname $0); pwd)
 echo "restart in " ${BIN_PATH}

@@ -25,7 +25,7 @@
 #======================================================================
 
 # Project name
-APPLICATION="inlong-manager-openapi"
+APPLICATION="InLong-Manager-OpenAPI"
 
 # Project startup jar package name
 APPLICATION_JAR="manager-openapi.jar"

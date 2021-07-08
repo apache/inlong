@@ -27,11 +27,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties
 @EnableScheduling
 @ComponentScan(basePackages = "org.apache.inlong.manager")
-public class InLongWebApplication {
+public class InLongApiApplication {
 
     public static void main(String[] args) {
         System.setProperty("spring.devtools.restart.enabled", "false");
-        SpringApplication.run(InLongWebApplication.class, args);
+        SpringApplication.run(InLongApiApplication.class, args);
     }
 
 }

@@ -25,10 +25,10 @@
 #======================================================================
 
 # Project name
-APPLICATION="inlong-manager-web"
+APPLICATION="InLong-Manager-API"
 
 # Project startup jar package name
-APPLICATION_JAR="manager-web.jar"
+APPLICATION_JAR="manager-api.jar"
 
 PID=$(ps -ef | grep "${APPLICATION_JAR}" | grep -v grep | awk '{ print $2 }')
 if [[ -z "$PID" ]]

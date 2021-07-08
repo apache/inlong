@@ -30,7 +30,7 @@ logging:
 
 spring:
   application:
-    name: inLong-manager-web
+    name: InLong-Manager-API
   profiles:
     active: dev
 

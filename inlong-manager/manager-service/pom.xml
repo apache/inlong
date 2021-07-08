@@ -59,52 +59,17 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty.aggregate</groupId>
-                    <artifactId>jetty-all</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>avro</artifactId>
-                    <groupId>org.apache.avro</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hive-metastore</artifactId>
-                    <groupId>org.apache.hive</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>junit</artifactId>
-                    <groupId>junit</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jsr305</artifactId>
-                    <groupId>com.google.code.findbugs</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-xc</artifactId>
-                    <groupId>org.codehaus.jackson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-jaxrs</artifactId>
-                    <groupId>org.codehaus.jackson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -113,88 +78,18 @@
             <artifactId>hive-metastore</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
                 </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-standalone-metastore</artifactId>
+            <exclusions>
                 <exclusion>
-                    <groupId>org.eclipse.jetty.aggregate</groupId>
-                    <artifactId>jetty-all</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>HikariCP</artifactId>
-                    <groupId>com.zaxxer</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>zookeeper</artifactId>
-                    <groupId>org.apache.zookeeper</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-api</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-cli</artifactId>
-                    <groupId>commons-cli</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-lang</artifactId>
-                    <groupId>commons-lang</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>curator-client</artifactId>
-                    <groupId>org.apache.curator</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>curator-framework</artifactId>
-                    <groupId>org.apache.curator</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hadoop-auth</artifactId>
-                    <groupId>org.apache.hadoop</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hadoop-common</artifactId>
-                    <groupId>org.apache.hadoop</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hive-serde</artifactId>
-                    <groupId>org.apache.hive</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hive-shims</artifactId>
-                    <groupId>org.apache.hive</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-core-asl</artifactId>
-                    <groupId>org.codehaus.jackson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jline</artifactId>
-                    <groupId>jline</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>metrics-core</artifactId>
-                    <groupId>io.dropwizard.metrics</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>libthrift</artifactId>
-                    <groupId>org.apache.thrift</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>junit</artifactId>
-                    <groupId>junit</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jsr305</artifactId>
-                    <groupId>com.google.code.findbugs</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jcodings</artifactId>
-                    <groupId>org.jruby.jcodings</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -203,44 +98,8 @@
             <artifactId>hadoop-common</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty.aggregate</groupId>
-                    <artifactId>jetty-all</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jdk.tools</groupId>
-                    <artifactId>jdk.tools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>guava</artifactId>
-                    <groupId>com.google.guava</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-cli</artifactId>
-                    <groupId>commons-cli</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-beanutils</artifactId>
-                    <groupId>commons-beanutils</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-lang</artifactId>
-                    <groupId>commons-lang</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-core-asl</artifactId>
-                    <groupId>org.codehaus.jackson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-mapper-asl</artifactId>
-                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -249,52 +108,8 @@
             <artifactId>hive-service</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty.aggregate</groupId>
-                    <artifactId>jetty-all</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>antlr-runtime</artifactId>
-                    <groupId>org.antlr</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-httpclient</artifactId>
-                    <groupId>commons-httpclient</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-lang</artifactId>
-                    <groupId>commons-lang</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>datanucleus-core</artifactId>
-                    <groupId>org.datanucleus</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hive-metastore</artifactId>
-                    <groupId>org.apache.hive</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jline</artifactId>
-                    <groupId>jline</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>libfb303</artifactId>
-                    <groupId>org.apache.thrift</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>pentaho-aggdesigner-algorithm</artifactId>
-                    <groupId>org.pentaho</groupId>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
