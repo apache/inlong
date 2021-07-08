@@ -63,3 +63,5 @@ cluster:
   zk:
     url: 127.0.0.1:2181
     root: inlong_hive
+sort:
+  appName: inlong_app

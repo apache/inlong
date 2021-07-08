@@ -40,4 +40,7 @@ public class ClusterBean {
     @Value("${cluster.zk.root}")
     private String zkRoot;
 
+    @Value("${sort.appName}")
+    private String appName;
+
 }
