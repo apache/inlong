@@ -229,7 +229,8 @@ public class ServiceDiscoveryUtils {
         try {
             File managerIpListFile = new File(managerIpLocalPath);
             if (!managerIpListFile.exists()) {
-                log.error("ServiceDiscovery no found local bidInfo file, path is [" + managerIpLocalPath + "].");
+                log.info("ServiceDiscovery no found local bidInfo file, "
+                    + "doesn't matter, path is [" + managerIpLocalPath + "].");
                 return null;
             }
             byte[] serialized;
