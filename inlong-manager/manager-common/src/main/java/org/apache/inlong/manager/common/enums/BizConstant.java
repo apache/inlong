@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.enums;
 
 /**
  * Constant for business
- *
  */
 public class BizConstant {
 
@@ -35,21 +34,9 @@ public class BizConstant {
 
     public static final String DATA_TYPE_KEY_VALUE = "KEY-VALUE";
 
-    public static final String DATA_TYPE_PB = "PB";
-
     public static final String MIDDLEWARE_TYPE_TUBE = "TUBE";
 
-    public static final String CLUSTER_TYPE_ZK = "ZOOKEEPER";
-
-    public static final String CLUSTER_TYPE_SORT_ZK = "SORT_ZK";
-
-    public static final String CLUSTER_TYPE_SORT_TOPO = "SORT_TOPO";
-
-    public static final String CLUSTER_GROUP = "CLUSTER_GROUP";
-
-    public static final String MIDDLEWARE_TOPIC = "topic";
-
-    public static final String MIDDLEWARE_NAMESPACE = "namespace";
+    public static final String SCHEMA_M0_DAY = "m0_day";
 
     public static final String BID_IS_EMPTY = "businessIdentifier is empty";
 
