@@ -22,7 +22,7 @@ import lombok.Data;
 
 @Data
 public class DataConfig {
-    private String addtictiveAttr;
+    private String additionalAttr;
     private String businessIdentifier;
     private String dataName;
     private String dataStreamIdentifier;
