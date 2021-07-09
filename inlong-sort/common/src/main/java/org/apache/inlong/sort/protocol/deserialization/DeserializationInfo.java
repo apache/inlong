@@ -32,6 +32,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         property = "type")
 @JsonSubTypes({
         @Type(value = CsvDeserializationInfo.class, name = "csv"),
+        @Type(value = TDMsgCsvDeserializationInfo.class, name = "tdmsg_csv"),
+        @Type(value = TDMsgCsv2DeserializationInfo.class, name = "tdmsg_csv2"),
+        @Type(value = TDMsgKvDeserializationInfo.class, name = "tdmsg_kv"),
+        @Type(value = TDMsgTlogCsvDeserializationInfo.class, name = "tdmsg_tlog_csv"),
+        @Type(value = TDMsgTlogKvDeserializationInfo.class, name = "tdmsg_tlog_kv")
 })
 public interface DeserializationInfo extends Serializable {
 
