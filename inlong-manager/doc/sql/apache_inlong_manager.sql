@@ -587,29 +587,6 @@ CREATE TABLE `storage_hive`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data is stored in Hive configuration table';
 
 -- ----------------------------
--- Table structure for storage_hive_cluster
--- ----------------------------
-DROP TABLE IF EXISTS `storage_hive_cluster`;
-CREATE TABLE `storage_hive_cluster`
-(
-    `id`             int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`           varchar(255) NOT NULL COMMENT 'cluster name',
-    `type`           varchar(10)           DEFAULT 'Hive' COMMENT 'Cluster type, currently only Hive',
-    `hive_addr`      varchar(255)          DEFAULT NULL COMMENT 'cluster URL address',
-    `username`       varchar(255)          DEFAULT NULL COMMENT 'Username',
-    `password`       varchar(255)          DEFAULT NULL COMMENT 'User password',
-    `warehouse_dir`  varchar(10)           DEFAULT NULL COMMENT 'HDFS data data path',
-    `hdfs_defaultfs` varchar(255)          DEFAULT NULL COMMENT 'HDFS cluster address',
-    `hdfs_ugi`       varchar(255)          DEFAULT NULL COMMENT 'HDFS write user information',
-    `create_time`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
-    `modify_time`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    `cluster_tag`    varchar(255)          DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 2
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Hive cluster information';
-
--- ----------------------------
 -- Table structure for storage_hive_field
 -- ----------------------------
 DROP TABLE IF EXISTS `storage_hive_field`;

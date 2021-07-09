@@ -30,16 +30,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageClusterInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveClusterInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
-import org.apache.inlong.manager.dao.entity.StorageHiveClusterEntity;
 import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
-import org.apache.inlong.manager.dao.mapper.StorageHiveClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.slf4j.Logger;
@@ -61,8 +56,6 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
     @Autowired
     private StorageHiveEntityMapper hiveStorageMapper;
-    @Autowired
-    private StorageHiveClusterEntityMapper hiveClusterMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -244,31 +237,6 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         entity.setStatus(status);
         entity.setOptLog(log);
         hiveStorageMapper.updateStorageStatusById(entity);
-    }
-
-    @Override
-    public StorageClusterInfo listStorageCluster(String storageType) {
-        LOGGER.debug("begin to list storage cluster info by storageType={}", storageType);
-
-        // Query the specified type of cluster
-        List<StorageHiveClusterEntity> hiveClusters;
-        if (StringUtils.isNotEmpty(storageType)) {
-            storageType = storageType.toUpperCase(Locale.ROOT);
-            if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType)) {
-                hiveClusters = hiveClusterMapper.selectByCondition(storageType);
-            } else {
-                LOGGER.error("the storageType={} not support", storageType);
-                throw new BusinessException(BizErrorCodeEnum.STORAGE_TYPE_NOT_SUPPORTED);
-            }
-        } else { // Query all storage clusters
-            hiveClusters = hiveClusterMapper.selectByCondition(BizConstant.STORAGE_TYPE_HIVE);
-        }
-
-        StorageClusterInfo clusterInfo = new StorageClusterInfo();
-        clusterInfo.setHiveClusterList(CommonBeanUtils.copyListProperties(hiveClusters, StorageHiveClusterInfo::new));
-
-        LOGGER.info("success to list storage cluster info");
-        return clusterInfo;
     }
 
     @Transactional(rollbackFor = Throwable.class)

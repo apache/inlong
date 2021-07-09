@@ -182,13 +182,6 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage_hive_cluster" domainObjectName="StorageHiveClusterEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
         <table tableName="storage_hive_field" domainObjectName="StorageHiveFieldEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"

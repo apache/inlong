@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageClusterInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.ConnectionInfo;
@@ -98,14 +97,6 @@ public class StorageController {
     public Response<Boolean> delete(@RequestParam String storageType, @PathVariable Integer id) {
         boolean result = storageService.delete(storageType, id, LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(result);
-    }
-
-    @RequestMapping(value = "/listStorageCluster", method = RequestMethod.GET)
-    @ApiOperation(value = "Query the storage cluster of the specified type")
-    @ApiImplicitParam(name = "storageType", dataTypeClass = String.class)
-    public Response<StorageClusterInfo> listStorageCluster(
-            @RequestParam(required = false) String storageType) {
-        return Response.success(storageService.listStorageCluster(storageType));
     }
 
     @RequestMapping(value = "/query/testConnection", method = RequestMethod.POST)
