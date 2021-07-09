@@ -55,6 +55,8 @@ public interface SourceFileDetailEntityMapper {
 
     List<FileAgentTaskConfig> selectFileAgentTaskByIp(@Param("ip") String agentIp);
 
+    List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
+
     /**
      * According to business identifier and data source identifier, query file source details
      *
@@ -63,8 +65,6 @@ public interface SourceFileDetailEntityMapper {
      * @return file source list
      */
     List<SourceFileDetailEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
-
-    List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
 
     /**
      * According to business identifier and data stream identifier, physically delete file data source details
