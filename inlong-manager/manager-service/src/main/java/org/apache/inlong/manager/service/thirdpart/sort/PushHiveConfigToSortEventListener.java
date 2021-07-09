@@ -147,10 +147,17 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 .append(hiveStorage.getTableName())
                 .toString();
 
-        char splitter = ',';
-        if (hiveStorage.getFieldSplitter() != null) {
-            splitter = hiveStorage.getFieldSplitter().charAt(0);
+
+        // Encapsulate the deserialization information in the source
+        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
+                hiveStorage.getDataStreamIdentifier());
+
+        HiveSinkInfo.HiveFileFormat fileFormat = new HiveSinkInfo.TextFileFormat(',');
+        if (dataStream.getFileDelimiter() != null) {
+            char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
+            fileFormat = new HiveSinkInfo.TextFileFormat(c);
         }
+
 
         // encapsulate hive sink
         HiveSinkInfo hiveSinkInfo = new HiveSinkInfo(
@@ -163,13 +170,8 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 dataPath,
                 Stream.of(new HiveSinkInfo.HiveTimePartitionInfo(hiveStorage.getPrimaryPartition(),
                         "yyyMddHH")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
-
-                new HiveSinkInfo.TextFileFormat(splitter)
+                fileFormat
         );
-
-        // Encapsulate the deserialization information in the source
-        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
-                hiveStorage.getDataStreamIdentifier());
 
         // data stream fields
         Stream<FieldInfo> streamFields = dataStream.getFieldList().stream().map(field -> {
@@ -178,13 +180,14 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         });
 
         String topic = businessInfo.getMqResourceObj();
-        String consumerGroup = "cg";
+        String consumeGroupName = "sort_" + businessInfo.getMqResourceObj() + "_consumer_group";
         TDMsgCsvDeserializationInfo deserializationInfo = null;
         if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataStream.getDataType())) {
+            char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
             deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getDataStreamIdentifier(),
-                    dataStream.getFileDelimiter().charAt(0));
+                    c);
         }
-        SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumerGroup,
+        SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumeGroupName,
                 deserializationInfo, streamFields.toArray(FieldInfo[]::new));
 
         // push information
