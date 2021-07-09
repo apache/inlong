@@ -80,7 +80,7 @@ public class BusinessProcessOperation {
         // Modify business status and other information
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        entity.setStatus(EntityStatus.BIZ_WAIT_APPROVE.getCode());
+        entity.setStatus(EntityStatus.BIZ_WAIT_APPROVAL.getCode());
         int success = businessMapper.updateByIdentifierSelective(entity);
         Preconditions.checkTrue(success == 1, "failed to update business during assign and start process");
 

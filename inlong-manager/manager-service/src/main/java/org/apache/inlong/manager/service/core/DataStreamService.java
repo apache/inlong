@@ -179,4 +179,16 @@ public interface DataStreamService {
      */
     boolean updateAfterApprove(List<DataStreamApproveInfo> streamApproveList, String operator);
 
+    /**
+     * Update stream status
+     *
+     * @param bid Business identifier
+     * @param dsid Data stream identifier
+     * @param status Modified status
+     * @param operator Edit person's name
+     * @return whether succeed
+     * @apiNote If dsid is null, update all data stream associated with bid
+     */
+    boolean updateStatus(String bid, String dsid, Integer status, String operator);
+
 }

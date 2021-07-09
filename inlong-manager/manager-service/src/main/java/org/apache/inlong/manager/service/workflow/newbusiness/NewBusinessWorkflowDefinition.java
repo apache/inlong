@@ -22,10 +22,9 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterCont
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.newbusiness.listener.ApproveTaskListener;
-import org.apache.inlong.manager.service.workflow.newbusiness.listener.CancelProcessListener;
-import org.apache.inlong.manager.service.workflow.newbusiness.listener.CompleteProcessListener;
-import org.apache.inlong.manager.service.workflow.newbusiness.listener.RejectProcessListener;
+import org.apache.inlong.manager.service.workflow.newbusiness.listener.ApproveCancelProcessListener;
+import org.apache.inlong.manager.service.workflow.newbusiness.listener.ApprovePassTaskListener;
+import org.apache.inlong.manager.service.workflow.newbusiness.listener.ApproveRejectProcessListener;
 import org.apache.inlong.manager.service.workflow.newbusiness.listener.StartCreateResourceProcessListener;
 import org.apache.inlong.manager.workflow.model.definition.EndEvent;
 import org.apache.inlong.manager.workflow.model.definition.Process;
@@ -41,13 +40,11 @@ import org.springframework.stereotype.Component;
 public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private ApproveTaskListener approveTaskListener;
+    private ApprovePassTaskListener approvePassTaskListener;
     @Autowired
-    private CancelProcessListener cancelProcessListener;
+    private ApproveCancelProcessListener approveCancelProcessListener;
     @Autowired
-    private RejectProcessListener rejectProcessListener;
-    @Autowired
-    private CompleteProcessListener completeProcessListener;
+    private ApproveRejectProcessListener approveRejectProcessListener;
     @Autowired
     private StartCreateResourceProcessListener startCreateResourceProcessListener;
     @Autowired
@@ -64,9 +61,8 @@ public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
         process.setVersion(1);
 
         // Set up the listener
-        process.addListener(cancelProcessListener);
-        process.addListener(rejectProcessListener);
-        process.addListener(completeProcessListener);
+        process.addListener(approveCancelProcessListener);
+        process.addListener(approveRejectProcessListener);
         // Initiate the process of creating business resources,
         // and set the business status to [Configuration Successful]/[Configuration Failed] according to its completion
         process.addListener(startCreateResourceProcessListener);
@@ -85,7 +81,7 @@ public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.setDisplayName("System Administrator");
         adminUserTask.setFormClass(NewBusinessApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
-        adminUserTask.addListener(approveTaskListener);
+        adminUserTask.addListener(approvePassTaskListener);
         process.addTask(adminUserTask);
 
         // Configuration order relationship

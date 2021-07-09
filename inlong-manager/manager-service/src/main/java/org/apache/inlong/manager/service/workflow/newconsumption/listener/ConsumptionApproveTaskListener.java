@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ApproveTaskEventListener implements TaskEventListener {
+public class ConsumptionApproveTaskListener implements TaskEventListener {
 
     @Autowired
     private ConsumptionService consumptionService;

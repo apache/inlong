@@ -68,7 +68,7 @@ public interface BusinessService {
      * Modify the status of the specified business
      *
      * @param businessIdentifier Business identifier
-     * @param status Modified state
+     * @param status Modified status
      * @param operator Current operator
      * @return whether succeed
      */

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.workflow.newbusiness.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
@@ -38,6 +39,8 @@ public class CreateResourceCompleteProcessListener implements ProcessEventListen
 
     @Autowired
     private BusinessService businessService;
+    @Autowired
+    private DataStreamService dataStreamService;
 
     @Override
     public ProcessEvent event() {
@@ -45,16 +48,21 @@ public class CreateResourceCompleteProcessListener implements ProcessEventListen
     }
 
     /**
-     * After the process of creating business resources is completed, modify the business status to
-     * [Configuration Successful] [Configuration Failed]
+     * After the process of creating business resources is completed, modify the status of business and all data stream
+     * belong to this business to [Configuration Successful] [Configuration Failed]
      * <p/>{@link CreateResourceFailedProcessListener#listen}
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
+
         String bid = form.getBusinessId();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESS.getCode(), username);
+        // update business status
+        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        // update data stream status
+        dataStreamService.updateStatus(bid, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
+
         return ListenerResult.success();
     }
 

@@ -17,40 +17,50 @@
 
 package org.apache.inlong.manager.service.workflow.newbusiness.listener;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessWorkflowForm;
+import org.apache.inlong.manager.service.core.DataStreamService;
+import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessApproveForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
+import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
+import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for new business access, the initiator cancels the approval
+ * New Service Access-System Administrator Approval Task Event Listener
  */
 @Slf4j
 @Component
-public class CancelProcessListener implements ProcessEventListener {
+public class ApprovePassTaskListener implements TaskEventListener {
 
     @Autowired
     private BusinessService businessService;
+    @Autowired
+    private DataStreamService dataStreamService;
 
     @Override
-    public ProcessEvent event() {
-        return ProcessEvent.CANCEL;
+    public TaskEvent event() {
+        return TaskEvent.APPROVE;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
-        // After canceling the approval, the status becomes [Waiting to submit]
-        String bid = form.getBusinessId();
-        String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_WAIT_APPLYING.getCode(), username);
+        // Save the data format selected at the time of approval and the cluster information of the data stream
+        NewBusinessApproveForm approveForm = (NewBusinessApproveForm) context.getActionContext().getForm();
+
+        // Save the business information after approval
+        BusinessApproveInfo approveInfo = approveForm.getBusinessApproveInfo();
+        businessService.updateAfterApprove(approveInfo, context.getApplicant());
+
+        // Save data stream information after approval
+        List<DataStreamApproveInfo> streamApproveInfoList = approveForm.getStreamApproveInfoList();
+        dataStreamService.updateAfterApprove(streamApproveInfoList, context.getApplicant());
         return ListenerResult.success();
     }
 

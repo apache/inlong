@@ -621,6 +621,17 @@ public class DataStreamServiceImpl implements DataStreamService {
         return true;
     }
 
+    @Override
+    public boolean updateStatus(String bid, String dsid, Integer status, String operator) {
+        LOGGER.debug("begin to update status by bid={}, dsid={}", bid, dsid);
+
+        // businessMapper.updateStatusByIdentifier(bid, status, operator);
+        streamMapper.updateStatusByIdentifier(bid, dsid, status, operator);
+
+        LOGGER.info("success to update stream after approve");
+        return true;
+    }
+
     /**
      * Update extended information
      * <p/>First physically delete the existing extended information, and then add this batch of extended information
@@ -716,16 +727,16 @@ public class DataStreamServiceImpl implements DataStreamService {
         }
 
         // Fields that are not allowed to be modified when the business [configuration is successful]
-        if (EntityStatus.BIZ_CONFIG_SUCCESS.getCode().equals(bizStatus)) {
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(bizStatus)) {
             checkUpdatedFields(streamEntity, streamInfo);
         }
 
         // Business [Waiting to submit] [Approval rejected] [Configuration failed], if there is a
         // data source/data storage, the fields that are not allowed to be modified
         List<Integer> statusList = Arrays.asList(
-                EntityStatus.BIZ_WAIT_APPLYING.getCode(),
-                EntityStatus.BIZ_APPROVE_REJECT.getCode(),
-                EntityStatus.BIZ_CONFIG_FAILURE.getCode());
+                EntityStatus.BIZ_WAIT_SUBMIT.getCode(),
+                EntityStatus.BIZ_APPROVE_REJECTED.getCode(),
+                EntityStatus.BIZ_CONFIG_FAILED.getCode());
         if (statusList.contains(bizStatus)) {
             String bid = streamInfo.getBusinessIdentifier();
             String dsid = streamInfo.getDataStreamIdentifier();

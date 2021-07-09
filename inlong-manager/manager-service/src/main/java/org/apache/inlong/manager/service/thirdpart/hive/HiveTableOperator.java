@@ -57,7 +57,6 @@ public class HiveTableOperator {
         }
 
         HiveTableQueryBean tableBean = getTableQueryBean(hiveConfig);
-
         try {
             // create database if not exists
             dataSourceService.createDb(tableBean);
@@ -76,10 +75,12 @@ public class HiveTableOperator {
                     dataSourceService.createColumn(tableBean);
                 }
             }
-        } catch (Exception e) {
+            storageService.updateHiveStatusById(hiveConfig.getId(),
+                    EntityStatus.DATA_STORAGE_CONFIG_SUCCESSFUL.getCode(), "create hive table success");
+        } catch (Throwable e) {
             log.error("create hive table error, ", e);
             storageService.updateHiveStatusById(hiveConfig.getId(),
-                    EntityStatus.DATA_STORAGE_CONFIG_FAILURE.getCode(), e.getMessage());
+                    EntityStatus.DATA_STORAGE_CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
 

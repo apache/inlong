@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.service.core.impl.StorageHiveOperation;
+import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
@@ -56,14 +56,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PushHiveConfigToSortEventListener implements TaskEventListener {
 
     @Autowired
+    private StorageService storageService;
+    @Autowired
     private StorageHiveEntityMapper storageHiveMapper;
-
     @Autowired
     private DataStreamService dataStreamService;
-
-    @Autowired
-    private StorageHiveOperation storageHiveOperation;
-
     @Autowired
     private ClusterBean clusterBean;
 
@@ -81,11 +78,14 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
         String bid = businessInfo.getBusinessIdentifier();
+        // if dsid not null, just push the config belongs to the bid and the dsid
+        String dsid = form.getDataStreamIdentifier();
 
-        List<StorageHiveEntity> storageHiveEntities = storageHiveMapper.selectByIdentifier(bid, null);
+        List<StorageHiveEntity> storageHiveEntities = storageHiveMapper.selectByIdentifier(bid, dsid);
         for (StorageHiveEntity hiveEntity : storageHiveEntities) {
-            Integer hiveStorageId = hiveEntity.getId();
-            StorageHiveInfo hiveStorage = (StorageHiveInfo) storageHiveOperation.getHiveStorage(hiveStorageId);
+            Integer storageId = hiveEntity.getId();
+            StorageHiveInfo hiveStorage = (StorageHiveInfo) storageService
+                    .getById(BizConstant.STORAGE_TYPE_HIVE, storageId);
             if (log.isDebugEnabled()) {
                 log.debug("hive storage info: {}", hiveStorage);
             }
@@ -94,17 +94,16 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
             if (log.isDebugEnabled()) {
                 log.debug("try to push hive config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }
-
             try {
                 String zkUrl = clusterBean.getZkUrl();
                 String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk
                 String sortClusterName = clusterBean.getAppName();
-                ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, hiveStorageId, zkUrl, zkRoot);
+                ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, storageId, zkUrl, zkRoot);
                 // add storage id to zk
-                ZkTools.addDataFlowToCluster(sortClusterName, hiveStorageId, zkUrl, zkRoot);
+                ZkTools.addDataFlowToCluster(sortClusterName, storageId, zkUrl, zkRoot);
             } catch (Exception e) {
-                log.error("add or update data stream information to zk failed, storageId={} ", hiveStorageId, e);
+                log.error("add or update data stream information to zk failed, storageId={} ", storageId, e);
                 throw new WorkflowListenerException("push hive config to sort failed, reason: " + e.getMessage());
             }
         }
@@ -113,6 +112,21 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
     }
 
     private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveInfo hiveStorage) {
+        Stream<FieldInfo> hiveFields = hiveStorage.getHiveFieldList().stream().map(field -> {
+            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
+            return new FieldInfo(field.getFieldName(), formatInfo);
+        });
+
+        List<FieldInfo> sinkFields = hiveFields.collect(Collectors.toList());
+        FieldInfo partitionFieldInfo = new FieldInfo(hiveStorage.getPrimaryPartition(),
+                new TimestampFormatInfo("MILLIS"));
+        sinkFields.add(partitionFieldInfo);
+
+        String hiveServerUrl = hiveStorage.getJdbcUrl();
+        if (hiveServerUrl != null && !hiveServerUrl.startsWith("jdbc:hive2://")) {
+            hiveServerUrl = "jdbc:hive2://" + hiveServerUrl;
+        }
+
         // dataPath = hdfsUrl + / + warehouseDir + / + dbName + .db/ + tableName
         StringBuilder dataPathBuilder = new StringBuilder();
         String hdfsUrl = hiveStorage.getHdfsDefaultFs();
@@ -138,20 +152,10 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
             splitter = hiveStorage.getFieldSplitter().charAt(0);
         }
 
-        Stream<FieldInfo> hiveFields = hiveStorage.getHiveFieldList().stream().map(field -> {
-            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
-            return new FieldInfo(field.getFieldName(), formatInfo);
-        });
-
-        List<FieldInfo> sinkFields = hiveFields.collect(Collectors.toList());
-        FieldInfo partitionFieldInfo = new FieldInfo(hiveStorage.getPrimaryPartition(),
-                new TimestampFormatInfo("MILLIS"));
-        sinkFields.add(partitionFieldInfo);
-
         // encapsulate hive sink
         HiveSinkInfo hiveSinkInfo = new HiveSinkInfo(
                 sinkFields.toArray(new FieldInfo[0]),
-                hiveStorage.getJdbcUrl(),
+                hiveServerUrl,
                 hiveStorage.getDbName(),
                 hiveStorage.getTableName(),
                 hiveStorage.getUsername(),

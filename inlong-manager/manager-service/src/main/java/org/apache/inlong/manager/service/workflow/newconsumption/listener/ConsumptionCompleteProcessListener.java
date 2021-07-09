@@ -52,7 +52,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class CompleteProcessEventListener implements ProcessEventListener {
+public class ConsumptionCompleteProcessListener implements ProcessEventListener {
 
     @Autowired
     private QueryService queryService;

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.workflow.newstream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
@@ -38,6 +39,8 @@ public class SingleStreamCompleteProcessListener implements ProcessEventListener
 
     @Autowired
     private BusinessService businessService;
+    @Autowired
+    private DataStreamService dataStreamService;
 
     @Override
     public ProcessEvent event() {
@@ -45,14 +48,20 @@ public class SingleStreamCompleteProcessListener implements ProcessEventListener
     }
 
     /**
-     * The creation process ends normally, and the business status is modified to [BIZ_CONFIG_SUCCESS]
+     * The creation process ends normally, modify the status of business and all data stream
+     * belong to the business to [CONFIG_SUCCESSFUL]
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
         String bid = form.getBusinessId();
+        String dsid = form.getDataStreamIdentifier();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESS.getCode(), username);
+
+        // update business status
+        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        // update data stream status
+        dataStreamService.updateStatus(bid, dsid, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
         return ListenerResult.success();
     }
 

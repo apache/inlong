@@ -295,7 +295,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
 
         // When the business status is [Configuration successful], modification and deletion are not allowed,
         // only adding is allowed, and the order of existing fields cannot be changed
-        if (EntityStatus.BIZ_CONFIG_SUCCESS.getCode().equals(bizStatus)) {
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(bizStatus)) {
             List<StorageHiveFieldEntity> existsFieldList = hiveFieldMapper.selectByStorageId(storageId);
             if (existsFieldList.size() > fieldInfoList.size()) {
                 LOGGER.error("current status was not allowed to update hive field");

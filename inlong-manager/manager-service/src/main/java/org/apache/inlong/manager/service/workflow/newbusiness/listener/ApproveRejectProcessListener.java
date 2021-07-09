@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class RejectProcessListener implements ProcessEventListener {
+public class ApproveRejectProcessListener implements ProcessEventListener {
 
     @Autowired
     private BusinessService businessService;
@@ -50,7 +50,7 @@ public class RejectProcessListener implements ProcessEventListener {
         // after reject, update business status to [BIZ_APPROVE_REJECT]
         String bid = form.getBusinessId();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_APPROVE_REJECT.getCode(), username);
+        businessService.updateStatus(bid, EntityStatus.BIZ_APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();
     }
 

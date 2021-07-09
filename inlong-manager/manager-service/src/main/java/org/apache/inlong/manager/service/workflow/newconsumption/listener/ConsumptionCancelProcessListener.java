@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.newbusiness.listener;
+package org.apache.inlong.manager.service.workflow.newconsumption.listener;
 
-import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessWorkflowForm;
+import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
+import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.service.workflow.newconsumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
+
+import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,31 +35,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Listener after new business approval [process completed]
+ * Added data consumption process cancellation event listener
  *
  */
 @Slf4j
 @Component
-public class CompleteProcessListener implements ProcessEventListener {
+public class ConsumptionCancelProcessListener implements ProcessEventListener {
+
+    private ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
-    private BusinessService businessService;
+    public ConsumptionCancelProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
+        this.consumptionEntityMapper = consumptionEntityMapper;
+    }
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.COMPLETE;
+        return ProcessEvent.CANCEL;
     }
 
-    /**
-     * After the business approval process is completed, modify the business status to [Configuring]
-     */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
-        String bid = form.getBusinessId();
-        String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_ING.getCode(), username);
-        return ListenerResult.success();
+        NewConsumptionWorkflowForm workflowForm = (NewConsumptionWorkflowForm) context.getProcessForm();
+
+        ConsumptionEntity update = new ConsumptionEntity();
+        update.setId(workflowForm.getConsumptionInfo().getId());
+        update.setStatus(ConsumptionStatus.CANCELED.getStatus());
+        update.setModifyTime(new Date());
+
+        consumptionEntityMapper.updateByPrimaryKeySelective(update);
+        return ListenerResult.success("Application process is cancelled");
     }
 
     @Override

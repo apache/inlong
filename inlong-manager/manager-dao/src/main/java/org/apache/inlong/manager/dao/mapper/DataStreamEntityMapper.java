@@ -80,4 +80,7 @@ public interface DataStreamEntityMapper {
      */
     int deleteAllByBid(@Param("bid") String bid);
 
+    int updateStatusByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid, @Param("status") Integer status,
+            @Param("modifier") String modifier);
+
 }

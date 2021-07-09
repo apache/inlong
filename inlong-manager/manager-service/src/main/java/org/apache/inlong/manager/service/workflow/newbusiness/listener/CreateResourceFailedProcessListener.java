@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.workflow.newbusiness.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
@@ -38,6 +39,8 @@ public class CreateResourceFailedProcessListener implements ProcessEventListener
 
     @Autowired
     private BusinessService businessService;
+    @Autowired
+    private DataStreamService dataStreamService;
 
     @Override
     public ProcessEvent event() {
@@ -54,7 +57,11 @@ public class CreateResourceFailedProcessListener implements ProcessEventListener
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
         String bid = form.getBusinessId();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_FAILURE.getCode(), username);
+
+        // update business status
+        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_FAILED.getCode(), username);
+        // update data stream status
+        dataStreamService.updateStatus(bid, null, EntityStatus.DATA_STREAM_CONFIG_FAILED.getCode(), username);
         return ListenerResult.success();
     }
 

@@ -28,10 +28,10 @@ import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.newconsumption.listener.ApproveTaskEventListener;
-import org.apache.inlong.manager.service.workflow.newconsumption.listener.CancelProcessEventListener;
-import org.apache.inlong.manager.service.workflow.newconsumption.listener.CompleteProcessEventListener;
-import org.apache.inlong.manager.service.workflow.newconsumption.listener.RejectProcessEventListener;
+import org.apache.inlong.manager.service.workflow.newconsumption.listener.ConsumptionApproveTaskListener;
+import org.apache.inlong.manager.service.workflow.newconsumption.listener.ConsumptionCancelProcessListener;
+import org.apache.inlong.manager.service.workflow.newconsumption.listener.ConsumptionCompleteProcessListener;
+import org.apache.inlong.manager.service.workflow.newconsumption.listener.ConsumptionRejectProcessListener;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.apache.inlong.manager.workflow.model.definition.EndEvent;
 import org.apache.inlong.manager.workflow.model.definition.Process;
@@ -50,16 +50,16 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     public static final String UT_BIZ_OWNER_NAME = "ut_biz_owner";
 
     @Autowired
-    private CompleteProcessEventListener completeProcessEventListener;
+    private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
 
     @Autowired
-    private ApproveTaskEventListener approveTaskEventListener;
+    private ConsumptionApproveTaskListener consumptionApproveTaskListener;
 
     @Autowired
-    private RejectProcessEventListener rejectProcessEventListener;
+    private ConsumptionRejectProcessListener consumptionRejectProcessListener;
 
     @Autowired
-    private CancelProcessEventListener cancelProcessEventListener;
+    private ConsumptionCancelProcessListener consumptionCancelProcessListener;
 
     @Autowired
     private WorkflowApproverService workflowApproverService;
@@ -103,7 +103,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.setDisplayName("System Administrator");
         adminUserTask.setFormClass(NewConsumptionApproveForm.class);
         adminUserTask.setApproverAssign(this::adminUserTaskApprover);
-        adminUserTask.addListener(approveTaskEventListener);
+        adminUserTask.addListener(consumptionApproveTaskListener);
         process.addTask(adminUserTask);
 
         // Set order relationship
@@ -112,9 +112,9 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.addNext(endEvent);
 
         // Set up the listener
-        process.addListener(completeProcessEventListener);
-        process.addListener(rejectProcessEventListener);
-        process.addListener(cancelProcessEventListener);
+        process.addListener(consumptionCompleteProcessListener);
+        process.addListener(consumptionRejectProcessListener);
+        process.addListener(consumptionCancelProcessListener);
 
         return process;
     }
