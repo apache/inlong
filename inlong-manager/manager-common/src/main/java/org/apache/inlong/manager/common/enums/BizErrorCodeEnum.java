@@ -38,7 +38,6 @@ public enum BizErrorCodeEnum {
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
 
-
     DATA_STREAM_NOT_FOUND(1201, "Data stream does not exist/no operation permission"),
     DATA_STREAM_ID_DUPLICATE(1202, "The current business has a data stream with the same ID"),
     DATA_STREAM_OPT_NOT_ALLOWED(1203,
@@ -72,10 +71,6 @@ public enum BizErrorCodeEnum {
     STORAGE_HIVE_FIELD_SAVE_FAILED(1404, "Failed to save/update HIVE data storage field"),
     STORAGE_OPT_NOT_ALLOWED(1405,
             "The current business status does not allow adding/modifying/deleting data storage information"),
-    STORAGE_CLUSTER_UPDATE_NOT_ALLOWED(1406,
-            "Current business status does not allow modification of storage cluster information"),
-    STORAGE_APP_GROUP_UPDATE_NOT_ALLOWED(1407,
-            "Current business status does not allow modification of storage application group information"),
     STORAGE_DB_NAME_UPDATE_NOT_ALLOWED(1408,
             "The current business status does not allow modification of the storage target database name"),
     STORAGE_TB_NAME_UPDATE_NOT_ALLOWED(1409,

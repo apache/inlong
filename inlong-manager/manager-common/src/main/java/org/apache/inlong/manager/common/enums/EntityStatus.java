@@ -36,25 +36,25 @@ public enum EntityStatus {
     DELETED(40, "deleted"),
 
     // Business related status
-    BIZ_WAIT_APPLYING(100, "waiting to applying"),
-    BIZ_WAIT_APPROVE(101, "waiting to approve"),
-    BIZ_APPROVE_REJECT(102, "approval reject"),
-    BIZ_APPROVE_PASS(103, "approval pass"),
-    BIZ_CONFIG_ING(110, "configuring"),
-    BIZ_CONFIG_FAILURE(120, "failed to config"),
-    BIZ_CONFIG_SUCCESS(130, "successfully config"),
+    BIZ_WAIT_SUBMIT(100, "waiting for submit"),
+    BIZ_WAIT_APPROVAL(101, "waiting for approval"),
+    BIZ_APPROVE_REJECTED(102, "approval rejected"),
+    BIZ_APPROVE_PASSED(103, "approval passed"),
+    BIZ_CONFIG_ING(110, "in configure"),
+    BIZ_CONFIG_FAILED(120, "configuration failed"),
+    BIZ_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
     // Data stream related status
     DATA_STREAM_NEW(100, "new"),
-    DATA_STREAM_CONFIG_ING(110, "configuring"),
-    DATA_STREAM_CONFIG_FAILURE(120, "failed to config"),
-    DATA_STREAM_CONFIG_SUCCESS(130, "successfully config"),
+    DATA_STREAM_CONFIG_ING(110, "in configure"),
+    DATA_STREAM_CONFIG_FAILED(120, "configuration failed"),
+    DATA_STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
     // Data storage related status
     DATA_STORAGE_NEW(100, "new"),
-    DATA_STORAGE_CONFIG_ING(110, "configuring"),
-    DATA_STORAGE_CONFIG_FAILURE(120, "failed to config"),
-    DATA_STORAGE_CONFIG_SUCCESS(130, "successfully config"),
+    DATA_STORAGE_CONFIG_ING(110, "in configure"),
+    DATA_STORAGE_CONFIG_FAILED(120, "configuration failed"),
+    DATA_STORAGE_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
     // Data source related status
     DATA_RESOURCE_NEW(200, "new"),
@@ -67,69 +67,51 @@ public enum EntityStatus {
     AGENT_WAIT_DELETE(204, "wait delete"),
     AGENT_WAIT_UPDATE(205, "wait update"),
 
-    AGENT_ISSUED_CREATE(300, "created and issued"),
-    AGENT_ISSUED_STOP(302, "stop has been issued"),
-    AGENT_ISSUED_START(303, "start has been issued"),
-    AGENT_ISSUED_DELETE(304, "deletion has been issued"),
-    AGENT_ISSUED_UPDATE(305, "modification has been issued"),
-
-    DEPLOY_WAIT(311, "waiting to change deployment"),
-    DEPLOY_ING(312, "deploying"),
-    DEPLOY_FAILURE(313, "deployment failed"),
-    DEPLOY_SUCCESS(314, "deployed successfully"),
-
-    ISSUE_WAIT(321, "waiting to issue"),
-    ISSUE_ING(322, "issuing"),
-    ISSUE_FAILURE(323, "failed to issue"),
-    ISSUE_SUCCESS(324, "successfully issued"),
     ;
 
     /**
      * The status of the business that can initiate the approval process:
-     * <p/>[BIZ_WAIT_APPLYING] [BIZ_APPROVE_REJECT] [BIZ_CONFIG_FAILURE] [BIZ_CONFIG_SUCCESS]
+     * <p/>[BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
      */
     public static final List<Integer> ALLOW_START_WORKFLOW_STATUS = Arrays.asList(
-            BIZ_WAIT_APPLYING.getCode(), BIZ_APPROVE_REJECT.getCode(), BIZ_CONFIG_FAILURE.getCode(),
-            BIZ_CONFIG_SUCCESS.getCode());
+            BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(), BIZ_CONFIG_FAILED.getCode(),
+            BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * The status of the business that can be modified:
-     * <p/>[DRAFT] [BIZ_WAIT_APPLYING] [BIZ_APPROVE_REJECT] [BIZ_CONFIG_FAILURE] [BIZ_CONFIG_SUCCESS]
+     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
      * <p/>[BIZ_CONFIG_ING] status cannot be modified
      */
     public static final List<Integer> ALLOW_UPDATE_BIZ_STATUS = Arrays.asList(
-            DRAFT.getCode(), BIZ_WAIT_APPLYING.getCode(), BIZ_APPROVE_REJECT.getCode(),
-            BIZ_CONFIG_FAILURE.getCode(), BIZ_CONFIG_SUCCESS.getCode());
+            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
+            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
-     * The status of the service that can be deleted:
-     * <p/>[DRAFT] [BIZ_WAIT_APPLYING] [BIZ_APPROVE_REJECT] [BIZ_CONFIG_FAILURE] [BIZ_CONFIG_SUCCESS]
-     * <p/>[BIZ_CONFIG_FAILURE] [BIZ_CONFIG_SUCCESS] status cannot be deleted
+     * The status of the service that can be deleted - all status
+     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_ING] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
+     * <p/>[BIZ_WAIT_APPROVAL] [BIZ_APPROVE_PASSED] status cannot be deleted
      */
     public static final List<Integer> ALLOW_DELETE_BIZ_STATUS = Arrays.asList(
-            DRAFT.getCode(), BIZ_WAIT_APPLYING.getCode(), BIZ_APPROVE_REJECT.getCode(),
-            BIZ_CONFIG_FAILURE.getCode(), BIZ_CONFIG_SUCCESS.getCode());
+            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
+            BIZ_CONFIG_ING.getCode(), BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * The business can cascade to delete the status of the associated data:
-     * <p/>[DRAFT] [BIZ_WAIT_APPLYING]
      */
     public static final List<Integer> ALLOW_DELETE_BIZ_CASCADE_STATUS = Arrays.asList(
-            DRAFT.getCode(), BIZ_WAIT_APPLYING.getCode());
+            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode());
 
     /**
-     * Status of business approval:
-     * <p/>[BIZ_CONFIG_FAILURE] [BIZ_CONFIG_SUCCESS]
+     * Status of business approval
      */
     public static final List<Integer> BIZ_APPROVE_PASS_STATUS = Arrays.asList(
-            BIZ_CONFIG_FAILURE.getCode(), BIZ_CONFIG_SUCCESS.getCode());
+            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
-     * Temporary business status, adding, deleting and modifying operations are not allowed:
-     * <p/>[BIZ_WAIT_APPROVE] [BIZ_CONFIG_ING]
+     * Temporary business status, adding, deleting and modifying operations are not allowed
      */
     public static final List<Integer> BIZ_TEMP_STATUS = Arrays.asList(
-            BIZ_WAIT_APPROVE.getCode(), BIZ_CONFIG_ING.getCode());
+            BIZ_WAIT_APPROVAL.getCode(), BIZ_CONFIG_ING.getCode());
 
     private final Integer code;
     private final String description;

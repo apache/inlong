@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.workflow.core;
 
+import java.lang.reflect.UndeclaredThrowableException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.workflow.exception.WorkflowNoRollbackException;
 import org.apache.inlong.manager.workflow.exception.WorkflowRollbackOnceException;
-
-import java.lang.reflect.UndeclaredThrowableException;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
@@ -33,7 +30,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.util.Assert;
 
 /**
- * Trasaction to Help
+ * Transaction Helper
  */
 @Slf4j
 public class TransactionHelper {
@@ -47,7 +44,7 @@ public class TransactionHelper {
     /**
      * Execute in transaction
      *
-     * @param action              Execution logic
+     * @param action Execution logic
      * @param propagationBehavior Dissemination mechanism
      * @param <T>
      * @return result

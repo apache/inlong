@@ -15,39 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.newconsumption.listener;
+package org.apache.inlong.manager.service.workflow.newbusiness.listener;
 
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.service.workflow.newconsumption.NewConsumptionWorkflowForm;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
-
-import java.util.Date;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Added data consumption process cancellation event listener
- *
+ * Event listener for new business access, the initiator cancels the approval
  */
 @Slf4j
 @Component
-public class CancelProcessEventListener implements ProcessEventListener {
-
-    private ConsumptionEntityMapper consumptionEntityMapper;
+public class ApproveCancelProcessListener implements ProcessEventListener {
 
     @Autowired
-    public CancelProcessEventListener(ConsumptionEntityMapper consumptionEntityMapper) {
-        this.consumptionEntityMapper = consumptionEntityMapper;
-    }
+    private BusinessService businessService;
 
     @Override
     public ProcessEvent event() {
@@ -56,15 +46,12 @@ public class CancelProcessEventListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionWorkflowForm workflowForm = (NewConsumptionWorkflowForm) context.getProcessForm();
-
-        ConsumptionEntity update = new ConsumptionEntity();
-        update.setId(workflowForm.getConsumptionInfo().getId());
-        update.setStatus(ConsumptionStatus.CANCELED.getStatus());
-        update.setModifyTime(new Date());
-
-        consumptionEntityMapper.updateByPrimaryKeySelective(update);
-        return ListenerResult.success("Application process is cancelled");
+        NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
+        // After canceling the approval, the status becomes [Waiting to submit]
+        String bid = form.getBusinessId();
+        String username = context.getApplicant();
+        businessService.updateStatus(bid, EntityStatus.BIZ_WAIT_SUBMIT.getCode(), username);
+        return ListenerResult.success();
     }
 
     @Override

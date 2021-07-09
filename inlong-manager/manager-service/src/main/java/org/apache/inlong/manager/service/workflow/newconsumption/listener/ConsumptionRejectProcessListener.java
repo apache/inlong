@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow.newconsumption.listener;
 
+import java.util.Date;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
@@ -26,26 +27,19 @@ import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
-
-import java.util.Date;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Added data consumption process rejection event listener
- *
  */
-@Slf4j
 @Component
-public class RejectProcessEventListener implements ProcessEventListener {
+public class ConsumptionRejectProcessListener implements ProcessEventListener {
 
     private ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
-    public RejectProcessEventListener(ConsumptionEntityMapper consumptionEntityMapper) {
+    public ConsumptionRejectProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
         this.consumptionEntityMapper = consumptionEntityMapper;
     }
 

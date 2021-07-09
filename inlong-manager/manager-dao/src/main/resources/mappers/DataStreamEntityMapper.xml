@@ -44,7 +44,7 @@
     </resultMap>
 
     <resultMap id="dataStreamFullInfo"
-               type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
+            type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
         <result column="name" jdbcType="VARCHAR" property="businessIdentifier"/>
@@ -492,6 +492,17 @@
         where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
         and data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR}
         and is_deleted = 0
+    </update>
+    <update id="updateStatusByIdentifier">
+        update data_stream
+        set status = #{status, jdbcType=INTEGER}, modifier = #{modifier, jdbcType=VARCHAR}
+        <where>
+            business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+        </where>
     </update>
 
     <select id="queryStreamToHiveBaseInfoByBid" resultMap="dataStreamFullInfo">

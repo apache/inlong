@@ -87,7 +87,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
         // If the business status is [Configuration Successful], then asynchronously initiate
         // the [Single data stream Resource Creation] workflow
-        if (EntityStatus.BIZ_CONFIG_SUCCESS.getCode().equals(businessEntity.getStatus())) {
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(businessEntity.getStatus())) {
             super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, dsid));
         }
 
@@ -204,7 +204,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
         // The business status is [Configuration successful], then asynchronously initiate
         // the [Single data stream resource creation] workflow
-        if (EntityStatus.BIZ_CONFIG_SUCCESS.getCode().equals(businessEntity.getStatus())) {
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(businessEntity.getStatus())) {
             super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, dsid));
         }
         LOGGER.info("success to update storage info");

@@ -86,9 +86,7 @@
         from storage_hive
         <where>
             is_deleted = 0
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
-            </if>
+            and business_identifier = #{bid, jdbcType=VARCHAR}
             <if test="dsid != null and dsid != ''">
                 and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
             </if>
@@ -432,7 +430,7 @@
             file_format            = #{fileFormat,jdbcType=VARCHAR},
             field_splitter         = #{fieldSplitter,jdbcType=VARCHAR},
             encoding_type          = #{encodingType,jdbcType=VARCHAR},
-            hdfs_default_fs         = #{hdfsDefaultFs,jdbcType=VARCHAR},
+            hdfs_default_fs        = #{hdfsDefaultFs,jdbcType=VARCHAR},
             warehouse_dir          = #{warehouseDir,jdbcType=VARCHAR},
             usage_interval         = #{usageInterval,jdbcType=VARCHAR},
             storage_period         = #{storagePeriod,jdbcType=INTEGER},

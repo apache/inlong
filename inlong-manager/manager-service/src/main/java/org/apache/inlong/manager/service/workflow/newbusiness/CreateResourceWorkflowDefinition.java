@@ -116,21 +116,21 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         createTubeTopicTask.addListener(createTubeTopicTaskEventListener);
         process.addTask(createTubeTopicTask);
 
-        ServiceTask createTubeConsumerGroupTask = new ServiceTask();
-        createTubeConsumerGroupTask.setSkipResolver(c -> {
+        ServiceTask createConsumerGroupForSortTask = new ServiceTask();
+        createConsumerGroupForSortTask.setSkipResolver(c -> {
             CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
             BusinessInfo businessInfo = form.getBusinessInfo();
             if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
                 return false;
             }
-            log.warn("no need to create tube resource for bid={}", form.getBusinessId());
+            log.warn("no need to create tube resource for bid={}, as the middleware type is {}",
+                    form.getBusinessId(), businessInfo.getMiddlewareType());
             return true;
         });
-        createTubeConsumerGroupTask.setName("createTubeSortConsumerGroup");
-        createTubeConsumerGroupTask.setDisplayName("Create Tube Consumer Group");
-        createTubeConsumerGroupTask.addListener(createTubeConsumeGroupTaskEventListener);
-        process.addTask(createTubeConsumerGroupTask);
-
+        createConsumerGroupForSortTask.setName("createConsumerGroupForSort");
+        createConsumerGroupForSortTask.setDisplayName("Create Consumer Group For Sort");
+        createConsumerGroupForSortTask.addListener(createTubeConsumeGroupTaskEventListener);
+        process.addTask(createConsumerGroupForSortTask);
 
         ServiceTask createHiveTablesTask = new ServiceTask();
         createHiveTablesTask.setSkipResolver(c -> {
@@ -161,8 +161,8 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         process.addTask(pushSortConfig);
 
         startEvent.addNext(createTubeTopicTask);
-        createTubeTopicTask.addNext(createTubeConsumerGroupTask);
-        createTubeConsumerGroupTask.addNext(createHiveTablesTask);
+        createTubeTopicTask.addNext(createConsumerGroupForSortTask);
+        createConsumerGroupForSortTask.addNext(createHiveTablesTask);
         createHiveTablesTask.addNext(pushSortConfig);
         pushSortConfig.addNext(endEvent);
 

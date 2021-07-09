@@ -94,8 +94,8 @@ public class BusinessServiceImpl implements BusinessService {
         // Only M0 is currently supported
         entity.setSchemaName(BizConstant.SCHEMA_M0_DAY);
 
-        // After saving, the status is set to [BIZ_WAIT_APPLYING]
-        entity.setStatus(EntityStatus.BIZ_WAIT_APPLYING.getCode());
+        // After saving, the status is set to [BIZ_WAIT_SUBMIT]
+        entity.setStatus(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
 
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -161,8 +161,8 @@ public class BusinessServiceImpl implements BusinessService {
         this.checkBizCanUpdate(entity, businessInfo);
 
         CommonBeanUtils.copyProperties(businessInfo, entity, true);
-        if (EntityStatus.BIZ_CONFIG_FAILURE.getCode().equals(entity.getStatus())) {
-            entity.setStatus(EntityStatus.BIZ_WAIT_APPLYING.getCode());
+        if (EntityStatus.BIZ_CONFIG_FAILED.getCode().equals(entity.getStatus())) {
+            entity.setStatus(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
         }
         entity.setModifier(operator);
         businessMapper.updateByIdentifierSelective(entity);
@@ -191,7 +191,7 @@ public class BusinessServiceImpl implements BusinessService {
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_UPDATE_NOT_ALLOWED);
         }
 
-        // Non-[draft] status, no bid modification allowed
+        // Non-[DRAFT] status, no bid modification allowed
         boolean updateBid = !EntityStatus.DRAFT.getCode().equals(oldStatus)
                 && !Objects.equals(entity.getBusinessIdentifier(), businessInfo.getBusinessIdentifier());
         if (updateBid) {
@@ -200,7 +200,7 @@ public class BusinessServiceImpl implements BusinessService {
         }
 
         // [Configuration successful] Status, bid and middleware type are not allowed to be modified
-        if (EntityStatus.BIZ_CONFIG_SUCCESS.getCode().equals(oldStatus)) {
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(oldStatus)) {
             if (!Objects.equals(entity.getBusinessIdentifier(), businessInfo.getBusinessIdentifier())) {
                 LOGGER.error("current status was not allowed to update business identifier");
                 throw new BusinessException(BizErrorCodeEnum.BUSINESS_BID_UPDATE_NOT_ALLOWED);
@@ -241,17 +241,17 @@ public class BusinessServiceImpl implements BusinessService {
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_DELETE_NOT_ALLOWED);
         }
 
-        // [DRAFT]  [BIZ_WAIT_APPLYING] status, all associated data can be logically deleted directly
+        // [DRAFT] [BIZ_WAIT_SUBMIT] status, all associated data can be logically deleted directly
         if (EntityStatus.ALLOW_DELETE_BIZ_CASCADE_STATUS.contains(entity.getStatus())) {
             // Logically delete data streams, data sources and data storage information
             streamService.logicDeleteAllByBid(entity.getBusinessIdentifier(), operator);
         } else {
-            // In other states, you need to delete the associated "data stream" data before you can delete it
-            // When deleting a data stream, you also need to check whether there is
-            // an associated "data source" and "data storage" under it
+            // In other states, you need to delete the associated "data stream" first.
+            // When deleting a data stream, you also need to check whether there are
+            // some associated "data source" and "data storage"
             int count = streamService.selectCountByBid(bid);
             if (count >= 1) {
-                LOGGER.error("bid={} have [{}] data stream, deleted failed", bid, count);
+                LOGGER.error("bid={} have [{}] data streams, deleted failed", bid, count);
                 throw new BusinessException(BizErrorCodeEnum.BUSINESS_HAS_DATA_STREAM);
             }
         }
@@ -291,9 +291,9 @@ public class BusinessServiceImpl implements BusinessService {
             countVO.setTotalCount(countVO.getTotalCount() + count);
             if (status == EntityStatus.BIZ_CONFIG_ING.getCode()) {
                 countVO.setWaitAssignCount(countVO.getWaitAssignCount() + count);
-            } else if (status == EntityStatus.BIZ_WAIT_APPROVE.getCode()) {
+            } else if (status == EntityStatus.BIZ_WAIT_APPROVAL.getCode()) {
                 countVO.setWaitApproveCount(countVO.getWaitApproveCount() + count);
-            } else if (status == EntityStatus.BIZ_APPROVE_REJECT.getCode()) {
+            } else if (status == EntityStatus.BIZ_APPROVE_REJECTED.getCode()) {
                 countVO.setRejectCount(countVO.getRejectCount() + count);
             }
         }
