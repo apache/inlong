@@ -22,10 +22,8 @@ import java.util.List;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageClusterInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service layer interface for data storage
@@ -114,14 +112,6 @@ public interface StorageService {
      * @param log Modify the description
      */
     void updateHiveStatusById(int id, int status, String log);
-
-    /**
-     * Query the storage cluster of the specified storage type/area ID
-     *
-     * @param storageType Storage type
-     * @return Store cluster information
-     */
-    StorageClusterInfo listStorageCluster(String storageType);
 
     /**
      * Physically delete data storage information under specified conditions

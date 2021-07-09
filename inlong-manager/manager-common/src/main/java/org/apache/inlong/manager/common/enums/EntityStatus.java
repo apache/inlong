@@ -38,8 +38,8 @@ public enum EntityStatus {
     // Business related status
     BIZ_WAIT_APPLYING(100, "waiting to applying"),
     BIZ_WAIT_APPROVE(101, "waiting to approve"),
-    BIZ_APPROVE_REJECT(102, "approve reject"),
-    BIZ_APPROVE_PASS(103, "approve pass"),
+    BIZ_APPROVE_REJECT(102, "approval reject"),
+    BIZ_APPROVE_PASS(103, "approval pass"),
     BIZ_CONFIG_ING(110, "configuring"),
     BIZ_CONFIG_FAILURE(120, "failed to config"),
     BIZ_CONFIG_SUCCESS(130, "successfully config"),
