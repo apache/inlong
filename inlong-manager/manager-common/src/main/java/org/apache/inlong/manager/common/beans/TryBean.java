@@ -31,7 +31,7 @@ public class TryBean {
     /**
      * The first delay time, in milliseconds
      */
-    private Long delay = 3000L;
+    private Long delay = 30000L;
     /**
      * The max delay time, in milliseconds
      */

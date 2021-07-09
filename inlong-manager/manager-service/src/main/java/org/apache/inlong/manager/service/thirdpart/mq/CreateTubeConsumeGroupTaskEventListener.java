@@ -116,6 +116,6 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
 
     @Override
     public boolean async() {
-        return false;
+        return true;
     }
 }

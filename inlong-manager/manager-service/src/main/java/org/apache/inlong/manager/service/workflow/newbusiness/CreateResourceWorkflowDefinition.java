@@ -27,6 +27,7 @@ import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForAllStreamListener;
+import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeConsumeGroupTaskEventListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskEventListener;
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigToSortEventListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -59,6 +60,9 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
     private CreateTubeTopicTaskEventListener createTubeTopicTaskEventListener;
+
+    @Autowired
+    private CreateTubeConsumeGroupTaskEventListener createTubeConsumeGroupTaskEventListener;
 
     @Autowired
     private CreateHiveTableForAllStreamListener createHiveTableForAllStreamListener;
@@ -112,6 +116,22 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         createTubeTopicTask.addListener(createTubeTopicTaskEventListener);
         process.addTask(createTubeTopicTask);
 
+        ServiceTask createTubeConsumerGroupTask = new ServiceTask();
+        createTubeConsumerGroupTask.setSkipResolver(c -> {
+            CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
+            BusinessInfo businessInfo = form.getBusinessInfo();
+            if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
+                return false;
+            }
+            log.warn("no need to create tube resource for bid={}", form.getBusinessId());
+            return true;
+        });
+        createTubeConsumerGroupTask.setName("createTubeSortConsumerGroup");
+        createTubeConsumerGroupTask.setDisplayName("Create Tube Consumer Group");
+        createTubeConsumerGroupTask.addListener(createTubeConsumeGroupTaskEventListener);
+        process.addTask(createTubeConsumerGroupTask);
+
+
         ServiceTask createHiveTablesTask = new ServiceTask();
         createHiveTablesTask.setSkipResolver(c -> {
             CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
@@ -141,7 +161,8 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         process.addTask(pushSortConfig);
 
         startEvent.addNext(createTubeTopicTask);
-        createTubeTopicTask.addNext(createHiveTablesTask);
+        createTubeTopicTask.addNext(createTubeConsumerGroupTask);
+        createTubeConsumerGroupTask.addNext(createHiveTablesTask);
         createHiveTablesTask.addNext(pushSortConfig);
         pushSortConfig.addNext(endEvent);
 
