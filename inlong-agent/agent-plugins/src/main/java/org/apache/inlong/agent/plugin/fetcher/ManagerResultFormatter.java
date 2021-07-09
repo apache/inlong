@@ -52,7 +52,7 @@ public class ManagerResultFormatter {
     public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String TDM_JOB = "TDM_JOB";
-    public static final String DEFAULT_BUS_SINK = "org.apache.inlong.agent.plugin.sinks.TdBusSink";
+    public static final String DEFAULT_BUS_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
     /**
@@ -115,8 +115,8 @@ public class ManagerResultFormatter {
         job.setId(dataConfigs.getTaskId());
         job.setOp(dataConfigs.getOp());
         job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        if (!dataConfigs.getAddtictiveAttr().isEmpty()) {
-            job.setAddictiveString(dataConfigs.getAddtictiveAttr());
+        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
+            job.setAddictiveString(dataConfigs.getAdditionalAttr());
         }
         return job;
     }
