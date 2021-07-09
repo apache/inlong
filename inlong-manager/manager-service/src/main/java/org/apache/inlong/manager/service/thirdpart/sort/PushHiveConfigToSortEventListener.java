@@ -93,14 +93,14 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 log.debug("try to push hive config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }
 
-            String hiveName = "hiveCluster";
             try {
                 String zkUrl = clusterBean.getZkUrl();
                 String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk
-                ZkTools.updateDataFlowInfo(dataFlowInfo, hiveName, hiveStorageId, zkUrl, zkRoot);
+                String sortClusterName = clusterBean.getAppName();
+                ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, hiveStorageId, zkUrl, zkRoot);
                 // add storage id to zk
-                ZkTools.addDataFlowToCluster(hiveName, hiveStorageId, zkUrl, zkRoot);
+                ZkTools.addDataFlowToCluster(sortClusterName, hiveStorageId, zkUrl, zkRoot);
             } catch (Exception e) {
                 log.error("add or update data stream information to zk failed, storageId={} ", hiveStorageId, e);
                 throw new WorkflowListenerException("push hive config to sort failed, reason: " + e.getMessage());
