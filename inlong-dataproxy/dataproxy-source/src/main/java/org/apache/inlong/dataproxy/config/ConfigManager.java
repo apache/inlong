@@ -253,8 +253,7 @@ public class ConfigManager {
         private boolean checkWithManager(String host) {
             HttpGet httpGet = null;
             try {
-                String url = "http://" + host + "/openapi/inlong/manager/dataproxy/getConfig/"
-                        + configManager.getCommonProperties().get("cluster_id");
+                String url = "http://" + host + "/openapi/inlong/manager/dataproxy/getConfig";
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
