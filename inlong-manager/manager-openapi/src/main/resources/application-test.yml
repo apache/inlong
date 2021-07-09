@@ -49,9 +49,9 @@ spring:
       testOnBorrow: false
       # Perform detection when returning the connection, it is recommended to close it, which affects performance
       testOnReturn: false
-      # Configure filters for monitoring statistics interception, stat:monitoring statistics  log4j:log  wall:defense against SQL injection
+      # Configure filters for monitoring statistics interception, stat:monitoring statistics, log4j:log, wall:defense against SQL injection
       filters: stat,wall
-      # Open the mergeSql function through the connectProperties property；Slow SQL records
+      # Open the mergeSql function through the connectProperties property, Slow SQL records
       connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
 
 # Cluster info
