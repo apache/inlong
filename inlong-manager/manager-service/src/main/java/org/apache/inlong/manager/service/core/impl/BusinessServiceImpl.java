@@ -91,7 +91,10 @@ public class BusinessServiceImpl implements BusinessService {
         entity.setBusinessIdentifier(bid);
         entity.setMqResourceObj(topic);
 
-        // After saving, the status is set to [Waiting to submit]
+        // Only M0 is currently supported
+        entity.setSchemaName(BizConstant.SCHEMA_M0_DAY);
+
+        // After saving, the status is set to [BIZ_WAIT_APPLYING]
         entity.setStatus(EntityStatus.BIZ_WAIT_APPLYING.getCode());
 
         entity.setCreator(operator);
