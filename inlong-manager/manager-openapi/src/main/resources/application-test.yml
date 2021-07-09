@@ -49,17 +49,25 @@ spring:
       testOnBorrow: false
       # Perform detection when returning the connection, it is recommended to close it, which affects performance
       testOnReturn: false
-      # Configure filters for monitoring statistics interception, stat:monitoring statistics  log4j:log  wall:defense against SQL injection
+      # Configure filters for monitoring statistics interception, stat:monitoring statistics, log4j:log, wall:defense against SQL injection
       filters: stat,wall
-      # Open the mergeSql function through the connectProperties property；Slow SQL records
+      # Open the mergeSql function through the connectProperties property, Slow SQL records
       connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
 
 # Cluster info
 cluster:
   tube:
+    # Manager address of Tube cluster, used to create Topic
     manager: http://127.0.0.1:8081
+    # Master address, used to manage Tube broker
     master: 127.0.0.1:8000,127.0.0.1:8010
+    # Tube cluster ID
     clusterId: 1
   zk:
     url: 127.0.0.1:2181
+    # Push configuration to the path on ZooKeeper
     root: inlong_hive
+
+sort:
+  # Application name in Sort
+  appName: inlong_app
