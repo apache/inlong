@@ -87,9 +87,8 @@ public interface DataProxyClusterService {
     /**
      * query data proxy config by cluster id
      *
-     * @param clusterId cluster id
      * @return data proxy config
      */
-    List<DataProxyConfig> getConfig(String clusterId);
+    List<DataProxyConfig> getConfig();
 
 }

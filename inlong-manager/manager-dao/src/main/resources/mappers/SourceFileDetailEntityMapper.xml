@@ -373,65 +373,63 @@
     </update>
 
     <select id="selectFileAgentTaskByIp" resultMap="FileAgentTask">
-        select d.business_identifier,
-               d.data_stream_identifier,
-               d.ip,
-               d.file_path,
-               d.status,
-               d.status mod 100                          as op,
-               d.modify_time,
-               d.id,
-               concat(b.date_offset, b.date_offset_unit) as timeOffset,
-               bis.middleware_type,
-               bis.mq_resource_obj,
+        select detail.business_identifier,
+               detail.data_stream_identifier,
+               detail.ip,
+               detail.file_path,
+               detail.status,
+               detail.status mod 100                             as op,
+               detail.modify_time,
+               detail.id,
+               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
+               biz.middleware_type,
+               biz.mq_resource_obj,
                ds.data_generate_rule,
                ds.sort_type,
-               st.file_delimiter
-
-        from source_file_basic b,
-             source_file_detail d,
-             business bis,
+               stream.file_delimiter
+        from source_file_basic basic,
+             source_file_detail detail,
+             business biz,
              data_schema ds,
-             data_stream st
-        where bis.business_identifier = b.business_identifier
-          and bis.schema_name = ds.name
-          and b.business_identifier = d.business_identifier
-          and b.data_stream_identifier = d.data_stream_identifier
-          and st.data_stream_identifier = b.data_stream_identifier
-          and st.business_identifier = b.business_identifier
-          and d.is_deleted = 0
-          and (floor(d.STATUS / 100) = 2 OR floor(d.STATUS / 100) = 3)
-          and d.ip = #{ip,jdbcType=VARCHAR}
+             data_stream stream
+        where detail.ip = #{ip,jdbcType=VARCHAR}
+          and detail.is_deleted = 0
+          and (floor(detail.STATUS / 100) = 2 OR floor(detail.STATUS / 100) = 3)
+          and basic.business_identifier = detail.business_identifier
+          and basic.data_stream_identifier = detail.data_stream_identifier
+          and biz.business_identifier = detail.business_identifier
+          and biz.schema_name = ds.name
+          and stream.data_stream_identifier = detail.data_stream_identifier
+          and stream.business_identifier = detail.business_identifier
     </select>
     <select id="selectFileAgentTaskByIpForCheck" resultMap="FileAgentTask">
-        select d.business_identifier,
-               d.data_stream_identifier,
-               d.ip,
-               d.file_path,
-               d.status,
-               d.status mod 100                          as op,
-               d.modify_time,
-               d.id,
-               concat(b.date_offset, b.date_offset_unit) as timeOffset,
-               bis.middleware_type,
-               bis.mq_resource_obj,
+        select detail.business_identifier,
+               detail.data_stream_identifier,
+               detail.ip,
+               detail.file_path,
+               detail.status,
+               detail.status mod 100                             as op,
+               detail.modify_time,
+               detail.id,
+               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
+               biz.middleware_type,
+               biz.mq_resource_obj,
                ds.data_generate_rule,
                ds.sort_type,
-               st.file_delimiter
-
-        from source_file_basic b,
-             source_file_detail d,
-             business bis,
+               stream.file_delimiter
+        from source_file_basic basic,
+             source_file_detail detail,
+             business biz,
              data_schema ds,
-             data_stream st
-        where bis.business_identifier = b.business_identifier
-          and bis.schema_name = ds.name
-          and b.business_identifier = d.business_identifier
-          and b.data_stream_identifier = d.data_stream_identifier
-          and st.data_stream_identifier = b.data_stream_identifier
-          and st.business_identifier = b.business_identifier
-          and d.is_deleted = 0
-          and d.ip = #{ip,jdbcType=VARCHAR}
+             data_stream stream
+        where detail.ip = #{ip,jdbcType=VARCHAR}
+          and detail.is_deleted = 0
+          and basic.business_identifier = detail.business_identifier
+          and basic.data_stream_identifier = detail.data_stream_identifier
+          and biz.business_identifier = basic.business_identifier
+          and biz.schema_name = ds.name
+          and stream.data_stream_identifier = basic.data_stream_identifier
+          and stream.business_identifier = basic.business_identifier
     </select>
 
     <select id="selectByIp" parameterType="java.lang.String" resultMap="BaseResultMap">

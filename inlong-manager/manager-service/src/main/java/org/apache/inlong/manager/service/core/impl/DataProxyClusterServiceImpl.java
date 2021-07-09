@@ -194,7 +194,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     }
 
     @Override
-    public List<DataProxyConfig> getConfig(String clusterId) {
+    public List<DataProxyConfig> getConfig() {
         return businessEntityMapper.queryDataProxyConfig();
     }
 }

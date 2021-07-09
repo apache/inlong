@@ -44,8 +44,8 @@ public class DataProxyController {
         return dataProxyClusterService.getIpList(request, httpRequest);
     }
 
-    @GetMapping("getConfig/{clusterId}")
-    public Response<List<DataProxyConfig>> getConfig(@PathVariable(value = "clusterId") String clusterId) {
-        return Response.success(dataProxyClusterService.getConfig(clusterId));
+    @GetMapping("getConfig")
+    public Response<List<DataProxyConfig>> getConfig() {
+        return Response.success(dataProxyClusterService.getConfig());
     }
 }
