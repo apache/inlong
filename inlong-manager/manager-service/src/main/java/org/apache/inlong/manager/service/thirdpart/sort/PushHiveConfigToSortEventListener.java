@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.sort;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
@@ -42,12 +38,18 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -173,9 +175,10 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
 
         String topic = businessInfo.getMqResourceObj();
         String consumerGroup = "cg";
-        CsvDeserializationInfo deserializationInfo = null;
+        TDMsgCsvDeserializationInfo deserializationInfo = null;
         if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataStream.getDataType())) {
-            deserializationInfo = new CsvDeserializationInfo(dataStream.getFileDelimiter().charAt(0));
+            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getDataStreamIdentifier(),
+                    dataStream.getFileDelimiter().charAt(0));
         }
         SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumerGroup,
                 deserializationInfo, streamFields.toArray(FieldInfo[]::new));
