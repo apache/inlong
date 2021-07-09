@@ -57,9 +57,17 @@ spring:
 # Cluster info
 cluster:
   tube:
+    # Manager address of Tube cluster, used to create Topic
     manager: http://127.0.0.1:8081
+    # Master address, used to manage Tube broker
     master: 127.0.0.1:8000,127.0.0.1:8010
+    # Tube cluster ID
     clusterId: 1
   zk:
     url: 127.0.0.1:2181
+    # Push configuration to the path on ZooKeeper
     root: inlong_hive
+
+sort:
+  # Application name in Sort
+  appName: inlong_app

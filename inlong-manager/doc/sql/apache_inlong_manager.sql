@@ -52,7 +52,7 @@ CREATE TABLE `agent_sys_conf`
     `oneline_size`                  int(11)     NOT NULL DEFAULT '1048576' COMMENT 'Maximum length of a row of data',
     `clear_day_offset`              int(11)     NOT NULL DEFAULT '11' COMMENT 'How many days ago to clear the data of BDB',
     `clear_interval_sec`            int(11)     NOT NULL DEFAULT '86400' COMMENT 'Interval time for clearing bdb data',
-    `buffer_size_in_bytes`          int(16)     NOT NULL DEFAULT '268435456' COMMENT 'Maximum memory occupied by msgbuffer',
+    `buffer_size_in_bytes`          int(16)     NOT NULL DEFAULT '268435456' COMMENT 'Maximum memory occupied by msg buffer',
     `agent_rpc_reconnect_time`      int(11)     NOT NULL DEFAULT '0' COMMENT 'The interval time to update the link, if it is 0, it will not be updated',
     `send_timeout_mill_sec`         int(11)     NOT NULL DEFAULT '60000' COMMENT 'The timeout period for sending a message (if the packet is not full within one minute, it will be sent out forcibly)',
     `flush_event_timeout_mill_sec`  int(11)     NOT NULL DEFAULT '16000',
@@ -78,8 +78,8 @@ CREATE TABLE `business`
     `name`                varchar(128)          DEFAULT '' COMMENT 'Business name, English, numbers and underscore',
     `cn_name`             varchar(256)          DEFAULT NULL COMMENT 'Chinese display name',
     `description`         varchar(256)          DEFAULT NULL COMMENT 'Business Introduction',
-    `middleware_type`     varchar(10)           DEFAULT 'Tube' COMMENT 'The middleware type of data storage, high throughput: Tube, high consistency: Pulsar',
-    `mq_resource_obj`     varchar(128)          DEFAULT NULL COMMENT 'MQ resource object, in business, Tube corresponds to Topic, Pulsar corresponds to Namespace',
+    `middleware_type`     varchar(10)           DEFAULT 'Tube' COMMENT 'The middleware type of data storage, high throughput: Tube',
+    `mq_resource_obj`     varchar(128)          DEFAULT NULL COMMENT 'MQ resource object, for Tube, its Topic',
     `daily_records`       int(11)               DEFAULT NULL COMMENT 'Number of access records per day, unit: 10,000 records per day',
     `daily_storage`       int(11)               DEFAULT NULL COMMENT 'Access size by day, unit: GB per day',
     `peak_records`        int(11)               DEFAULT NULL COMMENT 'Access peak per second, unit: records per second',
@@ -87,7 +87,7 @@ CREATE TABLE `business`
     `schema_name`         varchar(128)          DEFAULT NULL COMMENT 'Data type, associated data_schema table',
     `in_charges`          varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `followers`           varchar(512)          DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
-    `status`              int(11)               DEFAULT '21' COMMENT 'Business status, 0: draft, 21: waiting for submission, 22: waiting for approval, 23: resource group to be assigned, 24: approval rejected, 25: approved, 31: deployed Medium, 32: deployment failed, 33: deployment successful, 15: unavailable',
+    `status`              int(11)               DEFAULT '21' COMMENT 'Business status',
     `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`             varchar(64)           DEFAULT NULL COMMENT 'creator name',
     `modifier`            varchar(64)           DEFAULT NULL COMMENT 'modifier name',
@@ -125,7 +125,7 @@ CREATE TABLE `cluster_info`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'cluster name',
-    `type`        varchar(32)           DEFAULT NULL COMMENT 'Cluster type, including TUBE, PULSAR, ZOOKEEPER, etc.',
+    `type`        varchar(32)           DEFAULT NULL COMMENT 'Cluster type, including TUBE, ZOOKEEPER, etc.',
     `ip`          varchar(64)           DEFAULT NULL COMMENT 'Cluster IP address',
     `port`        int(11)               DEFAULT NULL COMMENT 'Cluster port number',
     `in_charges`  varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
@@ -166,7 +166,7 @@ CREATE TABLE `common_db_server`
     `db_description`      varchar(256)       DEFAULT NULL COMMENT 'DB description',
     `backup_db_server_ip` varchar(64)        DEFAULT NULL COMMENT 'Backup DB HOST',
     `backup_db_port`      int(11)            DEFAULT NULL COMMENT 'Backup DB port',
-    `status`              int(11)            DEFAULT '0' COMMENT 'status, 0: invalid, 1: normal',
+    `status`              int(11)            DEFAULT '0' COMMENT 'status',
     `is_deleted`          tinyint(1)         DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`             varchar(64)        DEFAULT NULL COMMENT 'creator name',
     `modifier`            varchar(64)        DEFAULT NULL COMMENT 'modifier name',
@@ -192,7 +192,7 @@ CREATE TABLE `common_file_server`
     `issue_type`     varchar(128)       DEFAULT NULL COMMENT 'Issuance method, such as SSH, TCS, etc.',
     `username`       varchar(64)        DEFAULT NULL COMMENT 'User name of the data source IP host',
     `password`       varchar(64)        DEFAULT NULL COMMENT 'The password corresponding to the above user name',
-    `status`         int(11)            DEFAULT '0' COMMENT 'status, 0: invalid, 1: normal',
+    `status`         int(11)            DEFAULT '0' COMMENT 'status',
     `is_deleted`     tinyint(1)         DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`        varchar(64)        DEFAULT NULL COMMENT 'creator name',
     `modifier`       varchar(64)        DEFAULT NULL COMMENT 'modifier name',
@@ -219,7 +219,7 @@ CREATE TABLE `consumption`
     `topic`                  varchar(255)          DEFAULT NULL COMMENT 'Consumption topic',
     `filter_enabled`         int(2)                DEFAULT NULL COMMENT 'Whether to filter',
     `data_stream_identifier` varchar(1024)         DEFAULT NULL COMMENT 'Consumption data stream ID',
-    `status`                 int(11)      NOT NULL COMMENT 'Status: draft, pending assignment, pending approval, approval rejected, approval passed',
+    `status`                 int(11)      NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator',
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'modifier',
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
@@ -246,12 +246,12 @@ CREATE TABLE `data_proxy_cluster`
     `is_inner_ip` tinyint(1)         DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
     `net_type`    varchar(20)        DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
     `in_charges`  varchar(512)       DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `ext_props`   json               DEFAULT NULL COMMENT 'extended properties',
-    `status`      int(11)            DEFAULT '1' COMMENT 'cluster status',
+    `ext_props`   json               DEFAULT NULL COMMENT 'Extended properties',
+    `status`      int(11)            DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  tinyint(1)         DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `creator`     varchar(64)        DEFAULT NULL COMMENT 'creator name',
-    `modifier`    varchar(64)        DEFAULT NULL COMMENT 'modifier name',
-    `create_time` timestamp NULL     DEFAULT NULL COMMENT 'create time',
+    `creator`     varchar(64)        DEFAULT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)        DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp NULL     DEFAULT NULL COMMENT 'Create time',
     `modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -307,16 +307,16 @@ CREATE TABLE `data_stream`
     `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Data stream descriptor, non-deleted globally unique',
     `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
     `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
-    `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data flow',
-    `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is the real Topic',
+    `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
+    `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
     `storage_period`         int(11)           DEFAULT '1' COMMENT 'The storage period of data in MQ, unit: day',
     `data_type`              varchar(20)       DEFAULT 'TEXT' COMMENT 'Data type, there are: TEXT, KEY-VALUE, PB, BON, TEXT and BON should be treated differently',
     `data_encoding`          varchar(8)        DEFAULT 'UTF-8' COMMENT 'Data encoding format, including: UTF-8, GBK',
     `file_delimiter`         varchar(8)        DEFAULT NULL COMMENT 'The source data field separator, stored as ASCII code',
-    `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(file, DB access) whether there are predefined fields, 0: none, 1: yes (save to data_stream_field)',
+    `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(File, DB access) whether there are predefined fields, 0: none, 1: yes (save to data_stream_field)',
     `in_charges`             varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`                 int(11)           DEFAULT '0' COMMENT 'Data flow status, 0: draft, 41: configuring, 42: configuration failed, 43: configuration successful, 44: configuration expired, 15: unavailable (that is, deleted) ',
+    `status`                 int(11)           DEFAULT '0' COMMENT 'Data stream status',
     `previous_status`        int(11)           DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             tinyint(1)        DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)       DEFAULT NULL COMMENT 'creator name',
@@ -328,7 +328,7 @@ CREATE TABLE `data_stream`
     UNIQUE KEY `unique_data_stream` (`data_stream_identifier`, `business_identifier`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 28
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data flow table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream table';
 
 -- ----------------------------
 -- Table structure for data_stream_ext
@@ -458,7 +458,7 @@ CREATE TABLE `source_db_detail`
     `table_fields`           longtext COMMENT 'Data table fields, multiple are separated by half-width commas, required for increment',
     `data_sql`               longtext COMMENT 'SQL statement to collect source data, required for full amount',
     `crontab`                varchar(56)           DEFAULT NULL COMMENT 'Timed scheduling expression, required for full amount',
-    `status`                 int(11)               DEFAULT '0' COMMENT 'Data source status, 0: Draft, 200: New data source, 201: Data source has been deleted, 61: Delivery failed, 42: Configuration failed, 52: Start failed, 11: normal operation, 44: remove configuration, 15: unavailable',
+    `status`                 int(11)               DEFAULT '0' COMMENT 'Data source status',
     `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator name',
@@ -515,7 +515,7 @@ CREATE TABLE `source_file_detail`
     `username`               varchar(32)           DEFAULT NULL COMMENT 'User name of the data source IP host',
     `password`               varchar(64)           DEFAULT NULL COMMENT 'The password corresponding to the above user name',
     `file_path`              varchar(256)          DEFAULT NULL COMMENT 'File path, supports regular matching',
-    `status`                 int(11)               DEFAULT '0' COMMENT 'Data source status, 0: Draft, 200: New data source, 201: Data source has been deleted, 61: Delivery failed, 42: Configuration failed, 52: Start failed, 11: normal operation, 44: remove configuration, 15: unavailable',
+    `status`                 int(11)               DEFAULT '0' COMMENT 'Data source status',
     `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator name',
@@ -572,7 +572,7 @@ CREATE TABLE `storage_hive`
     `warehouse_dir`          varchar(250)          DEFAULT '/user/hive/warehouse' COMMENT 'Hive table storage path on HDFS, such as "/user/hive/warehouse"',
     `usage_interval`         varchar(10)           DEFAULT NULL COMMENT 'The amount of time that Sort collected data will land on Hive, there are 10M, 15M, 30M, 1H, 1D',
     `storage_period`         int(5)                DEFAULT '10' COMMENT 'Data storage period, unit: day',
-    `status`                 int(11)               DEFAULT '0' COMMENT 'status, 0: draft, 11: normal, 71: insufficient permissions, 72: access failed, 14: deleted',
+    `status`                 int(11)               DEFAULT '0' COMMENT 'status',
     `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator name',
@@ -663,7 +663,7 @@ DROP TABLE IF EXISTS `task_def`;
 CREATE TABLE `task_def`
 (
     `id`              bigint(20) NOT NULL,
-    `taskflow_def_id` bigint(20)   DEFAULT NULL COMMENT 'Taskflow definition id',
+    `taskflow_def_id` bigint(20)   DEFAULT NULL COMMENT 'Task flow definition id',
     `parent_id`       bigint(20)   DEFAULT NULL COMMENT 'parent task id',
     `implclass`       varchar(255) DEFAULT NULL COMMENT 'task processing flow class',
     `task_name`       varchar(255) DEFAULT NULL COMMENT 'task name',
@@ -720,7 +720,7 @@ CREATE TABLE `user`
     `id`           int(11)      NOT NULL AUTO_INCREMENT,
     `name`         varchar(255) NOT NULL COMMENT 'account name',
     `password`     varchar(64)  NOT NULL COMMENT 'password md5',
-    `account_type` int(11)      NOT NULL DEFAULT '1' COMMENT 'account type 0-manager 1-normal',
+    `account_type` int(11)      NOT NULL DEFAULT '1' COMMENT 'account type, 0-manager 1-normal',
     `due_date`     datetime              DEFAULT NULL COMMENT 'due date for account',
     `create_time`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     `update_time`  datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
@@ -731,6 +731,12 @@ CREATE TABLE `user`
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 25
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
+
+-- create default admin user, username is 'admin', password is 'inlong'
+INSERT INTO `user` (id, name, password, account_type, due_date, create_time, update_time, create_by, update_by)
+values (1, 'admin', '628ed559bff5ae36bd2184d4216973cf', 0,
+        '2099-12-31 23:59:59', '2021-07-01 10:10:10',
+        '2021-07-01 10:10:10', 'inlong_init', NULL);
 
 -- ----------------------------
 -- Table structure for user_role
@@ -772,7 +778,7 @@ CREATE TABLE `wf_approver`
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 5
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow-Approver Configuration';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
 -- ----------------------------
 -- Table structure for wf_event_log
@@ -801,7 +807,7 @@ CREATE TABLE `wf_event_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 5170
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow Event Log';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
 -- ----------------------------
 -- Table structure for wf_process_instance
@@ -845,7 +851,7 @@ CREATE TABLE `wf_task_instance`
     `state`                varchar(64)   NOT NULL COMMENT 'state',
     `operator`             varchar(255)  DEFAULT NULL COMMENT 'actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
-    `form_data`            mediumtext COMMENT 'The form information submitted by the current task',
+    `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext`                  text COMMENT 'Extended information-json',

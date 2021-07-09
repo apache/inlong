@@ -34,6 +34,8 @@ echo "restart in " ${BIN_PATH}
 echo stop ${APPLICATION} Application...
 sh "$BIN_PATH"/shutdown.sh
 
+sleep 1s
+
 # Start service
 echo start ${APPLICATION} Application...
 sh "$BIN_PATH"/startup.sh
