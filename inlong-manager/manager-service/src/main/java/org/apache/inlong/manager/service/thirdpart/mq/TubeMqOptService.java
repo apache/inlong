@@ -56,20 +56,21 @@ public class TubeMqOptService {
             }
             AddTubeMqTopicRequest.AddTopicTasksBean addTopicTasksBean = request.getAddTopicTasks().get(0);
             QueryTubeTopicRequest topicRequest = QueryTubeTopicRequest.builder()
-                    .topicName(addTopicTasksBean.getTopicName())
-                    .clusterId(clusterBean.getClusterId())
-                    .user(request.getUser())
-                    .build();
+                    .topicName(addTopicTasksBean.getTopicName()).clusterId(clusterBean.getClusterId())
+                    .user(request.getUser()).build();
 
             String tubeManager = clusterBean.getTubeManager();
-            TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/topic?method=queryCanWrite",
-                    HttpMethod.POST, GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
+            TubeManagerResponse response = httpUtils
+                    .request(tubeManager + "/v1/topic?method=queryCanWrite", HttpMethod.POST,
+                            GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
             if (response.getErrCode() == 101) { // topic already exists
-                log.info("create tube topic {} on {} ", GSON.toJson(request),
+                log.info(" create tube topic  {}  on {} ", GSON.toJson(request),
                         tubeManager + "/v1/task?method=addTopicTask");
+
                 request.setClusterId(clusterBean.getClusterId());
-                httpUtils.request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
-                        GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
+                TubeManagerResponse createRsp = httpUtils
+                        .request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
+                                GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
             } else {
                 log.warn("topic {} exists in {} ", addTopicTasksBean.getTopicName(), tubeManager);
             }
@@ -83,12 +84,10 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         try {
-            log.info(" create tube consumer group  {}  on {} ", GSON.toJson(request),
+            log.info("create tube consumer group {}  on {} ", GSON.toJson(request),
                     clusterBean.getTubeManager() + "/v1/task?method=addTopicTask");
-            TubeManagerResponse rsp = httpUtils
-                    .request(clusterBean.getTubeManager() + "/v1/group?method=add", HttpMethod.POST,
-                            GSON.toJson(request),
-                            httpHeaders, TubeManagerResponse.class);
+            TubeManagerResponse rsp = httpUtils.request(clusterBean.getTubeManager() + "/v1/group?method=add",
+                    HttpMethod.POST, GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
             if (rsp.getErrCode() == -1) { // Creation failed
                 throw new BusinessException(BizErrorCodeEnum.CONSUMER_GROUP_CREATE_FAILED, rsp.getErrMsg());
             }
@@ -103,13 +102,29 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         try {
             log.info(" query tube  cluster {} ", clusterBean.getTubeManager() + "/v1/cluster");
-            TubeClusterResponse rsp = httpUtils
-                    .request(clusterBean.getTubeManager() + "/v1/cluster", HttpMethod.GET, null, httpHeaders,
-                            TubeClusterResponse.class);
+            TubeClusterResponse rsp = httpUtils.request(clusterBean.getTubeManager() + "/v1/cluster",
+                    HttpMethod.GET, null, httpHeaders, TubeClusterResponse.class);
             return rsp.getData();
         } catch (Exception e) {
             log.error(" fail to  query tube  cluster ", e);
         }
         return null;
+    }
+
+    public boolean queryTopicIsExist(QueryTubeTopicRequest queryTubeTopicRequest) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-Type", "application/json");
+        try {
+            String tubeManager = clusterBean.getTubeManager();
+            TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/topic?method=queryCanWrite",
+                    HttpMethod.POST, GSON.toJson(queryTubeTopicRequest), httpHeaders, TubeManagerResponse.class);
+            if (response.getErrCode() == 0) { // topic already exists
+                log.error("topic {} exists in {} ", queryTubeTopicRequest.getTopicName(), tubeManager);
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("fail to query tube topic {}", queryTubeTopicRequest.getTopicName(), e);
+        }
+        return false;
     }
 }
