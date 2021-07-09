@@ -62,15 +62,14 @@ public class TubeMqOptService {
                     .build();
 
             String tubeManager = clusterBean.getTubeManager();
-            TubeManagerResponse response = httpUtils
-                    .request(tubeManager + "/v1/topic?method=queryCanWrite", HttpMethod.POST,
-                            GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
+            TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/topic?method=queryCanWrite",
+                    HttpMethod.POST, GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
             if (response.getErrCode() == 101) { // topic already exists
-                log.info(" create tube topic  {}  on {} ", GSON.toJson(request),
+                log.info("create tube topic {} on {} ", GSON.toJson(request),
                         tubeManager + "/v1/task?method=addTopicTask");
-                TubeManagerResponse createRsp = httpUtils
-                        .request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
-                                GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
+                request.setClusterId(clusterBean.getClusterId());
+                httpUtils.request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
+                        GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
             } else {
                 log.warn("topic {} exists in {} ", addTopicTasksBean.getTopicName(), tubeManager);
             }
