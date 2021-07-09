@@ -81,9 +81,12 @@ public class ProtocolDecoder extends FrameDecoder {
             return object;
         } else if (msgType == 7) {
 
+            int seqId = buffer.readInt();
             int attrLen = buffer.readShort();
 
             EncodeObject object = new EncodeObject();
+            object.setMessageId(String.valueOf(seqId));
+
             if (attrLen == 4) {
                 int errorValue = buffer.readInt();
                 ErrorCode errorCode = ErrorCode.valueOf(errorValue);
@@ -99,9 +102,7 @@ public class ProtocolDecoder extends FrameDecoder {
 
             buffer.readShort();
 
-            int seqId = buffer.readInt();
             object.setMsgtype(msgType);
-            object.setMessageId(String.valueOf(seqId));
             return object;
 
         } else if (msgType == 8) {
