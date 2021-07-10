@@ -27,6 +27,9 @@ public class CommonConstants {
     public static final String PROXY_BID = "proxy.bid";
     public static final String POSITION_SUFFIX = ".position";
 
+    public static final String PROXY_TID = "proxy.tid";
+
+
     public static final String PROXY_LOCAL_HOST = "proxy.localHost";
     public static final String DEFAULT_PROXY_LOCALHOST = AgentUtils.getLocalIp();
 
@@ -76,6 +79,7 @@ public class CommonConstants {
     public static final long DEFAULT_PROXY_RETRY_SLEEP = 500;
 
     public static final String PROXY_KEY_BID = "bid";
+    public static final String PROXY_KEY_TID = "tid";
     public static final String PROXY_KEY_ID = "id";
     public static final String PROXY_KEY_AGENT_IP = "agentip";
     public static final String PROXY_OCEANUS_F = "f";

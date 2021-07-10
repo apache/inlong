@@ -22,6 +22,7 @@ import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_AGENT_
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_ID;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_OCEANUS_BL;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_OCEANUS_F;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_TID;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
@@ -65,6 +66,7 @@ public class ProxySink implements Sink {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
     private SenderManager senderManager;
     private String bid;
+    private String tid;
     private String sourceFile;
     private String jobInstanceId;
     private int maxBatchSize;
@@ -85,6 +87,7 @@ public class ProxySink implements Sink {
     public void write(Message message) {
         if (message != null) {
             message.getHeader().put(CommonConstants.PROXY_KEY_BID, bid);
+            message.getHeader().put(CommonConstants.PROXY_KEY_TID, tid);
             if (!(message instanceof EndMessage)) {
                 ProxyMessage proxyMessage = ProxyMessage.parse(message);
                     // add proxy message to cache.
@@ -153,6 +156,7 @@ public class ProxySink implements Sink {
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
             jobConf.get(JOB_CYCLE_UNIT, ""));
         bid = jobConf.get(PROXY_BID);
+        tid = jobConf.get(PROXY_TID);
         executorService.execute(flushCache());
         senderManager = new SenderManager(jobConf, bid, sourceFile);
         try {
