@@ -88,16 +88,29 @@ public class HiveTableOperator {
     }
 
     protected HiveTableQueryBean getTableQueryBean(DataStreamInfoToHiveConfig hiveConfig) {
-        List<StorageHiveFieldEntity> fieldEntities = storageHiveFieldMapper
-                .queryHiveFieldsByStreamId(hiveConfig.getBusinessIdentifier(), hiveConfig.getDataStreamIdentifier());
-        List<HiveColumnQueryBean> columnQueryBeans = new ArrayList<>();
+        String bid = hiveConfig.getBusinessIdentifier();
+        String dsid = hiveConfig.getDataStreamIdentifier();
+        log.info("begin to get table query bean for bid={}, dsid={}", bid, dsid);
 
+        List<StorageHiveFieldEntity> fieldEntities = storageHiveFieldMapper.queryHiveFieldsByStreamId(bid, dsid);
+
+        List<HiveColumnQueryBean> columnQueryBeans = new ArrayList<>();
         for (StorageHiveFieldEntity field : fieldEntities) {
             HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
             columnBean.setColumnName(field.getFieldName());
             columnBean.setColumnType(field.getFieldType());
             columnBean.setColumnDesc(field.getFieldComment());
             columnQueryBeans.add(columnBean);
+        }
+
+        // set partition field and type
+        String partitionField = hiveConfig.getPrimaryPartition();
+        if (partitionField != null) {
+            HiveColumnQueryBean partColumn = new HiveColumnQueryBean();
+            partColumn.setPartition(true);
+            partColumn.setColumnName(partitionField);
+            partColumn.setColumnType("string"); // currently only supports 'string' type
+            columnQueryBeans.add(partColumn);
         }
 
         HiveTableQueryBean queryBean = new HiveTableQueryBean();
@@ -108,6 +121,9 @@ public class HiveTableOperator {
         queryBean.setDbName(hiveConfig.getDbName());
         queryBean.setJdbcUrl(hiveConfig.getJdbcUrl());
 
+        if (log.isDebugEnabled()) {
+            log.debug("success to get table query bean={}", queryBean);
+        }
         return queryBean;
     }
 }
