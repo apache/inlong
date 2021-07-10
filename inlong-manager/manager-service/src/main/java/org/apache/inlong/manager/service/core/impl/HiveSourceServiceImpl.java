@@ -72,7 +72,7 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
     public void createDb(HiveTableQueryBean bean) throws Exception {
         HiveCreateDbSqlBuilder builder = new HiveCreateDbSqlBuilder();
         String createDbSql = builder.buildDDL(bean);
-        LOGGER.info("create database sql=" + createDbSql);
+        LOGGER.info("create database sql={}", createDbSql);
         hiveServerDao.executeDDL(createDbSql, bean.getJdbcUrl(), bean.getUsername(), bean.getPassword());
     }
 
@@ -80,7 +80,7 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
     public void dropDb(DatabaseQueryBean bean) throws Exception {
         HiveDropDbSqlBuilder builder = new HiveDropDbSqlBuilder();
         String dropDbSql = builder.buildDDL(bean);
-        LOGGER.info("drop database sql=" + dropDbSql);
+        LOGGER.info("drop database sql={}", dropDbSql);
         hiveServerDao.executeDDL(dropDbSql, bean.getJdbcUrl(), bean.getUserName(), bean.getPassword());
     }
 
@@ -88,16 +88,15 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
     public void createTable(HiveTableQueryBean bean) throws Exception {
         HiveTableCreateSqlBuilder builder = new HiveTableCreateSqlBuilder();
         String createTableSql = builder.buildDDL(bean);
-        LOGGER.info("create table sql=" + createTableSql);
-        hiveServerDao.executeDDL(createTableSql, bean.getJdbcUrl(),
-                bean.getUsername(), bean.getPassword());
+        LOGGER.info("create table sql={}", createTableSql);
+        hiveServerDao.executeDDL(createTableSql, bean.getJdbcUrl(), bean.getUsername(), bean.getPassword());
     }
 
     @Override
     public void dropTable(HiveTableQueryBean bean) throws Exception {
         HiveDropTableSqlBuilder builder = new HiveDropTableSqlBuilder();
         String dropTableSql = builder.buildDDL(bean);
-        LOGGER.info("drop table sql=" + dropTableSql);
+        LOGGER.info("drop table sql={}", dropTableSql);
         hiveServerDao.executeDDL(dropTableSql, bean.getJdbcUrl(),
                 bean.getUsername(), bean.getPassword());
     }
@@ -114,7 +113,7 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
         }
         HiveAddColumnSqlBuilder builder = new HiveAddColumnSqlBuilder();
         String addColumnSql = builder.buildDDL(bean);
-        LOGGER.info("add table Column sql=" + addColumnSql);
+        LOGGER.info("add table Column sql={}", addColumnSql);
         hiveServerDao.executeDDL(addColumnSql, bean.getJdbcUrl(),
                 bean.getUsername(), bean.getPassword());
     }
@@ -138,7 +137,7 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
 
         HiveChangeColumnBuilder builder = new HiveChangeColumnBuilder();
         String updateColumnSql = builder.buildDDL(tableQueryBean);
-        LOGGER.info("update table Column sql=" + updateColumnSql);
+        LOGGER.info("update table Column sql={}", updateColumnSql);
         hiveServerDao.executeDDL(updateColumnSql, tableQueryBean.getJdbcUrl(),
                 tableQueryBean.getUsername(), tableQueryBean.getPassword());
     }
@@ -156,11 +155,10 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
 
         HiveQueryTableSqlBuilder tableBuilder = new HiveQueryTableSqlBuilder();
         String querySql = tableBuilder.buildDDL(queryBean);
-        LOGGER.info("query sql=" + querySql);
+        LOGGER.info("query sql={}", querySql);
 
         if (querySql != null && hiveServerDao.isExistTable(jdbcUrl, username, password,
                 queryBean.getDbName(), queryBean.getTableName())) {
-
             return hiveServerDao.queryStructure(querySql, jdbcUrl, username, password);
         }
         return Collections.emptyList();
