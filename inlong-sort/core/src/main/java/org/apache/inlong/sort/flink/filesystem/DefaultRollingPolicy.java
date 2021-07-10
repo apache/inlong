@@ -55,7 +55,7 @@ public final class DefaultRollingPolicy<IN, BucketID> implements RollingPolicy<I
 
     @Override
     public boolean shouldRollOnCheckpoint(PartFileInfo<BucketID> partFileState) throws IOException {
-        return partFileState.getSize() > partSize;
+        return true;
     }
 
     @Override

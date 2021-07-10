@@ -249,8 +249,7 @@ public class HiveSinkITCase extends TestLogger {
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
             final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-//            env.enableCheckpointing(1000L);
-//            env.getCheckpointConfig().setTolerableCheckpointFailureNumber(UNLIMITED_TOLERABLE_FAILURE_NUMBER);
+            env.enableCheckpointing(1000L);
             env.setRestartStrategy(RestartStrategies.noRestart());
             env.addSource(new TestingSourceFunction())
                     .setParallelism(1)
