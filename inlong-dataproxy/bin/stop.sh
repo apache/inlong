@@ -18,5 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-chmod 777 bin/flume-ng
-nohup bin/flume-ng agent --conf conf/ -f conf/flume.conf -n agent1 --no-reload-conf  > nohup.out 2>&1 &
+
+# this program kills the dataProxy
+ps -ef |grep "org.apache.flume.node.Application"|grep "apache-inlong-dataproxy"|grep -v grep|awk '{print $2}'|xargs kill -9

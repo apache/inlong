@@ -102,6 +102,8 @@
 
         <fileSet>
             <directory>bin</directory>
+            <fileMode>755</fileMode>
+            <directoryMode>755</directoryMode>
             <outputDirectory>bin</outputDirectory>
         </fileSet>
 
