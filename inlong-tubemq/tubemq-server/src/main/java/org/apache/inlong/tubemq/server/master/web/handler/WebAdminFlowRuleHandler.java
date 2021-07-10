@@ -385,10 +385,14 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                     continue;
                 }
                 found = false;
-                for (String tmpGroupName : batchGroupNames) {
-                    if (entity.getGroupName().equals(tmpGroupName)) {
-                        found = true;
-                        break;
+                if (batchGroupNames.isEmpty()) {
+                    found = true;
+                } else {
+                    for (String tmpGroupName : batchGroupNames) {
+                        if (entity.getGroupName().equals(tmpGroupName)) {
+                            found = true;
+                            break;
+                        }
                     }
                 }
                 if (found) {
@@ -492,6 +496,9 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             return result.success;
         }
         int qryPriorityId = (int) result.retData1;
+        if (qryPriorityId == defValue) {
+            return result.success;
+        }
         if (qryPriorityId > 303 || qryPriorityId < 101) {
             result.setFailResult(new StringBuilder(512)
                     .append("Illegal value in ").append(WebFieldDef.QRYPRIORITYID.name)
