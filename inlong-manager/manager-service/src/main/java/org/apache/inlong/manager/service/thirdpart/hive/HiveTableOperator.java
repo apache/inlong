@@ -33,6 +33,7 @@ import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.workflow.exception.WorkflowException;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -115,6 +116,11 @@ public class HiveTableOperator {
 
         HiveTableQueryBean queryBean = new HiveTableQueryBean();
         queryBean.setColumns(columnQueryBeans);
+        // set terminated symbol
+        if (hiveConfig.getFieldSplitter() != null) {
+            char ch = (char) Integer.parseInt(hiveConfig.getFieldSplitter());
+            queryBean.setFieldTerSymbol(String.valueOf(ch));
+        }
         queryBean.setUsername(hiveConfig.getUserName());
         queryBean.setPassword(hiveConfig.getPassword());
         queryBean.setTableName(hiveConfig.getTableName());

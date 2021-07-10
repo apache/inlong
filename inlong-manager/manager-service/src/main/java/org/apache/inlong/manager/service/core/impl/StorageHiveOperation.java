@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,9 +37,11 @@ import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveListVO;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.entity.StorageExtEntity;
 import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
 import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
+import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
@@ -62,6 +65,8 @@ public class StorageHiveOperation extends StorageBaseOperation {
     private StorageExtEntityMapper storageExtMapper;
     @Autowired
     private StorageHiveFieldEntityMapper hiveFieldMapper;
+    @Autowired
+    private DataStreamEntityMapper dataStreamMapper;
 
     /**
      * Save HIVE storage information
@@ -79,6 +84,15 @@ public class StorageHiveOperation extends StorageBaseOperation {
 
         StorageHiveInfo hiveInfo = (StorageHiveInfo) storageInfo;
         StorageHiveEntity entity = CommonBeanUtils.copyProperties(hiveInfo, StorageHiveEntity::new);
+
+        // Set the encoding type and field splitter
+        DataStreamEntity streamEntity = dataStreamMapper.selectByIdentifier(bid, entity.getDataStreamIdentifier());
+        String encodingType = streamEntity.getDataEncoding() == null
+                ? StandardCharsets.UTF_8.displayName() : streamEntity.getDataEncoding();
+        entity.setEncodingType(encodingType);
+        if (entity.getFieldSplitter() == null) {
+            entity.setFieldSplitter(streamEntity.getFileDelimiter());
+        }
 
         entity.setStatus(EntityStatus.DATA_STORAGE_NEW.getCode());
         entity.setCreator(operator);
