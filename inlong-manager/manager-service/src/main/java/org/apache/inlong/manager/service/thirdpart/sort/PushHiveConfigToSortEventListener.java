@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.thirdpart.sort;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
@@ -44,12 +48,6 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -147,7 +145,6 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 .append(hiveStorage.getTableName())
                 .toString();
 
-
         // Encapsulate the deserialization information in the source
         DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
                 hiveStorage.getDataStreamIdentifier());
@@ -157,7 +154,6 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
             char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
             fileFormat = new HiveSinkInfo.TextFileFormat(c);
         }
-
 
         // encapsulate hive sink
         HiveSinkInfo hiveSinkInfo = new HiveSinkInfo(
@@ -169,7 +165,7 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 hiveStorage.getPassword(),
                 dataPath,
                 Stream.of(new HiveSinkInfo.HiveTimePartitionInfo(hiveStorage.getPrimaryPartition(),
-                        "yyyMddHH")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
+                        "yyyyMMddHH")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
                 fileFormat
         );
 
@@ -184,8 +180,7 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         TDMsgCsvDeserializationInfo deserializationInfo = null;
         if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataStream.getDataType())) {
             char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
-            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getDataStreamIdentifier(),
-                    c);
+            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getDataStreamIdentifier(), c);
         }
         SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumeGroupName,
                 deserializationInfo, streamFields.toArray(FieldInfo[]::new));
