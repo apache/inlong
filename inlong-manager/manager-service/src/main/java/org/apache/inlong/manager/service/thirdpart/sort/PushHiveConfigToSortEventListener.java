@@ -146,12 +146,9 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
                 .toString();
 
         // Encapsulate the deserialization information in the source
-        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
-                hiveStorage.getDataStreamIdentifier());
-
         HiveSinkInfo.HiveFileFormat fileFormat = new HiveSinkInfo.TextFileFormat(',');
-        if (dataStream.getFileDelimiter() != null) {
-            char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
+        if (hiveStorage.getFieldSplitter() != null) {
+            char c = (char) Integer.parseInt(hiveStorage.getFieldSplitter());
             fileFormat = new HiveSinkInfo.TextFileFormat(c);
         }
 
@@ -170,6 +167,8 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         );
 
         // data stream fields
+        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
+                hiveStorage.getDataStreamIdentifier());
         Stream<FieldInfo> streamFields = dataStream.getFieldList().stream().map(field -> {
             FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
             return new FieldInfo(field.getFieldName(), formatInfo);

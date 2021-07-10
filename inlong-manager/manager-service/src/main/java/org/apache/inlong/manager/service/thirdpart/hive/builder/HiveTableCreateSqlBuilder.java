@@ -32,10 +32,14 @@ public class HiveTableCreateSqlBuilder extends SqlBuilder<HiveTableQueryBean> {
         ddl.append("CREATE TABLE ").append(dbTableName);
         // Construct columns and partition columns
         ddl.append(this.buildColumnsAndComments(table.getColumns(), table.getTableDesc()));
+        // Set TERMINATED symbol
+        if (table.getFieldTerSymbol() != null) {
+            ddl.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY '").append(table.getFieldTerSymbol()).append("'");
+        }
         return ddl.toString();
     }
 
-    // (col_name data_type [COMMENT col_comment],col_name data_type [COMMENT col_comment]....)
+    // (col_name data_type [COMMENT col_comment], col_name data_type [COMMENT col_comment]....)
     private String buildColumnsAndComments(List<HiveColumnQueryBean> columns, String tableComment) {
         List<String> columnInfoList = new ArrayList<>();
         List<String> partitionList = new ArrayList<>();
@@ -68,6 +72,5 @@ public class HiveTableCreateSqlBuilder extends SqlBuilder<HiveTableQueryBean> {
     public String getOPT() {
         return "CREATE_TABLE_HIVE";
     }
-
 
 }
