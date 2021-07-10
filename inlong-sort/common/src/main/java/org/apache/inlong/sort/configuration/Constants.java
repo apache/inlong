@@ -226,4 +226,19 @@ public class Constants {
                             + "This controls the frequency to check whether a part file should rollover based on"
                             + " 'sink.rolling-policy.rollover-interval'.");
 
+    // ------------------------------------------------------------------------
+    //  Checkpoint related configs
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<Integer> CHECKPOINT_INTERVAL_MS =
+            key("checkpoint.interval")
+                    .defaultValue(600000)
+                    .withDescription("The interval between tow checkpoints");
+
+    public static final ConfigOption<Integer> MIN_PAUSE_BETWEEN_CHECKPOINTS_MS =
+            key("min.pause.between.checkpoints.ms")
+                    .defaultValue(500);
+
+    public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS =
+        key("checkpoint.timeout.ms")
+            .defaultValue(600000);
 }

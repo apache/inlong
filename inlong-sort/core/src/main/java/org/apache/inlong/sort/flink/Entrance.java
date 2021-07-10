@@ -52,6 +52,11 @@ public class Entrance {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.enableCheckpointing(config.getInteger(Constants.CHECKPOINT_INTERVAL_MS));
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(
+                config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
+        env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
 
         DataStream<SerializedRecord> sourceStream;
         if (sourceType.equals(Constants.SOURCE_TYPE_TUBE)) {
