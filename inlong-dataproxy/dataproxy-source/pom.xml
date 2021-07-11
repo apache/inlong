@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-dataproxy</artifactId>
-        <version>0.9.0-incubating-SNAPSHOT</version>
+        <version>0.9.0-incubating</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - DataProxy Source</name>
@@ -40,7 +40,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <tubemq-client.version>0.9.0-incubating-SNAPSHOT</tubemq-client.version>
+        <tubemq-client.version>0.9.0-incubating</tubemq-client.version>
     </properties>
 
 </project>

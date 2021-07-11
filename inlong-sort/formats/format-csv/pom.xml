@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort-formats</artifactId>
-        <version>0.9.0-incubating-SNAPSHOT</version>
+        <version>0.9.0-incubating</version>
         <relativePath>..</relativePath>
     </parent>
 
