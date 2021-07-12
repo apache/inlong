@@ -59,7 +59,7 @@
         <json-simple.version>1.1.1</json-simple.version>
         <jackson.version>2.9.5</jackson.version>
         <opencsv.version>5.4</opencsv.version>
-        <httpcore.version>4.5.13</httpcore.version>
+        <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <lombok.version>1.18.20</lombok.version>
         <ini4j.version>0.5.1</ini4j.version>
