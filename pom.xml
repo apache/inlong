@@ -157,7 +157,6 @@
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>0.13</version>
-        <inherited>false</inherited>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -186,36 +185,59 @@
             </licenseFamily>
           </licenseFamilies>
           <excludes>
+            <!-- Generated content -->
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
-            <exclude>/codestyle/checkstyle.xml</exclude>
-            <exclude>**/.*/**</exclude>
-            <exclude>**/*.log</exclude>
-            <exclude>**/*.json</exclude>
-            <exclude>**/*.txt</exclude>
+            <exclude>DISCLAIMER-WIP</exclude>
+            <exclude>codestyle/checkstyle.xml</exclude>
+
+            <!-- Documents -->
             <exclude>**/*.md</exclude>
+            <exclude>**/*.MD</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.json</exclude>
+            <exclude>**/docs/**</exclude>
             <exclude>**/*.csv</exclude>
+            <exclude>**/logs/**</exclude>
+            <exclude>**/*.log</exclude>
+
+            <!-- Web configure files -->
+            <exclude>inlong-website/.env</exclude>
+            <exclude>inlong-website/.env.production</exclude>
+            <exclude>inlong-website/.eslintignore</exclude>
+            <exclude>inlong-website/.eslintrc</exclude>
+            <exclude>inlong-website/.headerignore</exclude>
+            <exclude>inlong-website/.prettierrc</exclude>
+            <exclude>inlong-website/.stylelintrc</exclude>
+
             <!-- Github -->
             <exclude>**/.github/**</exclude>
+
             <!-- Intellij IDEA -->
             <exclude>**/*.iml</exclude>
             <exclude>**/.idea/**</exclude>
-            <!-- Generated content -->
-            <exclude>**/logs/**</exclude>
-            <exclude>**/out/**</exclude>
+
+            <!-- Git files -->
+            <exclude>**/.gitignore</exclude>
+            <exclude>**/.gitmodules</exclude>
+            <exclude>**/.git/**</exclude>
+
+            <!-- Build targets -->
             <exclude>**/target/**</exclude>
-            <!-- Binaries -->
-            <exclude>**/tubemq-core/src/test/resource/**</exclude>
-            <!-- Document -->
-            <exclude>**/docs/**</exclude>
-            <!-- Front-end -->
-            <exclude>**/inlong-tubemq/resources/assets/lib/**</exclude>
-            <exclude>**/inlong-tubemq/resources/assets/public/**</exclude>
-            <exclude>DISCLAIMER-WIP</exclude>
-            <!-- copy or modify files from other projects -->
-            <exclude>**/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/any.h</exclude>
-            <exclude>**/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/buffer.h</exclude>
-            <exclude>**/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/third_party/**</exclude>
+            <exclude>**/out/**</exclude>
+            <exclude>**/dist/**</exclude>
+
+            <!-- Test case : certificates used in test cases -->
+            <exclude>**/tubemq-core/src/test/resources/*.keystore</exclude>
+            <!-- Test case : temporary data for test cases -->
+            <exclude>**/AgentBaseTestsHelper/**</exclude>
+
+            <!-- Referenced 3rd codes -->
+            <exclude>**/resources/assets/lib/**</exclude>
+            <exclude>**/resources/assets/public/**</exclude>
+            <exclude>**/tubemq-client-cpp/src/any.h</exclude>
+            <exclude>**/tubemq-client-cpp/src/buffer.h</exclude>
+            <exclude>**/tubemq-client-cpp/third_party/**</exclude>
           </excludes>
         </configuration>
       </plugin>

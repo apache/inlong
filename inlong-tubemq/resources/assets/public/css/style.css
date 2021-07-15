@@ -33,7 +33,7 @@
 /* line 62, ../../../demo/compass/sass/_sprites.scss */
 .s-search, .cur .s-search, .s-setting, .cur .s-setting, .s-group, .cur .s-group, .i-first, .i-prev, .i-next, .i-last, .switch, .switch.checked, .sel-panel .arrow {
     background-repeat: no-repeat;
-    background-image: url('../img/base.png');
+    background-image: url('../img/base.svg');
 }
 
 /**/
@@ -147,7 +147,7 @@ textarea {
 
 /* line 39, ../../../demo/compass/sass/style.scss */
 .sidebar .logo {
-    background: #12c98f url("../img/logo.png") no-repeat center;
+    background: #12c98f url("../img/logo.svg") no-repeat center;
     display: block;
     text-indent: -9999px;
     height: 60px;
