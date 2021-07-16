@@ -32,7 +32,7 @@ public class MasterStartup {
         // get configure file path
         ProcessResult result = new ProcessResult();
         if (!CliUtils.getConfigFilePath(args, result)) {
-            logger.error("Master startup failed! {}",result.errInfo);
+            System.err.println(result.errInfo);
             System.exit(1);
         }
         String configFilePath = (String) result.retData1;
