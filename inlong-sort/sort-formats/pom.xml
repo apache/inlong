@@ -47,7 +47,7 @@
     </scm>
 
     <modules>
-        <module><format-c></format-c>ommon</module>
+        <module>format-common</module>
         <module>format-base</module>
         <module>format-csv</module>
         <module>format-kv</module>
