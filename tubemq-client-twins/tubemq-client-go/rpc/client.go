@@ -33,8 +33,8 @@ import (
 )
 
 const (
+	masterService     = 1
 	brokerReadService = 2
-	masterService     = 4
 )
 
 // RPCClient is the rpc level client to interact with TubeMQ.
