@@ -167,11 +167,10 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>apache-inlong-tubemanager-${project.version}</finalName>
+                            <finalName>apache-inlong-tubemq-manager-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
-                            <outputDirectory>./dist/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

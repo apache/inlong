@@ -20,6 +20,7 @@
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
     <id>bin</id>
     <formats>
+        <format>dir</format>
         <format>tar.gz</format>
     </formats>
     <dependencySets>
@@ -36,6 +37,7 @@
                 <include>*.sh</include>
                 <include>*.bat</include>
             </includes>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>conf</directory>
