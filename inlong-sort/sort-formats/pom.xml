@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>inlong-sort-formats</artifactId>
+    <artifactId>sort-formats</artifactId>
     <name>Apache InLong - Sort Formats</name>
     <packaging>pom</packaging>
 
@@ -47,7 +47,7 @@
     </scm>
 
     <modules>
-        <module>format-common</module>
+        <module><format-c></format-c>ommon</module>
         <module>format-base</module>
         <module>format-csv</module>
         <module>format-kv</module>
