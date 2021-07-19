@@ -35,7 +35,7 @@
         </dependency>
     </dependencies>
 
-    <artifactId>flume-ng-source-dataproxy</artifactId>
+    <artifactId>dataproxy-source</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
