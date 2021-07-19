@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>flume-ng-dist</artifactId>
+    <artifactId>dataproxy-dist</artifactId>
     <packaging>pom</packaging>
     <name>Apache InLong - DataProxy Dist</name>
 
@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>flume-ng-source-dataproxy</artifactId>
+            <artifactId>dataproxy-source</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
