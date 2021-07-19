@@ -26,11 +26,8 @@
 
     <formats>
         <format>dir</format>
-        <format>tar.gz</format>
     </formats>
-
-    <baseDirectory>apache-inlong-dataproxy-${project.version}-bin</baseDirectory>
-
+    <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
