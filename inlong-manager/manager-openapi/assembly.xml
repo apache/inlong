@@ -25,7 +25,6 @@
         <format>dir</format>
     </formats>
 
-    <baseDirectory>${project.artifactId}</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <fileSets>
