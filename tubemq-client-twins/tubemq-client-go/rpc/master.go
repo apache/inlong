@@ -75,10 +75,6 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 		AuthInfo: &protocol.AuthenticateInfo{},
 	}
 
-	data, err := proto.Marshal(reqC2M)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req := codec.NewRPCRequest()
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
@@ -89,9 +85,9 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(masterConsumerRegister),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
+	req.Body = reqC2M
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -142,10 +138,6 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 	reqC2M.AuthInfo = &protocol.MasterCertificateInfo{
 		AuthInfo: &protocol.AuthenticateInfo{},
 	}
-	data, err := proto.Marshal(reqC2M)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(masterService),
@@ -153,12 +145,12 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(masterConsumerHeartbeat),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
+	req.Body = reqC2M
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -180,10 +172,6 @@ func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Meta
 		GroupName: proto.String(metadata.GetSubscribeInfo().GetGroup()),
 		AuthInfo:  sub.GetMasterCertificateIInfo(),
 	}
-	data, err := proto.Marshal(reqC2M)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(masterService),
@@ -191,12 +179,12 @@ func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Meta
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(masterConsumerClose),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
+	req.Body = reqC2M
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {

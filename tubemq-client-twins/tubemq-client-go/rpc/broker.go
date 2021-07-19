@@ -71,10 +71,6 @@ func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.M
 	if offset != util.InvalidValue {
 		reqC2B.CurrOffset = proto.Int64(offset)
 	}
-	data, err := proto.Marshal(reqC2B)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req := codec.NewRPCRequest()
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
@@ -85,9 +81,9 @@ func (c *rpcClient) RegisterRequestC2B(ctx context.Context, metadata *metadata.M
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(brokerConsumerRegister),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
+	req.Body = reqC2B
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -117,19 +113,15 @@ func (c *rpcClient) UnregisterRequestC2B(ctx context.Context, metadata *metadata
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	data, err := proto.Marshal(reqC2B)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(brokerConsumerRegister),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
+	req.Body = reqC2B
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -159,19 +151,15 @@ func (c *rpcClient) GetMessageRequestC2B(ctx context.Context, metadata *metadata
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
-	data, err := proto.Marshal(reqC2B)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(brokerConsumerGetMsg),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
+	req.Body = reqC2B
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -199,19 +187,15 @@ func (c *rpcClient) CommitOffsetRequestC2B(ctx context.Context, metadata *metada
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(10),
 	}
-	data, err := proto.Marshal(reqC2B)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(brokerReadService),
 		ProtocolVer: proto.Int32(2),
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(brokerConsumerCommit),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
+	req.Body = reqC2B
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
@@ -240,10 +224,6 @@ func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.
 	for _, partition := range partitions {
 		reqC2B.PartitionInfo = append(reqC2B.PartitionInfo, partition.String())
 	}
-	data, err := proto.Marshal(reqC2B)
-	if err != nil {
-		return nil, errs.New(errs.RetMarshalFailure, err.Error())
-	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(brokerReadService),
@@ -251,12 +231,12 @@ func (c *rpcClient) HeartbeatRequestC2B(ctx context.Context, metadata *metadata.
 	}
 	req.RequestBody = &protocol.RequestBody{
 		Method:  proto.Int32(brokerConsumerHeartbeat),
-		Request: data,
 		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
 	}
 	req.RpcHeader = &protocol.RpcConnHeader{
 		Flag: proto.Int32(0),
 	}
+	req.Body = reqC2B
 
 	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
 	if err != nil {
