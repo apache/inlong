@@ -28,14 +28,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>inlong-sort-core</artifactId>
+    <artifactId>sort-core</artifactId>
     <name>Apache InLong - Sort Core</name>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-common</artifactId>
+            <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -102,37 +102,37 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-base</artifactId>
+            <artifactId>sort-format-base</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-common</artifactId>
+            <artifactId>sort-format-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-csv</artifactId>
+            <artifactId>sort-format-csv</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-kv</artifactId>
+            <artifactId>sort-format-kv</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-tdmsg-base</artifactId>
+            <artifactId>sort-format-tdmsg-base</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-format-tdmsg-csv</artifactId>
+            <artifactId>sort-format-tdmsg-csv</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -164,7 +164,7 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-api</artifactId>
+            <artifactId>sort-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

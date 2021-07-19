@@ -56,11 +56,11 @@
     </properties>
 
     <modules>
-        <module>api</module>
-        <module>common</module>
-        <module>core</module>
-        <module>dist</module>
-        <module>formats</module>
+        <module>sort-api</module>
+        <module>sort-common</module>
+        <module>sort-core</module>
+        <module>sort-dist</module>
+        <module>sort-formats</module>
     </modules>
 
     <dependencies>

@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>inlong-sort-formats</artifactId>
+    <artifactId>sort-formats</artifactId>
     <name>Apache InLong - Sort Formats</name>
     <packaging>pom</packaging>
 
