@@ -233,9 +233,9 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 		return nil, err
 	}
 	cs := &ConsumerResult{
-		topicName:      partition.GetTopic(),
-		confirmContext: confirmContext,
-		peerInfo:       pi,
+		TopicName:      partition.GetTopic(),
+		ConfirmContext: confirmContext,
+		PeerInfo:       pi,
 	}
 	if !rsp.GetSuccess() {
 		err := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false)
@@ -245,7 +245,7 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	if err != nil {
 		return cs, err
 	}
-	cs.messages = msgs
+	cs.Messages = msgs
 	return cs, err
 }
 
@@ -280,8 +280,8 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResul
 		currOffset:   util.InvalidValue,
 	}
 	cs := &ConsumerResult{
-		topicName: partition.GetTopic(),
-		peerInfo:  pi,
+		TopicName: partition.GetTopic(),
+		PeerInfo:  pi,
 	}
 	if !rsp.GetSuccess() {
 		return cs, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
@@ -383,7 +383,7 @@ func (c *consumer) processRebalanceEvent() {
 }
 
 func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
-	log.Tracef("[disconnect2Broker] connect event begin, client id=%s", c.clientID)
+	log.Tracef("[disconnect2Broker] begin to process disconnect event, client=%s", c.clientID)
 	subscribeInfo := event.GetSubscribeInfo()
 	if len(subscribeInfo) > 0 {
 		removedPartitions := make(map[*metadata.Node][]*metadata.Partition)
@@ -393,7 +393,7 @@ func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
 		}
 	}
 	event.SetEventStatus(metadata.Disconnect)
-	log.Tracef("[disconnect2Broker] connect event finished, client id=%s", c.clientID)
+	log.Tracef("[disconnect2Broker] disconnect event finished, client=%s", c.clientID)
 }
 
 func (c *consumer) unregister2Broker(unRegPartitions map[*metadata.Node][]*metadata.Partition) {
@@ -429,7 +429,7 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 }
 
 func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
-	log.Tracef("[connect2Broker] connect event begin, client id=%s", c.clientID)
+	log.Tracef("[connect2Broker] connect event begin, client=%s", c.clientID)
 	if len(event.GetSubscribeInfo()) > 0 {
 		unsubPartitions := c.rmtDataCache.FilterPartitions(event.GetSubscribeInfo())
 		if len(unsubPartitions) > 0 {
@@ -455,7 +455,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 	}
 	c.subInfo.FirstRegistered()
 	event.SetEventStatus(metadata.Disconnect)
-	log.Tracef("[connect2Broker] connect event finished, client id=%s", c.clientID)
+	log.Tracef("[connect2Broker] connect event finished, client ID=%s", c.clientID)
 }
 
 func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition, node *metadata.Node) (*protocol.RegisterResponseB2C, error) {
@@ -528,10 +528,10 @@ func (c *consumer) getConsumeReadStatus(isFirstReg bool) int32 {
 	if isFirstReg {
 		if c.config.Consumer.ConsumePosition == 0 {
 			readStatus = consumeStatusFromMax
-			log.Infof("[Consumer From Max Offset], client id=", c.clientID)
+			log.Infof("[Consumer From Max Offset], client=", c.clientID)
 		} else if c.config.Consumer.ConsumePosition > 0 {
 			readStatus = consumeStatusFromMaxAlways
-			log.Infof("[Consumer From Max Offset Always], client id=", c.clientID)
+			log.Infof("[Consumer From Max Offset Always], client=", c.clientID)
 		}
 	}
 	return int32(readStatus)
@@ -655,12 +655,12 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 			}
 		}
 		msg := &Message{
-			topic:      topic,
-			flag:       m.GetFlag(),
-			id:         m.GetMessageId(),
-			properties: properties,
-			dataLen:    int32(dataLen),
-			data:       string(m.GetPayLoadData()[:readPos]),
+			Topic:      topic,
+			Flag:       m.GetFlag(),
+			ID:         m.GetMessageId(),
+			Properties: properties,
+			DataLen:    int32(dataLen),
+			Data:       m.GetPayLoadData()[:readPos],
 		}
 		msgs = append(msgs, msg)
 		msgSize += dataLen
@@ -669,7 +669,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 }
 
 func (c *consumer) close2Master() error {
-	log.Infof("[CONSUMER] close2Master begin, client id=%s", c.clientID)
+	log.Infof("[CONSUMER] close2Master begin, client=%s", c.clientID)
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
 	defer cancel()
 
@@ -694,15 +694,15 @@ func (c *consumer) close2Master() error {
 	if !rsp.GetSuccess() {
 		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	}
-	log.Infof("[CONSUMER] close2Master finished, client id=%s", c.clientID)
+	log.Infof("[CONSUMER] close2Master finished, client=%s", c.clientID)
 	return nil
 }
 
 func (c *consumer) closeAllBrokers() {
-	log.Infof("[CONSUMER] closeAllBrokers begin, client id=%s", c.clientID)
+	log.Infof("[CONSUMER] closeAllBrokers begin, client=%s", c.clientID)
 	partitions := c.rmtDataCache.GetAllClosedBrokerParts()
 	if len(partitions) > 0 {
 		c.unregister2Broker(partitions)
 	}
-	log.Infof("[CONSUMER] closeAllBrokers end, client id=%s", c.clientID)
+	log.Infof("[CONSUMER] closeAllBrokers end, client=%s", c.clientID)
 }

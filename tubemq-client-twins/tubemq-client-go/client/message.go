@@ -18,10 +18,10 @@
 package client
 
 type Message struct {
-	topic      string
-	data       string
-	dataLen    int32
-	id         int64
-	flag       int32
-	properties map[string]string
+	Topic      string
+	Data       []byte
+	DataLen    int32
+	ID         int64
+	Flag       int32
+	Properties map[string]string
 }

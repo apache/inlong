@@ -21,10 +21,10 @@ package client
 
 // ConsumerResult of a consumption.
 type ConsumerResult struct {
-	topicName      string
-	confirmContext string
-	peerInfo       *PeerInfo
-	messages       []*Message
+	TopicName      string
+	ConfirmContext string
+	PeerInfo       *PeerInfo
+	Messages       []*Message
 }
 
 // ConsumerOffset of a consumption.
