@@ -99,8 +99,8 @@ func (t *TubeMQDecoder) Decode() (Response, error) {
 		s := int(binary.BigEndian.Uint32(size))
 		if totalLen+s > len(t.msg) {
 			data := t.msg[:totalLen]
-			t.msg = make([]byte, 0, int(math.Max(float64(2*len(t.msg)), float64(totalLen+s))))
-			copy(t.msg, data[:])
+			t.msg = make([]byte, int(math.Max(float64(2*len(t.msg)), float64(totalLen+s))))
+			copy(t.msg, data)
 		}
 
 		if num, err = io.ReadFull(t.reader, t.msg[totalLen:totalLen+s]); err != nil {
@@ -176,7 +176,7 @@ func (t *TubeMQRPCRequest) Marshal() ([]byte, error) {
 		return nil, err
 	}
 
-	contentLen := int(dataLen) + int(dataLen) + int(dataLen) + len(data)
+	contentLen := len(data)
 	listSize := calcBlockCount(contentLen)
 
 	buf := bytes.NewBuffer(make([]byte, 0, int(frameHeadLen)+listSize*(RPCMaxBufferSize)))

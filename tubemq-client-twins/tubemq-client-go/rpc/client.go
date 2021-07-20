@@ -60,10 +60,11 @@ type RPCClient interface {
 }
 
 // New returns a default TubeMQ rpc Client
-func New(pool *multiplexing.Pool, opts *transport.Options) RPCClient {
+func New(pool *multiplexing.Pool, opts *transport.Options, config *config.Config) RPCClient {
 	return &rpcClient{
 		pool:   pool,
 		client: transport.New(opts, pool),
+		config: config,
 	}
 }
 
