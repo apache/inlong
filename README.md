@@ -60,31 +60,37 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 
-## Building InLong
+## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) section in the documentation.
-```
-# Clone a repo
-$ git clone https://github.com/apache/incubator-inlong.git
-$ cd incubator-inlong
 
-# Build InLong
+Requirements:
+- Java [JDK 8](https://adoptopenjdk.net/?variant=openjdk8)
+- Maven 3.6.1+
+
+Compile and install:
+```
 $ mvn clean install -DskipTests
-
-# Deploy components
- # see Deploying InLong section
 ```
+(Optional) Compile using docker image:
+```
+$ docker pull maven:3.6-openjdk-8
+$ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install -DskipTests
+```
+after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
-## Deploying InLong
+## Deploy InLong
 InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
 
+## Contribute InLong
+- Report any issue on [Jira](https://issues.apache.org/jira/browse/InLong)
+- Code pull request according to [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
 
-## Join the Community
-- Ask questions on [Apache InLong Slack](https://the-asf.slack.com/archives/C01QAG6U00L)
-- Join Apache InLong mailing lists  
+## Contact Us
+- Join Apache InLong mailing lists:
     | Name                                                                          | Scope                           |                                                                 |                                                                     |                                                                              |
     |:------------------------------------------------------------------------------|:--------------------------------|:----------------------------------------------------------------|:--------------------------------------------------------------------|:-----------------------------------------------------------------------------|
     | [dev@inlong.apache.org](mailto:dev@inlong.apache.org)     | Development-related discussions | [Subscribe](mailto:dev-subscribe@inlong.apache.org)   | [Unsubscribe](mailto:dev-unsubscribe@inlong.apache.org)   | [Archives](http://mail-archives.apache.org/mod_mbox/inlong-dev/)   |
-- Contributing: we always welcome new contributions, whether for trivial cleanups, new features or other material rewards, more details see [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
+- Ask questions on [Apache InLong Slack](https://the-asf.slack.com/archives/C01QAG6U00L)
 
 ## Documentation
 - Home page: https://inlong.apache.org/en-us/
