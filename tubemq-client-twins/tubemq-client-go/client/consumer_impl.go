@@ -85,7 +85,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		opts.TLSKeyFile = config.Net.TLS.TLSKeyFile
 		opts.TLSServerName = config.Net.TLS.TLSServerName
 	}
-	client := rpc.New(pool, opts)
+	client := rpc.New(pool, opts, config)
 	r := remote.NewRmtDataCache()
 	r.SetConsumerInfo(clientID, config.Consumer.Group)
 	c := &consumer{
