@@ -21,7 +21,7 @@
 # Declare variables to be passed into your templates.
 images:
   tubemq_all:
-    repository: apachetubemq/tubemq-all
+    repository: inlong/tubemq-all
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -82,7 +82,7 @@ master:
     type: RollingUpdate
   podManagementPolicy: OrderedReady
   ports:
-    rpcPort: 8000
+    rpcPort: 8715
     webPort: 8080
     webNodePort: 8080
     helpPort: 9001

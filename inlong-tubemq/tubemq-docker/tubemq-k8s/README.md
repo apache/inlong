@@ -28,7 +28,7 @@ tubemq-k8s-zookeeper-2   1/1     Running   0          86s
 The following table lists the configurable parameters of the `tubemq-k8s` chart and their default values.
 | Parameter | Description | Default |
 | :--: | :--:| :--: |
-| images.tubemq_all.repository  | Container image repository |  apachetubemq/tubemq-all   |
+| images.tubemq_all.repository  | Container image repository |  inlong/tubemq-all   |
 | images.tubemq_all.tag | Container image tag |  latest   |
 | images.tubemq_all.pullPolicy | Container pull policy | `IfNotPresent   ` |
 | volumes.persistence  | Using  Persistent  |  false   |

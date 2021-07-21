@@ -28,7 +28,7 @@ data:
   master.ini.raw: |
     [master]
     hostName=REPLACE_BY_POD_HOSTNAME
-    port=8000
+    port=8715
     webPort=8080
     consumerBalancePeriodMs=30000
     firstBalanceDelayAfterStartMs=60000
