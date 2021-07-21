@@ -63,7 +63,7 @@ data:
         &modifyUser=docker&confModAuthToken=abc" http://$master:8080/webapi.htm
       fi
       # master addresses list
-      MASTER_LIST="$master:8000,"$MASTER_LIST
+      MASTER_LIST="$master:8715,"$MASTER_LIST
     done
     # generate config file
     cp /opt/tubemq-server/conf/broker.ini.raw /opt/tubemq-server/conf/broker.ini

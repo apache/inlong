@@ -100,7 +100,7 @@
     <checkstyle.version>6.19</checkstyle.version>
     <project.build.encoding>UTF-8</project.build.encoding>
     <plugin.compile.version>3.8.1</plugin.compile.version>
-    <docker.organization>apacheinlong</docker.organization>
+    <docker.organization>inlong</docker.organization>
   </properties>
 
   <build>

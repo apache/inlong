@@ -20,19 +20,18 @@ RUN apt-get update \
     && apt-get install iputils-ping curl procps -y
 # add tarball from target output
 ARG TUBEMQ_TARBALL
-ADD ${TUBEMQ_TARBALL} /
-RUN mv /apache-tubemq-server-* /opt/tubemq-server
+ADD ${TUBEMQ_TARBALL} /opt/tubemq-server
 # overwrite default jvm size
 ENV MASTER_JVM_SIZE="-Xmx1g -Xms1g" BROKER_JVM_SIZE="-Xmx1g -Xms1g"
 # support using diffent port mapping
 ENV USE_WEB_PROXY=true
-ADD tubemq.sh /opt/tubemq-server/bin/
+ADD tubemq-docker.sh /opt/tubemq-server/bin/
 RUN chmod +x /opt/tubemq-server/bin/*
 # standalone default
 ENV TARGET=standalone
 WORKDIR /opt/tubemq-server/
 # master port
-EXPOSE 8000 8080 9001
+EXPOSE 8715 8080 9001
 # broker port
 EXPOSE 8123 8081
-CMD ["/opt/tubemq-server/bin/tubemq.sh"]
+CMD ["/opt/tubemq-server/bin/tubemq-docker.sh"]

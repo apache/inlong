@@ -26,7 +26,7 @@
     <version>0.9.0-incubating</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <name>Apache InLong - Docker All</name>
+  <name>Apache InLong - TubeMQ Docker All</name>
   <groupId>org.apache.inlong</groupId>
   <artifactId>tubemq-all</artifactId>
   <packaging>pom</packaging>
