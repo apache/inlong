@@ -91,6 +91,7 @@
     <module>inlong-agent</module>
     <module>inlong-manager</module>
     <module>inlong-sort</module>
+    <module>inlong-website</module>
     <module>inlong-distribution</module>
   </modules>
 
@@ -203,13 +204,15 @@
             <exclude>**/*.log</exclude>
 
             <!-- Web configure files -->
-            <exclude>inlong-website/.env</exclude>
-            <exclude>inlong-website/.env.production</exclude>
-            <exclude>inlong-website/.eslintignore</exclude>
-            <exclude>inlong-website/.eslintrc</exclude>
-            <exclude>inlong-website/.headerignore</exclude>
-            <exclude>inlong-website/.prettierrc</exclude>
-            <exclude>inlong-website/.stylelintrc</exclude>
+            <exclude>**/.env</exclude>
+            <exclude>**/.env.production</exclude>
+            <exclude>**/.eslintignore</exclude>
+            <exclude>**/.eslintrc</exclude>
+            <exclude>**/.headerignore</exclude>
+            <exclude>**/.prettierrc</exclude>
+            <exclude>**/.stylelintrc</exclude>
+            <exclude>**/build/**</exclude>
+            <exclude>**/node_modules/**</exclude>
 
             <!-- Github -->
             <exclude>**/.github/**</exclude>
