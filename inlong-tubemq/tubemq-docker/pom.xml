@@ -32,6 +32,7 @@
     <modules>
         <module>tubemq-all</module>
         <module>tubemq-build</module>
+        <module>tubemq-cpp</module>
     </modules>
 
     <dependencies>
