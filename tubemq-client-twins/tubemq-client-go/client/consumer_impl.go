@@ -161,13 +161,6 @@ func (c *consumer) sendRegRequest2Master() (*protocol.RegisterResponseM2C, error
 	sub.SetGroup(c.config.Consumer.Group)
 	m.SetSubscribeInfo(sub)
 
-	auth := &protocol.AuthenticateInfo{}
-	c.genMasterAuthenticateToken(auth, true)
-	mci := &protocol.MasterCertificateInfo{
-		AuthInfo: auth,
-	}
-	c.subInfo.SetMasterCertificateInfo(mci)
-
 	rsp, err := c.client.RegisterRequestC2M(ctx, m, c.subInfo, c.rmtDataCache)
 	return rsp, err
 }
@@ -424,6 +417,8 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 	sub.SetConsumerID(c.clientID)
 	sub.SetPartition(partition)
 	m.SetSubscribeInfo(sub)
+	auth := c.genBrokerAuthenticInfo(true)
+	c.subInfo.SetAuthorizedInfo(auth)
 
 	c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
 }
@@ -489,7 +484,9 @@ func newClient(group string) string {
 
 func (c *consumer) genBrokerAuthenticInfo(force bool) *protocol.AuthorizedInfo {
 	needAdd := false
-	auth := &protocol.AuthorizedInfo{}
+	auth := &protocol.AuthorizedInfo{
+		VisitAuthorizedToken: proto.Int64(atomic.LoadInt64(&c.visitToken)),
+	}
 	if c.config.Net.Auth.Enable {
 		if force {
 			needAdd = true

@@ -167,8 +167,8 @@ func (s *SubInfo) GetAuthorizedInfo() *protocol.AuthorizedInfo {
 	return s.authInfo
 }
 
-// GetMasterCertifateInfo returns the masterCertificateInfo.
-func (s *SubInfo) GetMasterCertificateIInfo() *protocol.MasterCertificateInfo {
+// GetMasterCertificateInfo returns the masterCertificateInfo.
+func (s *SubInfo) GetMasterCertificateInfo() *protocol.MasterCertificateInfo {
 	return s.masterCertificateInfo
 }
 
