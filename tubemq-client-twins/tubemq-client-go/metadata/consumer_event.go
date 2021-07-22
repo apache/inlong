@@ -24,6 +24,14 @@ const (
 	OnlyConnect    = 10
 )
 
+const (
+	Todo       = 0
+	Processing = 1
+	Done       = 2
+	Unknown    = -1
+	Failed     = -2
+)
+
 // ConsumerEvent represents the metadata of a consumer event
 type ConsumerEvent struct {
 	rebalanceID   int64
