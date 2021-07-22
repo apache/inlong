@@ -33,6 +33,7 @@
         <module>tubemq-all</module>
         <module>tubemq-build</module>
         <module>tubemq-cpp</module>
+        <module>tubemq-manager</module>
     </modules>
 
     <dependencies>

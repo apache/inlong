@@ -32,7 +32,7 @@
 
     <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>../logs/tubemq-admin.info.%d{yyyy-MM-dd}.part_%i.log</FileNamePattern>
+            <FileNamePattern>../logs/tubemq-manager.info.%d{yyyy-MM-dd}.part_%i.log</FileNamePattern>
             <maxHistory>10</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
@@ -46,7 +46,7 @@
 
     <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>../logs/tubemq-admin.error.%d{yyyy-MM-dd}.part_%i.log</FileNamePattern>
+            <FileNamePattern>../logs/tubemq-manager.error.%d{yyyy-MM-dd}.part_%i.log</FileNamePattern>
             <maxHistory>10</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
