@@ -226,6 +226,11 @@ func (h *heartbeatManager) sendHeartbeatC2B(broker *metadata.Node) (*protocol.He
 	m := &metadata.Metadata{}
 	m.SetReadStatus(h.consumer.getConsumeReadStatus(false))
 	m.SetNode(broker)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(h.consumer.config.Consumer.Group)
+	m.SetSubscribeInfo(sub)
+	auth := h.consumer.genBrokerAuthenticInfo(true)
+	h.consumer.subInfo.SetAuthorizedInfo(auth)
 	ctx, cancel := context.WithTimeout(context.Background(), h.consumer.config.Net.ReadTimeout)
 	defer cancel()
 	rsp, err := h.consumer.client.HeartbeatRequestC2B(ctx, m, h.consumer.subInfo, h.consumer.rmtDataCache)

@@ -50,7 +50,6 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 		DefFlowCheckId:   proto.Int64(r.GetDefFlowCtrlID()),
 		GroupFlowCheckId: proto.Int64(r.GetGroupFlowCtrlID()),
 		QryPriorityId:    proto.Int32(r.GetQryPriorityID()),
-		AuthInfo:         sub.GetMasterCertificateIInfo(),
 	}
 	reqC2M.TopicList = make([]string, 0, len(sub.GetTopics()))
 	reqC2M.TopicList = append(reqC2M.TopicList, sub.GetTopics()...)
@@ -71,9 +70,7 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 		reqC2M.NotAllocated = proto.Bool(sub.IsNotAllocated())
 	}
 
-	reqC2M.AuthInfo = &protocol.MasterCertificateInfo{
-		AuthInfo: &protocol.AuthenticateInfo{},
-	}
+	reqC2M.AuthInfo = sub.GetMasterCertificateInfo()
 
 	req := codec.NewRPCRequest()
 	req.RpcHeader = &protocol.RpcConnHeader{
@@ -135,9 +132,6 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 			ep.SubscribeInfo = append(ep.SubscribeInfo, s.String())
 		}
 	}
-	reqC2M.AuthInfo = &protocol.MasterCertificateInfo{
-		AuthInfo: &protocol.AuthenticateInfo{},
-	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
 		ServiceType: proto.Int32(masterService),
@@ -170,7 +164,7 @@ func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Meta
 	reqC2M := &protocol.CloseRequestC2M{
 		ClientId:  proto.String(sub.GetClientID()),
 		GroupName: proto.String(metadata.GetSubscribeInfo().GetGroup()),
-		AuthInfo:  sub.GetMasterCertificateIInfo(),
+		AuthInfo:  sub.GetMasterCertificateInfo(),
 	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
