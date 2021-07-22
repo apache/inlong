@@ -94,13 +94,11 @@ func (h *heartbeatManager) consumerHB2Master() {
 		h.consumer.unreportedTimes = 0
 	}
 
-	retry := 0
-	for retry < h.consumer.config.Heartbeat.MaxRetryTimes {
-		rsp, err := h.sendHeartbeatC2M(m)
-		if err != nil {
-			continue
-		}
-
+	rsp, err := h.sendHeartbeatC2M(m)
+	if err != nil {
+		log.Errorf("consumer hb err %s", err.Error())
+		h.consumer.masterHBRetry++
+	} else {
 		if !rsp.GetSuccess() {
 			h.consumer.masterHBRetry++
 			if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
@@ -117,14 +115,13 @@ func (h *heartbeatManager) consumerHB2Master() {
 					}
 					return
 				}
-				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.ErrMsg, h.consumer.clientID)
+				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
 				return
 			}
 		}
-		h.consumer.masterHBRetry = 0
-		h.processHBResponseM2C(rsp)
-		break
 	}
+	h.consumer.masterHBRetry = 0
+	h.processHBResponseM2C(rsp)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	hm := h.heartbeats[h.consumer.master.Address]
@@ -193,6 +190,7 @@ func (h *heartbeatManager) consumerHB2Broker(broker *metadata.Node) {
 	rsp, err := h.sendHeartbeatC2B(broker)
 	if err != nil {
 		log.Warnf("[Heartbeat2Broker] request network to failure %s", err.Error())
+		h.resetBrokerTimer(broker)
 		return
 	}
 	partitionKeys := make([]string, 0, len(partitions))
