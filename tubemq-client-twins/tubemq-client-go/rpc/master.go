@@ -39,7 +39,7 @@ const (
 	masterConsumerClose
 )
 
-// RegisterRequestRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
+// RegisterRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
 func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
 	reqC2M := &protocol.RegisterRequestC2M{
 		ClientId:         proto.String(sub.GetClientID()),

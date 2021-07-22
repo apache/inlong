@@ -382,18 +382,18 @@ func (r *RmtDataCache) GetCurConsumeStatus() int32 {
 
 // SelectPartition returns a partition which is available to be consumed.
 // If no partition can be use, an error will be returned.
-func (r *RmtDataCache) SelectPartition() (*metadata.Partition, error) {
+func (r *RmtDataCache) SelectPartition() (*metadata.Partition, int64, error) {
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()
 
 	if len(r.partitions) == 0 {
-		return nil, errs.ErrNoPartAssigned
+		return nil, 0, errs.ErrNoPartAssigned
 	} else {
 		if len(r.indexPartitions) == 0 {
 			if len(r.usedPartitions) == 0 {
-				return nil, errs.ErrAllPartInUse
+				return nil, 0, errs.ErrAllPartInUse
 			} else {
-				return nil, errs.ErrAllPartWaiting
+				return nil, 0, errs.ErrAllPartWaiting
 			}
 		}
 	}
@@ -401,10 +401,11 @@ func (r *RmtDataCache) SelectPartition() (*metadata.Partition, error) {
 	partitionKey := r.indexPartitions[0]
 	r.indexPartitions = r.indexPartitions[1:]
 	if partition, ok := r.partitions[partitionKey]; !ok {
-		return nil, errs.ErrAllPartInUse
+		return nil, 0, errs.ErrAllPartInUse
 	} else {
-		r.usedPartitions[partitionKey] = time.Now().UnixNano() / int64(time.Millisecond)
-		return partition, nil
+		bookedTime := time.Now().UnixNano() / int64(time.Millisecond)
+		r.usedPartitions[partitionKey] = bookedTime
+		return partition, bookedTime, nil
 	}
 }
 

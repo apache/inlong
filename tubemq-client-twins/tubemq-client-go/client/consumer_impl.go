@@ -102,7 +102,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 	c.subInfo.SetClientID(clientID)
 	hbm := newHBManager(c)
 	c.heartbeatManager = hbm
-	err = c.register2Master(false)
+	err = c.register2Master(true)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,8 @@ func (c *consumer) register2Master(needChange bool) error {
 		}
 		c.master = node
 	}
-	for c.master.HasNext {
+	retryCount := 0
+	for {
 		rsp, err := c.sendRegRequest2Master()
 		if err != nil {
 			log.Infof("[CONSUMER]register2Master error %s", err.Error())
@@ -134,7 +135,11 @@ func (c *consumer) register2Master(needChange bool) error {
 				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 			}
 
-			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, error: %s", c.master.Address, c.clientID, rsp.ErrMsg)
+			if !c.master.HasNext {
+				break
+			}
+			retryCount++
+			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, retry count=%d", c.master.Address, c.clientID, retryCount)
 			if c.master, err = c.selector.Select(c.config.Consumer.Masters); err != nil {
 				return err
 			}
@@ -143,7 +148,7 @@ func (c *consumer) register2Master(needChange bool) error {
 
 		c.masterHBRetry = 0
 		c.processRegisterResponseM2C(rsp)
-		return nil
+		break
 	}
 	return nil
 }
@@ -196,11 +201,11 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	partition, err := c.rmtDataCache.SelectPartition()
+	partition, bookedTime, err := c.rmtDataCache.SelectPartition()
 	if err != nil {
 		return nil, err
 	}
-	confirmContext := partition.GetPartitionKey() + "@" + strconv.Itoa(int(time.Now().UnixNano()/int64(time.Millisecond)))
+	confirmContext := partition.GetPartitionKey() + "@" + strconv.FormatInt(bookedTime, 10)
 	isFiltered := c.subInfo.IsFiltered(partition.GetTopic())
 	pi := &PeerInfo{
 		brokerHost:   partition.GetBroker().GetHost(),
@@ -223,16 +228,17 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	rsp, err := c.client.GetMessageRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
 	if err != nil {
 		log.Infof("[CONSUMER]GetMessage error %s", err.Error())
+		err1 := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false)
+		if err1 != nil {
+			log.Error("[CONSUMER]GetMessage release partition error %s", err1.Error())
+			return nil, err1
+		}
 		return nil, err
 	}
 	cs := &ConsumerResult{
 		TopicName:      partition.GetTopic(),
 		ConfirmContext: confirmContext,
 		PeerInfo:       pi,
-	}
-	if !rsp.GetSuccess() {
-		err := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false)
-		return cs, err
 	}
 	msgs, err := c.processGetMessageRspB2C(pi, isFiltered, partition, confirmContext, rsp)
 	if err != nil {
@@ -385,7 +391,7 @@ func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
 			c.unregister2Broker(removedPartitions)
 		}
 	}
-	event.SetEventStatus(metadata.Disconnect)
+	event.SetEventStatus(metadata.Done)
 	log.Tracef("[disconnect2Broker] disconnect event finished, client=%s", c.clientID)
 }
 
@@ -449,7 +455,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 		}
 	}
 	c.subInfo.FirstRegistered()
-	event.SetEventStatus(metadata.Disconnect)
+	event.SetEventStatus(metadata.Done)
 	log.Tracef("[connect2Broker] connect event finished, client ID=%s", c.clientID)
 }
 
@@ -619,33 +625,42 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 
 	msgs := make([]*Message, 0, len(rsp.GetMessages()))
 	for _, m := range rsp.GetMessages() {
-		checkSum := uint64(crc32.Update(0, crc32.IEEETable, m.GetPayLoadData())) & 0x7FFFFFFFF
+		checkSum := uint64(crc32.Update(0, crc32.IEEETable, m.GetPayLoadData())) & 0x7FFFFFFF
 		if int32(checkSum) != m.GetCheckSum() {
 			continue
 		}
 		readPos := 0
-		dataLen := len(m.GetPayLoadData())
+		payLoadData := m.GetPayLoadData()
+		dataLen := len(payLoadData)
 		var properties map[string]string
 		if m.GetFlag()&0x01 == 1 {
-			if len(m.GetPayLoadData()) < 4 {
+			if len(payLoadData) < 4 {
 				continue
 			}
-			attrLen := int(binary.BigEndian.Uint64(m.GetPayLoadData()))
+			attrLen := int(binary.BigEndian.Uint32(payLoadData[:4]))
 			readPos += 4
 			dataLen -= 4
+			if attrLen > dataLen {
+				continue
+			}
 
-			attribute := m.GetPayLoadData()[readPos : readPos+attrLen]
-			readPos -= attrLen
+			attribute := payLoadData[readPos : readPos+attrLen]
+			readPos += attrLen
 			dataLen -= attrLen
-			properties := util.SplitToMap(string(attribute), ",", "=")
+			properties = util.SplitToMap(string(attribute), ",", "=")
 			if filtered {
 				topicFilters := c.subInfo.GetTopicFilters()
 				if msgKey, ok := properties["$msgType$"]; ok {
 					if filters, ok := topicFilters[topic]; ok {
+						found := false
 						for _, filter := range filters {
 							if filter == msgKey {
-								continue
+								found = true
+								break
 							}
+						}
+						if found {
+							continue
 						}
 					}
 				}
@@ -657,7 +672,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 			ID:         m.GetMessageId(),
 			Properties: properties,
 			DataLen:    int32(dataLen),
-			Data:       m.GetPayLoadData()[:readPos],
+			Data:       payLoadData[readPos:],
 		}
 		msgs = append(msgs, msg)
 		msgSize += dataLen
