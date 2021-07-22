@@ -40,7 +40,7 @@
 # What is Apache InLong?
 [Apache InLong](https://inlong.apache.org)(incubating) is a one-stop data streaming platform that provides automatic, secure, distributed, and efficient data publishing and subscription capabilities. This platform helps you easily build stream-based data applications.
 
-InLong was originally built at Tencent, has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster greatly meets the data reporting service requirements in the business big data scenario.
+InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
 
 For getting more information, please visit our project documentation at https://inlong.apache.org/en-us/ .
 <img src="https://github.com/apache/incubator-inlong-website/blob/master/img/inlong_architecture.png" align="center" alt="Apache InLong"/>
@@ -79,9 +79,9 @@ $ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install 
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
 ## Deploy InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and not support automatic installation of modules now, so we need to choose manually  to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
+InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
 
-## Contribute InLong
+## Contribute to InLong
 - Report any issue on [Jira](https://issues.apache.org/jira/browse/InLong)
 - Code pull request according to [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
 
