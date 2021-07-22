@@ -63,7 +63,7 @@
                         <configuration>
                             <finalName>apache-inlong-agent-${project.version}</finalName>
                             <descriptors>
-                                <descriptor>package.xml</descriptor>
+                                <descriptor>assembly.xml</descriptor>
                             </descriptors>
                             <tarLongFileMode>gnu</tarLongFileMode>
                         </configuration>

@@ -36,6 +36,7 @@
         <module>agent-core</module>
         <module>agent-plugins</module>
         <module>agent-release</module>
+        <module>agent-docker</module>
     </modules>
 
     <properties>
