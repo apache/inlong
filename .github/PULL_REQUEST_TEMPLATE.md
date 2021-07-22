@@ -1,4 +1,5 @@
-Fixes [Jira Issue](https://issues.apache.org/jira/projects/INLONG/issues): issue_address
+Fixes Jira Issue ID:
+https://issues.apache.org/jira/projects/INLONG/issues/replace_by_issue_id
 
 ### Motivation
 
