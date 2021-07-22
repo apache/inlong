@@ -31,9 +31,10 @@
 - [What is Apache InLong?](#what-is-apache-inlong)
 - [Features](#features)
 - [When should I use InLong?](#when-should-i-use-inlong)
-- [Building InLong](#building-inlong)
-- [Deploying InLong](#deploying-inlong)
-- [Join the Community](#join-the-community)
+- [Build InLong](#build-inlong)
+- [Deploy InLong](#deploy-inlong)
+- [Contribute to InLong](#contribute-to-inlong)
+- [Contact Us](#contact-us)
 - [Documentation](#documentation)
 - [License](#license)
 
