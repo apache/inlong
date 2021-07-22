@@ -48,6 +48,7 @@ const (
 	consumeStatusNormal        = 0
 	consumeStatusFromMax       = 1
 	consumeStatusFromMaxAlways = 2
+	msgFlagIncProperties       = 0x01
 )
 
 type consumer struct {
@@ -123,19 +124,18 @@ func (c *consumer) register2Master(needChange bool) error {
 	retryCount := 0
 	for {
 		rsp, err := c.sendRegRequest2Master()
-		if err != nil {
-			log.Infof("[CONSUMER]register2Master error %s", err.Error())
-			return err
-		}
-
-		log.Info("register2Master response %s", rsp.String())
-		if !rsp.GetSuccess() {
-			if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
-				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.ErrMsg)
+		if err != nil || !rsp.GetSuccess() {
+			if err != nil {
+				log.Errorf("[CONSUMER]register2Master error %s", err.Error())
+			} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
+				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.GetErrMsg())
 				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 			}
 
 			if !c.master.HasNext {
+				if rsp != nil {
+					log.Errorf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.GetErrMsg())
+				}
 				break
 			}
 			retryCount++
@@ -145,6 +145,7 @@ func (c *consumer) register2Master(needChange bool) error {
 			}
 			continue
 		}
+		log.Info("register2Master response %s", rsp.String())
 
 		c.masterHBRetry = 0
 		c.processRegisterResponseM2C(rsp)
@@ -228,10 +229,9 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	rsp, err := c.client.GetMessageRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
 	if err != nil {
 		log.Infof("[CONSUMER]GetMessage error %s", err.Error())
-		err1 := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false)
-		if err1 != nil {
-			log.Error("[CONSUMER]GetMessage release partition error %s", err1.Error())
-			return nil, err1
+		if err := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false); err != nil {
+			log.Errorf("[CONSUMER]GetMessage release partition error %s", err.Error())
+			return nil, err
 		}
 		return nil, err
 	}
@@ -633,7 +633,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 		payLoadData := m.GetPayLoadData()
 		dataLen := len(payLoadData)
 		var properties map[string]string
-		if m.GetFlag()&0x01 == 1 {
+		if m.GetFlag()&msgFlagIncProperties == 1 {
 			if len(payLoadData) < 4 {
 				continue
 			}
