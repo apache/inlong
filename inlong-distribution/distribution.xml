@@ -70,6 +70,12 @@
                 <include>sort-core-${project.version}.jar</include>
             </includes>
         </fileSet>
+
+        <!-- package InLong-WebSite-->
+        <fileSet>
+            <directory>../inlong-website/build</directory>
+            <outputDirectory>inlong-website</outputDirectory>
+        </fileSet>
     </fileSets>
 
 </assembly>
