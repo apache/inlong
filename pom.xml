@@ -100,6 +100,7 @@
     <checkstyle.version>6.19</checkstyle.version>
     <project.build.encoding>UTF-8</project.build.encoding>
     <plugin.compile.version>3.8.1</plugin.compile.version>
+    <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
     <docker.organization>inlong</docker.organization>
   </properties>
 
