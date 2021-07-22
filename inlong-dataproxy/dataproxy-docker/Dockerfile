@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -18,10 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-cd "$(dirname "$0")"/../conf
-
-for i in {mx.properties,transfer.properties,weight.properties,common.properties,blacklist.properties,bid_mapping.properties,dc_mapping.properties,topics.properties,tube_switch.properties}
-  do
-    touch $i
-done
+FROM openjdk:8-jdk
+# add tarball from target output
+ARG DATAPROXY_TARBALL
+ADD ${DATAPROXY_TARBALL} /opt/inlong-dataproxy
+EXPOSE 46801
+ENV MANAGER_OPENAPI_IP=127.0.0.1
+ENV MANAGER_OPENAPI_PORT=8082
+ENV TUBMQ_MASTER_LIST=127.0.0.1:8715
+WORKDIR /opt/inlong-dataproxy
+ADD dataproxy-docker.sh bin/
+RUN chmod +x bin/dataproxy-docker.sh
+CMD ["bin/dataproxy-docker.sh"]

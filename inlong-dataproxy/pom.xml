@@ -32,6 +32,7 @@
     <modules>
         <module>dataproxy-source</module>
         <module>dataproxy-dist</module>
+        <module>dataproxy-docker</module>
     </modules>
 
     <properties>

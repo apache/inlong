@@ -59,7 +59,7 @@
                         <configuration>
                             <finalName>apache-inlong-dataproxy-${project.version}</finalName>
                             <descriptors>
-                                <descriptor>src/main/assembly/bin.xml</descriptor>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
                             <tarLongFileMode>gnu</tarLongFileMode>
                         </configuration>

@@ -18,10 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-cd "$(dirname "$0")"/../conf
-
-for i in {mx.properties,transfer.properties,weight.properties,common.properties,blacklist.properties,bid_mapping.properties,dc_mapping.properties,topics.properties,tube_switch.properties}
-  do
-    touch $i
-done
+cd "$(dirname "$0")"/../
+chmod 777 bin/flume-ng
+nohup bin/flume-ng agent --conf conf/ -f conf/flume.conf -n agent1 --no-reload-conf  > dataproxy.log 2>&1 &
