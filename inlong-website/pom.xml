@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.9.0-incubating</version>
+        <version>0.10.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-website</artifactId>
     <name>Apache InLong - Web Site</name>

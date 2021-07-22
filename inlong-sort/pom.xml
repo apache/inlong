@@ -24,10 +24,10 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.9.0-incubating</version>
+        <version>0.10.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
-    <version>0.9.0-incubating</version>
+    <version>0.10.0-incubating-SNAPSHOT</version>
 
     <name>Apache InLong - Sort</name>
     <packaging>pom</packaging>
@@ -44,10 +44,10 @@
         <mockito.version>3.6.28</mockito.version>
         <curator.version>2.12.0</curator.version>
         <log4j.configuration>log4j-test.properties</log4j.configuration>
-        <tubemq.version>0.9.0-incubating</tubemq.version>
+        <tubemq.version>0.10.0-incubating-SNAPSHOT</tubemq.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <clickhouse-jdbc.version>0.3.0</clickhouse-jdbc.version>
-        <flink-format.version>0.9.0-incubating</flink-format.version>
+        <flink-format.version>0.10.0-incubating-SNAPSHOT</flink-format.version>
         <flink.jackson.version>2.9.8-7.0</flink.jackson.version>
         <jsr.version>3.0.2</jsr.version>
         <snappy.version>1.1.4</snappy.version>
@@ -119,7 +119,7 @@
             <dependency>
                 <groupId>org.apache.inlong</groupId>
                 <artifactId>inlong-common</artifactId>
-                <version>0.9.0-incubating</version>
+                <version>0.10.0-incubating-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>slf4j-api</artifactId>

@@ -22,7 +22,7 @@
     <parent>
         <artifactId>tubemq-connectors</artifactId>
         <groupId>org.apache.inlong</groupId>
-        <version>0.9.0-incubating</version>
+        <version>0.10.0-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - TubeMQ Connectors-spark</name>
