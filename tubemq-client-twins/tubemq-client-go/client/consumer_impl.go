@@ -659,7 +659,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 								break
 							}
 						}
-						if found {
+						if !found {
 							continue
 						}
 					}
