@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: InLong-Test
+name: InLong Unit Test
 
 on:
   push:
@@ -24,9 +24,8 @@ on:
     branches: [ master, 'INLONG-*' ]
 
 jobs:
-
-  build:
-    name: Build
+  unit-test:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,7 +46,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build with Maven
+      - name: Unit test with Maven
         run: mvn --batch-mode --update-snapshots -e -V clean verify -pl !inlong-website
 
       - name: Upload unit test results
