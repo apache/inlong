@@ -17,10 +17,15 @@
 # under the License.
 #
 FROM openjdk:8-jdk-alpine
-VOLUME /tmp
-COPY dist/tubemq-manager-bin.zip /
-RUN unzip /tubemq-manager-bin.zip
-RUN ["chmod", "+x", "/tubemq-manager/bin/start-manager.sh"]
-RUN ["chmod", "+x", "/tubemq-manager/bin/start-manager-docker.sh"]
-ENTRYPOINT ["/tubemq-manager/bin/start-manager-docker.sh"]
+# add tarball from target output
+ARG TUBEMQ_MANAGER_TARBALL
+ADD ${TUBEMQ_MANAGER_TARBALL} /opt/tubemq-manager
 EXPOSE 8089
+ENV MYSQL_HOST=127.0.0.1
+ENV MYSQL_PORT=3306
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWD=inlong
+WORKDIR /opt/tubemq-manager
+ADD manager-docker.sh bin/
+RUN chmod +x bin/manager-docker.sh
+CMD ["bin/manager-docker.sh"]
