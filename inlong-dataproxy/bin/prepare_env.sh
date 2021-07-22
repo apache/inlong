@@ -19,7 +19,7 @@
 # under the License.
 #
 
-cd ../conf
+cd "$(dirname "$0")"/../conf
 
 for i in {mx.properties,transfer.properties,weight.properties,common.properties,blacklist.properties,bid_mapping.properties,dc_mapping.properties,topics.properties,tube_switch.properties}
   do
