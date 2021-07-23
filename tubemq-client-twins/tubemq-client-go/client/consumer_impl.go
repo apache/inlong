@@ -450,7 +450,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 				}
 
 				c.rmtDataCache.AddNewPartition(partition)
-				c.heartbeatManager.registerBroker(node)
+				c.heartbeatManager.registerBroker(partition.GetBroker())
 			}
 		}
 	}

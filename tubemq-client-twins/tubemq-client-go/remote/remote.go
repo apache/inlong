@@ -45,7 +45,7 @@ type RmtDataCache struct {
 	eventReadMu        sync.Mutex
 	metaMu             sync.Mutex
 	dataBookMu         sync.Mutex
-	brokerPartitions   map[*metadata.Node]map[string]bool
+	brokerPartitions   map[string]map[string]bool
 	qryPriorityID      int32
 	partitions         map[string]*metadata.Partition
 	usedPartitions     map[string]int64
@@ -68,13 +68,14 @@ func NewRmtDataCache() *RmtDataCache {
 		qryPriorityID:      int32(util.InvalidValue),
 		partitionSubInfo:   make(map[string]*metadata.SubscribeInfo),
 		rebalanceResults:   make([]*metadata.ConsumerEvent, 0, 0),
-		brokerPartitions:   make(map[*metadata.Node]map[string]bool),
+		brokerPartitions:   make(map[string]map[string]bool),
 		partitions:         make(map[string]*metadata.Partition),
 		usedPartitions:     make(map[string]int64),
 		indexPartitions:    make([]string, 0, 0),
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
+		partitionOffset:    make(map[string]int64),
 		groupHandler:       flowctrl.NewRuleHandler(),
 		defHandler:         flowctrl.NewRuleHandler(),
 		EventCh:            make(chan *metadata.ConsumerEvent, 1),
@@ -135,7 +136,7 @@ func (r *RmtDataCache) GetPartitionByBroker(broker *metadata.Node) []*metadata.P
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()
 
-	if partitionMap, ok := r.brokerPartitions[broker]; ok {
+	if partitionMap, ok := r.brokerPartitions[broker.String()]; ok {
 		partitions := make([]*metadata.Partition, 0, len(partitionMap))
 		for partition := range partitionMap {
 			partitions = append(partitions, r.partitions[partition])
@@ -239,10 +240,10 @@ func (r *RmtDataCache) removeMetaInfo(partitionKey string) {
 				delete(r.topicPartitions, partition.GetTopic())
 			}
 		}
-		if partitions, ok := r.brokerPartitions[partition.GetBroker()]; ok {
+		if partitions, ok := r.brokerPartitions[partition.GetBroker().String()]; ok {
 			delete(partitions, partition.GetPartitionKey())
 			if len(partitions) == 0 {
-				delete(r.brokerPartitions, partition.GetBroker())
+				delete(r.brokerPartitions, partition.GetBroker().String())
 			}
 		}
 		delete(r.partitions, partitionKey)
@@ -252,13 +253,6 @@ func (r *RmtDataCache) removeMetaInfo(partitionKey string) {
 
 func (r *RmtDataCache) resetIdlePartition(partitionKey string, reuse bool) {
 	delete(r.usedPartitions, partitionKey)
-	if timer, ok := r.partitionTimeouts[partitionKey]; ok {
-		if !timer.Stop() {
-			<-timer.C
-		}
-		timer.Stop()
-		delete(r.partitionTimeouts, partitionKey)
-	}
 	r.removeFromIndexPartitions(partitionKey)
 	if reuse {
 		if _, ok := r.partitions[partitionKey]; ok {
@@ -296,19 +290,19 @@ func (r *RmtDataCache) AddNewPartition(newPartition *metadata.Partition) {
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()
 	partitionKey := newPartition.GetPartitionKey()
-	if partition, ok := r.partitions[partitionKey]; !ok {
-		r.partitions[partitionKey] = partition
-		if partitions, ok := r.topicPartitions[partition.GetPartitionKey()]; !ok {
+	if _, ok := r.partitions[partitionKey]; !ok {
+		r.partitions[partitionKey] = newPartition
+		if partitions, ok := r.topicPartitions[partitionKey]; !ok {
 			newPartitions := make(map[string]bool)
 			newPartitions[partitionKey] = true
-			r.topicPartitions[partition.GetTopic()] = newPartitions
+			r.topicPartitions[newPartition.GetTopic()] = newPartitions
 		} else if _, ok := partitions[partitionKey]; !ok {
 			partitions[partitionKey] = true
 		}
-		if partitions, ok := r.brokerPartitions[partition.GetBroker()]; !ok {
+		if partitions, ok := r.brokerPartitions[newPartition.GetBroker().String()]; !ok {
 			newPartitions := make(map[string]bool)
 			newPartitions[partitionKey] = true
-			r.brokerPartitions[partition.GetBroker()] = newPartitions
+			r.brokerPartitions[newPartition.GetBroker().String()] = newPartitions
 		} else if _, ok := partitions[partitionKey]; !ok {
 			partitions[partitionKey] = true
 		}
@@ -438,6 +432,8 @@ func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, con
 						r.resetIdlePartition(partitionKey, true)
 					})
 				} else {
+					r.metaMu.Lock()
+					defer r.metaMu.Unlock()
 					r.indexPartitions = append(r.indexPartitions, partitionKey)
 				}
 			} else {
@@ -449,14 +445,20 @@ func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, con
 }
 
 func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
-	pos := 0
+	pos := -1
 	for i, p := range r.indexPartitions {
 		if p == partitionKey {
 			pos = i
 			break
 		}
 	}
-	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
+	if len(r.indexPartitions) == 1 && pos == 0 {
+		r.indexPartitions = []string{}
+		return
+	}
+	if pos >= 0 {
+		r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
+	}
 }
 
 func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64) {
