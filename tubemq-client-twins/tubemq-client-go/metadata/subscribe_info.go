@@ -20,6 +20,8 @@ package metadata
 import (
 	"fmt"
 	"strings"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 // SubscribeInfo represents the metadata of the subscribe info.
@@ -51,15 +53,23 @@ func (s *SubscribeInfo) String() string {
 
 // NewSubscribeInfo constructs a SubscribeInfo from a given string.
 // If the given is invalid, it will return error.
+// The format of subscribeInfo string: consumerId@group#broker_info#topic:partitionId
 func NewSubscribeInfo(subscribeInfo string) (*SubscribeInfo, error) {
-	consumerInfo := strings.Split(subscribeInfo, "#")[0]
-	partition, err := NewPartition(subscribeInfo[strings.Index(subscribeInfo, "#")+1:])
+	s := strings.Split(subscribeInfo, "#")
+	if len(s) == 1 {
+		return nil, errs.ErrInvalidSubscribeInfoString
+	}
+	consumerInfo := strings.Split(s[0], "@")
+	if len(consumerInfo) == 1 {
+		return nil, errs.ErrInvalidSubscribeInfoString
+	}
+	partition, err := NewPartition(s[1])
 	if err != nil {
 		return nil, err
 	}
 	return &SubscribeInfo{
-		group:      strings.Split(consumerInfo, "@")[1],
-		consumerID: strings.Split(consumerInfo, "@")[0],
+		group:      consumerInfo[1],
+		consumerID: consumerInfo[0],
 		partition:  partition,
 	}, nil
 }
