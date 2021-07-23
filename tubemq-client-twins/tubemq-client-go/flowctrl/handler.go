@@ -58,6 +58,7 @@ func NewRuleHandler() *RuleHandler {
 		dataLimitStartTime: 2500,
 		dataLimitEndTime:   util.InvalidValue,
 		lastUpdate:         time.Now().UnixNano() / int64(time.Millisecond),
+		flowCtrlItem:       NewItem(),
 	}
 }
 

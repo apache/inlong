@@ -131,6 +131,7 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 		for _, s := range si {
 			ep.SubscribeInfo = append(ep.SubscribeInfo, s.String())
 		}
+		reqC2M.Event = ep
 	}
 	req := codec.NewRPCRequest()
 	req.RequestHeader = &protocol.RequestHeader{
