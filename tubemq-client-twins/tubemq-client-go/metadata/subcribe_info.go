@@ -52,25 +52,14 @@ func (s *SubscribeInfo) String() string {
 // NewSubscribeInfo constructs a SubscribeInfo from a given string.
 // If the given is invalid, it will return error.
 func NewSubscribeInfo(subscribeInfo string) (*SubscribeInfo, error) {
-	consumerID := ""
-	group := ""
-	var partition *Partition
-	var err error
-	pos := strings.Index(subscribeInfo, "#")
-	if pos != -1 {
-		consumerInfo := strings.TrimSpace(subscribeInfo[:pos])
-		partitionInfo := strings.TrimSpace(subscribeInfo[pos+1:])
-		partition, err = NewPartition(partitionInfo)
-		if err != nil {
-			return nil, err
-		}
-		pos = strings.Index(consumerInfo, "@")
-		consumerID = strings.TrimSpace(consumerInfo[:pos])
-		group = strings.TrimSpace(consumerInfo[pos+1:])
+	consumerInfo := strings.Split(subscribeInfo, "#")[0]
+	partition, err := NewPartition(subscribeInfo[strings.Index(subscribeInfo, "#")+1:])
+	if err != nil {
+		return nil, err
 	}
 	return &SubscribeInfo{
-		group:      group,
-		consumerID: consumerID,
+		group:      strings.Split(consumerInfo, "@")[1],
+		consumerID: strings.Split(consumerInfo, "@")[0],
 		partition:  partition,
 	}, nil
 }

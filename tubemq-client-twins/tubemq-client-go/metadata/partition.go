@@ -75,32 +75,26 @@ func NewConsumeData(time int64, errCode int32, escLimit bool, msgSize int32, dlt
 
 // NewPartition parses a partition from the given string.
 func NewPartition(partition string) (*Partition, error) {
-	var b *Node
-	var topic string
-	var partitionID int
-	var err error
-	pos := strings.Index(partition, "#")
-	if pos != -1 {
-		broker := strings.TrimSpace(partition[:pos])
-		b, err = NewNode(true, broker)
-		if err != nil {
-			return nil, err
-		}
-		p := strings.TrimSpace(partition[pos+1:])
-		pos = strings.Index(p, ":")
-		if pos != -1 {
-			topic = strings.TrimSpace(p[0:pos])
-			partitionID, err = strconv.Atoi(strings.TrimSpace(p[pos+1:]))
-			if err != nil {
-				return nil, err
-			}
-		}
+	b, err := NewNode(true, strings.Split(partition, "#")[0])
+	if err != nil {
+		return nil, err
 	}
+	s := strings.Split(partition, "#")[1]
+	topic := strings.Split(s, ":")[0]
+	partitionID, err := strconv.Atoi(strings.Split(s, ":")[1])
+	if err != nil {
+		return nil, err
+	}
+	partitionKey := strconv.Itoa(int(b.id)) + ":" + topic + ":" + strconv.Itoa(partitionID)
 	return &Partition{
 		topic:        topic,
 		broker:       b,
 		partitionID:  int32(partitionID),
 		strategyData: &strategyData{},
+		partitionKey: partitionKey,
+		consumeData: &ConsumeData{
+			curDataDlt: util.InvalidValue,
+		},
 	}, nil
 }
 
@@ -131,7 +125,7 @@ func (p *Partition) GetBroker() *Node {
 
 // String returns the metadata of a Partition as a string.
 func (p *Partition) String() string {
-	return p.broker.String() + "#" + p.topic + "@" + strconv.Itoa(int(p.partitionID))
+	return p.broker.String() + "#" + p.topic + ":" + strconv.Itoa(int(p.partitionID))
 }
 
 // SetLastConsumed sets the last consumed.
@@ -167,7 +161,7 @@ func (p *Partition) ProcConsumeResult(defHandler *flowctrl.RuleHandler, groupHan
 			return 0
 		} else {
 			if p.strategyData.curStageMsgSize >= p.flowCtrl.GetDataSizeLimit() ||
-				p.strategyData.curStageMsgSize >= p.strategyData.limitSliceMsgSize {
+				p.strategyData.curSliceMsgSize >= p.strategyData.limitSliceMsgSize {
 				if p.flowCtrl.GetFreqMsLimit() > p.consumeData.dltLimit {
 					return p.flowCtrl.GetFreqMsLimit() - dltTime
 				}
@@ -198,20 +192,20 @@ func (p *Partition) updateStrategyData(defHandler *flowctrl.RuleHandler, groupHa
 	if curTime > p.strategyData.nextStageUpdate {
 		p.strategyData.curStageMsgSize = 0
 		p.strategyData.curSliceMsgSize = 0
-		if p.consumeData.curDataDlt >= 0 {
+		if p.consumeData.curDataDlt < 0 {
+			p.flowCtrl = flowctrl.NewResult(math.MaxInt64, 20)
+		} else {
 			p.flowCtrl = groupHandler.GetCurDataLimit(p.consumeData.curDataDlt)
 			if p.flowCtrl == nil {
 				p.flowCtrl = defHandler.GetCurDataLimit(p.consumeData.curDataDlt)
 			}
 			if p.flowCtrl == nil {
-				p.flowCtrl.SetDataSizeLimit(util.InvalidValue)
-				p.flowCtrl.SetFreqMsLimit(0)
+				p.flowCtrl = flowctrl.NewResult(math.MaxInt64, 0)
 			}
 			p.freqCtrl = groupHandler.GetFilterCtrlItem()
 			if p.freqCtrl.GetFreqMsLimit() < 0 {
 				p.freqCtrl = defHandler.GetFilterCtrlItem()
 			}
-			curTime = time.Now().UnixNano() / int64(time.Millisecond)
 		}
 		p.strategyData.limitSliceMsgSize = p.flowCtrl.GetDataSizeLimit() / 12
 		p.strategyData.nextStageUpdate = curTime + 60000
