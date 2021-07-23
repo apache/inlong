@@ -18,11 +18,11 @@
 
 # the parameters for init cluster
 TUBE_MANAGER_IP=127.0.0.1
-TUBE_MANAGER_PORT=
-TUBE_MASTER_IP=
-TUBE_MASTER_PORT=
-TUBE_MASTER_WEB_PORT=
-TUBE_MASTER_TOKEN=
+TUBE_MANAGER_PORT=8089
+TUBE_MASTER_IP=127.0.0.1
+TUBE_MASTER_PORT=8715
+TUBE_MASTER_WEB_PORT=8080
+TUBE_MASTER_TOKEN=abc
 
 
 # execute curl to add cluster, note that this command only need to execute once
