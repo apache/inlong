@@ -25,11 +25,15 @@ import (
 )
 
 func TestParseAddress(t *testing.T) {
-	address := "127.0.0.1:9092,127.0.0.1:9093?topics=Topic1,Topic2&group=Group&tlsEnable=false&msgNotFoundWait=10000&heartbeatMaxRetryTimes=6"
+	address := "127.0.0.1:9092,127.0.0.1:9093?topics=Topic1@12312323,1212;Topic2@121212,2321323&group=Group&tlsEnable=false&msgNotFoundWait=10000&heartbeatMaxRetryTimes=6"
+	topicFilters := make(map[string][]string)
+	topicFilters["Topic1"] = []string{"12312323", "1212"}
+	topicFilters["Topic2"] = []string{"121212", "2321323"}
 	c, err := ParseAddress(address)
 	assert.Nil(t, err)
 	assert.Equal(t, c.Consumer.Masters, "127.0.0.1:9092,127.0.0.1:9093")
 	assert.Equal(t, c.Consumer.Topics, []string{"Topic1", "Topic2"})
+	assert.Equal(t, c.Consumer.TopicFilters, topicFilters)
 	assert.Equal(t, c.Consumer.Group, "Group")
 	assert.Equal(t, c.Consumer.MsgNotFoundWait, 10000*time.Millisecond)
 

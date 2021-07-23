@@ -253,6 +253,7 @@ func (r *RmtDataCache) removeMetaInfo(partitionKey string) {
 
 func (r *RmtDataCache) resetIdlePartition(partitionKey string, reuse bool) {
 	delete(r.usedPartitions, partitionKey)
+	delete(r.partitionTimeouts, partitionKey)
 	r.removeFromIndexPartitions(partitionKey)
 	if reuse {
 		if _, ok := r.partitions[partitionKey]; ok {
@@ -292,7 +293,7 @@ func (r *RmtDataCache) AddNewPartition(newPartition *metadata.Partition) {
 	partitionKey := newPartition.GetPartitionKey()
 	if _, ok := r.partitions[partitionKey]; !ok {
 		r.partitions[partitionKey] = newPartition
-		if partitions, ok := r.topicPartitions[partitionKey]; !ok {
+		if partitions, ok := r.topicPartitions[newPartition.GetTopic()]; !ok {
 			newPartitions := make(map[string]bool)
 			newPartitions[partitionKey] = true
 			r.topicPartitions[newPartition.GetTopic()] = newPartitions
@@ -429,11 +430,11 @@ func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, con
 				}
 				if delay > 10 {
 					r.partitionTimeouts[partitionKey] = time.AfterFunc(time.Duration(delay)*time.Millisecond, func() {
+						r.metaMu.Lock()
+						defer r.metaMu.Unlock()
 						r.resetIdlePartition(partitionKey, true)
 					})
 				} else {
-					r.metaMu.Lock()
-					defer r.metaMu.Unlock()
 					r.indexPartitions = append(r.indexPartitions, partitionKey)
 				}
 			} else {
