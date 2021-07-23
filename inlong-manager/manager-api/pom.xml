@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>manager-api</artifactId>
-    <name>Apache InLong - Manager Web</name>
+    <name>Apache InLong - Manager API</name>
 
     <dependencies>
         <dependency>
