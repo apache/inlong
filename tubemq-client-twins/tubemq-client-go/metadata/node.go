@@ -20,6 +20,8 @@ package metadata
 import (
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 // Node represents the metadata of a node.
@@ -32,8 +34,12 @@ type Node struct {
 
 // NewNode constructs a node from a given string.
 // If the given string is invalid, it will return error.
+// The format of node string: nodeID:host:port
 func NewNode(isBroker bool, node string) (*Node, error) {
 	res := strings.Split(node, ":")
+	if len(res) == 1 {
+		return nil, errs.ErrInvalidNodeString
+	}
 	nodeID := 0
 	host := ""
 	port := 8123

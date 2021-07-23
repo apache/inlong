@@ -34,31 +34,40 @@ const (
 	// RetRequestFailure represents the error code of request error.
 	RetRequestFailure = 5
 	// RetSelectorNotExist represents the selector not exists.
-	RetSelectorNotExist        = 6
-	RetSuccess                 = 200
-	RetErrMoved                = 301
-	RetBadRequest              = 400
-	RetErrForbidden            = 403
-	RetErrNotFound             = 404
-	RetErrNoPartAssigned       = 406
-	RetErrAllPartWaiting       = 407
-	RetErrAllPartInUse         = 408
-	RetErrHBNoNode             = 411
-	RetErrDuplicatePartition   = 412
-	RetCertificateFailure      = 415
-	RetConsumeGroupForbidden   = 450
-	RetConsumeContentForbidden = 455
-	RetErrServiceUnavailable   = 503
-	RetErrConsumeSpeedLimit    = 550
-	RetErrConfirmTimeout       = 2004
+	RetSelectorNotExist = 6
+	// RetInvalidNodeString represents the node string is invalid.
+	RetInvalidNodeString = 7
+	// RetInvalidPartitionString represents the partition string is invalid.
+	RetInvalidPartitionString = 8
+	// RetInvalidSubscribeInfoString represents the subscribeInfo string is invalid.
+	RetInvalidSubscribeInfoString = 9
+	RetSuccess                    = 200
+	RetErrMoved                   = 301
+	RetBadRequest                 = 400
+	RetErrForbidden               = 403
+	RetErrNotFound                = 404
+	RetErrNoPartAssigned          = 406
+	RetErrAllPartWaiting          = 407
+	RetErrAllPartInUse            = 408
+	RetErrHBNoNode                = 411
+	RetErrDuplicatePartition      = 412
+	RetCertificateFailure         = 415
+	RetConsumeGroupForbidden      = 450
+	RetConsumeContentForbidden    = 455
+	RetErrServiceUnavailable      = 503
+	RetErrConsumeSpeedLimit       = 550
+	RetErrConfirmTimeout          = 2004
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.
 var (
-	ErrAssertionFailure = New(RetAssertionFailure, "AssertionFailure")
-	ErrNoPartAssigned   = New(RetErrNoPartAssigned, "No partition info in local cache, please retry later!")
-	ErrAllPartWaiting   = New(RetErrAllPartWaiting, "All partitions reach max position, please retry later!")
-	ErrAllPartInUse     = New(RetErrAllPartInUse, "No idle partition to consume, please retry later!")
+	ErrAssertionFailure           = New(RetAssertionFailure, "AssertionFailure")
+	ErrNoPartAssigned             = New(RetErrNoPartAssigned, "No partition info in local cache, please retry later!")
+	ErrAllPartWaiting             = New(RetErrAllPartWaiting, "All partitions reach max position, please retry later!")
+	ErrAllPartInUse               = New(RetErrAllPartInUse, "No idle partition to consume, please retry later!")
+	ErrInvalidNodeString          = New(RetInvalidNodeString, "Node string should have format: node_id:host:port")
+	ErrInvalidPartitionString     = New(RetInvalidPartitionString, "Partition string should have format: broker_info#topic:partitionId")
+	ErrInvalidSubscribeInfoString = New(RetInvalidSubscribeInfoString, "SubscribeInfo string should have format: consumerId@group#broker_info#topic:partitionId")
 )
 
 // Error provides a TubeMQ-specific error container

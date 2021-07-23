@@ -67,11 +67,9 @@ func NewRmtDataCache() *RmtDataCache {
 		groupFlowCtrlID:    util.InvalidValue,
 		qryPriorityID:      int32(util.InvalidValue),
 		partitionSubInfo:   make(map[string]*metadata.SubscribeInfo),
-		rebalanceResults:   make([]*metadata.ConsumerEvent, 0, 0),
 		brokerPartitions:   make(map[string]map[string]bool),
 		partitions:         make(map[string]*metadata.Partition),
 		usedPartitions:     make(map[string]int64),
-		indexPartitions:    make([]string, 0, 0),
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
@@ -454,12 +452,13 @@ func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 		}
 	}
 	if len(r.indexPartitions) == 1 && pos == 0 {
-		r.indexPartitions = []string{}
+		r.indexPartitions = nil
 		return
 	}
-	if pos >= 0 {
-		r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
+	if pos >= len(r.indexPartitions) {
+		return
 	}
+	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
 }
 
 func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64) {

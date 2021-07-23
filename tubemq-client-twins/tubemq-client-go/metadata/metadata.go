@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// package metadata defines all the metadata of the TubeMQ broker and producer.
+// Package metadata defines all the metadata of the TubeMQ broker and producer.
 package metadata
 
 // Metadata represents the metadata of

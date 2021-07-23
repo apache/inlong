@@ -74,14 +74,22 @@ func NewConsumeData(time int64, errCode int32, escLimit bool, msgSize int32, dlt
 }
 
 // NewPartition parses a partition from the given string.
+// The format of partition string: brokerInfo#topic:partitionId
 func NewPartition(partition string) (*Partition, error) {
-	b, err := NewNode(true, strings.Split(partition, "#")[0])
+	s := strings.Split(partition, "#")
+	if len(s) == 1 {
+		return nil, errs.ErrInvalidPartitionString
+	}
+	b, err := NewNode(true, s[0])
 	if err != nil {
 		return nil, err
 	}
-	s := strings.Split(partition, "#")[1]
-	topic := strings.Split(s, ":")[0]
-	partitionID, err := strconv.Atoi(strings.Split(s, ":")[1])
+	topicPartitionID := strings.Split(s[1], ":")
+	if len(topicPartitionID) == 1 {
+		return nil, errs.ErrInvalidPartitionString
+	}
+	topic := topicPartitionID[0]
+	partitionID, err := strconv.Atoi(topicPartitionID[1])
 	if err != nil {
 		return nil, err
 	}

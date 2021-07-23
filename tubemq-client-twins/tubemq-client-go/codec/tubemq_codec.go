@@ -35,9 +35,9 @@ import (
 )
 
 const (
-	// The default begin token of TubeMQ RPC protocol.
+	// RPCProtocolBeginToken is the default begin token of TubeMQ RPC protocol.
 	RPCProtocolBeginToken uint32 = 0xFF7FF4FE
-	// The default max buffer size the RPC response.
+	// RPCMaxBufferSize is the default max buffer size the RPC response.
 	RPCMaxBufferSize int    = 8192
 	frameHeadLen     uint32 = 12
 	maxBufferSize    int    = 128 * 1024
@@ -138,7 +138,7 @@ func (t TubeMQResponse) GetSerialNo() uint32 {
 	return t.serialNo
 }
 
-// GetResponseBuf will return the body of Response.
+// GetBuffer will return the body of Response.
 func (t TubeMQResponse) GetBuffer() []byte {
 	return t.Buffer
 }
