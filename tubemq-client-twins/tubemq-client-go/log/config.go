@@ -33,7 +33,7 @@ type OutputConfig struct {
 }
 
 var defaultConfig = &OutputConfig{
-	LogPath:    "../log/tubemq",
+	LogPath:    "../log/tubemq.log",
 	MaxSize:    100,
 	MaxBackups: 5,
 	MaxAge:     3,

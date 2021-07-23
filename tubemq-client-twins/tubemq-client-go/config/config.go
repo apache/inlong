@@ -116,7 +116,8 @@ type Config struct {
 	}
 }
 
-func newDefaultConfig() *Config {
+// NewDefaultConfig returns a default config of the client.
+func NewDefaultConfig() *Config {
 	c := &Config{}
 
 	c.Net.ReadTimeout = 15000 * time.Millisecond
@@ -149,7 +150,7 @@ func newDefaultConfig() *Config {
 
 // ParseAddress parses the address to user-defined config.
 func ParseAddress(address string) (config *Config, err error) {
-	c := newDefaultConfig()
+	c := NewDefaultConfig()
 
 	tokens := strings.SplitN(address, "?", 2)
 	if len(tokens) != 2 {
@@ -195,7 +196,16 @@ func getConfigFromToken(config *Config, values []string) error {
 	case "group":
 		config.Consumer.Group = values[1]
 	case "topics":
-		config.Consumer.Topics = strings.Split(values[1], ",")
+		topicFilters := strings.Split(values[1], ";")
+		config.Consumer.TopicFilters = make(map[string][]string)
+		for _, topicFilter := range topicFilters {
+			tf := strings.Split(topicFilter, "@")
+			config.Consumer.Topics = append(config.Consumer.Topics, tf[0])
+			if len(tf) > 1 {
+				filters := strings.Split(tf[1], ",")
+				config.Consumer.TopicFilters[tf[0]] = filters
+			}
+		}
 	case "consumePosition":
 		config.Consumer.ConsumePosition, err = strconv.Atoi(values[1])
 	case "boundConsume":
