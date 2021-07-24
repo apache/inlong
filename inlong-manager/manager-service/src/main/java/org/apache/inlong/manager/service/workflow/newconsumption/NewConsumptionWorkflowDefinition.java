@@ -71,13 +71,13 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     private BusinessService businessService;
 
     @Override
-    public Process define() {
+    public Process defineProcess() {
 
         // Define process information
         Process process = new Process();
         process.setType("Data Consumption Resource Creation");
-        process.setName(getName().name());
-        process.setDisplayName(getName().getDisplayName());
+        process.setName(getProcessName().name());
+        process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(NewConsumptionWorkflowForm.class);
         process.setVersion(1);
         process.setProcessDetailHandler(newConsumptionProcessDetailHandler);
@@ -123,7 +123,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         NewConsumptionWorkflowForm form = (NewConsumptionWorkflowForm) context.getProcessForm();
         ConsumptionInfo consumptionInfo = Optional.ofNullable(form.getConsumptionInfo())
                 .orElseGet(ConsumptionInfo::new);
-        return workflowApproverService.getApprovers(getName().name(), UT_ADMINT_NAME,
+        return workflowApproverService.getApprovers(getProcessName().name(), UT_ADMINT_NAME,
                 new WorkflowApproverFilterContext());
     }
 
@@ -139,7 +139,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     }
 
     @Override
-    public ProcessName getName() {
+    public ProcessName getProcessName() {
         return ProcessName.NEW_CONSUMPTION_WORKFLOW;
     }
 }

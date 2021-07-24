@@ -51,12 +51,12 @@ public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
     private WorkflowApproverService workflowApproverService;
 
     @Override
-    public Process define() {
+    public Process defineProcess() {
         // Configuration process
         Process process = new Process();
-        process.setType(getName().getDisplayName());
-        process.setName(getName().name());
-        process.setDisplayName(getName().getDisplayName());
+        process.setType(getProcessName().getDisplayName());
+        process.setName(getProcessName().name());
+        process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(NewBusinessWorkflowForm.class);
         process.setVersion(1);
 
@@ -87,20 +87,23 @@ public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
         // Configuration order relationship
         startEvent.addNext(adminUserTask);
         // If you need another approval process, you can add it here
-
         adminUserTask.addNext(endEvent);
 
         return process;
     }
 
     @Override
-    public ProcessName getName() {
+    public ProcessName getProcessName() {
         return ProcessName.NEW_BUSINESS_WORKFLOW;
     }
 
+    /**
+     * Get task approvers by task name
+     */
     private List<String> getTaskApprovers(String taskName) {
-        return workflowApproverService.getApprovers(getName().name(), taskName,
-                WorkflowApproverFilterContext.builder().build());
+        String processName = this.getProcessName().name();
+        WorkflowApproverFilterContext context = new WorkflowApproverFilterContext();
+        return workflowApproverService.getApprovers(processName, taskName, context);
     }
 
 }

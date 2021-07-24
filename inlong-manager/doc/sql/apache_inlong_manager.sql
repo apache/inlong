@@ -275,8 +275,9 @@ CREATE TABLE `data_schema`
   AUTO_INCREMENT = 10
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data format table';
 
-INSERT INTO `data_schema` (id, name, agent_type, data_generate_rule, sort_type, time_offset)
-values (1, 'm0_day', 'file_agent', 'day', 0, '-0d');
+-- create default data schema
+INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time_offset)
+values ('m0_day', 'file_agent', 'day', 0, '-0d');
 
 -- ----------------------------
 -- Table structure for data_source_cmd_config
@@ -710,10 +711,9 @@ CREATE TABLE `user`
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
 
 -- create default admin user, username is 'admin', password is 'inlong'
-INSERT INTO `user` (id, name, password, account_type, due_date, create_time, update_time, create_by, update_by)
-values (1, 'admin', '628ed559bff5ae36bd2184d4216973cf', 0,
-        '2099-12-31 23:59:59', '2021-07-01 10:10:10',
-        '2021-07-01 10:10:10', 'inlong_init', NULL);
+INSERT INTO `user` (name, password, account_type, due_date, create_time, update_time, create_by, update_by)
+VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', 0, '2099-12-31 23:59:59',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for user_role
@@ -756,6 +756,14 @@ CREATE TABLE `wf_approver`
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 5
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
+
+-- create default approver for new consumption and new business
+INSERT INTO `wf_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
+                          `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
+VALUES ('NEW_CONSUMPTION_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
+        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+       ('NEW_BUSINESS_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
+        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- ----------------------------
 -- Table structure for wf_event_log

@@ -50,24 +50,20 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Autowired
     private WorkflowApproverEntityMapper workflowApproverMapper;
-
     @Autowired
     private WorkflowEngine workflowEngine;
 
-
     @Override
     public List<String> getApprovers(String processName, String taskName, WorkflowApproverFilterContext context) {
-        List<WorkflowApproverEntity> configs = workflowApproverMapper
-                .selectByQuery(WorkflowApproverQuery.builder()
-                        .processName(processName)
-                        .taskName(taskName)
-                        .build());
-
-        Map<FilterKey, String> filterKey2ValueMap = context.toFilterKeyMap();
-
+        WorkflowApproverQuery approverQuery = WorkflowApproverQuery.builder()
+                .processName(processName)
+                .taskName(taskName)
+                .build();
+        List<WorkflowApproverEntity> configs = workflowApproverMapper.selectByQuery(approverQuery);
         Map<String, List<WorkflowApproverEntity>> groupByFilterKey = configs.stream()
                 .collect(Collectors.groupingBy(WorkflowApproverEntity::getFilterKey));
 
+        Map<FilterKey, String> filterKey2ValueMap = context.toFilterKeyMap();
         return FilterKey.getFilterKeyByOrder()
                 .stream()
                 .map(FilterKey::name)
