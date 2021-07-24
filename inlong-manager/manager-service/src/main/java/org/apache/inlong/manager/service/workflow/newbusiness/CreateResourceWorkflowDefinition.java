@@ -77,7 +77,7 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
     private DataStreamEntityMapper streamMapper;
 
     @Override
-    public Process define() {
+    public Process defineProcess() {
 
         // Configuration process
         Process process = new Process();
@@ -86,8 +86,8 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         process.addListener(createResourceFailedProcessListener);
 
         process.setType("Business Resource Creation");
-        process.setName(getName().name());
-        process.setDisplayName(getName().getDisplayName());
+        process.setName(getProcessName().name());
+        process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(CreateResourceWorkflowForm.class);
         process.setVersion(1);
         process.setHidden(true);
@@ -170,7 +170,7 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
     }
 
     @Override
-    public ProcessName getName() {
+    public ProcessName getProcessName() {
         return ProcessName.CREATE_BUSINESS_RESOURCE;
     }
 }

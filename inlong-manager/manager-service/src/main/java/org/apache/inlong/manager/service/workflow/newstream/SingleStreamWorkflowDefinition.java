@@ -57,7 +57,7 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
     private PushHiveConfigToSortEventListener pushHiveConfigToSortEventListener;
 
     @Override
-    public Process define() {
+    public Process defineProcess() {
         // Configuration process
         Process process = new Process();
         process.addListener(initBusinessInfoListener);
@@ -65,8 +65,8 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
         process.addListener(singleStreamCompleteProcessListener);
 
         process.setType("Data stream access resource creation");
-        process.setName(getName().name());
-        process.setDisplayName(getName().getDisplayName());
+        process.setName(getProcessName().name());
+        process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(CreateResourceWorkflowForm.class);
         process.setVersion(1);
         process.setHidden(true);
@@ -112,7 +112,7 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
     }
 
     @Override
-    public ProcessName getName() {
+    public ProcessName getProcessName() {
         return ProcessName.CREATE_DATASTREAM_RESOURCE;
     }
 }

@@ -29,13 +29,13 @@ public interface WorkflowDefinition {
      *
      * @return defined process
      */
-    Process define();
+    Process defineProcess();
 
     /**
      * Get process name
      *
      * @return process name
      */
-    ProcessName getName();
+    ProcessName getProcessName();
 
 }

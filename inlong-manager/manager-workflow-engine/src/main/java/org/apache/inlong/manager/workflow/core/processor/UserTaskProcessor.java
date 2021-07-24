@@ -20,7 +20,16 @@ package org.apache.inlong.manager.workflow.core.processor;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEventNotifier;
@@ -33,18 +42,6 @@ import org.apache.inlong.manager.workflow.model.definition.Element;
 import org.apache.inlong.manager.workflow.model.definition.UserTask;
 import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
 import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * User task processor
@@ -57,7 +54,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     private static final Set<Action> SUPPORT_ACTIONS = ImmutableSet.of(
             Action.APPROVE, Action.REJECT, Action.TRANSFER, Action.CANCEL, Action.TERMINATE
     );
-    private TaskEventNotifier taskEventNotifier;
+    private final TaskEventNotifier taskEventNotifier;
 
     public UserTaskProcessor(WorkflowDataAccessor workflowDataAccessor, WorkflowEventNotifier workflowEventNotifier) {
         super(workflowDataAccessor);
@@ -71,15 +68,15 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
     @Override
     public void create(UserTask userTask, WorkflowContext context) {
-        ProcessInstance processInstance = context.getProcessInstance();
-
         List<String> approvers = userTask.getApproverAssign().assign(context);
-        Preconditions.checkNotEmpty(approvers, "can't assign approvers for task :" + userTask.getDisplayName());
+        Preconditions.checkNotEmpty(approvers, "can't assign approvers for task: " + userTask.getDisplayName()
+                + ", as the approvers in table `wf_approver` was empty");
 
         if (!userTask.isNeedAllApprove()) {
             approvers = Collections.singletonList(StringUtils.join(approvers, TaskInstance.APPROVERS_DELIMITER));
         }
 
+        ProcessInstance processInstance = context.getProcessInstance();
         approvers.stream()
                 .map(approver -> createTaskInstance(userTask, processInstance, approver))
                 .forEach(context.getNewTaskInstances()::add);
@@ -104,7 +101,6 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
         checkOperator(actionContext);
         completeTaskInstance(actionContext);
-
 
         this.taskEventNotifier.notify(toTaskEvent(actionContext.getAction()), context);
         return true;

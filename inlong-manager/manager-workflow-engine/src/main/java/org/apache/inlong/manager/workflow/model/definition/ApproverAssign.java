@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.workflow.model.definition;
 
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-
 import java.util.Collections;
 import java.util.List;
+import org.apache.inlong.manager.workflow.model.WorkflowContext;
 
 /**
  * Approver assignment
@@ -31,8 +30,8 @@ public interface ApproverAssign {
     /**
      * The default system automatic approval
      */
-    ApproverAssign DEFAULT_SYSTEM_APPROVER = c -> Collections.singletonList("SYSTEM");
-    ApproverAssign DEFAULT_SKIP_APPROVER = c -> Collections.singletonList("SKIP");
+    ApproverAssign DEFAULT_SYSTEM_APPROVER = context -> Collections.singletonList("SYSTEM");
+    ApproverAssign DEFAULT_SKIP_APPROVER = context -> Collections.singletonList("SKIP");
 
     /**
      * Designated approver
@@ -40,4 +39,5 @@ public interface ApproverAssign {
      * @return List of Approvers
      */
     List<String> assign(WorkflowContext context);
+
 }
