@@ -34,7 +34,7 @@ public class ProtocolDecoder extends FrameDecoder {
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel,
                             ChannelBuffer buffer) throws Exception {
-//        if(!channel.isConnected()||channel.isReadable()){return null;}
+        //        if(!channel.isConnected()||channel.isReadable()){return null;}
 
 
         buffer.markReaderIndex();

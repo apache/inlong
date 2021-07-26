@@ -334,7 +334,8 @@ public class ProtocolEncoder extends OneToOneEncoder {
         }
         return buf;
     }
-*/
+    */
+
     private ChannelBuffer writeToBuf3(EncodeObject object) {
         ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
         try {

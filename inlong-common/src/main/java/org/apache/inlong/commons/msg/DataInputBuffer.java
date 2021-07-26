@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
 /**
- * A reusable {@link DataInput} implementation that reads from an in-memory
+ * A reusable {@link java.io.DataInput} implementation that reads from an in-memory
  * buffer.
  *
  * <p>This saves memory over creating a new DataInputStream and

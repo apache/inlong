@@ -45,7 +45,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
         this.pubKey = pubKey;
         this.desKey = null;
         this.rsaEncryptedKey = null;
-//        this.rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
+        // this.rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
     }
 
     public String getVersion() {
