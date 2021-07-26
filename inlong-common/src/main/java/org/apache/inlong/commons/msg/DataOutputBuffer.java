@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * A reusable {@link DataOutput} implementation that writes to an in-memory
+ * A reusable {@link java.io.DataOutput} implementation that writes to an in-memory
  * buffer.
  *
  * <p>This saves memory over creating a new DataOutputStream and

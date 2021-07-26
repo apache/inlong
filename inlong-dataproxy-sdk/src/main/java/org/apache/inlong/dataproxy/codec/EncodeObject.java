@@ -76,7 +76,7 @@ public class EncodeObject {
     }
 
     /* Used by serialization.But never used */
-// old version:we need add message id by attr
+    // old version:we need add message id by attr
     public EncodeObject(byte[] bodyBytes, String attributes, String messageId) {
         this.bodyBytes = bodyBytes;
         this.messageId = messageId;
