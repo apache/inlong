@@ -53,7 +53,7 @@ public class ConfigManager {
     private static ConfigManager instance = null;
 
     private final PropertiesConfigHolder commonConfig =
-            new PropertiesConfigHolder("conf/common.properties");
+            new PropertiesConfigHolder("common.properties");
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
