@@ -67,6 +67,7 @@ More detailed instructions can be found at [Quick Start](https://inlong.apache.o
 Requirements:
 - Java [JDK 8](https://adoptopenjdk.net/?variant=openjdk8)
 - Maven 3.6.1+
+- [Docker](https://docs.docker.com/engine/install/) 19.03.1+
 
 Compile and install:
 ```
