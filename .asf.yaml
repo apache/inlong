@@ -19,7 +19,7 @@
 # of the project and make sure to discuss the changes with dev@ before committing.
 
 github:
-  description: "Apache InLong"
+  description: "Apache InLong - a one-stop data streaming platform"
   homepage: https://inlong.apache.org/
   labels:
     - inlong
@@ -28,6 +28,18 @@ github:
     - messaging
     - data-streaming
     - event-streaming
+  features:
+    # Enable wiki for documentation
+    wiki: true
+    # Enable projects for project management boards
+    projects: true
+  enabled_merge_buttons:
+    # enable squash button:
+    squash:  true
+    # disable merge button:
+    merge:   false
+    # disable rebase button:
+    rebase:  false
 
 notifications:
   commits:      commits@inlong.apache.org
