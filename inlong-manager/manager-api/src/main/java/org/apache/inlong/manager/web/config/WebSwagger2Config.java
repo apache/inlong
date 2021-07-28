@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.openapi.config;
+package org.apache.inlong.manager.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,23 +32,23 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-public class Swagger2Config {
+public class WebSwagger2Config {
 
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("org.apache.inlong.manager.openapi"))
+                .apis(RequestHandlerSelectors.basePackage("org.apache.inlong.manager.web"))
                 .paths(PathSelectors.any())
                 .build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Apache InLong Manager OpenAPI Doc")
-                .description("InLong Manager OpenAPI Doc")
-                .version("1.0")
+                .title("Apache InLong Manager API Doc")
+                .description("Apache InLong Manager API Doc")
+                .version("2.0")
                 .build();
     }
 
