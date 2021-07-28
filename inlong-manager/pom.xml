@@ -34,8 +34,7 @@
         <module>manager-workflow-engine</module>
         <module>manager-dao</module>
         <module>manager-service</module>
-        <module>manager-api</module>
-        <module>manager-openapi</module>
+        <module>manager-web</module>
     </modules>
 
     <properties>
