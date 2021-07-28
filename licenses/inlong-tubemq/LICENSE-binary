@@ -204,154 +204,107 @@
 
 =======================================================================
 
-1 This projects includes modified/copied source files with the following licenses:
+This project bundles some components that are also licensed under
+Apache License Version 2.0:
+-----------------------------
+ * Gson
+   - com.google.code.gson:gson:gson-2.8.5.jar
+ * Guava
+   - com.google.guava:guava:guava-13.0.jar
+ * Netty
+   - io.netty:netty:netty-3.8.0.Final.jar
+ * Log4J
+    - log4j:log4j:log4j-1.2.15.jar
+    - log4j:log4j:log4j-1.2.17.jar
+ * Apache ZooKeeper
+   - org.apache.zookeeper:zookeeper:zookeeper-3.4.3.jar
+ * Apache Commons
+   - commons-codec:commons-codec:commons-codec-1.10.jar
+   - commons-collections:commons-collections:commons-collections-3.2.1.jar
+   - commons-io:commons-io:commons-io-2.1.jar
+   - commons-lang:commons-lang:commons-lang-2.6.jar
+   - commons-beanutils:commons-beanutils:commons-beanutils-1.7.0.jar
+   - commons-digester:commons-digester:commons-digester-1.8.jar
+   - commons-chain:commons-chain:commons-chain-1.1.jar
+   - commons-logging:commons-logging:commons-logging-1.1.jar
+   - commons-validator:commons-validator:commons-validator-1.3.1.jar
+   - commons-cli:commons-cli:commons-cli-1.4.jar
+   - org.apache.commons:commons-lang3:3.10
+ * Apache Velocity
+   - org.apache.velocity:velocity:velocity-1.7.jar
+   - org.apache.velocity:velocity-tools:velocity-tools-2.0.jar
+ * HttpClient
+   - org.apache.httpcomponents:httpclient:httpclient-4.5.13.jar
+   - org.apache.httpcomponents:httpcore:httpcore-4.4.13.jar
+ * Jetty
+   - org.eclipse.jetty:jetty-server:jetty-server-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-http:jetty-http-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-util:jetty-util-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-io:jetty-io-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-security:jetty-security-9.4.31.v20200723.jar
+ * ini4j
+   - org.ini4j:ini4j:ini4j-0.5.1.jar
+ * Spring Framework
+   - org.springframework:spring-core:spring-core-5.2.8.RELEASE.jar
+   - org.springframework:spring-jcl:spring-jcl-5.2.8.RELEASE.jar
+   - org.springframework:spring-context:spring-context-5.2.8.RELEASE.jar
+   - org.springframework:spring-aop:spring-aop-5.2.8.RELEASE.jar
+   - org.springframework:spring-beans:spring-beans-5.2.8.RELEASE.jar
+   - org.springframework:spring-expression:spring-expression-5.2.8.RELEASE.jar
+   - org.springframework:spring-jdbc:spring-jdbc-5.2.8.RELEASE.jar
+   - org.springframework:spring-tx:spring-tx-5.2.8.RELEASE.jar
+   - org.springframework:spring-orm:spring-orm-5.2.8.RELEASE.jar
+ * oro
+   - oro:oro:oro-2.0.8.jar
+Apache License version 1.1
+--------------------------
+ * sslext
+   - sslext:sslext:sslext-1.2-0.jar (http://www.apache.org/licenses/LICENSE-1.1)
 
-=========
-1.1 Third party MIT license licenses
-=========
+--------------------------------------------------------------------------------------
 
-1.1.1 inlong-tubemq/resources/assets/lib/jquery.min.js
- Source  : jquery 1.11.3
- License : https://github.com/jquery/jquery/blob/1.11.3/MIT-LICENSE.txt
-| Copyright 2014 jQuery Foundation and other contributors
-| http://jquery.com/
-|
-| Permission is hereby granted, free of charge, to any person obtaining
-| a copy of this software and associated documentation files (the
-| "Software"), to deal in the Software without restriction, including
-| without limitation the rights to use, copy, modify, merge, publish,
-| distribute, sublicense, and/or sell copies of the Software, and to
-| permit persons to whom the Software is furnished to do so, subject to
-| the following conditions:
-|
-| The above copyright notice and this permission notice shall be
-| included in all copies or substantial portions of the Software.
-|
-| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-| EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-| MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-| NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-| LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-| OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-| WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This product bundles various third-party components under other open source licenses.
+This section summarizes those components and their licenses.
+See "licenses-binary/" for text of these licenses.
 
-----
+MIT License
+-----------
+ * SLF4J -- licenses-binary/LICENSE-slf4j.txt
+   - org.slf4j:slf4j-api:slf4j-api-1.7.30.jar
+   - org.slf4j:slf4j-log4j12:slf4j-log4j12-1.7.30.jar
 
-1.1.2 inlong-tubemq/resources/assets/lib/DataTables/*
- Source  : datatables  1.10.7
- License : https://github.com/DataTables/DataTables/blob/1.10.7/license.txt
-| Copyright (c) 2008-2013 SpryMedia Limited
-| http://datatables.net
-|
-| Permission is hereby granted, free of charge, to any person obtaining a copy
-| of this software and associated documentation files (the "Software"), to deal
-| in the Software without restriction, including without limitation the rights
-| to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-| copies of the Software, and to permit persons to whom the Software is
-| furnished to do so, subject to the following conditions:
-|
-| The above copyright notice and this permission notice shall be included in
-| all copies or substantial portions of the Software.
-|
-| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-| IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-| FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-| AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-| OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-| THE SOFTWARE.
 
-----
+BSD License
+-----------
+ * Protocol Buffers
+   - com.google.protobuf:protobuf-java:protobuf-java-2.5.0.jar -- licenses-binary/LICENSE-google-protobuf.txt
+   - com.googlecode.protobuf-java-format:protobuf-java-format:protobuf-java-format-1.4.jar -- licenses-binary/LICENSE-google-protobuf-java-format.txt
+ * JLine
+   - jline:jline:jline-0.9.94.jar -- licenses-binary/LICENSE-jline.txt
+ * dom4j
+   - org.dom4j:dom4j:dom4j-1.1.jar -- licenses-binary/LICENSE-dom4j.txt
 
-1.1.3 inlong-tubemq/resources/assets/public/css/style.css
-      inlong-tubemq/resources/assets/public/css/ie.css
- Source  : Compass
- License :  https://github.com/Compass/compass/blob/stable/LICENSE.markdown
- | Copyright (c) 2009-2014 Christopher M. Eppstein
- |
- | Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- |
- | The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. No attribution is required by products that make use of this software.
- |
- | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- |
- | Except as contained in this notice, the name(s) of the above copyright holders shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization.
- |
- | Contributors to this project agree to grant all rights to the copyright holder of the primary product. Attribution is maintained in the source control history of the product.
 
-----
+Common Development and Distribution License (CDDL) 1.0
+------------------------------------------------------
+ * JavaBeans(TM) Activation Framework
+   - javax.activation:activation:activation-1.1.jar -- licenses-binary/LICENSE-cddl-1.0.txt
+ * JavaMail API
+   - javax.mail:mail:mail-1.4.jar -- licenses-binary/LICENSE-cddl-1.0.txt
+ * Java Servlet API
+   - javax.servlet:javax.servlet-api:javax.servlet-api-4.0.1.jar -- licenses-binary/LICENSE-cddl-1.1.txt
+   - javax.servlet:servlet-api:servlet-api-2.3.jar -- licenses-binary/LICENSE-cddl-1.1.txt
 
-=========
-1.2 Third party BSD 3-Clause license
-=========
 
-1.2.1 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/any.h
-      inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/buffer.h
- Source  : https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
-           https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7
- License : https://github.com/Qihoo360/evpp/blob/master/LICENSE
- | BSD 3-Clause License
- |
- | Copyright (c) 2017, Qihoo 360
- | All rights reserved.
- |
- | Redistribution and use in source and binary forms, with or without
- | modification, are permitted provided that the following conditions are met:
- |
- | * Redistributions of source code must retain the above copyright notice, this
- |   list of conditions and the following disclaimer.
- |
- | * Redistributions in binary form must reproduce the above copyright notice,
- |   this list of conditions and the following disclaimer in the documentation
- |   and/or other materials provided with the distribution.
- |
- | * Neither the name of the copyright holder nor the names of its
- |   contributors may be used to endorse or promote products derived from
- |   this software without specific prior written permission.
- |
- | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- | AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- | IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- | DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- | FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- | DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- | SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- | OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- | OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Category X Licenses
+--------------------
+ * je
+   - com.sleepycat:je:je-7.3.7.jar --  http://www.apache.org/licenses/LICENSE-2.0
+     Attention: we find that although this component is an Apache V2 license,
+     it has not been managed and released by a third party. It is considered to be classified as
+     Category X LICENSE. The replacement operation is currently in progress.
 
-----
-
-=========
-1.3 Third party Apache 2.0 Licenses
-=========
-
-1.3.1 inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
-      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
- Source  : hbase 0.94.27 (Please note that the software have been modified.)
- License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
-
-1.3.2 inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
-      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
- Source  : Apache Avro 1.7.6
- License : https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
-
-1.3.3 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/future.h
- Source  : Apache Pulsar
- License : https://github.com/apache/pulsar/blob/master/LICENSE
- 
-1.3.4 codestyle/checkstyle.xml  
- Source  ：checkstyle 8.44 (Modified from src/main/resources/google_checks.xml)
- License : https://github.com/checkstyle/checkstyle/blob/master/LICENSE.apache20
 
 
 
