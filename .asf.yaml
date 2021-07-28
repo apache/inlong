@@ -31,6 +31,8 @@ github:
   features:
     # Enable wiki for documentation
     wiki: true
+    # Enable issues management
+    issues: true
     # Enable projects for project management boards
     projects: true
   enabled_merge_buttons:
