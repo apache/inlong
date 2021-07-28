@@ -188,6 +188,9 @@
             </licenseFamily>
           </licenseFamilies>
           <excludes>
+            <!-- Exclude license copies -->
+            <exclude>licenses/**</exclude>
+
             <!-- Generated content -->
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
