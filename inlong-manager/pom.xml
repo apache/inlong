@@ -35,6 +35,7 @@
         <module>manager-dao</module>
         <module>manager-service</module>
         <module>manager-web</module>
+        <module>manager-docker</module>
     </modules>
 
     <properties>

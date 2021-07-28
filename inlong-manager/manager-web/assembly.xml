@@ -22,6 +22,7 @@
     <!-- Types of packaging, if there are N, N types of packages will be printed -->
     <formats>
         <format>dir</format>
+        <format>tar.gz</format>
     </formats>
 
     <includeBaseDirectory>false</includeBaseDirectory>
@@ -49,14 +50,12 @@
         <fileSet>
             <directory>${build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
-            <fileMode>0755</fileMode>
         </fileSet>
 
         <!-- Package the project startup jar into the lib directory -->
         <fileSet>
             <directory>${build.directory}</directory>
             <outputDirectory>lib</outputDirectory>
-            <fileMode>0755</fileMode>
             <includes>
                 <include>${project.build.finalName}.jar</include>
             </includes>
