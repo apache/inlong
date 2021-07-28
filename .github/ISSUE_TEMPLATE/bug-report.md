@@ -5,14 +5,24 @@ about: Create a report to help us improve
 ---
 
 <!--
-Thanks for contributing to TubeMQ!
+Thanks for contributing to InLong!
 Please explain your issue precisely, and if possible provide a reproducer
 snippet (this helps resolve issues much quicker).
 -->
 
-**Problem description**
+#### Expected behavior
 
-**(optional) Reproducer snippet**
+Tell us what should happen
 
-**(optional) Suggestions for an improvement**
+#### Actual behavior
+
+Tell us what happens instead
+
+#### Steps to reproduce
+
+How can we reproduce the issue
+
+#### System configuration
+**InLong version**: x.y
+
 
