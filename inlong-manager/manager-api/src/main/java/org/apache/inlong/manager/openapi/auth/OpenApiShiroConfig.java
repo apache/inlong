@@ -35,7 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
-public class ShiroConfig {
+public class OpenApiShiroConfig {
 
     @Value("${spring.profiles.active}")
     private String env;
