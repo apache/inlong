@@ -38,16 +38,10 @@
             <outputDirectory>inlong-dataproxy</outputDirectory>
         </fileSet>
 
-        <!-- package InLong-Manager API-->
+        <!-- package InLong-Manager Web-->
         <fileSet>
-            <directory>../inlong-manager/manager-api/target/apache-inlong-manager-api-${project.version}-bin</directory>
-            <outputDirectory>inlong-manager-api</outputDirectory>
-        </fileSet>
-
-        <!-- package InLong-Manager OpenAPI-->
-        <fileSet>
-            <directory>../inlong-manager/manager-openapi/target/apache-inlong-manager-openapi-${project.version}-bin</directory>
-            <outputDirectory>inlong-manager-openapi</outputDirectory>
+            <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin</directory>
+            <outputDirectory>inlong-manager-web</outputDirectory>
         </fileSet>
 
         <!-- package InLong-TubeMQ Server-->
