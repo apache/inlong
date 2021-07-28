@@ -41,29 +41,29 @@ public class WebShiroConfig {
     private UserService userService;
 
     @Bean
-    public AuthorizingRealm shiroRealm(HashedCredentialsMatcher matcher) {
+    public AuthorizingRealm shiroRealmWeb(HashedCredentialsMatcher matcher) {
         AuthorizingRealm authorizingRealm = new WebAuthorizingRealm(userService);
         authorizingRealm.setCredentialsMatcher(matcher);
         return authorizingRealm;
     }
 
     @Bean
-    public WebSecurityManager securityManager(@Qualifier("hashedCredentialsMatcher")
+    public WebSecurityManager securityManagerWeb(@Qualifier("hashedCredentialsMatcher")
             HashedCredentialsMatcher matcher) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(shiroRealm(matcher));
+        securityManager.setRealm(shiroRealmWeb(matcher));
         return securityManager;
     }
 
     @Bean
-    public DefaultWebSessionManager sessionManager() {
+    public DefaultWebSessionManager sessionManagerWeb() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
     }
 
     @Bean(name = "hashedCredentialsMatcher")
-    public HashedCredentialsMatcher hashedCredentialsMatcher() {
+    public HashedCredentialsMatcher hashedCredentialsMatcherWeb() {
         HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
         hashedCredentialsMatcher.setHashAlgorithmName("MD5");
         hashedCredentialsMatcher.setHashIterations(1024);
@@ -74,7 +74,7 @@ public class WebShiroConfig {
      * Filter for annon / authc
      */
     @Bean
-    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
+    public ShiroFilterFactoryBean shiroFilterWeb(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String, Filter> filters = new LinkedHashMap<>();
@@ -101,9 +101,9 @@ public class WebShiroConfig {
      * Enable permission verification annotation
      */
     @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisorWeb() {
         AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
-        advisor.setSecurityManager(securityManager(hashedCredentialsMatcher()));
+        advisor.setSecurityManager(securityManagerWeb(hashedCredentialsMatcherWeb()));
         return advisor;
     }
 }

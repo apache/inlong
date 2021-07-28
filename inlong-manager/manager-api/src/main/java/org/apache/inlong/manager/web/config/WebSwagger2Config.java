@@ -35,7 +35,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class WebSwagger2Config {
 
     @Bean
-    public Docket createRestApi() {
+    public Docket createRestApiWeb() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
