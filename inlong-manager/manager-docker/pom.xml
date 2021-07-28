@@ -68,7 +68,7 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <repository>${docker.organization}/manager</repository>
+                                    <repository>${docker.organization}/manager-web</repository>
                                     <tag>latest</tag>
                                 </configuration>
                             </execution>
