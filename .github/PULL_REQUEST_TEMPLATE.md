@@ -1,5 +1,9 @@
-Fixes Jira Issue ID:
-https://issues.apache.org/jira/projects/INLONG/issues/replace_by_issue_id
+
+### Title Name: [INLONG-XYZ][component] Title of the pull request
+
+where *XYZ* should be replaced by the actual issue number.
+
+Fixes #<xyz>
 
 ### Motivation
 
