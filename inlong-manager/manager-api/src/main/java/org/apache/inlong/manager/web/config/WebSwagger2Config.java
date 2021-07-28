@@ -41,7 +41,8 @@ public class WebSwagger2Config {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.apache.inlong.manager.web"))
                 .paths(PathSelectors.any())
-                .build();
+                .build()
+                .groupName("api");
     }
 
     private ApiInfo apiInfo() {

@@ -41,7 +41,8 @@ public class OpenApiSwagger2Config {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.apache.inlong.manager.openapi"))
                 .paths(PathSelectors.any())
-                .build();
+                .build()
+                .groupName("openapi");
     }
 
     private ApiInfo apiInfo() {
