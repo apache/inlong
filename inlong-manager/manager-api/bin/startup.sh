@@ -28,10 +28,29 @@
 #======================================================================
 
 # Project name
-APPLICATION="InLong-Manager-API"
-
-# Project startup jar package name
-APPLICATION_JAR="manager-api.jar"
+if [ $# -lt 1 ] ; then
+    echo "USAGE: $0 api|openapi"
+    exit 1;
+fi
+# Project log output absolute path
+LOG_DIR=${BASE_PATH}"/log"
+# api or openapi
+if [ "$1" = "api" ];then
+    # Project name
+    APPLICATION="InLong-Manager-API"
+    # Project startup jar package name
+    APPLICATION_JAR="manager-api.jar"
+    MAIN_CLASS=org.apache.inlong.manager.web.InLongApiApplication
+    LOG_FILE="${LOG_DIR}/sout-manager-api.log"
+elif [ "$1" = "openapi" ]; then
+    APPLICATION="InLong-Manager-OpenAPI"
+    APPLICATION_JAR="manager-openapi.jar"
+    MAIN_CLASS=org.apache.inlong.manager.openapi.InLongOpenApiApplication
+    LOG_FILE="${LOG_DIR}/sout-manager-openapi.log"
+else
+    echo "USAGE: $0 api|openapi"
+    exit 1;
+fi
 
 JAVA_HOME=
 export PATH=$PATH:$JAVA_HOME/bin
@@ -52,11 +71,7 @@ CONFIG_DIR=${BASE_PATH}"/conf/"
 JAR_LIBS=${BASE_PATH}"/lib/*"
 JAR_MAIN=${BASE_PATH}"/lib/"${APPLICATION_JAR}
 CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
-MAIN_CLASS=org.apache.inlong.manager.web.InLongApiApplication
 
-# Project log output absolute path
-LOG_DIR=${BASE_PATH}"/log"
-LOG_FILE="${LOG_DIR}/sout-manager-api.log"
 # Log backup directory
 LOG_BACK_DIR="${LOG_DIR}/back/"
 

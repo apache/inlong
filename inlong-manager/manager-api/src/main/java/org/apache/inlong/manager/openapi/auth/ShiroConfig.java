@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.openapi.auth;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.servlet.Filter;
 import org.apache.inlong.manager.common.enums.Env;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -32,6 +29,10 @@ import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.Filter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Configuration
 public class ShiroConfig {

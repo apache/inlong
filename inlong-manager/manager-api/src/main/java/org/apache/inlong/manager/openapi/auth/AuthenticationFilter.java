@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.openapi.auth;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
-
-import java.io.IOException;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -28,13 +29,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+import java.io.IOException;
 
 @Slf4j
 public class AuthenticationFilter implements Filter {

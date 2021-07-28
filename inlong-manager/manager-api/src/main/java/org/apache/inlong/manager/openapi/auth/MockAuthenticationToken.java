@@ -18,10 +18,9 @@
 package org.apache.inlong.manager.openapi.auth;
 
 import org.apache.inlong.manager.common.enums.AuthenticationType;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.util.StringUtils;
 
 public class MockAuthenticationToken implements BasicAuthenticationToken {
 

@@ -24,15 +24,25 @@
 #
 #======================================================================
 
-# Project name
-APPLICATION="InLong-Manager-API"
-
-# Project startup jar package name
-APPLICATION_JAR="manager-api.jar"
+if [ $# -lt 1 ] ; then
+    echo "USAGE: $0 api|openapi"
+    exit 1;
+fi
+if [ "$1" = "api" ];then
+    # Project name
+    APPLICATION="InLong-Manager-API"
+    # Project startup jar package name
+    APPLICATION_JAR="manager-openapi.jar"
+elif [ "$1" = "openapi" ]; then
+    APPLICATION="InLong-Manager-OpenAPI"
+    APPLICATION_JAR="manager-api.jar"
+else
+    echo "USAGE: $0 api|openapi"
+    exit 1;
+fi
 
 PID=$(ps -ef | grep "${APPLICATION_JAR}" | grep -v grep | awk '{ print $2 }')
-if [[ -z "$PID" ]]
-then
+if [[ -z "$PID" ]]; then
     echo ${APPLICATION} is already stopped
 else
     echo kill  ${PID}

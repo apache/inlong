@@ -35,7 +35,6 @@
         <module>manager-dao</module>
         <module>manager-service</module>
         <module>manager-api</module>
-        <module>manager-openapi</module>
     </modules>
 
     <properties>

@@ -30,6 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class InLongOpenApiApplication {
 
     public static void main(String[] args) {
+        System.setProperty("spring.config.name", "openapi");
         SpringApplication.run(InLongOpenApiApplication.class, args);
     }
 

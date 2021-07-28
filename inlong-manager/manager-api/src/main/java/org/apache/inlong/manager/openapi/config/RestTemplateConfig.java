@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.openapi.config;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -40,6 +38,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Configuration
 @ConditionalOnMissingBean(RestTemplate.class)

@@ -18,8 +18,6 @@
 package org.apache.inlong.manager.openapi.controller;
 
 import io.swagger.annotations.Api;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
@@ -27,9 +25,11 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/dataproxy")
