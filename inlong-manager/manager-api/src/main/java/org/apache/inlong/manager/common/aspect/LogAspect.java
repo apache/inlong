@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.openapi.aspect;
+package org.apache.inlong.manager.common.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -36,7 +36,7 @@ public class LogAspect {
     /**
      * Record the operation log of all controllers
      */
-    @Around(("execution(public * org.apache.inlong.manager.openapi.controller.*.*(..)) && @annotation(operationLog)"))
+    @Around(("execution(public * org.apache.inlong.manager.*.controller.*.*(..)) && @annotation(operationLog)"))
     public Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
         return OperationLogRecorder.doAround(joinPoint, operationLog);
     }

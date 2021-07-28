@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.openapi.config;
+package org.apache.inlong.manager.common.config;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;

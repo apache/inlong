@@ -26,12 +26,17 @@
 # nohup background process
 #
 #======================================================================
-
-# Project name
 if [ $# -lt 1 ] ; then
     echo "USAGE: $0 api|openapi"
     exit 1;
 fi
+
+# Absolute path of bin directory
+BIN_PATH=$(cd $(dirname $0); pwd)
+
+# Enter the root directory path
+cd "$BIN_PATH"/../
+
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/log"
 # api or openapi
@@ -41,12 +46,14 @@ if [ "$1" = "api" ];then
     # Project startup jar package name
     APPLICATION_JAR="manager-api.jar"
     MAIN_CLASS=org.apache.inlong.manager.web.InLongApiApplication
-    LOG_FILE="${LOG_DIR}/sout-manager-api.log"
+    LOG_FILE="${LOG_DIR}/manager-api.log"
+    sed -i "s/manager.log/manager-api.log/g" conf/logback-spring.xml
 elif [ "$1" = "openapi" ]; then
     APPLICATION="InLong-Manager-OpenAPI"
     APPLICATION_JAR="manager-openapi.jar"
     MAIN_CLASS=org.apache.inlong.manager.openapi.InLongOpenApiApplication
-    LOG_FILE="${LOG_DIR}/sout-manager-openapi.log"
+    LOG_FILE="${LOG_DIR}/manager-openapi.log"
+    sed -i "s/manager.log/manager-openapi.log/g" conf/logback-spring.xml
 else
     echo "USAGE: $0 api|openapi"
     exit 1;
@@ -54,13 +61,6 @@ fi
 
 JAVA_HOME=
 export PATH=$PATH:$JAVA_HOME/bin
-
-# Absolute path of bin directory
-BIN_PATH=$(cd $(dirname $0); pwd)
-
-# Enter the root directory path
-cd "$BIN_PATH"
-cd ../
 
 # Print the absolute path of the project root directory
 BASE_PATH=$(pwd)
