@@ -24,8 +24,8 @@ logging:
 spring:
   datasource:
     jdbc-url: jdbc:mysql://127.0.0.1:3306/apache_inlong_manager?serverTimezone=GMT%2b8&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true
-    username: xxxxxx
-    password: xxxxxx
+    username: root
+    password: inlong
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:

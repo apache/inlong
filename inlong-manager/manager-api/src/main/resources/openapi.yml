@@ -32,7 +32,7 @@ spring:
   application:
     name: InLong-Manager-OpenAPI
   profiles:
-    active: dev
+    active: prod
 
   jackson:
     # Serialize the Date type to a timestamp
