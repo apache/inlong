@@ -48,8 +48,8 @@
     </scm>
 
     <issueManagement>
-        <system>JIRA</system>
-        <url>https://issues.apache.org/jira/browse/InLong</url>
+        <system>GitHub Issue</system>
+        <url>https://github.com/apache/incubator-inlong/issues</url>
     </issueManagement>
 
     <mailingLists>
