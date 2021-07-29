@@ -84,7 +84,7 @@ after compile successfully, you could find distribution file at `inlong-distribu
 InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
 
 ## Contribute to InLong
-- Report any issue on [Jira](https://issues.apache.org/jira/browse/InLong)
+- Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
 - Code pull request according to [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
 
 ## Contact Us
@@ -96,7 +96,7 @@ InLong integrates a complete component chain for data reporting in big data scen
 
 ## Documentation
 - Home page: https://inlong.apache.org/en-us/
-- Issues: https://issues.apache.org/jira/browse/InLong
+- Issues: https://github.com/apache/incubator-inlong/issues
 
 ## License
 © Contributors Licensed under an [Apache-2.0](LICENSE) license.

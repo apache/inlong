@@ -50,4 +50,3 @@ notifications:
   pullrequests_comment: commits@inlong.apache.org
   issues_status: dev@inlong.apache.org
   issues_comment: commits@inlong.apache.org
-  jira_options: link label worklog
