@@ -42,7 +42,6 @@
         <netty.version>3.8.0.Final</netty.version>
         <codec.version>1.15</codec.version>
         <servlet.version>2.5-20110124</servlet.version>
-        <tubemq.version>3.8.6</tubemq.version>
         <inlong-common.version>1.3.4</inlong-common.version>
     </properties>
 
@@ -83,9 +82,9 @@
             <version>${servlet.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.tubemq</groupId>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>tubemq-client</artifactId>
-            <version>0.8.0-incubating</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>

@@ -26,21 +26,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - DataProxy Source</name>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>tubemq-client</artifactId>
-            <version>${tubemq-client.version}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-
     <artifactId>dataproxy-source</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <tubemq-client.version>0.10.0-incubating-SNAPSHOT</tubemq-client.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>
