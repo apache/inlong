@@ -24,7 +24,7 @@ spring.jpa.hibernate.ddl-auto=update
 topic.config.schedule=0/5 * * * * ?
 broker.reload.schedule=0/5 * * * * ?
 # mysql configuration for manager
-spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/tubemanager
+spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/tubemanager?useSSL=false
 spring.datasource.username=$MYSQL_USER
 spring.datasource.password=$MYSQL_PASSWD
 # server port
@@ -32,6 +32,13 @@ server.port=8089
 EOF
 # start
 sh ${file_path}/start-manager.sh
-sleep 3
+# init cluster
+until $(curl --output /dev/null --silent --head --fail http://localhost:8089); do
+    sleep 3
+done
+curl --header "Content-Type: application/json" --request POST --data \
+'{"masterIp":"'"$TUBE_MASTER_IP"'","clusterName":"inlong","masterPort":"'"$TUBE_MASTER_PORT"'","masterWebPort":"'"$TUBE_MASTER_WEB_PORT"'","createUser":"manager","token":"'"$TUBE_MASTER_TOKEN"'"}' \
+http://localhost:8089/v1/cluster?method=add
+
 # keep alive
 tail -F ${file_path}/../logs/tubemq-manager.out

@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jdk
 # add tarball from target output
 ARG TUBEMQ_MANAGER_TARBALL
 ADD ${TUBEMQ_MANAGER_TARBALL} /opt/tubemq-manager
@@ -25,6 +25,10 @@ ENV MYSQL_HOST=127.0.0.1
 ENV MYSQL_PORT=3306
 ENV MYSQL_USER=root
 ENV MYSQL_PASSWD=inlong
+ENV TUBE_MASTER_IP=127.0.0.1
+ENV TUBE_MASTER_PORT=8715
+ENV TUBE_MASTER_WEB_PORT=8080
+ENV TUBE_MASTER_TOKEN=abc
 WORKDIR /opt/tubemq-manager
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
