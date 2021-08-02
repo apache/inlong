@@ -34,4 +34,6 @@ WORKDIR /opt/tubemq-server/
 EXPOSE 8715 8080 9001
 # broker port
 EXPOSE 8123 8081
+# zookkeeper port
+EXPOSE 2181
 CMD ["/opt/tubemq-server/bin/tubemq-docker.sh"]
