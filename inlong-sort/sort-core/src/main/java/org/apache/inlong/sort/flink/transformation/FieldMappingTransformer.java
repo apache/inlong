@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.flink.transformation;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.flink.types.Row;
@@ -26,6 +27,8 @@ import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.sort.configuration.Constants.DATA_TIME_FIELD;
 
@@ -33,6 +36,8 @@ import static org.apache.inlong.sort.configuration.Constants.DATA_TIME_FIELD;
  * TODO, replace it with operator when it supports complex transformation.
  */
 public class FieldMappingTransformer implements DataFlowInfoListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FieldMappingTransformer.class);
 
     /**
      * Skips time and attribute fields of source record.
@@ -71,7 +76,15 @@ public class FieldMappingTransformer implements DataFlowInfoListener {
                 sinkRow.setField(i, sourceRow.getField(fieldIndex));
             }
         }
-        return new Record(sourceRecord.getDataflowId(), sinkRow);
+
+        long recordTimestampMillis;
+        try {
+            recordTimestampMillis = ((Timestamp) sourceRow.getField(0)).getTime();
+        } catch (Exception e) {
+            recordTimestampMillis = System.currentTimeMillis();
+            LOG.warn("Failed to extract timestamp from data.", e);
+        }
+        return new Record(sourceRecord.getDataflowId(), recordTimestampMillis, sinkRow);
     }
 
     /**

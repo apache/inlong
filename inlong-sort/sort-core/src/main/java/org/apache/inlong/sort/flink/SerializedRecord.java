@@ -25,6 +25,9 @@ public class SerializedRecord implements Serializable {
 
     private long dataFlowId;
 
+    // Event time
+    private long timestampMillis;
+
     private byte[] data;
 
     /**
@@ -34,13 +37,18 @@ public class SerializedRecord implements Serializable {
 
     }
 
-    public SerializedRecord(long dataFlowId, byte[] data) {
+    public SerializedRecord(long dataFlowId, long timestampMillis, byte[] data) {
         this.dataFlowId = dataFlowId;
+        this.timestampMillis = timestampMillis;
         this.data = data;
     }
 
     public void setDataFlowId(long dataFlowId) {
         this.dataFlowId = dataFlowId;
+    }
+
+    public void setTimestampMillis(long timestampMillis) {
+        this.timestampMillis = timestampMillis;
     }
 
     public void setData(byte[] data) {
@@ -49,6 +57,10 @@ public class SerializedRecord implements Serializable {
 
     public long getDataFlowId() {
         return dataFlowId;
+    }
+
+    public long getTimestampMillis() {
+        return timestampMillis;
     }
 
     public byte[] getData() {

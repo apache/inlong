@@ -20,6 +20,7 @@ package org.apache.inlong.sort.flink;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.configuration.Constants.SINK_TYPE_HIVE;
 
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -30,8 +31,16 @@ import org.apache.inlong.sort.flink.clickhouse.ClickHouseMultiSinkFunction;
 import org.apache.inlong.sort.flink.deserialization.DeserializationSchema;
 import org.apache.inlong.sort.flink.hive.HiveMultiTenantCommitter;
 import org.apache.inlong.sort.flink.hive.HiveMultiTenantWriter;
+import org.apache.inlong.sort.flink.metrics.MetricData;
+import org.apache.inlong.sort.flink.metrics.MetricsAggregator.MetricsAggregateFunction;
+import org.apache.inlong.sort.flink.metrics.MetricsAggregator.MetricsProcessWindowFunction;
+import org.apache.inlong.sort.flink.metrics.MetricsAssignerWithPeriodicWatermarks;
+import org.apache.inlong.sort.flink.metrics.MetricsLogSink;
 import org.apache.inlong.sort.flink.tubemq.MultiTopicTubeSourceFunction;
 import org.apache.inlong.sort.util.ParameterTool;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.OutputTag;
 
 public class Entrance {
 
@@ -58,6 +67,7 @@ public class Entrance {
         env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
 
+        // Data stream
         DataStream<SerializedRecord> sourceStream;
         if (sourceType.equals(Constants.SOURCE_TYPE_TUBE)) {
             sourceStream = env
@@ -93,6 +103,39 @@ public class Entrance {
                     .setParallelism(config.getInteger(Constants.COMMITTER_PARALLELISM));
         } else {
             throw new IllegalArgumentException("Unsupported sink type " + sinkType);
+        }
+
+        // Metric stream
+        final boolean enableOutputMetrics = config.getBoolean(Constants.METRICS_ENABLE_OUTPUT);
+        if (enableOutputMetrics) {
+            final int metricsAggregatorParallelism = config.getInteger(Constants.METRICS_AGGREGATOR_PARALLELISM);
+            final int metricsTimestampWatermarkAssignerParallelism = config
+                    .getInteger(Constants.METRICS_TIMESTAMP_WATERMARK_ASSIGNER_PARALLELISM);
+            final int metricsMySQLSinkParallelism = config.getInteger(Constants.METRICS_SINK_PARALLELISM);
+            final OutputTag<MetricData> outputTag = new OutputTag<MetricData>(Constants.METRIC_DATA_OUTPUT_TAG_ID) {};
+
+            final DataStream<MetricData> metricsDataStream = deserializationStream
+                    .getSideOutput(outputTag)
+                    .assignTimestampsAndWatermarks(new MetricsAssignerWithPeriodicWatermarks())
+                    .setParallelism(metricsTimestampWatermarkAssignerParallelism)
+                    .uid(Constants.METRICS_TIMESTAMP_AND_WATERMARK_ASSIGNER_UID)
+                    .name("Metrics timestamp/watermark assigner");
+
+            final DataStream<MetricData> metricsAggregatorStream = metricsDataStream
+                    .keyBy((KeySelector<MetricData, String>) MetricData::getKey)
+                    .window(TumblingEventTimeWindows.of(
+                            Time.minutes(config.getInteger(Constants.METRICS_AGGREGATOR_WINDOW_SIZE))))
+                    .allowedLateness(Time.milliseconds(Long.MAX_VALUE))
+                    .aggregate(new MetricsAggregateFunction(), new MetricsProcessWindowFunction())
+                    .setParallelism(metricsAggregatorParallelism)
+                    .uid(Constants.METRICS_AGGREGATOR_UID)
+                    .name("Metrics aggregator");
+
+            metricsAggregatorStream
+                .addSink(new MetricsLogSink())
+                .setParallelism(metricsMySQLSinkParallelism)
+                .uid(Constants.METRICS_SINK_UID)
+                .name("Metrics sink");
         }
 
         env.execute(clusterId);

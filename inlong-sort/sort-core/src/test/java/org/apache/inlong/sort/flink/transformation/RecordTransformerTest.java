@@ -53,7 +53,7 @@ public class RecordTransformerTest extends TestLogger {
         final Row row = new Row(2);
         row.setField(0, 1024L);
         row.setField(1, "9527");
-        final Record record = new Record(1L, row);
+        final Record record = new Record(1L, System.currentTimeMillis(), row);
         final Record transformed = transformer.toRecord(transformer.toSerializedRecord(record));
         assertEquals(record, transformed);
         // check the buffers
@@ -81,7 +81,7 @@ public class RecordTransformerTest extends TestLogger {
         final Row row = new Row(2);
         row.setField(0, 1024L);
         row.setField(1, "9527");
-        final Record record = new Record(1L, row);
+        final Record record = new Record(1L, System.currentTimeMillis(), row);
 
         assertSame(record, transformer.matchRecordAndSerializerField(record, rowSerializers.get(1L)));
     }
@@ -101,7 +101,7 @@ public class RecordTransformerTest extends TestLogger {
 
         final Row oneFieldRow = new Row(1);
         oneFieldRow.setField(0, 1024L);
-        final Record oneFieldRecord = new Record(1L, oneFieldRow);
+        final Record oneFieldRecord = new Record(1L, System.currentTimeMillis(), oneFieldRow);
 
         assertEquals(2,
                 transformer.matchRecordAndSerializerField(oneFieldRecord, rowSerializers.get(1L)).getRow().getArity());
@@ -110,7 +110,7 @@ public class RecordTransformerTest extends TestLogger {
         threeFieldRow.setField(0, 1024L);
         threeFieldRow.setField(1, "9527");
         threeFieldRow.setField(2, 2048);
-        final Record threeFieldRecord = new Record(1L, threeFieldRow);
+        final Record threeFieldRecord = new Record(1L, System.currentTimeMillis(), threeFieldRow);
 
         assertEquals(2,
                 transformer.matchRecordAndSerializerField(threeFieldRecord, rowSerializers.get(1L)).getRow()
@@ -123,7 +123,7 @@ public class RecordTransformerTest extends TestLogger {
         final Row row = new Row(2);
         row.setField(0, 1024L);
         row.setField(1, "9527");
-        final Record record = new Record(1L, row);
+        final Record record = new Record(1L, System.currentTimeMillis(), row);
 
         final int bufferSize = 1024;
         final RecordTransformer transformer = new RecordTransformer(bufferSize);
@@ -165,7 +165,7 @@ public class RecordTransformerTest extends TestLogger {
         final Row row = new Row(2);
         row.setField(0, 1024L);
         row.setField(1, 2048);
-        final Record record = new Record(1L, row);
+        final Record record = new Record(1L, System.currentTimeMillis(), row);
 
         try {
             transformer.toSerializedRecord(record);

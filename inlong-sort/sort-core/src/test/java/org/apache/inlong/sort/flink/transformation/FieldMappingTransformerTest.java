@@ -56,7 +56,7 @@ public class FieldMappingTransformerTest extends TestLogger {
         sourceRow.setField(1, "attr");
         sourceRow.setField(2, "not important");
         sourceRow.setField(3, 9527L);
-        final Record sourceRecord = new Record(dataFlowId, sourceRow);
+        final Record sourceRecord = new Record(dataFlowId, System.currentTimeMillis(), sourceRow);
         final Record sinkRecord = transformer.transform(sourceRecord);
         assertEquals(dataFlowId, sinkRecord.getDataflowId());
         assertEquals(1, sinkRecord.getRow().getArity());
@@ -81,7 +81,7 @@ public class FieldMappingTransformerTest extends TestLogger {
         sourceRow.setField(0, dt);
         sourceRow.setField(1, "attr");
         sourceRow.setField(2, 9527L);
-        final Record sourceRecord = new Record(dataFlowId, sourceRow);
+        final Record sourceRecord = new Record(dataFlowId, System.currentTimeMillis(), sourceRow);
         final Record sinkRecord = transformer.transform(sourceRecord);
         assertEquals(dataFlowId, sinkRecord.getDataflowId());
         assertEquals(2, sinkRecord.getRow().getArity());

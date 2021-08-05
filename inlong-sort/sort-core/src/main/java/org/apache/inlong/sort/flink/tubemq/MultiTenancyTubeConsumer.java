@@ -396,7 +396,8 @@ public class MultiTenancyTubeConsumer {
                 synchronized (context.getCheckpointLock()) {
                     for (Message message : consumeResult.getMessageList()) {
                         // TODO, optimize for single tid or no tid topic
-                        context.collect(new TDMsgSerializedRecord(topic, message.getData()));
+                        context.collect(new TDMsgSerializedRecord(
+                                topic, System.currentTimeMillis(), message.getData()));
                     }
                     final String partitionKey = consumeResult.getPartitionKey();
                     final long offset = consumeResult.getCurrOffset();
