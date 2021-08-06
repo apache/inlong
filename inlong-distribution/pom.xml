@@ -47,7 +47,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>apache-${project.artifactId}-${project.version}</finalName>
+                    <finalName>apache-${project.parent.artifactId}-${project.version}</finalName>
                     <descriptors>
                         <descriptor>distribution.xml</descriptor>
                     </descriptors>
