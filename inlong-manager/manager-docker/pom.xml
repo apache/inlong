@@ -74,7 +74,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>${docker.organization}/manager</repository>
+                            <repository>${docker.organization}/manager-web</repository>
                             <pullNewerImage>false</pullNewerImage>
                             <tag>${project.version}</tag>
                             <buildArgs>
