@@ -18,8 +18,9 @@
 package client
 
 type PeerInfo struct {
-	partitionID  uint32
-	brokerHost   string
-	partitionKey string
-	currOffset   int64
+	PartitionID  uint32
+	BrokerHost   string
+	PartitionKey string
+	CurrOffset   int64
+	MaxOffset    int64
 }

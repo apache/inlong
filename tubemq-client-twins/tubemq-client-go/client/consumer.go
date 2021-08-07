@@ -29,8 +29,8 @@ type ConsumerResult struct {
 
 // ConsumerOffset of a consumption.
 type ConsumerOffset struct {
-	partitionKey string
-	currOffset   int64
+	PartitionKey string
+	CurrOffset   int64
 }
 
 var clientID uint64

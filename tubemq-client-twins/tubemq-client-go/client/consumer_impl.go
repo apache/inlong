@@ -209,10 +209,10 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	confirmContext := partition.GetPartitionKey() + "@" + strconv.FormatInt(bookedTime, 10)
 	isFiltered := c.subInfo.IsFiltered(partition.GetTopic())
 	pi := &PeerInfo{
-		brokerHost:   partition.GetBroker().GetHost(),
-		partitionID:  uint32(partition.GetPartitionID()),
-		partitionKey: partition.GetPartitionKey(),
-		currOffset:   util.InvalidValue,
+		BrokerHost:   partition.GetBroker().GetHost(),
+		PartitionID:  uint32(partition.GetPartitionID()),
+		PartitionKey: partition.GetPartitionKey(),
+		CurrOffset:   util.InvalidValue,
 	}
 	m := &metadata.Metadata{}
 	node := &metadata.Node{}
@@ -273,10 +273,10 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResul
 	}
 
 	pi := &PeerInfo{
-		brokerHost:   partition.GetBroker().GetHost(),
-		partitionID:  uint32(partition.GetPartitionID()),
-		partitionKey: partition.GetPartitionKey(),
-		currOffset:   util.InvalidValue,
+		BrokerHost:   partition.GetBroker().GetHost(),
+		PartitionID:  uint32(partition.GetPartitionID()),
+		PartitionKey: partition.GetPartitionKey(),
+		CurrOffset:   util.InvalidValue,
 	}
 	cs := &ConsumerResult{
 		TopicName: partition.GetTopic(),
@@ -329,8 +329,8 @@ func (c *consumer) GetCurrConsumedInfo() map[string]*ConsumerOffset {
 	consumedInfo := make(map[string]*ConsumerOffset, len(partitionOffset))
 	for partition, offset := range partitionOffset {
 		co := &ConsumerOffset{
-			partitionKey: partition,
-			currOffset:   offset,
+			PartitionKey: partition,
+			CurrOffset:   offset,
 		}
 		consumedInfo[partition] = co
 	}
@@ -576,11 +576,16 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		if rsp.GetCurrOffset() >= 0 {
 			currOffset = rsp.GetCurrOffset()
 		}
+		maxOffset := util.InvalidValue
+		if rsp.GetMaxOffset() >= 0 {
+			maxOffset = rsp.GetMaxOffset()
+		}
 		msgSize, msgs := c.convertMessages(filtered, partition.GetTopic(), rsp)
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset)
 		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
-		pi.currOffset = currOffset
+		pi.CurrOffset = currOffset
+		pi.MaxOffset = maxOffset
 		log.Tracef("[CONSUMER] getMessage count=%ld, from %s, client=%s", len(msgs), partition.GetPartitionKey(), c.clientID)
 		return msgs, nil
 	case errs.RetErrHBNoNode, errs.RetCertificateFailure, errs.RetErrDuplicatePartition:
