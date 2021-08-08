@@ -21,8 +21,27 @@ file_path=$(
   pwd
 )
 
-# start
-sh "${file_path}"/bin/startup.sh
+if [ -f "${ACTIVE_PROFILE}" ]; then
+  "${ACTIVE_PROFILE}" = dev
+fi
+conf_file="${file_path}"/conf/application-"${ACTIVE_PROFILE}".properties
+
+# replace the configuration
+sed -i "s/datasource.jdbc\-url=.*$/datasource.jdbc\-url=${JDBC_URL}/g" "${conf_file}"
+sed -i "s/datasource.username=.*$/datasource.username=${USERNAME}/g" "${conf_file}"
+sed -i "s/datasource.password=.*$/datasource.password=${PASSWORD}/g" "${conf_file}"
+
+sed -i "s/cluster.tube.manager=.*$/cluster.tube.manager\=${TUBE_MANAGER}/g" "${conf_file}"
+sed -i "s/cluster.tube.master=.*$/cluster.tube.master\=${TUBE_MASTER}/g" "${conf_file}"
+sed -i "s/cluster.tube.clusterId=.*$/cluster.tube.clusterId=${TUBE_CLUSTER_ID}/g" "${conf_file}"
+sed -i "s/cluster.zk.url=.*$/cluster.zk.url=${ZK_URL}/g" "${conf_file}"
+sed -i "s/cluster.zk.root=.*$/cluster.zk.root=${ZK_ROOT}/g" "${conf_file}"
+sed -i "s/sort.appName=.*$/sort.appName=${SORT_APP_NAME}/g" "${conf_file}"
+
+# startup the application
+JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"
+
+sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3
 # keep alive
 tail -F "${file_path}"/log/manager-web.log

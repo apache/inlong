@@ -94,13 +94,16 @@ echo "" >${LOG_FILE}
 # JVM Configuration
 JAVA_OPT="-server -Xms4g -Xmx4g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
 
-#gc options
+# outside param
+JAVA_OPT="${JAVA_OPT} $1"
+
+# GC options
 JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:${LOG_DIR}/gc.log"
 
-#jmx metrics
-#JAVA_OPT="${JAVA_OPT} -Dcom.sun.management.jmxremote  -Dcom.sun.management.jmxremote.port=8011  -Dcom.sun.management.jmxremote.ssl=false  -Dcom.sun.management.jmxremote.authenticate=false"
+# JMX metrics
+#JAVA_OPT="${JAVA_OPT} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8011 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 
-#remote debugger
+# Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
 #=======================================================
