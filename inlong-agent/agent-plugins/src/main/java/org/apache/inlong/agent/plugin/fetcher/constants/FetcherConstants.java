@@ -34,7 +34,7 @@ public class FetcherConstants {
     public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/getilmvirtualip";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/openapi/inlong/manager/agent";
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi/agent";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.vip.http.task.path";
     public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/file_agent/taskconf";
