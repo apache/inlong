@@ -19,18 +19,16 @@
 // which can be exposed to user.
 package client
 
+import (
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/remote"
+)
+
 // ConsumerResult of a consumption.
 type ConsumerResult struct {
 	TopicName      string
 	ConfirmContext string
 	PeerInfo       *PeerInfo
 	Messages       []*Message
-}
-
-// ConsumerOffset of a consumption.
-type ConsumerOffset struct {
-	PartitionKey string
-	CurrOffset   int64
 }
 
 var clientID uint64
@@ -42,7 +40,7 @@ type Consumer interface {
 	// Confirm the consumption of a message.
 	Confirm(confirmContext string, consumed bool) (*ConsumerResult, error)
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
-	GetCurrConsumedInfo() map[string]*ConsumerOffset
+	GetCurrConsumedInfo() map[string]*remote.ConsumerOffset
 	// Close closes the consumer client and release the resources.
 	Close() error
 	// GetClientID returns the clientID of the consumer.
