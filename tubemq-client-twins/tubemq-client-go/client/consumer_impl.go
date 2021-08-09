@@ -286,7 +286,7 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResul
 		return cs, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	}
 	currOffset := rsp.GetCurrOffset()
-	c.rmtDataCache.BookPartitionInfo(partitionKey, currOffset)
+	c.rmtDataCache.BookPartitionInfo(partitionKey, currOffset, util.InvalidValue)
 	err = c.rmtDataCache.ReleasePartition(true, c.subInfo.IsFiltered(topic), confirmContext, consumed)
 	return cs, err
 }
@@ -324,15 +324,17 @@ func parsePartitionKeyToTopic(partitionKey string) (string, error) {
 }
 
 // GetCurrConsumedInfo implementation of TubeMQ consumer.
-func (c *consumer) GetCurrConsumedInfo() map[string]*ConsumerOffset {
+func (c *consumer) GetCurrConsumedInfo() map[string]*remote.ConsumerOffset {
 	partitionOffset := c.rmtDataCache.GetCurPartitionOffset()
-	consumedInfo := make(map[string]*ConsumerOffset, len(partitionOffset))
-	for partition, offset := range partitionOffset {
-		co := &ConsumerOffset{
-			PartitionKey: partition,
-			CurrOffset:   offset,
+	consumedInfo := make(map[string]*remote.ConsumerOffset, len(partitionOffset))
+	for partitionKey, offset := range partitionOffset {
+		co := &remote.ConsumerOffset{
+			PartitionKey: partitionKey,
+			CurrOffset:   offset.CurrOffset,
+			MaxOffset:    offset.MaxOffset,
+			UpdateTime:   offset.UpdateTime,
 		}
-		consumedInfo[partition] = co
+		consumedInfo[partitionKey] = co
 	}
 	return consumedInfo
 }
@@ -581,7 +583,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 			maxOffset = rsp.GetMaxOffset()
 		}
 		msgSize, msgs := c.convertMessages(filtered, partition.GetTopic(), rsp)
-		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset)
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset, maxOffset)
 		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		pi.CurrOffset = currOffset
@@ -601,7 +603,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 			defDltTime = c.config.Consumer.MsgNotFoundWait.Milliseconds()
 		}
 		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
-		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue, util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	case errs.RetErrNotFound:
@@ -614,7 +616,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 	}
 	if rsp.GetErrCode() != errs.RetSuccess {
 		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, util.InvalidValue, rsp.GetRequireSlow())
-		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue)
+		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue, util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
 		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())

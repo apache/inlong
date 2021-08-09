@@ -53,11 +53,19 @@ type RmtDataCache struct {
 	partitionTimeouts  map[string]*time.Timer
 	topicPartitions    map[string]map[string]bool
 	partitionRegBooked map[string]bool
-	partitionOffset    map[string]int64
+	partitionOffset    map[string]*ConsumerOffset
 	groupHandler       *flowctrl.RuleHandler
 	defHandler         *flowctrl.RuleHandler
 	// EventCh is the channel for consumer to consume
 	EventCh chan *metadata.ConsumerEvent
+}
+
+// ConsumerOffset of a consumption.
+type ConsumerOffset struct {
+	PartitionKey string
+	CurrOffset   int64
+	MaxOffset    int64
+	UpdateTime   int64
 }
 
 // NewRmtDataCache returns a default rmtDataCache.
@@ -73,7 +81,7 @@ func NewRmtDataCache() *RmtDataCache {
 		partitionTimeouts:  make(map[string]*time.Timer),
 		topicPartitions:    make(map[string]map[string]bool),
 		partitionRegBooked: make(map[string]bool),
-		partitionOffset:    make(map[string]int64),
+		partitionOffset:    make(map[string]*ConsumerOffset),
 		groupHandler:       flowctrl.NewRuleHandler(),
 		defHandler:         flowctrl.NewRuleHandler(),
 		EventCh:            make(chan *metadata.ConsumerEvent, 1),
@@ -461,11 +469,28 @@ func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
 }
 
-func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64) {
+func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64, maxOffset int64) {
+	r.dataBookMu.Lock()
+	defer r.dataBookMu.Unlock()
+	if _, ok := r.partitionOffset[partitionKey]; !ok {
+		co := &ConsumerOffset{
+			CurrOffset:   util.InvalidValue,
+			PartitionKey: partitionKey,
+			MaxOffset:    util.InvalidValue,
+			UpdateTime:   util.InvalidValue,
+		}
+		r.partitionOffset[partitionKey] = co
+	}
+	updated := false
+	co := r.partitionOffset[partitionKey]
 	if currOffset >= 0 {
-		r.dataBookMu.Lock()
-		defer r.dataBookMu.Unlock()
-		r.partitionOffset[partitionKey] = currOffset
+		co.CurrOffset = currOffset
+	}
+	if maxOffset >= 0 {
+		co.MaxOffset = maxOffset
+	}
+	if updated {
+		co.UpdateTime = time.Now().UnixNano() / int64(time.Millisecond)
 	}
 }
 
@@ -519,7 +544,7 @@ func (r *RmtDataCache) GetAllClosedBrokerParts() map[*metadata.Node][]*metadata.
 }
 
 // GetCurPartitionOffset returns the partition to offset map.
-func (r *RmtDataCache) GetCurPartitionOffset() map[string]int64 {
+func (r *RmtDataCache) GetCurPartitionOffset() map[string]*ConsumerOffset {
 	r.dataBookMu.Lock()
 	defer r.dataBookMu.Unlock()
 	return r.partitionOffset
