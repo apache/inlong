@@ -17,26 +17,21 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBlackGroupEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbConsumerGroupEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
@@ -101,800 +96,57 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     /**
-     * Add group filter condition info
+     * Query black consumer group info
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            String topicName =
-                    WebParameterUtils.validStringParameter("topicName",
-                            req.getParameter("topicName"),
-                            TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                            true, "");
-            Set<String> configuredTopicSet =
-                    brokerConfManager.getTotalConfiguredTopicNames();
-            if (!configuredTopicSet.contains(topicName)) {
-                throw new Exception(sBuilder.append("Topic: ").append(topicName)
-                        .append(" not configure in master's topic configure, please configure first!").toString());
-            }
-            final int filterCondStatus =
-                    WebParameterUtils.validIntDataParameter("condStatus",
-                            req.getParameter("condStatus"),
-                            false, 0, 0);
-            String groupName =
-                WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    true, "");
-            final String strNewFilterConds =
-                    WebParameterUtils.checkAndGetFilterConds(req.getParameter("filterConds"), true, sBuilder);
-            BdbTopicAuthControlEntity topicAuthControlEntity =
-                    brokerConfManager.getBdbEnableAuthControlByTopicName(topicName);
-            if (topicAuthControlEntity == null) {
-                try {
-                    brokerConfManager.confSetBdbTopicAuthControl(
-                            new BdbTopicAuthControlEntity(topicName,
-                                    false, createUser, createDate));
-                } catch (Exception ee) {
-                    //
-                }
-            }
-            BdbConsumerGroupEntity webConsumerGroupEntity =
-                    new BdbConsumerGroupEntity();
-            webConsumerGroupEntity.setGroupTopicName(topicName);
-            webConsumerGroupEntity.setConsumerGroupName(groupName);
-            List<BdbConsumerGroupEntity> resultEntities =
-                    brokerConfManager.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
-            if (resultEntities.isEmpty()) {
-                try {
-                    brokerConfManager.confAddAllowedConsumerGroup(
-                            new BdbConsumerGroupEntity(topicName,
-                                    groupName, createUser, createDate));
-                } catch (Throwable e2) {
-                    //
-                }
-            }
-            brokerConfManager.confAddNewGroupFilterCond(
-                    new BdbGroupFilterCondEntity(topicName, groupName,
-                            filterCondStatus, strNewFilterConds, createUser, createDate));
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+    public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
+        // build query entity
+        GroupConsumeCtrlEntity entity = new GroupConsumeCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, entity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Add group filter info in batch
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            List<Map<String, String>> filterJsonArray =
-                    WebParameterUtils.checkAndGetJsonArray("filterCondJsonSet",
-                            req.getParameter("filterCondJsonSet"),
-                            TBaseConstants.META_VALUE_UNDEFINED, true);
-            if ((filterJsonArray == null) || (filterJsonArray.isEmpty())) {
-                throw new Exception("Null value of filterCondJsonSet, please set the value first!");
-            }
-            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
-            HashMap<String, BdbGroupFilterCondEntity> inGroupFilterCondEntityMap =
-                    new HashMap<>();
-            for (int j = 0; j < filterJsonArray.size(); j++) {
-                Map<String, String> groupObject = filterJsonArray.get(j);
-                try {
-                    String groupName =
-                        WebParameterUtils.validGroupParameter("groupName",
-                            groupObject.get("groupName"),
-                            TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                            true, "");
-                    String groupTopicName =
-                            WebParameterUtils.validStringParameter("topicName",
-                                    groupObject.get("topicName"),
-                                    TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                                    true, "");
-                    if (!configuredTopicSet.contains(groupTopicName)) {
-                        throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
-                                .append(" not configure in master configure, please configure first!").toString());
-                    }
-                    int filterCondStatus =
-                            WebParameterUtils.validIntDataParameter("condStatus",
-                                    groupObject.get("condStatus"),
-                                    false, 0, 0);
-                    String strNewFilterConds =
-                            WebParameterUtils.checkAndGetFilterConds(
-                                    (String) groupObject.get("filterConds"),
-                                    true, sBuilder);
-                    String recordKey = sBuilder.append(groupName)
-                            .append("-").append(groupTopicName).toString();
-                    sBuilder.delete(0, sBuilder.length());
-                    inGroupFilterCondEntityMap.put(recordKey,
-                            new BdbGroupFilterCondEntity(groupTopicName, groupName,
-                                    filterCondStatus, strNewFilterConds,
-                                    createUser, createDate));
-                } catch (Exception ee) {
-                    sBuilder.delete(0, sBuilder.length());
-                    throw new Exception(sBuilder.append("Process data exception, data is :")
-                            .append(groupObject.toString()).append(", exception is : ")
-                            .append(ee.getMessage()).toString());
-                }
-            }
-            if (inGroupFilterCondEntityMap.isEmpty()) {
-                throw new Exception("Not found record in filterCondJsonSet parameter");
-            }
-            for (BdbGroupFilterCondEntity entity : inGroupFilterCondEntityMap.values()) {
-                BdbTopicAuthControlEntity topicAuthControlEntity =
-                        brokerConfManager.getBdbEnableAuthControlByTopicName(entity.getTopicName());
-                if (topicAuthControlEntity == null) {
-                    try {
-                        brokerConfManager.confSetBdbTopicAuthControl(
-                                new BdbTopicAuthControlEntity(entity.getTopicName(),
-                                        false, createUser, createDate));
-                    } catch (Exception ee) {
-                        //
-                    }
-                }
-                BdbConsumerGroupEntity groupEntity =
-                        new BdbConsumerGroupEntity();
-                groupEntity.setGroupTopicName(entity.getTopicName());
-                groupEntity.setConsumerGroupName(entity.getConsumerGroupName());
-                List<BdbConsumerGroupEntity> webConsumerGroupEntities =
-                        brokerConfManager.confGetBdbAllowedConsumerGroupSet(groupEntity);
-                if (webConsumerGroupEntities.isEmpty()) {
-                    try {
-                        brokerConfManager.confAddAllowedConsumerGroup(
-                                new BdbConsumerGroupEntity(entity.getTopicName(),
-                                        entity.getConsumerGroupName(), createUser, createDate));
-                    } catch (Throwable e2) {
-                        //
-                    }
-                }
-                brokerConfManager.confAddNewGroupFilterCond(entity);
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Modify group filter condition info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String modifyUser =
-                    WebParameterUtils.validStringParameter("modifyUser",
-                            req.getParameter("modifyUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("modifyDate",
-                            req.getParameter("modifyDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            String topicName =
-                    WebParameterUtils.validStringParameter("topicName",
-                            req.getParameter("topicName"),
-                            TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                            true, "");
-            Set<String> configuredTopicSet =
-                    brokerConfManager.getTotalConfiguredTopicNames();
-            if (!configuredTopicSet.contains(topicName)) {
-                throw new Exception(sBuilder.append("Topic: ").append(topicName)
-                        .append(" not configure in master's topic configure, please configure first!").toString());
-            }
-            String groupName =
-                WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    true, "");
-            BdbGroupFilterCondEntity curFilterCondEntity =
-                    brokerConfManager.getBdbAllowedGroupFilterConds(topicName, groupName);
-            if (curFilterCondEntity == null) {
-                throw new Exception(sBuilder
-                        .append("Not found group filter condition configure record by topicName=")
-                        .append(topicName).append(", groupName=")
-                        .append(groupName).toString());
-            }
-            boolean foundChange = false;
-            BdbGroupFilterCondEntity newFilterCondEntity =
-                    new BdbGroupFilterCondEntity(curFilterCondEntity.getTopicName(),
-                            curFilterCondEntity.getConsumerGroupName(),
-                            curFilterCondEntity.getControlStatus(),
-                            curFilterCondEntity.getAttributes(),
-                            modifyUser, modifyDate);
-            int filterCondStatus =
-                    WebParameterUtils.validIntDataParameter("condStatus",
-                            req.getParameter("condStatus"),
-                            false,
-                            TBaseConstants.META_VALUE_UNDEFINED,
-                            0);
-            if (filterCondStatus != TBaseConstants.META_VALUE_UNDEFINED
-                    && filterCondStatus != curFilterCondEntity.getControlStatus()) {
-                foundChange = true;
-                newFilterCondEntity.setControlStatus(filterCondStatus);
-            }
-            String strNewFilterConds =
-                    WebParameterUtils.checkAndGetFilterConds(req.getParameter("filterConds"), false, sBuilder);
-            if (TStringUtils.isNotBlank(strNewFilterConds)) {
-                if (!curFilterCondEntity.getAttributes().equals(strNewFilterConds)) {
-                    foundChange = true;
-                    newFilterCondEntity.setAttributes(strNewFilterConds);
-                }
-            }
-            if (foundChange) {
-                try {
-                    brokerConfManager.confModGroupFilterCondConfig(newFilterCondEntity);
-                } catch (Throwable ee) {
-                    //
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Modify group filter condition info in batch
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String modifyUser =
-                    WebParameterUtils.validStringParameter("modifyUser",
-                            req.getParameter("modifyUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("modifyDate",
-                            req.getParameter("modifyDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            List<Map<String, String>> jsonArray =
-                    WebParameterUtils.checkAndGetJsonArray("filterCondJsonSet",
-                            req.getParameter("filterCondJsonSet"),
-                            TBaseConstants.META_VALUE_UNDEFINED, true);
-            if ((jsonArray == null) || (jsonArray.isEmpty())) {
-                throw new Exception("Null value of filterCondJsonSet, please set the value first!");
-            }
-            Set<String> batchRecords = new HashSet<>();
-            List<BdbGroupFilterCondEntity> modifyFilterCondEntities = new ArrayList<>();
-            for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, String> groupObject = jsonArray.get(j);
-                try {
-                    String groupName =
-                        WebParameterUtils.validGroupParameter("groupName",
-                            groupObject.get("groupName"),
-                            TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                            true, "");
-                    String topicName =
-                            WebParameterUtils.validStringParameter("topicName",
-                                    groupObject.get("topicName"),
-                                    TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                                    true, "");
-                    BdbGroupFilterCondEntity curFilterCondEntity =
-                            brokerConfManager.getBdbAllowedGroupFilterConds(topicName, groupName);
-                    if (curFilterCondEntity == null) {
-                        throw new Exception(sBuilder
-                                .append("Not found group filter condition configure record by topicName=")
-                                .append(topicName)
-                                .append(", groupName=")
-                                .append(groupName).toString());
-                    }
-                    String recordKey = sBuilder.append(groupName)
-                            .append("-").append(topicName).toString();
-                    sBuilder.delete(0, sBuilder.length());
-                    if (batchRecords.contains(recordKey)) {
-                        continue;
-                    }
-                    boolean foundChange = false;
-                    BdbGroupFilterCondEntity newFilterCondEntity =
-                            new BdbGroupFilterCondEntity(curFilterCondEntity.getTopicName(),
-                                    curFilterCondEntity.getConsumerGroupName(),
-                                    curFilterCondEntity.getControlStatus(),
-                                    curFilterCondEntity.getAttributes(),
-                                    modifyUser, modifyDate);
-                    int filterCondStatus =
-                            WebParameterUtils.validIntDataParameter("condStatus",
-                                    groupObject.get("condStatus"),
-                                    false, TBaseConstants.META_VALUE_UNDEFINED,
-                                    0);
-                    if (filterCondStatus != TBaseConstants.META_VALUE_UNDEFINED
-                            && filterCondStatus != curFilterCondEntity.getControlStatus()) {
-                        foundChange = true;
-                        newFilterCondEntity.setControlStatus(filterCondStatus);
-                    }
-                    String strNewFilterConds =
-                            WebParameterUtils.checkAndGetFilterConds(
-                                    (String) groupObject.get("filterConds"),
-                                    false, sBuilder);
-                    if (TStringUtils.isNotBlank(strNewFilterConds)) {
-                        if (!curFilterCondEntity.getAttributes().equals(strNewFilterConds)) {
-                            foundChange = true;
-                            newFilterCondEntity.setAttributes(strNewFilterConds);
-                        }
-                    }
-                    if (!foundChange) {
-                        continue;
-                    }
-                    batchRecords.add(recordKey);
-                    modifyFilterCondEntities.add(newFilterCondEntity);
-                } catch (Exception ee) {
-                    sBuilder.delete(0, sBuilder.length());
-                    throw new Exception(sBuilder.append("Process data exception, data is :")
-                            .append(groupObject.toString())
-                            .append(", exception is : ")
-                            .append(ee.getMessage()).toString());
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // only query disable consume group
+        entity.setConsumeEnable(false);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResult =
+                metaDataManager.getGroupConsumeCtrlConf(groupNameSet, topicNameSet, entity);
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (List<GroupConsumeCtrlEntity> entryList : qryResult.values()) {
+            for (GroupConsumeCtrlEntity entry : entryList) {
+                if (totalCnt++ > 0) {
+                    sBuffer.append(",");
                 }
+                sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
+                        .append(",\"reason\":\"").append(entry.getDisableReason()).append("\"")
+                        .append(",\"dataVersionId\":").append(entry.getDataVerId())
+                        .append(",\"createUser\":\"").append(entry.getCreateUser()).append("\"")
+                        .append(",\"createDate\":\"").append(entry.getCreateDateStr()).append("\"")
+                        .append(",\"modifyUser\":\"").append(entry.getModifyUser()).append("\"")
+                        .append(",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
             }
-            for (BdbGroupFilterCondEntity tmpFilterCondEntity : modifyFilterCondEntities) {
-                try {
-                    brokerConfManager.confModGroupFilterCondConfig(tmpFilterCondEntity);
-                } catch (Throwable ee) {
-                    //
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
         }
-        return sBuilder;
-    }
-
-    /**
-     * Delete group filter condition info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            Set<String> batchOpTopicNames =
-                    WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
-                            true, false, null, sBuilder);
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            false, false, null, sBuilder);
-            if (batchOpGroupNames.isEmpty()) {
-                for (String tmpTopicName : batchOpTopicNames) {
-                    BdbGroupFilterCondEntity webFilterCondEntity =
-                            new BdbGroupFilterCondEntity();
-                    webFilterCondEntity.setTopicName(tmpTopicName);
-                    List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                            brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                    if (!webFilterCondEntities.isEmpty()) {
-                        webFilterCondEntity.setCreateUser("System");
-                        brokerConfManager.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                    }
-                }
-            } else {
-                for (String tmpTopicName : batchOpTopicNames) {
-                    for (String tmpGroupName : batchOpGroupNames) {
-                        BdbGroupFilterCondEntity webFilterCondEntity =
-                                new BdbGroupFilterCondEntity();
-                        webFilterCondEntity.setTopicName(tmpTopicName);
-                        webFilterCondEntity.setConsumerGroupName(tmpGroupName);
-                        List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                                brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                        if (!webFilterCondEntities.isEmpty()) {
-                            webFilterCondEntity.setCreateUser("System");
-                            brokerConfManager.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                        }
-                    }
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
-        }
-        return sBuilder;
-    }
-
-    /**
-     * Re-balance group allocation info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String groupName =
-                WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    true, "");
-            String modifyUser =
-                    WebParameterUtils.validStringParameter("modifyUser",
-                            req.getParameter("modifyUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("modifyDate",
-                            req.getParameter("modifyDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            int reJoinWait =
-                    WebParameterUtils.validIntDataParameter("reJoinWait",
-                            req.getParameter("reJoinWait"),
-                            false, 0, 0);
-            Set<String> batchOpConsumerIds = new HashSet<>();
-            String inputConsumerId = req.getParameter("consumerId");
-            if (TStringUtils.isNotBlank(inputConsumerId)) {
-                inputConsumerId = inputConsumerId.trim();
-                String[] strInputConsumerIds =
-                        inputConsumerId.split(TokenConstants.ARRAY_SEP);
-                for (int i = 0; i < strInputConsumerIds.length; i++) {
-                    if (TStringUtils.isBlank(strInputConsumerIds[i])) {
-                        continue;
-                    }
-                    String consumerId = strInputConsumerIds[i].trim();
-                    if (consumerId.length() > TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH) {
-                        throw new Exception(sBuilder.append("The max length of ")
-                                .append(consumerId)
-                                .append(" in consumerId parameter over ")
-                                .append(TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH)
-                                .append(" characters").toString());
-                    }
-                    if (!consumerId.matches(TBaseConstants.META_TMP_CONSUMERID_VALUE)) {
-                        throw new Exception(sBuilder.append("The value of ").append(consumerId)
-                                .append("in consumerId parameter must begin with a letter, ")
-                                .append("can only contain characters,numbers,dot,scores,and underscores").toString());
-                    }
-                    if (!batchOpConsumerIds.contains(consumerId)) {
-                        batchOpConsumerIds.add(consumerId);
-                    }
-                }
-            }
-            if (batchOpConsumerIds.isEmpty()) {
-                throw new Exception("Null value of required consumerId parameter");
-            }
-            ConsumerInfoHolder consumerInfoHolder =
-                    master.getConsumerHolder();
-            ConsumerBandInfo consumerBandInfo =
-                    consumerInfoHolder.getConsumerBandInfo(groupName);
-            if (consumerBandInfo == null) {
-                return sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"The group(")
-                        .append(groupName).append(") not online! \"}");
-            } else {
-                Map<String, NodeRebInfo> nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
-                for (String consumerId : batchOpConsumerIds) {
-                    if (nodeRebInfoMap.containsKey(consumerId)) {
-                        return sBuilder
-                                .append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Duplicated set for consumerId(")
-                                .append(consumerId).append(") in group(")
-                                .append(groupName).append(")! \"}");
-                    }
-                }
-                logger.info(sBuilder.append("[Re-balance] Add rebalance consumer: group=")
-                        .append(groupName).append(", consumerIds=")
-                        .append(batchOpConsumerIds.toString())
-                        .append(", reJoinWait=").append(reJoinWait)
-                        .append(", creator=").append(modifyUser).toString());
-                sBuilder.delete(0, sBuilder.length());
-                consumerInfoHolder.addRebConsumerInfo(groupName, batchOpConsumerIds, reJoinWait);
-                sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-            }
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
-        }
-        return sBuilder;
-    }
-
-    /**
-     * Query group filter condition info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        BdbGroupFilterCondEntity webGroupFilterCondEntity =
-                new BdbGroupFilterCondEntity();
-        try {
-            webGroupFilterCondEntity
-                    .setTopicName(WebParameterUtils.validStringParameter("topicName",
-                            req.getParameter("topicName"),
-                            TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                            false, null));
-            webGroupFilterCondEntity
-                .setConsumerGroupName(WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    false, null));
-            webGroupFilterCondEntity
-                    .setCreateUser(WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            false, null));
-            webGroupFilterCondEntity
-                    .setControlStatus(WebParameterUtils.validIntDataParameter("condStatus",
-                            req.getParameter("condStatus"),
-                            false,
-                            TBaseConstants.META_VALUE_UNDEFINED,
-                            0));
-            Set<String> filterCondSet =
-                    WebParameterUtils.checkAndGetFilterCondSet(req.getParameter("filterConds"), true, false, sBuilder);
-            List<BdbGroupFilterCondEntity> webGroupCondEntities =
-                    brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webGroupFilterCondEntity);
-            SimpleDateFormat formatter =
-                    new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            int j = 0;
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
-            for (BdbGroupFilterCondEntity entity : webGroupCondEntities) {
-                if (!filterCondSet.isEmpty()) {
-                    String filterItems = entity.getAttributes();
-                    if (filterItems.length() == 2
-                            && filterItems.equals(TServerConstants.TOKEN_BLANK_FILTER_CONDITION)) {
-                        continue;
-                    } else {
-                        boolean allInc = true;
-                        for (String filterCond : filterCondSet) {
-                            if (!filterItems.contains(filterCond)) {
-                                allInc = false;
-                                break;
-                            }
-                        }
-                        if (!allInc) {
-                            continue;
-                        }
-                    }
-                }
-                if (j++ > 0) {
-                    sBuilder.append(",");
-                }
-                sBuilder.append("{\"topicName\":\"").append(entity.getTopicName())
-                        .append("\",\"groupName\":\"").append(entity.getConsumerGroupName())
-                        .append("\",\"condStatus\":").append(entity.getControlStatus());
-                if (entity.getAttributes().length() <= 2) {
-                    sBuilder.append(",\"filterConds\":\"\"");
-                } else {
-                    sBuilder.append(",\"filterConds\":\"")
-                            .append(entity.getAttributes())
-                            .append("\"");
-                }
-                sBuilder.append(",\"createUser\":\"").append(entity.getCreateUser())
-                        .append("\",\"createDate\":\"").append(formatter.format(entity.getCreateDate()))
-                        .append("\"}");
-            }
-            sBuilder.append("],\"count\":").append(j).append("}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
-        }
-        return sBuilder;
-    }
-
-    /**
-     * Add authorized consumer group info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            Set<String> configuredTopicSet =
-                    brokerConfManager.getTotalConfiguredTopicNames();
-            Set<String> batchOpTopicNames =
-                    WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
-                            true, true, configuredTopicSet, sBuilder);
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            for (String tmpTopicName : batchOpTopicNames) {
-                BdbTopicAuthControlEntity topicAuthControlEntity =
-                        brokerConfManager.getBdbEnableAuthControlByTopicName(tmpTopicName);
-                if (topicAuthControlEntity == null) {
-                    try {
-                        brokerConfManager.confSetBdbTopicAuthControl(
-                                new BdbTopicAuthControlEntity(tmpTopicName,
-                                        false, createUser, createDate));
-                    } catch (Exception ee) {
-                        //
-                    }
-                }
-                for (String tmpGroupName : batchOpGroupNames) {
-                    BdbConsumerGroupEntity webConsumerGroupEntity =
-                            new BdbConsumerGroupEntity(tmpTopicName,
-                                    tmpGroupName, createUser, createDate);
-                    brokerConfManager.confAddAllowedConsumerGroup(webConsumerGroupEntity);
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
-        }
-        return sBuilder;
-    }
-
-    /**
-     * Add authorized consumer group info in batch
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            List<Map<String, String>> jsonArray =
-                    WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
-                            req.getParameter("groupNameJsonSet"),
-                            TBaseConstants.META_VALUE_UNDEFINED, true);
-            if ((jsonArray == null) || (jsonArray.isEmpty())) {
-                throw new Exception("Null value of groupNameJsonSet, please set the value first!");
-            }
-            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
-            HashMap<String, BdbConsumerGroupEntity> inGroupAuthConfEntityMap =
-                    new HashMap<>();
-            for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, String> groupObject = jsonArray.get(j);
-                try {
-                    String groupName =
-                        WebParameterUtils.validGroupParameter("groupName",
-                            groupObject.get("groupName"),
-                            TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                            true, "");
-                    String groupTopicName =
-                            WebParameterUtils.validStringParameter("topicName",
-                                    groupObject.get("topicName"),
-                                    TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                                    true, "");
-                    String groupCreateUser =
-                            WebParameterUtils.validStringParameter("createUser",
-                                    groupObject.get("createUser"),
-                                    TBaseConstants.META_MAX_USERNAME_LENGTH,
-                                    false, null);
-                    Date groupCreateDate =
-                            WebParameterUtils.validDateParameter("createDate",
-                                    groupObject.get("createDate"),
-                                    TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                                    false, null);
-                    if ((TStringUtils.isBlank(groupCreateUser))
-                            || (groupCreateDate == null)) {
-                        groupCreateUser = createUser;
-                        groupCreateDate = createDate;
-                    }
-                    if (!configuredTopicSet.contains(groupTopicName)) {
-                        throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
-                                .append(" not configure in master configure, please configure first!").toString());
-                    }
-                    String recordKey = sBuilder.append(groupName)
-                            .append("-")
-                            .append(groupTopicName).toString();
-                    sBuilder.delete(0, sBuilder.length());
-                    inGroupAuthConfEntityMap.put(recordKey,
-                            new BdbConsumerGroupEntity(groupTopicName,
-                                    groupName, groupCreateUser, groupCreateDate));
-                } catch (Exception ee) {
-                    sBuilder.delete(0, sBuilder.length());
-                    throw new Exception(sBuilder.append("Process data exception, data is :")
-                            .append(groupObject.toString()).append(", exception is : ")
-                            .append(ee.getMessage()).toString());
-                }
-
-            }
-            if (inGroupAuthConfEntityMap.isEmpty()) {
-                throw new Exception("Not found record in groupNameJsonSet parameter");
-            }
-            for (BdbConsumerGroupEntity tmpGroupEntity : inGroupAuthConfEntityMap.values()) {
-                BdbTopicAuthControlEntity topicAuthControlEntity =
-                        brokerConfManager.getBdbEnableAuthControlByTopicName(tmpGroupEntity.getGroupTopicName());
-                if (topicAuthControlEntity == null) {
-                    try {
-                        brokerConfManager.confSetBdbTopicAuthControl(
-                                new BdbTopicAuthControlEntity(tmpGroupEntity.getGroupTopicName(),
-                                        false, createUser, createDate));
-                    } catch (Exception ee) {
-                        //
-                    }
-                }
-                brokerConfManager.confAddAllowedConsumerGroup(tmpGroupEntity);
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
-        }
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
     /**
@@ -902,493 +154,140 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        BdbConsumerGroupEntity webConsumerGroupEntity =
-                new BdbConsumerGroupEntity();
-        try {
-            webConsumerGroupEntity
-                    .setGroupTopicName(WebParameterUtils.validStringParameter("topicName",
-                            req.getParameter("topicName"),
-                            TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                            false, null));
-            webConsumerGroupEntity
-                .setConsumerGroupName(WebParameterUtils.validGroupParameter(
-                    "groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    false, null));
-            webConsumerGroupEntity
-                    .setRecordCreateUser(WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            false, null));
-            List<BdbConsumerGroupEntity> webConsumerGroupEntities =
-                    brokerConfManager.confGetBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
-            SimpleDateFormat formatter =
-                    new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            int j = 0;
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"count\":")
-                    .append(webConsumerGroupEntities.size()).append(",\"data\":[");
-            for (BdbConsumerGroupEntity entity : webConsumerGroupEntities) {
-                if (j++ > 0) {
-                    sBuilder.append(",");
-                }
-                sBuilder.append("{\"topicName\":\"").append(entity.getGroupTopicName())
-                        .append("\",\"groupName\":\"").append(entity.getConsumerGroupName())
-                        .append("\",\"createUser\":\"").append(entity.getRecordCreateUser())
-                        .append("\",\"createDate\":\"").append(formatter.format(entity.getRecordCreateDate()))
-                        .append("\"}");
-            }
-            sBuilder.append("]}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+    public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        // build query entity
+        GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        qryEntity.setConsumeEnable(true);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
+                metaDataManager.getGroupConsumeCtrlConf(groupNameSet, topicNameSet, qryEntity);
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (List<GroupConsumeCtrlEntity> entryLst : qryResultMap.values()) {
+            if (entryLst == null || entryLst.isEmpty()) {
+                continue;
+            }
+            for (GroupConsumeCtrlEntity entry : entryLst) {
+                if (entry == null) {
+                    continue;
+                }
+                if (totalCnt++ > 0) {
+                    sBuffer.append(",");
+                }
+                sBuffer.append("{\"topicName\":\"").append(entry.getTopicName())
+                        .append("\",\"groupName\":\"").append(entry.getGroupName())
+                        .append(",\"dataVersionId\":").append(entry.getDataVerId())
+                        .append(",\"createUser\":\"").append(entry.getCreateUser()).append("\"")
+                        .append(",\"createDate\":\"").append(entry.getCreateDateStr()).append("\"")
+                        .append(",\"modifyUser\":\"").append(entry.getModifyUser()).append("\"")
+                        .append(",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
+            }
+            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        }
+        return sBuffer;
     }
 
     /**
-     * Delete allowed(authorized) consumer group info
+     * Query group filter condition info
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            Set<String> batchOpTopicNames =
-                    WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
-                            true, false, null, sBuilder);
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            false, false, null, sBuilder);
-            if (batchOpGroupNames.isEmpty()) {
-                for (String tmpTopicName : batchOpTopicNames) {
-                    BdbGroupFilterCondEntity webFilterCondEntity =
-                            new BdbGroupFilterCondEntity();
-                    webFilterCondEntity.setTopicName(tmpTopicName);
-                    List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                            brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                    if (!webFilterCondEntities.isEmpty()) {
-                        webFilterCondEntity.setCreateUser("System");
-                        brokerConfManager.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                    }
-                    BdbConsumerGroupEntity webConsumerGroupEntity =
-                            new BdbConsumerGroupEntity();
-                    webConsumerGroupEntity.setGroupTopicName(tmpTopicName);
-                    brokerConfManager.confDelBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
-                }
-            } else {
-                for (String tmpTopicName : batchOpTopicNames) {
-                    for (String tmpGroupName : batchOpGroupNames) {
-                        BdbGroupFilterCondEntity webFilterCondEntity =
-                                new BdbGroupFilterCondEntity();
-                        webFilterCondEntity.setTopicName(tmpTopicName);
-                        webFilterCondEntity.setConsumerGroupName(tmpGroupName);
-                        List<BdbGroupFilterCondEntity> webFilterCondEntities =
-                                brokerConfManager.confGetBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                        if (!webFilterCondEntities.isEmpty()) {
-                            webFilterCondEntity.setCreateUser("System");
-                            brokerConfManager.confDelBdbAllowedGroupFilterCondSet(webFilterCondEntity);
-                        }
-                        BdbConsumerGroupEntity webConsumerGroupEntity =
-                                new BdbConsumerGroupEntity();
-                        webConsumerGroupEntity.setGroupTopicName(tmpTopicName);
-                        webConsumerGroupEntity.setConsumerGroupName(tmpGroupName);
-                        brokerConfManager.confDelBdbAllowedConsumerGroupSet(webConsumerGroupEntity);
-                    }
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+    public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        // build query entity
+        GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Add black consumer group info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            Set<String> batchOpTopicNames =
-                    WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
-                            true, true, brokerConfManager.getTotalConfiguredTopicNames(), sBuilder);
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            for (String tmpGroupName : batchOpGroupNames) {
-                for (String tmpTopicName : batchOpTopicNames) {
-                    BdbBlackGroupEntity webBlackGroupEntity =
-                            new BdbBlackGroupEntity(tmpTopicName,
-                                    tmpGroupName, createUser, createDate);
-                    brokerConfManager.confAddBdbBlackConsumerGroup(webBlackGroupEntity);
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Add black consumer group info in batch
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            List<Map<String, String>> jsonArray =
-                    WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
-                            req.getParameter("groupNameJsonSet"),
-                            TBaseConstants.META_VALUE_UNDEFINED, true);
-            if ((jsonArray == null) || (jsonArray.isEmpty())) {
-                throw new Exception("Null value of groupNameJsonSet, please set the value first!");
-            }
-            Set<String> configuredTopicSet = brokerConfManager.getTotalConfiguredTopicNames();
-            HashMap<String, BdbBlackGroupEntity> inBlackGroupEntityMap = new HashMap<>();
-            for (int j = 0; j < jsonArray.size(); j++) {
-                Map<String, String> groupObject = jsonArray.get(j);
-                try {
-                    String groupName =
-                        WebParameterUtils.validGroupParameter("groupName",
-                            groupObject.get("groupName"),
-                            TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                            true, "");
-                    String groupTopicName =
-                            WebParameterUtils.validStringParameter("topicName",
-                                    groupObject.get("topicName"),
-                                    TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                                    true, "");
-                    String groupCreateUser =
-                            WebParameterUtils.validStringParameter("createUser",
-                                    groupObject.get("createUser"),
-                                    TBaseConstants.META_MAX_USERNAME_LENGTH,
-                                    false, null);
-                    Date groupCreateDate =
-                            WebParameterUtils.validDateParameter("createDate",
-                                    groupObject.get("createDate"),
-                                    TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                                    false, null);
-                    if ((TStringUtils.isBlank(groupCreateUser))
-                            || (groupCreateDate == null)) {
-                        groupCreateUser = createUser;
-                        groupCreateDate = createDate;
-                    }
-                    if (!configuredTopicSet.contains(groupTopicName)) {
-                        throw new Exception(sBuilder.append("Topic ").append(groupTopicName)
-                                .append(" not configure in master configure, please configure first!").toString());
-                    }
-                    String recordKey = sBuilder.append(groupName)
-                            .append("-").append(groupTopicName).toString();
-                    sBuilder.delete(0, sBuilder.length());
-                    inBlackGroupEntityMap.put(recordKey,
-                            new BdbBlackGroupEntity(groupTopicName,
-                                    groupName, groupCreateUser, groupCreateDate));
-                } catch (Exception ee) {
-                    sBuilder.delete(0, sBuilder.length());
-                    throw new Exception(sBuilder.append("Process data exception, data is :")
-                            .append(groupObject.toString())
-                            .append(", exception is : ")
-                            .append(ee.getMessage()).toString());
-                }
-            }
-            if (inBlackGroupEntityMap.isEmpty()) {
-                throw new Exception("Not found record in groupNameJsonSet parameter");
-            }
-            for (BdbBlackGroupEntity tmpBlackGroupEntity
-                    : inBlackGroupEntityMap.values()) {
-                brokerConfManager.confAddBdbBlackConsumerGroup(tmpBlackGroupEntity);
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+        final Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Query black consumer group info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        BdbBlackGroupEntity webBlackGroupEntity =
-                new BdbBlackGroupEntity();
-        try {
-            webBlackGroupEntity
-                    .setTopicName(WebParameterUtils.validStringParameter("topicName",
-                            req.getParameter("topicName"),
-                            TBaseConstants.META_MAX_TOPICNAME_LENGTH,
-                            false, null));
-            webBlackGroupEntity
-                .setBlackGroupName(WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    false, null));
-            webBlackGroupEntity
-                    .setCreateUser(WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            false, null));
-            List<BdbBlackGroupEntity> webBlackGroupEntities =
-                    brokerConfManager.confGetBdbBlackConsumerGroupSet(webBlackGroupEntity);
-            SimpleDateFormat formatter =
-                    new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"count\":")
-                    .append(webBlackGroupEntities.size()).append(",\"data\":[");
-            int j = 0;
-            for (BdbBlackGroupEntity entity : webBlackGroupEntities) {
-                if (j++ > 0) {
-                    sBuilder.append(",");
-                }
-                sBuilder.append("{\"topicName\":\"").append(entity.getTopicName())
-                        .append("\",\"groupName\":\"").append(entity.getBlackGroupName())
-                        .append("\",\"createUser\":\"").append(entity.getCreateUser())
-                        .append("\",\"createDate\":\"").append(formatter.format(entity.getCreateDate()))
-                        .append("\"}");
-            }
-            sBuilder.append("]}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+        final Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // check and get condStatus field
+        if (!getCondStatusParamValue(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Delete black consumer group info
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            Set<String> batchOpTopicNames =
-                    WebParameterUtils.getBatchTopicNames(req.getParameter("topicName"),
-                            false, false, null, sBuilder);
-            if (batchOpTopicNames.isEmpty()) {
-                for (String tmpGroupName : batchOpGroupNames) {
-                    BdbBlackGroupEntity webBlackGroupEntity =
-                            new BdbBlackGroupEntity();
-                    webBlackGroupEntity.setBlackGroupName(tmpGroupName);
-                    brokerConfManager.confDeleteBdbBlackConsumerGroupSet(webBlackGroupEntity);
-                }
-            } else {
-                for (String tmpGroupName : batchOpGroupNames) {
-                    for (String tmpTopicName : batchOpTopicNames) {
-                        BdbBlackGroupEntity webBlackGroupEntity =
-                                new BdbBlackGroupEntity();
-                        webBlackGroupEntity.setBlackGroupName(tmpGroupName);
-                        webBlackGroupEntity.setTopicName(tmpTopicName);
-                        brokerConfManager.confDeleteBdbBlackConsumerGroupSet(webBlackGroupEntity);
-                    }
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+        Boolean filterEnable = (Boolean) result.getRetData();
+        // get filterConds info
+        if (!WebParameterUtils.getFilterCondSet(req, false, true, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
-    }
-
-    /**
-     * Add consumer group setting
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            int enableBind =
-                    WebParameterUtils.validIntDataParameter("enableBind",
-                            req.getParameter("enableBind"),
-                            false, 0, 0);
-            int allowedBClientRate =
-                    WebParameterUtils.validIntDataParameter("allowedBClientRate",
-                            req.getParameter("allowedBClientRate"),
-                            false, 0, 0);
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            for (String tmpGroupName : batchOpGroupNames) {
-                BdbConsumeGroupSettingEntity webConsumeGroupSettingEntity =
-                        new BdbConsumeGroupSettingEntity(tmpGroupName,
-                                enableBind, allowedBClientRate, "", createUser, createDate);
-                brokerConfManager.confAddBdbConsumeGroupSetting(webConsumeGroupSettingEntity);
+        Set<String> filterCondSet = (Set<String>) result.getRetData();
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                null, null, filterEnable, null);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
+                metaDataManager.getGroupConsumeCtrlConf(groupNameSet, topicNameSet, qryEntity);
+        // build return result
+        int totalCnt = 0;
+        int condStatusId = 0;
+        String itemFilterStr;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (List<GroupConsumeCtrlEntity> consumeCtrlEntityList : qryResultMap.values()) {
+            if (consumeCtrlEntityList == null || consumeCtrlEntityList.isEmpty()) {
+                continue;
             }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
-        }
-        return sBuilder;
-    }
-
-    /**
-     * Add consumer group setting in batch
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String createUser =
-                    WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date createDate =
-                    WebParameterUtils.validDateParameter("createDate",
-                            req.getParameter("createDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            int enableBind =
-                    WebParameterUtils.validIntDataParameter("enableBind",
-                            req.getParameter("enableBind"),
-                            false, 0, 0);
-            int allowedBClientRate =
-                    WebParameterUtils.validIntDataParameter("allowedBClientRate",
-                            req.getParameter("allowedBClientRate"),
-                            false, 0, 0);
-            List<Map<String, String>> groupNameJsonArray =
-                    WebParameterUtils.checkAndGetJsonArray("groupNameJsonSet",
-                            req.getParameter("groupNameJsonSet"),
-                            TBaseConstants.META_VALUE_UNDEFINED, true);
-            if ((groupNameJsonArray == null) || (groupNameJsonArray.isEmpty())) {
-                throw new Exception("Null value of groupNameJsonSet, please set the value first!");
-            }
-            HashMap<String, BdbConsumeGroupSettingEntity> inOffsetRstGroupEntityMap =
-                    new HashMap<>();
-            for (int j = 0; j < groupNameJsonArray.size(); j++) {
-                Map<String, String> groupObject = groupNameJsonArray.get(j);
-                try {
-                    String groupName =
-                        WebParameterUtils.validGroupParameter("groupName",
-                            groupObject.get("groupName"),
-                            TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                            true, "");
-                    String groupCreateUser =
-                            WebParameterUtils.validStringParameter("createUser",
-                                    groupObject.get("createUser"),
-                                    TBaseConstants.META_MAX_USERNAME_LENGTH,
-                                    false, createUser);
-                    Date groupCreateDate =
-                            WebParameterUtils.validDateParameter("createDate",
-                                    groupObject.get("createDate"),
-                                    TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                                    false, createDate);
-                    int groupEnableBind =
-                            WebParameterUtils.validIntDataParameter("enableBind",
-                                    groupObject.get("enableBind"),
-                                    false, enableBind, 0);
-                    int groupAllowedBClientRate =
-                            WebParameterUtils.validIntDataParameter("allowedBClientRate",
-                                    groupObject.get("allowedBClientRate"),
-                                    false, allowedBClientRate, 0);
-                    inOffsetRstGroupEntityMap.put(groupName,
-                            new BdbConsumeGroupSettingEntity(groupName,
-                                    groupEnableBind, groupAllowedBClientRate,
-                                    "", groupCreateUser, groupCreateDate));
-                } catch (Exception ee) {
-                    throw new Exception(sBuilder.append("Process data exception, data is :")
-                            .append(groupObject.toString())
-                            .append(", exception is : ")
-                            .append(ee.getMessage()).toString());
+            for (GroupConsumeCtrlEntity entry : consumeCtrlEntityList) {
+                if (entry == null
+                        || !WebParameterUtils.isFilterSetFullIncluded(
+                                filterCondSet, entry.getFilterCondStr())) {
+                    continue;
                 }
+                if (totalCnt++ > 0) {
+                    sBuffer.append(",");
+                }
+                condStatusId = entry.getFilterEnable().isEnable() ? 2 : 0;
+                itemFilterStr = (entry.getFilterCondStr().length() <= 2)
+                        ? "" : entry.getFilterCondStr();
+                sBuffer.append("{\"topicName\":\"").append(entry.getTopicName())
+                        .append("\",\"groupName\":\"").append(entry.getGroupName())
+                        .append("\",\"condStatus\":").append(condStatusId)
+                        .append(",\"filterConds\":\"").append(itemFilterStr)
+                        .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                        .append(",\"createUser\":\"").append(entry.getCreateUser())
+                        .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
+                        .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
+                        .append("\",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
             }
-            if (inOffsetRstGroupEntityMap.isEmpty()) {
-                throw new Exception("Not found record in groupNameJsonSet parameter");
-            }
-            for (BdbConsumeGroupSettingEntity tmpGroupEntity
-                    : inOffsetRstGroupEntityMap.values()) {
-                brokerConfManager.confAddBdbConsumeGroupSetting(tmpGroupEntity);
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
         }
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
     /**
@@ -1396,58 +295,445 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        BdbConsumeGroupSettingEntity queryEntity =
-                new BdbConsumeGroupSettingEntity();
-        try {
-            queryEntity
-                .setConsumeGroupName(WebParameterUtils.validGroupParameter("groupName",
-                    req.getParameter("groupName"),
-                    TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                    false, null));
-            queryEntity
-                    .setCreateUser(WebParameterUtils.validStringParameter("createUser",
-                            req.getParameter("createUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            false, null));
-            queryEntity
-                    .setEnableBind(WebParameterUtils.validIntDataParameter("enableBind",
-                            req.getParameter("enableBind"),
-                            false, -2, 0));
-            queryEntity
-                    .setAllowedBrokerClientRate(WebParameterUtils.validIntDataParameter("allowedBClientRate",
-                            req.getParameter("allowedBClientRate"),
-                            false, -2, 0));
-            List<BdbConsumeGroupSettingEntity> resultEntities =
-                    brokerConfManager.confGetBdbConsumeGroupSetting(queryEntity);
-            SimpleDateFormat formatter =
-                    new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"count\":")
-                    .append(resultEntities.size()).append(",\"data\":[");
-            int j = 0;
-            for (BdbConsumeGroupSettingEntity entity : resultEntities) {
-                if (j++ > 0) {
-                    sBuilder.append(",");
-                }
-                sBuilder.append("{\"groupName\":\"").append(entity.getConsumeGroupName())
-                        .append("\",\"enableBind\":").append(entity.getEnableBind())
-                        .append(",\"allowedBClientRate\":").append(entity.getAllowedBrokerClientRate())
-                        .append(",\"attributes\":\"").append(entity.getAttributes())
-                        .append("\",\"lastBindUsedDate\":\"").append(entity.getLastBindUsedDate())
-                        .append("\",\"createUser\":\"").append(entity.getCreateUser())
-                        .append("\",\"createDate\":\"").append(formatter.format(entity.getCreateDate()))
-                        .append("\"}");
-            }
-            sBuilder.append("]}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+    public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req,
+                                                       StringBuilder sBuffer,
+                                                       ProcessResult result) {
+        // build query entity
+        GroupResCtrlEntity entity = new GroupResCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, entity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.OLDALWDBCRATE, false,
+                TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int allowedBClientRate = (int) result.getRetData();
+        // query matched records
+        entity.updModifyInfo(entity.getDataVerId(), null, allowedBClientRate,
+                TBaseConstants.META_VALUE_UNDEFINED, null,
+                TBaseConstants.META_VALUE_UNDEFINED, null);
+        Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
+                metaDataManager.confGetGroupResCtrlConf(groupNameSet, entity);
+        // build return result
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (GroupResCtrlEntity entry : groupResCtrlEntityMap.values()) {
+            if (entry == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                sBuffer.append(",");
+            }
+            sBuffer.append("{\"groupName\":\"").append(entry.getGroupName())
+                    .append("\",\"enableBind\":1,\"allowedBClientRate\":")
+                    .append(entry.getAllowedBrokerClientRate())
+                    .append(",\"attributes\":\"\",\"lastBindUsedDate\":\"-\"")
+                    .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                    .append(",\"createUser\":\"").append(entry.getCreateUser())
+                    .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
+                    .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
+                    .append("\",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
+    }
+
+    /**
+     * Add black consumer group info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req,
+                                                StringBuilder sBuffer,
+                                                ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getAndValidTopicNameInfo(req,
+                metaDataManager, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // add black list records
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (String groupName : groupNameSet) {
+            for (String topicName : topicNameSet) {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(opEntity, groupName,
+                        topicName, Boolean.FALSE, "Old API Set", null, null, sBuffer, result));
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Add black consumer group info in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get groupNameJsonSet info
+        if (!getGroupCsmJsonSetInfo(req, opEntity, Boolean.FALSE, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Map<String, GroupConsumeCtrlEntity> addRecordMap =
+                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        // add or update and buid result
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (GroupConsumeCtrlEntity entry : addRecordMap.values()) {
+            retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(entry, sBuffer, result));
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Delete black consumer group info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // add allowed consume records
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (String groupName : groupNameSet) {
+            for (String topicName : topicNameSet) {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(opEntity, groupName,
+                        topicName, Boolean.TRUE, "enable consume", null, null, sBuffer, result));
+
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Add authorized consumer group info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getAndValidTopicNameInfo(req,
+                metaDataManager, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        // add allowed consume records
+        for (String groupName : groupNameSet) {
+            for (String topicName : topicNameSet) {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(opEntity, groupName,
+                        topicName, Boolean.TRUE, "enable consume", null, null, sBuffer, result));
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Add authorized consumer group info in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get groupNameJsonSet info
+        if (!getGroupCsmJsonSetInfo(req, opEntity, Boolean.TRUE, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Map<String, GroupConsumeCtrlEntity> addRecordMap =
+                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        // add or update and buid result
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (GroupConsumeCtrlEntity entry : addRecordMap.values()) {
+            retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(entry, sBuffer, result));
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Delete allowed(authorized) consumer group info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        List<GroupProcessResult> retInfoList =
+                metaDataManager.delGroupConsumeCtrlConf(opEntity.getModifyUser(),
+                        groupNameSet, topicNameSet, sBuffer, result);
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Add group filter condition info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrModGroupFilterCondInfo(req, sBuffer, result, true);
+    }
+
+    /**
+     * Modify group filter condition info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrModGroupFilterCondInfo(req, sBuffer, result, false);
+    }
+
+    /**
+     * Add group filter info in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, true);
+    }
+
+    /**
+     * Modify group filter condition info in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, false);
+    }
+
+    /**
+     * Delete group filter condition info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (String groupName : groupNameSet) {
+            for (String topicName : topicNameSet) {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(opEntity,
+                        groupName, topicName, Boolean.TRUE, "enable consume",
+                        false, TServerConstants.BLANK_FILTER_ITEM_STR, sBuffer, result));
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Re-balance group allocation info
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group configure info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        String groupName = (String) result.getRetData();
+        // get reJoinWait info
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.REJOINWAIT, false, 0, 0, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final int reJoinWait = (int) result.getRetData();
+        // get consumerId list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSCONSUMERID, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrInfo());
+            return sBuffer;
+        }
+        Set<String> consumerIdSet = (Set<String>) result.getRetData();
+        ConsumerInfoHolder consumerInfoHolder =
+                master.getConsumerHolder();
+        ConsumerBandInfo consumerBandInfo =
+                consumerInfoHolder.getConsumerBandInfo(groupName);
+        if (consumerBandInfo == null) {
+            String errInfo = sBuffer.append("The group(")
+                    .append(groupName).append(") not online!").toString();
+            sBuffer.delete(0, sBuffer.length());
+            WebParameterUtils.buildFailResult(sBuffer, errInfo);
+            return sBuffer;
+        }
+        Map<String, NodeRebInfo> nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
+        for (String consumerId : consumerIdSet) {
+            if (nodeRebInfoMap.containsKey(consumerId)) {
+                String errInfo = sBuffer.append("Duplicated set for consumerId(")
+                        .append(consumerId).append(") in group(")
+                        .append(groupName).append(")! \"}").toString();
+                sBuffer.delete(0, sBuffer.length());
+                WebParameterUtils.buildFailResult(sBuffer, errInfo);
+                return sBuffer;
+            }
+        }
+        logger.info(sBuffer.append("[Re-balance] Add rebalance consumer: group=")
+                .append(groupName).append(", consumerIds=")
+                .append(consumerIdSet.toString())
+                .append(", reJoinWait=").append(reJoinWait)
+                .append(", creator=").append(opEntity.getModifyUser()).toString());
+        sBuffer.delete(0, sBuffer.length());
+        consumerInfoHolder.addRebConsumerInfo(groupName, consumerIdSet, reJoinWait);
+        WebParameterUtils.buildSuccessResult(sBuffer);
+        return sBuffer;
+    }
+
+    /**
+     * Add consumer group setting
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, true);
     }
 
     /**
@@ -1455,74 +741,42 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            String modifyUser =
-                    WebParameterUtils.validStringParameter("modifyUser",
-                            req.getParameter("modifyUser"),
-                            TBaseConstants.META_MAX_USERNAME_LENGTH,
-                            true, "");
-            Date modifyDate =
-                    WebParameterUtils.validDateParameter("modifyDate",
-                            req.getParameter("modifyDate"),
-                            TBaseConstants.META_MAX_DATEVALUE_LENGTH,
-                            false, new Date());
-            int enableBind =
-                    WebParameterUtils.validIntDataParameter("enableBind",
-                            req.getParameter("enableBind"),
-                            false, -2, 0);
-            int allowedBClientRate =
-                    WebParameterUtils.validIntDataParameter("allowedBClientRate",
-                            req.getParameter("allowedBClientRate"),
-                            false, -2, 0);
-            if (enableBind == -2
-                    && allowedBClientRate == -2) {
-                throw new Exception("Not require update content in request parameter!");
-            }
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            for (String tmpGroupName : batchOpGroupNames) {
-                try {
-                    boolean isChanged = false;
-                    BdbConsumeGroupSettingEntity oldEntity =
-                            brokerConfManager.getBdbConsumeGroupSetting(tmpGroupName);
-                    if (oldEntity == null) {
-                        continue;
-                    }
-                    BdbConsumeGroupSettingEntity newEntity =
-                            new BdbConsumeGroupSettingEntity(oldEntity);
-                    if (enableBind != -2) {
-                        if (newEntity.getEnableBind() != enableBind) {
-                            isChanged = true;
-                            newEntity.setEnableBind(enableBind);
-                        }
-                    }
-                    if (allowedBClientRate != -2) {
-                        if (allowedBClientRate != newEntity.getAllowedBrokerClientRate()) {
-                            isChanged = true;
-                            newEntity.setAllowedBrokerClientRate(allowedBClientRate);
-                        }
-                    }
-                    if (isChanged) {
-                        brokerConfManager.confUpdBdbConsumeGroupSetting(newEntity);
-                    }
-                } catch (Throwable e) {
-                    //
-                }
-            }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+    public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, false);
+    }
+
+    /**
+     * Add consumer group setting in batch
+     *
+     * @param req
+     * @return
+     */
+    public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req,
+                                                          StringBuilder sBuffer,
+                                                          ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get groupNameJsonSet info
+        if (!getGroupCtrlJsonSetInfo(req, opEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Map<String, GroupResCtrlEntity> addRecordMap =
+                (Map<String, GroupResCtrlEntity>) result.getRetData();
+        // add or update and build result
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (GroupResCtrlEntity resCtrlEntity : addRecordMap.values()) {
+            retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(
+                    resCtrlEntity, sBuffer, result));
+        }
+        return buildRetInfo(retInfoList, sBuffer);
     }
 
     /**
@@ -1530,24 +784,408 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      *
      * @param req
      * @return
-     * @throws Exception
      */
-    public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req) throws Exception {
-        StringBuilder sBuilder = new StringBuilder(512);
-        try {
-            WebParameterUtils.reqAuthorizeCheck(master, brokerConfManager,
-                    req.getParameter("confModAuthToken"));
-            Set<String> batchOpGroupNames =
-                    WebParameterUtils.getBatchGroupNames(req.getParameter("groupName"),
-                            true, false, null, sBuilder);
-            brokerConfManager.confDeleteBdbConsumeGroupSetting(batchOpGroupNames, sBuilder);
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
-        } catch (Exception e) {
-            sBuilder.delete(0, sBuilder.length());
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\"}");
+    public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        return sBuilder;
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // add or update group control record
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (String groupName : groupNameSet) {
+            retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(false, opEntity,
+                    groupName, Boolean.FALSE, 0,
+                    TBaseConstants.META_VALUE_UNDEFINED, null,
+                    TBaseConstants.META_VALUE_UNDEFINED, null, sBuffer, result));
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
+                                       StringBuilder sBuffer) {
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (GroupProcessResult entry : retInfo) {
+            if (totalCnt++ > 0) {
+                sBuffer.append(",");
+            }
+            sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
+                    .append(",\"success\":").append(entry.isSuccess())
+                    .append(",\"errCode\":").append(entry.getErrCode())
+                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
+    }
+
+    /**
+     * Inner method: add consumer group setting
+     *
+     * @param req
+     * @return
+     */
+    private StringBuilder innAddOrUpdConsumeGroupSettingInfo(HttpServletRequest req,
+                                                             StringBuilder sBuffer,
+                                                             ProcessResult result,
+                                                             boolean isAddOp) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group info
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // get resCheckStatus info
+        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.RESCHECKENABLE,
+                false, (isAddOp ? false : null), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Boolean resChkEnable = (Boolean) result.getRetData();
+        // get and valid allowedBClientRate info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.OLDALWDBCRATE,
+                false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int allowedBClientRate = (int) result.getRetData();
+        // add or update group control record
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (String groupName : groupNameSet) {
+            if (isAddOp) {
+                retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(opEntity,
+                        groupName, resChkEnable, allowedBClientRate, sBuffer, result));
+            } else {
+                retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(isAddOp, opEntity,
+                        groupName, resChkEnable, allowedBClientRate,
+                        TBaseConstants.META_VALUE_UNDEFINED, null,
+                        TBaseConstants.META_VALUE_UNDEFINED, null, sBuffer, result));
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Inner method: modify group filter condition info
+     *
+     * @param req
+     * @return
+     */
+    private StringBuilder innAddOrModGroupFilterCondInfo(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result,
+                                                         boolean isAddOp) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getAndValidTopicNameInfo(req,
+                metaDataManager, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // check and get condStatus field
+        if (!getCondStatusParamValue(req, false, (isAddOp ? false : null), sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Boolean filterEnable = (Boolean) result.getRetData();
+        // get filterConds info
+        if (!WebParameterUtils.getFilterCondString(req, false, isAddOp, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        String filterCondStr = (String) result.getRetData();
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        // modify filter consume records
+        for (String groupName : groupNameSet) {
+            for (String topicName : topicNameSet) {
+                if (isAddOp) {
+                    retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(opEntity,
+                            groupName, topicName, Boolean.TRUE, "enable consume",
+                            filterEnable, filterCondStr, sBuffer, result));
+                } else {
+                    retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(isAddOp,
+                            opEntity, groupName, topicName, Boolean.TRUE, "enable consume",
+                            filterEnable, filterCondStr, sBuffer, result));
+                }
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    /**
+     * Inner method: add group filter info in batch
+     *
+     * @param req
+     * @return
+     */
+    private StringBuilder innBatchAddOrUpdGroupFilterCondInfo(HttpServletRequest req,
+                                                              StringBuilder sBuffer,
+                                                              ProcessResult result,
+                                                              boolean isAddOp) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get filterCondJsonSet info
+        if (!getFilterJsonSetInfo(req, isAddOp, opEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        Map<String, GroupConsumeCtrlEntity> addRecordMap =
+                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        // add or update and build result
+        List<GroupProcessResult> retInfoList = new ArrayList<>();
+        for (GroupConsumeCtrlEntity entry : addRecordMap.values()) {
+            if (isAddOp) {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(
+                        entry, sBuffer, result));
+            } else {
+                retInfoList.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(
+                        isAddOp, entry, sBuffer, result));
+            }
+        }
+        return buildRetInfo(retInfoList, sBuffer);
+    }
+
+    private boolean getFilterJsonSetInfo(HttpServletRequest req, boolean isAddOp,
+                                         BaseEntity defOpEntity, StringBuilder sBuffer,
+                                         ProcessResult result) {
+        if (!WebParameterUtils.getJsonArrayParamValue(req,
+                WebFieldDef.FILTERJSONSET, true, null, result)) {
+            return result.isSuccess();
+        }
+        List<Map<String, String>> groupJsonArray =
+                (List<Map<String, String>>) result.getRetData();
+        GroupConsumeCtrlEntity itemEntity;
+        Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
+        Set<String> configuredTopicSet =
+                metaDataManager.getTotalConfiguredTopicNames();
+        for (Map<String, String> itemValueMap : groupJsonArray) {
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
+                    isAddOp, defOpEntity, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
+            // get group configure info
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final String groupName = (String) result.getRetData();
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
+                return result.isSuccess();
+            }
+            String topicName = (String) result.getRetData();
+            if (!configuredTopicSet.contains(topicName)) {
+                result.setFailResult(sBuffer
+                        .append(WebFieldDef.TOPICNAME.name)
+                        .append(" ").append(topicName)
+                        .append(" is not configure, please configure first!").toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            // check and get condStatus field
+            if (!getCondStatusParamValue(req, false,
+                    (isAddOp ? false : null), sBuffer, result)) {
+                return result.isSuccess();
+            }
+            Boolean filterEnable = (Boolean) result.getRetData();
+            // get filterConds info
+            if (!WebParameterUtils.getFilterCondString(req,
+                    false, isAddOp, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            String filterCondStr = (String) result.getRetData();
+            itemEntity =
+                    new GroupConsumeCtrlEntity(itemOpEntity, groupName, topicName);
+            itemEntity.updModifyInfo(itemOpEntity.getDataVerId(),
+                    true, "enable consume", filterEnable, filterCondStr);
+            addRecordMap.put(itemEntity.getGroupName(), itemEntity);
+        }
+        // check result
+        if (addRecordMap.isEmpty()) {
+            result.setFailResult(sBuffer
+                    .append("Not found record info in ")
+                    .append(WebFieldDef.FILTERJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(addRecordMap);
+        return result.isSuccess();
+    }
+
+    private boolean getGroupCtrlJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
+                                            StringBuilder sBuffer, ProcessResult result) {
+        if (!WebParameterUtils.getJsonArrayParamValue(req,
+                WebFieldDef.GROUPJSONSET, true, null, result)) {
+            return result.isSuccess();
+        }
+        List<Map<String, String>> groupJsonArray =
+                (List<Map<String, String>>) result.getRetData();
+        GroupResCtrlEntity itemEntity;
+        Map<String, String> itemValueMap;
+        Map<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
+        Set<String> configuredTopicSet =
+                metaDataManager.getTotalConfiguredTopicNames();
+        for (int j = 0; j < groupJsonArray.size(); j++) {
+            itemValueMap = groupJsonArray.get(j);
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
+                    true, defOpEntity, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
+            // get group configure info
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
+                return result.isSuccess();
+            }
+            String groupName = (String) result.getRetData();
+            // get resCheckStatus info
+            if (!WebParameterUtils.getBooleanParamValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
+                    false, false, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            Boolean resChkEnable = (Boolean) result.getRetData();
+            // get and valid allowedBClientRate info
+            if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.OLDALWDBCRATE,
+                    false, TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN,
+                    TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            int allowedB2CRate = (int) result.getRetData();
+            itemEntity =
+                    new GroupResCtrlEntity(itemOpEntity, groupName);
+            itemEntity.updModifyInfo(itemOpEntity.getDataVerId(), resChkEnable, allowedB2CRate,
+                    TBaseConstants.META_VALUE_UNDEFINED, null,
+                    TBaseConstants.META_VALUE_UNDEFINED, null);
+            addRecordMap.put(itemEntity.getGroupName(), itemEntity);
+        }
+        // check result
+        if (addRecordMap.isEmpty()) {
+            result.setFailResult(sBuffer
+                    .append("Not found record info in ")
+                    .append(WebFieldDef.GROUPJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(addRecordMap);
+        return result.isSuccess();
+    }
+
+    private boolean getGroupCsmJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
+                                           Boolean enableCsm, StringBuilder sBuffer,
+                                           ProcessResult result) {
+        if (!WebParameterUtils.getJsonArrayParamValue(req,
+                WebFieldDef.GROUPJSONSET, true, null, result)) {
+            return result.isSuccess();
+        }
+        List<Map<String, String>> groupJsonArray =
+                (List<Map<String, String>>) result.getRetData();
+        GroupConsumeCtrlEntity itemEntity;
+        Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
+        Set<String> configuredTopicSet =
+                metaDataManager.getTotalConfiguredTopicNames();
+        for (Map<String, String> itemValueMap : groupJsonArray) {
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
+                    true, defOpEntity, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
+            // get group configure info
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
+                return result.isSuccess();
+            }
+            String groupName = (String) result.getRetData();
+            if (!WebParameterUtils.getStringParamValue(itemValueMap,
+                    WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
+                return result.isSuccess();
+            }
+            String topicName = (String) result.getRetData();
+            if (!configuredTopicSet.contains(topicName)) {
+                result.setFailResult(sBuffer
+                        .append(WebFieldDef.TOPICNAME.name)
+                        .append(" ").append(topicName)
+                        .append(" is not configure, please configure first!").toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
+            itemEntity =
+                    new GroupConsumeCtrlEntity(itemOpEntity, groupName, topicName);
+            itemEntity.updModifyInfo(itemOpEntity.getDataVerId(),
+                    enableCsm, "Old API batch set", null, null);
+            addRecordMap.put(itemEntity.getGroupName(), itemEntity);
+        }
+        // check result
+        if (addRecordMap.isEmpty()) {
+            result.setFailResult(sBuffer
+                    .append("Not found record info in ")
+                    .append(WebFieldDef.GROUPJSONSET.name)
+                    .append(" parameter!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(addRecordMap);
+        return result.isSuccess();
+    }
+
+    private <T> boolean getCondStatusParamValue(T paramCntr, boolean required, Boolean defValue,
+                                                StringBuilder sBuffer, ProcessResult result) {
+        // check and get condStatus field
+        if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.CONDSTATUS,
+                required, TBaseConstants.META_VALUE_UNDEFINED, 0, 2, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        int paramValue = (int) result.getRetData();
+        if (paramValue == TBaseConstants.META_VALUE_UNDEFINED) {
+            return defValue;
+        } else {
+            if (paramValue == 2) {
+                return Boolean.TRUE;
+            } else {
+                return Boolean.FALSE;
+            }
+        }
     }
 
 }

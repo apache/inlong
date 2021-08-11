@@ -22,7 +22,10 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -32,6 +35,9 @@ public class BdbTopicAuthControlEntity implements Serializable {
     @PrimaryKey
     private String topicName;
     private int enableAuthControl = -1; // -1 : undefine； 0：disable， 1：enable
+    // ** Based on the data compatibility consideration of the original version:
+    //     the creation information in this example is the last modified information,
+    //     and the modified information is the creation information
     private String createUser;
     private Date createDate;
     private String attributes;
@@ -41,15 +47,28 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String createUser, Date createDate) {
+                                     String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
         } else {
             this.enableAuthControl = 0;
         }
-        this.createUser = createUser;
-        this.createDate = createDate;
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
+    }
+
+    public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
+                                     String attributes,  String modifyUser, Date modifyDate) {
+        this.topicName = topicName;
+        if (enableAuthControl) {
+            this.enableAuthControl = 1;
+        } else {
+            this.enableAuthControl = 0;
+        }
+        this.attributes = attributes;
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
     }
 
     public String getAttributes() {
@@ -84,29 +103,109 @@ public class BdbTopicAuthControlEntity implements Serializable {
         }
     }
 
-    public String getCreateUser() {
+    public String getModifyUser() {
         return createUser;
     }
 
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public Date getCreateDate() {
+    public Date getModifyDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    public int getTopicId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setTopicId(int topicId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID,
+                        String.valueOf(topicId));
+    }
+
+
+    public int getMaxMsgSize() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setMaxMsgSize(int maxMsgSize) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
+                        String.valueOf(maxMsgSize));
+    }
+
+
+    public void setCreateInfo(String createUser, Date createDate) {
+        if (TStringUtils.isNotBlank(createUser)) {
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+        }
+        if (createDate != null) {
+            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+        }
+    }
+
+    public String getCreateUser() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+    }
+
+    public Date getCreateDate() {
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+    }
+
+    public String getStrModifyDate() {
+        return WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+    }
+
+    public String getStrCreateDate() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
     }
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         return sBuilder.append("{\"type\":\"BdbConsumerGroupEntity\",")
                 .append("\"topicName\":\"").append(topicName)
                 .append("\",\"enableAuthControl\":\"").append(enableAuthControl)
-                .append("\",\"createUser\":\"").append(createUser)
-                .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append("\",\"createUser\":\"").append(getCreateUser())
+                .append("\",\"createDate\":\"").append(getStrCreateDate())
+                .append("\",\"modifyUser\":\"").append(createUser)
+                .append("\",\"modifyDate\":\"").append(getStrModifyDate())
                 .append("\",\"attributes\":\"").append(attributes).append("\"}");
     }
 
@@ -115,8 +214,10 @@ public class BdbTopicAuthControlEntity implements Serializable {
         return new ToStringBuilder(this)
                 .append("topicName", topicName)
                 .append("enableAuthControl", enableAuthControl)
-                .append("createUser", createUser)
-                .append("createDate", createDate)
+                .append("createUser", getCreateUser())
+                .append("createDate", getCreateUser())
+                .append("modifyUser", createUser)
+                .append("modifyDate", getStrModifyDate())
                 .append("attributes", attributes)
                 .toString();
     }

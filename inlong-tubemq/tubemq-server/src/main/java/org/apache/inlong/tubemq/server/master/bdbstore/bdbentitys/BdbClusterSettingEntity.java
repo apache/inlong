@@ -23,7 +23,9 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 /*
@@ -268,6 +270,111 @@ public class BdbClusterSettingEntity implements Serializable {
         return modifyDate;
     }
 
+    public void setDefDataPath(String dataPath) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_PATH, dataPath);
+    }
+
+    public String getDefDataPath() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_DATA_PATH);
+    }
+
+    public void setDefDataType(int dataType) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_TYPE, String.valueOf(dataType));
+    }
+
+    public int getDefDataType() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_TYPE);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setEnableGloFlowCtrl(Boolean enableGloFlowCtrl) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL,
+                        String.valueOf(enableGloFlowCtrl));
+    }
+
+    public Boolean getEnableGloFlowCtrl() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
+        if (atrVal != null) {
+            return Boolean.parseBoolean(atrVal);
+        }
+        return null;
+    }
+
+    public void setGloFlowCtrlCnt(int flowCtrlCnt) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_CNT, String.valueOf(flowCtrlCnt));
+    }
+
+    public int getGloFlowCtrlCnt() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_CNT);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setGloFlowCtrlInfo(String flowCtrlInfo) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FLOW_CTRL_INFO, flowCtrlInfo);
+    }
+
+    public String getGloFlowCtrlInfo() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_FLOW_CTRL_INFO);
+    }
+
+    public void setCreateInfo(String creater, Date createDate) {
+        if (TStringUtils.isNotBlank(creater)) {
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_USER, creater);
+        }
+        if (createDate != null) {
+            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+        }
+    }
+
+    public String getCreateUser() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+    }
+
+    public Date getCreateDate() {
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+    }
+
+    public String getStrCreateDate() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+    }
+
+    public String getStrModifyDate() {
+        return WebParameterUtils.date2yyyyMMddHHmmss(modifyDate);
+    }
+
     /**
      * Serialize field to json format
      *
@@ -300,9 +407,11 @@ public class BdbClusterSettingEntity implements Serializable {
         }
         return sBuilder.append(",\"qryPriorityId\":").append(qryPriorityId)
                 .append(",\"attributes\":\"").append(attributes).append("\"")
+                .append(",\"createUser\":\"").append(getCreateUser()).append("\"")
+                .append(",\"createDate\":\"").append(getStrCreateDate()).append("\"")
                 .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
                 .append(",\"modifyDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate))
+                .append(getStrModifyDate())
                 .append("\"}");
     }
 
@@ -333,8 +442,10 @@ public class BdbClusterSettingEntity implements Serializable {
         }
         return sBuilder.append("qryPriorityId", qryPriorityId)
                 .append("attributes", attributes)
+                .append("createUser", getCreateUser())
+                .append("createDate", getStrCreateDate())
                 .append("modifyUser", modifyUser)
-                .append("modifyDate", modifyDate)
+                .append("modifyDate", getStrModifyDate())
                 .toString();
     }
 }

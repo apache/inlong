@@ -23,7 +23,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.web.common.ClusterQueryResult;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
@@ -41,9 +41,9 @@ public class ClusterManager implements Action {
     @Override
     public void execute(RequestContext context) {
         HttpServletRequest req = context.getReq();
-        BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
+        MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
         List<ClusterGroupVO> clusterGroupVOList = new ArrayList<>();
-        ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
+        ClusterGroupVO clusterGroupVO = metaDataManager.getGroupAddressStrInfo();
         if (clusterGroupVO != null) {
             clusterGroupVOList.add(clusterGroupVO);
         }
