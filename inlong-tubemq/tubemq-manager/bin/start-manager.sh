@@ -23,7 +23,7 @@ LOG_DIR=${LOG_DIR:-"$base_dir/../logs"}
 CONF_DIR=${CONF_DIR:-"$base_dir/../conf"}
 LIB_DIR=${LIB_DIR:-"$base_dir/../lib"}
 CONSOLE_OUTPUT_FILE=$LOG_DIR/$DAEMON_NAME.out
-MANAGER_HEAP_OPTS="-Xmx16G -Xms16G"
+MANAGER_HEAP_OPTS="-Xmx1G -Xms1G"
 MANAGER_GC_OPTS="-XX:+UseG1GC -verbose:gc -verbose:sizes -Xloggc:${LOG_DIR}/gc.log.`date +%Y-%m-%d-%H-%M-%S` -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution"
 
 # create logs directory

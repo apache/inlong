@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -74,17 +74,17 @@ NOW_PRETTY=$(date +'%Y-%m-%m %H:%M:%S')
 STARTUP_LOG="================================================ ${NOW_PRETTY} ================================================\n"
 
 # If the logs folder does not exist, create the folder
-if [[ ! -d "${LOG_DIR}" ]]; then
+if [ ! -d "${LOG_DIR}" ]; then
   mkdir "${LOG_DIR}"
 fi
 
 # If the log/back folder does not exist, create a folder
-if [[ ! -d "${LOG_BACK_DIR}" ]]; then
+if [ ! -d "${LOG_BACK_DIR}" ]; then
   mkdir "${LOG_BACK_DIR}"
 fi
 
 # If the project log exists, rename the backup
-if [[ -f "${LOG_FILE}" ]]; then
+if [ -f "${LOG_FILE}" ]; then
   mv ${LOG_FILE} "${LOG_BACK_DIR}/${APPLICATION}_back_${NOW}.log"
 fi
 
@@ -92,7 +92,7 @@ fi
 echo "" >${LOG_FILE}
 
 # JVM Configuration
-JAVA_OPT="-server -Xms4g -Xmx4g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
+JAVA_OPT="-server -Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
 
 # outside param
 JAVA_OPT="${JAVA_OPT} $1"

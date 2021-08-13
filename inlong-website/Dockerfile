@@ -19,8 +19,10 @@
 FROM nginx
 # add built files from target output
 ARG WEBSITE_FILE
+WORKDIR /usr/share/nginx/html
 ADD ${WEBSITE_FILE} /usr/share/nginx/html
-ADD nginx.conf /etc/nginx/nginx.conf
+ADD nginx.conf /etc/nginx/conf.d/default.conf
 ENV MANAGER_API_ADDRESS=127.0.0.1:8083
-RUN sed -i "s/manager_api_address/$MANAGER_API_ADDRESS/g" /etc/nginx/nginx.conf
-CMD ["nginx", "-g", "daemon off;"]
+ADD website-docker.sh /docker-entrypoint.d/
+RUN chmod +x /docker-entrypoint.d/website-docker.sh
+CMD ["/docker-entrypoint.d/website-docker.sh"]

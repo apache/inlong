@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -24,10 +24,12 @@ file_path=$(
 if [ -f "${ACTIVE_PROFILE}" ]; then
   "${ACTIVE_PROFILE}" = dev
 fi
+
 conf_file="${file_path}"/conf/application-"${ACTIVE_PROFILE}".properties
 
 # replace the configuration
-sed -i "s/datasource.jdbc\-url=.*$/datasource.jdbc\-url=${JDBC_URL}/g" "${conf_file}"
+sed -i "s/spring.profiles.active=.*$/spring.profiles.active=${ACTIVE_PROFILE}/g" "${file_path}"/conf/application.properties
+sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.username=.*$/datasource.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.password=.*$/datasource.password=${PASSWORD}/g" "${conf_file}"
 

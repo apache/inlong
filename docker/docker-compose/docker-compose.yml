@@ -1,0 +1,124 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: '3.5'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=inlong
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=inlong --execute \"SHOW DATABASES;\""
+      timeout: 20s
+      interval: 2s
+      retries: 10
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+
+  tubemq-server:
+    image: inlong/tubemq-all:latest
+    container_name: tubemq-server
+    ports:
+      - "8080:8080"
+      - "8715:8715"
+      - "8123:8123"
+      - "2181:2181"
+    healthcheck:
+      test: "curl localhost:8080"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
+  tubemq-manager:
+    image: inlong/tubemq-manager:latest
+    container_name: tubemq-manager
+    depends_on:
+      mysql:
+        condition: service_healthy
+      tubemq-server:
+        condition: service_healthy
+    ports:
+      - "8089:8089"
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWD=inlong
+      - TUBE_MASTER_IP=tubemq-server
+    healthcheck:
+      test: "curl localhost:8089"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
+  manager:
+    image: inlong/manager-web
+    container_name: manager
+    depends_on:
+      tubemq-manager:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      - ACTIVE_PROFILE=prod
+      - JDBC_URL=mysql:3306
+      - USERNAME=root
+      - PASSWORD=inlong
+      - TUBE_MANAGER=tubemq-manager:8089
+      - TUBE_MASTER=tubemq-server:8715
+      - ZK_URL=tubemq-server:2181
+      - SORT_APP_NAME=inlong_hive
+
+  webisite:
+    image: inlong/website
+    container_name: website
+    depends_on:
+      - manager
+    ports:
+      - "80:80"
+    environment:
+      - MANAGER_API_ADDRESS=manager:8083
+
+  dataproxy:
+    image: inlong/dataproxy:latest
+    container_name: dataproxy
+    depends_on:
+      - manager
+      - tubemq-server
+    ports:
+      - "46801:46801"
+    environment:
+      - MANAGER_OPENAPI_IP=manager
+      - MANAGER_OPENAPI_PORT=8083
+      - TUBMQ_MASTER_LIST=tubemq-server:8715
+
+  agent:
+    image: inlong/agent:latest
+    container_name: agent
+    depends_on:
+      - manager
+      - dataproxy
+    environment:
+      - MANAGER_OPENAPI_IP=manager
+      - MANAGER_OPENAPI_PORT=8083
+      - DATAPROXY_IP=dataproxy
+      - DATAPROXY_PORT=46801
+    volumes:
+      - ./collect-data:/data/collect-data

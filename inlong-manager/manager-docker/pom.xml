@@ -53,16 +53,12 @@
                         <executions>
                             <execution>
                                 <id>default</id>
-                                <!-- when run mvn package, build the image -->
-                                <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>tag-and-push-latest</id>
-                                <!-- when run mvn install, tag and push the image -->
-                                <phase>install</phase>
                                 <goals>
                                     <goal>tag</goal>
                                     <goal>push</goal>
