@@ -62,8 +62,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * query group consume control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryGroupConsumeCtrlInfo(HttpServletRequest req,
                                                         StringBuilder sBuffer,
@@ -139,8 +141,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * add group consume control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddGroupConsumeCtrlInfo(HttpServletRequest req,
                                                       StringBuilder sBuffer,
@@ -151,8 +155,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * Add group consume control info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddGroupConsumeCtrlInfo(HttpServletRequest req,
                                                            StringBuilder sBuffer,
@@ -163,8 +169,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * modify group consume control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminModGroupConsumeCtrlInfo(HttpServletRequest req,
                                                       StringBuilder sBuffer,
@@ -175,8 +183,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * Modify group consume control info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchModGroupConsumeCtrlInfo(HttpServletRequest req,
                                                            StringBuilder sBuffer,
@@ -187,8 +197,10 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * Delete group consume configure info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDelGroupConsumeCtrlInfo(HttpServletRequest req,
                                                       StringBuilder sBuffer,

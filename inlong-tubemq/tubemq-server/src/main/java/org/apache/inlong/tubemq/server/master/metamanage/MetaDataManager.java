@@ -188,7 +188,8 @@ public class MetaDataManager implements Server {
      * @param reqTopicSet
      * @param reqTopicCondMap
      * @param sBuffer
-     * @return
+     * @param result
+     * @return true is authorized, false not
      */
     public boolean isConsumeTargetAuthorized(String consumerId, String groupName,
                                              Set<String> reqTopicSet,
@@ -1345,9 +1346,10 @@ public class MetaDataManager implements Server {
     /**
      * Add or Update topic control configure info
      *
-     * @param entity  the topic control info entity will be add
-     * @param sBuffer   the print info string buffer
-     * @param result    the process result return
+     * @param isAddOp  whether add operation
+     * @param entity   the topic control info entity will be add
+     * @param sBuffer  the print info string buffer
+     * @param result   the process result return
      * @return true if success otherwise false
      */
     public TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
@@ -1383,7 +1385,9 @@ public class MetaDataManager implements Server {
 
     /**
      * Add or Update topic control configure info
-     *
+     * @param opEntity operator information
+     * @param topicName topic info
+     * @param enableTopicAuth if authenticate check
      * @param sBuffer  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
@@ -1791,6 +1795,15 @@ public class MetaDataManager implements Server {
         return addOrUpdGroupConsumeCtrlInfo(isAddOp, entity, sBuffer, result);
     }
 
+    /**
+     * add or update group's consume control information
+     *
+     * @param isAddOp   whether add operation
+     * @param entity    need add or update group configure info
+     * @param sBuffer   the print info string buffer
+     * @param result    the process result return
+     * @return true if success otherwise false
+     */
     public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(boolean isAddOp,
                                                            GroupConsumeCtrlEntity entity,
                                                            StringBuilder sBuffer,

@@ -62,6 +62,11 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         this.brokerIp = brokerIp;
     }
 
+    /**
+     * Initial Broker Conigure entity by BdbBrokerConfEntity
+     *
+     * @param bdbEntity   need initialed BdbBrokerConfEntity information
+     */
     public BrokerConfEntity(BdbBrokerConfEntity bdbEntity) {
         super(bdbEntity.getDataVerId(), bdbEntity.getRecordCreateUser(),
                 bdbEntity.getRecordCreateDate(), bdbEntity.getRecordModifyUser(),
@@ -333,9 +338,11 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * Serialize field to json format
      *
      * @param sBuffer   build container
+     * @param isConfLoaded  whether configure updated
+     * @param isConfUpdated  whether configure loaded
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
                                       boolean isConfUpdated, boolean isConfLoaded,

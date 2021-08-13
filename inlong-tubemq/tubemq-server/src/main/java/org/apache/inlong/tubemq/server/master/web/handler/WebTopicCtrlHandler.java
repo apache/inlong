@@ -70,8 +70,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Query topic control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req,
                                                  StringBuilder sBuffer,
@@ -111,8 +113,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Add new topic control record
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req,
                                                StringBuilder sBuffer,
@@ -124,8 +128,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Add new topic control record in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req,
                                                     StringBuilder sBuffer,
@@ -136,8 +142,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Modify topic control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req,
                                                StringBuilder sBuffer,
@@ -148,8 +156,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Modify new topic control record in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req,
                                                     StringBuilder sBuffer,
@@ -160,8 +170,10 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Delete topic control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req,
                                                   StringBuilder sBuffer,

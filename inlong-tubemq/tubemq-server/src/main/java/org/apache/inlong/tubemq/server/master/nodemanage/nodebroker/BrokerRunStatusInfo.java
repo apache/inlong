@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 
 
 
-
+/*
+ * Broker run status management class
+ */
 public class BrokerRunStatusInfo {
 
     private static final Logger logger =
@@ -171,7 +173,12 @@ public class BrokerRunStatusInfo {
         goNextStatus(isRegister, isSynchronized, sBuffer);
     }
 
-    /* Format to json */
+    /**
+     * Format broker run-status information to json string
+     *
+     * @param sBuffer  string process container
+     * @return process result
+     */
     public StringBuilder toJsonString(StringBuilder sBuffer) {
         Tuple2<Boolean, Boolean> confStatusTuple = getDataSyncStatus();
         sBuffer.append("\"BrokerRunStatusInfo\":{\"type\":\"BrokerRunStatusInfo\"")

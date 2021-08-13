@@ -82,6 +82,12 @@ public class BaseEntity implements Serializable, Cloneable {
         updSerialId();
     }
 
+    /**
+     * Update modify key fields information
+     *
+     * @param opInfoEntity   need updated BaseEntity information
+     * @return  whether changed current value
+     */
     public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
         boolean changed = false;
         if (TStringUtils.isNotBlank(opInfoEntity.getModifyUser())
@@ -102,6 +108,14 @@ public class BaseEntity implements Serializable, Cloneable {
         return changed;
     }
 
+    /**
+     * Update query key fields information
+     *
+     * @param newDataVerId   need updated data version id
+     * @param newCreateUser  need updated creator
+     * @param newModifyUser  need updated modify user
+     * @return  whether changed current value
+     */
     public boolean updQueryKeyInfo(long newDataVerId,
                                    String newCreateUser,
                                    String newModifyUser) {

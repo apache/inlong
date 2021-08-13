@@ -45,8 +45,8 @@ public class TopicPSInfoManager {
     /**
      * Get groups according to topic
      *
-     * @param topic
-     * @return
+     * @param topic  query topic
+     * @return  query result
      */
     public ConcurrentHashSet<String> getTopicSubInfo(String topic) {
         return topicSubInfoMap.get(topic);
@@ -55,8 +55,8 @@ public class TopicPSInfoManager {
     /**
      * Set groups for a topic
      *
-     * @param topic
-     * @param groupSet
+     * @param topic     topic target
+     * @param groupSet  group subscribed
      */
     public void setTopicSubInfo(String topic,
                                 ConcurrentHashSet<String> groupSet) {
@@ -66,9 +66,9 @@ public class TopicPSInfoManager {
     /**
      * Remove a group from the group set for a specific topic
      *
-     * @param topic
-     * @param group
-     * @return
+     * @param topic topic condition
+     * @param group group condition
+     * @return true if removed, false if not record
      */
     public boolean removeTopicSubInfo(String topic,
                                       String group) {
@@ -82,8 +82,8 @@ public class TopicPSInfoManager {
     /**
      * Get producer IDs for a topic
      *
-     * @param topic
-     * @return
+     * @param topic  query topic
+     * @return   target published producerId set
      */
     public ConcurrentHashSet<String> getTopicPubInfo(String topic) {
         return topicPubInfoMap.get(topic);
@@ -92,8 +92,8 @@ public class TopicPSInfoManager {
     /**
      * Set producer IDs for a topic
      *
-     * @param topic
-     * @param producerIdSet
+     * @param topic           topic target
+     * @param producerIdSet   topic produce source
      * @return
      */
     public ConcurrentHashSet<String> setTopicPubInfo(String topic,
@@ -101,6 +101,12 @@ public class TopicPSInfoManager {
         return topicPubInfoMap.putIfAbsent(topic, producerIdSet);
     }
 
+    /**
+     * Add producer produce topic set
+     *
+     * @param producerId  need add producer id
+     * @param topicList   need add topic set
+     */
     public void addProducerTopicPubInfo(final String producerId,
                                         final Set<String> topicList) {
         for (String topic : topicList) {
@@ -121,6 +127,12 @@ public class TopicPSInfoManager {
         }
     }
 
+    /**
+     * Remove producer produce topic set
+     *
+     * @param producerId  need removed producer id
+     * @param topicList   need removed topic set
+     */
     public void rmvProducerTopicPubInfo(final String producerId,
                                         final Set<String> topicList) {
         if (topicList != null) {

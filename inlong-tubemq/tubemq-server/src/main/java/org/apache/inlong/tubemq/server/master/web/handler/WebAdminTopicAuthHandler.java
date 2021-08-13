@@ -57,8 +57,10 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Query topic authorization control
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryTopicAuthControl(HttpServletRequest req,
                                                     StringBuilder sBuffer,
@@ -139,8 +141,10 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Enable or disable topic authorization control
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminEnableDisableTopicAuthControl(HttpServletRequest req,
                                                             StringBuilder sBuffer,
@@ -177,8 +181,10 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Add topic authorization control in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -206,8 +212,10 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Delete topic authorization control
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req,
                                                      StringBuilder sBuffer,

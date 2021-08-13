@@ -39,7 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
+/*
+ * Broker sync data holder
+ */
 public class BrokerSyncData {
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerSyncData.class);
@@ -215,7 +217,12 @@ public class BrokerSyncData {
                 || !Objects.equals(syncDownTopicConfInfoMap, topicConfInfoMap);
     }
 
-    /* Format to json */
+    /**
+     * Format broker sync data to json string
+     *
+     * @param sBuffer  string process container
+     * @return process result
+     */
     public StringBuilder toJsonString(StringBuilder sBuffer) {
         sBuffer.append("{\"dataPushId\":").append(dataPushId)
                 .append(",\"mngStatus\":\"").append(mngStatus.getDescription())

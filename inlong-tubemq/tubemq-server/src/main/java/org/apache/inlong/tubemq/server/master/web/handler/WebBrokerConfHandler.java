@@ -108,8 +108,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Query broker config
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryBrokerConfInfo(HttpServletRequest req,
                                                   StringBuilder sBuffer,
@@ -253,8 +255,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Add broker configure
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddBrokerConfInfo(HttpServletRequest req,
                                                 StringBuilder sBuffer,
@@ -265,8 +269,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * update broker configure
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminUpdateBrokerConfInfo(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -277,8 +283,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Add broker config to brokers in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddBrokerConfInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -289,8 +297,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Update broker configure in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchUpdBrokerConfInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -301,8 +311,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Delete broker config
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteBrokerConfEntityInfo(HttpServletRequest req,
                                                          StringBuilder sBuffer,
@@ -336,8 +348,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Make broker config online
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminOnlineBrokerConf(HttpServletRequest req,
                                                StringBuilder sBuffer,
@@ -364,8 +378,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Make broker config offline
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminOfflineBrokerConf(HttpServletRequest req,
                                                 StringBuilder sBuffer,
@@ -394,8 +410,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      * The same operations could be made by changing broker's config,
      * but those are extracted here to simplify the code.
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminSetReadOrWriteBrokerConf(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -430,8 +448,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Reload broker config
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminReloadBrokerConf(HttpServletRequest req,
                                                StringBuilder sBuffer,
@@ -458,8 +478,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Release broker auto forbidden status
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminRelBrokerAutoForbiddenStatus(HttpServletRequest req,
                                                            StringBuilder sBuffer,
@@ -493,8 +515,10 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Query run status of broker
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryBrokerRunStatusInfo(HttpServletRequest req,
                                                        StringBuilder sBuffer,

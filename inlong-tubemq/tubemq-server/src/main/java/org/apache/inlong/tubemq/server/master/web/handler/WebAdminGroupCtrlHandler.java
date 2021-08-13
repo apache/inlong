@@ -98,8 +98,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Query black consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req,
                                                   StringBuilder sBuffer,
@@ -152,8 +154,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Query allowed(authorized?) consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -211,8 +215,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Query group filter condition info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -293,8 +299,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Query consumer group setting
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -354,8 +362,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add black consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req,
                                                 StringBuilder sBuffer,
@@ -394,8 +404,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add black consumer group info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -424,8 +436,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Delete black consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -465,8 +479,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add authorized consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -505,8 +521,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add authorized consumer group info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req,
                                                         StringBuilder sBuffer,
@@ -535,8 +553,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Delete allowed(authorized) consumer group info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req,
                                                       StringBuilder sBuffer,
@@ -570,8 +590,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add group filter condition info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -582,8 +604,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Modify group filter condition info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -594,8 +618,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add group filter info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req,
                                                           StringBuilder sBuffer,
@@ -606,8 +632,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Modify group filter condition info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req,
                                                           StringBuilder sBuffer,
@@ -618,8 +646,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Delete group filter condition info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req,
                                                         StringBuilder sBuffer,
@@ -658,8 +688,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Re-balance group allocation info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req,
                                                          StringBuilder sBuffer,
@@ -727,8 +759,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add consumer group setting
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req,
                                                          StringBuilder sBuffer,
@@ -739,8 +773,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Update consumer group setting
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -751,8 +787,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Add consumer group setting in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req,
                                                           StringBuilder sBuffer,
@@ -782,8 +820,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Delete consumer group setting
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req,
                                                         StringBuilder sBuffer,
@@ -832,8 +872,11 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Inner method: add consumer group setting
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @param isAddOp   whether add operation
+     * @return    process result
      */
     private StringBuilder innAddOrUpdConsumeGroupSettingInfo(HttpServletRequest req,
                                                              StringBuilder sBuffer,
@@ -887,8 +930,11 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Inner method: modify group filter condition info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @param isAddOp   whether add operation
+     * @return    process result
      */
     private StringBuilder innAddOrModGroupFilterCondInfo(HttpServletRequest req,
                                                          StringBuilder sBuffer,
@@ -947,8 +993,11 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     /**
      * Inner method: add group filter info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @param isAddOp   whether add operation
+     * @return    process result
      */
     private StringBuilder innBatchAddOrUpdGroupFilterCondInfo(HttpServletRequest req,
                                                               StringBuilder sBuffer,

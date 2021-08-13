@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/*
+ * The broker node abnormal status reporting management class
+ */
 public class BrokerAbnHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerAbnHolder.class);
@@ -56,6 +59,13 @@ public class BrokerAbnHolder {
         this.metaDataManager = metaDataManager;
     }
 
+    /**
+     * Update stored broker report status
+     *
+     * @param brokerId           reported broker id
+     * @param reportReadStatus   reported broker read status
+     * @param reportWriteStatus  reported broker write status
+     */
     public void updateBrokerReportStatus(int brokerId,
                                          int reportReadStatus,
                                          int reportWriteStatus) {
@@ -141,6 +151,12 @@ public class BrokerAbnHolder {
         }
     }
 
+    /**
+     * get broker current report status
+     *
+     * @param brokerId the query broker id
+     * @return the broker's current RW status
+     */
     public Tuple2<Boolean, Boolean> getBrokerAutoFbdStatus(int brokerId) {
         Tuple2<Boolean, Boolean> retTuple = new Tuple2<>(false, false);
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.get(brokerId);
@@ -179,9 +195,9 @@ public class BrokerAbnHolder {
     /**
      * Deduce status according to publish status and subscribe status
      *
-     * @param repWriteStatus
-     * @param repReadStatus
-     * @return
+     * @param repWriteStatus  broker's write status
+     * @param repReadStatus   broker's read status
+     * @return the broker's manage status
      */
     private ManageStatus getManageStatus(int repWriteStatus, int repReadStatus) {
         ManageStatus manageStatus;
@@ -198,8 +214,9 @@ public class BrokerAbnHolder {
     /**
      * Update broker status, if broker is not online, this operator will fail
      *
-     * @param brokerId
-     * @param newMngStatus
+     * @param brokerId      reported broker id
+     * @param newMngStatus  new manage status
+     * @param sBuffer       string process buffer
      * @return true if success otherwise false
      */
     private boolean updateCurManageStatus(int brokerId,
@@ -231,8 +248,8 @@ public class BrokerAbnHolder {
     /**
      * Release forbidden broker info
      *
-     * @param brokerIdSet
-     * @param reason
+     * @param brokerIdSet   need released broker set
+     * @param reason        release reason
      */
     public void relAutoForbiddenBrokerInfo(Set<Integer> brokerIdSet, String reason) {
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
@@ -254,6 +271,7 @@ public class BrokerAbnHolder {
         }
     }
 
+    // broker abnormal information structure
     public static class BrokerAbnInfo {
         private int brokerId;
         private int abnStatus;  // 0 normal , -100 read abnormal, -1 write abnormal, -101 r & w abnormal
@@ -295,6 +313,7 @@ public class BrokerAbnHolder {
         }
     }
 
+    // broker forbidden information structure
     public static class BrokerFbdInfo {
         private int brokerId;
         private ManageStatus befStatus;

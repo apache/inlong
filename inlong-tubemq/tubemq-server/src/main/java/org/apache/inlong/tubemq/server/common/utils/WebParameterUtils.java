@@ -156,6 +156,7 @@ public class WebParameterUtils {
      *
      * @param req        Http Servlet Request
      * @param qryEntity  query entity
+     * @param sBuffer    string buffer
      * @param result     process result
      * @return process result
      */
@@ -185,6 +186,18 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
+    /**
+     * Parse the parameter value required for query
+     *
+     * @param paramCntr   parameter container
+     * @param required    whether required
+     * @param defValue    default value
+     * @param minValue    min value
+     * @param sBuffer     string buffer
+     * @param result      process result
+     * @return process result
+     */
+    // get QryPriorityId parameter value
     public static <T> boolean getQryPriorityIdParameter(T paramCntr, boolean required,
                                                         int defValue, int minValue,
                                                         StringBuilder sBuffer,
@@ -230,6 +243,7 @@ public class WebParameterUtils {
      * @param paramCntr   parameter container object
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if failed to parse value from the given object
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return the process result
      */
@@ -321,6 +335,16 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
+    /**
+     * get topic status parameter value
+     *
+     * @param req         Http Servlet Request
+     * @param isRequired  whether required
+     * @param defVal      a default value returned if failed to parse value from the given object
+     * @param sBuffer     string buffer
+     * @param result      process result of parameter value
+     * @return the process result
+     */
 
     public static boolean getTopicStatusParamValue(HttpServletRequest req,
                                                    boolean isRequired,
@@ -352,6 +376,7 @@ public class WebParameterUtils {
      *
      * @param paramCntr   parameter container object
      * @param defVal     default value
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -444,6 +469,7 @@ public class WebParameterUtils {
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -476,6 +502,7 @@ public class WebParameterUtils {
      * @param paramCntr   parameter container object
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   default value
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -505,6 +532,7 @@ public class WebParameterUtils {
      * @param paramCntr   parameter container object
      * @param fieldDef   the parameter field definition
      * @param required   a boolean value represent whether the parameter is must required
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -526,6 +554,7 @@ public class WebParameterUtils {
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
      * @param minValue   min value required
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -546,7 +575,8 @@ public class WebParameterUtils {
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
      * @param minValue   min value required
-     * @param minValue   max value allowed
+     * @param maxValue   max value allowed
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -559,6 +589,7 @@ public class WebParameterUtils {
                 defValue, true, minValue, true, maxValue, sBuffer, result);
     }
 
+    // get int value from parameter string value
     private static <T> boolean getIntParamValue(T paramCntr,
                                                 WebFieldDef fieldDef, boolean required,
                                                 boolean hasDefVal, int defValue,
@@ -608,6 +639,7 @@ public class WebParameterUtils {
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
      * @param defValue    a default value returned if the field not exist
+     * @param sBuffer     string buffer
      * @param result      process result
      * @return valid result for the parameter value
      */
@@ -680,6 +712,7 @@ public class WebParameterUtils {
      * @param fieldDef    the parameter field definition
      * @param required     a boolean value represent whether the parameter is must required
      * @param defValue     a default value returned if the field not exist
+     * @param sBuffer     string buffer
      * @param result      process result
      * @return valid result for the parameter value
      */
@@ -753,6 +786,7 @@ public class WebParameterUtils {
      * @param confManager  configure manager
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -787,6 +821,7 @@ public class WebParameterUtils {
      * @param paramCntr   parameter container object
      * @param required    denote whether it translate blank condition
      * @param transBlank  whether to translate condition item
+     * @param sBuffer     string buffer
      * @param result      process result of parameter value
      * @return process result
      */
@@ -819,6 +854,7 @@ public class WebParameterUtils {
      * @param paramCntr   parameter container object
      * @param required   a boolean value represent whether the parameter is must required
      * @param transCondItem   whether to translate condition item
+     * @param sBuffer     string buffer
      * @param result     process result of parameter value
      * @return process result
      */
@@ -847,7 +883,7 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
-
+    // Judge whether the query filter item set is completely contained by the target item set
     public static boolean isFilterSetFullIncluded(
             Set<String> qryFilterSet, String confFilterStr) {
         if (qryFilterSet == null || qryFilterSet.isEmpty()) {
@@ -1027,6 +1063,7 @@ public class WebParameterUtils {
      * @param fieldDef    the parameter field definition
      * @param required    a boolean value represent whether the parameter is must required
      * @param defValue    a default value returned if failed to parse value from the given object
+     * @param sBuffer     string buffer
      * @param result      process result
      * @return valid result for the parameter value
      */
@@ -1062,6 +1099,7 @@ public class WebParameterUtils {
      * @param req        Http Servlet Request
      * @param required   a boolean value represent whether the parameter is must required
      * @param master     current master object
+     * @param sBuffer     string buffer
      * @param result     process result
      * @return valid result for the parameter value
      */
@@ -1110,6 +1148,7 @@ public class WebParameterUtils {
      *
      * @param fieldDef     the parameter field definition
      * @param paramVal     the parameter value
+     * @param sBuffer      string buffer
      * @param result       process result
      * @return check result for string value of parameter
      */
@@ -1627,6 +1666,7 @@ public class WebParameterUtils {
         return temParamValue;
     }
 
+    // remove double quotes in string left and right
     private static String escDoubleQuotes(String inPutStr) {
         if (TStringUtils.isBlank(inPutStr) || inPutStr.length() < 2) {
             return inPutStr;
@@ -1673,6 +1713,7 @@ public class WebParameterUtils {
         return validFlowRuleValue(paramValue, sBuffer, result);
     }
 
+    // valid flow control rule informations
     private static int validFlowRuleValue(String paramValue,
                                           StringBuilder sBuffer,
                                           ProcessResult result) {

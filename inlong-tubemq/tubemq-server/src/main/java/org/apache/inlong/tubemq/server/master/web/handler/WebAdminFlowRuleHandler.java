@@ -64,8 +64,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * query group flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryGroupFlowCtrlRule(HttpServletRequest req,
                                                      StringBuilder sBuffer,
@@ -122,8 +124,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * add group flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminSetGroupFlowCtrlRule(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -134,8 +138,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * modify group flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminUpdGroupFlowCtrlRule(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -146,8 +152,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * delete group flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDelGroupFlowCtrlRule(HttpServletRequest req,
                                                    StringBuilder sBuffer,
@@ -178,8 +186,10 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * add or modify flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     private StringBuilder innAddOrUpdGroupFlowCtrlRule(HttpServletRequest req,
                                                        StringBuilder sBuffer,

@@ -27,6 +27,9 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 
 
+/*
+ *  Broker publish and subscribe information holder
+ */
 public class BrokerPSInfoHolder {
     // broker manage status
     private final ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet =

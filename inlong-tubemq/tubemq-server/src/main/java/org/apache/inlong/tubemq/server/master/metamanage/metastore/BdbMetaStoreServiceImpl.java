@@ -1171,6 +1171,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             doWork(stateChangeEvent);
         }
 
+        /**
+         * process replicate nodes status event
+         *
+         * @param stateChangeEvent status change event
+         */
         public void doWork(final StateChangeEvent stateChangeEvent) {
 
             final String currentNode = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)

@@ -62,8 +62,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * query group resource control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req,
                                                     StringBuilder sBuffer,
@@ -128,8 +130,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * add group resource control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req,
                                                   StringBuilder sBuffer,
@@ -140,8 +144,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * Add group resource control info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -152,8 +158,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * update group resource control info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req,
                                                   StringBuilder sBuffer,
@@ -164,8 +172,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * update group resource control info in batch
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req,
                                                        StringBuilder sBuffer,
@@ -176,8 +186,10 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * delete group resource control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req,
                                                   StringBuilder sBuffer,

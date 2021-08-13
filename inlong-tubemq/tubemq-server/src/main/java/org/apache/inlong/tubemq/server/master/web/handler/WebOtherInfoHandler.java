@@ -64,8 +64,10 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get subscription info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     public StringBuilder getSubscribeInfo(HttpServletRequest req,
                                           StringBuilder sBuffer,
@@ -123,8 +125,10 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get consume group detail info
      *
-     * @param req
-     * @return output as JSON
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     // #lizard forgives
     public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req,
@@ -262,9 +266,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Private method to append consumer info of the give list to a string builder
      *
-     * @param consumerList
-     * @param isBandConsume
-     * @param strBuffer
+     * @param consumerList  consumer list
+     * @param isBandConsume whether bound consume
+     * @param strBuffer     string buffer
      */
     private void getConsumerInfoList(final List<ConsumerInfo> consumerList,
                                      boolean isBandConsume, final StringBuilder strBuffer) {
