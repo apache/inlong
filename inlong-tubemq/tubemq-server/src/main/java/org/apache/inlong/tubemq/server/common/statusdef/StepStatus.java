@@ -18,6 +18,9 @@
 package org.apache.inlong.tubemq.server.common.statusdef;
 
 
+/*
+ * The step status of broker operation
+ */
 public enum StepStatus {
 
     STEP_STATUS_UNDEFINED(-2, "idle", 0, 0),

@@ -19,7 +19,9 @@ package org.apache.inlong.tubemq.server.common.statusdef;
 
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
-
+/*
+ * The management status enumeration class of the Broker node
+ */
 public enum ManageStatus {
 
     STATUS_MANAGE_UNDEFINED(-2, "-", false, false),
@@ -84,6 +86,14 @@ public enum ManageStatus {
                 "unknown broker manage status code %s", code));
     }
 
+    /**
+     * Change broker read write status
+     *
+     * @param oldStatus        current broker manage status
+     * @param acceptPublish    current broker reported publish status
+     * @param acceptSubscribe  current broker reported subscribe status
+     * @return   current broker's new manage status
+     */
     public static ManageStatus getNewStatus(ManageStatus oldStatus,
                                             Boolean acceptPublish,
                                             Boolean acceptSubscribe) {

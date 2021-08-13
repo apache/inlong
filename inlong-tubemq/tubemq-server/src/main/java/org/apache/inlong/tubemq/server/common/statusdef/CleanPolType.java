@@ -18,6 +18,9 @@
 package org.apache.inlong.tubemq.server.common.statusdef;
 
 
+/*
+ * The file clean policy type
+ */
 public enum CleanPolType {
     CLEAN_POL_DELETE(0, "Delete");
 

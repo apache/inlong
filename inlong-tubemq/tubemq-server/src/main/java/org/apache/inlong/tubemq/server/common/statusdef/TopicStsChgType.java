@@ -17,6 +17,9 @@
 
 package org.apache.inlong.tubemq.server.common.statusdef;
 
+/*
+ * The topic status change step
+ */
 public enum TopicStsChgType {
     STATUS_CHANGE_SOFT_DELETE(0, "Soft deleted"),
     STATUS_CHANGE_REMOVE(1, "Soft removed"),

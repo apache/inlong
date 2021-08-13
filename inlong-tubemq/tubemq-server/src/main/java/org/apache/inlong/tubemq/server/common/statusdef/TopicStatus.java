@@ -17,6 +17,9 @@
 
 package org.apache.inlong.tubemq.server.common.statusdef;
 
+/*
+ * The topic state life cycle
+ */
 public enum TopicStatus {
     STATUS_TOPIC_UNDEFINED(-2, "Undefined"),
     STATUS_TOPIC_OK(0, "Normal"),

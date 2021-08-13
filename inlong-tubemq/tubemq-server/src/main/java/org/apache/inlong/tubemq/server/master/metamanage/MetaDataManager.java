@@ -1461,10 +1461,11 @@ public class MetaDataManager implements Server {
     /**
      * Add if absent topic control configure info
      *
-     * @param topicName  the topic name will be add
-     * @param operator the topic name id will be add
-     * @param operator   operator
-     * @param sBuffer  the print info string buffer
+     * @param topicName the topic name will be add
+     * @param operator  the topic name id will be add
+     * @param sBuffer   the print info string buffer
+     * @param result    the process result return
+     * @return true if success otherwise false
      */
     public boolean addIfAbsentTopicCtrlConf(String topicName, String operator,
                                             StringBuilder sBuffer, ProcessResult result) {
