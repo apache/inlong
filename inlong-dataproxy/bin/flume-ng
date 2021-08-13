@@ -226,7 +226,7 @@ run_flume() {
 
 # set default params
 FLUME_CLASSPATH=""
-JAVA_OPTS="-Xmx10g -Xms10g -Xmn2g -XX:SurvivorRatio=6"
+JAVA_OPTS="-Xmx1024m -Xms512m -Xmn512m -XX:SurvivorRatio=6"
 #LD_LIBRARY_PATH=""
 
 opt_conf=""

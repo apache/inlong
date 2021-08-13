@@ -16,17 +16,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jdk
 EXPOSE 8083
 
 # profile and env virables
-ENV ACTIVE_PROFILE=dev
+ENV ACTIVE_PROFILE=prod
 # Note: '/' and '&' symbles need to be escaped with the '\'
 ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_manager?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
 ENV USERNAME=root
-ENV PASSWORD=123456
-ENV TUBE_MANAGER=http://127.0.0.1:8081
-ENV TUBE_MASTER=127.0.0.1:8000,127.0.0.1:8010
+ENV PASSWORD=inlong
+ENV TUBE_MANAGER=http://127.0.0.1:8089
+ENV TUBE_MASTER=master1:8715,master2:8715
 ENV TUBE_CLUSTER_ID=1
 ENV ZK_URL=127.0.0.1:2181
 ENV ZK_ROOT=inlong_hive

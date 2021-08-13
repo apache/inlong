@@ -9,6 +9,7 @@ docker pull inlong/dataproxy:latest
 ##### Start Container
 ```
 docker run -d --name dataproxy \
+-p 46801:46801 \
 -e MANAGER_OPENAPI_IP=manager_openapi_ip \
 -e MANAGER_OPENAPI_PORT=manager_openapi_port \
 -e TUBMQ_MASTER_LIST=tube_master_address inlong/dataproxy
