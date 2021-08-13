@@ -345,7 +345,6 @@ public class WebParameterUtils {
      * @param result      process result of parameter value
      * @return the process result
      */
-
     public static boolean getTopicStatusParamValue(HttpServletRequest req,
                                                    boolean isRequired,
                                                    TopicStatus defVal,
@@ -883,7 +882,13 @@ public class WebParameterUtils {
         return result.isSuccess();
     }
 
-    // Judge whether the query filter item set is completely contained by the target item set
+    /**
+     * Judge whether the query filter item set is completely contained by the target item set
+     *
+     * @param qryFilterSet     the query filter item set
+     * @param confFilterStr    the target item set
+     * @return true all item are included, false not
+     */
     public static boolean isFilterSetFullIncluded(
             Set<String> qryFilterSet, String confFilterStr) {
         if (qryFilterSet == null || qryFilterSet.isEmpty()) {
@@ -1345,6 +1350,7 @@ public class WebParameterUtils {
      * @param inputGroupName the group name string value
      * @param checkEmpty     whether check data emtpy
      * @param checkResToken  whether check reserved group token
+     * @param resTokens      reserved group name set
      * @param sb             the string process space
      * @return the batched group names
      */
@@ -1624,6 +1630,12 @@ public class WebParameterUtils {
         return sdf.format(date);
     }
 
+    /**
+     * translate yyyyMMddHHmmss format string to Date value
+     *
+     * @param dateStr date string, format yyyyMMddHHmmss
+     * @return the Date value of string
+     */
     public static Date yyyyMMddHHmmss2date(String dateStr) {
         if (dateStr == null) {
             return null;
@@ -1666,23 +1678,15 @@ public class WebParameterUtils {
         return temParamValue;
     }
 
-    // remove double quotes in string left and right
-    private static String escDoubleQuotes(String inPutStr) {
-        if (TStringUtils.isBlank(inPutStr) || inPutStr.length() < 2) {
-            return inPutStr;
-        }
-        if (inPutStr.charAt(0) == '\"'
-                && inPutStr.charAt(inPutStr.length() - 1) == '\"') {
-            if (inPutStr.length() == 2) {
-                return "";
-            } else {
-                return inPutStr.substring(1, inPutStr.length() - 1).trim();
-            }
-        }
-        return inPutStr;
-    }
-
-    // translate rule info to json format string
+    /**
+     * translate rule info to json format string
+     *
+     * @param paramCntr   the parameter name
+     * @param defValue    the default value
+     * @param sBuffer     string buffer
+     * @param result      process result
+     * @return the count of flow control rule
+     */
     public static <T> int getAndCheckFlowRules(T paramCntr, String defValue,
                                                StringBuilder sBuffer,
                                                ProcessResult result) {
@@ -1711,6 +1715,22 @@ public class WebParameterUtils {
         }
         paramValue = paramValue.trim();
         return validFlowRuleValue(paramValue, sBuffer, result);
+    }
+
+    // remove double quotes in string left and right
+    private static String escDoubleQuotes(String inPutStr) {
+        if (TStringUtils.isBlank(inPutStr) || inPutStr.length() < 2) {
+            return inPutStr;
+        }
+        if (inPutStr.charAt(0) == '\"'
+                && inPutStr.charAt(inPutStr.length() - 1) == '\"') {
+            if (inPutStr.length() == 2) {
+                return "";
+            } else {
+                return inPutStr.substring(1, inPutStr.length() - 1).trim();
+            }
+        }
+        return inPutStr;
     }
 
     // valid flow control rule informations

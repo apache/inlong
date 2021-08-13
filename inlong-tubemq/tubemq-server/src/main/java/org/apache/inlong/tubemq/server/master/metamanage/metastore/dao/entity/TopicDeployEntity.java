@@ -53,6 +53,11 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
     }
 
+    /**
+     * Constructor by BdbTopicConfEntity
+     *
+     * @param bdbEntity  the BdbTopicConfEntity initial object
+     */
     public TopicDeployEntity(BdbTopicConfEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate(),
@@ -73,6 +78,11 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.setAttributes(bdbEntity.getAttributes());
     }
 
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbTopicConfEntity object
+     */
     public BdbTopicConfEntity buildBdbTopicConfEntity() {
         BdbTopicConfEntity bdbEntity =
                 new BdbTopicConfEntity(brokerId, brokerIp, brokerPort, topicName,

@@ -96,6 +96,7 @@ public class BrokerTopicInfoView {
      * Get the maximum number of broker distributions of topic
      *
      * @param topicSet need query topic set
+     * @return   max configure broker count for each topic
      */
     public int getMaxTopicBrokerCnt(Set<String> topicSet) {
         int tmpSize;
@@ -125,6 +126,8 @@ public class BrokerTopicInfoView {
      * Gets the map of topic partitions whose subscribe status is enabled
      *
      * @param topicSet need query topic set
+     * @param enableSubBrokerIdSet  need filtered broker id set
+     * @return  query result
      */
     public Map<String, Partition> getAcceptSubParts(Set<String> topicSet,
                                              Set<Integer> enableSubBrokerIdSet) {
@@ -146,6 +149,8 @@ public class BrokerTopicInfoView {
      * Gets the list of topic partitions whose subscribe status is enabled
      *
      * @param topic need query topic set
+     * @param enableSubBrokerIdSet  need filter broker id set
+     * @return   query result
      */
     public List<Partition> getAcceptSubParts(String topic, Set<Integer> enableSubBrokerIdSet) {
         TopicInfo topicInfo;
@@ -183,6 +188,8 @@ public class BrokerTopicInfoView {
      * Gets the string map of topic partitions whose publish status is enabled
      *
      * @param topicSet need query topic set
+     * @param enablePubBrokerIdSet  need filtered broker id set
+     * @return  query result
      */
     public Map<String, String> getAcceptPubPartInfo(Set<String> topicSet,
                                                     Set<Integer> enablePubBrokerIdSet) {
@@ -281,7 +288,11 @@ public class BrokerTopicInfoView {
         return topicInfoList;
     }
 
-    // remove broker all topic info
+    /**
+     * Remove broker all topic info
+     *
+     * @param brokerId  need removed broker
+     */
     public void rmvBrokerTopicInfo(int brokerId) {
         ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         // remove pub info

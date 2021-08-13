@@ -52,6 +52,11 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         this.groupName = groupName;
     }
 
+    /**
+     * Constructor by BdbGroupFlowCtrlEntity
+     *
+     * @param bdbEntity  the BdbGroupFlowCtrlEntity initial object
+     */
     public GroupResCtrlEntity(BdbGroupFlowCtrlEntity bdbEntity) {
         super(bdbEntity.getSerialId(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
@@ -70,6 +75,11 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         setAttributes(bdbEntity.getAttributes());
     }
 
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbGroupFlowCtrlEntity object
+     */
     public BdbGroupFlowCtrlEntity buildBdbGroupFlowCtrlEntity() {
         //Constructor
         int statusId = (this.flowCtrlStatus == EnableStatus.STATUS_ENABLE) ? 1 : 0;
@@ -179,7 +189,15 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @return if changed
+     * @param dataVerId          new data version id
+     * @param resChkEnable       new resource check status
+     * @param allowedB2CRate     new B2C rate value
+     * @param qryPriorityId      new qryPriorityId value
+     * @param flowCtrlEnable     new flow control enable status
+     * @param flowRuleCnt        new flow control rule count
+     * @param flowCtrlRuleInfo   new flow control rule information
+     *
+     * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId,
                                  Boolean resChkEnable, int allowedB2CRate,
@@ -262,7 +280,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @param sBuffer   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return    process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
                                       boolean isLongName,
@@ -296,7 +314,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @param sBuffer   build container
      * @param isLongName if return field key is long name
-     * @return
+     * @return   process result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuffer,
                                                     boolean isLongName) {

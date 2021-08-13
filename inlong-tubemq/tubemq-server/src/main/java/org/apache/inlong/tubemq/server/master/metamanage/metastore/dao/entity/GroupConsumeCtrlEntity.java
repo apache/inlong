@@ -52,6 +52,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         this.topicName = topicName;
     }
 
+    /**
+     * Constructor by GroupConsumeCtrlEntity
+     *
+     * @param bdbEntity  the GroupConsumeCtrlEntity initial object
+     */
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
@@ -70,6 +75,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         this.setAttributes(bdbEntity.getAttributes());
     }
 
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbGroupFilterCondEntity object
+     */
     public BdbGroupFilterCondEntity buildBdbGroupFilterCondEntity() {
         BdbGroupFilterCondEntity bdbEntity =
                 new BdbGroupFilterCondEntity(topicName, groupName,
@@ -159,7 +169,13 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @return if changed
+     * @param dataVerId         new data version id
+     * @param consumeEnable     new consume enable status
+     * @param disableRsn        new disable reason
+     * @param filterEnable      new filter enable status
+     * @param filterCondStr     new fliter condition configure
+     *
+     * @return    whether data is changed
      */
     public boolean updModifyInfo(long dataVerId, Boolean consumeEnable,
                                  String disableRsn, Boolean filterEnable,
@@ -232,7 +248,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,

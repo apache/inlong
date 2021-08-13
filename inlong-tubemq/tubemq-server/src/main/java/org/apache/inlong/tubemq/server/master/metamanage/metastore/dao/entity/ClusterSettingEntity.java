@@ -62,7 +62,11 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         super(opEntity);
     }
 
-    // Constructor by BdbClusterSettingEntity
+    /**
+     * Constructor by BdbClusterSettingEntity
+     *
+     * @param bdbEntity  the BdbClusterSettingEntity initial object
+     */
     public ClusterSettingEntity(BdbClusterSettingEntity bdbEntity) {
         super(bdbEntity.getConfigId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate(),
@@ -85,7 +89,11 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         setAttributes(bdbEntity.getAttributes());
     }
 
-    // build bdb object from current info
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbClusterSettingEntity object
+     */
     public BdbClusterSettingEntity buildBdbClsDefSettingEntity() {
         BdbClusterSettingEntity bdbEntity =
                 new BdbClusterSettingEntity(recordKey, getDataVerId(), brokerPort,

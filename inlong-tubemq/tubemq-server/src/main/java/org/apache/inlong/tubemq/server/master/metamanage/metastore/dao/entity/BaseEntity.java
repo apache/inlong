@@ -55,6 +55,11 @@ public class BaseEntity implements Serializable, Cloneable {
                 createUser, createDate, createUser, createDate);
     }
 
+    /**
+     * Constructor by BaseEntity
+     *
+     * @param other  the BaseEntity initial object
+     */
     public BaseEntity(BaseEntity other) {
         this.dataVersionId = other.dataVersionId;
         setCreateInfo(other.createUser, other.createDate);
@@ -243,7 +248,7 @@ public class BaseEntity implements Serializable, Cloneable {
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
-     * @return
+     * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {

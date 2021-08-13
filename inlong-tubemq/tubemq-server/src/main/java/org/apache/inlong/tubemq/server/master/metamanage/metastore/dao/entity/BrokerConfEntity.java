@@ -88,7 +88,11 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         setAttributes(bdbEntity.getAttributes());
     }
 
-    // build bdb object from current info
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbBrokerConfEntity object
+     */
     public BdbBrokerConfEntity buildBdbBrokerConfEntity() {
         BdbBrokerConfEntity bdbEntity = new BdbBrokerConfEntity(brokerId, brokerIp, brokerPort,
                 topicProps.getNumPartitions(), topicProps.getUnflushThreshold(),

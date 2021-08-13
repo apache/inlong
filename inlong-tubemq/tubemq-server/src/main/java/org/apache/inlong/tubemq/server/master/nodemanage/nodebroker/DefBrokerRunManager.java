@@ -76,7 +76,11 @@ public class DefBrokerRunManager implements BrokerRunManager {
     // broker topic configure for consumer and producer
     private final BrokerPSInfoHolder brokerPubSubInfo = new BrokerPSInfoHolder();
 
-
+    /**
+     * Constructor by TMaster
+     *
+     * @param tMaster  the initial TMaster object
+     */
     public DefBrokerRunManager(TMaster tMaster) {
         this.metaDataManager = tMaster.getDefMetaDataManager();
         this.heartbeatManager = tMaster.getHeartbeatManager();

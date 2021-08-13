@@ -183,12 +183,12 @@ public class MetaDataManager implements Server {
     /**
      * Check if consume target is authorization or not
      *
-     * @param consumerId
-     * @param groupName
-     * @param reqTopicSet
-     * @param reqTopicCondMap
-     * @param sBuffer
-     * @param result
+     * @param consumerId   checked consume id
+     * @param groupName    checked group name
+     * @param reqTopicSet   consumer request topic set
+     * @param reqTopicCondMap   consumer request filter items
+     * @param sBuffer        the print information string buffer
+     * @param result         the process result return
      * @return true is authorized, false not
      */
     public boolean isConsumeTargetAuthorized(String consumerId, String groupName,
@@ -384,10 +384,21 @@ public class MetaDataManager implements Server {
     // ///////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Add broker configure information
+     * Add or update broker configure information
      *
-     * @param sBuffer   the print information string buffer
-     * @param result     the process result return
+     * @param isAddOp   whether add operation
+     * @param opInfoEntity   operator inforamtion
+     * @param brokerId       broker id
+     * @param brokerIp       broker ip
+     * @param brokerPort     broker port
+     * @param brokerTlsPort  broker tls port
+     * @param brokerWebPort  broker web port
+     * @param regionId       region id
+     * @param groupId        group id
+     * @param mngStatus      manage status
+     * @param topicProps     default topic proterty inforamtion
+     * @param sBuffer        the print information string buffer
+     * @param result         the process result return
      * @return true if success otherwise false
     */
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opInfoEntity,
@@ -405,6 +416,15 @@ public class MetaDataManager implements Server {
         return addOrUpdBrokerConfig(isAddOp, entity, sBuffer, result);
     }
 
+    /**
+     * Add or update broker configure information
+     *
+     * @param isAddOp   whether add operation
+     * @param entity    need add or update configure information
+     * @param sBuffer   the print information string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
                                                     StringBuilder sBuffer, ProcessResult result) {
         if (isAddOp) {
@@ -957,6 +977,15 @@ public class MetaDataManager implements Server {
         return addOrUpdTopicDeployInfo(isAddOp, deployConf, sBuffer, result);
     }
 
+    /**
+     * Add or update topic deploy status info
+     *
+     * @param isAddOp  whether add operation
+     * @param deployEntity   the topic deploy info entity
+     * @param sBuffer  the print info string buffer
+     * @param result   the process result return
+     * @return true if success otherwise false
+     */
     public TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp,
                                                       TopicDeployEntity deployEntity,
                                                       StringBuilder sBuffer,
@@ -1403,6 +1432,13 @@ public class MetaDataManager implements Server {
         return addOrUpdTopicCtrlConf(entity, sBuffer, result);
     }
 
+    /**
+     * Add or Update topic control configure info
+     * @param entity  operator information
+     * @param sBuffer  the print info string buffer
+     * @param result     the process result return
+     * @return true if success otherwise false
+     */
     public TopicProcessResult addOrUpdTopicCtrlConf(TopicCtrlEntity entity,
                                                     StringBuilder sBuffer,
                                                     ProcessResult result) {
@@ -1671,14 +1707,16 @@ public class MetaDataManager implements Server {
 
     /**
      * Operate group consume control configure info
+     * Attention: compatible implementation for the old API
      *
-     * @param opEntity  the group resource control info entity will be add
-     * @param groupName operate target
+     * @param opEntity         the group resource control info entity will be add
+     * @param groupName        operate target
+     * @param resChkEnable     resource check status
+     * @param allowedB2CRate   allowed B2C rate
      * @param sBuffer   the print info string buffer
      * @param result    the process result return
      * @return true if success otherwise false
      */
-    // Attention: compatible implementation for the old API
     public GroupProcessResult addOrUpdGroupResCtrlConf(BaseEntity opEntity, String groupName,
                                                        Boolean resChkEnable, int allowedB2CRate,
                                                        StringBuilder sBuffer, ProcessResult result) {
@@ -1845,7 +1883,21 @@ public class MetaDataManager implements Server {
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
-    // Attention: compatible implementation for the old API
+    /**
+     * Add or update group's consume control information
+     * Attention: compatible implementation for the old API
+     *
+     * @param opEntity   add or update base information, include creator, create time, etc.
+     * @param groupName  add or update groupName information
+     * @param topicName  add or update topicName information
+     * @param enableCsm  add or update consume enable status information
+     * @param disReason  add or update disable consume reason
+     * @param enableFlt  add or update filter enable status information
+     * @param fltCondStr add or update filter configure information
+     * @param sBuffer    the print info string buffer
+     * @param result     the process result return
+     * @return    process result
+     */
     public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(BaseEntity opEntity, String groupName,
                                                            String topicName, Boolean enableCsm,
                                                            String disReason, Boolean enableFlt,
@@ -1858,7 +1910,15 @@ public class MetaDataManager implements Server {
         return addOrUpdGroupConsumeCtrlInfo(entity, sBuffer, result);
     }
 
-    // Attention: compatible implementation for the old API
+    /**
+     * Add or update group's consume control information
+     * Attention: compatible implementation for the old API
+     *
+     * @param entity     add or update group consume control info
+     * @param sBuffer    the print info string buffer
+     * @param result     the process result return
+     * @return    process result
+     */
     public GroupProcessResult addOrUpdGroupConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
                                                            StringBuilder sBuffer,
                                                            ProcessResult result) {
@@ -1895,6 +1955,16 @@ public class MetaDataManager implements Server {
         return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
     }
 
+    /**
+     * Delete group's consume control information
+     *
+     * @param operator       operator
+     * @param groupNameSet   need deleted group set
+     * @param topicNameSet   need deleted topic set
+     * @param sBuffer        the print info string buffer
+     * @param result         the process result return
+     * @return    delete result
+     */
     public List<GroupProcessResult> delGroupConsumeCtrlConf(String operator,
                                                             Set<String> groupNameSet,
                                                             Set<String> topicNameSet,

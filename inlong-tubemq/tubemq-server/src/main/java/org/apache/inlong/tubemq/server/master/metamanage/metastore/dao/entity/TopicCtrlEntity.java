@@ -61,6 +61,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         this.topicName = topicName;
     }
 
+    /**
+     * Constructor by BdbTopicAuthControlEntity
+     *
+     * @param bdbEntity  the BdbTopicAuthControlEntity initial object
+     */
     public TopicCtrlEntity(BdbTopicAuthControlEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
@@ -76,6 +81,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         this.setAttributes(bdbEntity.getAttributes());
     }
 
+    /**
+     * build bdb object from current info
+     *
+     * @return the BdbTopicAuthControlEntity object
+     */
     public BdbTopicAuthControlEntity buildBdbTopicAuthControlEntity() {
         BdbTopicAuthControlEntity bdbEntity =
                 new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
@@ -134,7 +144,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @return if changed
+     * @param dataVerId         new data version id
+     * @param topicNameId       new topicName Id
+     * @param newMaxMsgSizeMB   new max message size
+     * @param enableTopicAuth   new topicAuth enable status
+     * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId,
                                  int newMaxMsgSizeMB, Boolean enableTopicAuth) {
@@ -204,7 +218,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,

@@ -237,8 +237,9 @@ public class TopicPropGroup implements Serializable, Cloneable {
     /**
      * Serialize field to json format
      *
-     * @param sBuilder
-     * @return
+     * @param sBuilder    string buffer
+     * @param isLongName  whether long field name
+     * @return            process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
@@ -321,7 +322,8 @@ public class TopicPropGroup implements Serializable, Cloneable {
     /**
      * update subclass field values
      *
-     * @return if changed
+     * @param other   need update information
+     * @return  true is changed, false is not
      */
     public boolean updModifyInfo(TopicPropGroup other) {
         boolean changed = false;
