@@ -132,10 +132,6 @@
                 '        <div class="cnt">' + dataSet.unflushThreshold + '</div>' +
                 '    </div>' +
                 '    <div class="row">' +
-                '        <div class="tit">deleteWhen：</div>' +
-                '        <div class="cnt">' + dataSet.deleteWhen + '</div>' +
-                '    </div>' +
-                '    <div class="row">' +
                 '        <div class="tit">numPartitions：</div>' +
                 '        <div class="cnt">' + dataSet.numPartitions + '</div>' +
                 '    </div>' +
@@ -294,9 +290,6 @@
                         "data": "unflushThreshold"
                     }, {
                         "data": "unflushInterval"
-                    }, {
-                        "data": "deleteWhen",
-                        "orderable": false
                     }, {
                         "data": "deletePolicy",
                         "orderable": false

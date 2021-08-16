@@ -1023,7 +1023,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         String brokerIp = (String) result.getRetData();
         // get brokerId
         if (!WebParameterUtils.getIntParamValue(paramCntr,
-                WebFieldDef.BROKERID, true, 0, 0, sBuffer, result)) {
+                WebFieldDef.BROKERID, false, 0, 0, sBuffer, result)) {
             return result.success;
         }
         int brokerId = (int) result.getRetData();

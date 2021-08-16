@@ -271,6 +271,26 @@ public class MasterConfig extends AbstractFileConfig {
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_MASTER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
+        if (this.port == this.webPort
+                || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
+            throw new IllegalArgumentException(new StringBuilder(512)
+                    .append("Illegal field value configuration, the value of ")
+                    .append("port or tlsPort cannot be the same as the value of webPort!")
+                    .toString());
+        }
+        if (this.port == replicationConfig.getRepNodePort() || (tlsConfig.isTlsEnable()
+                && (this.tlsConfig.getTlsPort() == replicationConfig.getRepNodePort()))) {
+            throw new IllegalArgumentException(new StringBuilder(512)
+                    .append("Illegal field value configuration, the value of ")
+                    .append("port or tlsPort cannot be the same as the value of repNodePort!")
+                    .toString());
+        }
+        if (this.webPort == replicationConfig.getRepNodePort()) {
+            throw new IllegalArgumentException(new StringBuilder(512)
+                    .append("Illegal field value configuration, the value of ")
+                    .append("webPort cannot be the same as the value of repNodePort!")
+                    .toString());
+        }
     }
 
     /**

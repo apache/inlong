@@ -42,6 +42,7 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
+import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
@@ -430,8 +431,11 @@ public class MetaDataManager implements Server {
         if (isAddOp) {
             if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) == null
                     && metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) == null) {
-                if (metaStoreService.addBrokerConf(entity, sBuffer, result)) {
-                    this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
+                if (WebParameterUtils.isLegallyPortValueSet(entity.getBrokerPort(),
+                        entity.getBrokerTLSPort(), entity.getBrokerWebPort(), sBuffer, result)) {
+                    if (metaStoreService.addBrokerConf(entity, sBuffer, result)) {
+                        this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
+                    }
                 }
             } else {
                 result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
@@ -455,8 +459,12 @@ public class MetaDataManager implements Server {
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
-                    if (metaStoreService.updBrokerConf(newEntity, sBuffer, result)) {
-                        triggerBrokerConfDataSync(entity.getBrokerId(), sBuffer, result);
+                    if (WebParameterUtils.isLegallyPortValueSet(newEntity.getBrokerPort(),
+                            newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
+                            sBuffer, result)) {
+                        if (metaStoreService.updBrokerConf(newEntity, sBuffer, result)) {
+                            triggerBrokerConfDataSync(entity.getBrokerId(), sBuffer, result);
+                        }
                     }
                 } else {
                     result.setSuccResult(null);
@@ -1560,52 +1568,6 @@ public class MetaDataManager implements Server {
 
     // //////////////////////////////////////////////////////////////////////////////
 
-    public boolean addClusterDefSetting(BaseEntity opEntity, int brokerPort,
-                                        int brokerTlsPort, int brokerWebPort,
-                                        int maxMsgSizeMB, int qryPriorityId,
-                                        Boolean flowCtrlEnable, int flowRuleCnt,
-                                        String flowCtrlInfo, TopicPropGroup topicProps,
-                                        StringBuilder strBuffer, ProcessResult result) {
-        ClusterSettingEntity newConf =
-                new ClusterSettingEntity(opEntity);
-        newConf.fillDefaultValue();
-        newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
-                brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
-                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
-        return metaStoreService.addClusterConfig(newConf, strBuffer, result);
-    }
-
-    /**
-     * Update cluster default setting
-     *
-     * @return true if success otherwise false
-     */
-    public boolean modClusterDefSetting(BaseEntity opEntity, int brokerPort,
-                                        int brokerTlsPort, int brokerWebPort,
-                                        int maxMsgSizeMB, int qryPriorityId,
-                                        Boolean flowCtrlEnable, int flowRuleCnt,
-                                        String flowCtrlInfo, TopicPropGroup topicProps,
-                                        StringBuilder strBuffer, ProcessResult result) {
-        ClusterSettingEntity curConf =
-                metaStoreService.getClusterConfig();
-        if (curConf == null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    DataOpErrCode.DERR_EXISTED.getDescription());
-            return result.isSuccess();
-        }
-        ClusterSettingEntity newConf = curConf.clone();
-        newConf.updBaseModifyInfo(opEntity);
-        if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
-                brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
-                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
-            metaStoreService.updClusterConfig(newConf, strBuffer, result);
-        } else {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    DataOpErrCode.DERR_UNCHANGED.getDescription());
-        }
-        return result.isSuccess();
-    }
-
     /**
      * Update cluster default setting
      *
@@ -1616,7 +1578,7 @@ public class MetaDataManager implements Server {
                                              int maxMsgSizeMB, int qryPriorityId,
                                              Boolean flowCtrlEnable, int flowRuleCnt,
                                              String flowCtrlInfo, TopicPropGroup topicProps,
-                                             StringBuilder strBuffer, ProcessResult result) {
+                                             StringBuilder sBuffer, ProcessResult result) {
         ClusterSettingEntity newConf;
         ClusterSettingEntity curConf = metaStoreService.getClusterConfig();
         if (curConf == null) {
@@ -1625,14 +1587,21 @@ public class MetaDataManager implements Server {
             newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
-            metaStoreService.addClusterConfig(newConf, strBuffer, result);
+            if (WebParameterUtils.isLegallyPortValueSet(newConf.getBrokerPort(),
+                    newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(), sBuffer, result)) {
+                metaStoreService.addClusterConfig(newConf, sBuffer, result);
+            }
         } else {
             newConf = curConf.clone();
             newConf.updBaseModifyInfo(opEntity);
             if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
-                metaStoreService.updClusterConfig(newConf, strBuffer, result);
+                if (WebParameterUtils.isLegallyPortValueSet(newConf.getBrokerPort(),
+                        newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(),
+                        sBuffer, result)) {
+                    metaStoreService.updClusterConfig(newConf, sBuffer, result);
+                }
             } else {
                 result.setSuccResult(null);
             }
