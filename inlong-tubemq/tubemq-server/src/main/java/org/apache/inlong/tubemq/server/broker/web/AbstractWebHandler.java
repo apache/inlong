@@ -52,29 +52,29 @@ public abstract class AbstractWebHandler extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req,
                           HttpServletResponse resp) throws IOException {
-        StringBuilder strBuffer = new StringBuilder(1024);
+        StringBuilder sBuffer = new StringBuilder(1024);
 
         try {
             String method = req.getParameter("method");
             if (method == null) {
-                strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                         .append("Please take with method parameter! \"}");
             } else {
                 WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
                 if (webApiRegInfo == null) {
-                    strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                    sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                             .append("Unsupported method ").append(method).append("\"}");
                 } else {
-                    webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req, strBuffer);
+                    webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req, sBuffer);
                 }
             }
         } catch (Throwable e) {
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append("Bad request from server: ")
                     .append(e.getMessage())
                     .append("\"}");
         }
-        resp.getWriter().write(strBuffer.toString());
+        resp.getWriter().write(sBuffer.toString());
         resp.setCharacterEncoding(req.getCharacterEncoding());
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.flushBuffer();

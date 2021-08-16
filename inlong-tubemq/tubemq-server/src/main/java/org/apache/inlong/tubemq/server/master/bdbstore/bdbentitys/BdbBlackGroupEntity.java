@@ -22,8 +22,11 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -51,6 +54,19 @@ public class BdbBlackGroupEntity implements Serializable {
         this.createUser = createUser;
         this.createDate = createDate;
     }
+
+    public BdbBlackGroupEntity(String topicName, String groupName,
+                               String attributes, String createUser,
+                               Date createDate) {
+        this.recordKey = new StringBuilder(512).append(topicName)
+                .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
+        this.topicName = topicName;
+        this.consumerGroupName = groupName;
+        this.attributes = attributes;
+        this.createUser = createUser;
+        this.createDate = createDate;
+    }
+
 
     public String getAttributes() {
         return attributes;
@@ -95,6 +111,35 @@ public class BdbBlackGroupEntity implements Serializable {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    public void setReason(String reason) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BLK_REASON, reason);
+    }
+
+    public String getReason() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_BLK_REASON);
+    }
+
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         return sBuilder.append("{\"type\":\"BdbBlackGroupEntity\",")

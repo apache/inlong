@@ -28,8 +28,7 @@ import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.web.common.BrokerQueryResult;
 import org.apache.inlong.tubemq.server.master.web.model.BrokerVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
@@ -57,8 +56,9 @@ public class BrokerList implements Action {
         int pageSize = TStringUtils.isNotEmpty(strPageSize)
                 ? Integer.parseInt(strPageSize) : 10;
         pageSize = pageSize <= 10 ? 10 : pageSize;
-        BrokerInfoHolder infoHolder = master.getBrokerHolder();
-        List<BrokerInfo> brokerInfoList = new ArrayList(infoHolder.getBrokerInfoMap().values());
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
+        List<BrokerInfo> brokerInfoList =
+                new ArrayList(brokerRunManager.getBrokerInfoMap(null).values());
         // *************************************************************************************
         for (int i = 0; i < 95; i++) {
             BrokerInfo info = new BrokerInfo(i, "192.168.0.1", 8123);
@@ -85,12 +85,12 @@ public class BrokerList implements Action {
                             + pageSize;
             List<BrokerInfo> firstPageList = brokerInfoList.subList(fromIndex, toIndex);
             brokerVOList = new ArrayList<>(brokerInfoList.size());
-            TopicPSInfoManager psInfoManager = master.getTopicPSInfoManager();
             for (BrokerInfo brokerInfo : firstPageList) {
                 BrokerVO brokerVO = new BrokerVO();
                 brokerVO.setId(brokerInfo.getBrokerId());
                 brokerVO.setIp(brokerInfo.getHost());
-                List<TopicInfo> topicInfoList = psInfoManager.getBrokerPubInfoList(brokerInfo);
+                List<TopicInfo> topicInfoList =
+                        brokerRunManager.getPubBrokerPushedTopicInfo(brokerInfo.getBrokerId());
                 brokerVO.setTopicCount(topicInfoList.size());
                 int totalPartitionNum = 0;
                 for (TopicInfo topicInfo : topicInfoList) {

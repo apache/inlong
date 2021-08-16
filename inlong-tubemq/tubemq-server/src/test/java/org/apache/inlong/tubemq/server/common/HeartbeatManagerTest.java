@@ -51,9 +51,9 @@ public class HeartbeatManagerTest {
                                 .append(nodeId).toString());
                     }
                 });
-        heartbeatManager.regBrokerNode("node1");
-        Assert.assertTrue(heartbeatManager.getBrokerRegMap()
-                .get("node1").getTimeoutTime() > System.currentTimeMillis());
+        heartbeatManager.regBrokerNode("node1", String.valueOf(System.currentTimeMillis()));
+        Assert.assertTrue(
+                heartbeatManager.getBrokerRegMap().get("node1").getTimeoutTime() > System.currentTimeMillis());
     }
 
     @Test
@@ -67,8 +67,8 @@ public class HeartbeatManagerTest {
                     }
                 });
         heartbeatManager.regConsumerNode("node1");
-        Assert.assertTrue(heartbeatManager.getConsumerRegMap()
-                .get("node1").getTimeoutTime() > System.currentTimeMillis());
+        Assert.assertTrue(heartbeatManager.getConsumerRegMap().get("node1").getTimeoutTime()
+                > System.currentTimeMillis());
     }
 
     @Test

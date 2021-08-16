@@ -47,8 +47,7 @@ public class Tuple2<T0, T1> {
      * @param value1 The value for field 1
      */
     public Tuple2(T0 value0, T1 value1) {
-        this.f0 = value0;
-        this.f1 = value1;
+        setF0AndF1(value0, value1);
     }
 
     public T0 getF0() {

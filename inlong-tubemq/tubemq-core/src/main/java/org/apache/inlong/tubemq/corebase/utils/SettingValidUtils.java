@@ -23,6 +23,19 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 public class SettingValidUtils {
 
 
+    public static int validAndGetMsgSizeInMB(int inMaxMsgSizeInMB) {
+        return MixedUtils.mid(inMaxMsgSizeInMB,
+                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB);
+    }
+
+    public static int validAndGetMsgSizeBtoMB(int inMaxMsgSizeInB) {
+        return MixedUtils.mid(inMaxMsgSizeInB,
+                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
+                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT)
+                / TBaseConstants.META_MB_UNIT_SIZE;
+    }
+
     public static int validAndXfeMaxMsgSizeFromMBtoB(int inMaxMsgSizeInMB) {
         return MixedUtils.mid(inMaxMsgSizeInMB,
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
