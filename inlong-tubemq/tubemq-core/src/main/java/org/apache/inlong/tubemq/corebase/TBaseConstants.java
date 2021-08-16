@@ -21,10 +21,13 @@ public class TBaseConstants {
 
     public static final int META_VALUE_UNDEFINED = -2;
 
+    public static final int BUILDER_DEFAULT_SIZE = 512;
+
     public static final int META_DEFAULT_MASTER_PORT = 8715;
     public static final int META_DEFAULT_MASTER_TLS_PORT = 8716;
     public static final int META_DEFAULT_BROKER_PORT = 8123;
     public static final int META_DEFAULT_BROKER_TLS_PORT = 8124;
+    public static final int META_DEFAULT_BROKER_WEB_PORT = 8081;
     public static final int META_STORE_INS_BASE = 10000;
 
     public static final String META_DEFAULT_CHARSET_NAME = "UTF-8";

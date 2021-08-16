@@ -80,4 +80,13 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
         //
     }
 
+    @Override
+    public void printWarn(String err) {
+        //
+    }
+
+    @Override
+    public void printError(String err) {
+        //
+    }
 }

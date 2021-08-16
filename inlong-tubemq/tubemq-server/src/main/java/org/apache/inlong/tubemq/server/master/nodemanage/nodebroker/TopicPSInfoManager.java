@@ -17,17 +17,10 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
-import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
@@ -38,9 +31,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 public class TopicPSInfoManager {
 
     private final TMaster master;
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashMap<BrokerInfo, TopicInfo>> brokerPubInfoMap =
-            new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
             new ConcurrentHashMap<>();
@@ -55,8 +45,8 @@ public class TopicPSInfoManager {
     /**
      * Get groups according to topic
      *
-     * @param topic
-     * @return
+     * @param topic  query topic
+     * @return  query result
      */
     public ConcurrentHashSet<String> getTopicSubInfo(String topic) {
         return topicSubInfoMap.get(topic);
@@ -65,8 +55,8 @@ public class TopicPSInfoManager {
     /**
      * Set groups for a topic
      *
-     * @param topic
-     * @param groupSet
+     * @param topic     topic target
+     * @param groupSet  group subscribed
      */
     public void setTopicSubInfo(String topic,
                                 ConcurrentHashSet<String> groupSet) {
@@ -76,9 +66,9 @@ public class TopicPSInfoManager {
     /**
      * Remove a group from the group set for a specific topic
      *
-     * @param topic
-     * @param group
-     * @return
+     * @param topic topic condition
+     * @param group group condition
+     * @return true if removed, false if not record
      */
     public boolean removeTopicSubInfo(String topic,
                                       String group) {
@@ -92,8 +82,8 @@ public class TopicPSInfoManager {
     /**
      * Get producer IDs for a topic
      *
-     * @param topic
-     * @return
+     * @param topic  query topic
+     * @return   target published producerId set
      */
     public ConcurrentHashSet<String> getTopicPubInfo(String topic) {
         return topicPubInfoMap.get(topic);
@@ -102,8 +92,8 @@ public class TopicPSInfoManager {
     /**
      * Set producer IDs for a topic
      *
-     * @param topic
-     * @param producerIdSet
+     * @param topic           topic target
+     * @param producerIdSet   topic produce source
      * @return
      */
     public ConcurrentHashSet<String> setTopicPubInfo(String topic,
@@ -111,6 +101,12 @@ public class TopicPSInfoManager {
         return topicPubInfoMap.putIfAbsent(topic, producerIdSet);
     }
 
+    /**
+     * Add producer produce topic set
+     *
+     * @param producerId  need add producer id
+     * @param topicList   need add topic set
+     */
     public void addProducerTopicPubInfo(final String producerId,
                                         final Set<String> topicList) {
         for (String topic : topicList) {
@@ -131,6 +127,12 @@ public class TopicPSInfoManager {
         }
     }
 
+    /**
+     * Remove producer produce topic set
+     *
+     * @param producerId  need removed producer id
+     * @param topicList   need removed topic set
+     */
     public void rmvProducerTopicPubInfo(final String producerId,
                                         final Set<String> topicList) {
         if (topicList != null) {
@@ -146,147 +148,7 @@ public class TopicPSInfoManager {
         }
     }
 
-    public ConcurrentHashMap<BrokerInfo, TopicInfo> getBrokerPubInfo(String topic) {
-        return brokerPubInfoMap.get(topic);
-    }
-
-    public void setBrokerPubInfo(String topic,
-                                 ConcurrentHashMap<BrokerInfo, TopicInfo> brokerPubInfo) {
-        brokerPubInfoMap.put(topic, brokerPubInfo);
-    }
-
-    public int getTopicMaxBrokerCount(Set<String> topicSet) {
-        int maxCount = -1;
-        if (topicSet == null) {
-            return maxCount;
-        }
-        for (String topicTtem : topicSet) {
-            if (topicTtem == null) {
-                continue;
-            }
-            ConcurrentHashMap<BrokerInfo, TopicInfo> tmpBrokerMap =
-                    brokerPubInfoMap.get(topicTtem);
-            if (tmpBrokerMap == null) {
-                continue;
-            }
-            int tmpSize =
-                    tmpBrokerMap.keySet().size();
-            if (maxCount < tmpSize) {
-                maxCount = tmpSize;
-            }
-        }
-        return maxCount;
-    }
-
-    public Set<Partition> getPartitions() {
-        Set<Partition> partitions = new HashSet<>();
-        for (Map<BrokerInfo, TopicInfo> broker
-                : this.brokerPubInfoMap.values()) {
-            for (Map.Entry<BrokerInfo, TopicInfo> entry
-                    : broker.entrySet()) {
-                TopicInfo topicInfo = entry.getValue();
-                for (int j = 0; j < topicInfo.getTopicStoreNum(); j++) {
-                    int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
-                    for (int i = 0; i < topicInfo.getPartitionNum(); i++) {
-                        partitions.add(new Partition(entry.getKey(),
-                                topicInfo.getTopic(), baseValue + i));
-                    }
-                }
-            }
-        }
-        return partitions;
-    }
-
-    public Set<Partition> getPartitions(Set<String> topics) {
-        Set<Partition> partList = new HashSet<>();
-        for (String topic : topics) {
-            partList.addAll(getPartitionSet(topic));
-        }
-        return partList;
-    }
-
-    public Map<String, Partition> getPartitionMap(Set<String> topics) {
-        Map<String, Partition> partMap = new HashMap<>();
-        for (String topic : topics) {
-            ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
-                    brokerPubInfoMap.get(topic);
-            if (topicInfoMap == null) {
-                continue;
-            }
-            for (Map.Entry<BrokerInfo, TopicInfo> entry : topicInfoMap.entrySet()) {
-                TopicInfo topicInfo = entry.getValue();
-                if (!topicInfo.isAcceptSubscribe()) {
-                    continue;
-                }
-                for (int j = 0; j < topicInfo.getTopicStoreNum(); j++) {
-                    int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
-                    for (int i = 0; i < topicInfo.getPartitionNum(); i++) {
-                        Partition partition =
-                                new Partition(entry.getKey(), topicInfo.getTopic(), baseValue + i);
-                        partMap.put(partition.getPartitionKey(), partition);
-                    }
-                }
-            }
-        }
-        return partMap;
-    }
-
-    public Set<Partition> getPartitionSet(String topic) {
-        Set<Partition> partSet = new HashSet<>();
-        ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
-                brokerPubInfoMap.get(topic);
-        if (topicInfoMap == null) {
-            return new HashSet<>();
-        }
-        for (Map.Entry<BrokerInfo, TopicInfo> entry
-                : topicInfoMap.entrySet()) {
-            TopicInfo topicInfo = entry.getValue();
-            if (!topicInfo.isAcceptSubscribe()) {
-                continue;
-            }
-            for (int j = 0; j < topicInfo.getTopicStoreNum(); j++) {
-                int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
-                for (int i = 0; i < topicInfo.getPartitionNum(); i++) {
-                    partSet.add(new Partition(entry.getKey(),
-                            topicInfo.getTopic(), baseValue + i));
-                }
-            }
-
-        }
-        return partSet;
-    }
-
-    public List<Partition> getPartitionList(String topic) {
-        List<Partition> partList = new ArrayList<>(getPartitionSet(topic));
-        return partList;
-    }
-
-    public TopicInfo getTopicInfo(String topic, BrokerInfo broker) {
-        ConcurrentHashMap<BrokerInfo, TopicInfo> topicInfoMap =
-                brokerPubInfoMap.get(topic);
-        if (topicInfoMap != null) {
-            return topicInfoMap.get(broker);
-        }
-        return null;
-    }
-
-    public List<TopicInfo> getBrokerPubInfoList(BrokerInfo broker) {
-        List<TopicInfo> topicInfoList = new ArrayList<>();
-        for (Map.Entry<String, ConcurrentHashMap<BrokerInfo, TopicInfo>> pubEntry
-                : brokerPubInfoMap.entrySet()) {
-            ConcurrentHashMap<BrokerInfo, TopicInfo> topicPubMap =
-                    pubEntry.getValue();
-            for (Map.Entry<BrokerInfo, TopicInfo> entry : topicPubMap.entrySet()) {
-                if (entry.getKey().equals(broker)) {
-                    topicInfoList.add(entry.getValue());
-                }
-            }
-        }
-        return topicInfoList;
-    }
-
     public void clear() {
-        brokerPubInfoMap.clear();
         topicPubInfoMap.clear();
         topicSubInfoMap.clear();
     }

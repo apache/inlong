@@ -22,8 +22,12 @@ import com.sleepycat.persist.model.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -36,6 +40,9 @@ public class BdbGroupFilterCondEntity implements Serializable {
     private String consumerGroupName;
     private int controlStatus = -2;   // -2: undefine; 0: not started; 1:started, not limited; 2: started, limited
     private String attributes;
+    // ** Based on the data compatibility consideration of the original version:
+    //     the creation information in this example is the last modified information,
+    //     and the modified information is the creation information
     private String createUser;
     private Date createDate;
 
@@ -44,8 +51,8 @@ public class BdbGroupFilterCondEntity implements Serializable {
     }
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
-                                    int controlStatus, String attributes,
-                                    String createUser, Date createDate) {
+                                    int controlStatus, String filterCondStr,
+                                    String modifyUser, Date modifyDate) {
         this.recordKey =
                 new StringBuilder(512)
                         .append(topicName)
@@ -54,17 +61,75 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.topicName = topicName;
         this.consumerGroupName = consumerGroupName;
         this.controlStatus = controlStatus;
-        this.attributes = attributes;
-        this.createUser = createUser;
-        this.createDate = createDate;
+        setFilterCondStr(filterCondStr);
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
     }
 
-    public String getAttributes() {
-        return attributes;
+    public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
+                                    int controlStatus, String filterCondStr,
+                                    String attributes, String modifyUser, Date modifyDate) {
+        this.recordKey =
+                new StringBuilder(512)
+                        .append(topicName)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(consumerGroupName).toString();
+        this.topicName = topicName;
+        this.consumerGroupName = consumerGroupName;
+        this.controlStatus = controlStatus;
+        this.createUser = modifyUser;
+        this.createDate = modifyDate;
+        this.attributes = attributes;
+        setFilterCondStr(filterCondStr);
     }
 
-    public void setAttributes(String attributes) {
-        this.attributes = attributes;
+    public String getFilterCondStr() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            return TStringUtils.getAttrValFrmAttributes(
+                    this.attributes, TStoreConstants.TOKEN_FILTER_COND_STR);
+        } else {
+            return attributes;
+        }
+    }
+
+    public void setFilterCondStr(String filterCondStr) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_FILTER_COND_STR, filterCondStr);
+    }
+
+    public EnableStatus getConsumeEnable() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_CONSUME);
+        if (atrVal != null) {
+            return EnableStatus.valueOf(Integer.parseInt(atrVal));
+        }
+        return EnableStatus.STATUS_ENABLE;
+    }
+
+    public void setConsumeEnable(EnableStatus enableConsume) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_ENABLE_CONSUME,
+                        String.valueOf(enableConsume.getCode()));
+    }
+
+    public String getDisableConsumeReason() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            return TStringUtils.getAttrValFrmAttributes(
+                    this.attributes, TStoreConstants.TOKEN_BLK_REASON);
+        } else {
+            return "";
+        }
+    }
+
+    public void setDisableConsumeReason(String disableConsumeReason) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BLK_REASON, disableConsumeReason);
     }
 
     public String getRecordKey() {
@@ -95,20 +160,84 @@ public class BdbGroupFilterCondEntity implements Serializable {
         this.controlStatus = controlStatus;
     }
 
-    public String getCreateUser() {
+    public String getModifyUser() {
         return createUser;
     }
 
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public Date getCreateDate() {
+    public Date getModifyDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public String getAttributes() {
+        if (TStringUtils.isNotBlank(attributes)
+                && !attributes.contains(TokenConstants.EQ)) {
+            return attributes;
+        } else {
+            return "";
+        }
+    }
+
+    public void setAttributes(String attributes) {
+        this.attributes = attributes;
+    }
+
+    public long getDataVerId() {
+        if (TStringUtils.isNotBlank(attributes)
+                && attributes.contains(TokenConstants.EQ)) {
+            String atrVal =
+                    TStringUtils.getAttrValFrmAttributes(this.attributes,
+                            TStoreConstants.TOKEN_DATA_VERSION_ID);
+            if (atrVal != null) {
+                return Long.parseLong(atrVal);
+            }
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        if (TStringUtils.isNotBlank(attributes)
+                && !attributes.contains(TokenConstants.EQ)) {
+            setFilterCondStr(attributes);
+        }
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    // for
+    public void setCreateInfo(String createUser, Date createDate) {
+        if (TStringUtils.isNotBlank(createUser)) {
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+        }
+        if (createDate != null) {
+            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            this.attributes =
+                    TStringUtils.setAttrValToAttributes(this.attributes,
+                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+        }
+    }
+
+    public String getCreateUser() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+    }
+
+    public Date getCreateDate() {
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+    }
+
+    public String getStrModifyDate() {
+        return WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+    }
+
+    public String getStrCreateDate() {
+        return TStringUtils.getAttrValFrmAttributes(
+                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
     }
 
     @Override
@@ -119,8 +248,10 @@ public class BdbGroupFilterCondEntity implements Serializable {
                 .append("consumerGroupName", consumerGroupName)
                 .append("controlStatus", controlStatus)
                 .append("attributes", attributes)
-                .append("createUser", createUser)
-                .append("createDate", createDate)
+                .append("createUser", getCreateUser())
+                .append("createDate", getStrCreateDate())
+                .append("modifyUser", createUser)
+                .append("modifyDate", getStrModifyDate())
                 .toString();
     }
 
@@ -131,9 +262,10 @@ public class BdbGroupFilterCondEntity implements Serializable {
                 .append("\",\"consumerGroupName\":\"").append(consumerGroupName)
                 .append("\",\"filterConds\":\"").append(attributes)
                 .append("\",\"condStatus\":").append(controlStatus)
-                .append(",\"createUser\":\"").append(createUser)
-                .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append(",\"createUser\":\"").append(getCreateUser())
+                .append("\",\"createDate\":\"").append(getStrCreateDate())
+                .append("\",\"modifyUser\":\"").append(createUser)
+                .append("\",\"modifyDate\":\"").append(getStrModifyDate())
                 .append("\"}");
     }
 }

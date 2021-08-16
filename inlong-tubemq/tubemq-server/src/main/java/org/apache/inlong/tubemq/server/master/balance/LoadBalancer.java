@@ -22,9 +22,8 @@ import java.util.Map;
 import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerInfoHolder;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 
 
@@ -33,34 +32,33 @@ public interface LoadBalancer {
     Map<String, Map<String, List<Partition>>> balanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder,
-            BrokerInfoHolder brokerHolder,
-            TopicPSInfoManager topicPSInfoManager,
+            BrokerRunManager brokerRunManager,
             List<String> groups,
-            BrokerConfManager brokerConfManager,
+            MetaDataManager metaDataManager,
             int defAllowBClientRate,
             StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder,
-            TopicPSInfoManager topicPSInfoManager,
+            BrokerRunManager brokerRunManager,
             List<String> groups,
             OffsetStorage zkOffsetStorage,
-            BrokerConfManager defaultBrokerConfManager,
-            StringBuilder sBuilder);
+            MetaDataManager metaDataManager,
+            final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
-                                                        TopicPSInfoManager topicPSInfoManager,
+                                                        BrokerRunManager brokerRunManager,
                                                         List<String> groups,
-                                                        BrokerConfManager brokerConfManager,
+                                                        MetaDataManager metaDataManager,
                                                         int defAllowBClientRate,
                                                         StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,
-                                                                    TopicPSInfoManager topicPSInfoManager,
+                                                                    BrokerRunManager brokerRunManager,
                                                                     List<String> groups,
                                                                     OffsetStorage zkOffsetStorage,
-                                                                    BrokerConfManager defaultBrokerConfManager,
+                                                                    MetaDataManager metaDataManager,
                                                                     StringBuilder sBuilder);
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,

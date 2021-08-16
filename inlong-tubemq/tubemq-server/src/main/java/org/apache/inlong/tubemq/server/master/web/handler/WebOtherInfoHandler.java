@@ -64,33 +64,35 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get subscription info
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder getSubscribeInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(1024);
+    public StringBuilder getSubscribeInfo(HttpServletRequest req,
+                                          StringBuilder sBuffer,
+                                          ProcessResult result) {
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        Set<String> inGroupNameSet = (Set<String>) result.retData1;
+        Set<String> inGroupNameSet = (Set<String>) result.getRetData();
         if (inGroupNameSet.isEmpty()) {
             if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.COMPSCONSUMEGROUP, false, null, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
+                    WebFieldDef.COMPSCONSUMEGROUP, false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
             }
-            inGroupNameSet = (Set<String>) result.retData1;
+            inGroupNameSet = (Set<String>) result.getRetData();
         }
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
         Set<String> queryGroupSet =
                 topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
@@ -98,48 +100,50 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         int topicCnt = 0;
         Tuple2<Set<String>, Integer> queryInfo = new Tuple2<>();
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuilder);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (String group : queryGroupSet) {
             if (!consumerHolder.getGroupTopicSetAndClientCnt(group, queryInfo)) {
                 continue;
             }
             if (totalCnt++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
-            sBuilder.append("{\"consumeGroup\":\"").append(group).append("\",\"topicSet\":[");
+            sBuffer.append("{\"consumeGroup\":\"").append(group).append("\",\"topicSet\":[");
             topicCnt = 0;
             for (String tmpTopic : queryInfo.getF0()) {
                 if (topicCnt++ > 0) {
-                    sBuilder.append(",");
+                    sBuffer.append(",");
                 }
-                sBuilder.append("\"").append(tmpTopic).append("\"");
+                sBuffer.append("\"").append(tmpTopic).append("\"");
             }
-            sBuilder.append("],\"consumerNum\":").append(queryInfo.getF1()).append("}");
+            sBuffer.append("],\"consumerNum\":").append(queryInfo.getF1()).append("}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuilder, totalCnt);
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
     /**
      * Get consume group detail info
      *
-     * @param req
-     * @return output as JSON
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
     // #lizard forgives
-    public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(1024);
+    public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
         // get group name
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.GROUPNAME, true, null, result)) {
+                WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
             if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.CONSUMEGROUP, true, null, result)) {
-                WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-                return sBuilder;
+                    WebFieldDef.CONSUMEGROUP, true, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
             }
         }
-        String strConsumeGroup = (String) result.retData1;
+        String strConsumeGroup = (String) result.getRetData();
         try {
             boolean isBandConsume = false;
             boolean isNotAllocate = false;
@@ -185,86 +189,86 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                     rebalanceCheckTime = consumerBandInfo.getCurCheckCycle();
                 }
             }
-            sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
+            sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
                     .append(",\"count\":").append(consumerList.size()).append(",\"topicSet\":[");
             int itemCnt = 0;
             for (String topicItem : topicSet) {
                 if (itemCnt++ > 0) {
-                    sBuilder.append(",");
+                    sBuffer.append(",");
                 }
-                sBuilder.append("\"").append(topicItem).append("\"");
+                sBuffer.append("\"").append(topicItem).append("\"");
             }
-            sBuilder.append("],\"consumeGroup\":\"").append(strConsumeGroup).append("\",\"re-rebalance\":{");
+            sBuffer.append("],\"consumeGroup\":\"").append(strConsumeGroup).append("\",\"re-rebalance\":{");
             itemCnt = 0;
             for (Map.Entry<String, NodeRebInfo> entry : nodeRebInfoMap.entrySet()) {
                 if (itemCnt++ > 0) {
-                    sBuilder.append(",");
+                    sBuffer.append(",");
                 }
-                sBuilder.append("\"").append(entry.getKey()).append("\":");
-                sBuilder = entry.getValue().toJsonString(sBuilder);
+                sBuffer.append("\"").append(entry.getKey()).append("\":");
+                sBuffer = entry.getValue().toJsonString(sBuffer);
             }
-            sBuilder.append("},\"isBandConsume\":").append(isBandConsume);
+            sBuffer.append("},\"isBandConsume\":").append(isBandConsume);
             // Append band consume info
             if (isBandConsume) {
-                sBuilder.append(",\"isNotAllocate\":").append(isNotAllocate)
+                sBuffer.append(",\"isNotAllocate\":").append(isNotAllocate)
                         .append(",\"sessionKey\":\"").append(sessionKey)
                         .append("\",\"isSelectBig\":").append(isSelectBig)
                         .append(",\"reqSourceCount\":").append(reqSourceCount)
                         .append(",\"curSourceCount\":").append(curSourceCount)
                         .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
             }
-            sBuilder.append(",\"rebInfo\":{");
+            sBuffer.append(",\"rebInfo\":{");
             if (rebalanceStatus == -2) {
-                sBuilder.append("\"isRebalanced\":false");
+                sBuffer.append("\"isRebalanced\":false");
             } else if (rebalanceStatus == 0) {
-                sBuilder.append("\"isRebalanced\":true,\"checkPasted\":false")
+                sBuffer.append("\"isRebalanced\":true,\"checkPasted\":false")
                         .append(",\"defBClientRate\":").append(defBClientRate)
                         .append(",\"confBClientRate\":").append(confBClientRate)
                         .append(",\"curBClientRate\":").append(curBClientRate)
                         .append(",\"minRequireClientCnt\":").append(minRequireClientCnt);
             } else {
-                sBuilder.append("\"isRebalanced\":true,\"checkPasted\":true")
+                sBuffer.append("\"isRebalanced\":true,\"checkPasted\":true")
                         .append(",\"defBClientRate\":").append(defBClientRate)
                         .append(",\"confBClientRate\":").append(confBClientRate)
                         .append(",\"curBClientRate\":").append(curBClientRate);
             }
-            sBuilder.append("},\"filterConds\":{");
+            sBuffer.append("},\"filterConds\":{");
             if (existedTopicConditions != null) {
                 int keyCount = 0;
                 for (Map.Entry<String, TreeSet<String>> entry : existedTopicConditions.entrySet()) {
                     if (keyCount++ > 0) {
-                        sBuilder.append(",");
+                        sBuffer.append(",");
                     }
-                    sBuilder.append("\"").append(entry.getKey()).append("\":[");
+                    sBuffer.append("\"").append(entry.getKey()).append("\":[");
                     if (entry.getValue() != null) {
                         int itemCount = 0;
                         for (String filterCond : entry.getValue()) {
                             if (itemCount++ > 0) {
-                                sBuilder.append(",");
+                                sBuffer.append(",");
                             }
-                            sBuilder.append("\"").append(filterCond).append("\"");
+                            sBuffer.append("\"").append(filterCond).append("\"");
                         }
                     }
-                    sBuilder.append("]");
+                    sBuffer.append("]");
                 }
             }
-            sBuilder.append("}");
+            sBuffer.append("}");
             // Append consumer info of the group
-            getConsumerInfoList(consumerList, isBandConsume, sBuilder);
-            sBuilder.append("}");
+            getConsumerInfoList(consumerList, isBandConsume, sBuffer);
+            sBuffer.append("}");
         } catch (Exception e) {
-            sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
      * Private method to append consumer info of the give list to a string builder
      *
-     * @param consumerList
-     * @param isBandConsume
-     * @param strBuffer
+     * @param consumerList  consumer list
+     * @param isBandConsume whether bound consume
+     * @param strBuffer     string buffer
      */
     private void getConsumerInfoList(final List<ConsumerInfo> consumerList,
                                      boolean isBandConsume, final StringBuilder strBuffer) {

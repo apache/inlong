@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -134,7 +135,7 @@ public class BdbTopicConfEntity implements Serializable {
     public void setUnflushDataHold(final int unFlushDataHold) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD,
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
                         String.valueOf(unFlushDataHold));
     }
 
@@ -287,7 +288,7 @@ public class BdbTopicConfEntity implements Serializable {
     public int getUnflushDataHold() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -297,7 +298,7 @@ public class BdbTopicConfEntity implements Serializable {
     public int getMemCacheMsgCntInK() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT);
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -307,14 +308,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheMsgCntInK(final int memCacheMsgCntInK) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT,
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT,
                         String.valueOf(memCacheMsgCntInK));
     }
 
     public int getMemCacheMsgSizeInMB() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE);
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -324,14 +325,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheMsgSizeInMB(final int memCacheMsgSizeInMB) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE,
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
                         String.valueOf(memCacheMsgSizeInMB));
     }
 
     public int getMemCacheFlushIntvl() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL);
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -341,14 +342,14 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMemCacheFlushIntvl(final int memCacheFlushIntvl) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
                         String.valueOf(memCacheFlushIntvl));
     }
 
     public int getMaxMsgSize() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TServerConstants.TOKEN_MAX_MSG_SIZE);
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -358,8 +359,42 @@ public class BdbTopicConfEntity implements Serializable {
     public void setMaxMsgSize(int maxMsgSize) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TServerConstants.TOKEN_MAX_MSG_SIZE,
+                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
                         String.valueOf(maxMsgSize));
+    }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+    }
+
+    public int getTopicId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setTopicId(int topicId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_TOPICNAME_ID,
+                        String.valueOf(topicId));
     }
 
     public void appendAttributes(String attrKey, String attrVal) {

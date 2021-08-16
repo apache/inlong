@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.paramcheck;
 
-
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,9 +33,9 @@ import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbConsumeGroupSettingEntity;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,10 +180,10 @@ public class PBParameterUtils {
     }
 
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
-                                                          final MasterConfig masterConfig,
-                                                          final BrokerConfManager defaultBrokerConfManager,
-                                                          final TopicPSInfoManager topicPSInfoManager,
-                                                          final StringBuilder strBuffer) throws Exception {
+                                                          MasterConfig masterConfig,
+                                                          MetaDataManager defMetaDataManager,
+                                                          BrokerRunManager brokerRunManager,
+                                                          StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
         if (!inConsumerInfo.isRequireBound()) {
             retResult.setCheckData(inConsumerInfo);
@@ -204,36 +202,22 @@ public class PBParameterUtils {
                     "[Parameter error] totalSourceCount must over zero!");
             return retResult;
         }
-        BdbConsumeGroupSettingEntity offsetResetGroupEntity =
-                defaultBrokerConfManager.getBdbConsumeGroupSetting(inConsumerInfo.getGroup());
+        GroupResCtrlEntity offsetResetGroupEntity =
+                defMetaDataManager.confGetGroupResCtrlConf(inConsumerInfo.getGroup());
         if (masterConfig.isStartOffsetResetCheck()) {
-            if ((offsetResetGroupEntity == null)
-                    || (offsetResetGroupEntity.getEnableBind() != 1)) {
-                if (offsetResetGroupEntity == null) {
-                    retResult.setCheckResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            "[unauthorized subscribe] ConsumeGroup must be authorized by administrator before"
-                                    + " using bound subscribe, please contact to administrator!");
-                } else {
-                    retResult.setCheckResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            "[unauthorized subscribe] ConsumeGroup's authorization status is not enable for"
-                                    + " using bound subscribe, please contact to administrator!");
-                }
+            if (offsetResetGroupEntity == null) {
+                retResult.setCheckResult(false,
+                        TErrCodeConstants.BAD_REQUEST,
+                        "[unauthorized subscribe] ConsumeGroup must be authorized by administrator before"
+                                + " using bound subscribe, please contact to administrator!");
                 return retResult;
-            }
-            Date currentDate = new Date();
-            Date lastDate = offsetResetGroupEntity.getLastBindUsedDate();
-            if (lastDate == null
-                    || (lastDate.before(currentDate)
-                    && (int) ((lastDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 8)) > 1)) {
-                defaultBrokerConfManager.confUpdBdbConsumeGroupLastUsedTime(inConsumerInfo.getGroup());
             }
         }
         int allowRate = (offsetResetGroupEntity != null
                 && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                 ? offsetResetGroupEntity.getAllowedBrokerClientRate() : masterConfig.getMaxGroupBrokerConsumeRate();
-        int maxBrokerCount = topicPSInfoManager.getTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
+        int maxBrokerCount =
+                brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
         int curBClientRate = (int) Math.floor(maxBrokerCount / inConsumerInfo.getSourceCount());
         if (curBClientRate > allowRate) {
             int minClientCnt = (int) (maxBrokerCount / allowRate);
@@ -430,7 +414,7 @@ public class PBParameterUtils {
         }
         String tmpValue = brokerId.trim();
         try {
-            Integer.parseInt(tmpValue);
+            retResult.setCheckData(Integer.parseInt(tmpValue));
         } catch (Throwable e) {
             retResult.setCheckResult(false,
                     TErrCodeConstants.BAD_REQUEST,
@@ -438,7 +422,6 @@ public class PBParameterUtils {
             strBuffer.delete(0, strBuffer.length());
             return retResult;
         }
-        retResult.setCheckData(tmpValue);
         return retResult;
     }
 
@@ -522,7 +505,7 @@ public class PBParameterUtils {
             result.setFailResult(strBuffer.append("Request miss necessary ")
                     .append(fieldDef.name).append(" data!").toString());
             strBuffer.delete(0, strBuffer.length());
-            return result.success;
+            return result.isSuccess();
         }
         String tmpValue = paramValue.trim();
         if (tmpValue.length() > fieldDef.valMaxLen) {
@@ -530,10 +513,10 @@ public class PBParameterUtils {
                     .append("'s length over max value, allowed max length is ")
                     .append(fieldDef.valMaxLen).toString());
             strBuffer.delete(0, strBuffer.length());
-            return result.success;
+            return result.isSuccess();
         }
         result.setSuccResult(tmpValue);
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -551,9 +534,9 @@ public class PBParameterUtils {
                                                 ProcessResult result) {
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String tmpValue = (String) result.retData1;
+        String tmpValue = (String) result.getRetData();
         if (metadataManager.getTopicMetadata(tmpValue) == null) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.TOPICNAME.name)
@@ -561,7 +544,7 @@ public class PBParameterUtils {
                             .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
         }
-        return result.success;
+        return result.isSuccess();
     }
 
     /**
@@ -580,9 +563,9 @@ public class PBParameterUtils {
                                                  ProcessResult result) {
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
-        String tmpValue = (String) result.retData1;
+        String tmpValue = (String) result.getRetData();
         TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tmpValue);
         if (topicMetadata == null) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
@@ -590,7 +573,7 @@ public class PBParameterUtils {
                             .append(" ").append(tmpValue)
                             .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
-            return result.success;
+            return result.isSuccess();
         }
         if (metadataManager.isClosedTopic(tmpValue)) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
@@ -598,7 +581,7 @@ public class PBParameterUtils {
                             .append(" ").append(tmpValue)
                             .append(" has been closed").toString());
             strBuffer.delete(0, strBuffer.length());
-            return result.success;
+            return result.isSuccess();
         }
         int realPartition = partitionId < TBaseConstants.META_STORE_INS_BASE
                 ? partitionId : partitionId % TBaseConstants.META_STORE_INS_BASE;
@@ -608,9 +591,9 @@ public class PBParameterUtils {
                             .append(" ").append(tmpValue).append("-").append(partitionId)
                             .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
-            return result.success;
+            return result.isSuccess();
         }
         result.setSuccResult(topicMetadata);
-        return result.success;
+        return result.isSuccess();
     }
 }
