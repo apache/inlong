@@ -180,6 +180,13 @@ public class BrokerConfig extends AbstractFileConfig {
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
+        if (this.port == this.webPort
+                || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
+            throw new IllegalArgumentException(new StringBuilder(512)
+                    .append("Illegal port value configuration, the value of ")
+                    .append("port or tlsPort cannot be the same as the value of webPort!")
+                    .toString());
+        }
     }
 
     /***

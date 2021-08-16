@@ -468,17 +468,19 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
 
 
     private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
+        int totalCnt = 0;
         ClusterSettingEntity curConf =
                 metaDataManager.getClusterDefSetting(true);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         if (curConf != null) {
+            totalCnt++;
             if (isNewVer) {
                 curConf.toWebJsonStr(sBuffer, true, true);
             } else {
                 curConf.toOldVerFlowCtrlWebJsonStr(sBuffer, true);
             }
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
 }

@@ -207,6 +207,9 @@ public class WebParameterUtils {
             return result.isSuccess();
         }
         int qryPriorityId = (int) result.getRetData();
+        if (qryPriorityId == defValue) {
+            return result.isSuccess();
+        }
         if (qryPriorityId > 303 || qryPriorityId < 101) {
             result.setFailResult(sBuffer.append("Illegal value in ")
                     .append(WebFieldDef.QRYPRIORITYID.name)
@@ -365,6 +368,32 @@ public class WebParameterUtils {
                     sBuffer.append("The value of field ")
                             .append(WebFieldDef.TOPICSTATUSID.name)
                             .append(" invalid:").append(e.getMessage()).toString());
+            sBuffer.delete(0, sBuffer.length());
+        }
+        return result.isSuccess();
+    }
+
+    /**
+     * Compare whether the configured port values conflict
+     *
+     * @param brokerPort     broker port
+     * @param brokerTlsPort  broker tls port
+     * @param brokerWebPort  broker web port
+     * @param sBuffer        string buffer
+     * @param result     check result of parameter value
+     * @return process result
+     */
+    public static boolean isLegallyPortValueSet(int brokerPort, int brokerTlsPort,
+                                                int brokerWebPort, StringBuilder sBuffer,
+                                                ProcessResult result) {
+        result.setSuccResult(null);
+        if (brokerPort == brokerWebPort || brokerTlsPort == brokerWebPort) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    sBuffer.append("Illegal port value configuration, the value of ")
+                            .append(WebFieldDef.BROKERPORT.name).append(" or ")
+                            .append(WebFieldDef.BROKERTLSPORT.name)
+                            .append(" cannot be the same as the value of")
+                            .append(WebFieldDef.BROKERWEBPORT.name).toString());
             sBuffer.delete(0, sBuffer.length());
         }
         return result.isSuccess();
@@ -1358,7 +1387,7 @@ public class WebParameterUtils {
                                                  boolean checkEmpty,
                                                  boolean checkResToken,
                                                  Set<String> resTokens,
-                                                 final StringBuilder sb) throws Exception {
+                                                 StringBuilder sb) throws Exception {
         Set<String> batchOpGroupNames = new HashSet<>();
         if (TStringUtils.isNotBlank(inputGroupName)) {
             inputGroupName = escDoubleQuotes(inputGroupName.trim());
@@ -1422,7 +1451,7 @@ public class WebParameterUtils {
                                                  boolean checkEmpty,
                                                  boolean checkRange,
                                                  Set<String> checkedTopicList,
-                                                 final StringBuilder sb) throws Exception {
+                                                 StringBuilder sb) throws Exception {
         Set<String> batchOpTopicNames = new HashSet<>();
         if (TStringUtils.isNotBlank(inputTopicName)) {
             inputTopicName = escDoubleQuotes(inputTopicName.trim());
@@ -1657,8 +1686,8 @@ public class WebParameterUtils {
      * @param required
      * @return the yyyyMMddHHmmss format string
      */
-    public static String checkParamCommonRequires(final String paramName, final String paramValue,
-                                                   boolean required) throws Exception {
+    public static String checkParamCommonRequires(String paramName, String paramValue,
+                                                  boolean required) throws Exception {
         String temParamValue = null;
         if (paramValue == null) {
             if (required) {
