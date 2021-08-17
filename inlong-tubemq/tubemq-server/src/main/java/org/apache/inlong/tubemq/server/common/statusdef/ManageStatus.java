@@ -86,6 +86,16 @@ public enum ManageStatus {
                 "unknown broker manage status code %s", code));
     }
 
+    public static ManageStatus descOf(String description) {
+        for (ManageStatus status : ManageStatus.values()) {
+            if (status.getDescription().equalsIgnoreCase(description)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException(String.format(
+                "unknown broker manage status name %s", description));
+    }
+
     /**
      * Change broker read write status
      *

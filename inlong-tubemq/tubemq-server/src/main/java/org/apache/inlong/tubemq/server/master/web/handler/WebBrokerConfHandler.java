@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -603,6 +604,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             sBuffer.append("{\"brokerId\":").append(entity.getBrokerId())
                     .append(",\"brokerIp\":\"").append(entity.getBrokerIp())
                     .append("\",\"brokerPort\":").append(entity.getBrokerPort())
+                    .append(",\"brokerWebPort\":").append(entity.getBrokerWebPort())
                     .append(",\"manageStatus\":\"").append(entity.getManageStatusStr()).append("\"");
             if (brokerInfo == null) {
                 sBuffer.append(",\"brokerTLSPort\":").append(entity.getBrokerTLSPort())
@@ -804,7 +806,6 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         }
         return buildRetInfo(retInfo, sBuffer);
     }
-
 
     /**
      * Check if the record is valid
@@ -1066,25 +1067,23 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     private <T> boolean getManageStatusParamValue(T paramCntr,
                                                   StringBuilder sBuffer,
                                                   ProcessResult result) {
-        // get manage status id value
-        if (!WebParameterUtils.getIntParamValue(paramCntr,
+        if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.MANAGESTATUS, false,
-                ManageStatus.STATUS_MANAGE_UNDEFINED.getCode(),
-                ManageStatus.STATUS_MANAGE_ONLINE.getCode(),
-                ManageStatus.STATUS_MANAGE_OFFLINE.getCode(), sBuffer, result)) {
+                null, sBuffer, result)) {
             return result.isSuccess();
         }
-        ManageStatus mngStatus;
-        // parse manage status;
-        int manageStatusId = (int) result.getRetData();
-        try {
-            mngStatus = ManageStatus.valueOf(manageStatusId);
-        } catch (Throwable e) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
-                    sBuffer.append("Illegal ").append(WebFieldDef.MANAGESTATUS.name)
-                            .append(" parameter value :").append(e.getMessage()).toString());
-            sBuffer.delete(0, sBuffer.length());
-            return result.isSuccess();
+        String statusInfo = (String) result.getRetData();
+        ManageStatus mngStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
+        if (TStringUtils.isNotBlank(statusInfo)) {
+            try {
+                mngStatus = ManageStatus.descOf(statusInfo);
+            } catch (Throwable e) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                        sBuffer.append("Illegal ").append(WebFieldDef.MANAGESTATUS.name)
+                                .append(" parameter value :").append(e.getMessage()).toString());
+                sBuffer.delete(0, sBuffer.length());
+                return result.isSuccess();
+            }
         }
         result.setSuccResult(mngStatus);
         return result.isSuccess();
