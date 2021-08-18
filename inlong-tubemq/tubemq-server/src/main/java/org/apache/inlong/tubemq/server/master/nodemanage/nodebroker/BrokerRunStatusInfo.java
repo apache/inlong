@@ -185,11 +185,11 @@ public class BrokerRunStatusInfo {
                 .append(",\"brokerInfo\":\"").append(brokerInfo.getBrokerStrInfo())
                 .append("\",\"createId\":\"").append(createId)
                 .append("\",\"isConfChanged\":").append(confStatusTuple.getF0())
-                .append("\",\"isConfLoaded\":").append(confStatusTuple.getF1())
+                .append(",\"isConfLoaded\":").append(confStatusTuple.getF1())
                 .append(",\"confChangeNo\":").append(confChangeNo.get())
                 .append(",\"curStepStatus\":\"").append(curStepStatus.getDescription())
                 .append("\",\"nextStepOpTimeInMills\":").append(nextStepOpTimeInMills)
-                .append("\",\"confLoadedNo\":").append(confLoadedNo.get())
+                .append(",\"confLoadedNo\":").append(confLoadedNo.get())
                 .append(",\"isOnline\":").append(isOnline)
                 .append(",\"isDoneDataLoad\":").append(isDoneDataLoad)
                 .append(",\"isDoneDataSub\":").append(isDoneDataSub)
@@ -199,7 +199,9 @@ public class BrokerRunStatusInfo {
                 .append(",\"maxConfLoadedTimeInMs\":").append(maxConfLoadedTimeInMs)
                 .append(",\"curConfLoadTimeInMs\":").append(curConfLoadTimeInMs)
                 .append(",\"BrokerSyncData\":");
-        return brokerSyncData.toJsonString(sBuffer);
+        brokerSyncData.toJsonString(sBuffer);
+        sBuffer.append("}");
+        return sBuffer;
     }
 
     private void goNextStatus(boolean isRegister,

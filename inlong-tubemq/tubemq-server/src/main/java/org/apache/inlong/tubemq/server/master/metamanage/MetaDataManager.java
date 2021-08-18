@@ -475,32 +475,6 @@ public class MetaDataManager implements Server {
     }
 
     /**
-     * Modify broker configure information
-     *
-     * @param entity     the broker configure entity will be update
-     * @param strBuffer  the print information string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    public boolean modBrokerConfig(BrokerConfEntity entity,
-                                   StringBuilder strBuffer,
-                                   ProcessResult result) {
-        metaStoreService.updBrokerConf(entity, strBuffer, result);
-        return result.isSuccess();
-    }
-
-    /**
-     * Get broker configure information
-     *
-     * @param qryEntity
-     * @return broker configure information
-     */
-    public Map<Integer, BrokerConfEntity> confGetBrokerConfInfo(
-            BrokerConfEntity qryEntity) {
-        return metaStoreService.getBrokerConfInfo(qryEntity);
-    }
-
-    /**
      * Get broker configure information
      *
      * @param qryEntity
