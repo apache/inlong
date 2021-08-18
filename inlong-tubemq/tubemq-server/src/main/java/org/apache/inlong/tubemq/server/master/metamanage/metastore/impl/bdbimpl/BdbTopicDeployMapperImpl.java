@@ -24,6 +24,7 @@ import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -233,33 +234,11 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
                                                                 Set<Integer> brokerIdSet,
                                                                 TopicDeployEntity qryEntity) {
         List<TopicDeployEntity> items;
-        Set<String> qryTopicKeySet = null;
-        ConcurrentHashSet<String> keySet;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
-        // get deploy records set by topicName
-        if (topicNameSet != null && !topicNameSet.isEmpty()) {
-            qryTopicKeySet = new HashSet<>();
-            for (String topicName : topicNameSet) {
-                keySet = topicNameCacheIndex.get(topicName);
-                if (keySet != null && !keySet.isEmpty()) {
-                    qryTopicKeySet.addAll(keySet);
-                }
-            }
-        }
-        // get deploy records set by brokerId
-        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
-            if (qryTopicKeySet == null) {
-                qryTopicKeySet = new HashSet<>();
-            }
-            for (Integer brokerId : brokerIdSet) {
-                keySet = brokerIdCacheIndex.get(brokerId);
-                if (keySet != null && !keySet.isEmpty()) {
-                    qryTopicKeySet.addAll(keySet);
-                }
-            }
-        }
+        // get matched keys by topicNameSet and brokerIdSet
+        Set<String> matchedKeySet = getMatchedRecords(topicNameSet, brokerIdSet);
         // filter record by qryEntity
-        if (qryTopicKeySet == null) {
+        if (matchedKeySet == null) {
             for (TopicDeployEntity entry :  topicConfCache.values()) {
                 if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity))) {
                     continue;
@@ -270,7 +249,7 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
             }
         } else {
             TopicDeployEntity entry;
-            for (String recKey : qryTopicKeySet) {
+            for (String recKey : matchedKeySet) {
                 entry = topicConfCache.get(recKey);
                 if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity))) {
                     continue;
@@ -285,43 +264,21 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<Integer> brokerIdSet, Set<String> topicNameSet) {
+            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
         List<TopicDeployEntity> items;
-        Set<String> qryTopicKey = null;
-        ConcurrentHashSet<String> keySet;
         Map<Integer, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         if (brokerIdSet != null) {
             for (Integer brokerId : brokerIdSet) {
                 retEntityMap.put(brokerId, new ArrayList<>());
             }
         }
-        if (topicNameSet != null && !topicNameSet.isEmpty()) {
-            qryTopicKey = new HashSet<>();
-            for (String topicName : topicNameSet) {
-                keySet = topicNameCacheIndex.get(topicName);
-                if (keySet != null && !keySet.isEmpty()) {
-                    qryTopicKey.addAll(keySet);
-                }
-            }
+        // get matched keys by topicNameSet and brokerIdSet
+        Set<String> matchedKeySet = getMatchedRecords(topicNameSet, brokerIdSet);
+        // get record by keys
+        if (matchedKeySet == null) {
+            matchedKeySet = new HashSet<>(topicConfCache.keySet());
         }
-        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
-            if (qryTopicKey == null) {
-                qryTopicKey = new HashSet<>();
-            }
-            for (Integer brokerId : brokerIdSet) {
-                keySet = brokerIdCacheIndex.get(brokerId);
-                if (keySet != null && !keySet.isEmpty()) {
-                    qryTopicKey.addAll(keySet);
-                }
-            }
-        }
-        if (qryTopicKey == null) {
-            qryTopicKey = new HashSet<>(topicConfCache.keySet());
-        }
-        if (qryTopicKey.isEmpty()) {
-            return retEntityMap;
-        }
-        for (String recordKey: qryTopicKey) {
+        for (String recordKey: matchedKeySet) {
             TopicDeployEntity entity = topicConfCache.get(recordKey);
             if (entity == null) {
                 continue;
@@ -338,43 +295,29 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
             Set<String> topicSet, Set<Integer> brokerIdSet) {
         TopicDeployEntity tmpEntity;
         List<TopicDeployEntity> itemLst;
-        ConcurrentHashSet<String> recSet;
-        Set<String> hitKeys = new HashSet<>();
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
-        if (((topicSet == null) || (topicSet.isEmpty()))
-                && ((brokerIdSet == null) || (brokerIdSet.isEmpty()))) {
+        // get matched keys by topicNameSet and brokerIdSet
+        Set<String> matchedKeySet = getMatchedRecords(topicSet, brokerIdSet);
+        // get records by matched keys
+        if (matchedKeySet == null) {
             for (TopicDeployEntity entity : topicConfCache.values()) {
+                if (entity == null) {
+                    continue;
+                }
                 itemLst = retEntityMap.computeIfAbsent(
                         entity.getTopicName(), k -> new ArrayList<>());
                 itemLst.add(entity);
             }
-            return retEntityMap;
-        }
-        if ((topicSet == null) || (topicSet.isEmpty())) {
-            for (Integer brokerId : brokerIdSet) {
-                recSet = brokerIdCacheIndex.get(brokerId);
-                if (recSet == null || recSet.isEmpty()) {
-                    continue;
-                }
-                hitKeys.addAll(recSet);
-            }
         } else {
-            for (String topic : topicSet) {
-                recSet = topicNameCacheIndex.get(topic);
-                if (recSet == null || recSet.isEmpty()) {
+            for (String key : matchedKeySet) {
+                tmpEntity = topicConfCache.get(key);
+                if (tmpEntity == null) {
                     continue;
                 }
-                hitKeys.addAll(recSet);
+                itemLst = retEntityMap.computeIfAbsent(
+                        tmpEntity.getTopicName(), k -> new ArrayList<>());
+                itemLst.add(tmpEntity);
             }
-        }
-        for (String key : hitKeys) {
-            tmpEntity = topicConfCache.get(key);
-            if (tmpEntity == null) {
-                continue;
-            }
-            itemLst = retEntityMap.computeIfAbsent(
-                    tmpEntity.getTopicName(), k -> new ArrayList<>());
-            itemLst.add(tmpEntity);
         }
         return retEntityMap;
     }
@@ -535,6 +478,58 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
                 brokerId2TopicCacheIndex.remove(curEntity.getBrokerId());
             }
         }
+    }
+
+    private Set<String> getMatchedRecords(Set<String> topicNameSet,
+                                          Set<Integer> brokerIdSet) {
+        ConcurrentHashSet<String> keySet;
+        Set<String> topicKeySet = null;
+        Set<String> brokerKeySet = null;
+        Set<String> matchedKeySet = null;
+        // get deploy records set by topicName
+        if (topicNameSet != null && !topicNameSet.isEmpty()) {
+            topicKeySet = new HashSet<>();
+            for (String topicName : topicNameSet) {
+                keySet = topicNameCacheIndex.get(topicName);
+                if (keySet != null && !keySet.isEmpty()) {
+                    topicKeySet.addAll(keySet);
+                }
+            }
+            if (topicKeySet.isEmpty()) {
+                return Collections.emptySet();
+            }
+        }
+        // get deploy records set by brokerId
+        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
+            brokerKeySet = new HashSet<>();
+            for (Integer brokerId : brokerIdSet) {
+                keySet = brokerIdCacheIndex.get(brokerId);
+                if (keySet != null && !keySet.isEmpty()) {
+                    brokerKeySet.addAll(keySet);
+                }
+            }
+            if (brokerKeySet.isEmpty()) {
+                return Collections.emptySet();
+            }
+        }
+        // get intersection from topicKeySet and brokerKeySet
+        if (topicKeySet != null || brokerKeySet != null) {
+            if (topicKeySet == null) {
+                matchedKeySet = new HashSet<>(brokerKeySet);
+            } else {
+                if (brokerKeySet == null) {
+                    matchedKeySet = new HashSet<>(topicKeySet);
+                } else {
+                    matchedKeySet = new HashSet<>();
+                    for (String record : topicKeySet) {
+                        if (brokerKeySet.contains(record)) {
+                            matchedKeySet.add(record);
+                        }
+                    }
+                }
+            }
+        }
+        return matchedKeySet;
     }
 
     private void addOrUpdCacheRecord(TopicDeployEntity entity) {

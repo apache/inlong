@@ -168,7 +168,7 @@ public interface MetaStoreService extends KeepAlive, Server {
             Set<String> topicNameSet, Set<Integer> brokerIdSet, TopicDeployEntity qryEntity);
 
     Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<Integer> brokerIdSet, Set<String> topicNameSet);
+            Set<String> topicNameSet, Set<Integer> brokerIdSet);
 
     Map<String/* topicName */, List<TopicDeployEntity>> getTopicDepInfoByTopicBrokerId(
             Set<String> topicSet, Set<Integer> brokerIdSet);
@@ -334,9 +334,7 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName);
 
-    Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet);
-
-    Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupSet);
-
     List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity);
+
+    Set<String> getMatchedKeysByGroupAndTopicSet(Set<String> groupSet, Set<String> topicSet);
 }

@@ -270,6 +270,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         }
         return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getBrokerId() == this.brokerId)
+                && (target.getBrokerPort() == TBaseConstants.META_VALUE_UNDEFINED
+                || target.getBrokerPort() == this.brokerPort)
                 && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getTopicId() == this.topicNameId)
                 && (TStringUtils.isBlank(target.getTopicName())

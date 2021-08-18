@@ -264,7 +264,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         Map<Integer, List<TopicDeployEntity>> queryResult =
-                metaDataManager.getTopicDeployInfoMap(brokerIdSet, topicNameSet);
+                metaDataManager.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
         // build query result
         int dataCount = 0;
         int totalStoreNum = 0;

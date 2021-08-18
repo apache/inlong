@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
@@ -235,6 +236,9 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
         GroupConsumeCtrlEntity entity;
         List<GroupConsumeCtrlEntity> result = new ArrayList<>();
         for (String recordKey : keySet) {
+            if (recordKey == null) {
+                continue;
+            }
             entity = grpConsumeCtrlCache.get(recordKey);
             if (entity != null) {
                 result.add(entity);
@@ -262,34 +266,6 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
-    public Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicNameSet) {
-        ConcurrentHashSet<String> qrySet;
-        Set<String> retResult = new HashSet<>();
-        for (String topicName : topicNameSet) {
-            qrySet = grpConsumeCtrlTopicCache.get(topicName);
-            if (qrySet == null || qrySet.isEmpty()) {
-                continue;
-            }
-            retResult.addAll(qrySet);
-        }
-        return retResult;
-    }
-
-    @Override
-    public Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupNameSet) {
-        ConcurrentHashSet<String> qrySet;
-        Set<String> retResult = new HashSet<>();
-        for (String groupName : groupNameSet) {
-            qrySet = grpConsumeCtrlGroupCache.get(groupName);
-            if (qrySet == null || qrySet.isEmpty()) {
-                continue;
-            }
-            retResult.addAll(qrySet);
-        }
-        return retResult;
-    }
-
-    @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(
             String groupName, String topicName) {
         String recKey = KeyBuilderUtils.buildGroupTopicRecKey(groupName, topicName);
@@ -299,35 +275,13 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     @Override
     public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
-        ConcurrentHashSet<String> recSet;
-        Set<String> qryHitRecSet = null;
         Map<String, List<GroupConsumeCtrlEntity>> retEntityMap = new HashMap<>();
-        // filter group items
-        if (groupSet != null && !groupSet.isEmpty()) {
-            qryHitRecSet = new HashSet<>();
-            for (String group : groupSet) {
-                recSet = grpConsumeCtrlGroupCache.get(group);
-                if (recSet != null && !recSet.isEmpty()) {
-                    qryHitRecSet.addAll(recSet);
-                }
-            }
-        }
-        // filter topic items
-        if (topicSet != null && !topicSet.isEmpty()) {
-            if (qryHitRecSet == null) {
-                qryHitRecSet = new HashSet<>();
-            }
-            for (String topic : topicSet) {
-                recSet = grpConsumeCtrlTopicCache.get(topic);
-                if (recSet != null && !recSet.isEmpty()) {
-                    qryHitRecSet.addAll(recSet);
-                }
-            }
-        }
+        // filter matched keys by groupSet and topicSet
+        Set<String> totalMatchedSet = getMatchedRecords(groupSet, topicSet);
         // get matched records
         GroupConsumeCtrlEntity tmpEntity;
         List<GroupConsumeCtrlEntity> itemLst;
-        if (qryHitRecSet == null) {
+        if (totalMatchedSet == null) {
             for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
                 if (entity == null || (qryEntry != null && !entity.isMatched(qryEntry))) {
                     continue;
@@ -337,7 +291,7 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
                 itemLst.add(entity);
             }
         } else {
-            for (String recKey : qryHitRecSet) {
+            for (String recKey : totalMatchedSet) {
                 tmpEntity = grpConsumeCtrlCache.get(recKey);
                 if (tmpEntity == null || (qryEntry != null && !tmpEntity.isMatched(qryEntry))) {
                     continue;
@@ -365,12 +319,64 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
         return retEntitys;
     }
 
+    @Override
+    public Set<String> getMatchedRecords(Set<String> groupSet, Set<String> topicSet) {
+        Set<String> groupKeySet = null;
+        Set<String> topicKeySet = null;
+        Set<String> totalMatchedSet = null;
+        ConcurrentHashSet<String> recSet;
+        // filter group items
+        if (groupSet != null && !groupSet.isEmpty()) {
+            groupKeySet = new HashSet<>();
+            for (String group : groupSet) {
+                recSet = grpConsumeCtrlGroupCache.get(group);
+                if (recSet != null && !recSet.isEmpty()) {
+                    groupKeySet.addAll(recSet);
+                }
+            }
+            if (groupKeySet.isEmpty()) {
+                return Collections.emptySet();
+            }
+        }
+        // filter topic items
+        if (topicSet != null && !topicSet.isEmpty()) {
+            topicKeySet = new HashSet<>();
+            for (String topic : topicSet) {
+                recSet = grpConsumeCtrlTopicCache.get(topic);
+                if (recSet != null && !recSet.isEmpty()) {
+                    topicKeySet.addAll(recSet);
+                }
+            }
+            if (topicKeySet.isEmpty()) {
+                return Collections.emptySet();
+            }
+        }
+        // get intersection from groupKeySet and topicKeySet
+        if (groupKeySet != null || topicKeySet != null) {
+            if (groupKeySet == null) {
+                totalMatchedSet = new HashSet<>(topicKeySet);
+            } else {
+                if (topicKeySet == null) {
+                    totalMatchedSet = new HashSet<>(groupKeySet);
+                } else {
+                    totalMatchedSet = new HashSet<>();
+                    for (String record : groupKeySet) {
+                        if (topicKeySet.contains(record)) {
+                            totalMatchedSet.add(record);
+                        }
+                    }
+                }
+            }
+        }
+        return totalMatchedSet;
+    }
+
     /**
      * Put Group consume configure info into bdb store
      *
      * @param memEntity need add record
      * @param result process result with old value
-     * @return
+     * @return true sucess, false failue
      */
     private boolean putGroupConsumeCtrlConfig2Bdb(
             GroupConsumeCtrlEntity memEntity, ProcessResult result) {

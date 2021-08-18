@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.server.master.metamanage;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1184,7 +1185,9 @@ public class MetaDataManager implements Server {
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
      *
-     * @param qryEntity query conditions
+     * @param topicNameSet  query by topicNameSet
+     * @param brokerIdSet   query by brokerIdSet
+     * @param qryEntity     query conditions
      * @return topic entity map
      */
     public Map<String, List<TopicDeployEntity>> getTopicConfEntityMap(Set<String> topicNameSet,
@@ -1202,11 +1205,14 @@ public class MetaDataManager implements Server {
      *
      * @return topic entity map
      */
-    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<Integer> brokerIdSet,
-                                                                       Set<String> topicNameSet) {
+    public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
+                                                                       Set<Integer> brokerIdSet) {
         Map<Integer, BrokerConfEntity> qryBrokerInfoMap =
                 metaStoreService.getBrokerConfInfo(brokerIdSet, null, null);
-        return metaStoreService.getTopicDeployInfoMap(qryBrokerInfoMap.keySet(), topicNameSet);
+        if (qryBrokerInfoMap.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return metaStoreService.getTopicDeployInfoMap(topicNameSet, qryBrokerInfoMap.keySet());
     }
 
     public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
@@ -1914,18 +1920,12 @@ public class MetaDataManager implements Server {
                                                             StringBuilder sBuffer,
                                                             ProcessResult result) {
         List<GroupProcessResult> retInfo = new ArrayList<>();
-        if ((groupNameSet == null || groupNameSet.isEmpty())
-                && (topicNameSet == null || topicNameSet.isEmpty())) {
+        Set<String> rmvRecordSet =
+                metaStoreService.getMatchedKeysByGroupAndTopicSet(groupNameSet, topicNameSet);
+        if (rmvRecordSet == null || rmvRecordSet.isEmpty()) {
             return retInfo;
         }
-        Set<String> rmvRecords = new HashSet<>();
-        if (groupNameSet != null && !groupNameSet.isEmpty()) {
-            rmvRecords.addAll(metaStoreService.getConsumeCtrlKeyByGroupName(groupNameSet));
-        }
-        if (topicNameSet != null && !topicNameSet.isEmpty()) {
-            rmvRecords.addAll(metaStoreService.getConsumeCtrlKeyByTopicName(topicNameSet));
-        }
-        for (String recKey : rmvRecords) {
+        for (String recKey : rmvRecordSet) {
             Tuple2<String, String> groupTopicTuple =
                     KeyBuilderUtils.splitRecKey2GroupTopic(recKey);
             metaStoreService.delGroupConsumeCtrlConf(operator, recKey, sBuffer, result);
@@ -1978,7 +1978,7 @@ public class MetaDataManager implements Server {
             return disTopicSet;
         }
         for (GroupConsumeCtrlEntity ctrlEntity : qryResult) {
-            if (!ctrlEntity.isEnableConsume()) {
+            if (ctrlEntity != null && !ctrlEntity.isEnableConsume()) {
                 disTopicSet.add(ctrlEntity.getTopicName());
             }
         }

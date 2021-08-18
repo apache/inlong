@@ -59,8 +59,8 @@ public interface TopicDeployMapper extends AbstractMapper {
                                                          Set<Integer> brokerIdSet,
                                                          TopicDeployEntity qryEntity);
 
-    Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<Integer> brokerIdSet,
-                                                                Set<String> topicNameSet);
+    Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
+                                                                Set<Integer> brokerIdSet);
 
     Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicSet, Set<Integer> brokerIdSet);
