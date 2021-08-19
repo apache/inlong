@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@Deprecated
 public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
 
     private static final Logger logger =
@@ -201,14 +202,14 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 }
                 sBuffer.append("{\"topicName\":\"").append(entry.getTopicName())
                         .append("\",\"groupName\":\"").append(entry.getGroupName())
-                        .append(",\"dataVersionId\":").append(entry.getDataVerId())
-                        .append(",\"createUser\":\"").append(entry.getCreateUser()).append("\"")
-                        .append(",\"createDate\":\"").append(entry.getCreateDateStr()).append("\"")
-                        .append(",\"modifyUser\":\"").append(entry.getModifyUser()).append("\"")
-                        .append(",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
+                        .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                        .append(",\"createUser\":\"").append(entry.getCreateUser())
+                        .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
+                        .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
+                        .append("\",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
             }
-            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
 
@@ -860,8 +861,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
-            sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
-                    .append(",\"success\":").append(entry.isSuccess())
+            sBuffer.append("{\"groupName\":\"").append(entry.getGroupName())
+                    .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
         }
@@ -1227,14 +1228,15 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         }
         int paramValue = (int) result.getRetData();
         if (paramValue == TBaseConstants.META_VALUE_UNDEFINED) {
-            return defValue;
+            result.setSuccResult(defValue);
         } else {
             if (paramValue == 2) {
-                return Boolean.TRUE;
+                result.setSuccResult(Boolean.TRUE);
             } else {
-                return Boolean.FALSE;
+                result.setSuccResult(Boolean.FALSE);
             }
         }
+        return result.isSuccess();
     }
 
 }

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
@@ -44,21 +43,22 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
+    public TopicCtrlEntity(BaseEntity opEntity, String topicName) {
+        super(opEntity);
+        this.topicName = topicName;
+    }
 
-    public TopicCtrlEntity(String topicName, int topicNameId,
-                           int maxMsgSizeInMB, String createUser) {
-        super(createUser, new Date());
+    public TopicCtrlEntity(BaseEntity opEntity, String topicName,
+                           int topicNameId, int maxMsgSizeInMB) {
+        super(opEntity.getDataVerId(),
+                opEntity.getModifyUser(),
+                opEntity.getModifyDate());
         this.topicName = topicName;
         this.topicNameId = topicNameId;
         this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
         this.maxMsgSizeInB =
                 SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
         this.maxMsgSizeInMB = maxMsgSizeInMB;
-    }
-
-    public TopicCtrlEntity(BaseEntity opEntity, String topicName) {
-        super(opEntity);
-        this.topicName = topicName;
     }
 
     /**
