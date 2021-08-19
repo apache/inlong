@@ -565,8 +565,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public Map<Integer/* brokerId */, List<TopicDeployEntity>> getTopicDeployInfoMap(
-            Set<Integer> brokerIdSet,  Set<String> topicNameSet) {
-        return topicDeployMapper.getTopicDeployInfoMap(brokerIdSet, topicNameSet);
+            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+        return topicDeployMapper.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
     }
 
 
@@ -901,16 +901,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public Set<String> getConsumeCtrlKeyByTopicName(Set<String> topicSet) {
-        return groupConsumeCtrlMapper.getConsumeCtrlKeyByTopicName(topicSet);
-    }
-
-    @Override
-    public Set<String> getConsumeCtrlKeyByGroupName(Set<String> groupSet) {
-        return groupConsumeCtrlMapper.getConsumeCtrlKeyByGroupName(groupSet);
-    }
-
-    @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(
             String groupName, String topicName) {
         return groupConsumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
@@ -925,6 +915,12 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     @Override
     public List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity) {
         return groupConsumeCtrlMapper.getGroupConsumeCtrlConf(qryEntity);
+    }
+
+    @Override
+    public Set<String> getMatchedKeysByGroupAndTopicSet(Set<String> groupSet,
+                                                        Set<String> topicSet) {
+        return groupConsumeCtrlMapper.getMatchedRecords(groupSet, topicSet);
     }
 
     @Override

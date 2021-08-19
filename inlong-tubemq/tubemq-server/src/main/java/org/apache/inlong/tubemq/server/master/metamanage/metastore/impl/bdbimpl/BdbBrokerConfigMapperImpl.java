@@ -23,7 +23,6 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -202,30 +201,51 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     /**
      * get broker configure info from bdb store
+     *
+     * @param brokerIdSet  need matched broker id set
+     * @param brokerIpSet  need matched broker ip set
+     * @param qryEntity    need matched properties
      * @return result, only read
      */
     @Override
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
                                                             Set<String> brokerIpSet,
                                                             BrokerConfEntity qryEntity) {
-        Set<Integer> qryBrokerKeySet = null;
+        Set<Integer> ipHitSet = null;
+        Set<Integer> totalMatchedSet = null;
         Map<Integer, BrokerConfEntity> retMap = new HashMap<>();
-        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
-            qryBrokerKeySet = new HashSet<>(brokerIdSet);
-        }
+        // get records set by brokerIpSet
         if (brokerIpSet != null && !brokerIpSet.isEmpty()) {
-            if (qryBrokerKeySet == null) {
-                qryBrokerKeySet = new HashSet<>();
-            }
+            ipHitSet = new HashSet<>();
             for (String brokerIp : brokerIpSet) {
                 Integer brokerId = brokerIpIndexCache.get(brokerIp);
                 if (brokerId != null) {
-                    qryBrokerKeySet.add(brokerId);
+                    ipHitSet.add(brokerId);
+                }
+            }
+            if (ipHitSet.isEmpty()) {
+                return retMap;
+            }
+        }
+        // get intersection from brokerIdSet and brokerIpSet
+        if (brokerIdSet != null || ipHitSet != null) {
+            if (brokerIdSet == null) {
+                totalMatchedSet = new HashSet<>(ipHitSet);
+            } else {
+                if (ipHitSet == null) {
+                    totalMatchedSet = new HashSet<>(brokerIdSet);
+                } else {
+                    totalMatchedSet = new HashSet<>();
+                    for (Integer record : brokerIdSet) {
+                        if (ipHitSet.contains(record)) {
+                            totalMatchedSet.add(record);
+                        }
+                    }
                 }
             }
         }
         // get broker configures
-        if (qryBrokerKeySet == null) {
+        if (totalMatchedSet == null) {
             for (BrokerConfEntity entity :  brokerConfCache.values()) {
                 if (entity == null
                         || (qryEntity != null && !entity.isMatched(qryEntity))) {
@@ -234,7 +254,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
                 retMap.put(entity.getBrokerId(), entity);
             }
         } else {
-            for (Integer brokerId : qryBrokerKeySet) {
+            for (Integer brokerId : totalMatchedSet) {
                 BrokerConfEntity entity = brokerConfCache.get(brokerId);
                 if (entity == null
                         || (qryEntity != null && !entity.isMatched(qryEntity))) {
@@ -245,8 +265,6 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         }
         return retMap;
     }
-
-
 
     /**
      * get broker configure info from bdb store
