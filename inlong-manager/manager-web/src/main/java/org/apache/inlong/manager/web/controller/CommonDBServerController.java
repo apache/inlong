@@ -76,7 +76,7 @@ public class CommonDBServerController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ApiOperation(value = "Create DB data source")
     public Response<Integer> create(@RequestBody CommonDbServerInfo commonDbServerInfo) throws Exception {
-        int id = commonDBServerService.create(commonDbServerInfo);
+        int id = commonDBServerService.save(commonDbServerInfo);
         return Response.success(id);
     }
 
@@ -173,7 +173,7 @@ public class CommonDBServerController {
      */
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     @ApiOperation(value = "Download import template")
-    public String download(HttpServletResponse response) throws Exception {
+    public String download(HttpServletResponse response) {
         String fileName = "common_db_server_template.csv";
         String realPath = new File("").getAbsolutePath();
         File file = new File(realPath, fileName);
@@ -274,7 +274,7 @@ public class CommonDBServerController {
                 }
 
                 for (CommonDbServerInfo entry : dbServerInfos) {
-                    commonDBServerService.create(entry);
+                    commonDBServerService.save(entry);
                     //System.out.println("entry = "+entry);
                     count++;
                 }

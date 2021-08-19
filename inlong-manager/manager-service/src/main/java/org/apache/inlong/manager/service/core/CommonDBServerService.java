@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequ
 
 public interface CommonDBServerService {
 
-    int create(CommonDbServerInfo commonDbServerInfo) throws Exception;
+    int save(CommonDbServerInfo commonDbServerInfo) throws Exception;
 
     CommonDbServerInfo get(int id) throws Exception;
 

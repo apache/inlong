@@ -28,8 +28,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.PageResult;
-import org.apache.inlong.manager.common.util.PageUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog.ListenerExecutorLog;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog.TaskExecutorLog;
@@ -127,7 +125,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public PageResult<ProcessListView> listProcess(ProcessQuery query) {
+    public PageInfo<ProcessListView> listProcess(ProcessQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<ProcessInstance> result = (Page<ProcessInstance>) workflowEngine.queryService().listProcess(query);
         PageInfo<ProcessListView> pageInfo = result.toPageInfo(processInstance -> {
@@ -148,17 +146,18 @@ public class WorkflowServiceImpl implements WorkflowService {
             PageHelper.startPage(0, 100);
             pageInfo.getList().forEach(addCurrentTask(baseTaskQuery));
         }
-        return PageUtils.getPageResult(pageInfo);
+        return pageInfo;
     }
 
     @Override
-    public PageResult<TaskListView> listTask(TaskQuery query) {
+    public PageInfo<TaskListView> listTask(TaskQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<TaskInstance> result = (Page<TaskInstance>) workflowEngine.queryService().listTask(query);
         PageInfo<TaskListView> pageInfo = result.toPageInfo(TaskListView::fromTaskInstance);
         addShowInListForEachTask(pageInfo.getList());
         pageInfo.setTotal(result.getTotal());
-        return PageUtils.getPageResult(pageInfo);
+
+        return pageInfo;
     }
 
     @Override
@@ -197,8 +196,8 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     private List<TaskExecutorLog> getTaskExecutorLogs(Integer processInstId, String taskType) {
         return workflowEngine.queryService().listTask(TaskQuery.builder()
-                .processInstId(processInstId).type(taskType)
-                .build())
+                        .processInstId(processInstId).type(taskType)
+                        .build())
                 .stream()
                 .map(TaskExecutorLog::buildFromTaskInst)
                 .collect(Collectors.toList());

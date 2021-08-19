@@ -40,21 +40,12 @@ import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
 @ApiModel("Approval task information")
 public class TaskView {
 
-    /**
-     * Task ID
-     */
     @ApiModelProperty(value = "approval task ID")
     private Integer id;
 
-    /**
-     * Task type
-     */
     @ApiModelProperty(value = "Task type")
     private String type;
 
-    /**
-     * Application form ID
-     */
     @ApiModelProperty(value = "application form ID")
     private Integer processInstId;
 
@@ -64,68 +55,42 @@ public class TaskView {
     @ApiModelProperty(value = "process display name")
     private String processDisplayName;
 
-    /**
-     * Task name
-     */
     @ApiModelProperty(value = "task name-english key")
     private String name;
 
-    /**
-     * Chinese name of the task
-     */
     @ApiModelProperty(value = "task display name")
     private String displayName;
 
     @ApiModelProperty(value = "applicant")
     private String applicant;
-    /**
-     * Approver
-     */
+
     @ApiModelProperty(value = "set approver")
     private List<String> approvers;
 
-    /**
-     * Task operator
-     */
     @ApiModelProperty(value = "actual operation approver")
     private String operator;
 
-    /**
-     * Task status
-     */
     @ApiModelProperty(value = "task status")
     private TaskState state;
 
-    /**
-     * Remarks information
-     */
     @ApiModelProperty(value = "remarks information")
     private String remark;
 
-    /**
-     * Form information
-     */
     @ApiModelProperty(value = "current task form information")
     private Object formData;
 
-    /**
-     * Start time
-     */
     @ApiModelProperty(value = "start time")
     private Date startTime;
 
-    /**
-     * End time
-     */
     @ApiModelProperty(value = "end time")
     private Date endTime;
 
-    /**
-     * Extended Information
-     */
     @ApiModelProperty(value = "extended Information")
     private Object ext;
 
+    /**
+     * Get task view from task instance
+     */
     public static TaskView fromTaskInstance(TaskInstance taskInstance) {
         return TaskView.builder()
                 .id(taskInstance.getId())

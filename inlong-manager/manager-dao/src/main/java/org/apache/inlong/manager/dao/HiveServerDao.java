@@ -89,6 +89,9 @@ public class HiveServerDao {
         return tables;
     }
 
+    /**
+     * Get Hive connection from hive url and user
+     */
     public Connection getHiveConnection(String hiveUrl, String user, String password) throws Exception {
         Connection conn;
         try {

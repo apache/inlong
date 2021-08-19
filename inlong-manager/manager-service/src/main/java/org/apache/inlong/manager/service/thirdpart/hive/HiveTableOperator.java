@@ -33,7 +33,6 @@ import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.workflow.exception.WorkflowException;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +51,9 @@ public class HiveTableOperator {
     @Autowired
     private StorageHiveFieldEntityMapper storageHiveFieldMapper;
 
+    /**
+     * Create hive table according to the bid and hive config
+     */
     public void createHiveTable(String bid, DataStreamInfoToHiveConfig hiveConfig) {
         if (log.isDebugEnabled()) {
             log.debug("begin create hive table for business={}, hiveConfig={}", bid, hiveConfig);
@@ -110,7 +112,7 @@ public class HiveTableOperator {
             HiveColumnQueryBean partColumn = new HiveColumnQueryBean();
             partColumn.setPartition(true);
             partColumn.setColumnName(partitionField);
-            partColumn.setColumnType("string"); // currently only supports 'string' type
+            partColumn.setColumnType("string"); // currently, only supports 'string' type
             columnQueryBeans.add(partColumn);
         }
 

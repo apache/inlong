@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.PageResult;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
@@ -134,14 +134,14 @@ public class WorkflowController {
 
     @GetMapping("/listProcess")
     @ApiOperation(value = "Get my list of process sheets")
-    public Response<PageResult<ProcessListView>> listProcess(ProcessQuery query) {
+    public Response<PageInfo<ProcessListView>> listProcess(ProcessQuery query) {
         query.setApplicant(LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(workflowService.listProcess(query));
     }
 
     @GetMapping("/listTask")
     @ApiOperation(value = "Get my task list")
-    public Response<PageResult<TaskListView>> listTask(TaskQuery query) {
+    public Response<PageInfo<TaskListView>> listTask(TaskQuery query) {
         query.setApprover(LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(workflowService.listTask(query));
     }

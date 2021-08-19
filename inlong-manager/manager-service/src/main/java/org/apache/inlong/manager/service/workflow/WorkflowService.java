@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.common.beans.PageResult;
+import com.github.pagehelper.PageInfo;
+import java.util.List;
 import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
 import org.apache.inlong.manager.workflow.model.definition.TaskForm;
 import org.apache.inlong.manager.workflow.model.view.ProcessDetail;
@@ -30,20 +31,17 @@ import org.apache.inlong.manager.workflow.model.view.TaskQuery;
 import org.apache.inlong.manager.workflow.model.view.TaskSummaryQuery;
 import org.apache.inlong.manager.workflow.model.view.TaskSummaryView;
 
-import java.util.List;
-
 /**
  * Workflow service
- *
  */
 public interface WorkflowService {
 
     /**
      * Initiation process
      *
-     * @param name      Process name
+     * @param name Process name
      * @param applicant Applicant
-     * @param form      Process form
+     * @param form Process form
      * @return result
      */
     WorkflowResult start(ProcessName name, String applicant, ProcessForm form);
@@ -52,8 +50,8 @@ public interface WorkflowService {
      * Cancellation process application
      *
      * @param processInstId Process instance ID
-     * @param operator      Operator
-     * @param remark        Remarks information
+     * @param operator Operator
+     * @param remark Remarks information
      * @return result
      */
     WorkflowResult cancel(Integer processInstId, String operator, String remark);
@@ -61,8 +59,8 @@ public interface WorkflowService {
     /**
      * Approval and consent
      *
-     * @param taskId   Task ID
-     * @param form     Form information
+     * @param taskId Task ID
+     * @param form Form information
      * @param operator Operator
      * @return result
      */
@@ -71,8 +69,8 @@ public interface WorkflowService {
     /**
      * reject
      *
-     * @param taskId   Task ID
-     * @param remark   Remarks information
+     * @param taskId Task ID
+     * @param remark Remarks information
      * @param operator Operator
      * @return result
      */
@@ -81,9 +79,9 @@ public interface WorkflowService {
     /**
      * Change approver
      *
-     * @param taskId   Task ID
-     * @param remark   Remarks
-     * @param to       Transfer to
+     * @param taskId Task ID
+     * @param remark Remarks
+     * @param to Transfer to
      * @param operator Operator
      * @return result
      */
@@ -92,10 +90,10 @@ public interface WorkflowService {
     /**
      * Complete task-true to automatic task
      *
-     * @param taskId   System Task ID
-     * @param remark   Remarks
+     * @param taskId System Task ID
+     * @param remark Remarks
      * @param operator Operator
-     * @return
+     * @return result
      */
     WorkflowResult complete(Integer taskId, String remark, String operator);
 
@@ -103,7 +101,7 @@ public interface WorkflowService {
      * Query process details according to the tracking number
      *
      * @param processInstId Process form number
-     * @param taskInstId    Task ID of the operation-nullable
+     * @param taskInstId Task ID of the operation-nullable
      * @return Detail
      */
     ProcessDetail detail(Integer processInstId, Integer taskInstId);
@@ -114,7 +112,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return List
      */
-    PageResult<ProcessListView> listProcess(ProcessQuery query);
+    PageInfo<ProcessListView> listProcess(ProcessQuery query);
 
     /**
      * Get task list
@@ -122,7 +120,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return List
      */
-    PageResult<TaskListView> listTask(TaskQuery query);
+    PageInfo<TaskListView> listTask(TaskQuery query);
 
     /**
      * Get process statistics

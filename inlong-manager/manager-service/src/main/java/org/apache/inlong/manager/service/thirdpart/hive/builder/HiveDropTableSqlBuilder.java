@@ -21,7 +21,7 @@ package org.apache.inlong.manager.service.thirdpart.hive.builder;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
 
 /**
- *
+ * Builder of drop Hive table ddl
  */
 public class HiveDropTableSqlBuilder extends SqlBuilder<HiveTableQueryBean> {
 
@@ -35,6 +35,6 @@ public class HiveDropTableSqlBuilder extends SqlBuilder<HiveTableQueryBean> {
 
     @Override
     public String getOPT() {
-        return  "DROP_TABLE_HIVE";
+        return "DROP_TABLE_HIVE";
     }
 }

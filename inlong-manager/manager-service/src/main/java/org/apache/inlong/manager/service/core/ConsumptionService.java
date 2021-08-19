@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.beans.PageResult;
+import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery;
@@ -41,10 +41,10 @@ public interface ConsumptionService {
     /**
      * Get data consumption list according to query conditions
      *
-     * @param query
-     * @return
+     * @param query Consumption info
+     * @return Consumption list
      */
-    PageResult<ConsumptionListVo> list(ConsumptionQuery query);
+    PageInfo<ConsumptionListVo> list(ConsumptionQuery query);
 
     /**
      * Get data consumption details
@@ -58,7 +58,7 @@ public interface ConsumptionService {
      * According to data consumption details
      *
      * @param consumerGroupId Consumer group ID
-     * @return
+     * @return Consumption info
      */
     ConsumptionInfo getInfo(String consumerGroupId);
 

@@ -48,9 +48,9 @@ import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerPageRequest;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.SmallTools;
 import org.apache.inlong.manager.service.core.CommonFileServerService;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,16 +84,14 @@ public class CommonFileServerController {
 
     @PostMapping("/freeze/{id}")
     @ApiOperation(value = "Freeze file data source")
-    public Response<CommonFileServerInfo> freeze(@RequestBody @PathVariable int id)
-            throws Exception {
+    public Response<CommonFileServerInfo> freeze(@RequestBody @PathVariable int id) {
         CommonFileServerInfo result = commonFileServerService.freeze(id);
         return Response.success(result);
     }
 
     @PostMapping("/unfreeze/{id}")
     @ApiOperation(value = "Unfreeze file data source")
-    public Response<CommonFileServerInfo> unfreeze(@RequestBody @PathVariable int id)
-            throws Exception {
+    public Response<CommonFileServerInfo> unfreeze(@RequestBody @PathVariable int id) {
         CommonFileServerInfo result = commonFileServerService.unfreeze(id);
         return Response.success(result);
     }
@@ -126,7 +124,7 @@ public class CommonFileServerController {
     @RequestMapping(value = "/getByUser/{username}", method = RequestMethod.GET)
     @ApiOperation(value = "Get data source by user")
     @ApiImplicitParam(name = "username", dataTypeClass = String.class, required = true)
-    public Response<List<CommonFileServerInfo>> getByUser(@PathVariable String username) throws Exception {
+    public Response<List<CommonFileServerInfo>> getByUser(@PathVariable String username) {
         List<CommonFileServerInfo> result = commonFileServerService.getByUser(username);
         return Response.success(result);
     }

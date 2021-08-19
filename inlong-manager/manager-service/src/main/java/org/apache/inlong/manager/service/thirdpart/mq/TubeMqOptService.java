@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.thirdpart.mq;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
@@ -27,7 +26,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
-import org.apache.inlong.manager.common.pojo.tubemq.TubeClusterResponse;
 import org.apache.inlong.manager.common.pojo.tubemq.TubeManagerResponse;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +45,9 @@ public class TubeMqOptService {
     @Autowired
     private HttpUtils httpUtils;
 
+    /**
+     * Create new topic
+     */
     public String createNewTopic(AddTubeMqTopicRequest request) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
@@ -80,6 +81,9 @@ public class TubeMqOptService {
         return "";
     }
 
+    /**
+     * Create new consumer group
+     */
     public String createNewConsumerGroup(AddTubeConsumeGroupRequest request) throws Exception {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
@@ -98,19 +102,9 @@ public class TubeMqOptService {
         return "";
     }
 
-    public List<TubeClusterResponse.DataBean> queryCluster() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        try {
-            log.info(" query tube  cluster {} ", clusterBean.getTubeManager() + "/v1/cluster");
-            TubeClusterResponse rsp = httpUtils.request(clusterBean.getTubeManager() + "/v1/cluster",
-                    HttpMethod.GET, null, httpHeaders, TubeClusterResponse.class);
-            return rsp.getData();
-        } catch (Exception e) {
-            log.error(" fail to  query tube  cluster ", e);
-        }
-        return null;
-    }
-
+    /**
+     * Check if the topic is exists
+     */
     public boolean queryTopicIsExist(QueryTubeTopicRequest queryTubeTopicRequest) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");

@@ -37,7 +37,6 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.CommonFileServerEntity;
 import org.apache.inlong.manager.dao.mapper.CommonFileServerEntityMapper;
 import org.apache.inlong.manager.service.core.CommonFileServerService;
-import org.apache.inlong.manager.service.core.builder.CommonFileServerInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -114,7 +113,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         return record.getId();
     }
 
-    private void checkValidity(CommonFileServerInfo commonFileServerInfo) throws Exception {
+    private void checkValidity(CommonFileServerInfo commonFileServerInfo) {
         if (commonFileServerInfo.getId() > 0) {
             throw new IllegalArgumentException("CommonFileServer id = [" + commonFileServerInfo.getId()
                     + "] has already exists, please check");
@@ -167,10 +166,9 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkNotNull(entity, "CommonFileServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonFileServerEntity has been deleted, id=" + id);
 
-        // TODO Check if it can be read
         String userName = LoginUserUtil.getLoginUserDetail().getUserName();
         if (checkVisible(userName, entity)) {
-            return CommonFileServerInfoBuilder.buildFileInfoFromEntity(entity);
+            return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
         } else {
             throw new IllegalArgumentException(userName + " has no right to get id=" + id
                     + ", please contact " + entity.getCreator());
@@ -185,8 +183,6 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, "CommonFileServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonFileServerEntity has been deleted, id=" + id);
-
-        // TODO Check if it is quoted, only those that no one quotes can be deleted
 
         if (!checkCreator(userName, entity)) {
             throw new IllegalArgumentException(userName + " is not creator, has no right to delete id=" + id
@@ -214,8 +210,6 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkNotNull(entity, "CommonFileServerEntity not found by id=" + commonFileServerInfo.getId());
         Preconditions.checkTrue(entity.getIsDeleted() == 0,
                 "CommonFileServerEntity has been deleted, id=" + commonFileServerInfo.getId());
-
-        // TODO Update permissions? Only those who own it can update?
 
         // can not update username + ip + port?
         if (commonFileServerInfo.getUsername() != null && !commonFileServerInfo.getUsername()
@@ -254,20 +248,17 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "Database update id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success update CommonFileServer id={}", userName, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(
-                commonFileServerMapper.selectByPrimaryKey(commonFileServerInfo.getId()));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
-    public CommonFileServerInfo freeze(int id) throws Exception {
+    public CommonFileServerInfo freeze(int id) {
         String userName = LoginUserUtil.getLoginUserDetail().getUserName();
         LOGGER.info("user={} freeze CommonFileServer id=[{}].", userName, id);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, "CommonFileServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonFileServerEntity has been deleted, id=" + id);
-
-        // TODO There are other operations before freezing, such as stopping the agent
 
         if (!checkCreator(userName, entity)) {
             throw new IllegalArgumentException(userName + " is not creator, has no right to freeze id=" + id
@@ -284,12 +275,11 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "Database update id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success freeze CommonFileServer id={}", userName, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(
-                commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
-    public CommonFileServerInfo unfreeze(int id) throws Exception {
+    public CommonFileServerInfo unfreeze(int id) {
         String userName = LoginUserUtil.getLoginUserDetail().getUserName();
         LOGGER.info("user={} unfreeze CommonFileServer id=[{}].", userName, id);
 
@@ -314,12 +304,11 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "DataBase update id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success unfreeze CommonFileServer id={}", userName, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(
-                commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
-    public List<CommonFileServerInfo> getByUser(String user) throws Exception {
+    public List<CommonFileServerInfo> getByUser(String user) {
         List<CommonFileServerEntity> all = commonFileServerMapper.selectAll();
 
         // Get group information of user
@@ -329,16 +318,16 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         List<CommonFileServerInfo> results = new ArrayList<>();
 
         Splitter commaSplitter = Splitter.on(',');
-        for (CommonFileServerEntity entry : all) {
-            if (entry.getCreator().equals(user)) {
-                results.add(CommonFileServerInfoBuilder.buildFileInfoFromEntity(entry));
+        for (CommonFileServerEntity entity : all) {
+            if (entity.getCreator().equals(user)) {
+                results.add(CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new));
                 continue;
             }
             // check user relative entry
-            List<String> vPersion = commaSplitter.splitToList(entry.getVisiblePerson());
-            List<String> vGroup = commaSplitter.splitToList(entry.getVisibleGroup());
+            List<String> vPersion = commaSplitter.splitToList(entity.getVisiblePerson());
+            List<String> vGroup = commaSplitter.splitToList(entity.getVisibleGroup());
             if (checkUserVisible(user, groups, vPersion, vGroup)) {
-                results.add(CommonFileServerInfoBuilder.buildFileInfoFromEntity(entry));
+                results.add(CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new));
             }
         }
         return results;
@@ -402,7 +391,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success addVisiblePerson for CommonFileServer id={}", username, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
@@ -440,8 +429,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success deleteVisiblePerson for CommonFileServer id={}", username, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(
-                commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
@@ -484,7 +472,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success addVisibleGroup for CommonFileServer id={}", username, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
@@ -521,8 +509,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success deleteVisibleGroup for CommonFileServer id={}", username, entity.getId());
 
-        return CommonFileServerInfoBuilder.buildFileInfoFromEntity(
-                commonFileServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
     }
 
     @Override
@@ -554,13 +541,13 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
     private boolean checkVisible(String userName, CommonFileServerEntity entity) {
         boolean passed = false;
         // check creator
-        passed = passed || checkCreator(userName, entity);
+        passed = checkCreator(userName, entity);
         if (!passed) {
             // check visiblePerson
-            passed = passed || checkVisiblePerson(userName, entity);
+            passed = checkVisiblePerson(userName, entity);
             if (!passed) {
                 // check visibleGroup
-                passed = passed || checkVisibleGroup(userName, entity);
+                passed = checkVisibleGroup(userName, entity);
             }
         }
         return passed;

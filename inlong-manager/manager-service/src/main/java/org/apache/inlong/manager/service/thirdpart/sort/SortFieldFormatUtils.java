@@ -33,6 +33,12 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
  */
 public class SortFieldFormatUtils {
 
+    /**
+     * Get the FieldFormat of Sort according to type string
+     *
+     * @param type type string
+     * @return Sort field format instance
+     */
     public static FormatInfo convertFieldFormat(String type) {
         FormatInfo formatInfo;
         switch (type) {

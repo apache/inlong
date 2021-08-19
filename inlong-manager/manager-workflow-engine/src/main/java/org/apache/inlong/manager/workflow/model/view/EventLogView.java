@@ -17,13 +17,9 @@
 
 package org.apache.inlong.manager.workflow.model.view;
 
-import org.apache.inlong.manager.workflow.model.instance.EventLog;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -90,29 +86,4 @@ public class EventLogView {
     @ApiModelProperty("exception")
     private String exception;
 
-    public static EventLogView fromEventLog(EventLog eventLog, boolean includeException) {
-        if (eventLog == null) {
-            return null;
-        }
-
-        return EventLogView.builder()
-                .id(eventLog.getId())
-                .processInstId(eventLog.getProcessInstId())
-                .processName(eventLog.getProcessName())
-                .processDisplayName(eventLog.getProcessDisplayName())
-                .businessId(eventLog.getBusinessId())
-                .taskInstId(eventLog.getTaskInstId())
-                .elementName(eventLog.getElementName())
-                .elementDisplayName(eventLog.getElementDisplayName())
-                .eventType(eventLog.getEventType())
-                .event(eventLog.getEvent())
-                .listener(eventLog.getListener())
-                .state(eventLog.getState())
-                .async(eventLog.getAsync())
-                .ip(eventLog.getIp())
-                .startTime(eventLog.getStartTime())
-                .endTime(eventLog.getEndTime())
-                .exception(includeException ? eventLog.getException() : null)
-                .build();
-    }
 }
