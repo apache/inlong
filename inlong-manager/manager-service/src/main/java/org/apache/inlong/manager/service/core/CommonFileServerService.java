@@ -33,11 +33,11 @@ public interface CommonFileServerService {
 
     CommonFileServerInfo update(CommonFileServerInfo commonFileServerInfo) throws Exception;
 
-    CommonFileServerInfo freeze(int id) throws Exception;
+    CommonFileServerInfo freeze(int id);
 
-    CommonFileServerInfo unfreeze(int id) throws Exception;
+    CommonFileServerInfo unfreeze(int id);
 
-    List<CommonFileServerInfo> getByUser(String user) throws Exception;
+    List<CommonFileServerInfo> getByUser(String user);
 
     CommonFileServerInfo addVisiblePerson(Integer id, String visiblePerson);
 

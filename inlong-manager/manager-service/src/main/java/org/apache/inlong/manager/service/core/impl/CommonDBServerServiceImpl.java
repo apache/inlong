@@ -37,10 +37,8 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.CommonDbServerEntity;
 import org.apache.inlong.manager.dao.mapper.CommonDbServerEntityMapper;
 import org.apache.inlong.manager.service.core.CommonDBServerService;
-import org.apache.inlong.manager.service.core.builder.CommonDBServerInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +60,12 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         return false;
     }
 
+    /**
+     * Check if the IP string is valid
+     *
+     * @param text IP string
+     * @return true or false
+     */
     public static boolean ipCheck(String text) {
         if (text != null && !text.isEmpty()) {
             // Define regular expression
@@ -70,19 +74,13 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
                     + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
                     + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
             // Determine whether the ip address matches the regular expression
-            if (text.matches(regex)) {
-                // Return judgment information
-                return true;
-            } else {
-                // Return judgment information
-                return false;
-            }
+            return text.matches(regex);
         }
         return false;
     }
 
     @Override
-    public int create(CommonDbServerInfo info) throws Exception {
+    public int save(CommonDbServerInfo info) throws Exception {
         LOGGER.debug("create CommonDbServer info=[{}]", info);
 
         // Check validity
@@ -192,10 +190,9 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonDbServerEntity has been deleted, id=" + id);
 
-        // TODO Check if it can be read
         String userName = LoginUserUtil.getLoginUserDetail().getUserName();
         if (checkVisible(userName, entity)) {
-            return CommonDBServerInfoBuilder.buildInfoFromEntity(entity);
+            return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
         } else {
             throw new IllegalArgumentException(userName + " has no right to get id=" + id
                     + ", please contact " + entity.getCreator());
@@ -230,60 +227,50 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     }
 
     @Override
-    public CommonDbServerInfo update(CommonDbServerInfo commonDbServerInfo) throws Exception {
+    public CommonDbServerInfo update(CommonDbServerInfo serverInfo) throws Exception {
         String userName = LoginUserUtil.getLoginUserDetail().getUserName();
-        LOGGER.info("user={} update CommonDbServerInfo info=[{}]", userName, commonDbServerInfo);
-        CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(commonDbServerInfo.getId());
-        Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + commonDbServerInfo.getId());
+        LOGGER.info("user={} update CommonDbServerInfo info=[{}]", userName, serverInfo);
+        CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(serverInfo.getId());
+        Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + serverInfo.getId());
         Preconditions.checkTrue(entity.getIsDeleted() == 0,
-                "CommonDbServerEntity has been deleted, id=" + commonDbServerInfo.getId());
-
-        // TODO Update permissions? Only those who own it can update
+                "CommonDbServerEntity has been deleted, id=" + serverInfo.getId());
 
         // can not update username + dbType + dbServerIp + port?
-        if (commonDbServerInfo.getUsername() != null && !commonDbServerInfo.getUsername()
+        if (serverInfo.getUsername() != null && !serverInfo.getUsername()
                 .equals(entity.getUsername())) {
             throw new IllegalArgumentException(
                     entity.getId() + " username=" + entity.getUsername() + " can not be updated.");
         }
-        if (commonDbServerInfo.getDbType() != null && !commonDbServerInfo.getDbType()
+        if (serverInfo.getDbType() != null && !serverInfo.getDbType()
                 .equals(entity.getDbType())) {
             throw new IllegalArgumentException(
                     entity.getId() + " dbType=" + entity.getDbType() + " can not be updated.");
         }
-        if (commonDbServerInfo.getDbServerIp() != null && !commonDbServerInfo.getDbServerIp()
+        if (serverInfo.getDbServerIp() != null && !serverInfo.getDbServerIp()
                 .equals(entity.getDbServerIp())) {
             throw new IllegalArgumentException(
                     entity.getId() + " dbServerIp=" + entity.getDbServerIp() + " can not be updated.");
         }
-        if (commonDbServerInfo.getPort() != 0 && commonDbServerInfo.getPort() != entity.getPort()) {
+        if (serverInfo.getPort() != 0 && serverInfo.getPort() != entity.getPort()) {
             throw new IllegalArgumentException(entity.getId() + " port = " + entity.getPort() + " can not be updated.");
         }
-        commonDbServerInfo.setPort(entity.getPort());
-        checkStrFieldLength(commonDbServerInfo);
+        serverInfo.setPort(entity.getPort());
+        checkStrFieldLength(serverInfo);
 
         if (!checkCreator(userName, entity)) {
             throw new IllegalArgumentException(userName + " is not creator, has no right to update id=" + entity.getId()
                     + ", please contact " + entity.getCreator());
         }
 
-        CommonDbServerEntity record = new CommonDbServerEntity();
-        BeanUtils.copyProperties(commonDbServerInfo, record);
-        // can not update this fields.
-        record.setIsDeleted(null);
-        //record.setCreator(null);
-        record.setCreateTime(null);
-
-        Date now = new Date();
+        CommonDbServerEntity record = CommonBeanUtils.copyProperties(serverInfo, CommonDbServerEntity::new);
         record.setModifier(userName);
-        record.setModifyTime(now);
+        record.setModifyTime(new Date());
 
         int success = commonDbServerMapper.updateByPrimaryKeySelective(record);
         Preconditions.checkTrue(success == 1, "Database update id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success update CommonDbServer id={}", userName, entity.getId());
 
-        return CommonDBServerInfoBuilder.buildInfoFromEntity(
-                commonDbServerMapper.selectByPrimaryKey(commonDbServerInfo.getId()));
+        return CommonBeanUtils.copyProperties(record, CommonDbServerInfo::new);
     }
 
     @Override
@@ -296,17 +283,17 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         List<CommonDbServerInfo> results = new ArrayList<>();
 
         Splitter commaSplitter = Splitter.on(',');
-        for (CommonDbServerEntity entry : all) {
-            if (entry.getCreator().equals(user)) {
-                results.add(CommonDBServerInfoBuilder.buildInfoFromEntity(entry));
+        for (CommonDbServerEntity entity : all) {
+            if (entity.getCreator().equals(user)) {
+                results.add(CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new));
                 continue;
             }
             // check user relative entry
-            List<String> inChargeSplits = commaSplitter.splitToList(entry.getInCharges());
-            List<String> vPersion = commaSplitter.splitToList(entry.getVisiblePerson());
-            List<String> vGroup = commaSplitter.splitToList(entry.getVisibleGroup());
+            List<String> inChargeSplits = commaSplitter.splitToList(entity.getInCharges());
+            List<String> vPersion = commaSplitter.splitToList(entity.getVisiblePerson());
+            List<String> vGroup = commaSplitter.splitToList(entity.getVisibleGroup());
             if (checkUserVisible(user, groups, inChargeSplits, vPersion, vGroup)) {
-                results.add(CommonDBServerInfoBuilder.buildInfoFromEntity(entry));
+                results.add(CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new));
             }
         }
         return results;
@@ -342,8 +329,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         String username = LoginUserUtil.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, add visible person, id={}, visible group={}", username, id, visiblePerson);
 
-        CommonDbServerEntity entity =
-                commonDbServerMapper.selectByPrimaryKey(id);
+        CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonDbServerEntity has been deleted, id=" + id);
 
@@ -378,7 +364,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success addVisiblePerson for CommonDbServer id={}", username, entity.getId());
 
-        return CommonDBServerInfoBuilder.buildInfoFromEntity(commonDbServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
     }
 
     @Override
@@ -414,8 +400,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success deleteVisiblePerson for CommonDbServer id={}", username, entity.getId());
 
-        return CommonDBServerInfoBuilder.buildInfoFromEntity(
-                commonDbServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
     }
 
     @Override
@@ -458,8 +443,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success addVisibleGroup for CommonDbServer id={}", username, entity.getId());
 
-        return CommonDBServerInfoBuilder.buildInfoFromEntity(
-                commonDbServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
     }
 
     @Override
@@ -496,8 +480,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkTrue(success == 1, "DataBase update for id = " + entity.getId() + " failed ");
         LOGGER.info("user={} success deleteVisibleGroup for CommonDbServer id={}", username, entity.getId());
 
-        return CommonDBServerInfoBuilder
-                .buildInfoFromEntity(commonDbServerMapper.selectByPrimaryKey(id));
+        return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
     }
 
     @Override
@@ -531,13 +514,13 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     private boolean checkVisible(String userName, CommonDbServerEntity entity) {
         boolean passed = false;
         // check creator
-        passed = passed || checkCreator(userName, entity);
+        passed = checkCreator(userName, entity);
         if (!passed) {
             // check visiblePerson
-            passed = passed || checkVisiblePerson(userName, entity);
+            passed = checkVisiblePerson(userName, entity);
             if (!passed) {
                 // check visibleGroup
-                passed = passed || checkVisibleGroup(userName, entity);
+                passed = checkVisibleGroup(userName, entity);
             }
         }
         return passed;

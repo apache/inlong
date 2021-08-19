@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
-import org.apache.inlong.manager.common.beans.PageResult;
-import org.apache.inlong.manager.common.util.PageUtils;
+import com.github.pagehelper.PageInfo;
+import java.util.List;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.workflow.core.EventListenerService;
 import org.apache.inlong.manager.workflow.core.QueryService;
@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Workflow event related services
- *
  */
 @Service
 public class WorkflowEventServiceImpl implements WorkflowEventService {
@@ -48,15 +47,20 @@ public class WorkflowEventServiceImpl implements WorkflowEventService {
 
     @Override
     public EventLogView get(Integer id) {
-        return EventLogView.fromEventLog(queryService.getEventLog(id), true);
+        EventLog eventLog = queryService.getEventLog(id);
+        return CommonBeanUtils.copyProperties(eventLog, EventLogView::new);
     }
 
     @Override
-    public PageResult<EventLogView> list(EventLogQuery query) {
+    public PageInfo<EventLogView> list(EventLogQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<EventLog> page = (Page<EventLog>) queryService.listEventLog(query);
 
-        return PageUtils.getPageResult(page, log -> EventLogView.fromEventLog(log, false));
+        List<EventLogView> viewList = CommonBeanUtils.copyListProperties(page, EventLogView::new);
+        PageInfo<EventLogView> pageInfo = new PageInfo<>(viewList);
+        pageInfo.setTotal(page.getTotal());
+
+        return pageInfo;
     }
 
     @Override

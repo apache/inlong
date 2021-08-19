@@ -17,20 +17,23 @@
 
 package org.apache.inlong.manager.service.core.operationlog;
 
-import org.apache.inlong.manager.common.enums.OperationType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.inlong.manager.common.enums.OperationType;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OperationLog {
 
-    // Operation type
+    /**
+     * Operation type
+     */
     OperationType operation();
 
-    // Whether to store in the database
+    /**
+     * Whether to store in the database
+     */
     boolean db() default true;
 }

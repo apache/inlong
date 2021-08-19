@@ -18,7 +18,11 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
 import org.apache.inlong.manager.workflow.model.Action;
@@ -29,21 +33,14 @@ import org.apache.inlong.manager.workflow.model.definition.Task;
 import org.apache.inlong.manager.workflow.model.definition.TaskForm;
 import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
 import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
-
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Workflow context builder
  */
 public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
-    private WorkflowDataAccessor workflowDataAccessor;
+    private final WorkflowDataAccessor workflowDataAccessor;
 
     public WorkflowContextBuilderImpl(WorkflowDataAccessor workflowDataAccessor) {
         this.workflowDataAccessor = workflowDataAccessor;
@@ -82,13 +79,13 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
     @Override
     public WorkflowContext buildContextForTask(Integer taskInstId, Action action, TaskForm taskForm, String remark,
-                                               String operator) {
+            String operator) {
         return buildContextForTask(taskInstId, action, taskForm, null, remark, operator);
     }
 
     @Override
     public WorkflowContext buildContextForTask(Integer taskInstId, Action action, List<String> transferToUsers,
-                                               String remark, String operator) {
+            String remark, String operator) {
         return buildContextForTask(taskInstId, action, null, transferToUsers, remark, operator);
     }
 
@@ -103,7 +100,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     }
 
     private WorkflowContext buildContextForTask(Integer taskInstId, Action action, TaskForm taskForm,
-                                                List<String> transferToUsers, String remark, String operator) {
+            List<String> transferToUsers, String remark, String operator) {
         TaskInstance taskInstance = workflowDataAccessor.taskInstanceStorage().get(taskInstId);
         Preconditions.checkNotNull(taskInstance, "task not exist , taskId is " + taskInstId);
         ProcessInstance processInstance = workflowDataAccessor.processInstanceStorage()

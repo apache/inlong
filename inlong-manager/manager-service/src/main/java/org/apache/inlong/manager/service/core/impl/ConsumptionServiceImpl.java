@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.beans.PageResult;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessTopicVO;
@@ -37,7 +36,6 @@ import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionUpdateInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.PageUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
@@ -83,13 +81,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     @Override
-    public PageResult<ConsumptionListVo> list(ConsumptionQuery query) {
+    public PageInfo<ConsumptionListVo> list(ConsumptionQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<ConsumptionEntity> pageResult = (Page<ConsumptionEntity>) this.consumptionMapper.listByQuery(query);
         PageInfo<ConsumptionListVo> pageInfo = pageResult
                 .toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, ConsumptionListVo::new));
         pageInfo.setTotal(pageResult.getTotal());
-        return PageUtils.getPageResult(pageInfo);
+        return pageInfo;
     }
 
     @Override

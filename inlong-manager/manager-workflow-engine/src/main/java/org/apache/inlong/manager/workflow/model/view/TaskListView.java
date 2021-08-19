@@ -43,21 +43,12 @@ import lombok.NoArgsConstructor;
 @ApiModel("Task list view")
 public class TaskListView {
 
-    /**
-     * Task ID
-     */
     @ApiModelProperty(value = "Approval task ID")
     private Integer id;
 
-    /**
-     * Task type
-     */
     @ApiModelProperty(value = "task type")
     private String type;
 
-    /**
-     * Application form ID
-     */
     @ApiModelProperty(value = "application form ID")
     private Integer processInstId;
 
@@ -67,60 +58,39 @@ public class TaskListView {
     @ApiModelProperty(value = "process display name")
     private String processDisplayName;
 
-    /**
-     * Task name
-     */
     @ApiModelProperty(value = "task name-english key")
     private String name;
 
-    /**
-     * Chinese name of the task
-     */
     @ApiModelProperty(value = "Task display name")
     private String displayName;
 
     @ApiModelProperty(value = "applicant")
     private String applicant;
-    /**
-     * Approver
-     */
-    @ApiModelProperty(value = "set approver")
+
+    @ApiModelProperty(value = "approver list")
     private List<String> approvers;
 
-    /**
-     * Task operator
-     */
     @ApiModelProperty(value = "actual operation approver")
     private String operator;
 
-    /**
-     * Task status
-     */
     @ApiModelProperty(value = "task status")
     private TaskState state;
 
-    /**
-     * Remarks information
-     */
     @ApiModelProperty(value = "remarks information")
     private String remark;
 
-    /**
-     * Start time
-     */
     @ApiModelProperty(value = "start time")
     private Date startTime;
 
-    /**
-     * End time
-     */
     @ApiModelProperty(value = "end time")
     private Date endTime;
 
     @ApiModelProperty(value = "extra information shown in the list")
     private Map<String, Object> showInList;
 
-
+    /**
+     * get task list view from task instance
+     */
     public static TaskListView fromTaskInstance(TaskInstance taskInstance) {
         return TaskListView.builder()
                 .id(taskInstance.getId())

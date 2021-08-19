@@ -59,15 +59,15 @@ public enum Action {
      */
     COMPLETE("automatic completion");
 
-    /**
-     * Display name
-     */
-    private String displayName;
+    private final String displayName;
 
     Action(String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Get Action from TaskEvent
+     */
     public static Action fromTaskEvent(TaskEvent taskEvent) {
         switch (taskEvent) {
             case CREATE:
@@ -86,27 +86,7 @@ public enum Action {
             case TERMINATE:
                 return Action.TERMINATE;
             default:
-                throw new WorkflowException("unknow taskEvent " + taskEvent);
-        }
-    }
-
-    public static Action fromTaskState(TaskState state) {
-        switch (state) {
-            case APPROVED:
-                return Action.APPROVE;
-            case REJECTED:
-                return Action.REJECT;
-            case CANCELED:
-                return Action.CANCEL;
-            case TRANSFERED:
-                return Action.TRANSFER;
-            case TERMINATED:
-                return Action.TERMINATE;
-            case COMPLETED:
-            case FAILED:
-                return Action.COMPLETE;
-            default:
-                throw new WorkflowException("unknow state " + state);
+                throw new WorkflowException("unknown taskEvent " + taskEvent);
         }
     }
 
