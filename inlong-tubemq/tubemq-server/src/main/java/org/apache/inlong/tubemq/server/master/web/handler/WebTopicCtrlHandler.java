@@ -244,7 +244,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 WebFieldDef.MAXMSGSIZEINMB, false,
                 (isAddOp ? maxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+                maxMsgSizeMB, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -317,7 +317,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                     WebFieldDef.MAXMSGSIZEINMB, false,
                     (isAddOp ? defMaxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                     TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                    TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+                    defMaxMsgSizeMB, sBuffer, result)) {
                 return result.isSuccess();
             }
             final int itemMaxMsgSizeMB = (int) result.getRetData();
