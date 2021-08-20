@@ -188,7 +188,11 @@ public class TStringUtils {
                 if (isNotBlank(attrItem)) {
                     String[] kv = attrItem.split(TokenConstants.EQ);
                     if (attrKey.equals(kv[0])) {
-                        return kv[1];
+                        if (kv.length == 1) {
+                            return "";
+                        } else {
+                            return kv[1];
+                        }
                     }
                 }
             }

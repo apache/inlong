@@ -71,9 +71,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                                                     StringBuilder sBuffer,
                                                     ProcessResult result) {
         // build query entity
-        GroupResCtrlEntity entity = new GroupResCtrlEntity();
+        GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
-        if (!WebParameterUtils.getQueriedOperateInfo(req, entity, sBuffer, result)) {
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -106,16 +106,16 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
-        entity.updModifyInfo(entity.getDataVerId(),
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                metaDataManager.confGetGroupResCtrlConf(inGroupSet, entity);
+                metaDataManager.confGetGroupResCtrlConf(inGroupSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        for (GroupResCtrlEntity resCtrlEntity : groupResCtrlEntityMap.values()) {
-            if (resCtrlEntity == null) {
+        for (GroupResCtrlEntity entity : groupResCtrlEntityMap.values()) {
+            if (entity == null) {
                 continue;
             }
             if (totalCnt++ > 0) {

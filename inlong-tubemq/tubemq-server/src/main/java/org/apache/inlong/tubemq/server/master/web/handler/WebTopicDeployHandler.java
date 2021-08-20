@@ -747,9 +747,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     if (countJ++ > 0) {
                         sBuffer.append(",");
                     }
-                    groupEntity.toWebJsonStr(sBuffer, true, false);
+                    groupEntity.toWebJsonStr(sBuffer, true, true);
                 }
-                sBuffer.append("],\"groupCount\":").append(countJ);
+                sBuffer.append("],\"groupAuthCount\":").append(countJ);
             }
             sBuffer.append("}");
         }

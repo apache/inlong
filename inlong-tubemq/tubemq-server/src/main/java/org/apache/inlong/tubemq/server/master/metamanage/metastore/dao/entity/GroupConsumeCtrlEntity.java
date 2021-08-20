@@ -48,8 +48,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
                                   String groupName, String topicName) {
         super(opInfoEntity);
-        this.groupName = groupName;
-        this.topicName = topicName;
+        setGroupAndTopic(groupName, topicName);
     }
 
     /**
@@ -261,14 +260,14 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"groupName\":\"").append(groupName).append("\"")
                     .append(",\"consumeEnable\":").append(consumeEnable.isEnable())
-                    .append(",\"disableReason\":\"").append(disableReason).append("\"")
+                    .append(",\"disableCsmRsn\":\"").append(disableReason).append("\"")
                     .append(",\"filterEnable\":").append(filterEnable.isEnable())
                     .append(",\"filterConds\":\"").append(tmpFilterConds).append("\"");
         } else {
             sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
                     .append(",\"group\":\"").append(groupName).append("\"")
                     .append(",\"csmEn\":").append(consumeEnable.isEnable())
-                    .append(",\"dsRsn\":\"").append(disableReason).append("\"")
+                    .append(",\"dsCsmRsn\":\"").append(disableReason).append("\"")
                     .append(",\"fltEn\":").append(filterEnable.isEnable())
                     .append(",\"fltRls\":\"").append(tmpFilterConds).append("\"");
         }

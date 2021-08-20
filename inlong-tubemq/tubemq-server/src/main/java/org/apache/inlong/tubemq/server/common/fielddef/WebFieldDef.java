@@ -190,8 +190,9 @@ public enum WebFieldDef {
 
     ALWDBCRATE(65, "alwdBrokerClientRate", "abcr", WebFieldType.INT,
             "Allowed broker client rate", RegexDef.TMP_NUMBER),
-    REASON(66, "reason", "rsn", WebFieldType.STRING,
-            "Reason", TBaseConstants.META_MAX_OPREASON_LENGTH, RegexDef.TMP_STRING),
+    DSBCSMREASON(66, "disableCsmRsn", "dsCsmRsn", WebFieldType.STRING,
+            "Reasons for disable consumption",
+            TBaseConstants.META_MAX_OPREASON_LENGTH, RegexDef.TMP_STRING),
     FILTERENABLE(67, "filterEnable", "fltEn",
                    WebFieldType.BOOLEAN, "Filter consume enable status"),
     MANAGESTATUS(68, "manageStatus", "mSts",

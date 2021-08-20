@@ -985,8 +985,8 @@ public class MetaDataManager implements Server {
             return new TopicProcessResult(deployEntity.getBrokerId(), "", result);
         }
         // add topic control configure
-        if (!addIfAbsentTopicCtrlConf(deployEntity.getTopicName(),
-                deployEntity.getModifyUser(), sBuffer, result)) {
+        if (!addIfAbsentTopicCtrlConf(deployEntity,
+                deployEntity.getTopicName(), sBuffer, result)) {
             return new TopicProcessResult(deployEntity.getBrokerId(),
                     deployEntity.getTopicName(), result);
         }
@@ -1489,13 +1489,13 @@ public class MetaDataManager implements Server {
     /**
      * Add if absent topic control configure info
      *
+     * @param opEntity  the operation info
      * @param topicName the topic name will be add
-     * @param operator  the topic name id will be add
      * @param sBuffer   the print info string buffer
      * @param result    the process result return
      * @return true if success otherwise false
      */
-    public boolean addIfAbsentTopicCtrlConf(String topicName, String operator,
+    public boolean addIfAbsentTopicCtrlConf(BaseEntity opEntity, String topicName,
                                             StringBuilder sBuffer, ProcessResult result) {
         int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
         ClusterSettingEntity defSetting = getClusterDefSetting(false);
@@ -1505,8 +1505,8 @@ public class MetaDataManager implements Server {
         TopicCtrlEntity curEntity =
                 metaStoreService.getTopicCtrlConf(topicName);
         if (curEntity == null) {
-            curEntity = new TopicCtrlEntity(topicName,
-                    TBaseConstants.META_VALUE_UNDEFINED, maxMsgSizeInMB, operator);
+            curEntity = new TopicCtrlEntity(opEntity, topicName,
+                    TBaseConstants.META_VALUE_UNDEFINED, maxMsgSizeInMB);
             metaStoreService.addTopicCtrlConf(curEntity, sBuffer, result);
         } else {
             result.setSuccResult(null);
@@ -1799,8 +1799,7 @@ public class MetaDataManager implements Server {
         if (!addIfAbsentGroupResConf(entity, entity.getGroupName(), sBuffer, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
-        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
-                entity.getModifyUser(), sBuffer, result)) {
+        if (!addIfAbsentTopicCtrlConf(entity, entity.getTopicName(), sBuffer, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         GroupConsumeCtrlEntity curEntity =
@@ -1876,8 +1875,7 @@ public class MetaDataManager implements Server {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         // add topic control record
-        if (!addIfAbsentTopicCtrlConf(entity.getTopicName(),
-                entity.getModifyUser(), sBuffer, result)) {
+        if (!addIfAbsentTopicCtrlConf(entity, entity.getTopicName(), sBuffer, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
         }
         GroupConsumeCtrlEntity newEntity;

@@ -265,9 +265,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Boolean consumeEnable = (Boolean) result.getRetData();
-        // get disableReason list
+        // get disableCsmRsn info
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.REASON, false,
+                WebFieldDef.DSBCSMREASON, false,
                 (isAddOp ? "" : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
@@ -386,9 +386,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 return result.isSuccess();
             }
             final Boolean consumeEnable = (Boolean) result.getRetData();
-            // get disableReason list
+            // get disableCsmRsn info
             if (!WebParameterUtils.getStringParamValue(itemsMap,
-                    WebFieldDef.REASON, false, (isAddOp ? "" : null), sBuffer, result)) {
+                    WebFieldDef.DSBCSMREASON, false, (isAddOp ? "" : null), sBuffer, result)) {
                 return result.isSuccess();
             }
             final String disableRsn = (String) result.getRetData();

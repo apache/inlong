@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.policies;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
@@ -312,8 +313,9 @@ public class FlowCtrlRuleHandler {
 
 
     /**
-     * @param flowCtrlInfo
-     * @return
+     * Parse FlowCtrlInfo value
+     * @param flowCtrlInfo flowCtrlInfo json value
+     * @return parse result
      * @throws Exception
      */
     public Map<Integer, List<FlowCtrlItem>> parseFlowCtrlInfo(final String flowCtrlInfo)
@@ -335,18 +337,29 @@ public class FlowCtrlRuleHandler {
             return flowCtrlMap;
         }
         try {
+            int recordNo;
             List<FlowCtrlItem> flowCtrlItemList;
             for (int i = 0; i < objArray.size(); i++) {
-                JsonObject jsonObject = objArray.get(i).getAsJsonObject();
+                JsonElement jsonItem = objArray.get(i);
+                if (jsonItem == null) {
+                    continue;
+                }
+                recordNo = i + 1;
+                JsonObject jsonObject = jsonItem.getAsJsonObject();
+                if (!jsonObject.has("type")) {
+                    throw new Exception(new StringBuilder(512)
+                            .append("FIELD type is required in record(")
+                            .append(recordNo).append(") of flowCtrlInfo value!").toString());
+                }
                 int typeVal = jsonObject.get("type").getAsInt();
                 if (typeVal < 0 || typeVal > 3) {
                     throw new Exception(new StringBuilder(512)
-                            .append("type value must in [0,1,3] in index(")
-                            .append(i).append(") of flowCtrlInfo value!").toString());
+                            .append("the value of FIELD type must in [0,1,3] in record(")
+                            .append(recordNo).append(") of flowCtrlInfo value!").toString());
                 }
                 switch (typeVal) {
                     case 1:
-                        flowCtrlItemList = parseFreqLimit(typeVal, jsonObject);
+                        flowCtrlItemList = parseFreqLimit(recordNo, typeVal, jsonObject);
                         break;
 
                     case 2:  /* Deprecated  */
@@ -354,13 +367,13 @@ public class FlowCtrlRuleHandler {
                         break;
 
                     case 3:
-                        flowCtrlItemList = parseLowFetchLimit(typeVal, jsonObject);
+                        flowCtrlItemList = parseLowFetchLimit(recordNo, typeVal, jsonObject);
                         break;
 
                     case 0:
                     default:
                         typeVal = 0;
-                        flowCtrlItemList = parseDataLimit(typeVal, jsonObject);
+                        flowCtrlItemList = parseDataLimit(recordNo, typeVal, jsonObject);
                         break;
                 }
                 if (flowCtrlItemList != null && !flowCtrlItemList.isEmpty()) {
@@ -368,79 +381,108 @@ public class FlowCtrlRuleHandler {
                 }
             }
         } catch (Throwable e2) {
-            throw new Exception(new StringBuilder(512).append("Parse flow-ctrl rule failure, ")
+            throw new Exception(new StringBuilder(512)
+                    .append("Parse flowCtrlInfo value failure, ")
                     .append(e2.getMessage()).toString());
         }
         return flowCtrlMap;
     }
 
-
     /**
      * lizard forgives
      *
-     * @param typeVal
-     * @param jsonObject
-     * @return
+     *  Parse data consumption limit rule info
+     *
+     * @param recordNo    record no
+     * @param typeVal     type value
+     * @param jsonObject  record json value
+     * @return parsed result
      * @throws Exception
      */
-    private List<FlowCtrlItem> parseDataLimit(int typeVal, JsonObject jsonObject) throws Exception {
+    private List<FlowCtrlItem> parseDataLimit(int recordNo, int typeVal,
+                                              JsonObject jsonObject) throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 0) {
-            throw new Exception("parse data limit rule failure!");
+            throw new Exception(new StringBuilder(512)
+                    .append("parse data_limit rule failure in record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
+        if (!jsonObject.has("rule")) {
+            throw new Exception(new StringBuilder(512)
+                    .append("FIELD rule is required in data_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
         JsonArray ruleArray = jsonObject.get("rule").getAsJsonArray();
         if (ruleArray == null) {
-            throw new Exception("not found rule list in data limit!");
+            throw new Exception(new StringBuilder(512)
+                    .append("emtpy rule define in data_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
+        // parse rule item
+        int itemNo;
         ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
+            itemNo = index + 1;
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
-            int startTime = validAndGetTimeValue("start",
-                    ruleObject.get("start").getAsString(), index, "data");
-            int endTime = validAndGetTimeValue("end",
-                    ruleObject.get("end").getAsString(), index, "data");
+            int startTime = validAndGetTimeValue(ruleObject, "start", itemNo, recordNo);
+            int endTime = validAndGetTimeValue(ruleObject, "end", itemNo, recordNo);
             if (startTime >= endTime) {
                 throw new Exception(new StringBuilder(512)
-                        .append("start value must lower than the End value in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("the value of FIELD start must lower than the value FIELD end ")
+                        .append("in data_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             if (!ruleObject.has("dltInM")) {
                 throw new Exception(new StringBuilder(512)
-                        .append("dltInM key is required in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("FIELD dltInM is required in data_limit item(")
+                        .append(itemNo).append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             long dltVal = ruleObject.get("dltInM").getAsLong();
             if (dltVal <= 20) {
                 throw new Exception(new StringBuilder(512)
-                        .append("dltInM value must be greater than 20 in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("the value of FIELD dltInM must be greater than 20 ")
+                        .append("in data_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             if (!ruleObject.has("limitInM")) {
                 throw new Exception(new StringBuilder(512)
-                        .append("limitInM key is required in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("FIELD limitInM is required in data_limit item(")
+                        .append(itemNo).append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             long dataLimitInM = ruleObject.get("limitInM").getAsLong();
             if (dataLimitInM < 0) {
                 throw new Exception(new StringBuilder(512)
-                        .append("limitInM value must be greater than or equal to zero in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("the value of FIELD limitInM must be greater than or equal to 0 ")
+                        .append("in data_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             dataLimitInM = dataLimitInM * 1024 * 1024;
             if (!ruleObject.has("freqInMs")) {
                 throw new Exception(new StringBuilder(512)
-                        .append("freqInMs key is required in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("FIELD freqInMs is required in data_limit item(")
+                        .append(itemNo).append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             int freqInMs = ruleObject.get("freqInMs").getAsInt();
             if (freqInMs < 200) {
                 throw new Exception(new StringBuilder(512)
-                        .append("freqInMs value must be greater than or equal to 200 in index(")
-                        .append(index).append(") of data limit rule!").toString());
+                        .append("the value of FIELD freqInMs must be greater than or equal to 200 ")
+                        .append("in data_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             flowCtrlItems.add(new FlowCtrlItem(typeVal,
                     startTime, endTime, dltVal, dataLimitInM, freqInMs));
         }
-
+        if (flowCtrlItems.isEmpty()) {
+            throw new Exception(new StringBuilder(512)
+                    .append("not found valid rule define in data_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
@@ -457,48 +499,73 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param typeVal
-     * @param jsonObject
-     * @return
+     *  Parse frequent limit rule info
+     *
+     * @param recordNo    record no
+     * @param typeVal     type value
+     * @param jsonObject  record json value
+     * @return parsed result
      * @throws Exception
      */
-    private List<FlowCtrlItem> parseFreqLimit(int typeVal,
+    private List<FlowCtrlItem> parseFreqLimit(int recordNo, int typeVal,
                                               JsonObject jsonObject) throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 1) {
-            throw new Exception("parse freq limit rule failure!");
+            throw new Exception(new StringBuilder(512)
+                    .append("parse freq_limit rule failure in record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
+        if (!jsonObject.has("rule")) {
+            throw new Exception(new StringBuilder(512)
+                    .append("FIELD rule is required in freq_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
         JsonArray ruleArray = jsonObject.get("rule").getAsJsonArray();
         if (ruleArray == null) {
-            throw new Exception("not found rule list in freq limit!");
+            throw new Exception(new StringBuilder(512)
+                    .append("emtpy rule define in freq_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
+        int itemNo;
         ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
         for (int index = 0; index < ruleArray.size(); index++) {
+            itemNo = index + 1;
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             if (!ruleObject.has("zeroCnt")) {
                 throw new Exception(new StringBuilder(512)
-                        .append("zeroCnt key is required in index(")
-                        .append(index).append(") of freq limit rule!").toString());
+                        .append("FIELD zeroCnt is required in freq_limit item(")
+                        .append(itemNo).append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             int zeroCnt = ruleObject.get("zeroCnt").getAsInt();
             if (zeroCnt < 1) {
                 throw new Exception(new StringBuilder(512)
-                        .append("zeroCnt value must be greater than or equal to 1 in index(")
-                        .append(index).append(") of freq limit rule!").toString());
+                        .append("the value of FIELD zeroCnt must be greater than or equal to 1 ")
+                        .append("in freq_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             if (!ruleObject.has("freqInMs")) {
                 throw new Exception(new StringBuilder(512)
-                        .append("freqInMs key is required in index(")
-                        .append(index).append(") of freq limit rule!").toString());
+                        .append("FIELD freqInMs is required in freq_limit item(")
+                        .append(itemNo).append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             int freqInMs = ruleObject.get("freqInMs").getAsInt();
             if (freqInMs < 0) {
                 throw new Exception(new StringBuilder(512)
-                        .append("freqInMs value must be greater than or equal to zero in index(")
-                        .append(index).append(") of freq limit rule!").toString());
+                        .append("the value of FIELD freqInMs must be greater than or equal to 0 ")
+                        .append("in freq_limit item(").append(itemNo)
+                        .append(").record(").append(recordNo)
+                        .append(") of flowCtrlInfo value!").toString());
             }
             flowCtrlItems.add(new FlowCtrlItem(typeVal, zeroCnt, freqInMs));
         }
-
+        if (flowCtrlItems.isEmpty()) {
+            throw new Exception(new StringBuilder(512)
+                    .append("not found valid rule define in freq_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
+        // sort rule set by the value of FIELD zeroCnt
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
@@ -515,67 +582,105 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param typeVal
-     * @param jsonObject
-     * @return
+     *  Parse low frequent fetch count
+     * @param recordNo    record no
+     * @param typeVal     type value
+     * @param jsonObject  record json value
+     * @return parsed result
      * @throws Exception
      */
-    private List<FlowCtrlItem> parseLowFetchLimit(int typeVal,
+    private List<FlowCtrlItem> parseLowFetchLimit(int recordNo, int typeVal,
                                                   JsonObject jsonObject) throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 3) {
-            throw new Exception("parse low fetch limit rule failure!");
+            throw new Exception(new StringBuilder(512)
+                    .append("parse low_fetch_limit rule failure in record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
+        if (!jsonObject.has("rule")) {
+            throw new Exception(new StringBuilder(512)
+                    .append("FIELD rule is required in low_fetch_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
         JsonArray ruleArray = jsonObject.get("rule").getAsJsonArray();
         if (ruleArray == null) {
-            throw new Exception("not found rule list in low fetch limit!");
+            throw new Exception(new StringBuilder(512)
+                    .append("emtpy rule define in low_fetch_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
         if (ruleArray.size() > 1) {
-            throw new Exception("only allow set one rule in low fetch limit!");
+            throw new Exception(new StringBuilder(512)
+                    .append("only allow set one rule in low_fetch_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
+        int itemNo;
         ArrayList<FlowCtrlItem> flowCtrlItems = new ArrayList<>();
+        // parse low_fetch_limit rule record
         for (int index = 0; index < ruleArray.size(); index++) {
+            itemNo = index + 1;
             JsonObject ruleObject = ruleArray.get(index).getAsJsonObject();
             int normfreqInMs = 0;
             int filterFreqInMs = 0;
             int minDataFilterFreqInMs = 0;
             if (ruleObject.has("filterFreqInMs")
                     || ruleObject.has("minDataFilterFreqInMs")) {
+                if (!ruleObject.has("filterFreqInMs")) {
+                    throw new Exception(new StringBuilder(512)
+                            .append("FIELD filterFreqInMs is required ")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
+                }
                 filterFreqInMs = ruleObject.get("filterFreqInMs").getAsInt();
                 if (filterFreqInMs < 0 || filterFreqInMs > 300000) {
                     throw new Exception(new StringBuilder(512)
-                            .append("filterFreqInMs value must in [0, 300000] in index(")
-                            .append(index).append(") of low fetch limit rule!").toString());
+                            .append("the value of FIELD filterFreqInMs must in [0, 300000] ")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
                 }
                 if (!ruleObject.has("minDataFilterFreqInMs")) {
                     throw new Exception(new StringBuilder(512)
-                            .append("minDataFilterFreqInMs key is required in index(")
-                            .append(index).append(") of low fetch limit rule!").toString());
+                            .append("FIELD minDataFilterFreqInMs is required ")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
                 }
                 minDataFilterFreqInMs = ruleObject.get("minDataFilterFreqInMs").getAsInt();
                 if (minDataFilterFreqInMs < 0 || minDataFilterFreqInMs > 300000) {
                     throw new Exception(new StringBuilder(512)
-                            .append("minDataFilterFreqInMs value must in [0, 300000] in index(")
-                            .append(index).append(") of low fetch limit rule!").toString());
+                            .append("the value of FIELD minDataFilterFreqInMs must in [0, 300000] ")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
                 }
                 if (minDataFilterFreqInMs < filterFreqInMs) {
                     throw new Exception(new StringBuilder(512)
-                            .append("minDataFilterFreqInMs value must be greater than ")
-                            .append("or equal to filterFreqInMs value in index(")
-                            .append(index).append(") of low fetch limit rule!").toString());
+                            .append("the value of FIELD minDataFilterFreqInMs must be greater ")
+                            .append("than or equal to the value of FIELD filterFreqInMs")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
                 }
             }
             if (ruleObject.has("normFreqInMs")) {
                 normfreqInMs = ruleObject.get("normFreqInMs").getAsInt();
                 if (normfreqInMs < 0 || normfreqInMs > 300000) {
                     throw new Exception(new StringBuilder(512)
-                            .append("normFreqInMs value must in [0, 300000] in index(")
-                            .append(index).append(") of low fetch limit rule!").toString());
+                            .append("the value of FIELD normFreqInMs must in [0, 300000] ")
+                            .append("in low_fetch_limit item(").append(itemNo)
+                            .append(").record(").append(recordNo)
+                            .append(") of flowCtrlInfo value!").toString());
                 }
             }
             flowCtrlItems.add(new FlowCtrlItem(typeVal,
                     normfreqInMs, filterFreqInMs, minDataFilterFreqInMs));
         }
-
+        if (flowCtrlItems.isEmpty()) {
+            throw new Exception(new StringBuilder(512)
+                    .append("not found valid rule define in low_fetch_limit record(")
+                    .append(recordNo).append(") of flowCtrlInfo value!").toString());
+        }
+        // sort rule set by the value of filterFreqInMs
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
@@ -596,21 +701,31 @@ public class FlowCtrlRuleHandler {
         return this.strFlowCtrlInfo;
     }
 
-
     /**
-     * @param strValName
-     * @param strTimeVal
-     * @param index
-     * @param ruleType
-     * @return
+     *  Parse time information
+     * @param ruleObject   rule value object
+     * @param fieldName   field name
+     * @param itemNo       rule no
+     * @param recordNo     record no
+     * @return parse result
      * @throws Exception
      */
-    private int validAndGetTimeValue(final String strValName,
-                                     final String strTimeVal,
-                                     int index, final String ruleType) throws Exception {
+    private int validAndGetTimeValue(JsonObject ruleObject, String fieldName,
+                                     int itemNo, int recordNo) throws Exception {
+        if (!ruleObject.has(fieldName)) {
+            throw new Exception(new StringBuilder(512)
+                    .append("FIELD ").append(fieldName).append(" is required ")
+                    .append("in data_limit item(").append(itemNo)
+                    .append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
+        }
+        String strTimeVal = ruleObject.get(fieldName).getAsString();
         if (TStringUtils.isBlank(strTimeVal)) {
-            throw new Exception(strValName + " value is null or blank of "
-                    + ruleType + " limit rule!");
+            throw new Exception(new StringBuilder(512)
+                    .append("the value of FIELD ").append(fieldName)
+                    .append(" is null or blank in data_limit item(").append(itemNo)
+                    .append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         int timeHour = 0;
         int timeMin = 0;
@@ -618,34 +733,48 @@ public class FlowCtrlRuleHandler {
         if ((startItems.length != 2)
                 || TStringUtils.isBlank(startItems[0])
                 || TStringUtils.isBlank(startItems[1])) {
-            throw new Exception("illegal format, " + strValName
-                    + " value must be 'aa:bb' and 'aa','bb' must be int value format in "
-                    + ruleType + " limit rule!");
+            throw new Exception(new StringBuilder(512)
+                    .append("illegal format, the value of FIELD ").append(fieldName)
+                    .append(" must be 'aa:bb' and 'aa','bb' must be int value ")
+                    .append("in data_limit item(").append(itemNo)
+                    .append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         try {
             timeHour = Integer.parseInt(startItems[0]);
         } catch (Throwable e2) {
-            throw new Exception("illegal format, " + strValName
-                    + " value must be 'aa:bb' and 'aa' must be int value in "
-                    + ruleType + " limit rule!");
+            throw new Exception(new StringBuilder(512)
+                    .append("illegal format, the value of FIELD ").append(fieldName)
+                    .append(" must be 'aa:bb' and 'aa' must be int value ")
+                    .append("in data_limit item(").append(itemNo)
+                    .append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         try {
             timeMin = Integer.parseInt(startItems[1]);
         } catch (Throwable e2) {
-            throw new Exception("illegal format, " + strValName
-                    + " value must be 'aa:bb' and 'bb' must be int value in "
-                    + ruleType + " limit rule!");
+            throw new Exception(new StringBuilder(512)
+                    .append("illegal format, the value of FIELD ").append(fieldName)
+                    .append(" must be 'aa:bb' and 'bb' must be int value ")
+                    .append("in data_limit item(").append(itemNo)
+                    .append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         if (timeHour < 0 || timeHour > 24) {
             throw new Exception(new StringBuilder(512)
-                    .append(strValName).append("-hour value must in [0,23] in index(")
-                    .append(index).append(") of ").append(ruleType).append(" limit rule!").toString());
+                    .append("illegal value, the value of FIELD ").append(fieldName)
+                    .append("-hour value must in [0,23] in data_limit item(")
+                    .append(itemNo).append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         if (timeMin < 0 || timeMin > 59) {
             throw new Exception(new StringBuilder(512)
-                    .append(strValName).append("-minute value must in [0,59] in index(")
-                    .append(index).append(") of ").append(ruleType).append(" limit rule!").toString());
+                    .append("illegal value, the value of FIELD ").append(fieldName)
+                    .append("-minute value must in [0,59] in data_limit item(")
+                    .append(itemNo).append(").record(").append(recordNo)
+                    .append(") of flowCtrlInfo value!").toString());
         }
         return timeHour * 100 + timeMin;
     }
+
 }

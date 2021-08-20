@@ -211,9 +211,24 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
                                                             Set<String> brokerIpSet,
                                                             BrokerConfEntity qryEntity) {
+        Set<Integer> idHitSet = null;
         Set<Integer> ipHitSet = null;
         Set<Integer> totalMatchedSet = null;
         Map<Integer, BrokerConfEntity> retMap = new HashMap<>();
+        // get records set by brokerIdSet
+        if (brokerIdSet != null && !brokerIdSet.isEmpty()) {
+            idHitSet = new HashSet<>();
+            BrokerConfEntity entity;
+            for (Integer brokerId : brokerIdSet) {
+                entity = brokerConfCache.get(brokerId);
+                if (entity != null) {
+                    idHitSet.add(brokerId);
+                }
+            }
+            if (idHitSet.isEmpty()) {
+                return retMap;
+            }
+        }
         // get records set by brokerIpSet
         if (brokerIpSet != null && !brokerIpSet.isEmpty()) {
             ipHitSet = new HashSet<>();
@@ -228,15 +243,15 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
             }
         }
         // get intersection from brokerIdSet and brokerIpSet
-        if (brokerIdSet != null || ipHitSet != null) {
-            if (brokerIdSet == null) {
+        if (idHitSet != null || ipHitSet != null) {
+            if (idHitSet == null) {
                 totalMatchedSet = new HashSet<>(ipHitSet);
             } else {
                 if (ipHitSet == null) {
-                    totalMatchedSet = new HashSet<>(brokerIdSet);
+                    totalMatchedSet = new HashSet<>(idHitSet);
                 } else {
                     totalMatchedSet = new HashSet<>();
-                    for (Integer record : brokerIdSet) {
+                    for (Integer record : idHitSet) {
                         if (ipHitSet.contains(record)) {
                             totalMatchedSet.add(record);
                         }
