@@ -81,7 +81,7 @@ services:
       - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
-      - TUBE_MANAGER=tubemq-manager:8089
+      - TUBE_MANAGER=http:\/\/tubemq-manager:8089
       - TUBE_MASTER=tubemq-server:8715
       - ZK_URL=tubemq-server:2181
       - SORT_APP_NAME=inlong_hive
