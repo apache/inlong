@@ -544,14 +544,15 @@ public class WebParameterUtils {
         }
         int paramValue = (int) result.getRetData();
         if (paramValue == TBaseConstants.META_VALUE_UNDEFINED) {
-            return defValue;
+            result.setSuccResult(defValue);
         } else {
             if (paramValue == 1) {
-                return Boolean.TRUE;
+                result.setSuccResult(Boolean.TRUE);
             } else {
-                return Boolean.FALSE;
+                result.setSuccResult(Boolean.FALSE);
             }
         }
+        return result.isSuccess();
     }
 
     /**

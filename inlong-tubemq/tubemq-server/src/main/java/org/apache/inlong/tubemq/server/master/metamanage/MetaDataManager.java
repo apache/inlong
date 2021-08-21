@@ -942,7 +942,7 @@ public class MetaDataManager implements Server {
                             .append(brokerId)
                             .append(", please create the broker's configure first!").toString());
             sBuffer.delete(0, sBuffer.length());
-            return new TopicProcessResult(brokerId, "", result);
+            return new TopicProcessResult(brokerId, topicName, result);
         }
         TopicPropGroup newProps;
         if (isAddOp) {
@@ -982,7 +982,8 @@ public class MetaDataManager implements Server {
                             .append(deployEntity.getBrokerId())
                             .append(", please create the broker's configure first!").toString());
             sBuffer.delete(0, sBuffer.length());
-            return new TopicProcessResult(deployEntity.getBrokerId(), "", result);
+            return new TopicProcessResult(deployEntity.getBrokerId(),
+                    deployEntity.getTopicName(), result);
         }
         // add topic control configure
         if (!addIfAbsentTopicCtrlConf(deployEntity,
@@ -1473,6 +1474,7 @@ public class MetaDataManager implements Server {
                     sBuffer.append("TopicName ").append(topicName)
                             .append(" is in using, please delete the deploy info first!")
                             .toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (metaStoreService.isTopicNameInUsed(topicName)) {
@@ -1480,6 +1482,7 @@ public class MetaDataManager implements Server {
                     sBuffer.append("TopicName ").append(topicName)
                             .append(" is in using, please delete the consume control info first!")
                             .toString());
+            sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         metaStoreService.delTopicCtrlConf(operator, topicName, sBuffer, result);

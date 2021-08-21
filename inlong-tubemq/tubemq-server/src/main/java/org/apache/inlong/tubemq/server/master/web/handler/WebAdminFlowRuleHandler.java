@@ -73,9 +73,9 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                                                      StringBuilder sBuffer,
                                                      ProcessResult result) {
         // build query entity
-        GroupResCtrlEntity entity = new GroupResCtrlEntity();
+        GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
-        if (!WebParameterUtils.getQueriedOperateInfo(req, entity, sBuffer, result)) {
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
             return sBuffer;
         }
@@ -100,11 +100,11 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
-        entity.updModifyInfo(entity.getDataVerId(), null,
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(), null,
                 TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                metaDataManager.confGetGroupResCtrlConf(groupNameSet, entity);
+                metaDataManager.confGetGroupResCtrlConf(groupNameSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -115,7 +115,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
-            sBuffer = entity.toOldVerFlowCtrlWebJsonStr(sBuffer, true);
+            sBuffer = resCtrlEntity.toOldVerFlowCtrlWebJsonStr(sBuffer, true);
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;

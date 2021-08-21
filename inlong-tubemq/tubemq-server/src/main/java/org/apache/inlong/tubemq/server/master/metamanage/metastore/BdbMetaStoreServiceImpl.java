@@ -1218,6 +1218,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                                     .append(stateChangeEvent.getState().name()).toString());
                             break;
                     }
+                    sBuilder.delete(0, sBuilder.length());
                 }
             });
         }
