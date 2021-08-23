@@ -37,12 +37,8 @@ import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsv2DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgDeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgKvDeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgTlogCsvDeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgTlogKvDeserializationInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.apache.inlong.sort.util.CommonUtils;
 

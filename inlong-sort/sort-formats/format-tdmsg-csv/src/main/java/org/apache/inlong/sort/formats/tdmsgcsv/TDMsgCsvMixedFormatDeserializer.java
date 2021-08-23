@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.tdmsg.AbstractTDMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.tdmsg.AbstractTDMsgMixedFormatDeserializer;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgBody;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgHead;

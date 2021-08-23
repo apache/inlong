@@ -17,16 +17,8 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-import static org.awaitility.Awaitility.await;
-
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchKey;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constants.AgentConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;

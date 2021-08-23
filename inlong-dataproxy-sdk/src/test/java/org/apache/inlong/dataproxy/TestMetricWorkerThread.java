@@ -19,7 +19,6 @@ package org.apache.inlong.dataproxy;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.inlong.dataproxy.ProxyClientConfig;
 import org.apache.inlong.dataproxy.network.Utils;
 import org.apache.inlong.dataproxy.threads.MetricWorkerThread;
 import org.junit.AfterClass;
