@@ -31,16 +31,16 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
-    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/getilmvirtualip";
+    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/getInLongManagerIp";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi/agent";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.vip.http.task.path";
-    public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/file_agent/taskconf";
+    public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/fileAgent/getTaskConf";
 
     public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH = "agent.manager.vip.http.checkIP.path";
-    public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/file_agent/confirmAgentIp";
+    public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/fileAgent/confirmAgentIp";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 

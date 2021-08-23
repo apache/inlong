@@ -58,43 +58,43 @@ public class AgentController {
     @Autowired
     private AgentHeartBeatService agentHeartBeatService;
 
-    @GetMapping("/getVirtualIp")
+    @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")
-    public Response<List<String>> getVirtualIp() {
+    public Response<List<String>> getInLongManagerIp() {
         return Response.success(clusterInfoService.listClusterIpByType("inlong-openapi"));
     }
 
-    @PostMapping("/file_agent/taskconf")
+    @PostMapping("/fileAgent/getTaskConf")
     @ApiOperation(value = "fetch file access task")
     public Response<FileAgentTaskInfo> getFileAgentTask(@RequestBody FileAgentCommandInfo info) {
         return Response.success(agentTaskService.getFileAgentTask(info));
     }
 
-    @PostMapping("/file_agent/confirmAgentIp")
+    @PostMapping("/fileAgent/confirmAgentIp")
     @ApiOperation(value = "confirm current agent ip")
     public Response<String> confirmAgentIp(@RequestBody ConfirmAgentIpRequest info) {
         return Response.success(agentTaskService.confirmAgentIp(info));
     }
 
-    @PostMapping("/file_agent/queryAgentSysconf")
-    @ApiOperation(value = "query agent system config")
+    @PostMapping("/fileAgent/getAgentSysConf")
+    @ApiOperation(value = "get agent system config")
     public Response<AgentSysConfig> getAgentSysConf(@RequestBody AgentSysconfRequest info) {
         return Response.success(agentSysConfigService.getAgentSysConfig(info));
     }
 
-    @PostMapping("/file_agent/heartbeat")
+    @PostMapping("/fileAgent/heartbeat")
     @ApiOperation(value = "agent heartbeat report")
     public Response<String> heartbeat(@RequestBody AgentHeartbeatRequest info) {
         return Response.success(agentHeartBeatService.heartbeat(info));
     }
 
-    @PostMapping("/file_agent/checkAgentTaskConf")
+    @PostMapping("/fileAgent/checkAgentTaskConf")
     @ApiOperation(value = "agent data source comparison")
     public Response<List<FileAgentTaskConfig>> checkAgentTaskConf(@RequestBody CheckAgentTaskConfRequest info) {
         return Response.success(agentTaskService.checkAgentTaskConf(info));
     }
 
-    @PostMapping("/file_agent/reportAgentStatus")
+    @PostMapping("/fileAgent/reportAgentStatus")
     @ApiOperation(value = "agent status report")
     public Response<String> reportAgentStatus(@RequestBody AgentStatusReportRequest info) {
         return Response.success(agentTaskService.reportAgentStatus(info));
