@@ -21,7 +21,6 @@ import static org.apache.inlong.dataproxy.ConfigConstants.REQUEST_HEADER_AUTHORI
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
@@ -63,6 +61,7 @@ import org.slf4j.LoggerFactory;
  * Created by elroyzhang on 2018/5/10.
  */
 public class ServiceDiscoveryUtils {
+
     private static final Logger log = LoggerFactory.getLogger(ServiceDiscoveryUtils.class);
 
     private static String latestManagerIPList = "";
@@ -76,15 +75,13 @@ public class ServiceDiscoveryUtils {
             return null;
         }
 
-
         managerIpList = getManagerIpListByHttp(managerAddress, proxyClientConfig);
         if (!StringUtils.isBlank(managerIpList)) {
             latestManagerIPList = managerIpList;
             return managerIpList;
         }
         log.error("ServiceDiscovery get managerIpList from "
-            + "managerHost occur error, will try to get from managerIpList.");
-
+                + "managerHost occur error, will try to get from managerIpList.");
 
         String[] managerIps = latestManagerIPList.split(arraySed);
         if (managerIps.length > 0) {
@@ -102,18 +99,14 @@ public class ServiceDiscoveryUtils {
                     }
                 } else {
                     log.error("ServiceDiscovery managerIp is null, "
-                        + "lastestManagerIPList is [" + latestManagerIPList
-                        + "].");
+                            + "latestManagerIPList is [" + latestManagerIPList
+                            + "].");
                 }
             }
         } else {
             log.error("ServiceDiscovery latestManagerIpList["
-                + latestManagerIPList + "] format error, or not contain ip");
+                    + latestManagerIPList + "] format error, or not contain ip");
         }
-
-
-
-
 
         String existedTdmIpList = getLocalManagerIpList(proxyClientConfig.getManagerIpLocalPath());
         if (!StringUtils.isBlank(existedTdmIpList)) {
@@ -151,8 +144,9 @@ public class ServiceDiscoveryUtils {
     }
 
     public static String getManagerIpListByHttp(String managerIp,
-        ProxyClientConfig proxyClientConfig) throws ProxysdkException {
-        String url = (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + "/api/getmanagervirtualip";
+            ProxyClientConfig proxyClientConfig) throws ProxysdkException {
+        String url =
+                (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + "/api/getmanagervirtualip";
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", proxyClientConfig.getUserName()));
@@ -230,7 +224,7 @@ public class ServiceDiscoveryUtils {
             File managerIpListFile = new File(managerIpLocalPath);
             if (!managerIpListFile.exists()) {
                 log.info("ServiceDiscovery no found local bidInfo file, "
-                    + "doesn't matter, path is [" + managerIpLocalPath + "].");
+                        + "doesn't matter, path is [" + managerIpLocalPath + "].");
                 return null;
             }
             byte[] serialized;
@@ -250,7 +244,7 @@ public class ServiceDiscoveryUtils {
                     reader.close();
                 } catch (IOException e) {
                     log.error("ServiceDiscovery close bufferedReader "
-                            + "error after loading TDM config . Exception info : {}.", e);
+                            + "error after loading InLong Manager config . Exception info : {}.", e);
                 }
             }
         }
