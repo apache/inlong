@@ -18,15 +18,17 @@
 #
 FROM openjdk:8-jdk-alpine
 # add tarball from target output
+RUN apk add --no-cache java-snappy
+WORKDIR /opt/inlong-agent
 ARG AGENT_TARBALL
 ADD ${AGENT_TARBALL} /opt/inlong-agent
+RUN cp /usr/share/java/snappy-java.jar lib/snappy-java-*.jar
 EXPOSE 8008
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8082
 ENV DATAPROXY_IP=127.0.0.1
 ENV DATAPROXY_PORT=46801
 ENV ETH_NETWORK=eth0
-WORKDIR /opt/inlong-agent
 ADD agent-docker.sh bin/
 RUN chmod +x bin/agent-docker.sh
 CMD ["bin/agent-docker.sh"]
