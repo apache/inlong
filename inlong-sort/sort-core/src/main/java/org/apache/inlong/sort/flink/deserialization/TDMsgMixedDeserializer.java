@@ -90,7 +90,7 @@ public class TDMsgMixedDeserializer implements Deserializer<TDMsgSerializedRecor
             deserializer.flatMap(mixedRow, new CallbackCollector<>((row -> {
                 // each tid might be associated with multiple data flows
                 for (long dataFlowId : dataFlowIds) {
-                    collector.collect(new Record(dataFlowId, row));
+                    collector.collect(new Record(dataFlowId, System.currentTimeMillis(), row));
                 }
             })));
         }));

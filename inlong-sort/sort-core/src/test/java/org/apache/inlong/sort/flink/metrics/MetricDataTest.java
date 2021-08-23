@@ -15,36 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink;
+package org.apache.inlong.sort.flink.metrics;
 
-import static org.apache.inlong.sort.configuration.Constants.UNKNOWN_DATAFLOW_ID;
+import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Data flow id might not been got from mixed TDMsg data stream.
- */
-public class TDMsgSerializedRecord extends SerializedRecord {
-
-    private static final long serialVersionUID = 4075321919886376829L;
-
-    private String topic;
-
-    /**
-     * Just satisfy requirement of Flink Pojo definition.
-     */
-    public TDMsgSerializedRecord() {
-        super();
-    }
-
-    public TDMsgSerializedRecord(String topic, long timestampMillis, byte[] data) {
-        super(UNKNOWN_DATAFLOW_ID, timestampMillis, data);
-        this.topic = topic;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
+public class MetricDataTest {
+    @Test
+    public void testPOJO() {
+        Assert.assertEquals(
+                "org.apache.flink.api.java.typeutils.runtime.PojoSerializer",
+                TypeInformation.of(MetricData.class).createSerializer(new ExecutionConfig()).getClass().getName());
     }
 }

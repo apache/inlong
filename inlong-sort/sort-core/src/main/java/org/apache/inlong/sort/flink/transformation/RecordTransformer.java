@@ -78,6 +78,7 @@ public class RecordTransformer implements DataFlowInfoListener {
         try {
             rowSerializer.serialize(newRecord.getRow(), dataOutputSerializer);
             serializedRecord = new SerializedRecord(dataFlowId,
+                    record.getTimestampMillis(),
                     dataOutputSerializer.getCopyOfBuffer());
             dataOutputSerializer.pruneBuffer();
         } catch (Exception e) {
@@ -101,7 +102,7 @@ public class RecordTransformer implements DataFlowInfoListener {
         } finally {
             dataInputDeserializer.releaseArrays();
         }
-        return new Record(dataFlowId, row);
+        return new Record(dataFlowId, serializedRecord.getTimestampMillis(), row);
     }
 
     private RowSerializer getRowSerializer(long dataFlowId) throws Exception {
@@ -127,7 +128,7 @@ public class RecordTransformer implements DataFlowInfoListener {
                 newRow.setField(i, null);
             }
         }
-        return new Record(oldRecord.getDataflowId(), newRow);
+        return new Record(oldRecord.getDataflowId(), oldRecord.getTimestampMillis(), newRow);
     }
 
     @VisibleForTesting

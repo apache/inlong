@@ -32,6 +32,9 @@ public class Record implements Serializable {
 
     private long dataflowId;
 
+    // Event time
+    private long timestampMillis;
+
     private Row row;
 
     /**
@@ -41,8 +44,9 @@ public class Record implements Serializable {
 
     }
 
-    public Record(long dataflowId, Row row) {
+    public Record(long dataflowId, long timestampMillis, Row row) {
         this.dataflowId = dataflowId;
+        this.timestampMillis = timestampMillis;
         this.row = checkNotNull(row);
     }
 
@@ -52,6 +56,14 @@ public class Record implements Serializable {
 
     public void setDataflowId(long dataflowId) {
         this.dataflowId = dataflowId;
+    }
+
+    public long getTimestampMillis() {
+        return timestampMillis;
+    }
+
+    public void setTimestampMillis(long timestampMillis) {
+        this.timestampMillis = timestampMillis;
     }
 
     public Row getRow() {
@@ -73,6 +85,8 @@ public class Record implements Serializable {
         }
 
         Record that = (Record) o;
-        return dataflowId == ((Record) o).dataflowId && Objects.equals(row, that.row);
+        return dataflowId == that.dataflowId
+                && Objects.equals(row, that.row)
+                && timestampMillis == that.timestampMillis;
     }
 }

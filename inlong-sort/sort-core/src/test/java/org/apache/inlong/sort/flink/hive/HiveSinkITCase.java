@@ -380,7 +380,8 @@ public class HiveSinkITCase extends TestLogger {
                 row.setField(1, fieldValue2);
                 row.setField(2, line[0]);
                 row.setField(3, line[1]);
-                sourceContext.collect(transformer.toSerializedRecord(new Record(dataFlowInfo.getId(), row)));
+                sourceContext.collect(transformer.toSerializedRecord(
+                        new Record(dataFlowInfo.getId(), System.currentTimeMillis(), row)));
             }
             verificationFinishedLatch.await();
         }

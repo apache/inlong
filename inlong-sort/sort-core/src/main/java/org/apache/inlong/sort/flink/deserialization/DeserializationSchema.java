@@ -27,17 +27,26 @@ import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.flink.SerializedRecord;
 import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.metrics.MetricData;
+import org.apache.inlong.sort.flink.metrics.MetricData.MetricSource;
+import org.apache.inlong.sort.flink.metrics.MetricData.MetricType;
 import org.apache.inlong.sort.flink.transformation.FieldMappingTransformer;
 import org.apache.inlong.sort.flink.transformation.RecordTransformer;
 import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.flink.util.OutputTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DeserializationSchema extends ProcessFunction<SerializedRecord, SerializedRecord> {
 
+    private static final long serialVersionUID = 5380421870587560943L;
+
     private static final Logger LOG = LoggerFactory.getLogger(DeserializationSchema.class);
+
+    private static final OutputTag<MetricData> METRIC_DATA_OUTPUT_TAG
+            = new OutputTag<MetricData>(Constants.METRIC_DATA_OUTPUT_TAG_ID) {};
 
     private transient RecordTransformer recordTransformer;
 
@@ -51,6 +60,8 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
 
     private transient MetaManager metaManager;
 
+    private transient Boolean enableOutputMetrics;
+
     public DeserializationSchema(Configuration config) {
         this.config = Preconditions.checkNotNull(config);
     }
@@ -63,6 +74,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         recordTransformer = new RecordTransformer(config.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));
         metaManager = MetaManager.getInstance(config);
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
+        enableOutputMetrics = config.getBoolean(Constants.METRICS_ENABLE_OUTPUT);
     }
 
     @Override
@@ -79,6 +91,20 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
             Context context,
             Collector<SerializedRecord> collector) throws Exception {
         try {
+            if (enableOutputMetrics
+                    && !config.getString(Constants.SOURCE_TYPE).equals(Constants.SOURCE_TYPE_TUBE)) {
+                // If source is tube, we do not output metrics of package number
+                final MetricData metricData = new MetricData(
+                        // since source could not have side-outputs, so it outputs metrics for source here
+                        MetricSource.SOURCE,
+                        MetricType.SUCCESSFUL,
+                        serializedRecord.getTimestampMillis(),
+                        serializedRecord.getDataFlowId(),
+                        "",
+                        1L);
+                context.output(METRIC_DATA_OUTPUT_TAG, metricData);
+            }
+
             if (serializedRecord instanceof TDMsgSerializedRecord
                     && serializedRecord.getDataFlowId() == UNKNOWN_DATAFLOW_ID) {
                 final TDMsgSerializedRecord tdmsgRecord = (TDMsgSerializedRecord) serializedRecord;
@@ -87,15 +113,52 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                             tdmsgRecord,
                             new CallbackCollector<>(sourceRecord -> {
                                 final Record sinkRecord = fieldMappingTransformer.transform(sourceRecord);
+
+                                if (enableOutputMetrics) {
+                                    MetricData metricData = new MetricData(
+                                            // TODO, outputs this metric in Sink Function
+                                            MetricSource.SINK,
+                                            MetricType.SUCCESSFUL,
+                                            sinkRecord.getTimestampMillis(),
+                                            sinkRecord.getDataflowId(),
+                                            "",
+                                            1);
+
+                                    context.output(METRIC_DATA_OUTPUT_TAG, metricData);
+                                }
+
                                 collector.collect(recordTransformer.toSerializedRecord(sinkRecord));
                             }));
                 }
             } else {
-                // TODO, support metrics and more data types
+                // TODO, support more data types
+                if (enableOutputMetrics
+                        && !config.getString(Constants.SOURCE_TYPE).equals(Constants.SOURCE_TYPE_TUBE)) {
+                    MetricData metricData = new MetricData(
+                            MetricSource.DESERIALIZATION,
+                            MetricType.ABANDONED,
+                            serializedRecord.getTimestampMillis(),
+                            serializedRecord.getDataFlowId(),
+                            "Unsupported schema",
+                            1);
+                    context.output(METRIC_DATA_OUTPUT_TAG, metricData);
+                }
+
                 LOG.warn("Abandon data due to unsupported record {}", serializedRecord);
             }
         } catch (Exception e) {
-            // TODO, support metrics
+            if (enableOutputMetrics
+                    && !config.getString(Constants.SOURCE_TYPE).equals(Constants.SOURCE_TYPE_TUBE)) {
+                MetricData metricData = new MetricData(
+                        MetricSource.DESERIALIZATION,
+                        MetricType.ABANDONED,
+                        serializedRecord.getTimestampMillis(),
+                        serializedRecord.getDataFlowId(),
+                        (e.getMessage() == null || e.getMessage().isEmpty()) ? "Exception caught" : e.getMessage(),
+                        1);
+                context.output(METRIC_DATA_OUTPUT_TAG, metricData);
+            }
+
             LOG.warn("Abandon data", e);
         }
     }

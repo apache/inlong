@@ -15,36 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink;
+package org.apache.inlong.sort.flink.metrics;
 
-import static org.apache.inlong.sort.configuration.Constants.UNKNOWN_DATAFLOW_ID;
+import javax.annotation.Nullable;
+import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
+import org.apache.flink.streaming.api.watermark.Watermark;
 
-/**
- * Data flow id might not been got from mixed TDMsg data stream.
- */
-public class TDMsgSerializedRecord extends SerializedRecord {
+public class MetricsAssignerWithPeriodicWatermarks implements AssignerWithPeriodicWatermarks<MetricData> {
+    private long currentMaxTimestamp;
 
-    private static final long serialVersionUID = 4075321919886376829L;
-
-    private String topic;
-
-    /**
-     * Just satisfy requirement of Flink Pojo definition.
-     */
-    public TDMsgSerializedRecord() {
-        super();
+    @Nullable
+    @Override
+    public Watermark getCurrentWatermark() {
+        return new Watermark(currentMaxTimestamp);
     }
 
-    public TDMsgSerializedRecord(String topic, long timestampMillis, byte[] data) {
-        super(UNKNOWN_DATAFLOW_ID, timestampMillis, data);
-        this.topic = topic;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
+    @Override
+    public long extractTimestamp(MetricData metricData, long previousElementTimestamp) {
+        long timestamp = metricData.getTimestampMillis();
+        currentMaxTimestamp = Math.max(timestamp, previousElementTimestamp);
+        return timestamp;
     }
 }

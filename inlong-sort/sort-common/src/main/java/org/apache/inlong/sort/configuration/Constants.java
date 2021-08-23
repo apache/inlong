@@ -32,6 +32,8 @@ public class Constants {
 
     public static final String SINK_TYPE_HIVE = "hive";
 
+    public static final String METRIC_DATA_OUTPUT_TAG_ID = "metric_data_side_output";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -241,4 +243,36 @@ public class Constants {
     public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS =
         key("checkpoint.timeout.ms")
             .defaultValue(600000);
+
+    // ------------------------------------------------------------------------
+    //  Metrics related
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<Boolean> METRICS_ENABLE_OUTPUT =
+        key("metrics.enable.output")
+            .defaultValue(true);
+
+    public static final ConfigOption<Integer> METRICS_TIMESTAMP_WATERMARK_ASSIGNER_PARALLELISM =
+        key("metrics.timestamp.watermark.assigner.parallelism")
+            .defaultValue(1);
+
+    public static final ConfigOption<Integer> METRICS_AGGREGATOR_PARALLELISM =
+        key("metrics.aggregator.parallelism")
+            .defaultValue(1);
+
+    public static final ConfigOption<Integer> METRICS_SINK_PARALLELISM =
+        key("metrics.sink.parallelism")
+            .defaultValue(1)
+            .withDeprecatedKeys("metrics.mysql.sink.parallelism");
+
+    public static final String METRICS_TIMESTAMP_AND_WATERMARK_ASSIGNER_UID
+        = "metrics_timestamp_and_watermark_assigner_uid";
+
+    public static final String METRICS_AGGREGATOR_UID = "metrics_aggregator_uid";
+
+    public static final String METRICS_SINK_UID = "metrics_sink_uid";
+
+    public static final ConfigOption<Integer> METRICS_AGGREGATOR_WINDOW_SIZE =
+        key("metrics.aggregator.window.size")
+            .defaultValue(5)
+            .withDescription("minutes");
 }

@@ -84,7 +84,7 @@ public class MultiTenancyTDMsgMixedDeserializerTest extends TestLogger {
         tdMsg1.addMsg(attrs, body1.getBytes());
 
         final TestingCollector<Record> collector = new TestingCollector<>();
-        deserializer.deserialize(new TDMsgSerializedRecord("topic", tdMsg1.buildArray()), collector);
+        deserializer.deserialize(new TDMsgSerializedRecord("topic", 0, tdMsg1.buildArray()), collector);
 
         assertEquals(1, collector.results.size());
         assertEquals(1L, collector.results.get(0).getDataflowId());
