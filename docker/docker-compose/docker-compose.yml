@@ -120,5 +120,7 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
+    ports:
+      - "8008:8008"
     volumes:
       - ./collect-data:/data/collect-data
