@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 
 @Entity
@@ -259,17 +260,25 @@ public class BdbBrokerConfEntity implements Serializable {
     public int getNumTopicStores() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_STORE_NUM);
+                        TStoreConstants.TOKEN_STORE_NUM);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
         return 1;
     }
 
+    public BdbBrokerConfEntity setNumTopicStores(int numTopicStores) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_STORE_NUM,
+                        String.valueOf(numTopicStores));
+        return this;
+    }
+
     public int getDftMemCacheMsgCntInK() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT);
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -279,14 +288,14 @@ public class BdbBrokerConfEntity implements Serializable {
     public void setDftMemCacheMsgCntInK(final int memCacheMsgCntInK) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_CNT,
+                        TStoreConstants.TOKEN_MCACHE_MSG_CNT,
                         String.valueOf(memCacheMsgCntInK));
     }
 
     public int getDftMemCacheMsgSizeInMB() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE);
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -296,14 +305,14 @@ public class BdbBrokerConfEntity implements Serializable {
     public void setDftMemCacheMsgSizeInMB(final int memCacheMsgSizeInMB) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_MSG_SIZE,
+                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
                         String.valueOf(memCacheMsgSizeInMB));
     }
 
     public int getDftMemCacheFlushIntvl() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL);
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -313,14 +322,14 @@ public class BdbBrokerConfEntity implements Serializable {
     public void setDftMemCacheFlushIntvl(final int memCacheFlushIntvl) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
                         String.valueOf(memCacheFlushIntvl));
     }
 
     public int getDftUnFlushDataHold() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD);
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -330,14 +339,14 @@ public class BdbBrokerConfEntity implements Serializable {
     public void setDftUnFlushDataHold(final int unFlushDataHold) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_DATA_UNFLUSHHOLD,
+                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
                         String.valueOf(unFlushDataHold));
     }
 
     public int getBrokerTLSPort() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TokenConstants.TOKEN_TLS_PORT);
+                        TStoreConstants.TOKEN_TLS_PORT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -347,8 +356,17 @@ public class BdbBrokerConfEntity implements Serializable {
     public void setBrokerTLSPort(final int brokerTLSPort) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes,
-                        TokenConstants.TOKEN_TLS_PORT,
+                        TStoreConstants.TOKEN_TLS_PORT,
                         String.valueOf(brokerTLSPort));
+    }
+
+    public int getRegionId() {
+        return regionId;
+    }
+
+    public BdbBrokerConfEntity setRegionId(int regionId) {
+        this.regionId = regionId;
+        return this;
     }
 
     public String getBrokerAddress() {
@@ -432,6 +450,58 @@ public class BdbBrokerConfEntity implements Serializable {
     public void appendAttributes(String attrKey, String attrVal) {
         this.attributes =
                 TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
+    }
+
+    public long getDataVerId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        if (atrVal != null) {
+            return Long.parseLong(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public BdbBrokerConfEntity setDataVerId(long dataVerId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_DATA_VERSION_ID,
+                        String.valueOf(dataVerId));
+        return this;
+    }
+
+    public int getBrokerGroupId() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_GROUP_ID);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setBrokerGroupId(long brokerGroupId) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_GROUP_ID,
+                        String.valueOf(brokerGroupId));
+    }
+
+    public int getBrokerWebPort() {
+        String atrVal =
+                TStringUtils.getAttrValFrmAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_WEBPORT);
+        if (atrVal != null) {
+            return Integer.parseInt(atrVal);
+        }
+        return TBaseConstants.META_VALUE_UNDEFINED;
+    }
+
+    public void setBrokerWebPort(int brokerWebPort) {
+        this.attributes =
+                TStringUtils.setAttrValToAttributes(this.attributes,
+                        TStoreConstants.TOKEN_BROKER_WEBPORT,
+                        String.valueOf(brokerWebPort));
     }
 
     private void buildStrInfo() {

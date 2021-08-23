@@ -29,6 +29,13 @@ public class ProcessResult {
 
     }
 
+    public ProcessResult(ProcessResult other) {
+        this.success = other.success;
+        this.errCode = other.errCode;
+        this.errInfo = other.errInfo;
+        this.retData1 = other.retData1;
+    }
+
     public ProcessResult(Object retData) {
         this.success = true;
         this.retData1 = retData;
@@ -56,8 +63,35 @@ public class ProcessResult {
 
     public void setSuccResult(Object retData) {
         this.success = true;
-        this.errInfo = "";
+        this.errInfo = "Ok!";
         this.errCode = TErrCodeConstants.SUCCESS;
         this.retData1 = retData;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public int getErrCode() {
+        return errCode;
+    }
+
+    public String getErrInfo() {
+        return errInfo;
+    }
+
+    public Object getRetData() {
+        return retData1;
+    }
+
+    public void setRetData(Object retData) {
+        this.retData1 = retData;
+    }
+
+    public void clear() {
+        this.success = true;
+        this.errCode = TErrCodeConstants.SUCCESS;
+        this.errInfo = "";
+        this.retData1 = null;
     }
 }

@@ -19,23 +19,26 @@ package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
+import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
+import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.web.handler.AbstractWebHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebAdminFlowRuleHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebAdminTopicAuthHandler;
-import org.apache.inlong.tubemq.server.master.web.handler.WebBrokerDefConfHandler;
-import org.apache.inlong.tubemq.server.master.web.handler.WebBrokerTopicConfHandler;
+import org.apache.inlong.tubemq.server.master.web.handler.WebBrokerConfHandler;
+import org.apache.inlong.tubemq.server.master.web.handler.WebGroupConsumeCtrlHandler;
+import org.apache.inlong.tubemq.server.master.web.handler.WebGroupResCtrlHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebMasterInfoHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebOtherInfoHandler;
+import org.apache.inlong.tubemq.server.master.web.handler.WebTopicCtrlHandler;
+import org.apache.inlong.tubemq.server.master.web.handler.WebTopicDeployHandler;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
@@ -47,36 +50,37 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
  * Generate output JSON by concatenating strings, to improve the performance.
  */
 public class Webapi implements Action {
-    // allowed type value set
-    private static final List<String> allowedTypeValues =
-            Arrays.asList("op_query", "op_modify");
+
     private TMaster master;
 
 
     public Webapi(TMaster master) {
         this.master = master;
-        registerHandler(new WebBrokerDefConfHandler(this.master));
-        registerHandler(new WebBrokerTopicConfHandler(this.master));
+        registerHandler(new WebBrokerConfHandler(this.master));
+        registerHandler(new WebTopicCtrlHandler(this.master));
+        registerHandler(new WebTopicDeployHandler(this.master));
+        registerHandler(new WebGroupConsumeCtrlHandler(this.master));
+        registerHandler(new WebGroupResCtrlHandler(this.master));
+        registerHandler(new WebMasterInfoHandler(this.master));
+        registerHandler(new WebOtherInfoHandler(this.master));
         registerHandler(new WebAdminGroupCtrlHandler(this.master));
         registerHandler(new WebAdminTopicAuthHandler(this.master));
         registerHandler(new WebAdminFlowRuleHandler(this.master));
-        registerHandler(new WebMasterInfoHandler(this.master));
-        registerHandler(new WebOtherInfoHandler(this.master));
     }
 
     @Override
     public void execute(RequestContext requestContext) {
-        StringBuilder strBuffer = new StringBuilder();
+        ProcessResult result = new ProcessResult();
+        StringBuilder sBuffer = new StringBuilder();
         try {
             HttpServletRequest req = requestContext.getReq();
             if (this.master.isStopped()) {
                 throw new Exception("Server is stopping...");
             }
-            BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
-            if (!brokerConfManager.isSelfMaster()) {
+            MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
+            if (!metaDataManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
-            String type = req.getParameter("type");
             String method = req.getParameter("method");
             String strCallbackFun = req.getParameter("callback");
             if ((TStringUtils.isNotEmpty(strCallbackFun))
@@ -84,45 +88,38 @@ public class Webapi implements Action {
                     && (strCallbackFun.matches(TBaseConstants.META_TMP_CALLBACK_STRING_VALUE))) {
                 strCallbackFun = strCallbackFun.trim();
             }
-            if (type == null) {
-                throw new Exception("Please take with type parameter!");
-            }
             if (method == null) {
                 throw new Exception("Please take with method parameter!");
             }
-            if (!allowedTypeValues.contains(type)) {
-                throw new Exception("Unsupported operate type, only support " + allowedTypeValues);
-            }
-            boolean isQuery = true;
-            if ("op_modify".equals(type)) {
-                isQuery = false;
-                // check master is current node
-                if (brokerConfManager.isPrimaryNodeActive()) {
-                    throw new Exception(
-                            "DesignatedPrimary happened...please check if the other member is down");
-                }
-            }
             WebMethodMapper.WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
             if (webApiRegInfo == null) {
-                strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Unsupported method: ")
-                        .append(method).append("\"}");
-                requestContext.put("sb", strBuffer.toString());
+                throw new Exception("unsupported method!");
+            }
+            // check master is current node
+            if (webApiRegInfo.onlyMasterOp
+                    && metaDataManager.isPrimaryNodeActive()) {
+                throw new Exception(
+                        "DesignatedPrimary happened...please check if the other member is down");
+            }
+            // valid operation authorize info
+            if (!WebParameterUtils.validReqAuthorizeInfo(req,
+                    webApiRegInfo.needAuthToken, master, sBuffer, result)) {
+                throw new Exception(result.errInfo);
+            }
+            sBuffer = (StringBuilder) webApiRegInfo.method.invoke(
+                    webApiRegInfo.webHandler, req, sBuffer, result);
+            // Carry callback information
+            if (TStringUtils.isEmpty(strCallbackFun)) {
+                requestContext.put("sb", sBuffer.toString());
             } else {
-
-                strBuffer = (StringBuilder) webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req);
-                // Carry callback information
-                if (TStringUtils.isEmpty(strCallbackFun)) {
-                    requestContext.put("sb", strBuffer.toString());
-                } else {
-                    requestContext.put("sb", strCallbackFun + "(" + strBuffer.toString() + ")");
-                    requestContext.getResp().addHeader("Content-type", "text/plain");
-                    requestContext.getResp().addHeader("charset", TBaseConstants.META_DEFAULT_CHARSET_NAME);
-                }
+                requestContext.put("sb", strCallbackFun + "(" + sBuffer.toString() + ")");
+                requestContext.getResp().addHeader("Content-type", "text/plain");
+                requestContext.getResp().addHeader("charset", TBaseConstants.META_DEFAULT_CHARSET_NAME);
             }
         } catch (Throwable e) {
-            strBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
+            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
                     .append(e.getMessage()).append("\"}");
-            requestContext.put("sb", strBuffer.toString());
+            requestContext.put("sb", sBuffer.toString());
         }
     }
 

@@ -298,7 +298,6 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
         'brokerId': '0',
         'brokerIp': '',
         'brokerPort': '8123',
-        'deleteWhen': '0 0 6,18 * * ?',
         'deletePolicy': 'delete,168h',
         'numPartitions': '3',
         'unflushThreshold': '1000',
@@ -327,13 +326,6 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
             '                        <div class="cnt">' +
             '                            <input type="text" class="m" value="'
             + data.brokerIp + '" name="brokerIp">' +
-            '                        </div>' +
-            '                    </div>' +
-            '                    <div class="row">' +
-            '                        <div class="tit">deleteWhen</div>' +
-            '                        <div class="cnt">' +
-            '                            <input type="text" class="m" value="'
-            + data.deleteWhen + '" name="deleteWhen">' +
             '                        </div>' +
             '                    </div>' +
             '                    <div class="row">' +
@@ -673,7 +665,6 @@ Dialog.prototype.addTopicInfo = function (type, topicName, data) {
     };
     data = data || {
             'topicName': '',
-            'deleteWhen': '0 0 6,18 * * ?',
             'deletePolicy': 'delete,168h',
             'numPartitions': '3',
             'unflushThreshold': '1000',
@@ -696,13 +687,6 @@ Dialog.prototype.addTopicInfo = function (type, topicName, data) {
             '                        <div class="cnt">' +
             '                            <input type="text" class="m" value="'
             + data.topicName + '" name="topicName">' +
-            '                        </div>' +
-            '                    </div>' +
-            '                    <div class="row">' +
-            '                        <div class="tit">deleteWhen</div>' +
-            '                        <div class="cnt">' +
-            '                            <input type="text" class="m" value="'
-            + data.deleteWhen + '" name="deleteWhen">' +
             '                        </div>' +
             '                    </div>' +
             '                    <div class="row">' +
@@ -1070,12 +1054,12 @@ CheckBox.prototype.process = function (type, $target, dialogInstance, ext, callb
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',
@@ -1126,12 +1110,12 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
     var types = {
         'sub': {
             'text': '订阅broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptSubscribe=' + stateStr + '&brokerId='
+            'api': 'admin_set_broker_read_or_write&acceptSubscribe=' + stateStr + '&brokerId='
             + ext
         },
         'pub': {
             'text': '发布broker',
-            'api': 'admin_set_broker_read_or_write&isAcceptPublish=' + stateStr + '&brokerId=' + ext
+            'api': 'admin_set_broker_read_or_write&acceptPublish=' + stateStr + '&brokerId=' + ext
         },
         'setTopicAuth': {
             'text': 'topic的消费组授权控制',

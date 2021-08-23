@@ -25,10 +25,50 @@ public final class TServerConstants {
     public static final String TOKEN_JOB_TOPICS = "topics";
     public static final String TOKEN_JOB_STORE_MGR = "messageStoreManager";
     public static final String TOKEN_DEFAULT_FLOW_CONTROL = "default_master_ctrl";
-    public static final String TOKEN_DEFAULT_CLUSTER_SETTING = "default_cluster_config";
-    public static final String TOKEN_MAX_MSG_SIZE = "maxMsgSize";
 
-    public static final String TOKEN_BLANK_FILTER_CONDITION = ",,";
+    public static final long DEFAULT_DATA_VERSION = 0L;
+
+
+    public static final String BLANK_FLOWCTRL_RULES = "[]";
+    public static final String BLANK_FILTER_ITEM_STR = ",,";
+
+    public static final int QRY_PRIORITY_DEF_VALUE = 301;
+    public static final int QRY_PRIORITY_MIN_VALUE = 101;
+    public static final int QRY_PRIORITY_MAX_VALUE = 303;
+
+    public static final int TOPIC_STOREBLOCK_NUM_MIN = 1;
+
+    public static final int TOPIC_PARTITION_NUM_MIN = 1;
+
+    public static final int TOPIC_DSK_UNFLUSHTHRESHOLD_MIN = 0;
+    public static final int TOPIC_DSK_UNFLUSHTHRESHOLD_DEF = 1000;
+
+    public static final int TOPIC_DSK_UNFLUSHINTERVAL_MIN = 1;
+    public static final int TOPIC_DSK_UNFLUSHINTERVAL_DEF = 10000;
+
+    public static final int TOPIC_DSK_UNFLUSHDATAHOLD_MIN = 0;
+
+    public static final int TOPIC_CACHESIZE_MB_MIN = 2;
+    public static final int TOPIC_CACHESIZE_MB_DEF = 3;
+    public static final int TOPIC_CACHESIZE_MB_MAX = 2048;
+
+    public static final int TOPIC_CACHEINTVL_MIN = 4000;
+    public static final int TOPIC_CACHEINTVL_DEF = 20000;
+
+    public static final int TOPIC_CACHECNT_INK_MIN = 1;
+    public static final int TOPIC_CACHECNT_INK_DEF = 10;
+
+    public static final String TOPIC_POLICY_DEF = "delete,168h";
+
+    public static final int TOPIC_RET_PERIOD_IN_SEC_DEF = 14515200;
+
+    public static final int GROUP_BROKER_CLIENT_RATE_MIN = 0;
+
+    public static final int BROKER_REGION_ID_MIN = 0;
+    public static final int BROKER_REGION_ID_DEF = 0;
+
+    public static final int BROKER_GROUP_ID_MIN = 0;
+    public static final int BROKER_GROUP_ID_DEF = 0;
 
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;

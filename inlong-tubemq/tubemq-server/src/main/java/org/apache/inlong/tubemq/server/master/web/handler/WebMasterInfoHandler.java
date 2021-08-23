@@ -17,27 +17,25 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
-import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
 
@@ -60,32 +58,51 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // register query method
         registerQueryWebMethod("admin_query_master_group_info",
                 "getGroupAddressStrInfo");
-        registerQueryWebMethod("admin_query_cluster_default_setting",
-                "adminQueryClusterDefSetting");
         registerQueryWebMethod("admin_query_cluster_topic_view",
                 "adminQueryClusterTopicView");
+        registerQueryWebMethod("admin_query_cluster_default_setting",
+                "adminQueryClusterDefSetting");
 
         // register modify method
         registerModifyWebMethod("admin_transfer_current_master",
                 "transferCurrentMaster");
-        // register modify method
         registerModifyWebMethod("admin_set_cluster_default_setting",
                 "adminSetClusterDefSetting");
+        registerModifyWebMethod("admin_update_cluster_default_setting",
+                "adminUpdClusterDefSetting");
+
+        // Deprecated methods begin
+        // query method
+        registerQueryWebMethod("admin_query_def_flow_control_rule",
+                "adminQueryDefFlowCtrlRule");
+        // register modify method
+        registerModifyWebMethod("admin_set_def_flow_control_rule",
+                "adminSetDefFlowControlRule");
+        registerModifyWebMethod("admin_rmv_def_flow_control_rule",
+                "adminDelDefFlowControlRule");
+        registerModifyWebMethod("admin_upd_def_flow_control_rule",
+                "adminModDefFlowCtrlRule");
+
+        // Deprecated methods end
     }
 
     /**
      * Get master group info
      *
-     * @param req  HttpServletRequest
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder getGroupAddressStrInfo(HttpServletRequest req) {
-        StringBuilder strBuffer = new StringBuilder(512);
-        ClusterGroupVO clusterGroupVO = brokerConfManager.getGroupAddressStrInfo();
+    public StringBuilder getGroupAddressStrInfo(HttpServletRequest req,
+                                                StringBuilder sBuffer,
+                                                ProcessResult result) {
+        ClusterGroupVO clusterGroupVO = metaDataManager.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
-            strBuffer.append("{\"result\":false,\"errCode\":500,\"errMsg\":\"GetBrokerGroup info error\",\"data\":[]}");
+            WebParameterUtils.buildFailResultWithBlankData(
+                    500, "GetBrokerGroup info error", sBuffer);
         } else {
-            strBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
+            sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"groupName\":\"")
                     .append(clusterGroupVO.getGroupName()).append("\",\"isPrimaryNodeActive\":")
                     .append(clusterGroupVO.isPrimaryNodeActive()).append(",\"data\":[");
             int count = 0;
@@ -96,9 +113,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                         continue;
                     }
                     if (count++ > 0) {
-                        strBuffer.append(",");
+                        sBuffer.append(",");
                     }
-                    strBuffer.append("{\"index\":").append(count).append(",\"name\":\"").append(node.getNodeName())
+                    sBuffer.append("{\"index\":").append(count)
+                            .append(",\"name\":\"").append(node.getNodeName())
                             .append("\",\"hostName\":\"").append(node.getHostName())
                             .append("\",\"port\":\"").append(node.getPort())
                             .append("\",\"statusInfo\":{").append("\"nodeStatus\":\"")
@@ -106,151 +124,147 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                             .append(node.getJoinTime()).append("\"}}");
                 }
             }
-            strBuffer.append("],\"count\":").append(count).append(",\"groupStatus\":\"")
+            sBuffer.append("],\"count\":").append(count).append(",\"groupStatus\":\"")
                     .append(clusterGroupVO.getGroupStatus()).append("\"}");
         }
-        return strBuffer;
+        return sBuffer;
     }
 
     /**
      * transfer current master to another node
      *
-     * @param req  HttpServletRequest
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder transferCurrentMaster(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
+    public StringBuilder transferCurrentMaster(HttpServletRequest req,
+                                               StringBuilder sBuffer,
+                                               ProcessResult result) {
         try {
-            brokerConfManager.transferMaster();
-            WebParameterUtils.buildSuccessResult(sBuilder,
+            metaDataManager.transferMaster();
+            WebParameterUtils.buildSuccessResult(sBuffer,
                     "TransferMaster method called, please wait 20 seconds!");
         } catch (Exception e2) {
-            WebParameterUtils.buildFailResult(sBuilder, e2.getMessage());
+            WebParameterUtils.buildFailResult(sBuffer, e2.getMessage());
         }
-        return sBuilder;
+        return sBuffer;
     }
 
     /**
      * Query cluster default setting
      *
-     * @param req
-     * @return
-     * @throws Exception
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req) {
-        StringBuilder sBuilder = new StringBuilder(512);
-        BdbClusterSettingEntity defClusterSetting =
-                brokerConfManager.getBdbClusterSetting();
-        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"data\":[");
-        if (defClusterSetting != null) {
-            defClusterSetting.toJsonString(sBuilder);
-        }
-        sBuilder.append("]}");
-        return sBuilder;
+    public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
+        return buildRetInfo(sBuffer, true);
     }
 
     /**
-     * Add or modify cluster default setting
+     * query default flow control rule
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder adminSetClusterDefSetting(HttpServletRequest req) {
-        boolean dataChanged = false;
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
-        // valid operation authorize info
-        if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                WebFieldDef.ADMINAUTHTOKEN, true, master, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        // check modify user field
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.MODIFYUSER, true, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        final String modifyUser = (String) result.retData1;
-        // check max message size
-        if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.MAXMSGSIZE, false,
-                TBaseConstants.META_VALUE_UNDEFINED,
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB,
-                result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        int maxMsgSizeInMB = (int) result.retData1;
-        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            dataChanged = true;
-        }
-        // check and get modify date
-        if (!WebParameterUtils.getDateParameter(req,
-                WebFieldDef.MODIFYDATE, false, new Date(), result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
-        }
-        Date modifyDate = (Date) result.retData1;
-        if (!dataChanged) {
-            WebParameterUtils.buildSuccessResult(sBuilder, "No data is changed!");
-            return sBuilder;
-        }
-        // add or modify cluster setting info
-        BdbClusterSettingEntity defClusterSetting =
-                brokerConfManager.getBdbClusterSetting();
-        if (defClusterSetting == null) {
-            defClusterSetting = new BdbClusterSettingEntity();
-        }
-        defClusterSetting.setModifyInfo(modifyUser, modifyDate);
-        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            defClusterSetting.setMaxMsgSizeInB(
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB));
-        }
-        try {
-            brokerConfManager.confSetBdbClusterDefSetting(defClusterSetting);
-            WebParameterUtils.buildSuccessResult(sBuilder);
-        } catch (Exception e) {
-            WebParameterUtils.buildFailResult(sBuilder, e.getMessage());
-        }
-        return sBuilder;
+    public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return buildRetInfo(sBuffer, false);
     }
+
+    /**
+     * Add cluster default setting
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminSetClusterDefSetting(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, true);
+    }
+
+    /**
+     * Modify cluster default setting
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, true);
+    }
+
+    /**
+     * add default flow control rule
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, false);
+    }
+
+    /**
+     * update default flow control rule
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, false);
+    }
+
 
     /**
      * Query cluster topic overall view
      *
-     * @param req
-     * @return
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
      */
-    public StringBuilder adminQueryClusterTopicView(HttpServletRequest req) {
-        ProcessResult result = new ProcessResult();
-        StringBuilder sBuilder = new StringBuilder(512);
+    public StringBuilder adminQueryClusterTopicView(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
-                WebFieldDef.COMPSBROKERID, false, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        Set<Integer> brokerIds = (Set<Integer>) result.retData1;
+        Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, result)) {
-            WebParameterUtils.buildFailResult(sBuilder, result.errInfo);
-            return sBuilder;
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
         }
-        Set<String> topicNameSet = (Set<String>) result.retData1;
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query topic configure info
-        ConcurrentHashMap<String, List<BdbTopicConfEntity>> topicConfigMap =
-                brokerConfManager.getBdbTopicEntityMap(null);
-        TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+        Map<String, List<TopicDeployEntity>> topicConfMap =
+                metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
+        BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         int totalCount = 0;
         int brokerCount = 0;
         int totalCfgNumPartCount = 0;
@@ -260,13 +274,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         boolean isAcceptPublish = false;
         boolean isAcceptSubscribe = false;
         boolean enableAuthControl = false;
-        sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
-        for (Map.Entry<String, List<BdbTopicConfEntity>> entry : topicConfigMap.entrySet()) {
-            if (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey())) {
-                continue;
-            }
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicConfMap.entrySet()) {
             if (totalCount++ > 0) {
-                sBuilder.append(",");
+                sBuffer.append(",");
             }
             brokerCount = 0;
             totalCfgNumPartCount = 0;
@@ -276,26 +287,22 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             enableAuthControl = false;
             isAcceptPublish = false;
             isAcceptSubscribe = false;
-            for (BdbTopicConfEntity entity : entry.getValue()) {
-                if ((!brokerIds.isEmpty()) && (!brokerIds.contains(entity.getBrokerId()))) {
-                    continue;
-                }
+            for (TopicDeployEntity entity : entry.getValue()) {
                 brokerCount++;
-                totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
-                BdbBrokerConfEntity brokerConfEntity =
-                        brokerConfManager.getBrokerDefaultConfigStoreInfo(entity.getBrokerId());
+                TopicPropGroup topicProps = entity.getTopicProps();
+                totalCfgNumPartCount +=
+                        topicProps.getNumPartitions() * topicProps.getNumTopicStores();
+                BrokerConfEntity brokerConfEntity =
+                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity != null) {
                     Tuple2<Boolean, Boolean> pubSubStatus =
                             WebParameterUtils.getPubSubStatusByManageStatus(
-                                    brokerConfEntity.getManageStatus());
+                                    brokerConfEntity.getManageStatus().getCode());
                     isAcceptPublish = pubSubStatus.getF0();
                     isAcceptSubscribe = pubSubStatus.getF1();
                 }
-                BrokerInfo broker =
-                        new BrokerInfo(entity.getBrokerId(),
-                                entity.getBrokerIp(), entity.getBrokerPort());
-                TopicInfo topicInfo = topicPSInfoManager.getTopicInfo(
-                        entity.getTopicName(), broker);
+                TopicInfo topicInfo =
+                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo != null) {
                     if (isAcceptPublish && topicInfo.isAcceptPublish()) {
                         isSrvAcceptPublish = true;
@@ -307,12 +314,12 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                             topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
                 }
             }
-            BdbTopicAuthControlEntity authEntity =
-                    brokerConfManager.getBdbEnableAuthControlByTopicName(entry.getKey());
+            TopicCtrlEntity authEntity =
+                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
             if (authEntity != null) {
-                enableAuthControl = authEntity.isEnableAuthControl();
+                enableAuthControl = authEntity.isAuthCtrlEnable();
             }
-            sBuilder.append("{\"topicName\":\"").append(entry.getKey())
+            sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"totalCfgBrokerCnt\":").append(brokerCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
@@ -321,9 +328,159 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     .append(",\"enableAuthControl\":").append(enableAuthControl)
                     .append("}");
         }
-        sBuilder.append("],\"dataCount\":").append(totalCount).append("}");
-        return sBuilder;
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCount);
+        return sBuffer;
+    }
+
+    /**
+     * delete flow control rule
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req,
+                                                    StringBuilder sBuffer,
+                                                    ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // add or modify record
+        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity,
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, Boolean.FALSE, 0,
+                TServerConstants.BLANK_FLOWCTRL_RULES, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        return buildRetInfo(sBuffer, false);
     }
 
 
+    /**
+     * add default flow control rule
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @param isAddOp   whether add operation
+     * @param isNewVer  whether new version return
+     * @return       process result
+     */
+    private StringBuilder innAddOrUpdDefFlowControlRule(HttpServletRequest req,
+                                                        StringBuilder sBuffer,
+                                                        ProcessResult result,
+                                                        boolean isAddOp,
+                                                        boolean isNewVer) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check max message size
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.MAXMSGSIZEINMB, false,
+                TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final int maxMsgSizeMB = (int) result.getRetData();
+        // get broker port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final int inBrokerPort = (int) result.getRetData();
+        // get broker tls port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final int inBrokerTlsPort = (int) result.getRetData();
+        // get broker web port info
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final int inBrokerWebPort = (int) result.getRetData();
+        // get and valid TopicPropGroup info
+        TopicPropGroup defProps = null;
+        if (isAddOp) {
+            defProps = new TopicPropGroup();
+            defProps.fillDefaultValue();
+        }
+        if (!WebParameterUtils.getTopicPropInfo(req, defProps, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        final TopicPropGroup inTopicProps = (TopicPropGroup) result.getRetData();
+        // get and valid qryPriorityId info
+        if (!WebParameterUtils.getQryPriorityIdParameter(req,
+                false, TBaseConstants.META_VALUE_UNDEFINED,
+                TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        int inQryPriorityId = (int) result.getRetData();
+        // get flowCtrlEnable info
+        if (isNewVer) {
+            if (!WebParameterUtils.getBooleanParamValue(req,
+                    WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
+            }
+        } else {
+            if (!WebParameterUtils.getFlowCtrlStatusParamValue(req,
+                    false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                return sBuffer;
+            }
+        }
+        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        // get and flow control rule info
+        int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
+                (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
+        if (!result.success) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        String flowCtrlInfo = (String) result.getRetData();
+        // add or modify record
+        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
+                inBrokerTlsPort, inBrokerWebPort, maxMsgSizeMB, inQryPriorityId,
+                flowCtrlEnable, flowRuleCnt, flowCtrlInfo, inTopicProps, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            return sBuffer;
+        }
+        return buildRetInfo(sBuffer, isNewVer);
+    }
+
+
+    private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
+        int totalCnt = 0;
+        ClusterSettingEntity curConf =
+                metaDataManager.getClusterDefSetting(true);
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        if (curConf != null) {
+            totalCnt++;
+            if (isNewVer) {
+                curConf.toWebJsonStr(sBuffer, true, true);
+            } else {
+                curConf.toOldVerFlowCtrlWebJsonStr(sBuffer, true);
+            }
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
+    }
 }

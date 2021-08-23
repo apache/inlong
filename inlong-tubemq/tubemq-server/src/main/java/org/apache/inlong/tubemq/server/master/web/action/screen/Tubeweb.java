@@ -19,7 +19,7 @@ package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import java.net.InetSocketAddress;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerConfManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
@@ -34,8 +34,8 @@ public class Tubeweb implements Action {
 
     @Override
     public void execute(RequestContext context) {
-        BrokerConfManager brokerConfManager = this.master.getMasterTopicManager();
-        InetSocketAddress masterAddr = brokerConfManager.getMasterAddress();
+        MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
+        InetSocketAddress masterAddr = metaDataManager.getMasterAddress();
         if (master.getMasterConfig().isUseWebProxy() || masterAddr == null) {
             // use absolute path
             context.put("tubemqRemoteAddr", "");
