@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.pojo.workflow;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

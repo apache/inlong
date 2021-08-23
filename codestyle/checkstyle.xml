@@ -70,7 +70,9 @@
             <property name="allowByTailComment" value="true"/>
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
-        <module name="AvoidStarImport"/>
+        <module name="AvoidStarImport">
+            <property name="severity" value="error"/>
+        </module>		
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
@@ -124,12 +126,37 @@
             <message key="ws.notPreceded"
              value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
         </module>
+        <module name="RedundantImport">
+            <!-- Checks for redundant import statements. -->
+            <property name="severity" value="error"/>
+            <message key="import.redundancy"
+                     value="Redundant import {0}."/>
+        </module>
+        <module name="UnusedImports">
+            <property name="severity" value="error"/>
+            <property name="processJavadoc" value="true"/>
+            <message key="import.unused"
+                     value="Unused import: {0}."/>
+        </module>
         <module name="OneStatementPerLine"/>
         <module name="MultipleVariableDeclarations"/>
         <module name="ArrayTypeStyle"/>
 <!--        <module name="MissingSwitchDefault"/>-->
-        <module name="FallThrough"/>
-        <module name="UpperEll"/>
+        <module name="UpperEll">
+            <!-- Checks that long constants are defined with an upper ell.-->
+            <property name="severity" value="error"/>
+        </module>
+
+        <module name="FallThrough">
+            <!-- Warn about falling through to the next case statement.  Similar to
+            javac -Xlint:fallthrough, but the check is suppressed if a single-line comment
+            on the last non-blank line preceding the fallen-into case contains 'fall through' (or
+            some other variants that we don't publicized to promote consistency).
+            -->
+            <property name="reliefPattern"
+                      value="fall through|Fall through|fallthru|Fallthru|falls through|Falls through|fallthrough|Fallthrough|No break|NO break|no break|continue on"/>
+            <property name="severity" value="error"/>
+        </module>
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
             <property name="tokens"

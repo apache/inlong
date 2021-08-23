@@ -24,7 +24,6 @@ import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
 import java.io.BufferedReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

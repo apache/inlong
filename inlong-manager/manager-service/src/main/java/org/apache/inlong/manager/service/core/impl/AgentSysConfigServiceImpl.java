@@ -17,13 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.TreeMap;
 import org.apache.inlong.manager.common.pojo.agent.AgentSysConfig;
 import org.apache.inlong.manager.common.pojo.agent.AgentSysconfRequest;
-import org.apache.inlong.manager.common.util.AgentConstants;
 import org.apache.inlong.manager.dao.entity.AgentSysConfigEntity;
 import org.apache.inlong.manager.dao.mapper.AgentSysConfigEntityMapper;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
