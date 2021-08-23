@@ -23,8 +23,8 @@ cat <<EOF > ${file_path}/conf/common.properties
 manager_hosts=$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT
 EOF
 # start
-sh ${file_path}/bin/prepare_env.sh
-sh ${file_path}/bin/dataproxy-start.sh
+bash +x ${file_path}/bin/prepare_env.sh
+bash +x ${file_path}/bin/dataproxy-start.sh
 sleep 3
 # keep alive
 tail -F ${file_path}/logs/flume.log
