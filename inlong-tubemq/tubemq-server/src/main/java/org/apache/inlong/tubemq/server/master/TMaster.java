@@ -1295,7 +1295,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 tMaster.processResetbalance(rebalanceId,
                                         isStartBalance, subGroups);
                             } catch (Throwable e) {
-                                logger.warn("[Rebalance processor] Error during reset-reb", e);
+                                logger.warn(new StringBuilder(1024)
+                                        .append("[Rebalance processor] Error during reset-reb,")
+                                        .append("the groups that may be affected are ")
+                                        .append(subGroups).append(",error is ")
+                                        .append(e).toString());
                             }
                             if (tMaster.isStopped()) {
                                 return;
@@ -1305,7 +1309,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 tMaster.processRebalance(rebalanceId,
                                         isStartBalance, subGroups);
                             } catch (Throwable e) {
-                                logger.warn("[Rebalance processor] Error during normal-reb", e);
+                                logger.warn(new StringBuilder(1024)
+                                        .append("[Rebalance processor] Error during normal-reb,")
+                                        .append("the groups that may be affected are ")
+                                        .append(subGroups).append(",error is ")
+                                        .append(e).toString());
                             }
                         } catch (Throwable e) {
                             logger.warn("[Rebalance processor] Error during process", e);
@@ -1337,6 +1345,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         // allocate partitions to consumers
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
+            if (entry == null) {
+                continue;
+            }
             String consumerId = entry.getKey();
             if (consumerId == null) {
                 continue;
@@ -1354,6 +1365,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
             for (Map.Entry<String, List<Partition>> topicEntry : topicSubPartMap.entrySet()) {
+                if (topicEntry == null) {
+                    continue;
+                }
                 String topic = topicEntry.getKey();
                 List<Partition> finalPartList = topicEntry.getValue();
                 Map<String, Partition> currentPartMap = null;
@@ -1420,10 +1434,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     }
                 }
             }
-            if (deletedSubInfoList.size() > 0) {
+            boolean isDelEmpty = deletedSubInfoList.isEmpty();
+            boolean isAddEmtpy = addedSubInfoList.isEmpty();
+            if (!isDelEmpty) {
                 EventType opType =
-                        addedSubInfoList.size() > 0
-                                ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
+                        (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
                 consumerEventManager
                         .addDisconnectEvent(consumerId,
                                 new ConsumerEvent(rebalanceId, opType,
@@ -1434,10 +1449,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     strBuffer.delete(0, strBuffer.length());
                 }
             }
-            if (addedSubInfoList.size() > 0) {
+            if (!isAddEmtpy) {
                 EventType opType =
-                        deletedSubInfoList.size() > 0
-                                ? EventType.CONNECT : EventType.ONLY_CONNECT;
+                        (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT;
                 consumerEventManager
                         .addConnectEvent(consumerId,
                                 new ConsumerEvent(rebalanceId, opType,
@@ -1471,6 +1485,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
                 : finalSubInfoMap.entrySet()) {
+            if (entry == null) {
+                continue;
+            }
             String consumerId = entry.getKey();
             if (consumerId == null) {
                 continue;
@@ -1489,6 +1506,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
             for (Map.Entry<String, Map<String, Partition>> topicEntry : topicSubPartMap.entrySet()) {
+                if (topicEntry == null) {
+                    continue;
+                }
                 String topic = topicEntry.getKey();
                 Map<String, Partition> finalPartMap = topicEntry.getValue();
                 Map<String, Partition> currentPartMap = null;
@@ -1521,10 +1541,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
             // generate consumer event
-            if (deletedSubInfoList.size() > 0) {
+            boolean isDelEmpty = deletedSubInfoList.isEmpty();
+            boolean isAddEmtpy = addedSubInfoList.isEmpty();
+            if (!isDelEmpty) {
                 EventType opType =
-                        addedSubInfoList.size() > 0
-                                ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
+                        (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
                 consumerEventManager.addDisconnectEvent(consumerId,
                         new ConsumerEvent(rebalanceId, opType,
                                 deletedSubInfoList, EventStatus.TODO));
@@ -1534,10 +1555,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     strBuffer.delete(0, strBuffer.length());
                 }
             }
-            if (addedSubInfoList.size() > 0) {
+            if (!isAddEmtpy) {
                 EventType opType =
-                        deletedSubInfoList.size() > 0
-                                ? EventType.CONNECT : EventType.ONLY_CONNECT;
+                        (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT;
                 consumerEventManager.addConnectEvent(consumerId,
                         new ConsumerEvent(rebalanceId, opType,
                                 addedSubInfoList, EventStatus.TODO));
