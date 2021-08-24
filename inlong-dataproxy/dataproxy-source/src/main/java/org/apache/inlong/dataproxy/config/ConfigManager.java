@@ -311,8 +311,8 @@ public class ConfigManager {
                 count += 1;
                 try {
                     checkLocalFile();
-                    if (count % 30 == 0) {
-
+                    // wait for 30 seconds to update remote config
+                    if (count % 3 == 0) {
                         checkRemoteConfig();
                         count = 0;
                     }
