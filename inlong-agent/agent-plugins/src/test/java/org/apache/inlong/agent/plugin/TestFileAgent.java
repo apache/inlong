@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin;
 
+import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.awaitility.Awaitility.await;
@@ -37,6 +38,7 @@ import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -67,10 +69,10 @@ public class TestFileAgent {
         helper.teardownAgentHome();
     }
 
-    private void createHugeFiles(String fileName) throws Exception {
+    private void createFiles(String fileName) throws Exception {
         final Path hugeFile = Paths.get(testRootDir.toString(), fileName);
         FileWriter writer = new FileWriter(hugeFile.toFile());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             writer.write(RECORD);
         }
         writer.flush();
@@ -80,7 +82,7 @@ public class TestFileAgent {
     @Test
     public void testFileAgent() throws Exception {
         for (int i = 0; i < 10; i++) {
-            createHugeFiles(String.format("hugeFile.%s.txt", i));
+            createFiles(String.format("hugeFile.%s.txt", i));
         }
         try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
@@ -128,6 +130,32 @@ public class TestFileAgent {
             );
         }
         return result.get();
+    }
+
+    @Test
+    public void testCycleUnit() throws Exception {
+
+        String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
+
+        try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
+            if (stream != null) {
+                String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+                JobProfile profile = JobProfile.parseJsonStr(jobJson);
+                profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
+                    "YYYYMMDD").toString());
+                profile.set(JOB_CYCLE_UNIT, "D");
+                agent.submitTriggerJob(profile);
+            }
+        }
+        createFiles(nowDate);
+        await().atMost(2, TimeUnit.MINUTES).until(() -> {
+            JobProfile jobConf = agent.getManager().getJobManager()
+                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+            return jobConf != null;
+        });
+        JobProfile jobConf = agent.getManager().getJobManager()
+            .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+        Assert.assertEquals(1, jobConf.getInt("job.id"));
     }
 
 

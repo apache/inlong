@@ -83,7 +83,7 @@ public class PluginUtils {
 
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
         String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
-        LOGGER.info("find files with dir pattern {}", dirPattern);
+        LOGGER.info("start to find files with dir pattern {}", dirPattern);
         PathPattern pattern = new PathPattern(dirPattern);
         updateRetryTime(jobConf, pattern);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);

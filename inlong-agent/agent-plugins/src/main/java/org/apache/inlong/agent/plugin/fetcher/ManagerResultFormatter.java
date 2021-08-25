@@ -118,6 +118,9 @@ public class ManagerResultFormatter {
         if (!dataConfigs.getAdditionalAttr().isEmpty()) {
             job.setAddictiveString(dataConfigs.getAdditionalAttr());
         }
+        if (!dataConfigs.getCycleUnit().isEmpty()) {
+            job.setCycleUnit(dataConfigs.getCycleUnit());
+        }
         return job;
     }
 

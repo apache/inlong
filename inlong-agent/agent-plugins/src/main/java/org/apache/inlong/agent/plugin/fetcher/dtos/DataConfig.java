@@ -28,6 +28,7 @@ public class DataConfig {
     private String dataStreamIdentifier;
     private String deliveryTime;
     private String fieldSplitter;
+    private String cycleUnit;
     private String ip;
     private String middlewareType;
     private String mqMasterAddress;
