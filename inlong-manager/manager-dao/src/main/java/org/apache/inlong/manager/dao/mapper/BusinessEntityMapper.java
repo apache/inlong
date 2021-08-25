@@ -38,11 +38,18 @@ public interface BusinessEntityMapper {
 
     BusinessEntity selectByPrimaryKey(Integer id);
 
+    List<Map<String, Object>> countCurrentUserBusiness(@Param(value = "currentUser") String currentUser);
+
     BusinessEntity selectByIdentifier(String businessIdentifier);
 
     Integer selectIdentifierExist(String businessIdentifier);
 
     List<BusinessEntity> selectByCondition(BusinessPageRequest request);
+
+    /**
+     * get all config with business status of 130, that is, config successful
+     */
+    List<DataProxyConfig> selectDataProxyConfig();
 
     int updateByPrimaryKeySelective(BusinessEntity record);
 
@@ -52,9 +59,5 @@ public interface BusinessEntityMapper {
 
     int updateStatusByIdentifier(@Param("bid") String bid, @Param("status") Integer status,
             @Param("modifier") String modifier);
-
-    List<Map<String, Object>> countCurrentUserBusiness(@Param(value = "currentUser") String currentUser);
-
-    List<DataProxyConfig> queryDataProxyConfig();
 
 }

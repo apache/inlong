@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.manager.common.beans.Response;
@@ -44,6 +45,7 @@ public class DataProxyController {
     }
 
     @GetMapping("/getConfig")
+    @ApiOperation(value = "get data proxy config list")
     public Response<List<DataProxyConfig>> getConfig() {
         return Response.success(dataProxyClusterService.getConfig());
     }
