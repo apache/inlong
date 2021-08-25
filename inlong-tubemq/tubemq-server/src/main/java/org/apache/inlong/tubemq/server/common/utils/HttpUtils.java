@@ -19,11 +19,10 @@ package org.apache.inlong.tubemq.server.common.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -32,6 +31,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -76,17 +76,28 @@ public class HttpUtils {
                 .setConnectTimeout(50000).setSocketTimeout(60000).build();
         // build HttpClient and HttpPost objects
         CloseableHttpClient httpclient = null;
-        HttpPost httpPost = null;
+        HttpPost httpPost1 = null;
+        HttpPost httpPost2 = null;
         JsonObject jsonRes = null;
         JsonParser jsonParser = new JsonParser();
         try {
             httpclient = HttpClients.custom()
                     .setDefaultRequestConfig(requestConfig).build();
-            httpPost = new HttpPost(url);
             UrlEncodedFormEntity se = new UrlEncodedFormEntity(params);
-            httpPost.setEntity(se);
+            // build first post request
+            httpPost1 = new HttpPost(url);
+            httpPost1.setEntity(se);
             // send http request and process response
-            CloseableHttpResponse response = httpclient.execute(httpPost);
+            CloseableHttpResponse response = httpclient.execute(httpPost1);
+            // Determine and process the redirect request
+            if (response.getStatusLine().getStatusCode() == 302) {
+                String redirectURL = response.getFirstHeader("Location").getValue();
+                // build 2td post request
+                httpPost2 = new HttpPost(redirectURL);
+                httpPost2.setEntity(se);
+                response = httpclient.execute(httpPost2);
+            }
+            // process result
             String returnStr = EntityUtils.toString(response.getEntity());
             if (TStringUtils.isNotBlank(returnStr)
                     && response.getStatusLine().getStatusCode() == 200) {
@@ -95,8 +106,11 @@ public class HttpUtils {
         } catch (Throwable e) {
             throw new Exception("Connecting " + url + " throw an error!", e);
         } finally {
-            if (httpPost != null) {
-                httpPost.releaseConnection();
+            if (httpPost1 != null) {
+                httpPost1.releaseConnection();
+            }
+            if (httpPost2 != null) {
+                httpPost2.releaseConnection();
             }
             if (httpclient != null) {
                 try {
@@ -107,6 +121,45 @@ public class HttpUtils {
             }
         }
         return jsonRes;
+    }
+
+
+    public static void main(String[] args) {
+        /** Test scenario:
+         *     simulate where there are multiple Master nodes in the cluster,
+         *      and there are nodes that do not take effect
+         * Call url:
+         *    http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_info
+         * Request parameters:
+         *    topicName=test_1, brokerId=170399798
+         * Master nodes:
+         *    10.54.55.32:8080(invalid node),127.0.0.1:8080(valid node)
+         */
+        Map<String, String> inParamMap = new HashMap<>();
+        inParamMap.put("topicName", "test_1");
+        inParamMap.put("brokerId", "170399798");
+        String masterAddr = "10.54.55.32:8080,127.0.0.1:8080";
+        // build visit object
+        MasterInfo masterInfo =  new MasterInfo(masterAddr.trim());
+        JsonObject jsonRes = null;
+        // call master nodes
+        for (String address : masterInfo.getNodeHostPortList()) {
+            String visitUrl = "http://" + address
+                    + "/webapi.htm?method=admin_query_topic_info";
+            try {
+                jsonRes = HttpUtils.requestWebService(visitUrl, inParamMap);
+                if (jsonRes != null) {
+                    // if get data, break cycle
+                    break;
+                }
+            } catch (Throwable e) {
+                //
+            }
+        }
+        // process result
+        if (jsonRes != null) {
+            System.out.println("query result is " + jsonRes.toString());
+        }
     }
 
 }
