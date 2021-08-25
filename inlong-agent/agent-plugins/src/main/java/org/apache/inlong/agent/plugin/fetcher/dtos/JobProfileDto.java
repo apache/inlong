@@ -52,6 +52,7 @@ public class JobProfileDto {
         private String channel;
         private String pattern;
         private String op;
+        private String cycleUnit;
         private String deliveryTime;
         private String addictiveString;
     }
