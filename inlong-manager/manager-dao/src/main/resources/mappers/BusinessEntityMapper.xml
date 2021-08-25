@@ -58,6 +58,13 @@
         from business
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="countCurrentUserBusiness" resultMap="statusCountMap">
+        select count(*) as total, status
+        from business
+        where is_deleted = 0
+          and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
+        group by status
+    </select>
     <select id="selectByIdentifier" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -88,6 +95,15 @@
         </where>
         order by modify_time desc
     </select>
+    <select id="selectDataProxyConfig" resultType="org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig">
+        select biz.business_identifier as bid, biz.mq_resource_obj as topic, d.sort_type as m
+        from business biz,
+             data_schema d
+        where biz.status = 130
+          and biz.is_deleted = 0
+          and biz.schema_name = d.name
+    </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from business
@@ -400,18 +416,5 @@
         where business_identifier = #{bid, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
-    <select id="countCurrentUserBusiness" resultMap="statusCountMap">
-        select count(*) as total, status
-        from business
-        where is_deleted = 0
-          and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
-        group by status
-    </select>
 
-    <select id="queryDataProxyConfig" resultType="org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig">
-        select b.business_identifier as bid, b.mq_resource_obj as topic, d.sort_type as m
-        from business b,
-             data_schema d
-        where b.schema_name = d.name
-    </select>
 </mapper>

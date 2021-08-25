@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -195,6 +196,12 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     @Override
     public List<DataProxyConfig> getConfig() {
-        return businessEntityMapper.queryDataProxyConfig();
+        // get all configs with business status of 130, that is, config successful
+        List<DataProxyConfig> configList = businessEntityMapper.selectDataProxyConfig();
+        if (configList == null) {
+            configList = Collections.emptyList();
+        }
+
+        return configList;
     }
 }
