@@ -51,6 +51,13 @@ public class PathPattern {
         dateFormatRegex = DateFormatRegex.ofRegex(watchDir);
     }
 
+    public PathPattern(String watchDir, String offset) {
+        this.watchDir = watchDir;
+        rootDir = findRoot(watchDir);
+        subDirs = new HashSet<>();
+        dateFormatRegex = DateFormatRegex.ofRegex(watchDir).withOffset(offset);
+    }
+
     /**
      * find last existing path by pattern.
      * @param watchDir
