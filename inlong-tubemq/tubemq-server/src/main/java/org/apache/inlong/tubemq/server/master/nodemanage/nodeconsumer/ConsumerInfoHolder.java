@@ -427,11 +427,13 @@ public class ConsumerInfoHolder {
             rwLock.readLock().lock();
             ConsumerInfo consumerInfo = null;
             String groupName = consumerIndexMap.get(consumerId);
-            ConsumerBandInfo consumeBandInfo = groupInfoMap.get(groupName);
-            if (consumeBandInfo != null) {
-                consumerInfo = consumeBandInfo.getConsumerInfo(consumerId);
+            if (groupName != null) {
+                ConsumerBandInfo consumeBandInfo = groupInfoMap.get(groupName);
+                if (consumeBandInfo != null) {
+                    consumerInfo = consumeBandInfo.getConsumerInfo(consumerId);
+                }
             }
-            return new Tuple2<String, ConsumerInfo>(groupName, consumerInfo);
+            return new Tuple2<>(groupName, consumerInfo);
         } finally {
             rwLock.readLock().unlock();
         }

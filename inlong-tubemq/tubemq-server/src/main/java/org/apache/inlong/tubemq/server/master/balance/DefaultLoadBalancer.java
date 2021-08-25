@@ -198,7 +198,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             //　random allocate
-            if (partMap.size() > 0) {
+            if (!partMap.isEmpty()) {
                 onlineOfflineGroupSet.add(group);
                 if (!newConsumerList2.isEmpty()) {
                     this.randomAssign(partMap, newConsumerList2,
@@ -206,11 +206,15 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
         }
-        List<String> groupsNeedToBalance = null;
-        if (onlineOfflineGroupSet.size() == 0) {
-            groupsNeedToBalance = groupSet;
+        List<String> groupsNeedToBalance = new ArrayList<>();
+        if (onlineOfflineGroupSet.isEmpty()) {
+            for (String group : groupSet) {
+                if (group == null) {
+                    continue;
+                }
+                groupsNeedToBalance.add(group);
+            }
         } else {
-            groupsNeedToBalance = new ArrayList<>();
             for (String group : groupSet) {
                 if (group == null) {
                     continue;
@@ -220,12 +224,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
         }
-        if (bandGroupSet.size() > 0) {
+        if (!bandGroupSet.isEmpty()) {
             for (String group : bandGroupSet) {
                 groupsNeedToBalance.remove(group);
             }
         }
-        if (groupsNeedToBalance.size() > 0) {
+        if (!groupsNeedToBalance.isEmpty()) {
             finalSubInfoMap =
                     balance(finalSubInfoMap, consumerHolder, brokerRunManager,
                             groupsNeedToBalance, clusterState, rejGroupClientINfoMap);
@@ -348,9 +352,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             // load balance partition between consumer
-            if (partitionToMove.size() > 0) {
+            if (!partitionToMove.isEmpty()) {
                 for (String consumerId : serverToTake.keySet()) {
-                    if (partitionToMove.size() <= 0) {
+                    if (partitionToMove.isEmpty()) {
                         break;
                     }
                     assign(partitionToMove.poll(), clusterState, consumerId);
