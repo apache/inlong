@@ -55,7 +55,7 @@ public class ProxyClientConfig {
     private boolean enableSlaMetric = false;
 
     private int managerConnectionTimeout = 10000;
-    private boolean readProxyIPFromLocal = true;
+    private boolean readProxyIPFromLocal = false;
     /**
      * Default connection, handshake, and initial request timeout in
      * milliseconds.
@@ -99,6 +99,7 @@ public class ProxyClientConfig {
         if (Utils.isBlank(managerIp)) {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
+        this.proxyIPServiceURL = "http://" + managerIp + ":" + managerPort + "/api/inlong/manager/openapi/dataproxy/getIpList";
         this.bid = bid;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
