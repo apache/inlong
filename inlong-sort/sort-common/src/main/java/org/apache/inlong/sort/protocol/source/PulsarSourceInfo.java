@@ -19,6 +19,7 @@ package org.apache.inlong.sort.protocol.source;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Objects;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -70,5 +71,23 @@ public class PulsarSourceInfo extends SourceInfo {
     @JsonProperty("subscription_name")
     public String getSubscriptionName() {
         return subscriptionName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PulsarSourceInfo other = (PulsarSourceInfo) o;
+        return super.equals(other)
+                && Objects.equals(adminUrl, other.adminUrl)
+                && Objects.equals(serviceUrl, other.serviceUrl)
+                && Objects.equals(subscriptionName, other.subscriptionName)
+                && Objects.equals(topic, other.topic);
     }
 }

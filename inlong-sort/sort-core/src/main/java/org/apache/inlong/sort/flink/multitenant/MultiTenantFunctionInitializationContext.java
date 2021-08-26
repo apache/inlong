@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.KeyedStateStore;
 import org.apache.flink.api.common.state.ListState;
@@ -41,9 +42,11 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
 
     private final MultiTenantOperatorStateStore tenantOperatorStateStore;
 
-    public MultiTenantFunctionInitializationContext(long tenantId, FunctionInitializationContext parentContext) {
+    public MultiTenantFunctionInitializationContext(long tenantId, FunctionInitializationContext parentContext,
+            ExecutionConfig executionConfig) {
         this.parentContext = checkNotNull(parentContext);
-        tenantOperatorStateStore = new MultiTenantOperatorStateStore(tenantId, parentContext.getOperatorStateStore());
+        tenantOperatorStateStore = new MultiTenantOperatorStateStore(tenantId, parentContext.getOperatorStateStore(),
+                executionConfig);
     }
 
     @Override
@@ -73,9 +76,13 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
 
         private final OperatorStateStore operatorStateStore;
 
-        public MultiTenantOperatorStateStore(long tenantId, OperatorStateStore operatorStateStore) {
+        private final ExecutionConfig executionConfig;
+
+        public MultiTenantOperatorStateStore(long tenantId, OperatorStateStore operatorStateStore,
+                ExecutionConfig executionConfig) {
             this.tenantId = tenantId;
             this.operatorStateStore = checkNotNull(operatorStateStore);
+            this.executionConfig = executionConfig;
         }
 
         @Override
@@ -86,12 +93,14 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
 
         @Override
         public <S> ListState<S> getListState(ListStateDescriptor<S> listStateDescriptor) throws Exception {
+            serializerInit(listStateDescriptor);
             return operatorStateStore
                     .getListState(new MultiTenantListStateDescriptor<>(tenantId, listStateDescriptor));
         }
 
         @Override
         public <S> ListState<S> getUnionListState(ListStateDescriptor<S> listStateDescriptor) throws Exception {
+            serializerInit(listStateDescriptor);
             return operatorStateStore
                     .getUnionListState(new MultiTenantListStateDescriptor<>(tenantId, listStateDescriptor));
         }
@@ -111,6 +120,7 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
 
         @Override
         public <S> ListState<S> getOperatorState(ListStateDescriptor<S> listStateDescriptor) throws Exception {
+            serializerInit(listStateDescriptor);
             return operatorStateStore
                     .getListState(new MultiTenantListStateDescriptor<S>(tenantId, listStateDescriptor));
         }
@@ -118,6 +128,12 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
         @Override
         public <T extends Serializable> ListState<T> getSerializableListState(String stateName) throws Exception {
             return operatorStateStore.getSerializableListState(getTenantStateName(tenantId, stateName));
+        }
+
+        private <S> void serializerInit(ListStateDescriptor<S> listStateDescriptor) {
+            if (!listStateDescriptor.isSerializerInitialized()) {
+                listStateDescriptor.initializeSerializerUnlessSet(executionConfig);
+            }
         }
     }
 
