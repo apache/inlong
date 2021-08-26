@@ -74,11 +74,6 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
       rules: [
         {
           required: true,
-          type: 'array',
-          min: 2,
-          message: i18n.t(
-            'components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwnersLimit',
-          ),
         },
       ],
       extra: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwnersExtra'),
