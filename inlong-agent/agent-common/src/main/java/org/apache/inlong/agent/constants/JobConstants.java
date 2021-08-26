@@ -47,7 +47,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_CHECKPOINT = "job.checkpoint";
 
     // offset for time
-    public static final String JOB_FILE_TIME_OFFSET = "job.file.time.offset";
+    public static final String JOB_FILE_TIME_OFFSET = "job.timeOffset";
 
     public static final String DEFAULT_JOB_FILE_TIME_OFFSET = "0d";
 

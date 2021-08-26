@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.awaitility.Awaitility.await;
 
 import java.io.FileWriter;
@@ -93,15 +94,7 @@ public class TestFileAgent {
                 agent.submitJob(profile);
             }
         }
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
-            JobProfile jobConf = agent.getManager().getJobManager()
-                    .getJobConfDb().getJob(StateSearchKey.SUCCESS);
-            return jobConf != null;
-        });
-
-        JobProfile jobConf = agent.getManager().getJobManager()
-                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
-        Assert.assertEquals(1, jobConf.getInt("job.id"));
+        assertJobSuccess();
     }
 
     @Test
@@ -148,7 +141,29 @@ public class TestFileAgent {
             }
         }
         createFiles(nowDate);
-        await().atMost(2, TimeUnit.MINUTES).until(() -> {
+        assertJobSuccess();
+    }
+
+    @Test
+    public void testTimeOffset() throws Exception {
+        String theDateBefore = AgentUtils.formatCurrentTimeWithOffset("yyyyMMdd", -1, 0, 0);
+        try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
+            if (stream != null) {
+                String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
+                JobProfile profile = JobProfile.parseJsonStr(jobJson);
+                profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
+                    "YYYYMMDD").toString());
+                profile.set(JOB_FILE_TIME_OFFSET, "-1d");
+                profile.set(JOB_CYCLE_UNIT, "D");
+                agent.submitTriggerJob(profile);
+            }
+        }
+        createFiles(theDateBefore);
+        assertJobSuccess();
+    }
+
+    private void assertJobSuccess() {
+        await().atMost(5, TimeUnit.MINUTES).until(() -> {
             JobProfile jobConf = agent.getManager().getJobManager()
                 .getJobConfDb().getJob(StateSearchKey.SUCCESS);
             return jobConf != null;

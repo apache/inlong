@@ -113,6 +113,7 @@ public class ManagerResultFormatter {
         job.setSource(DEFAULT_SOURCE);
         job.setSink(DEFAULT_BUS_SINK);
         job.setId(dataConfigs.getTaskId());
+        job.setTimeOffset(dataConfigs.getTimeOffset());
         job.setOp(dataConfigs.getOp());
         job.setDeliveryTime(dataConfigs.getDeliveryTime());
         if (!dataConfigs.getAdditionalAttr().isEmpty()) {
