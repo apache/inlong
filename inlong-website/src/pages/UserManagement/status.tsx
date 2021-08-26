@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 
 type StatusProp = {
@@ -29,12 +30,12 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '正常',
+    label: i18n.t('pages.UserManagement.status.Normal'),
     value: 'valid',
     type: 'success',
   },
   {
-    label: '失效',
+    label: i18n.t('pages.UserManagement.status.Fail'),
     value: 'invalid',
     type: 'error',
   },

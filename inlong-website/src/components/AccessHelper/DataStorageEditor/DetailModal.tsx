@@ -172,7 +172,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   return (
-    <Modal title={`${storageType}流向配置`} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title={storageType} width={1200} {...modalProps} onOk={onOk}>
       <FormGenerator
         name={name}
         labelCol={{ span: 4 }}

@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import i18n from '@/i18n';
+
 export interface MenuItemType {
   name: string;
   children?: MenuItemType[];
@@ -26,19 +28,19 @@ export interface MenuItemType {
 const menus: MenuItemType[] = [
   {
     path: '/access',
-    name: '数据接入',
+    name: i18n.t('configs.menus.DataAccess'),
   },
   {
     path: '/consume',
-    name: '数据消费',
+    name: i18n.t('configs.menus.DataConsumption'),
   },
   {
     path: '/approvals',
-    name: '审批管理',
+    name: i18n.t('configs.menus.ApprovalManagement'),
   },
   {
     path: '/user',
-    name: '系统管理',
+    name: i18n.t('configs.menus.SystemManagement'),
   },
 ];
 

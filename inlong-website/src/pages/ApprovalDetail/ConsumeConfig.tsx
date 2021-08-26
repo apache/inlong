@@ -19,13 +19,14 @@
 
 import React from 'react';
 import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { genBasicFields } from '@/components/ConsumeHelper';
 
 const getConsumerContent = initialValues => {
   return [
     {
       type: 'text',
-      label: '消费组',
+      label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
       name: 'consumerGroupId',
       initialValue: initialValues.consumerGroupId,
     },
@@ -36,7 +37,7 @@ const getConsumerContent = initialValues => {
     ),
     {
       type: 'text',
-      label: '消费Topic',
+      label: 'Topic',
       name: 'topic',
       initialValue: initialValues.topic,
     },

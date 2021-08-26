@@ -21,11 +21,13 @@ import React from 'react';
 import { Dropdown, Menu } from 'antd';
 import { useHistory, useSelector, useDispatch, useRequest } from '@/hooks';
 import { State } from '@/models';
+import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
-// import LocaleSelect from './LocaleSelect';
+import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const userName = useSelector<State, State['userName']>(state => state.userName);
   const history = useHistory();
   const dispatch = useDispatch();
@@ -46,7 +48,7 @@ const Comp: React.FC = () => {
 
   const menu = (
     <Menu>
-      <Menu.Item onClick={runLogout}>退出登录</Menu.Item>
+      <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
     </Menu>
   );
 
@@ -58,7 +60,7 @@ const Comp: React.FC = () => {
             <FileTextOutlined />
           </a>
         </Tooltip> */}
-        {/* <LocaleSelect /> */}
+        <LocaleSelect />
       </span>
       <Dropdown overlay={menu} placement="bottomLeft">
         <span>{userName}</span>

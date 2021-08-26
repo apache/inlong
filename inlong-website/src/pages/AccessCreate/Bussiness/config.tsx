@@ -19,20 +19,33 @@
 
 import React from 'react';
 import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { genBussinessFields } from '@/components/AccessHelper';
 
 export const getFormContent = ({ changedValues, isUpdate }) =>
   [
     {
-      type: <Divider orientation="left">业务信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.Bussiness.config.BusinessInformation')}
+        </Divider>
+      ),
     },
     ...genBussinessFields(['name', 'cnName', 'inCharges', 'description'], changedValues),
     {
-      type: <Divider orientation="left">接入要求</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.Bussiness.config.AccessRequirements')}
+        </Divider>
+      ),
     },
     ...genBussinessFields(['middlewareType']),
     {
-      type: <Divider orientation="left">接入规模</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.Bussiness.config.AccessScale')}
+        </Divider>
+      ),
     },
     ...genBussinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']),
   ].map(item => {

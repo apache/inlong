@@ -20,6 +20,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Spin, Tag } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
+import { useTranslation } from 'react-i18next';
 import { State } from '@/models';
 import { useRequest, useSelector } from '@/hooks';
 import debounce from 'lodash/debounce';
@@ -69,6 +70,8 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
   currentUserClosable = true,
   ...rest
 }) => {
+  const { t } = useTranslation();
+
   const { userName } = useSelector<State, State>(state => state);
 
   const [currentValue, setCurrentValue] = useState<string | string[]>(value);
@@ -130,7 +133,7 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
 
   return (
     <Select
-      placeholder="请输入关键字搜索"
+      placeholder={t('components.StaffSelect.Placeholder')}
       showSearch
       allowClear
       {...rest}

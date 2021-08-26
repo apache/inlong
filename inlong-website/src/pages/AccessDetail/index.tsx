@@ -21,12 +21,14 @@ import React, { useMemo, useState, useRef } from 'react';
 import { Tabs } from 'antd';
 import { PageContainer } from '@/components/PageContainer';
 import { useParams, useRequest } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import Info from './Info';
 import DataSources from './DataSources';
 import DataStream from './DataStream';
 import DataStorage from './DataStorage';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
 
   const { data } = useRequest(`/business/get/${id}`, {
@@ -41,35 +43,35 @@ const Comp: React.FC = () => {
     () =>
       [
         {
-          label: '业务信息',
+          label: t('pages.AccessDetail.Bussiness'),
           value: 'bussinessInfo',
           content: Info,
         },
         {
-          label: '数据流',
+          label: t('pages.AccessDetail.DataStreams'),
           value: 'dataStream',
           content: DataStream,
         },
         {
-          label: '数据源',
+          label: t('pages.AccessDetail.DataSources'),
           value: 'dataSources',
           content: DataSources,
           hidden: isReadonly,
         },
         {
-          label: '流向',
+          label: t('pages.AccessDetail.DataStorages'),
           value: 'dataStorage',
           content: DataStorage,
           hidden: isReadonly,
         },
       ].filter(item => !item.hidden),
-    [isReadonly],
+    [isReadonly, t],
   );
 
   const [actived, setActived] = useState(list[0].value);
 
   return (
-    <PageContainer breadcrumb={[{ name: `业务详情${id}` }]}>
+    <PageContainer breadcrumb={[{ name: `${t('pages.AccessDetail.BussinessDetail')}${id}` }]}>
       <Tabs
         activeKey={actived}
         onChange={val => setActived(val)}

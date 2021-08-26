@@ -17,7 +17,9 @@
  * under the License.
  */
 
-export const showTotal = (total: number) => `共${total}项`;
+import i18n from '@/i18n';
+
+export const showTotal = (total: number) => i18n.t('configs.pagination.Total', { total });
 
 const paginationConf = {
   showQuickJumper: true,

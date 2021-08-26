@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Button } from 'antd';
+import i18n from '@/i18n';
 import { genStatusTag } from './status';
 import { timestampFormat } from '@/utils';
 
@@ -26,47 +27,47 @@ export const getFilterFormContent = () => [
   {
     type: 'inputsearch',
     name: 'keyword',
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
 ];
 
 export const getColumns = ({ onEdit, onDelete }) => {
   return [
     {
-      title: '用户名称',
+      title: i18n.t('pages.UserManagement.config.UserName'),
       dataIndex: 'name',
     },
     {
-      title: '帐号角色',
+      title: i18n.t('pages.UserManagement.config.AccountRole'),
       dataIndex: 'accountType',
-      render: text => (text === 0 ? '系统管理员' : '普通用户'),
+      render: text =>
+        text === 0
+          ? i18n.t('pages.UserManagement.config.Admin')
+          : i18n.t('pages.UserManagement.config.GeneralUser'),
     },
     {
-      title: '创建人',
+      title: i18n.t('pages.UserManagement.config.Creater'),
       dataIndex: 'createBy',
     },
     {
-      title: '创建时间',
+      title: i18n.t('pages.UserManagement.config.CreateTime'),
       dataIndex: 'createTime',
       render: text => text && timestampFormat(text),
     },
     {
-      title: '状态',
+      title: i18n.t('basic.Status'),
       dataIndex: 'status',
       render: text => genStatusTag(text),
     },
     {
-      title: '操作',
+      title: i18n.t('basic.Operating'),
       dataIndex: 'action',
       render: (text, record) => (
         <>
           <Button type="link" onClick={() => onEdit(record)}>
-            编辑
+            {i18n.t('basic.Edit')}
           </Button>
           <Button type="link" onClick={() => onDelete(record)}>
-            删除
+            {i18n.t('basic.Delete')}
           </Button>
         </>
       ),

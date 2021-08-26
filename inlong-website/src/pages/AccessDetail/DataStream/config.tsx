@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { genDataFields } from '@/components/AccessHelper';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
@@ -26,9 +27,6 @@ export const getFilterFormContent = (defaultValues = {} as any) => [
     type: 'inputsearch',
     name: 'keyWord',
     initialValue: defaultValues.keyWord,
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
 ];
 
@@ -36,24 +34,24 @@ export const genExtraContent = ({ editingId, record, onSave, onCancel, onEdit, o
   return editingId === record.id || (editingId === true && !record.id)
     ? [
         {
-          label: '保存',
+          label: i18n.t('pages.AccessDetail.DataStream.Config.Save'),
           onRun: onSave,
           disabled: false,
         },
         {
-          label: '取消',
+          label: i18n.t('pages.AccessDetail.DataStream.Config.Cancel'),
           onRun: onCancel,
           disabled: false,
         },
       ]
     : [
         {
-          label: '编辑',
+          label: i18n.t('basic.Edit'),
           onRun: onEdit,
           disabled: editingId,
         },
         {
-          label: '删除',
+          label: i18n.t('basic.Delete'),
           onRun: onDelete,
           disabled: editingId,
         },
@@ -71,7 +69,9 @@ export const genFormContent = (editingId, currentValues, businessIdentifier, rea
 
   return [
     {
-      type: <Divider orientation="left">基础信息</Divider>,
+      type: (
+        <Divider orientation="left">{i18n.t('pages.AccessCreate.DataStream.config.Basic')}</Divider>
+      ),
     },
     ...genDataFields(
       ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
@@ -79,11 +79,19 @@ export const genFormContent = (editingId, currentValues, businessIdentifier, rea
       extraParams,
     ),
     {
-      type: <Divider orientation="left">数据来源</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataSourceType', 'dataSourcesConfig'], currentValues, extraParams),
     {
-      type: <Divider orientation="left">数据信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+        </Divider>
+      ),
     },
     ...genDataFields(
       ['dataType', 'dataEncoding', 'fileDelimiter', 'rowTypeFields'],
@@ -91,7 +99,11 @@ export const genFormContent = (editingId, currentValues, businessIdentifier, rea
       extraParams,
     ),
     {
-      type: <Divider orientation="left">数据流向</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataStorage', 'dataStorageHIVE'], currentValues, extraParams),
   ].map(item => {

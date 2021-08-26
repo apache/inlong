@@ -76,7 +76,7 @@ const PageContainer: React.FC<PageContainerProps> = ({
       style={style}
       header={{
         title: '',
-        breadcrumb: {
+        breadcrumb: breadcrumbData?.length && {
           routes: breadcrumbData.map(item => ({
             path: item.path,
             breadcrumbName: item.name,

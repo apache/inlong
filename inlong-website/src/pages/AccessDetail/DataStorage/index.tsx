@@ -22,6 +22,7 @@ import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
+import i18n from '@/i18n';
 import { DataStorageDetailModal, dataStorageHiveColumns } from '@/components/AccessHelper';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -33,14 +34,11 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
     name: 'keyWord',
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
   {
     type: 'select',
     name: 'storageType',
-    label: '类型',
+    label: i18n.t('pages.AccessDetail.DataStorage.Type'),
     initialValue: defaultValues.storageType,
     props: {
       dropdownMatchSelectWidth: false,
@@ -88,7 +86,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
         pageNum: 1,
         pageSize: 1000,
         bid,
-        dataStorageType: options.storageType,
+        storageType: options.storageType,
       },
     },
     {
@@ -113,7 +111,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
       data: submitData,
     });
     await getList();
-    message.success('保存成功');
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   const onEdit = ({ id }) => {
@@ -122,7 +120,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/storage/delete/${id}`,
@@ -132,7 +130,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
           },
         });
         await getList();
-        message.success('删除成功');
+        message.success(i18n.t('basic.DeleteSuccess'));
       },
     });
   };
@@ -167,10 +165,10 @@ const Comp: React.FC<Props> = ({ bid }) => {
     () => [
       {
         type: 'select',
-        label: '数据流',
+        label: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
         name: 'dataStreamIdentifier',
         props: {
-          notFoundContent: '暂无可用数据流，请先创建新数据流',
+          notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
           disabled: !!createModal.id,
           options: datastreamList.map(item => ({
             label: item.dataStreamIdentifier,
@@ -189,27 +187,27 @@ const Comp: React.FC<Props> = ({ bid }) => {
 
   const columns = [
     {
-      title: '数据流',
+      title: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
       dataIndex: 'dataStreamIdentifier',
     },
   ]
     .concat(columnsMap[options.storageType])
     .concat([
       {
-        title: '状态',
+        title: i18n.t('basic.Status'),
         dataIndex: 'status',
         render: text => genStatusTag(text),
       },
       {
-        title: '操作',
+        title: i18n.t('basic.Operating'),
         dataIndex: 'action',
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
-              编辑
+              {i18n.t('basic.Edit')}
             </Button>
             <Button type="link" onClick={() => onDelete(record)}>
-              删除
+              {i18n.t('basic.Delete')}
             </Button>
           </>
         ),
@@ -225,7 +223,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
         }}
         suffix={
           <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            新建流向配置
+            {i18n.t('pages.AccessDetail.DataStorage.New')}
           </Button>
         }
         table={{

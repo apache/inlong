@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 import { ClockCircleFilled } from '@/components/Icons';
 
@@ -30,23 +31,23 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '新建',
+    label: i18n.t('pages.AccessDetail.DataStorage.Status.New'),
     value: 100,
     type: 'default',
     icon: <ClockCircleFilled />,
   },
   {
-    label: '配置中',
+    label: i18n.t('pages.AccessDetail.DataStorage.Status.Pending'),
     value: 110,
     type: 'primary',
   },
   {
-    label: '配置失败',
+    label: i18n.t('pages.AccessDetail.DataStorage.Status.Error'),
     value: 120,
     type: 'error',
   },
   {
-    label: '配置成功',
+    label: i18n.t('pages.AccessDetail.DataStorage.Status.Success'),
     value: 130,
     type: 'success',
   },

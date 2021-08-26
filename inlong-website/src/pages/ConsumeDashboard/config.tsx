@@ -20,6 +20,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';
+import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import {
   statusList,
@@ -31,22 +32,22 @@ import { timestampFormat } from '@/utils';
 
 export const dashCardList = [
   {
-    desc: '消费总数',
+    desc: i18n.t('pages.ConsumeDashboard.config.Total'),
     dataIndex: 'totalCount',
     icon: <DashTotal />,
   },
   {
-    desc: '待分配',
+    desc: i18n.t('pages.ConsumeDashboard.config.Pending'),
     dataIndex: 'waitingAssignCount',
     icon: <DashToBeAssigned />,
   },
   {
-    desc: '待审批',
+    desc: i18n.t('pages.ConsumeDashboard.config.BeAllocated'),
     dataIndex: 'waitingApproveCount',
     icon: <DashPending />,
   },
   {
-    desc: '已驳回',
+    desc: i18n.t('pages.ConsumeDashboard.config.Reject'),
     dataIndex: 'rejectedCount',
     icon: <DashRejected />,
   },
@@ -57,13 +58,10 @@ export const getFilterFormContent = defaultValues =>
     {
       type: 'inputsearch',
       name: 'keyword',
-      props: {
-        placeholder: '请输入关键词',
-      },
     },
     {
       type: 'select',
-      label: '申请状态',
+      label: i18n.t('pages.ConsumeDashboard.config.ApplicationStatus'),
       name: 'status',
       initialValue: defaultValues.status,
       props: {
@@ -73,7 +71,7 @@ export const getFilterFormContent = defaultValues =>
     },
     {
       type: 'select',
-      label: '运行状态',
+      label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
       name: 'lastConsumerStatus',
       initialValue: defaultValues.lastConsumerStatusList,
       props: {
@@ -105,57 +103,57 @@ export const getColumns = ({ onDelete }) => {
 
   return [
     {
-      title: '消费Topic',
+      title: 'Topic',
       dataIndex: 'topic',
       width: 180,
       render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link>,
     },
     {
-      title: '消费组',
+      title: i18n.t('pages.ConsumeDashboard.config.ConsumerGroup'),
       dataIndex: 'consumerGroupId',
       width: 180,
     },
     {
-      title: '消息中间件',
+      title: i18n.t('pages.ConsumeDashboard.config.Middleware'),
       dataIndex: 'middlewareType',
       width: 120,
     },
     {
-      title: '消费业务ID',
+      title: i18n.t('pages.ConsumeDashboard.config.ConsumerBusinessID'),
       dataIndex: 'businessIdentifier',
     },
     {
-      title: '最近消费时间',
+      title: i18n.t('pages.ConsumeDashboard.config.RecentConsumptionTime'),
       dataIndex: 'lastConsumerTime',
       render: text => text && timestampFormat(text),
     },
     {
-      title: '申请状态',
+      title: i18n.t('pages.ConsumeDashboard.config.ApplicationStatus'),
       dataIndex: 'status',
       render: text => genStatusTag(text),
       width: 120,
     },
     {
-      title: '运行状态',
+      title: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
       dataIndex: 'lastConsumerStatus',
       render: text => text && genLastConsumerStatusTag(text),
       width: 120,
     },
     {
-      title: '操作',
+      title: i18n.t('basic.Operating'),
       dataIndex: 'action',
       render: (text, record) => (
         <>
           <Button type="link">
-            <Link to={genDetailUrl(record)}>详情</Link>
+            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
           </Button>
           {[20, 22].includes(record?.status) && (
             <Button type="link">
-              <Link to={genCreateUrl(record)}>修改</Link>
+              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
             </Button>
           )}
           <Button type="link" onClick={() => onDelete(record)}>
-            删除
+            {i18n.t('basic.Delete')}
           </Button>
         </>
       ),

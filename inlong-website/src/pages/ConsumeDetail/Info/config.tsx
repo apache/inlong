@@ -19,12 +19,13 @@
 
 import React from 'react';
 import { genBasicFields } from '@/components/ConsumeHelper';
+import i18n from '@/i18n';
 
 export const getFormContent = ({ editing, initialValues, bussinessData }) =>
   [
     {
       type: 'text',
-      label: '消费组ID',
+      label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
       name: 'consumerGroupId',
       rules: [{ required: true }],
     },

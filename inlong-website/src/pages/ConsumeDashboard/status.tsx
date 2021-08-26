@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 import { ClockCircleFilled } from '@/components/Icons';
 
@@ -30,28 +31,28 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '待分配',
+    label: i18n.t('pages.ConsumeDashboard.config.BeAllocated'),
     value: 10,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: '待审批',
+    label: i18n.t('pages.Approvals.status.Processing'),
     value: 11,
     type: 'warning',
   },
   {
-    label: '已驳回',
+    label: i18n.t('pages.Approvals.status.Rejected'),
     value: 20,
     type: 'error',
   },
   {
-    label: '已通过',
+    label: i18n.t('pages.Approvals.status.Ok'),
     value: 21,
     type: 'success',
   },
   {
-    label: '已取消',
+    label: i18n.t('pages.Approvals.status.Canceled'),
     value: 22,
     type: 'error',
   },
@@ -67,22 +68,22 @@ export const statusMap = statusList.reduce(
 
 export const lastConsumerStatusList: StatusProp[] = [
   {
-    label: '正常',
+    label: i18n.t('pages.ConsumeDashboard.status.Normal'),
     value: 0,
     type: 'success',
   },
   {
-    label: '异常',
+    label: i18n.t('pages.ConsumeDashboard.status.Abnormal'),
     value: 1,
     type: 'error',
   },
   {
-    label: '屏蔽',
+    label: i18n.t('pages.ConsumeDashboard.status.Shield'),
     value: 2,
     type: 'warning',
   },
   {
-    label: '暂无',
+    label: i18n.t('pages.ConsumeDashboard.status.NoStatus'),
     value: 3,
     type: 'default',
     icon: <ClockCircleFilled />,

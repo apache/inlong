@@ -19,19 +19,48 @@
 
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { getCurrentLocale } from '@/configs/locales';
 import { isDevelopEnv } from '@/utils';
 
+const resources = {
+  en: {
+    translation: {
+      'configs.menus.ApprovalManagement': 'Approval',
+      'configs.menus.DataAccess': 'Data Access',
+      'configs.menus.DataConsumption': 'Data Consumption',
+      'configs.menus.SystemManagement': 'System',
+    },
+  },
+  cn: {
+    translation: {
+      'configs.menus.ApprovalManagement': '审批管理',
+      'configs.menus.DataAccess': '数据接入',
+      'configs.menus.DataConsumption': '数据消费',
+      'configs.menus.SystemManagement': '系统管理',
+    },
+  },
+};
+
 i18n
+  // .use(lngDetector)
   // pass the i18n instance to react-i18next.
   .use(initReactI18next)
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
     fallbackLng: 'en',
+    resources,
+    lng: getCurrentLocale(),
     debug: isDevelopEnv(),
 
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
+    },
+
+    react: {
+      wait: true,
+      useSuspense: false,
+      bindI18n: 'languageChanged loaded',
     },
   });
 

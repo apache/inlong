@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 import { CloseCircleFilled } from '@/components/Icons';
 
@@ -30,28 +31,28 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '已完成',
+    label: i18n.t('pages.Approvals.status.Completed'),
     value: 'COMPLETED',
     type: 'success',
   },
   {
-    label: '待审批',
+    label: i18n.t('pages.Approvals.status.Processing'),
     value: 'PROCESSING',
     type: 'warning',
   },
   {
-    label: '已驳回',
+    label: i18n.t('pages.Approvals.status.Rejected'),
     value: 'REJECTED',
     type: 'error',
   },
   {
-    label: '已取消',
+    label: i18n.t('pages.Approvals.status.Canceled'),
     value: 'CANCELED',
     type: 'default',
     icon: <CloseCircleFilled />,
   },
   {
-    label: '已终止',
+    label: i18n.t('pages.Approvals.status.HaveTerminated'),
     value: 'TERMINATED',
     type: 'error',
   },

@@ -21,12 +21,13 @@ import React from 'react';
 import StaffSelect from '../../StaffSelect';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
+import i18n from '@/i18n';
 
 export default (names: string[], currentValues: Record<string, unknown> = {}): FormItemProps[] => {
   const fields: FormItemProps[] = [
     {
       type: 'text',
-      label: '业务ID',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessID'),
       name: 'businessIdentifier',
       initialValue: currentValues.businessIdentifier,
     },
@@ -39,20 +40,25 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'input',
-      label: '业务英文名称',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessEnglishName'),
       name: 'name',
       props: {
         maxLength: 32,
       },
       rules: [
         { required: true },
-        { pattern: /^[a-z_\d]+$/, message: '仅限小写字⺟、数字和下划线' },
+        {
+          pattern: /^[a-z_\d]+$/,
+          message: i18n.t(
+            'components.AccessHelper.FieldsConfig.bussinessFields.BusinessEnglishNameRules',
+          ),
+        },
       ],
       initialValue: currentValues.name,
     },
     {
       type: 'input',
-      label: '业务中文名称',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessLabelName'),
       name: 'cnName',
       props: {
         maxLength: 32,
@@ -62,15 +68,24 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: '业务责任人',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwners'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
-      rules: [{ required: true, type: 'array', min: 2, message: '请填写至少2个责任人' }],
-      extra: '至少2人，业务责任人可查看、修改业务信息，新增和修改所有接入配置项',
+      rules: [
+        {
+          required: true,
+          type: 'array',
+          min: 2,
+          message: i18n.t(
+            'components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwnersLimit',
+          ),
+        },
+      ],
+      extra: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwnersExtra'),
     },
     {
       type: 'textarea',
-      label: '业务介绍',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessIntroduction'),
       name: 'description',
       props: {
         showCount: true,
@@ -81,14 +96,14 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'radio',
-      label: '消息中间件选型',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.MessageMiddleware'),
       name: 'middlewareType',
       initialValue: currentValues.middlewareType ?? 'TUBE',
       rules: [{ required: true }],
       props: {
         options: [
           {
-            label: '⾼吞吐（TUBE）',
+            label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.Tube'),
             value: 'TUBE',
           },
         ],
@@ -96,11 +111,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: '按天接入条数',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.NumberOfAccess'),
       name: 'dailyRecords',
       initialValue: currentValues.dailyRecords,
       rules: [{ required: true }],
-      suffix: '万条/天',
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.thousand/day'),
       props: {
         min: 1,
         precision: 0,
@@ -108,11 +123,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: '按天接入大小',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.AccessSize'),
       name: 'dailyStorage',
       initialValue: currentValues.dailyStorage,
       rules: [{ required: true }],
-      suffix: 'GB/天',
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.GB/Day'),
       props: {
         min: 1,
         precision: 0,
@@ -120,11 +135,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: '每秒接入峰值',
+      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.AccessPeakPerSecond'),
       name: 'peakRecords',
       initialValue: currentValues.peakRecords,
       rules: [{ required: true }],
-      suffix: '条/秒',
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.Stripe/Second'),
       props: {
         min: 1,
         precision: 0,
@@ -132,7 +147,9 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: '单条最大长度',
+      label: i18n.t(
+        'components.AccessHelper.FieldsConfig.bussinessFields.SingleStripMaximumLength',
+      ),
       name: 'maxLength',
       initialValue: currentValues.maxLength,
       rules: [{ required: true }],

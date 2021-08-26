@@ -22,6 +22,7 @@ import { Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import { getCreateFormContent as getFileCreateFormContent } from './FileConfig';
 import { getCreateFormContent as getDbCreateFormContent } from './DbConfig';
 
@@ -37,6 +38,7 @@ export interface Props extends ModalProps {
 
 const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
   const [form] = useForm();
+  const { t } = useTranslation();
 
   const onOk = async () => {
     const values = await form.validateFields();
@@ -73,7 +75,13 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   return (
     <>
-      <Modal {...modalProps} title={`${type === 'DB' ? 'DB' : '文件'}数据源`} onOk={onOk}>
+      <Modal
+        {...modalProps}
+        title={
+          type === 'DB' ? 'DB' : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
+        }
+        onOk={onOk}
+      >
         <FormGenerator content={content.concat(getCreateFormContent())} form={form} useMaxWidth />
       </Modal>
     </>

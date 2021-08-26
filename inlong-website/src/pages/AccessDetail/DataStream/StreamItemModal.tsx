@@ -22,6 +22,7 @@ import { Divider, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect } from '@/hooks';
+import i18n from '@/i18n';
 import { genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
 import { valuesToData } from '@/pages/AccessCreate/DataStream/helper';
@@ -39,7 +40,9 @@ export const genFormContent = (currentValues, businessIdentifier) => {
 
   return [
     {
-      type: <Divider orientation="left">基础信息</Divider>,
+      type: (
+        <Divider orientation="left">{i18n.t('pages.AccessCreate.DataStream.config.Basic')}</Divider>
+      ),
     },
     ...genDataFields(
       ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
@@ -47,11 +50,19 @@ export const genFormContent = (currentValues, businessIdentifier) => {
       extraParams,
     ),
     {
-      type: <Divider orientation="left">数据来源</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataSourceType'], currentValues, extraParams),
     {
-      type: <Divider orientation="left">数据信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataType', 'rowTypeFields'], currentValues, extraParams),
   ].map(item => {
@@ -90,7 +101,7 @@ const Comp: React.FC<Props> = ({ bid, record, ...modalProps }) => {
       data: submitData?.[0],
     });
     await modalProps?.onOk(values);
-    message.success('保存成功');
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   useUpdateEffect(() => {
@@ -104,7 +115,12 @@ const Comp: React.FC<Props> = ({ bid, record, ...modalProps }) => {
   }, [modalProps.visible]);
 
   return (
-    <Modal {...modalProps} title="数据流配置" width={1000} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={i18n.t('pages.AccessDetail.DataStream.StreamItemModal.DataFlowConfiguration')}
+      width={1000}
+      onOk={onOk}
+    >
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}

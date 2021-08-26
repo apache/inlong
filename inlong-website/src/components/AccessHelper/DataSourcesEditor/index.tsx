@@ -19,6 +19,7 @@
 
 import React, { useState } from 'react';
 import { Button, Table, Modal, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { useUpdateEffect, usePrevious } from '@/hooks';
 import { tableColumns as dbColumns } from './DbConfig';
@@ -62,6 +63,8 @@ const Comp = ({
   businessIdentifier,
   dataStreamIdentifier,
 }: DataSourcesEditorProps) => {
+  const { t } = useTranslation();
+
   const [data, setData] = useState(addIdToValues(value) || []);
   const previousType = usePrevious(type);
 
@@ -110,14 +113,14 @@ const Comp = ({
   const onDeleteRequest = id => {
     return new Promise(resolve => {
       Modal.confirm({
-        title: '确认删除吗',
+        title: t('basic.DeleteConfirm'),
         onOk: async () => {
           await request({
             url: `/datasource/${type.toLowerCase()}/deleteDetail/${id}`,
             method: 'DELETE',
           });
           resolve(true);
-          message.success('删除成功');
+          message.success(t('DeleteSuccess'));
         },
       });
     });
@@ -160,16 +163,16 @@ const Comp = ({
       ? []
       : [
           {
-            title: '操作',
+            title: t('basic.Operating'),
             dataIndex: 'actions',
             width: 120,
             render: (text, record) => (
               <>
                 <Button type="link" onClick={() => onEditRow(record)}>
-                  编辑
+                  {t('basic.Edit')}
                 </Button>
                 <Button type="link" onClick={() => onDeleteRow(record)}>
-                  删除
+                  {t('basic.Delete')}
                 </Button>
               </>
             ),
@@ -191,7 +194,7 @@ const Comp = ({
             : () => (
                 <>
                   <Button type="link" onClick={() => setCreateModal({ visible: true })}>
-                    新建数据源
+                    {t('components.AccessHelper.DataSourcesEditor.NewDataSource')}
                   </Button>
                 </>
               )

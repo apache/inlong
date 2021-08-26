@@ -24,17 +24,18 @@ import { PageContainer, Container } from '@/components/PageContainer';
 import { DashTotalRevert, DashPending, DashRejected, DashCancelled } from '@/components/Icons';
 import { DashboardCardList } from '@/components/DashboardCard';
 import { useRequest, useHistory, useLocation } from '@/hooks';
+import i18n from '@/i18n';
 import Applies, { activedName as AppliesActivedName } from './Applies';
 import Approvals, { activedName as ApprovalsActivedName } from './Approvals';
 
 const list = [
   {
-    label: '我的申请',
+    label: i18n.t('pages.Approvals.MyApplication'),
     value: AppliesActivedName,
     content: <Applies />,
   },
   {
-    label: '我的审批',
+    label: i18n.t('pages.Approvals.MyApproval'),
     value: ApprovalsActivedName,
     content: <Approvals />,
   },
@@ -42,22 +43,22 @@ const list = [
 
 const dashCardList = [
   {
-    desc: '审批通过',
+    desc: i18n.t('pages.Approvals.status.Ok'),
     dataIndex: 'totalApproveCount',
     icon: <DashTotalRevert />,
   },
   {
-    desc: '已驳回',
+    desc: i18n.t('pages.Approvals.status.Rejected'),
     dataIndex: 'totalRejectCount',
     icon: <DashRejected />,
   },
   {
-    desc: '待审批',
+    desc: i18n.t('pages.Approvals.status.Processing'),
     dataIndex: 'totalProcessingCount',
     icon: <DashPending />,
   },
   {
-    desc: '已取消',
+    desc: i18n.t('pages.Approvals.status.Canceled'),
     dataIndex: 'totalCancelCount',
     icon: <DashCancelled />,
   },

@@ -20,6 +20,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Space } from 'antd';
 import type { InputProps } from 'antd/es/input';
+import { useTranslation } from 'react-i18next';
 import MyBussinessModal from './MyBussinessModal';
 
 export interface Props extends Omit<InputProps, 'onChange'> {
@@ -29,6 +30,8 @@ export interface Props extends Omit<InputProps, 'onChange'> {
 }
 
 const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
+  const { t } = useTranslation();
+
   const [data, setData] = useState(value);
 
   const [myBussinessModal, setMyBussinessModal] = useState({
@@ -63,7 +66,7 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
       <Space>
         <Input value={data} onChange={e => onTextChange(e.target.value)} {...rest} />
         <Button type="link" onClick={() => setMyBussinessModal({ visible: true })}>
-          查询
+          {t('components.ConsumeHelper.BussinessSelect.Search')}
         </Button>
       </Space>
 
