@@ -47,6 +47,12 @@
         from data_proxy_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="selectAll" resultType="org.apache.inlong.manager.dao.entity.DataProxyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_proxy_cluster
+        where is_deleted = 0
+    </select>
     <select id="selectByCondition" resultType="org.apache.inlong.manager.dao.entity.DataProxyClusterEntity"
             parameterType="org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest">
         select
@@ -64,6 +70,7 @@
         </where>
         order by modify_time desc
     </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from data_proxy_cluster
@@ -260,13 +267,4 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <select id="queryDataProxyListByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from data_proxy_cluster
-        where id in
-        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
 </mapper>

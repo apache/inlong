@@ -18,19 +18,17 @@
 package org.apache.inlong.manager.common.pojo.dataproxy;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 @ApiModel("DataProxy IP request param")
 public class DataProxyIpRequest {
 
-    String clusterId;
-    String netTag;
-    String businessId;
-    String tid;
-    String type;
+    @ApiModelProperty(value = "local ip of the data proxy")
     String ip = "";
-    boolean snQuerySwitch;
-    String interfaceIdList;
+
+    @ApiModelProperty(value = "net tag of the data proxy, default: all")
+    String netTag;
 
 }

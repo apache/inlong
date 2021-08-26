@@ -17,64 +17,24 @@
 
 package org.apache.inlong.manager.common.pojo.dataproxy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
-import java.util.List;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel("DataProxy IP response param")
+@ApiModel("DataProxy IP response")
 public class DataProxyIpResponse {
 
-    private String businessId;
-    private int clusterId;
-    private int size;
-    private int load;
-    private int isInterVisit;
+    @ApiModelProperty(value = "cluster id")
+    private Integer id;
+
+    @ApiModelProperty(value = "cluster instance ip")
+    private String ip;
+
+    @ApiModelProperty(value = "cluster instance port")
+    private String port;
+
+    @ApiModelProperty(value = "cluster ip type, default: all")
     private String netTag;
-    @SerializedName("switch")
-    @JsonProperty("switch")
-    private int switchX;
-    private List<AddressBean> address;
 
-    public static class AddressBean {
-
-        private String port;
-        private String host;
-        private Integer id;
-        private String netTag;
-
-        public String getPort() {
-            return port;
-        }
-
-        public void setPort(String port) {
-            this.port = port;
-        }
-
-        public String getHost() {
-            return host;
-        }
-
-        public void setHost(String host) {
-            this.host = host;
-        }
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public String getNetTag() {
-            return netTag;
-        }
-
-        public void setNetTag(String netTag) {
-            this.netTag = netTag;
-        }
-    }
 }
