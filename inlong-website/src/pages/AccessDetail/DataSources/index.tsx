@@ -27,6 +27,7 @@ import {
   dataSourcesFileColumns,
   DataSourcesCreateModal,
 } from '@/components/AccessHelper';
+import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { genStatusTag } from './status';
@@ -37,20 +38,17 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
     name: 'keyWord',
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
   {
     type: 'radiobutton',
     name: 'type',
-    label: '类型',
+    label: i18n.t('pages.AccessDetail.DataSources.Type'),
     initialValue: defaultValues.type,
     props: {
       buttonStyle: 'solid',
       options: [
         {
-          label: '文件',
+          label: i18n.t('pages.AccessDetail.DataSources.File'),
           value: 'file',
         },
         // {
@@ -103,7 +101,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
       data: submitData,
     });
     await getList();
-    message.success('保存成功');
+    message.success(i18n.t('pages.AccessDetail.DataSources.SaveSuccessfully'));
   };
 
   const onEdit = ({ id }) => {
@@ -112,14 +110,14 @@ const Comp: React.FC<Props> = ({ bid }) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: i18n.t('pages.AccessDetail.DataSources.DeletConfirm'),
       onOk: async () => {
         await request({
           url: `/datasource/${options.type}/deleteDetail/${id}`,
           method: 'DELETE',
         });
         await getList();
-        message.success('删除成功');
+        message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
       },
     });
   };
@@ -148,7 +146,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
 
   const columns = [
     {
-      title: '数据流',
+      title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
       dataIndex: 'dataStreamIdentifier',
       width: 100,
     } as any,
@@ -156,20 +154,20 @@ const Comp: React.FC<Props> = ({ bid }) => {
     .concat(options.type === 'file' ? dataSourcesFileColumns : dataSourcesDbColumns)
     .concat([
       {
-        title: '状态',
+        title: i18n.t('basic.Status'),
         dataIndex: 'status',
         render: text => genStatusTag(text),
       },
       {
-        title: '操作',
+        title: i18n.t('basic.Operating'),
         dataIndex: 'action',
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
-              编辑
+              {i18n.t('basic.Edit')}
             </Button>
             <Button type="link" onClick={() => onDelete(record)}>
-              删除
+              {i18n.t('basic.Delete')}
             </Button>
           </>
         ),
@@ -179,10 +177,10 @@ const Comp: React.FC<Props> = ({ bid }) => {
   const createContent = [
     {
       type: 'select',
-      label: '数据流',
+      label: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
       name: 'dataStreamIdentifier',
       props: {
-        notFoundContent: '暂无可用数据流，请先创建新数据流',
+        notFoundContent: i18n.t('pages.AccessDetail.DataSources.NoDataStreams'),
         disabled: !!createModal.id,
         options: {
           requestService: {
@@ -217,7 +215,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
         }}
         suffix={
           <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            新建数据源
+            {i18n.t('pages.AccessDetail.DataSources.Create')}
           </Button>
         }
         table={{

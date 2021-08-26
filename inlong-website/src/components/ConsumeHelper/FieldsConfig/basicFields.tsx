@@ -21,6 +21,7 @@ import React from 'react';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
 import StaffSelect from '@/components/StaffSelect';
+import i18n from '@/i18n';
 import BussinessSelect from '../BussinessSelect';
 
 export default (
@@ -31,29 +32,38 @@ export default (
   const fields: FormItemProps[] = [
     {
       type: 'input',
-      label: '消费组名称',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupName'),
       name: 'consumerGroupName',
       initialValue: currentValues.consumerGroupName,
-      extra: '仅限小写字⺟、数字和下划线',
+      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules'),
       rules: [
         { required: true },
-        { pattern: /^[a-z_\d]+$/, message: '仅限小写字⺟、数字和下划线' },
+        {
+          pattern: /^[a-z_\d]+$/,
+          message: i18n.t(
+            'components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules',
+          ),
+        },
       ],
-      props: {
-        placeholder: '请输入',
-      },
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: '消费责任人',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Consumption'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
-      extra: '至少2人，责任人可查看、修改消费信息',
-      rules: [{ required: true, type: 'array', min: 2, message: '请填写至少2个责任人' }],
+      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.OwnersExtra'),
+      rules: [
+        {
+          required: true,
+          type: 'array',
+          min: 2,
+          message: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.OwnersRule'),
+        },
+      ],
     },
     {
       type: BussinessSelect,
-      label: '消费目标业务ID',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
       name: 'businessIdentifier',
       initialValue: currentValues.businessIdentifier,
       rules: [{ required: true }],
@@ -87,17 +97,17 @@ export default (
     },
     {
       type: 'radio',
-      label: '是否过滤消费',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.filterEnabled'),
       name: 'filterEnabled',
       initialValue: currentValues.filterEnabled ?? 0,
       props: {
         options: [
           {
-            label: '是',
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
             value: 1,
           },
           {
-            label: '否',
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
             value: 0,
           },
         ],
@@ -107,16 +117,16 @@ export default (
     },
     {
       type: 'input',
-      label: '消费数据流ID',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerDataStreamID'),
       name: 'dataStreamIdentifier',
       initialValue: currentValues.dataStreamIdentifier,
-      extra: '多个数据流ID之间用分号；隔开',
+      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.DataStreamIDsHelp'),
       rules: [{ required: true }],
       visible: values => bussinessDetail.middlewareType && values.filterEnabled,
     },
     {
       type: 'text',
-      label: 'Master地址',
+      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.MasterAddress'),
       name: 'masterUrl',
       initialValue: currentValues.masterUrl,
     },

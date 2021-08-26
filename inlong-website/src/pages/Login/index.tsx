@@ -20,25 +20,28 @@
 import React, { useState } from 'react';
 import { Input, Button } from 'antd';
 import { useDispatch, useHistory, useRequest } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import styles from './index.module.less';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const [form] = useForm();
   const dispatch = useDispatch();
   const history = useHistory();
+
   const config = [
     {
-      type: <Input placeholder="请输入用户名" />,
+      type: <Input placeholder={t('pages.Login.PleaseEnterUserName')} />,
       name: 'username',
-      rules: [{ required: true, message: '用户名不能为空' }],
+      rules: [{ required: true, message: t('pages.Login.UsernameCanNotBeEmpty') }],
     },
     {
-      type: <Input.Password placeholder="请输入密码" />,
+      type: <Input.Password placeholder={t('pages.Login.PleaseEnterYourPassword')} />,
       name: 'password',
       rules: [
-        { required: true, message: '密码不能为空' },
-        { pattern: /^[a-z_\d]+$/, message: '仅限小写字⺟、数字和下划线' },
+        { required: true, message: t('pages.Login.PasswordCanNotBeBlank') },
+        { pattern: /^[a-z_\d]+$/, message: t('pages.Login.OnlyLowercaseWords') },
       ],
     },
   ];
@@ -85,9 +88,9 @@ const Comp: React.FC = () => {
           />
         </div>
         <div className={styles['button-wrap']}>
-          <span className={styles['button-desc']}>请联系管理员重置</span>
+          <span className={styles['button-desc']}>{t('pages.Login.Reset')}</span>
           <Button type="primary" onClick={login}>
-            登录
+            {t('pages.Login.LogIn')}
           </Button>
         </div>
       </div>

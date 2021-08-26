@@ -21,6 +21,7 @@ import React from 'react';
 import { Button, message } from 'antd';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import request from '@/utils/request';
+import i18n from '@/i18n';
 import { fieldTypes } from '../FieldsConfig/sourceFields';
 
 // hiveFieldTypes
@@ -47,15 +48,15 @@ const hiveFieldTypes = [
 
 export const hiveTableColumns = [
   {
-    title: '目标库',
+    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Db'),
     dataIndex: 'dbName',
   },
   {
-    title: '目标表',
+    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.TargetTable'),
     dataIndex: 'tableName',
   },
   {
-    title: '用户名',
+    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Username'),
     dataIndex: 'username',
   },
   {
@@ -71,14 +72,14 @@ export const hiveTableColumns = [
 export const getHiveColumns = (dataType: string, storageType: string): ColumnsItemProps[] => [
   ...([
     {
-      title: '源字段名',
+      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldName'),
       dataIndex: 'sourceFieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: '以英文字母开头，只能包含英文字母、数字、下划线',
+          message: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.fieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -86,7 +87,7 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
       }),
     },
     {
-      title: '源字段类型',
+      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldType'),
       dataIndex: 'sourceFieldType',
       initialValue: fieldTypes[0].value,
       type: 'select',
@@ -97,14 +98,16 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
       }),
     },
     {
-      title: `${storageType}字段名`,
+      title: `${storageType}${i18n.t(
+        'components.AccessHelper.DataStorageEditor.hiveConfig.FieldName',
+      )}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: '以英文字母开头，只能包含英文字母、数字、下划线',
+          message: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.fieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -112,7 +115,9 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
       }),
     },
     {
-      title: `${storageType}字段类型`,
+      title: `${storageType}${i18n.t(
+        'components.AccessHelper.DataStorageEditor.hiveConfig.FieldType',
+      )}`,
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
@@ -122,7 +127,7 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
       rules: [{ required: true }],
     },
     {
-      title: '字段描述',
+      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -132,7 +137,7 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
 export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   {
     type: 'input',
-    label: '目标库',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Db'),
     name: 'dbName',
     rules: [{ required: true }],
     props: {
@@ -141,7 +146,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   },
   {
     type: 'input',
-    label: '目标表',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.TargetTable'),
     name: 'tableName',
     rules: [{ required: true }],
     props: {
@@ -151,7 +156,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   {
     type: 'input',
     name: 'primaryPartition',
-    label: '一级分区',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.First-levelPartition'),
     initialValue: 'dt',
     rules: [{ required: true }],
     props: {
@@ -160,7 +165,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   },
   {
     type: 'input',
-    label: '用户名',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Username'),
     name: 'username',
     rules: [{ required: true }],
     props: {
@@ -169,7 +174,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   },
   {
     type: 'password',
-    label: '用户密码',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Password'),
     name: 'password',
     rules: [{ required: true }],
     props: {
@@ -198,10 +203,16 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
             method: 'POST',
             data: values,
           });
-          res ? message.success('连接成功') : message.error('连接失败');
+          res
+            ? message.success(
+                i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionSucceeded'),
+              )
+            : message.error(
+                i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionFailed'),
+              );
         }}
       >
-        连接测试
+        {i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionTest')}
       </Button>
     ),
   },
@@ -217,7 +228,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
   },
   {
     type: 'input',
-    label: 'Warehouse路径',
+    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.WarehousePath'),
     name: 'warehouseDir',
     initialValue: '/user/hive/warehouse',
     props: {

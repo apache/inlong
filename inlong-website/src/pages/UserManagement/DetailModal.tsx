@@ -19,6 +19,7 @@
 import React from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
+import i18n from '@/i18n';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import request from '@/utils/request';
@@ -30,18 +31,18 @@ export interface Props extends ModalProps {
 const content = [
   {
     type: 'radio',
-    label: '帐号类型',
+    label: i18n.t('pages.UserManagement.config.AccountRole'),
     name: 'type',
     initialValue: 1,
     rules: [{ required: true }],
     props: {
       options: [
         {
-          label: '普通用户',
+          label: i18n.t('pages.UserManagement.config.GeneralUser'),
           value: 1,
         },
         {
-          label: '系统管理员',
+          label: i18n.t('pages.UserManagement.config.Admin'),
           value: 0,
         },
       ],
@@ -49,21 +50,21 @@ const content = [
   },
   {
     type: 'input',
-    label: '用户名称',
+    label: i18n.t('pages.UserManagement.config.UserName'),
     name: 'username',
     rules: [{ required: true }],
   },
   {
     type: 'password',
-    label: '用户密码',
+    label: i18n.t('pages.UserManagement.DetailModal.UserPassword'),
     name: 'password',
     rules: [{ required: true }],
   },
   {
     type: 'inputnumber',
-    label: '有效时长',
+    label: i18n.t('pages.UserManagement.DetailModal.EffectiveTime'),
     name: 'validDays',
-    suffix: '天',
+    suffix: i18n.t('pages.UserManagement.DetailModal.Day'),
     rules: [{ required: true }],
     props: {
       min: 1,
@@ -98,7 +99,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       data: values,
     });
     await modalProps?.onOk(values);
-    message.success('保存成功');
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   useUpdateEffect(() => {
@@ -109,7 +110,11 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   }, [modalProps.visible]);
 
   return (
-    <Modal {...modalProps} title={`${id ? '编辑' : '新建'}用户`} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={id ? i18n.t('basic.Edit') : i18n.t('pages.UserManagement.DetailModal.New')}
+      onOk={onOk}
+    >
       <FormGenerator
         content={id ? content.filter(item => item.name !== 'password') : content}
         form={form}

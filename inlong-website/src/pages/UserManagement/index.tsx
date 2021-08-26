@@ -22,12 +22,15 @@ import { Button, Card, Modal, message } from 'antd';
 import { PageContainer, Container } from '@/components/PageContainer';
 import HighTable from '@/components/HighTable';
 import { useRequest } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { defaultSize } from '@/configs/pagination';
 import DataSourcesCreateModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
+
   const [options, setOptions] = useState({
     // keyword: '',
     pageSize: defaultSize,
@@ -57,7 +60,7 @@ const Comp: React.FC = () => {
 
   const onDelete = async ({ id }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: '/user/delete',
@@ -67,7 +70,7 @@ const Comp: React.FC = () => {
           },
         });
         await getList();
-        message.success('删除成功');
+        message.success(t('basic.DeleteSuccess'));
       },
     });
   };
@@ -101,7 +104,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-                新建帐号
+                {t('pages.UserManagement.CreateAccount')}
               </Button>
             }
             filterForm={{

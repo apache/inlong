@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 import { ClockCircleFilled } from '@/components/Icons';
 
@@ -30,48 +31,48 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '草稿',
+    label: i18n.t('pages.AccessDetail.DataSources.status.Draft'),
     value: 0,
     type: 'default',
   },
   {
-    label: '新建',
+    label: i18n.t('pages.AccessDetail.DataSources.status.New'),
     value: 200,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: '已删除',
+    label: i18n.t('pages.AccessDetail.DataSources.status.Deleted'),
     value: 201,
     type: 'error',
   },
   {
-    label: '下发失败',
+    label: i18n.t('pages.AccessDetail.DataSources.status.Failure'),
     value: 61,
     type: 'error',
   },
   {
-    label: '配置失败',
+    label: i18n.t('pages.AccessDetail.DataSources.status.ConfigurationFailed'),
     value: 42,
     type: 'error',
   },
   {
-    label: '启动失败',
+    label: i18n.t('pages.AccessDetail.DataSources.status.FailedToActivate'),
     value: 52,
     type: 'error',
   },
   {
-    label: '正常',
+    label: i18n.t('pages.AccessDetail.DataSources.status.Success'),
     value: 11,
     type: 'success',
   },
   {
-    label: '移除配置',
+    label: i18n.t('pages.AccessDetail.DataSources.status.RemoveConfiguration'),
     value: 44,
     type: 'warning',
   },
   {
-    label: '不可用',
+    label: i18n.t('pages.AccessDetail.DataSources.status.Unavailable'),
     value: 15,
     type: 'error',
   },

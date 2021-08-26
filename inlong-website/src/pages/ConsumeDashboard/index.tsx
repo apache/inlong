@@ -23,11 +23,13 @@ import { PageContainer, Container } from '@/components/PageContainer';
 import HighTable from '@/components/HighTable';
 import { DashboardCardList } from '@/components/DashboardCard';
 import { useRequest, useHistory } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { defaultSize } from '@/configs/pagination';
 import { dashCardList, getFilterFormContent, getColumns } from './config';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
   const [options, setOptions] = useState({
     // keyword: '',
@@ -52,14 +54,14 @@ const Comp: React.FC = () => {
 
   const onDelete = async ({ id }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/consumption/delete/${id}`,
           method: 'DELETE',
         });
         await getList();
-        message.success('删除成功');
+        message.success(t('basic.DeleteSuccess'));
       },
     });
   };
@@ -102,7 +104,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => history.push('/consume/create')}>
-                新建消费
+                {t('pages.ConsumeDashboard.NewConsume')}
               </Button>
             }
             filterForm={{

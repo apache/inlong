@@ -19,28 +19,29 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { statusList, genStatusTag } from './status';
 import { Button } from 'antd';
 
 export const dashCardList = [
   {
-    desc: '接入总数',
+    desc: i18n.t('pages.AccessDashboard.config.Total'),
     dataIndex: 'totalCount',
     icon: <DashTotal />,
   },
   {
-    desc: '待分配',
+    desc: i18n.t('pages.AccessDashboard.config.WaitAssignCount'),
     dataIndex: 'waitAssignCount',
     icon: <DashToBeAssigned />,
   },
   {
-    desc: '待审批',
+    desc: i18n.t('pages.AccessDashboard.config.WaitApproveCount'),
     dataIndex: 'waitApproveCount',
     icon: <DashPending />,
   },
   {
-    desc: '已驳回',
+    desc: i18n.t('pages.AccessDashboard.config.Reject'),
     dataIndex: 'rejectCount',
     icon: <DashRejected />,
   },
@@ -53,12 +54,11 @@ export const getFilterFormContent = defaultValues => [
     initialValue: defaultValues.keyWord,
     props: {
       allowClear: true,
-      placeholder: '请输入关键词',
     },
   },
   {
     type: 'select',
-    label: '状态',
+    label: i18n.t('basic.Status'),
     name: 'status',
     initialValue: defaultValues.status,
     props: {
@@ -78,46 +78,46 @@ export const getColumns = ({ onDelete, openModal }) => {
 
   return [
     {
-      title: '业务ID',
+      title: 'Identifier',
       dataIndex: 'businessIdentifier',
       render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link>,
     },
     {
-      title: '业务名称',
+      title: i18n.t('pages.AccessDashboard.config.Name'),
       dataIndex: 'cnName',
     },
     {
-      title: '责任人',
+      title: i18n.t('pages.AccessDashboard.config.InCharges'),
       dataIndex: 'inCharges',
     },
     {
-      title: '创建时间',
+      title: i18n.t('basic.CreateTime'),
       dataIndex: 'createTime',
     },
     {
-      title: '状态',
+      title: i18n.t('basic.Status'),
       dataIndex: 'status',
       render: text => genStatusTag(text),
     },
     {
-      title: '操作',
+      title: i18n.t('basic.Operating'),
       dataIndex: 'action',
       render: (text, record) => (
         <>
           <Button type="link">
-            <Link to={genDetailUrl(record)}>详情</Link>
+            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
           </Button>
           {[102].includes(record?.status) && (
             <Button type="link">
-              <Link to={genCreateUrl(record)}>修改</Link>
+              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
             </Button>
           )}
           <Button type="link" onClick={() => onDelete(record)}>
-            删除
+            {i18n.t('basic.Delete')}
           </Button>
           {record?.status && (record?.status === 120 || record?.status === 130) && (
             <Button type="link" onClick={() => openModal(record)}>
-              执行日志
+              {i18n.t('pages.AccessDashboard.config.ExecuteLog')}
             </Button>
           )}
         </>

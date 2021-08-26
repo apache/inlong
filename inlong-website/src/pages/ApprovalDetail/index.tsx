@@ -22,6 +22,7 @@ import { Button, Card, Descriptions, Modal, message, Space } from 'antd';
 import { parse } from 'qs';
 import { PageContainer, Container, FooterToolbar } from '@/components/PageContainer';
 import { useParams, useRequest, useLocation, useHistory } from '@/hooks';
+import i18n from '@/i18n';
 import { timestampFormat } from '@/utils';
 import request from '@/utils/request';
 import Steps from './Steps';
@@ -32,7 +33,7 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
   const taskHistoryMap = new Map(taskHistory.map(item => [item.name, item]));
   let data = [
     {
-      title: '提交申请',
+      title: i18n.t('pages.ApprovalDetail.SubmitApplication'),
       name: '',
       desc: applicant,
       state: 'COMPLETED',
@@ -47,7 +48,7 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
           nextList.push(item.next);
         }
         return {
-          title: nextList.length ? item.displayName : '完成',
+          title: nextList.length ? item.displayName : i18n.t('pages.ApprovalDetail.Done'),
           desc: item.approvers?.join(', '),
           name: item.name,
           state: item.state,
@@ -59,16 +60,16 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
   return data;
 };
 
-const titleNameMap = {
-  Applies: '申请单',
-  Approvals: '待办审批单',
-};
-
 const Comp: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
   const { id } = useParams<{ id: string }>();
+
+  const titleNameMap = {
+    Applies: i18n.t('pages.ApprovalDetail.Requisition'),
+    Approvals: i18n.t('pages.ApprovalDetail.WaitingForApproval'),
+  };
 
   const actived = useMemo<string>(() => parse(location.search.slice(1))?.actived, [
     location.search,
@@ -105,12 +106,12 @@ const Comp: React.FC = () => {
       data: submitData,
     });
     history.push('/approvals?actived=Approvals');
-    message.success('通过成功');
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   const onReject = async () => {
     Modal.confirm({
-      title: '确认驳回吗?',
+      title: i18n.t('pages.ApprovalDetail.ConfirmReject'),
       onOk: async () => {
         const { remark } = await formRef?.current?.onOk(false);
         await request({
@@ -121,14 +122,14 @@ const Comp: React.FC = () => {
           },
         });
         history.push('/approvals?actived=Approvals');
-        message.success('驳回成功');
+        message.success(i18n.t('pages.ApprovalDetail.RejectSuccess'));
       },
     });
   };
 
   const onCancel = async () => {
     Modal.confirm({
-      title: '确认撤回吗?',
+      title: i18n.t('pages.ApprovalDetail.ConfirmWithdrawal'),
       onOk: async () => {
         // const { remark } = await formRef?.current?.onOk(false);
         await request({
@@ -139,7 +140,7 @@ const Comp: React.FC = () => {
           },
         });
         history.push('/approvals?actived=Applies');
-        message.success('撤回成功');
+        message.success(i18n.t('pages.ApprovalDetail.RevokeSuccess'));
       },
     });
   };
@@ -156,16 +157,20 @@ const Comp: React.FC = () => {
       {actived === 'Approvals' && currentTask?.state === 'PENDING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button type="primary" onClick={onApprove}>
-            通过
+            {i18n.t('pages.ApprovalDetail.Ok')}
           </Button>
-          <Button onClick={onReject}>驳回</Button>
-          <Button onClick={() => history.push('/approvals?actived=Approvals')}>返回</Button>
+          <Button onClick={onReject}>{i18n.t('pages.ApprovalDetail.Reject')}</Button>
+          <Button onClick={() => history.push('/approvals?actived=Approvals')}>
+            {i18n.t('pages.ApprovalDetail.Back')}
+          </Button>
         </Space>
       )}
       {actived === 'Applies' && processInfo?.state === 'PROCESSING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={onCancel}>撤回</Button>
-          <Button onClick={() => history.push('/approvals?actived=Applies')}>返回</Button>
+          <Button onClick={onCancel}>{i18n.t('pages.ApprovalDetail.Withdraw')}</Button>
+          <Button onClick={() => history.push('/approvals?actived=Applies')}>
+            {i18n.t('pages.ApprovalDetail.Back')}
+          </Button>
         </Space>
       )}
     </>
@@ -186,7 +191,7 @@ const Comp: React.FC = () => {
   const suffixContent = [
     {
       type: 'textarea',
-      label: '审批意见',
+      label: i18n.t('pages.ApprovalDetail.ApprovalComments'),
       name: 'remark',
       initialValue: currentTask?.remark,
       props: {
@@ -208,15 +213,19 @@ const Comp: React.FC = () => {
 
   return (
     <PageContainer
-      breadcrumb={[{ name: `${titleNameMap[actived] || '流程单'}${id}` }]}
+      breadcrumb={[
+        { name: `${titleNameMap[actived] || i18n.t('pages.ApprovalDetail.Process')}${id}` },
+      ]}
       useDefaultContainer={false}
     >
       <div style={{ display: 'flex' }}>
         <Container style={{ flex: 1, marginRight: 20 }}>
           <Card title={workflow?.displayName}>
             <Descriptions>
-              <Descriptions.Item label="申请人">{processInfo?.applicant}</Descriptions.Item>
-              <Descriptions.Item label="申请时间">
+              <Descriptions.Item label={i18n.t('pages.ApprovalDetail.Applicant')}>
+                {processInfo?.applicant}
+              </Descriptions.Item>
+              <Descriptions.Item label={i18n.t('pages.ApprovalDetail.ApplicationTime')}>
                 {processInfo?.startTime ? timestampFormat(processInfo?.startTime) : ''}
               </Descriptions.Item>
             </Descriptions>
@@ -225,7 +234,7 @@ const Comp: React.FC = () => {
           </Card>
         </Container>
         <Container style={{ flex: '0 0 200px' }}>
-          <Card title="审批流程" style={{ height: '100%' }}>
+          <Card title={i18n.t('pages.ApprovalDetail.ApprovalProcess')} style={{ height: '100%' }}>
             <Steps data={stepsData} />
           </Card>
         </Container>

@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { genBasicFields } from '@/components/ConsumeHelper';
 
 export const getFormContent = ({
@@ -26,7 +27,7 @@ export const getFormContent = ({
   changedValues,
 }): ReturnType<typeof genBasicFields> => [
   {
-    type: <Divider orientation="left">消费信息</Divider>,
+    type: <Divider orientation="left">{i18n.t('pages.ConsumeCreate.ConsumerInformation')}</Divider>,
   },
   ...genBasicFields(
     [

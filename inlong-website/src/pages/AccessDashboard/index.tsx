@@ -23,12 +23,14 @@ import { PageContainer, Container } from '@/components/PageContainer';
 import HighTable from '@/components/HighTable';
 import { DashboardCardList } from '@/components/DashboardCard';
 import request from '@/utils/request';
+import { useTranslation } from 'react-i18next';
 import { useRequest, useHistory } from '@/hooks';
 import { defaultSize } from '@/configs/pagination';
 import ExecutionLogModal from './ExecutionLogModal';
 import { dashCardList, getFilterFormContent, getColumns } from './config';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
   const [options, setOptions] = useState({
     // keyWord: '',
@@ -58,14 +60,14 @@ const Comp: React.FC = () => {
 
   const onDelete = ({ businessIdentifier }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: t('pages.AccessDashboard.ConfirmDelete'),
       onOk: async () => {
         await request({
           url: `/business/delete/${businessIdentifier}`,
           method: 'DELETE',
         });
         await getList();
-        message.success('删除成功');
+        message.success(t('pages.AccessDashboard.SuccessfullyDeleted'));
       },
     });
   };
@@ -112,7 +114,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => history.push('/access/create')}>
-                新建接入
+                {t('pages.AccessDashboard.NewAccess')}
               </Button>
             }
             filterForm={{

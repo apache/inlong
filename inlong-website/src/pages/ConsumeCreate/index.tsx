@@ -22,11 +22,13 @@ import { Button, Card, Steps, Space, message } from 'antd';
 import { parse } from 'qs';
 import { PageContainer, Container, FooterToolbar } from '@/components/PageContainer';
 import { useHistory, useLocation, useSet } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import Info from './Info';
 
 const { Step } = Steps;
 
 const Create: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
 
   const location = useLocation();
@@ -43,7 +45,7 @@ const Create: React.FC = () => {
 
   const steps = [
     {
-      title: '消费信息',
+      title: t('pages.ConsumeCreate.ConsumerInformation'),
       content: <Info ref={infoRef} id={id} />,
       useCache: true,
       ref: infoRef,
@@ -69,13 +71,15 @@ const Create: React.FC = () => {
 
   const onSubmit = async current => {
     await onOk(current);
-    message.success('提交成功');
+    message.success(t('basic.OperatingSuccess'));
     history.push('/consume');
   };
 
   const Footer = () => (
     <Space style={{ display: 'flex', justifyContent: 'center' }}>
-      {current > 0 && <Button onClick={() => setCurrent(current - 1)}>上一步</Button>}
+      {current > 0 && (
+        <Button onClick={() => setCurrent(current - 1)}>{t('pages.ConsumeCreate.Prev')}</Button>
+      )}
       {current !== steps.length - 1 && (
         <Button
           type="primary"
@@ -88,20 +92,23 @@ const Create: React.FC = () => {
             if (!hasOpened(newCurrent)) addOpened(newCurrent);
           }}
         >
-          下一步
+          {t('pages.ConsumeCreate.Next')}
         </Button>
       )}
       {current === steps.length - 1 && (
         <Button type="primary" onClick={() => onSubmit(current)}>
-          提交审批
+          {t('pages.ConsumeCreate.Submit')}
         </Button>
       )}
-      <Button onClick={() => history.push('/consume')}>返回</Button>
+      <Button onClick={() => history.push('/consume')}>{t('pages.ConsumeCreate.Back')}</Button>
     </Space>
   );
 
   return (
-    <PageContainer breadcrumb={[{ name: '新建消费' }]} useDefaultContainer={false}>
+    <PageContainer
+      breadcrumb={[{ name: t('pages.ConsumeCreate.NewConsume') }]}
+      useDefaultContainer={false}
+    >
       <Steps current={current} size="small" style={{ marginBottom: 20, width: 400 }}>
         {steps.map(item => (
           <Step key={item.title} title={item.title} />

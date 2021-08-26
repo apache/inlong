@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 import { ClockCircleFilled } from '@/components/Icons';
 
@@ -30,49 +31,49 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: '草稿',
+    label: i18n.t('pages.AccessDashboard.status.Draft'),
     value: 0,
     type: 'default',
   },
   {
-    label: '取消',
+    label: i18n.t('pages.AccessDashboard.status.Cancel'),
     value: 30,
     type: 'default',
   },
   {
-    label: '待提交',
+    label: i18n.t('pages.AccessDashboard.status.BeSubmitted'),
     value: 100,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: '待审批',
+    label: i18n.t('pages.AccessDashboard.status.BeApproved'),
     value: 101,
     type: 'warning',
   },
   {
-    label: '审批驳回',
+    label: i18n.t('pages.AccessDashboard.status.Reject'),
     value: 102,
     type: 'error',
   },
   {
-    label: '审批通过',
+    label: i18n.t('pages.AccessDashboard.status.Approved'),
     value: 103,
     type: 'success',
   },
   {
-    label: '配置中',
+    label: i18n.t('pages.AccessDashboard.status.InPlace'),
     value: 110,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: '配置失败',
+    label: i18n.t('pages.AccessDashboard.status.ConfigurationFailed'),
     value: 120,
     type: 'error',
   },
   {
-    label: '配置成功',
+    label: i18n.t('pages.AccessDashboard.status.ConfigurationSuccess'),
     value: 130,
     type: 'success',
   },

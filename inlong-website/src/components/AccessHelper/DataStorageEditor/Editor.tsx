@@ -21,6 +21,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Button, Table, Modal, message } from 'antd';
 import request from '@/utils/request';
 import isEqual from 'lodash/isEqual';
+import { useTranslation } from 'react-i18next';
 import DetailModal from './DetailModal';
 import { hiveTableColumns } from './hiveConfig';
 
@@ -65,6 +66,7 @@ const Comp = ({
   businessIdentifier,
   dataStreamIdentifier,
 }: Props) => {
+  const { t } = useTranslation();
   const [data, setData] = useState(addIdToValues(value) || []);
 
   useEffect(() => {
@@ -113,7 +115,7 @@ const Comp = ({
   const onDeleteRequest = id => {
     return new Promise(resolve => {
       Modal.confirm({
-        title: '确认删除吗',
+        title: t('basic.DeleteConfirm'),
         onOk: async () => {
           await request({
             url: `/storage/delete/${id}`,
@@ -123,7 +125,7 @@ const Comp = ({
             },
           });
           resolve(true);
-          message.success('删除成功');
+          message.success(t('DeleteSuccess'));
         },
       });
     });
@@ -176,15 +178,15 @@ const Comp = ({
       ? []
       : [
           {
-            title: '操作',
+            title: t('basic.Operating'),
             dataIndex: 'actions',
             render: (text, record) => (
               <>
                 <Button type="link" onClick={() => onEditRow(record)}>
-                  编辑
+                  {t('basic.Edit')}
                 </Button>
                 <Button type="link" onClick={() => onDeleteRow(record)}>
-                  删除
+                  {t('basic.Delete')}
                 </Button>
               </>
             ),
@@ -195,14 +197,14 @@ const Comp = ({
   return (
     <>
       <div>
-        {`${type}流向配置`}
+        <span>{type}</span>
         {!readonly && (
           <Button
             type="link"
             onClick={() => setDetailModal({ visible: true })}
             disabled={data.length}
           >
-            添加
+            {t('components.AccessHelper.DataStorageEditor.Editor.AddTo')}
           </Button>
         )}
       </div>

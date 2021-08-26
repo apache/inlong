@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { genDataFields } from '@/components/AccessHelper';
 
 export const genFormContent = (currentValues, bid) => {
@@ -28,7 +29,9 @@ export const genFormContent = (currentValues, bid) => {
 
   return [
     {
-      type: <Divider orientation="left">基础信息</Divider>,
+      type: (
+        <Divider orientation="left">{i18n.t('pages.AccessCreate.DataStream.config.Basic')}</Divider>
+      ),
     },
     ...genDataFields(
       ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
@@ -36,11 +39,19 @@ export const genFormContent = (currentValues, bid) => {
       extraParams,
     ),
     {
-      type: <Divider orientation="left">数据来源</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataSourceType', 'dataSourcesConfig'], currentValues, extraParams),
     {
-      type: <Divider orientation="left">数据信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+        </Divider>
+      ),
     },
     ...genDataFields(
       ['dataType', 'dataEncoding', 'fileDelimiter', 'rowTypeFields'],
@@ -48,7 +59,11 @@ export const genFormContent = (currentValues, bid) => {
       extraParams,
     ),
     {
-      type: <Divider orientation="left">数据流向</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
+        </Divider>
+      ),
     },
     ...genDataFields(['dataStorage', 'dataStorageHIVE'], currentValues, extraParams),
   ];

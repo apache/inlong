@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import i18n from '@/i18n';
 import { statusList, genStatusTag } from './status';
 import { timestampFormat } from '@/utils';
 
@@ -30,12 +31,12 @@ export const getFilterFormContent = defaultValues => [
       style: { width: 150 },
       min: 1,
       max: 100000000,
-      placeholder: '请输入流程单ID',
+      placeholder: i18n.t('pages.Approvals.ProcessID'),
     },
   },
   {
     type: 'select',
-    label: '状态',
+    label: i18n.t('basic.Status'),
     name: 'state',
     initialValue: defaultValues.state,
     props: {
@@ -48,46 +49,48 @@ export const getFilterFormContent = defaultValues => [
 
 export const getColumns = activedName => [
   {
-    title: '流程单ID',
+    title: i18n.t('pages.Approvals.ProcessID'),
     dataIndex: 'id',
     width: 90,
     render: text => <Link to={`/approvals/detail/${text}?actived=${activedName}`}>{text}</Link>,
   },
   {
-    title: '申请类型',
+    title: i18n.t('pages.Approvals.ApplicationType'),
     width: 120,
     dataIndex: 'displayName',
   },
   {
-    title: '业务ID',
+    title: i18n.t('pages.Approvals.BussinessId'),
     dataIndex: 'businessIdentifier',
     width: 200,
     render: (text, record) => record.showInList?.businessIdentifier,
   },
   {
-    title: '申请时间',
+    title: i18n.t('pages.Approvals.ApplicationTime'),
     dataIndex: 'startTime',
     width: 200,
     render: text => timestampFormat(text),
   },
   {
-    title: '审批人',
+    title: i18n.t('pages.Approvals.Approver'),
     dataIndex: 'currentTasks',
     width: 250,
     render: text => text?.map(item => item.approvers)?.join(', '),
   },
   {
-    title: '状态',
+    title: i18n.t('basic.Status'),
     dataIndex: 'state',
     width: 100,
     render: text => genStatusTag(text),
   },
   {
-    title: '操作',
+    title: i18n.t('basic.Operating'),
     dataIndex: 'action',
     width: 100,
     render: (text, record) => (
-      <Link to={`/approvals/detail/${record.id}?actived=${activedName}`}>详情</Link>
+      <Link to={`/approvals/detail/${record.id}?actived=${activedName}`}>
+        {i18n.t('basic.Detail')}
+      </Link>
     ),
   },
 ];

@@ -23,12 +23,14 @@ import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useBoolean } from '@/hooks';
 import request from '@/utils/request';
+import { useTranslation } from 'react-i18next';
 import { CommonInterface } from '../common';
 import { getFormContent } from './config';
 
 type Props = CommonInterface;
 
 const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
+  const { t } = useTranslation();
   const [editing, { setTrue, setFalse }] = useBoolean(false);
 
   const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
@@ -80,20 +82,25 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
       data: submitData,
     });
     setFalse();
-    message.success('保存成功');
+    message.success(t('basic.OperatingSuccess'));
+  };
+
+  const onCancel = () => {
+    form.setFieldsValue(data);
+    setFalse();
   };
 
   const Extra = () => {
     return editing ? (
       <Space>
         <Button type="primary" onClick={onSave}>
-          保存
+          {t('basic.Save')}
         </Button>
-        <Button onClick={setFalse}>取消</Button>
+        <Button onClick={onCancel}>{t('basic.Cancel')}</Button>
       </Space>
     ) : (
       <Button type="primary" onClick={setTrue}>
-        编辑
+        {t('basic.Edit')}
       </Button>
     );
   };

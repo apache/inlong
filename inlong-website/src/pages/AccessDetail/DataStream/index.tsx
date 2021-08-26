@@ -25,6 +25,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest, useSelector } from '@/hooks';
 import { State } from '@/models';
 import request from '@/utils/request';
+import { useTranslation } from 'react-i18next';
 import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
 import { pickObject } from '@/utils';
 import { CommonInterface } from '../common';
@@ -36,6 +37,8 @@ import styles from './index.module.less';
 type Props = CommonInterface;
 
 const Comp: React.FC<Props> = ({ bid, readonly }) => {
+  const { t } = useTranslation();
+
   const [form] = Form.useForm();
 
   const userName = useSelector<State, State['userName']>(state => state.userName);
@@ -138,7 +141,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
     }
     await getList();
     setEditingId(false);
-    message.success('保存成功');
+    message.success(t('basic.OperatingSuccess'));
   };
 
   const onEdit = record => {
@@ -153,7 +156,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
 
   const onDelete = record => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: '/datastream/delete',
@@ -164,7 +167,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
           },
         });
         await getList();
-        message.success('删除成功');
+        message.success(t('basic.DeleteSuccess'));
       },
     });
   };
@@ -201,7 +204,9 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
             </div>
           ))
         ) : (
-          <div className={styles.collapseHeaderItem}>新数据流</div>
+          <div className={styles.collapseHeaderItem}>
+            {t('pages.AccessDetail.DataStream.NewDataStream')}
+          </div>
         )}
         {!readonly && genExtra(record, index)}
       </div>
@@ -244,7 +249,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
                           mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
                         }}
                       >
-                        新建数据流
+                        {t('pages.AccessDetail.DataStream.CreateDataStream')}
                       </Button>
                     </Space>,
                     topRightRef.current,

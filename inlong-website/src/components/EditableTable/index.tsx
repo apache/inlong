@@ -20,6 +20,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Input, InputNumber, Form } from 'antd';
 import { FormItemProps } from 'antd/lib/form';
+import { useTranslation } from 'react-i18next';
 import HighSelect from '@/components/HighSelect';
 import { useUpdateEffect } from '@/hooks';
 import isEqual from 'lodash/isEqual';
@@ -97,6 +98,8 @@ const Comp = ({
   canAdd = true,
   size,
 }: EditableTableProps) => {
+  const { t } = useTranslation();
+
   const [data, setData] = useState<RecordType[]>(
     addIdToValues(value) ||
       [getRowInitialValue(columns)].map(item => ({
@@ -233,7 +236,7 @@ const Comp = ({
 
   if (editing) {
     tableColumns = tableColumns.concat({
-      title: '操作',
+      title: t('basic.Operating'),
       dataIndex: 'actions',
       width: 100,
       render: (text, record, idx) =>
@@ -242,7 +245,7 @@ const Comp = ({
           ? canDelete
           : canDelete(record, idx, record._etid?.indexOf('_etnew_') === 0)) && (
           <Button type="link" onClick={() => onDeleteRow(record)}>
-            删除
+            {t('basic.Delete')}
           </Button>
         ),
     } as any);
@@ -258,7 +261,7 @@ const Comp = ({
         editing && canAdd
           ? () => (
               <Button type="link" style={{ padding: 0 }} onClick={onAddRow}>
-                新增一行
+                {t('components.EditableTable.NewLine')}
               </Button>
             )
           : null

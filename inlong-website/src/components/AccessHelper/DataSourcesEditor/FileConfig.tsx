@@ -19,42 +19,38 @@
 
 import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
+import i18n from '@/i18n';
 
 export const getCreateFormContent = () => {
   const array = [
     {
       type: 'input',
-      label: '数据源IP',
+      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.DataSourceIP'),
       name: 'ip',
       rules: [
         { required: true },
         {
           pattern: rulesPattern.ip,
-          message: '请正确输入Ip地址',
+          message: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.IpRule'),
         },
       ],
     },
     {
       type: 'inputnumber',
-      label: '端⼝',
+      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.Port'),
       name: 'port',
       props: {
-        min: 0,
+        min: 1,
+        max: 65535,
       },
-      rules: [
-        { required: true },
-        {
-          pattern: rulesPattern.port,
-          message: '请正确输入端口号(1-65535)',
-        },
-      ],
+      rules: [{ required: true }],
     },
     {
       type: 'input',
-      label: '⽂件路径',
+      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FilePath'),
       name: 'filePath',
       rules: [{ required: true }],
-      suffix: '填写绝对路径',
+      suffix: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FillInTheAbsolutePath'),
     },
   ];
 
@@ -63,17 +59,17 @@ export const getCreateFormContent = () => {
 
 export const tableColumns: ColumnsType = [
   {
-    title: '数据源IP',
+    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.DataSourceIP'),
     dataIndex: 'ip',
     width: 150,
   },
   {
-    title: '端口',
+    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.Port'),
     dataIndex: 'port',
     width: 120,
   },
   {
-    title: '⽂件路径',
+    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FilePath'),
     dataIndex: 'filePath',
   },
 ];

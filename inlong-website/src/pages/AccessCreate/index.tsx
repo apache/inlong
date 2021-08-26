@@ -22,12 +22,14 @@ import { Button, Card, message, Steps, Space } from 'antd';
 import { parse } from 'qs';
 import { PageContainer, Container, FooterToolbar } from '@/components/PageContainer';
 import { useHistory, useLocation, useSet } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import Bussiness from './Bussiness';
 import DataStream from './DataStream';
 
 const { Step } = Steps;
 
 const Create: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
 
   const location = useLocation();
@@ -45,13 +47,13 @@ const Create: React.FC = () => {
 
   const steps = [
     {
-      title: '业务信息',
+      title: t('pages.AccessCreate.BusinessInfo'),
       content: <Bussiness ref={bussinessRef} bid={bid} />,
       useCache: true,
       ref: bussinessRef,
     },
     {
-      title: '数据流',
+      title: t('pages.AccessCreate.DataStreams'),
       content: <DataStream ref={dataStreamRef} bid={bid} />,
       useCache: true,
       ref: dataStreamRef,
@@ -78,11 +80,11 @@ const Create: React.FC = () => {
   const onSubmit = async current => {
     await onOk(current).catch(err => {
       if (err?.errorFields?.length) {
-        message.error('请检查表单完整性');
+        message.error(t('pages.AccessCreate.CheckFormIntegrity'));
       }
       return Promise.reject(err);
     });
-    message.success('提交成功');
+    message.success(t('pages.AccessCreate.SubmittedSuccessfully'));
     history.push('/access');
   };
 
@@ -90,7 +92,7 @@ const Create: React.FC = () => {
     <Space style={{ display: 'flex', justifyContent: 'center' }}>
       {current > 0 && (
         <Button disabled={confirmLoading} onClick={() => setCurrent(current - 1)}>
-          上一步
+          {t('pages.AccessCreate.Previous')}
         </Button>
       )}
       {current !== steps.length - 1 && (
@@ -100,7 +102,7 @@ const Create: React.FC = () => {
           onClick={async () => {
             await onOk(current).catch(err => {
               if (err?.errorFields?.length) {
-                message.error('请检查表单完整性');
+                message.error(t('pages.AccessCreate.CheckFormIntegrity'));
               }
               return Promise.reject(err);
             });
@@ -110,20 +112,23 @@ const Create: React.FC = () => {
             if (!hasOpened(newCurrent)) addOpened(newCurrent);
           }}
         >
-          下一步
+          {t('pages.AccessCreate.NextStep')}
         </Button>
       )}
       {current === steps.length - 1 && (
         <Button type="primary" onClick={() => onSubmit(current)}>
-          提交审批
+          {t('pages.AccessCreate.Submit')}
         </Button>
       )}
-      <Button onClick={() => history.push('/access')}>返回</Button>
+      <Button onClick={() => history.push('/access')}>{t('pages.AccessCreate.Back')}</Button>
     </Space>
   );
 
   return (
-    <PageContainer breadcrumb={[{ name: '新建接入' }]} useDefaultContainer={false}>
+    <PageContainer
+      breadcrumb={[{ name: t('pages.AccessCreate.NewAccess') }]}
+      useDefaultContainer={false}
+    >
       <Steps current={current} size="small" style={{ marginBottom: 20, width: 400 }}>
         {steps.map(item => (
           <Step key={item.title} title={item.title} />

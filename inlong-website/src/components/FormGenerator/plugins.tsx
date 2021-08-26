@@ -33,6 +33,7 @@ import {
   Transfer,
 } from 'antd';
 import HighSelect from '@/components/HighSelect';
+import i18n from '@/i18n';
 
 const text: React.FC<Record<string, any>> = ({ value, options }) => {
   if (!Array.isArray(options)) return <span>{value}</span>;
@@ -50,16 +51,24 @@ const text: React.FC<Record<string, any>> = ({ value, options }) => {
 
 const select = props => (
   <HighSelect
-    placeholder={props.placeholder || '请选择'}
+    placeholder={props.placeholder || i18n.t('components.FormGenerator.plugins.PleaseChoose')}
     style={{ minWidth: 100, ...props?.style }}
     {...props}
   />
 );
 
-const input = props => <Input placeholder={props.placeholder || '请输入'} {...props} />;
+const input = props => (
+  <Input
+    placeholder={props.placeholder || i18n.t('components.FormGenerator.plugins.PleaseInput')}
+    {...props}
+  />
+);
 
 const inputsearch = props => (
-  <Input.Search placeholder={props.placeholder || '请输入'} {...props} />
+  <Input.Search
+    placeholder={props.placeholder || i18n.t('components.FormGenerator.plugins.PleaseInput')}
+    {...props}
+  />
 );
 
 const password = props => <Input.Password {...props} />;

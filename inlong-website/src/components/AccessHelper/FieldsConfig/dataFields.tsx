@@ -24,6 +24,7 @@ import StaffSelect from '@/components/StaffSelect';
 import DataSourcesEditor from '../DataSourcesEditor';
 import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
+import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from './sourceFields';
 
 type RestParams = {
@@ -56,7 +57,7 @@ export default (
   const fields: FormItemProps[] = [
     {
       type: 'input',
-      label: '数据流ID',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamID'),
       name: 'dataStreamIdentifier',
       props: {
         maxLength: 32,
@@ -64,27 +65,37 @@ export default (
       initialValue: currentValues.dataStreamIdentifier,
       rules: [
         { required: true },
-        { pattern: /^[a-z_\d]+$/, message: '仅限小写字⺟、数字和下划线' },
+        {
+          pattern: /^[a-z_\d]+$/,
+          message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamRules'),
+        },
       ],
     },
     {
       type: 'input',
-      label: '数据流名称',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamName'),
       name: 'name',
       initialValue: currentValues.name,
       rules: [{ required: true }],
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: '数据流责任人',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwners'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
-      extra: '至少2人，责任人可查看、修改消费信息',
-      rules: [{ required: true, type: 'array', min: 2, message: '请填写至少2个责任人' }],
+      extra: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnerHelp'),
+      rules: [
+        {
+          required: true,
+          type: 'array',
+          min: 2,
+          message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnersRule'),
+        },
+      ],
     },
     {
       type: 'textarea',
-      label: '数据流介绍',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowIntroduction'),
       name: 'description',
       props: {
         showCount: true,
@@ -95,17 +106,17 @@ export default (
     },
     {
       type: 'radio',
-      label: '消息来源',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Source'),
       name: 'dataSourceType',
       initialValue: currentValues.dataSourceType ?? 'AUTO_PUSH',
       props: {
         options: [
           {
-            label: '文件',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.File'),
             value: 'FILE',
           },
           {
-            label: '自主推送',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Autonomous'),
             value: 'AUTO_PUSH',
           },
         ],
@@ -126,7 +137,7 @@ export default (
     },
     {
       type: 'radio',
-      label: '数据格式',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
       name: 'dataType',
       initialValue: currentValues.dataType ?? 'TEXT',
       props: {
@@ -145,7 +156,7 @@ export default (
     },
     {
       type: 'radio',
-      label: '数据编码',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataEncoding'),
       name: 'dataEncoding',
       initialValue: currentValues.dataEncoding ?? 'UTF-8',
       props: {
@@ -165,38 +176,38 @@ export default (
     },
     {
       type: 'select',
-      label: '源数据字段分割符',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.fileDelimiter'),
       name: 'fileDelimiter',
       initialValue: '9',
       props: {
         dropdownMatchSelectWidth: false,
         options: [
           {
-            label: 'TAB键',
+            label: 'TAB',
             value: '9',
           },
           {
-            label: '竖线(|)',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
             value: '124',
           },
           {
-            label: '逗号',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Comma'),
             value: '44',
           },
           {
-            label: '双引号(")',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
             value: '34',
           },
           {
-            label: '星号(*)',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
             value: '42',
           },
           {
-            label: '空格',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
             value: '32',
           },
           {
-            label: '分号(;)',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
             value: '59',
           },
         ],
@@ -221,7 +232,7 @@ export default (
           editing={fieldListEditing}
           columns={[
             {
-              title: '字段名',
+              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldName'),
               dataIndex: 'fieldName',
               props: () => ({
                 disabled: !fieldListEditing,
@@ -230,12 +241,12 @@ export default (
                 { required: true },
                 {
                   pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-                  message: '以英文字母开头，只能包含英文字母、数字、下划线',
+                  message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldNameRule'),
                 },
               ],
             },
             {
-              title: '字段类型',
+              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldType'),
               dataIndex: 'fieldType',
               type: 'select',
               initialValue: sourceFieldsTypes[0].value,
@@ -246,19 +257,19 @@ export default (
               rules: [{ required: true }],
             },
             {
-              title: '字段描述',
+              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldComment'),
               dataIndex: 'fieldComment',
             },
           ]}
         />
       ),
-      label: '源数据字段',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.SourceDataField'),
       name: 'rowTypeFields',
       visible: () => !(currentValues.dataType as string[])?.includes('PB'),
     },
     {
       type: 'checkboxgroup',
-      label: '数据流向',
+      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection'),
       name: 'dataStorage',
       props: {
         options: [
@@ -267,7 +278,7 @@ export default (
             value: 'HIVE',
           },
           {
-            label: '自主消费',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
             value: 'AUTO_PUSH',
           },
         ],

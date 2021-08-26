@@ -20,6 +20,7 @@
 import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
+import { useTranslation } from 'react-i18next';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest, useUpdateEffect } from '@/hooks';
@@ -40,6 +41,8 @@ const getFilterFormContent = () => [
 ];
 
 const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
+  const { t } = useTranslation();
+
   const [options, setOptions] = useState({
     keyWord: '',
     pageSize: defaultSize,
@@ -85,27 +88,27 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
 
   const columns = [
     {
-      title: '业务ID',
+      title: 'ID',
       dataIndex: 'businessIdentifier',
     },
     {
-      title: '业务名称',
+      title: t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.BusinessName'),
       dataIndex: 'cnName',
     },
     {
-      title: '责任人',
+      title: t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.Owners'),
       dataIndex: 'inCharges',
     },
     {
-      title: '创建时间',
+      title: t('basic.CreateTime'),
       dataIndex: 'createTime',
     },
     {
-      title: '操作',
+      title: t('basic.Operating'),
       dataIndex: 'action',
       render: (text, record) => (
         <Button type="link" onClick={() => onOk(record)}>
-          选择
+          {t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.Select')}
         </Button>
       ),
     },
@@ -118,7 +121,13 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
   };
 
   return (
-    <Modal {...modalProps} title="我的接入业务" width={1024} footer={null} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.MyAccessBusiness')}
+      width={1024}
+      footer={null}
+      onOk={onOk}
+    >
       <HighTable
         filterForm={{
           content: getFilterFormContent(),

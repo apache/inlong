@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Divider, Table } from 'antd';
+import i18n from '@/i18n';
 import { genBussinessFields } from '@/components/AccessHelper';
 
 const getBusinessContent = initialValues => [
@@ -59,20 +60,28 @@ const getBusinessContent = initialValues => [
 export const getFormContent = ({ isViwer, formData, suffixContent }) => {
   const array = [
     {
-      type: <Divider orientation="left">基础信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.ApprovalDetail.AccessConfig.BasicInformation')}
+        </Divider>
+      ),
     },
     ...(getBusinessContent(formData.businessInfo) || []),
     {
-      type: <Divider orientation="left">数据流信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.ApprovalDetail.AccessConfig.DataFlowInformation')}
+        </Divider>
+      ),
     },
     {
       type: (
         <Table
           size="small"
           columns={[
-            { title: '数据流ID', dataIndex: 'dataStreamIdentifier' },
+            { title: 'ID', dataIndex: 'dataStreamIdentifier' },
             {
-              title: '流向',
+              title: i18n.t('pages.ApprovalDetail.AccessConfig.DataStorages'),
               dataIndex: 'storageList',
               render: text => text.map(item => item.storageType).join(','),
             },
@@ -87,7 +96,11 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
     ? array
     : array.concat([
         {
-          type: <Divider orientation="left">审批信息</Divider>,
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.ApprovalDetail.AccessConfig.ApprovalInformation')}
+            </Divider>
+          ),
         },
         ...suffixContent,
       ]);

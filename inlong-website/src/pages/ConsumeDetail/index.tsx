@@ -19,11 +19,13 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import { Tabs } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { PageContainer } from '@/components/PageContainer';
 import { useParams, useRequest } from '@/hooks';
 import Info from './Info';
 
 const Comp: React.FC = () => {
+  const { t } = useTranslation();
   const id = +useParams<{ id: string }>().id;
 
   const { data } = useRequest(`/consumption/get/${id}`, {
@@ -38,18 +40,22 @@ const Comp: React.FC = () => {
   const list = useMemo(
     () => [
       {
-        label: '消费详情',
+        label: t('pages.ConsumeDetail.ConsumptionDetails'),
         value: 'consumeDetail',
         content: Info,
       },
     ],
-    [],
+    [t],
   );
 
   const [actived, setActived] = useState(list[0].value);
 
   return (
-    <PageContainer breadcrumb={[{ name: `消费详情${data?.consumerGroupId}` }]}>
+    <PageContainer
+      breadcrumb={[
+        { name: `${t('pages.ConsumeDetail.ConsumptionDetails')}${data?.consumerGroupId}` },
+      ]}
+    >
       <Tabs
         activeKey={actived}
         onChange={val => setActived(val)}

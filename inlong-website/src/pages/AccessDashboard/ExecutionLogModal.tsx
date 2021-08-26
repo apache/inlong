@@ -22,6 +22,7 @@ import { Modal, message, Button, Collapse, Popover, Timeline } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import HighTable from '@/components/HighTable';
 import request from '@/utils/request';
+import { useTranslation } from 'react-i18next';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { timestampFormat } from '@/utils';
 import StatusTag from '@/components/StatusTag';
@@ -33,6 +34,8 @@ export interface Props extends ModalProps {
 }
 
 const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
+  const { t } = useTranslation();
+
   const { run: getData, data } = useRequest(
     {
       url: '/workflow/listTaskExecuteLogs',
@@ -49,7 +52,7 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
 
   const goResult = ({ taskInstId }) => {
     Modal.confirm({
-      title: '确认重新执行吗',
+      title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
       onOk: async () => {
         await request({
           url: `/workflow/complete/` + taskInstId,
@@ -59,7 +62,7 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
           },
         });
         await getData(businessIdentifier);
-        message.success('重新执行成功');
+        message.success(t('pages.AccessDashboard.ExecutionLogModal.Re-executingSuccess'));
       },
     });
   };
@@ -72,30 +75,39 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
 
   const columns = [
     {
-      title: '任务类型',
+      title: t('pages.AccessDashboard.ExecutionLogModal.TaskType'),
       dataIndex: 'taskDisplayName',
     },
     {
-      title: '执行结果',
+      title: t('pages.AccessDashboard.ExecutionLogModal.RunResults'),
       dataIndex: 'state',
       render: (text, record) => (
         <>
           <div>
             {record.state === 'COMPLETED' ? (
-              <StatusTag type={'success'} title={'成功'} />
+              <StatusTag
+                type={'success'}
+                title={t('pages.AccessDashboard.ExecutionLogModal.Success')}
+              />
             ) : record.state === 'FAILED' ? (
-              <StatusTag type={'error'} title={'失败'} />
+              <StatusTag type={'error'} title={t('pages.AccessDashboard.ExecutionLogModal.Fail')} />
             ) : record.state === 'SKIPPED' ? (
-              <StatusTag type={'primary'} title={'跳过'} />
+              <StatusTag
+                type={'primary'}
+                title={t('pages.AccessDashboard.ExecutionLogModal.Skip')}
+              />
             ) : (
-              <StatusTag type={'warning'} title={'处理中'} />
+              <StatusTag
+                type={'warning'}
+                title={t('pages.AccessDashboard.ExecutionLogModal.Processing')}
+              />
             )}
           </div>
         </>
       ),
     },
     {
-      title: '执行日志',
+      title: t('pages.AccessDashboard.ExecutionLogModal.ExecuteLog'),
       dataIndex: 'listenerExecutorLogs',
       width: 400,
       render: text =>
@@ -115,7 +127,7 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
         ) : null,
     },
     {
-      title: '结束时间',
+      title: t('pages.AccessDashboard.ExecutionLogModal.EndTime'),
       dataIndex: 'endTime',
       render: (text, record) => (
         <>
@@ -124,13 +136,13 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
       ),
     },
     {
-      title: '操作',
-      dataIndex: 'endTime',
+      title: t('basic.Operating'),
+      dataIndex: 'actions',
       render: (text, record) => (
         <>
           {record?.state && record.state === 'FAILED' && (
             <Button type="link" onClick={() => goResult(record)}>
-              执行
+              {t('pages.AccessDashboard.ExecutionLogModal.CarriedOut')}
             </Button>
           )}
         </>
@@ -138,7 +150,12 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
     },
   ];
   return (
-    <Modal {...modalProps} title="执行日志" width={1024} footer={null}>
+    <Modal
+      {...modalProps}
+      title={t('pages.AccessDashboard.ExecutionLogModal.ExecuteLog')}
+      width={1024}
+      footer={null}
+    >
       {data && (
         <Collapse accordion defaultActiveKey={[data[0]?.processInstId]}>
           {data.map(item => (
