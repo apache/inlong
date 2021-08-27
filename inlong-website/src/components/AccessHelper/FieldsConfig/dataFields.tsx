@@ -87,9 +87,6 @@ export default (
       rules: [
         {
           required: true,
-          type: 'array',
-          min: 2,
-          message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnersRule'),
         },
       ],
     },
