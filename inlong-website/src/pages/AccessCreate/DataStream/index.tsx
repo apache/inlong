@@ -19,6 +19,7 @@
 
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Form, Collapse, Button, Space } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { FormItemContent } from '@/components/FormGenerator';
 import { useRequest, useSelector } from '@/hooks';
 import request from '@/utils/request';
@@ -32,6 +33,8 @@ export interface Props {
 
 const Comp = ({ bid }: Props, ref) => {
   const [form] = Form.useForm();
+
+  const { t } = useTranslation();
 
   const userName = useSelector<State, State['userName']>(state => state.userName);
 
@@ -94,7 +97,7 @@ const Comp = ({ bid }: Props, ref) => {
   const genExtra = (field, removeFunc, index, arrLen) =>
     !(index === 0 && arrLen === 1) && (
       <Button size="small" type="link" onClick={() => removeFunc(field.name)}>
-        删除
+        {t('basic.Delete')}
       </Button>
     );
 
@@ -119,7 +122,7 @@ const Comp = ({ bid }: Props, ref) => {
                     setActiveKey(fields.length.toString());
                   }}
                 >
-                  新建数据流
+                  {t('basic.Create')}
                 </Button>
               </Space>
 
@@ -131,7 +134,7 @@ const Comp = ({ bid }: Props, ref) => {
               >
                 {fields.map((field, index, arr) => (
                   <Collapse.Panel
-                    header={`数据流${index + 1}`}
+                    header={`#${index + 1}`}
                     key={index.toString()}
                     extra={genExtra(field, remove, index, arr.length)}
                     style={{
