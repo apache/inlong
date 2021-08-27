@@ -35,7 +35,7 @@ public class DateFormatRegex implements Filter {
     private static final String YEAR = "YYYY";
     private static final String MONTH = "MM";
     private static final String DAY = "DD";
-    private static final String HOUR = "hh";
+    private static final String HOUR = "HH";
 
     private static final String NORMAL_FORMATTER = "yyyyMMddHHmm";
 

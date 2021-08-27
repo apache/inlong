@@ -216,9 +216,17 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         submitWorker(watchEventHandler());
     }
 
-
     public void register(String pathPattern) throws IOException {
         PathPattern entity = new PathPattern(pathPattern);
+        innerRegister(pathPattern, entity);
+    }
+
+    public void register(String pathPattern, String offset) throws IOException {
+        PathPattern entity = new PathPattern(pathPattern, offset);
+        innerRegister(pathPattern, entity);
+    }
+
+    private void innerRegister(String pathPattern, PathPattern entity) throws IOException {
         List<WatchKey> tmpKeyList = new ArrayList<>();
         List<WatchKey> keyList = allWatchers.putIfAbsent(entity, tmpKeyList);
         if (keyList == null) {
@@ -255,7 +263,11 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         this.profile = profile;
         if (this.profile.hasKey(JobConstants.JOB_DIR_FILTER_PATTERN)) {
             String pathPattern = this.profile.get(JobConstants.JOB_DIR_FILTER_PATTERN);
-            register(pathPattern);
+            String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
+            if (timeOffset.isEmpty()) {
+                register(pathPattern);
+            }
+            register(pathPattern, timeOffset);
         }
     }
 

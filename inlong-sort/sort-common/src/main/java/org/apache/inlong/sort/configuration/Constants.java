@@ -48,6 +48,11 @@ public class Constants {
      */
     public static final String DATA_TIME_FIELD = "dt";
 
+    /**
+     * The prefix of source or sink configuration.
+     */
+    public static final String PULSAR_SOURCE_PREFIX = "pulsar.source.";
+
     // ------------------------------------------------------------------------
     //  Common configs
     // ------------------------------------------------------------------------

@@ -53,6 +53,7 @@ public class JobProfileDto {
         private String pattern;
         private String op;
         private String cycleUnit;
+        private String timeOffset;
         private String deliveryTime;
         private String addictiveString;
     }

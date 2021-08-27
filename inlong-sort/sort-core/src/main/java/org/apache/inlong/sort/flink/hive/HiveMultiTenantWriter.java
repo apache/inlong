@@ -171,7 +171,8 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
                 HiveWriter hiveWriter = new HiveWriter(configuration, dataFlowId, hiveSinkInfo);
                 hiveWriter.setRuntimeContext(getRuntimeContext());
                 hiveWriter.initializeState(
-                        new MultiTenantFunctionInitializationContext(dataFlowId, functionInitializationContext));
+                        new MultiTenantFunctionInitializationContext(dataFlowId, functionInitializationContext,
+                                getRuntimeContext().getExecutionConfig()));
                 hiveWriter.open(new org.apache.flink.configuration.Configuration());
                 hiveWriters.put(dataFlowId, hiveWriter);
                 recordTransformer.addDataFlow(dataFlowInfo);

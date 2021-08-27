@@ -20,11 +20,10 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
@@ -38,7 +37,6 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
@@ -160,38 +158,44 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     }
 
     @Override
-    public DataProxyIpResponse getIpList(DataProxyIpRequest request, HttpServletRequest httpServletRequest) {
-        String netTag = request.getNetTag();
+    public List<DataProxyIpResponse> getIpList(DataProxyIpRequest request) {
+        LOGGER.debug("begin to get data proxy ip list, request: {}", request);
 
-        if (StringUtils.isEmpty(netTag)) {
-            List<SourceFileDetailEntity> fileEntityList = sourceFileDetailMapper.selectByIp(request.getIp());
-            for (SourceFileDetailEntity fileConfig : fileEntityList) { // Subject to the nettag of any source
-                int innerIp = fileConfig.getIsInnerIp();
+        List<DataProxyClusterEntity> entityList = dataProxyClusterMapper.selectAll();
+        if (entityList == null || entityList.isEmpty()) {
+            LOGGER.info("success to get data proxy ip list, but result is empty, request ip={}", request.getIp());
+            return null;
+        }
+
+        final String requestNetTag = request.getNetTag();
+        List<DataProxyIpResponse> responseList = new ArrayList<>();
+        for (DataProxyClusterEntity entity : entityList) {
+            // Subject to the net tag of any entity
+            String netTag = requestNetTag;
+            if (StringUtils.isEmpty(netTag)) {
+                int innerIp = entity.getIsInnerIp();
                 if (innerIp == 1) {
                     netTag = "auto";
-                    break;
-                } else if (0 == innerIp) {
-                    netTag = fileConfig.getNetTag();
-                    break;
+                } else {
+                    netTag = entity.getNetType();
+                }
+
+                if (StringUtils.isEmpty(netTag)) {
+                    netTag = "all";
                 }
             }
 
-            if (StringUtils.isEmpty(netTag)) {
-                netTag = "all";
-            }
-        }
-
-        final String filterNetTag = netTag;
-
-        if (!netTag.equals("all")) {
             DataProxyIpResponse response = new DataProxyIpResponse();
-            List<DataProxyIpResponse.AddressBean> address = response.getAddress().stream()
-                    .filter(a -> a.getNetTag().equals(filterNetTag)).collect(Collectors.toList());
-            response.setAddress(address);
-            return response;
+            response.setId(entity.getId());
+            response.setPort(entity.getPort());
+            response.setIp(entity.getAddress());
+            response.setNetTag(netTag);
+
+            responseList.add(response);
         }
 
-        return null;
+        LOGGER.info("success to get data proxy ip list, response size={}", responseList.size());
+        return responseList;
     }
 
     @Override

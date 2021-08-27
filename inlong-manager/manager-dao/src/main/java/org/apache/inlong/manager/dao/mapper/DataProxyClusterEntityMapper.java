@@ -35,12 +35,12 @@ public interface DataProxyClusterEntityMapper {
 
     DataProxyClusterEntity selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(DataProxyClusterEntity record);
-
-    int updateByPrimaryKey(DataProxyClusterEntity record);
+    List<DataProxyClusterEntity> selectAll();
 
     List<DataProxyClusterEntity> selectByCondition(DataProxyClusterPageRequest request);
 
-    List<DataProxyClusterEntity> queryDataProxyListByIds(List<String> ids);
+    int updateByPrimaryKeySelective(DataProxyClusterEntity record);
+
+    int updateByPrimaryKey(DataProxyClusterEntity record);
 
 }

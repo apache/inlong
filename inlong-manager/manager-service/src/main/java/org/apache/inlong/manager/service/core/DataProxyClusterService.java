@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
@@ -28,7 +27,6 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 
 /**
  * DataProxy cluster service layer interface
- *
  */
 public interface DataProxyClusterService {
 
@@ -79,10 +77,9 @@ public interface DataProxyClusterService {
      * Query data proxy ip list
      *
      * @param request query request param
-     * @param httpRequest HTTP request instance
      * @return data proxy ip list
      */
-    DataProxyIpResponse getIpList(DataProxyIpRequest request, HttpServletRequest httpRequest);
+    List<DataProxyIpResponse> getIpList(DataProxyIpRequest request);
 
     /**
      * query data proxy config by cluster id
