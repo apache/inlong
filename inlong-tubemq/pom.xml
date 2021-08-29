@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.10.0-incubating-SNAPSHOT</version>
+        <version>0.10.0-incubating</version>
     </parent>
 
     <groupId>org.apache.inlong</groupId>
