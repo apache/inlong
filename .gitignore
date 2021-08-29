@@ -4,6 +4,7 @@
 !.gitignore
 !.gitkeep
 !.travis.yml
+**/*.versionsBackup
 
 # Eclipse
 .classpath
