@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-agent</artifactId>
-    <version>0.10.0-incubating</version>
+    <version>0.11.0-incubating-SNAPSHOT</version>
   </parent>
   <artifactId>agent-docker</artifactId>
   <modelVersion>4.0.0</modelVersion>
