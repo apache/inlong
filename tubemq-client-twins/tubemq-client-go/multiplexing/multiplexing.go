@@ -58,6 +58,7 @@ const queueSize = 10000
 // Pool maintains the multiplex connections of different addresses.
 type Pool struct {
 	connections *sync.Map
+	mu          sync.RWMutex
 }
 
 // NewPool will construct a default multiplex connections pool.
@@ -84,6 +85,16 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *D
 		}
 		return nil, ErrAssertConnection
 	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	// If the concurrent request has created the connection, the connection can be returned directly.
+	if v, ok := p.connections.Load(address); ok {
+		if c, ok := v.(*Connection); ok {
+			mc, err := c.new(ctx, serialNo)
+			return mc, err
+		}
+		return nil, ErrAssertConnection
+	}
 
 	c := &Connection{
 		address:     address,
@@ -91,6 +102,7 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *D
 		done:        make(chan struct{}),
 		mDone:       make(chan struct{}),
 		state:       Initial,
+		pool:        p,
 	}
 	c.buffer = &writerBuffer{
 		buffer: make(chan []byte, queueSize),
@@ -101,12 +113,12 @@ func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *D
 	conn, dialOpts, err := dial(ctx, opts)
 	c.dialOpts = dialOpts
 	if err != nil {
+		c.close(err, c.done)
 		return nil, err
 	}
 	c.decoder = codec.New(conn)
 	c.conn = conn
 	c.state = Connected
-	c.pool = p
 	go c.reader()
 	go c.writer()
 	return c.new(ctx, serialNo)
@@ -317,7 +329,7 @@ func (c *Connection) close(lastErr error, done chan struct{}) {
 	if err != nil {
 		c.state = Closed
 		close(c.mDone)
-		c.pool.connections.Delete(c)
+		c.pool.connections.Delete(c.address)
 	}
 }
 
