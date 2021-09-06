@@ -133,6 +133,9 @@ func (c *consumer) register2Master(needChange bool) error {
 			}
 
 			if !c.master.HasNext {
+				if err != nil {
+					return err
+				}
 				if rsp != nil {
 					log.Errorf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.GetErrMsg())
 				}
@@ -487,10 +490,10 @@ func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition, node *m
 
 func newClient(group string) string {
 	return group + "_" +
-		util.GetLocalHost() + "_" +
-		strconv.Itoa(os.Getpid()) + "_" +
-		strconv.Itoa(int(time.Now().Unix()*1000)) + "_" +
-		strconv.Itoa(int(atomic.AddUint64(&clientID, 1))) + "_" +
+		util.GetLocalHost() + "-" +
+		strconv.Itoa(os.Getpid()) + "-" +
+		strconv.Itoa(int(time.Now().Unix()*1000)) + "-" +
+		strconv.Itoa(int(atomic.AddUint64(&clientID, 1))) + "-" +
 		tubeMQClientVersion
 }
 

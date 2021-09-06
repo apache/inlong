@@ -18,5 +18,5 @@
 package client
 
 const (
-	tubeMQClientVersion = "0.1.0"
+	tubeMQClientVersion = "go_0.1.0"
 )
