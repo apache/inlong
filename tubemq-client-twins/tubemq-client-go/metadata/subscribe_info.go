@@ -48,7 +48,7 @@ func (s *SubscribeInfo) GetPartition() *Partition {
 
 // String returns the contents of SubscribeInfo as a string.
 func (s *SubscribeInfo) String() string {
-	return fmt.Sprintf("%s@%s-%s", s.consumerID, s.group, s.partition.String())
+	return fmt.Sprintf("%s@%s#%s", s.consumerID, s.group, s.partition.String())
 }
 
 // NewSubscribeInfo constructs a SubscribeInfo from a given string.
