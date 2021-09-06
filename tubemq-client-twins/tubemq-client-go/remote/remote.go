@@ -463,7 +463,7 @@ func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 		r.indexPartitions = nil
 		return
 	}
-	if pos >= len(r.indexPartitions) {
+	if pos == -1 || pos >= len(r.indexPartitions) {
 		return
 	}
 	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)

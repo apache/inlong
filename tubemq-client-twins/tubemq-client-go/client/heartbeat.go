@@ -88,6 +88,10 @@ func (h *heartbeatManager) consumerHB2Master() {
 	sub := &metadata.SubscribeInfo{}
 	sub.SetGroup(h.consumer.config.Consumer.Group)
 	m.SetSubscribeInfo(sub)
+	auth := &protocol.AuthenticateInfo{}
+	if h.consumer.needGenMasterCertificateInfo(true) {
+		util.GenMasterAuthenticateToken(auth, h.consumer.config.Net.Auth.UserName, h.consumer.config.Net.Auth.Password)
+	}
 	h.consumer.unreportedTimes++
 	if h.consumer.unreportedTimes > h.consumer.config.Consumer.MaxSubInfoReportInterval {
 		m.SetReportTimes(true)

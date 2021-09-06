@@ -162,6 +162,10 @@ func (c *consumer) sendRegRequest2Master() (*protocol.RegisterResponseM2C, error
 	node := &metadata.Node{}
 	node.SetHost(util.GetLocalHost())
 	node.SetAddress(c.master.Address)
+	auth := &protocol.AuthenticateInfo{}
+	if c.needGenMasterCertificateInfo(true) {
+		util.GenMasterAuthenticateToken(auth, c.config.Net.Auth.UserName, c.config.Net.Auth.Password)
+	}
 	m.SetNode(node)
 	sub := &metadata.SubscribeInfo{}
 	sub.SetGroup(c.config.Consumer.Group)
@@ -512,7 +516,7 @@ func (c *consumer) genBrokerAuthenticInfo(force bool) *protocol.AuthorizedInfo {
 	return auth
 }
 
-func (c *consumer) genMasterAuthenticateToken(auth *protocol.AuthenticateInfo, force bool) {
+func (c *consumer) needGenMasterCertificateInfo(force bool) bool {
 	needAdd := false
 	if c.config.Net.Auth.Enable {
 		if force {
@@ -526,6 +530,7 @@ func (c *consumer) genMasterAuthenticateToken(auth *protocol.AuthenticateInfo, f
 		if needAdd {
 		}
 	}
+	return needAdd
 }
 
 func (c *consumer) getConsumeReadStatus(isFirstReg bool) int32 {
@@ -700,10 +705,10 @@ func (c *consumer) close2Master() error {
 	sub := &metadata.SubscribeInfo{}
 	sub.SetGroup(c.config.Consumer.Group)
 	m.SetSubscribeInfo(sub)
+	mci := &protocol.MasterCertificateInfo{}
 	auth := &protocol.AuthenticateInfo{}
-	c.genMasterAuthenticateToken(auth, true)
-	mci := &protocol.MasterCertificateInfo{
-		AuthInfo: auth,
+	if c.needGenMasterCertificateInfo(true) {
+		util.GenMasterAuthenticateToken(auth, c.config.Net.Auth.UserName, c.config.Net.Auth.Password)
 	}
 	c.subInfo.SetMasterCertificateInfo(mci)
 	rsp, err := c.client.CloseRequestC2M(ctx, m, c.subInfo)
