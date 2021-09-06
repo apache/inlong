@@ -55,7 +55,7 @@ func (s *SubscribeInfo) String() string {
 // If the given is invalid, it will return error.
 // The format of subscribeInfo string: consumerId@group#broker_info#topic:partitionId
 func NewSubscribeInfo(subscribeInfo string) (*SubscribeInfo, error) {
-	s := strings.Split(subscribeInfo, "#")
+	s := strings.SplitN(subscribeInfo, "#", 2)
 	if len(s) == 1 {
 		return nil, errs.ErrInvalidSubscribeInfoString
 	}

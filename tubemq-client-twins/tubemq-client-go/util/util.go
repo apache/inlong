@@ -23,6 +23,8 @@ import (
 	"net"
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
 )
 
 // InvalidValue defines the invalid value of TubeMQ config.
@@ -72,8 +74,7 @@ func GenBrokerAuthenticateToken(username string, password string) string {
 }
 
 // GenMasterAuthenticateToken generates the master authenticate token.
-func GenMasterAuthenticateToken(username string, password string) string {
-	return ""
+func GenMasterAuthenticateToken(authInfo *protocol.AuthenticateInfo, username string, password string) {
 }
 
 // ParseConfirmContext parses the confirm context to partition key and bookedTime.
