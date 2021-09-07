@@ -21,6 +21,13 @@ import (
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
 )
 
+const (
+	CurrentLimit = iota
+	FrequencyLimit
+	SSDTransfer
+	RequestFrequencyControl
+)
+
 // Item defines a flow control item.
 type Item struct {
 	tp            int32
@@ -59,7 +66,7 @@ func (i *Item) SetEndTime(endTime int64) {
 	i.endTime = endTime
 }
 
-// SetDataDlt sets the datadlt.
+// SetDatadlt sets the datadlt.
 func (i *Item) SetDatadlt(datadlt int64) {
 	i.datadlt = datadlt
 }
