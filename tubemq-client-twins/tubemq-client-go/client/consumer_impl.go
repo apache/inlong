@@ -494,6 +494,7 @@ func newClient(group string) string {
 		strconv.Itoa(os.Getpid()) + "-" +
 		strconv.Itoa(int(time.Now().Unix()*1000)) + "-" +
 		strconv.Itoa(int(atomic.AddUint64(&clientID, 1))) + "-" +
+		"go-" +
 		tubeMQClientVersion
 }
 
