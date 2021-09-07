@@ -94,6 +94,8 @@ func NewPartition(partition string) (*Partition, error) {
 		return nil, err
 	}
 	partitionKey := strconv.Itoa(int(b.id)) + ":" + topic + ":" + strconv.Itoa(partitionID)
+	item := flowctrl.NewItem()
+	item.SetTp(flowctrl.RequestFrequencyControl)
 	return &Partition{
 		topic:        topic,
 		broker:       b,
@@ -103,6 +105,7 @@ func NewPartition(partition string) (*Partition, error) {
 		consumeData: &ConsumeData{
 			curDataDlt: util.InvalidValue,
 		},
+		freqCtrl: item,
 	}, nil
 }
 

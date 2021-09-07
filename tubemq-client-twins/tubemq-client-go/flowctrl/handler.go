@@ -148,7 +148,7 @@ func (h *RuleHandler) initStatisticData() {
 				if rule.tp != 3 {
 					continue
 				}
-				h.flowCtrlItem.SetTp(3)
+				h.flowCtrlItem.SetTp(RequestFrequencyControl)
 				h.flowCtrlItem.SetDataSizeLimit(rule.dataSizeLimit)
 				h.flowCtrlItem.SetFreqLimit(rule.freqMsLimit)
 				h.flowCtrlItem.SetZeroCnt(rule.zeroCnt)
@@ -324,7 +324,7 @@ func parseDataLimit(rules []interface{}) ([]*Item, error) {
 			return nil, fmt.Errorf("freqInMs value must over than equal or bigger than 200 in index(%d) of data limit rule", i)
 		}
 		item := NewItem()
-		item.SetTp(0)
+		item.SetTp(CurrentLimit)
 		item.SetStartTime(start)
 		item.SetEndTime(end)
 		item.SetDatadlt(datadlt)
@@ -378,7 +378,7 @@ func parseLowFetchLimit(rules []interface{}) ([]*Item, error) {
 			}
 		}
 		item := NewItem()
-		item.SetTp(3)
+		item.SetTp(RequestFrequencyControl)
 		item.SetDataSizeLimit(normFreqMs)
 		item.SetFreqLimit(filterFreqMs)
 		item.SetZeroCnt(minFilteFreqMs)
@@ -403,7 +403,7 @@ func parseFreqLimit(rules []interface{}) ([]*Item, error) {
 			return nil, err
 		}
 		item := NewItem()
-		item.SetTp(1)
+		item.SetTp(FrequencyLimit)
 		item.SetZeroCnt(zeroCnt)
 		item.SetFreqLimit(freqLimit)
 		items = append(items, item)
