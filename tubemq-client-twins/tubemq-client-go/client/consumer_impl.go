@@ -182,7 +182,7 @@ func (c *consumer) processRegisterResponseM2C(rsp *protocol.RegisterResponseM2C)
 	if rsp.GetNotAllocated() {
 		c.subInfo.SetIsNotAllocated(rsp.GetNotAllocated())
 	}
-	if rsp.GetDefFlowCheckId() != 0 || rsp.GetDefFlowCheckId() != 0 {
+	if rsp.GetDefFlowCheckId() != 0 || rsp.GetGroupFlowCheckId() != 0 {
 		if rsp.GetDefFlowCheckId() != 0 {
 			c.rmtDataCache.UpdateDefFlowCtrlInfo(rsp.GetDefFlowCheckId(), rsp.GetDefFlowControlInfo())
 		}
@@ -384,10 +384,10 @@ func (c *consumer) processRebalanceEvent() {
 			}
 		case <-c.done:
 			log.Infof("[CONSUMER]Rebalance done, client=%s", c.clientID)
-			break
+			log.Info("[CONSUMER] Rebalance event Handler stopped!")
+			return
 		}
 	}
-	log.Info("[CONSUMER] Rebalance event Handler stopped!")
 }
 
 func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
@@ -542,10 +542,10 @@ func (c *consumer) getConsumeReadStatus(isFirstReg bool) int32 {
 	if isFirstReg {
 		if c.config.Consumer.ConsumePosition == 0 {
 			readStatus = consumeStatusFromMax
-			log.Infof("[Consumer From Max Offset], client=", c.clientID)
+			log.Infof("[Consumer From Max Offset], client=%s", c.clientID)
 		} else if c.config.Consumer.ConsumePosition > 0 {
 			readStatus = consumeStatusFromMaxAlways
-			log.Infof("[Consumer From Max Offset Always], client=", c.clientID)
+			log.Infof("[Consumer From Max Offset Always], client=%s", c.clientID)
 		}
 	}
 	return int32(readStatus)

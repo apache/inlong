@@ -167,7 +167,7 @@ func (r *RmtDataCache) UpdateDefFlowCtrlInfo(flowCtrlID int64, flowCtrlInfo stri
 
 // UpdateGroupFlowCtrlInfo updates the groupFlowCtrlInfo.
 func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID int64, flowCtrlInfo string) {
-	if flowCtrlID != r.defHandler.GetFlowCtrID() {
+	if flowCtrlID != r.groupHandler.GetFlowCtrID() {
 		r.groupHandler.UpdateDefFlowCtrlInfo(false, int64(qryPriorityID), flowCtrlID, flowCtrlInfo)
 	}
 	if int64(qryPriorityID) != r.groupHandler.GetQryPriorityID() {
