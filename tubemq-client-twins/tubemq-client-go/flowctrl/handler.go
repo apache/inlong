@@ -79,10 +79,10 @@ func (h *RuleHandler) SetQryPriorityID(qryPriorityID int64) {
 
 // UpdateDefFlowCtrlInfo updates the flow control information.
 func (h *RuleHandler) UpdateDefFlowCtrlInfo(isDefault bool, qrypriorityID int64, flowCtrlID int64, info string) error {
-	if atomic.LoadInt64(&h.flowCtrlID) == flowCtrlID {
+	curFlowCtrlID := atomic.LoadInt64(&h.flowCtrlID)
+	if curFlowCtrlID == flowCtrlID {
 		return nil
 	}
-	//curFlowCtrlID := atomic.LoadInt64(&h.flowCtrlID)
 	var flowCtrlItems map[int32][]*Item
 	var err error
 	if len(info) > 0 {
@@ -94,6 +94,7 @@ func (h *RuleHandler) UpdateDefFlowCtrlInfo(isDefault bool, qrypriorityID int64,
 	h.configMu.Lock()
 	defer h.configMu.Unlock()
 	h.clearStatisticData()
+	atomic.StoreInt64(&h.flowCtrlID, flowCtrlID)
 	atomic.StoreInt64(&h.qrypriorityID, qrypriorityID)
 	if len(flowCtrlItems) == 0 {
 		h.flowCtrlRules = make(map[int32][]*Item)
@@ -105,11 +106,9 @@ func (h *RuleHandler) UpdateDefFlowCtrlInfo(isDefault bool, qrypriorityID int64,
 	}
 	h.lastUpdate = time.Now().UnixNano() / int64(time.Millisecond)
 	if isDefault {
-		log.Infof("[Flow Ctrl] Default FlowCtrl's flow ctrl id from %d to %d", atomic.LoadInt64(&h.flowCtrlID),
-			flowCtrlID)
+		log.Infof("[Flow Ctrl] Default FlowCtrl's flow ctrl id from %d to %d", curFlowCtrlID, flowCtrlID)
 	} else {
-		log.Infof("[Flow Ctrl] Group FlowCtrl's flow ctrl id from %d to %d", atomic.LoadInt64(&h.flowCtrlID),
-			flowCtrlID)
+		log.Infof("[Flow Ctrl] Group FlowCtrl's flow ctrl id from %d to %d", curFlowCtrlID, flowCtrlID)
 	}
 	return nil
 }
