@@ -1,0 +1,237 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+timezone: "Asia/Shanghai"
+
+images:
+  agent:
+    repository: inlong/agent
+    tag: latest
+  website:
+    repository: inlong/website
+    tag: latest
+  dataproxy:
+    repository: inlong/dataproxy
+    tag: latest
+  tubemqManager:
+    repository: inlong/tubemq-manager
+    tag: latest
+  tubemqServer:
+    repository: inlong/tubemq-all
+    tag: latest
+  managerWeb:
+    repository: inlong/manager-web
+    tag: latest
+  mysql:
+    repository: mysql
+    tag: 5.7
+  zookeeper:
+    repository: zookeeper
+    tag: latest
+  initContainer:
+    repository: busybox
+    tag: latest
+  pullPolicy: "IfNotPresent"
+
+volumes:
+  persistence: false
+  storageClassName: "local-storage"
+
+affinity:
+  anti_affinity: false
+
+ingress:
+  enabled: false
+  hosts:
+
+
+agent:
+  component: "agent"
+  replicaCount: 1
+  ports:
+    agent: 8008
+    managerOpenApi: ${managerWeb.containerPort}
+    dataProxy: ${dataproxy.containerPort}
+
+website:
+  component: "website"
+  replicaCount: 1
+  ports:
+    webPort: 80
+    webNodePort: 80
+  service:
+    type: LoadBalancer
+
+dataproxy:
+  component: "dataproxy"
+  replicaCount: 1
+  containerPort: 46801
+  managerOpenApiPort: ${managerWeb.containerPort}
+
+tubemqManager:
+  component: "tubemq-manager"
+  replicaCount: 1
+  containerPort: 8089
+  #  mysqlHost: "mysql"
+  mysqlUser: "root"
+  mysqlPassword: ${mysql.rootPassword}
+#  tubemqMasterIp: "tubemq-server"
+
+managerWeb:
+  component: "manager-web"
+  replicaCount: 1
+  ports:
+    webPort: 8083
+    webNodePort: 8083
+  activeProfile: "prod"
+  username: "root"
+  password: "inlong"
+  sortAppName: "inlong_hive"
+  service:
+    type: LoadBalancer
+
+mysql:
+  component: "mysql"
+  replicaCount: 2
+  rootPassword: "inlong"
+  ports:
+    server: 3306
+  persistentVolumeClaim:
+    enabled: false
+    accessModes:
+      - "ReadWriteOnce"
+    storageClassName: "-"
+    storage: "8Gi"
+
+zookeeper:
+  component: "zookeeper"
+  replicaCount: 2
+  updateStrategy:
+    type: "RollingUpdate"
+  podManagementPolicy: "OrderedReady"
+  ports:
+    client: 2181
+    follower: 2888
+    leaderElection: 3888
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+  tolerations: [ ]
+  gracePeriod: 30
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
+  volumes:
+    data:
+      name: data
+      size: "10Gi"
+  service:
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
+
+tubemqMaster:
+  component: "tubemq-master"
+  replicaCount: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  podManagementPolicy: "OrderedReady"
+  ports:
+    rpcPort: 8715
+    webPort: 8080
+    webNodePort: 8080
+    helpPort: 9001
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  tolerations: [ ]
+  gracePeriod: 30
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
+  volumes:
+    data:
+      name: data
+      size: "10Gi"
+  service:
+    type: LoadBalancer
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
+
+tubemqBroker:
+  component: "tubemq-broker"
+  replicaCount: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  podManagementPolicy: "OrderedReady"
+  ports:
+    rpcPort: 8123
+    webPort: 8081
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  tolerations: []
+  gracePeriod: 30
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
+  volumes:
+    data:
+      name: data
+      size: "10Gi"
+  service:
+    type: LoadBalancer
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
