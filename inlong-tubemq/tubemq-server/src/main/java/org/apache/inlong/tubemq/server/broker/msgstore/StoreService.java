@@ -37,8 +37,6 @@ public interface StoreService {
 
     Collection<MessageStore> getMessageStoresByTopic(String topic);
 
-    MessageStore getMessageStoresByTopicAndStoreId(String topic, int storeId);
-
     MessageStore getOrCreateMessageStore(String topic,
                                          int partition) throws Throwable;
 

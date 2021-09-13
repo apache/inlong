@@ -53,6 +53,6 @@ public class MsgMemStoreTest {
         msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
                 System.currentTimeMillis(), 3, bf, appendResult);
         // get messages
-        GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(false, false, 0, 2, 1024, 1000, 0, false, null);
+        GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(0, 2, 1024, 1000, 0, false, false, null);
     }
 }

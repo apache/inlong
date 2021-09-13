@@ -21,7 +21,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +47,6 @@ import org.apache.inlong.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.MsgMemStatisInfo;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.MsgMemStore;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.nodeinfo.ReplicaNodeInfo;
 import org.apache.inlong.tubemq.server.broker.stats.CountItem;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
@@ -179,7 +177,6 @@ public class MessageStore implements Closeable {
         }
         int result = 0;
         boolean inMemCache = false;
-        boolean isReplicaCsm = false;
         int maxIndexReadLength = memMaxIndexReadCnt.get();
         GetCacheMsgResult memMsgRlt = new GetCacheMsgResult(false, TErrCodeConstants.NOT_FOUND,
                 requestOffset, "Can't found Message by index in cache");
@@ -200,20 +197,18 @@ public class MessageStore implements Closeable {
                             if (reqSwitch > 2) {
                                 memMsgRlt =
                                         // read from main memory.
-                                        msgMemStore.getMessages(isReplicaCsm, false,
-                                                consumerNodeInfo.getLastDataRdOffset(),
+                                        msgMemStore.getMessages(consumerNodeInfo.getLastDataRdOffset(),
                                                 requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                                maxIndexReadLength, partitionId,
+                                                maxIndexReadLength, partitionId, false,
                                                 consumerNodeInfo.isFilterConsume(),
                                                 consumerNodeInfo.getFilterCondCodeSet());
                             }
                         } else {
                             // read from backup memory.
                             memMsgRlt =
-                                    msgMemStoreBeingFlush.getMessages(isReplicaCsm, true,
-                                            consumerNodeInfo.getLastDataRdOffset(),
+                                    msgMemStoreBeingFlush.getMessages(consumerNodeInfo.getLastDataRdOffset(),
                                             requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                            maxIndexReadLength, partitionId,
+                                            maxIndexReadLength, partitionId, true,
                                             consumerNodeInfo.isFilterConsume(),
                                             consumerNodeInfo.getFilterCondCodeSet());
                         }
@@ -233,8 +228,8 @@ public class MessageStore implements Closeable {
                         final StringBuilder strBuffer = new StringBuilder(512);
                         for (ByteBuffer dataBuffer : memMsgRlt.cacheMsgList) {
                             ClientBroker.TransferedMessage transferedMessage =
-                                    DataStoreUtils.getTransferMsg(isReplicaCsm,
-                                            dataBuffer, dataBuffer.array().length,
+                                    DataStoreUtils.getTransferMsg(dataBuffer,
+                                            dataBuffer.array().length,
                                             countMap, statisKeyBase, strBuffer);
                             if (transferedMessage != null) {
                                 transferedMessageList.add(transferedMessage);
@@ -282,7 +277,7 @@ public class MessageStore implements Closeable {
             msgSizeLimit = this.maxAllowRdSize;
         }
         GetMessageResult retResult =
-            msgFileStore.getMessages(isReplicaCsm, partitionId,
+            msgFileStore.getMessages(partitionId,
                 consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
                 indexBuffer, consumerNodeInfo.isFilterConsume(),
                 consumerNodeInfo.getFilterCondCodeSet(),
@@ -365,126 +360,6 @@ public class MessageStore implements Closeable {
         } while (count-- >= 0);
         msgMemStatisInfo.addWriteFailCount();
         return false;
-    }
-
-    /***
-     * Get batch message from message store. Support the given offset.
-     *
-     * @param requestOffset
-     * @param partitionId
-     * @param replicaNodeInfo
-     * @param statisKeyBase
-     * @param msgSizeLimit
-     * @return
-     * @throws IOException
-     */
-    public GetMessageResult getBathMessages(long requestOffset, int partitionId,
-                                            ReplicaNodeInfo replicaNodeInfo,
-                                            String statisKeyBase,
-                                            int msgSizeLimit) throws IOException {
-        // #lizard forgives
-        if (this.closed.get()) {
-            throw new IllegalStateException(new StringBuilder(512)
-                    .append("[Data Store] Closed MessageStore for storeKey ")
-                    .append(this.storeKey).toString());
-        }
-        int result = 0;
-        boolean inMemCache = false;
-        boolean isReplicaCsm = true;
-        int maxIndexReadLength = memMaxIndexReadCnt.get();
-        GetCacheMsgResult memMsgRlt = new GetCacheMsgResult(false, TErrCodeConstants.NOT_FOUND,
-                requestOffset, "Can't found Message by index in cache");
-        //　in read memory situation, read main memory or backup memory by consumer's config.
-        long maxIndexOffset = TBaseConstants.META_VALUE_UNDEFINED;
-        if (requestOffset >= this.msgFileStore.getIndexMaxOffset()) {
-            this.writeCacheMutex.readLock().lock();
-            try {
-                maxIndexOffset = this.msgMemStore.getIndexLastWritePos();
-                result = this.msgMemStoreBeingFlush.isOffsetInHold(requestOffset);
-                if (result > 0) {
-                    // read from main memory.
-                    inMemCache = true;
-                    memMsgRlt =
-                            msgMemStore.getMessages(isReplicaCsm, false,
-                                    replicaNodeInfo.getLastDataRdOffset(),
-                                    requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                    maxIndexReadLength, partitionId,
-                                    false, Collections.EMPTY_SET);
-
-                } else if (result == 0) {
-                    // read from backup memory.
-                    inMemCache = true;
-                    memMsgRlt =
-                            msgMemStoreBeingFlush.getMessages(isReplicaCsm, true,
-                                    replicaNodeInfo.getLastDataRdOffset(),
-                                    requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
-                                    maxIndexReadLength, partitionId,
-                                    false, Collections.EMPTY_SET);
-                }
-            } finally {
-                this.writeCacheMutex.readLock().unlock();
-            }
-        }
-        if (inMemCache) {
-            // return not found when data is under memory sink operation.
-            if (memMsgRlt.isSuccess) {
-                HashMap<String, CountItem> countMap =
-                        new HashMap<>();
-                List<ClientBroker.TransferedMessage> transferedMessageList =
-                        new ArrayList<>();
-                if (!memMsgRlt.cacheMsgList.isEmpty()) {
-                    final StringBuilder strBuffer = new StringBuilder(512);
-                    for (ByteBuffer dataBuffer : memMsgRlt.cacheMsgList) {
-                        ClientBroker.TransferedMessage transferedMessage =
-                                DataStoreUtils.getTransferMsg(isReplicaCsm,
-                                        dataBuffer, dataBuffer.array().length,
-                                        countMap, statisKeyBase, strBuffer);
-                        if (transferedMessage != null) {
-                            transferedMessageList.add(transferedMessage);
-                        }
-                    }
-                }
-                GetMessageResult getResult =
-                        new GetMessageResult(true, 0, memMsgRlt.errInfo, requestOffset,
-                                memMsgRlt.dltOffset, memMsgRlt.lastRdDataOff,
-                                memMsgRlt.totalMsgSize, countMap, transferedMessageList);
-                getResult.setMaxOffset(maxIndexOffset);
-                return getResult;
-            } else {
-                return new GetMessageResult(false, memMsgRlt.retCode, requestOffset,
-                        memMsgRlt.dltOffset, memMsgRlt.errInfo);
-            }
-        }
-        // read from file, before reading, adjust request's offset.
-        long reqNewOffset = Math.max(requestOffset, this.msgFileStore.getIndexMinOffset());
-        maxIndexReadLength = fileMaxIndexReadSize.get();
-        final ByteBuffer indexBuffer = ByteBuffer.allocate(maxIndexReadLength);
-        Segment indexRecordView =
-                this.msgFileStore.indexSlice(reqNewOffset, maxIndexReadLength);
-        if (indexRecordView == null) {
-            if (reqNewOffset < this.msgFileStore.getIndexMinOffset()) {
-                return new GetMessageResult(false, TErrCodeConstants.MOVED,
-                        reqNewOffset, 0, "current offset is exceed min offset!");
-            } else {
-                return new GetMessageResult(false, TErrCodeConstants.NOT_FOUND,
-                        reqNewOffset, 0, "current offset is exceed max offset!");
-            }
-        }
-        indexRecordView.read(indexBuffer, reqNewOffset);
-        indexBuffer.flip();
-        indexRecordView.relViewRef();
-        if ((msgFileStore.getDataHighMaxOffset() - replicaNodeInfo.getLastDataRdOffset()
-                >= this.tubeConfig.getDoubleDefaultDeduceReadSize())
-                && msgSizeLimit > this.maxAllowRdSize) {
-            msgSizeLimit = this.maxAllowRdSize;
-        }
-        GetMessageResult retResult =
-                msgFileStore.getMessages(isReplicaCsm, partitionId,
-                        replicaNodeInfo.getLastDataRdOffset(), reqNewOffset,
-                        indexBuffer, false, Collections.EMPTY_SET,
-                        statisKeyBase, msgSizeLimit);
-        retResult.setMaxOffset(getIndexMaxOffset());
-        return retResult;
     }
 
     public String getCurMemMsgSizeStatisInfo(boolean needRefresh) {
