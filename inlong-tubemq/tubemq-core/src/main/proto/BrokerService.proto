@@ -27,10 +27,6 @@ message TransferedMessage {
     required int32 checkSum = 2;
     required bytes payLoadData = 3;
     required int32 flag = 4;
-    optional int32 partitionId = 5;
-    optional int32 indexKeyCode = 6;
-    optional int32 reportAddr = 7;
-    optional int64 recvTimeInMs = 8;
 }
 
 message AuthorizedInfo {
@@ -143,96 +139,4 @@ message CommitOffsetResponseB2C {
     required string errMsg = 3;
     optional int64 currOffset=4;
     optional int64 maxOffset = 5;
-}
-
-message OffsetViewInfo{
-    required int64 indexStartOffset = 1;
-    required int64 indexEndOffset = 2;
-    required int64 dataStartOffset = 3;
-    required int64 dataEndOffset = 4;
-}
-
-message RegisterRequestF2L {
-    required string replicaId = 1;
-    required string groupName = 2;
-    required string topicName = 3;
-    required int32 storeId = 4;
-    required OffsetViewInfo offsetViewInfo = 5;
-    optional int64 reqOffset = 6;
-    optional AuthorizedInfo authInfo = 7;
-}
-
-message RegisterResponseL2F {
-    required bool success = 1;
-    required int32 errCode = 2;
-    required string errMsg = 3;
-    required OffsetViewInfo offsetViewInfo = 4;
-    optional int64 readOffset = 5;
-}
-
-message HeartBeatRequestF2L {
-    required string replicaId = 1;
-    required string groupName = 2;
-    repeated string storeHBInfo = 3;
-    optional AuthorizedInfo authInfo = 4;
-}
-
-message HeartBeatResponseL2F {
-    required bool success = 1;
-    required int32 errCode = 2;
-    required string errMsg = 3;
-    optional bool hasPartFailure = 4;
-    repeated string storeHBInfo = 5;
-    optional bool requireAuth = 6;
-}
-
-message CloseRequestF2L{
-	required string replicaId = 1;
-    required string groupName = 2;
-    required string topicName = 3;
-    required int32 storeId = 4;
-	optional AuthorizedInfo authInfo = 5;
-}
-
-message CloseResponseL2F{
-    required bool success = 1;
-    required int32 errCode = 2;
-    required string errMsg = 3;
-}
-
-message GetMessageRequestF2L {
-    required string replicaId = 1;
-    required string groupName = 2;
-    required string topicName = 3;
-    required int32 storeId = 4;
-    optional bool lastPackConsumed = 5;
-}
-
-message GetMessageResponseL2F {
-    required bool success = 1;
-    required int32 errCode = 2;
-    optional string errMsg = 3;
-    repeated TransferedMessage messages = 4;
-    optional int64 currReadOffset = 5;
-    optional int64 currDataDlt = 6;
-    optional int64 maxIndexOffset = 7;
-    optional int64 maxDataOffset = 8;
-}
-
-message CommitOffsetRequestF2L {
-    required string replicaId = 1;
-    required string groupName = 2;
-    required string topicName = 3;
-    required int32 storeId = 4;
-    required bool lastPackConsumed = 5;
-}
-
-message CommitOffsetResponseL2F {
-    required bool success = 1;
-    required int32 errCode = 2;
-    required string errMsg = 3;
-    optional int64 currReadOffset = 4;
-    optional int64 currDataDlt = 5;
-    optional int64 maxIndexOffset = 6;
-    optional int64 maxDataOffset = 7;
 }
