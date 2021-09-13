@@ -107,6 +107,7 @@ public class DataStoreUtils {
     /***
      * Convert inner message to protobuf format, then reply to client.
      *
+     * @param isReplicaCsm
      * @param dataBuffer
      * @param dataTotalSize
      * @param countMap
@@ -114,10 +115,11 @@ public class DataStoreUtils {
      * @param sBuilder
      * @return
      */
-    public static ClientBroker.TransferedMessage getTransferMsg(final ByteBuffer dataBuffer, int dataTotalSize,
-                                                                final HashMap<String, CountItem> countMap,
-                                                                final String statisKeyBase,
-                                                                final StringBuilder sBuilder) {
+    public static ClientBroker.TransferedMessage getTransferMsg(boolean isReplicaCsm,
+                                                                ByteBuffer dataBuffer, int dataTotalSize,
+                                                                HashMap<String, CountItem> countMap,
+                                                                String statisKeyBase,
+                                                                StringBuilder sBuilder) {
         if (dataBuffer.array().length < dataTotalSize) {
             return null;
         }
@@ -136,6 +138,10 @@ public class DataStoreUtils {
         }
         final long msgId = dataBuffer.getLong(DataStoreUtils.STORE_HEADER_POS_MSGID);
         final int flag = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_MSGFLAG);
+        final int partitionId = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_QUEUEID);
+        final int indexKeyCode = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_KEYCODE);
+        final int reportAddr = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_REPORTADDR);
+        final long recvTimeInMs = dataBuffer.getLong(DataStoreUtils.STORE_HEADER_POS_RECEIVEDTIME);
         final int payLoadLen2 = payLoadLen;
         final byte[] payLoadData = new byte[payLoadLen];
         System.arraycopy(dataBuffer.array(), payLoadOffset, payLoadData, 0, payLoadLen);
@@ -145,6 +151,12 @@ public class DataStoreUtils {
         dataBuilder.setCheckSum(checkSum);
         dataBuilder.setFlag(flag);
         dataBuilder.setPayLoadData(ByteString.copyFrom(payLoadData));
+        if (isReplicaCsm) {
+            dataBuilder.setPartitionId(partitionId);
+            dataBuilder.setIndexKeyCode(indexKeyCode);
+            dataBuilder.setReportAddr(reportAddr);
+            dataBuilder.setRecvTimeInMs(recvTimeInMs);
+        }
         // get statistic data
         int attrLen = 0;
         String attribute = null;

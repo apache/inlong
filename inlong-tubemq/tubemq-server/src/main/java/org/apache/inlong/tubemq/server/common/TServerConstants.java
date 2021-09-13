@@ -37,8 +37,10 @@ public final class TServerConstants {
     public static final int QRY_PRIORITY_MAX_VALUE = 303;
 
     public static final int TOPIC_STOREBLOCK_NUM_MIN = 1;
+    public static final int TOPIC_STOREBLOCK_NUM_MAX = 1000;
 
     public static final int TOPIC_PARTITION_NUM_MIN = 1;
+    public static final int TOPIC_PARTITION_NUM_MAX = 9000;
 
     public static final int TOPIC_DSK_UNFLUSHTHRESHOLD_MIN = 0;
     public static final int TOPIC_DSK_UNFLUSHTHRESHOLD_DEF = 1000;

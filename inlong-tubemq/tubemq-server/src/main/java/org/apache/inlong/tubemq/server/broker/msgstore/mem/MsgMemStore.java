@@ -124,21 +124,21 @@ public class MsgMemStore implements Closeable {
     /***
      * Read from memory, read index, then data.
      *
+     * @param isReplicaCsm
+     * @param isSecond
      * @param lstRdDataOffset
      * @param lstRdIndexOffset
      * @param maxReadSize
      * @param maxReadCount
      * @param partitionId
-     * @param isSecond
      * @param isFilterConsume
      * @param filterKeySet
      * @return
      */
-    public GetCacheMsgResult getMessages(final long lstRdDataOffset, final long lstRdIndexOffset,
-                                         final int maxReadSize, final int maxReadCount,
-                                         final int partitionId, final boolean isSecond,
-                                         final boolean isFilterConsume,
-                                         final Set<Integer> filterKeySet) {
+    public GetCacheMsgResult getMessages(boolean isReplicaCsm, boolean isSecond,
+                                         long lstRdDataOffset, long lstRdIndexOffset,
+                                         int maxReadSize, int maxReadCount, int partitionId,
+                                         boolean isFilterConsume, Set<Integer> filterKeySet) {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
@@ -159,22 +159,26 @@ public class MsgMemStore implements Closeable {
         int startReadOff = (int) (lstRdIndexOffset - this.writeIndexStartPos);
         this.writeLock.lock();
         try {
-            if (isFilterConsume) {
-                //　filter conduct. accelerate by keysMap.
-                for (Integer keyCode : filterKeySet) {
-                    if (keyCode != null) {
-                        lastWritePos = this.keysMap.get(keyCode);
-                        if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
-                            hasMsg = true;
-                            break;
+            if (isReplicaCsm) {
+                hasMsg = true;
+            } else {
+                if (isFilterConsume) {
+                    //　filter conduct. accelerate by keysMap.
+                    for (Integer keyCode : filterKeySet) {
+                        if (keyCode != null) {
+                            lastWritePos = this.keysMap.get(keyCode);
+                            if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
+                                hasMsg = true;
+                                break;
+                            }
                         }
                     }
-                }
-            } else {
-                // orderly consume by partition id.
-                lastWritePos = this.queuesMap.get(partitionId);
-                if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
-                    hasMsg = true;
+                } else {
+                    // orderly consume by partition id.
+                    lastWritePos = this.queuesMap.get(partitionId);
+                    if ((lastWritePos != null) && (lastWritePos >= startReadOff)) {
+                        hasMsg = true;
+                    }
                 }
             }
             currDataOffset = this.cacheDataOffset.get();
@@ -230,10 +234,12 @@ public class MsgMemStore implements Closeable {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
-            if ((cPartitionId != partitionId)
-                    || (isFilterConsume && (!filterKeySet.contains(cKeyCode)))) {
-                readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
-                continue;
+            if (!isReplicaCsm) {
+                if ((cPartitionId != partitionId)
+                        || (isFilterConsume && (!filterKeySet.contains(cKeyCode)))) {
+                    readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
+                    continue;
+                }
             }
             //　read data file.
             byte[] tmpArray = new byte[cDataSize];
