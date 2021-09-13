@@ -220,7 +220,6 @@ public class MsgFileStore implements Closeable {
     /***
      * Get message from index and data files.
      *
-     * @param isReplicaCsm
      * @param partitionId
      * @param lastRdOffset
      * @param reqOffset
@@ -231,13 +230,12 @@ public class MsgFileStore implements Closeable {
      * @param maxMsgTransferSize
      * @return
      */
-    public GetMessageResult getMessages(boolean isReplicaCsm,
-                                        int partitionId, long lastRdOffset,
-                                        long reqOffset, ByteBuffer indexBuffer,
-                                        boolean isFilterConsume,
-                                        Set<Integer> filterKeySet,
-                                        String statisKeyBase,
-                                        int maxMsgTransferSize) {
+    public GetMessageResult getMessages(final int partitionId, final long lastRdOffset,
+                                        final long reqOffset, final ByteBuffer indexBuffer,
+                                        final boolean isFilterConsume,
+                                        final Set<Integer> filterKeySet,
+                                        final String statisKeyBase,
+                                        final int maxMsgTransferSize) {
         // #lizard forgives
         //　Orderly read from index file, then random read from data file.
         int retCode = 0;
@@ -287,9 +285,9 @@ public class MsgFileStore implements Closeable {
                 break;
             }
             // conduct filter operation.
-            if (!isReplicaCsm
-                    && (curIndexPartitionId != partitionId
-                    || (isFilterConsume && !filterKeySet.contains(curIndexKeyCode)))) {
+            if (curIndexPartitionId != partitionId
+                    || (isFilterConsume
+                    && !filterKeySet.contains(curIndexKeyCode))) {
                 lastRdDataOffset = maxDataLimitOffset;
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
@@ -342,9 +340,8 @@ public class MsgFileStore implements Closeable {
             readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
             lastRdDataOffset = maxDataLimitOffset;
             ClientBroker.TransferedMessage transferedMessage =
-                    DataStoreUtils.getTransferMsg(isReplicaCsm,
-                            dataBuffer, curIndexDataSize,
-                            countMap, statisKeyBase, sBuilder);
+                    DataStoreUtils.getTransferMsg(dataBuffer,
+                            curIndexDataSize, countMap, statisKeyBase, sBuilder);
             if (transferedMessage == null) {
                 continue;
             }

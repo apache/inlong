@@ -277,23 +277,6 @@ public class MessageStoreManager implements StoreService {
     }
 
     /***
-     * Get message store by topic and storeId.
-     *
-     * @param topic    topic name
-     * @param storeId  store id
-     * @return
-     */
-    @Override
-    public MessageStore getMessageStoresByTopicAndStoreId(String topic, int storeId) {
-        final ConcurrentHashMap<Integer, MessageStore> map
-                = this.dataStores.get(topic);
-        if (map != null) {
-            return map.get(storeId);
-        }
-        return null;
-    }
-
-    /***
      * Get or create message store.
      *
      * @param topic
