@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
+import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.KeepAlive;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -318,6 +319,8 @@ public interface MetaStoreService extends KeepAlive, Server {
                                     String recordKey,
                                     StringBuilder strBuffer,
                                     ProcessResult result);
+
+    void registerObserver(AliveObserver eventObserver);
 
     boolean isTopicNameInUsed(String topicName);
 

@@ -47,6 +47,7 @@ import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
+import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -148,6 +149,9 @@ public class MetaDataManager implements Server {
         logger.info("BrokerConfManager StoreService stopped");
     }
 
+    public void registerObserver(AliveObserver eventObserver) {
+        metaStoreService.registerObserver(eventObserver);
+    }
 
     /**
      * If this node is the master role
@@ -473,6 +477,10 @@ public class MetaDataManager implements Server {
             }
         }
         return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
+    }
+
+    public Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity) {
+        return metaStoreService.getBrokerConfInfo(qryEntity);
     }
 
     /**
