@@ -43,6 +43,7 @@ import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
 /*
  * Broker run manager
  */
-public class DefBrokerRunManager implements BrokerRunManager {
+public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
     private static final Logger logger =
             LoggerFactory.getLogger(DefBrokerRunManager.class);
     // meta data manager
@@ -98,6 +99,17 @@ public class DefBrokerRunManager implements BrokerRunManager {
                                 nodeInfo.getSecondKey(), true);
                     }
                 });
+        this.metaDataManager.registerObserver(this);
+    }
+
+    @Override
+    public void clearCacheData() {
+        // cache data not need clear
+    }
+
+    @Override
+    public void reloadCacheData() {
+        updBrokerStaticInfo(metaDataManager.getBrokerConfInfo(null));
     }
 
     @Override
