@@ -92,9 +92,9 @@ public class FlowCtrlRuleHandler {
      * @param flowCtrlInfo
      * @throws Exception
      */
-    public void updateDefFlowCtrlInfo(final int qyrPriorityId,
-                                      final long flowCtrlId,
-                                      final String flowCtrlInfo) throws Exception {
+    public void updateFlowCtrlInfo(final int qyrPriorityId,
+                                   final long flowCtrlId,
+                                   final String flowCtrlInfo) throws Exception {
         if (flowCtrlId == this.flowCtrlId.get()) {
             return;
         }

@@ -1116,9 +1116,17 @@ public class BaseMessageConsumer implements MessageConsumer {
         if (response.hasGroupFlowCheckId()) {
             final int qryPriorityId = response.hasQryPriorityId()
                     ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
+            if (response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Register response] found parse default flowCtrl rules failure", e1);
+                }
+            }
             if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
                 try {
-                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
                             response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn("[Register response] found parse group flowCtrl rules failure", e1);
@@ -1143,9 +1151,18 @@ public class BaseMessageConsumer implements MessageConsumer {
         if (response.hasGroupFlowCheckId()) {
             final int qryPriorityId = response.hasQryPriorityId()
                     ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
+            if (response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn(
+                            "[Heartbeat response] found parse default flowCtrl rules failure", e1);
+                }
+            }
             if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
                 try {
-                    groupFlowCtrlRuleHandler.updateDefFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
                             response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn(

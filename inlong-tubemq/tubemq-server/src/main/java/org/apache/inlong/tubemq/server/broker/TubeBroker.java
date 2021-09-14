@@ -314,7 +314,7 @@ public class TubeBroker implements Stoppable {
                 flowCheckId = response.getFlowCheckId();
                 try {
                     flowCtrlRuleHandler
-                            .updateDefFlowCtrlInfo(qryPriorityId,
+                            .updateFlowCtrlInfo(qryPriorityId,
                                     flowCheckId, response.getFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn(
@@ -432,7 +432,7 @@ public class TubeBroker implements Stoppable {
             if (response.getFlowCheckId() != flowCtrlRuleHandler.getFlowCtrlId()) {
                 try {
                     flowCtrlRuleHandler
-                            .updateDefFlowCtrlInfo(response.getQryPriorityId(),
+                            .updateFlowCtrlInfo(response.getQryPriorityId(),
                                     response.getFlowCheckId(), response.getFlowControlInfo());
                 } catch (Exception e1) {
                     logger.warn("[Register response] found parse flowCtrl rules failure", e1);
