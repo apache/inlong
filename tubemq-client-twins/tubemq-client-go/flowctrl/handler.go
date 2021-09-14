@@ -198,7 +198,7 @@ func (h *RuleHandler) GetFilterCtrlItem() *Item {
 	return h.flowCtrlItem
 }
 
-// GetCurFreqLimitTim returns curFreqLimitTime.
+// GetCurFreqLimitTime returns curFreqLimitTime.
 func (h *RuleHandler) GetCurFreqLimitTime(msgZeroCnt int32, receivedLimit int64) int64 {
 	limitData := receivedLimit
 	if int64(msgZeroCnt) < atomic.LoadInt64(&h.minZeroCount) {
@@ -210,15 +210,16 @@ func (h *RuleHandler) GetCurFreqLimitTime(msgZeroCnt int32, receivedLimit int64)
 		return limitData
 	}
 	for _, rule := range h.flowCtrlRules[1] {
-		limitData = rule.getFreLimit(msgZeroCnt)
-		if limitData >= 0 {
+		limit := rule.getFreLimit(msgZeroCnt)
+		if limit >= 0 {
+			limitData = limit
 			break
 		}
 	}
 	return limitData
 }
 
-// getMinZeroCnt returns the minZeroCount,
+// GetMinZeroCnt returns the minZeroCount.
 func (h *RuleHandler) GetMinZeroCnt() int64 {
 	return atomic.LoadInt64(&h.minZeroCount)
 }
@@ -331,6 +332,11 @@ func parseDataLimit(rules []interface{}) ([]*Item, error) {
 		item.SetFreqLimit(freqMsLimit)
 		items = append(items, item)
 	}
+	if len(items) > 0 {
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].startTime <= items[j].startTime
+		})
+	}
 	return items, nil
 }
 
@@ -409,7 +415,7 @@ func parseFreqLimit(rules []interface{}) ([]*Item, error) {
 	}
 	if len(items) > 0 {
 		sort.Slice(items, func(i, j int) bool {
-			return items[i].zeroCnt < items[j].zeroCnt
+			return items[i].zeroCnt > items[j].zeroCnt
 		})
 	}
 	return items, nil

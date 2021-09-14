@@ -149,14 +149,14 @@ func (p *Partition) BookConsumeData(data *ConsumeData) {
 	p.consumeData = data
 }
 
-// ProcConsumeResult processes the consume result.
+// ProcConsumeResult processes consume result.
 func (p *Partition) ProcConsumeResult(defHandler *flowctrl.RuleHandler, groupHandler *flowctrl.RuleHandler, filterConsume bool, lastConsumed bool) int64 {
 	dltTime := time.Now().UnixNano()/int64(time.Millisecond) - p.consumeData.time
 	p.updateStrategyData(defHandler, groupHandler)
 	p.lastConsumed = lastConsumed
 	switch p.consumeData.errCode {
 	case errs.RetSuccess, errs.RetErrNotFound:
-		if p.consumeData.msgSize == 0 && p.consumeData.errCode == 200 {
+		if p.consumeData.msgSize == 0 && p.consumeData.errCode != errs.RetSuccess {
 			p.totalZeroCnt++
 		} else {
 			p.totalZeroCnt = 0
@@ -192,7 +192,7 @@ func (p *Partition) ProcConsumeResult(defHandler *flowctrl.RuleHandler, groupHan
 			return p.consumeData.dltLimit - dltTime
 		}
 	default:
-		return p.consumeData.curDataDlt - dltTime
+		return p.consumeData.dltLimit - dltTime
 	}
 }
 
