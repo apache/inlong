@@ -614,6 +614,7 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue, util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
+		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
 		return nil, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	case errs.RetErrNotFound:
 		limitDlt = c.config.Consumer.MsgNotFoundWait.Milliseconds()
