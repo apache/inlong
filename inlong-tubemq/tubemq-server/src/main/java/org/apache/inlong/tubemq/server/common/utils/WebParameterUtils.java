@@ -414,14 +414,16 @@ public class WebParameterUtils {
         // get numTopicStores parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMTOPICSTORES, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getNumTopicStores()),
-                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, sBuffer, result)) {
+                TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, TServerConstants.TOPIC_STOREBLOCK_NUM_MAX,
+                sBuffer, result)) {
             return result.isSuccess();
         }
         newConf.setNumTopicStores((int) result.retData1);
         // get numPartitions parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMPARTITIONS, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getNumPartitions()),
-                TServerConstants.TOPIC_PARTITION_NUM_MIN, sBuffer, result)) {
+                TServerConstants.TOPIC_PARTITION_NUM_MIN, TServerConstants.TOPIC_PARTITION_NUM_MAX,
+                sBuffer, result)) {
             return result.isSuccess();
         }
         newConf.setNumPartitions((int) result.retData1);
