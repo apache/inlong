@@ -372,7 +372,7 @@ func (r *RmtDataCache) GetCurConsumeStatus() int32 {
 		return errs.RetErrNoPartAssigned
 	}
 	if len(r.indexPartitions) == 0 {
-		if len(r.usedPartitions) == 0 {
+		if len(r.usedPartitions) > 0 {
 			return errs.RetErrAllPartInUse
 		} else {
 			return errs.RetErrAllPartWaiting
@@ -391,7 +391,7 @@ func (r *RmtDataCache) SelectPartition() (*metadata.Partition, int64, error) {
 		return nil, 0, errs.ErrNoPartAssigned
 	} else {
 		if len(r.indexPartitions) == 0 {
-			if len(r.usedPartitions) == 0 {
+			if len(r.usedPartitions) > 0 {
 				return nil, 0, errs.ErrAllPartInUse
 			} else {
 				return nil, 0, errs.ErrAllPartWaiting

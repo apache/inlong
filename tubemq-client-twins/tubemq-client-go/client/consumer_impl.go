@@ -72,6 +72,7 @@ type consumer struct {
 
 // NewConsumer returns a consumer which is constructed by a given config.
 func NewConsumer(config *config.Config) (Consumer, error) {
+	log.Infof("The config of the consumer is %s", config)
 	selector, err := selector.Get("ip")
 	if err != nil {
 		return nil, err
@@ -148,7 +149,7 @@ func (c *consumer) register2Master(needChange bool) error {
 			}
 			continue
 		}
-		log.Info("register2Master response %s", rsp.String())
+		log.Infof("register2Master response %s", rsp.String())
 
 		c.masterHBRetry = 0
 		c.processRegisterResponseM2C(rsp)
