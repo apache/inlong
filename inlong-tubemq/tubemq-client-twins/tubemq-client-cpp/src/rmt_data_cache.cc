@@ -127,9 +127,9 @@ int32_t RmtDataCacheCsm::GetCurConsumeStatus() {
   }
   if (index_partitions_.empty()) {
     if (partition_useds_.empty()) {
-      return err_code::kErrAllPartInUse;
-    } else {
       return err_code::kErrAllPartWaiting;
+    } else {
+      return err_code::kErrAllPartInUse;
     }
   }
   return err_code::kErrSuccess;
@@ -150,11 +150,11 @@ bool RmtDataCacheCsm::SelectPartition(int32_t& error_code, string& err_info,
   } else {
     if (index_partitions_.empty()) {
       if (partition_useds_.empty()) {
-        error_code = err_code::kErrAllPartInUse;
-        err_info = "No idle partition to consume, please retry later!";
-      } else {
         error_code = err_code::kErrAllPartWaiting;
         err_info = "All partitions reach max position, please retry later!";
+      } else {
+        error_code = err_code::kErrAllPartInUse;
+        err_info = "No idle partition to consume, please retry later!";
       }
       result = false;
     } else {
