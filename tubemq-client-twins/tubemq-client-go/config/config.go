@@ -19,6 +19,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -146,6 +147,14 @@ func NewDefaultConfig() *Config {
 	c.Heartbeat.AfterFail = 60000 * time.Millisecond
 
 	return c
+}
+
+func (c *Config) String() string {
+	bytes, err := json.Marshal(c)
+	if err != nil {
+		return err.Error()
+	}
+	return string(bytes)
 }
 
 // ParseAddress parses the address to user-defined config.
