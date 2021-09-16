@@ -29,5 +29,5 @@ spec:
       port: {{ .Values.tubemqManager.containerPort }}
   type: ClusterIP
   selector:
-    {{- include "inlong.matchLabels" . | nindent 6 }}
+    {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqManager.component }}

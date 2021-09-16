@@ -58,7 +58,6 @@ ingress:
   enabled: false
   hosts:
 
-
 agent:
   component: "agent"
   replicaCount: 1
@@ -86,10 +85,8 @@ tubemqManager:
   component: "tubemq-manager"
   replicaCount: 1
   containerPort: 8089
-  #  mysqlHost: "mysql"
   mysqlUser: "root"
   mysqlPassword: ${mysql.rootPassword}
-#  tubemqMasterIp: "tubemq-server"
 
 managerWeb:
   component: "manager-web"
@@ -106,7 +103,7 @@ managerWeb:
 
 mysql:
   component: "mysql"
-  replicaCount: 2
+  replicaCount: 1
   rootPassword: "inlong"
   ports:
     server: 3306
@@ -119,7 +116,7 @@ mysql:
 
 zookeeper:
   component: "zookeeper"
-  replicaCount: 2
+  replicaCount: 1
   updateStrategy:
     type: "RollingUpdate"
   podManagementPolicy: "OrderedReady"
@@ -141,7 +138,7 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
-  tolerations: [ ]
+  tolerations: []
   gracePeriod: 30
   resources:
     requests:
@@ -180,7 +177,7 @@ tubemqMaster:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: [ ]
+  tolerations: []
   gracePeriod: 30
   resources:
     requests:

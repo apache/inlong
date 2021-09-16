@@ -37,35 +37,39 @@ spec:
         component: {{ .Values.agent.component }}
     spec:
       initContainers:
-      - name: wait-website
+      - name: wait-{{ .Values.website.component }}-ready
         image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
-        command: [ "/bin/bash", "-c" ]
+        command: [ "/bin/sh", "-c" ]
         args:
-          - >-
-            for ((i=0;i<{{ .Values.website.replicaCount }};i++))
+          - |
+            count={{ .Values.website.replicaCount }}
+            for i in $(seq 0 $(expr $count - 1))
             do
-              host="{{ template "inlong.fullname" $ }}-{{ .Values.website.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.website.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.website.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.website.component }}.{{ .Release.Namespace }}.svc.cluster.local"
               port={{ .Values.website.ports.webPort }}
-              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
-                echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.website.component }}-$i to be ready"
+                echo "waiting for $replica to be ready"
                 sleep 3
               done
             done
-      - name: wait-dataproxy
+      - name: wait-{{ .Values.dataproxy.component }}-ready
         image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
-        command: [ "/bin/bash", "-c" ]
+        command: [ "/bin/sh", "-c" ]
         args:
-          - >-
-            for ((i=0;i<{{ .Values.dataproxy.replicaCount }};i++))
+          - |
+            count={{ .Values.dataproxy.replicaCount }}
+            for i in $(seq 0 $(expr $count - 1))
             do
-              host="{{ template "inlong.fullname" $ }}-{{ .Values.dataproxy.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local"
               port={{ .Values.dataproxy.containerPort }}
-              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
-                echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.dataproxy.component }}-$i to be ready"
+                echo "waiting for $replica to be ready"
                 sleep 3
               done
             done
@@ -75,11 +79,11 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: MANAGER_OPENAPI_IP
-              value: {{ template "inlong.tubemqManager.hostname" . }}
+              value: {{ include "inlong.tubemqManager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.agent.ports.managerOpenApi }}
             - name: DATAPROXY_IP
-              value: {{ template "inlong.dataproxy.hostname" . }}
+              value: {{ include "inlong.dataproxy.hostname" . | quote }}
             - name: DATAPROXY_PORT
               value: {{ .Values.agent.ports.dataProxy }}
           ports:

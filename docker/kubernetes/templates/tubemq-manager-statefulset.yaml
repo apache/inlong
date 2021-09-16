@@ -37,45 +37,49 @@ spec:
         component: {{ .Values.tubemqManager.component }}
     spec:
       initContainers:
-        - name: wait-mysql-ready
+        - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
-          command: ["/bin/bash", "-c"]
+          command: [ "/bin/sh", "-c" ]
           args:
-            - >-
-              for ((i=0;i<{{ .Values.mysql.replicaCount }};i++))
+            - |
+              count={{ .Values.mysql.replicaCount }}
+              for i in $(seq 0 $(expr $count - 1))
               do
-                host="{{ template "inlong.fullname" $ }}-{{ .Values.mysql.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
+                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local"
                 port={{ .Values.mysql.ports.server }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
                 do
-                  echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.mysql.component }}-$i to be ready"
+                  echo "waiting for $replica to be ready"
                   sleep 3
                 done
               done
-        - name: wait-tubemq-master
+        - name: wait-{{ .Values.tubemqMaster.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
-          command: ["/bin/bash", "-c"]
+          command: [ "/bin/sh", "-c" ]
           args:
-            - >-
-              for ((i=0;i<{{ .Values.tubemqMaster.replicaCount }};i++))
+            - |
+              count={{ .Values.tubemqMaster.replicaCount }}
+              for i in $(seq 0 $(expr $count - 1))
               do
-                host="{{ template "inlong.fullname" $ }}-{{ .Values.tubemqMaster.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.tubemqMaster.ports.rpcPort }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
+                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                port={{ .Values.tubemqMaster.ports.webNodePort }}
+                until curl $host:$port/index.htm
                 do
-                  echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.tubemqMaster.component }}-$i to be ready"
+                  echo "waiting for $replica to be ready"
                   sleep 3
                 done
               done
       containers:
-        - name: {{ template "inlong.name" . }}-{{ .Values.tubemqManager.component }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}
           image: {{ .Values.images.tubemqManager.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: MYSQL_HOST
-              value: {{ template "inlong.mysql.hostname" }}
+              value: {{ include "inlong.mysql.hostname" . | quote }}
             - name: MYSQL_USER
               value: {{ .Values.tubemqManager.mysqlUser | quote }}
             - name: MYSQL_PASSWD
@@ -84,7 +88,7 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-root-password
             - name: TUBE_MASTER_IP
-              value: {{ include "inlong.tubemqMaster.hostname" . | quote}}
+              value: {{ include "inlong.tubemqMaster.hostname" . | quote }}
           ports:
             - name: {{ .Values.tubemqManager.component }}-port
               containerPort: 8089
