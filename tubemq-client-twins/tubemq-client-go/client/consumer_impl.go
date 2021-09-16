@@ -25,6 +25,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -68,6 +69,7 @@ type consumer struct {
 	heartbeatManager *heartbeatManager
 	unreportedTimes  int
 	done             chan struct{}
+	closeOnce        sync.Once
 }
 
 // NewConsumer returns a consumer which is constructed by a given config.
@@ -353,18 +355,16 @@ func (c *consumer) GetClientID() string {
 }
 
 // Close implementation of TubeMQ consumer.
-func (c *consumer) Close() error {
-	log.Infof("[CONSUMER]Begin to close consumer, client=%s", c.clientID)
-	close(c.done)
-	err := c.close2Master()
-	if err != nil {
-		return err
-	}
-	c.closeAllBrokers()
-	c.heartbeatManager.close()
-	c.client.Close()
-	log.Infof("[CONSUMER]Consumer has been closed successfully, client=%s", c.clientID)
-	return nil
+func (c *consumer) Close() {
+	c.closeOnce.Do(func() {
+		log.Infof("[CONSUMER]Begin to close consumer, client=%s", c.clientID)
+		close(c.done)
+		c.heartbeatManager.close()
+		c.close2Master()
+		c.closeAllBrokers()
+		c.client.Close()
+		log.Infof("[CONSUMER]Consumer has been closed successfully, client=%s", c.clientID)
+	})
 }
 
 func (c *consumer) processRebalanceEvent() {
@@ -436,7 +436,14 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 	auth := c.genBrokerAuthenticInfo(true)
 	c.subInfo.SetAuthorizedInfo(auth)
 
-	c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
+	rsp, err := c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
+	if err != nil {
+		log.Errorf("[CONSUMER] fail to unregister partition %s, error %s", partition, err.Error())
+		return
+	}
+	if !rsp.GetSuccess() {
+		log.Errorf("[CONSUMER] fail to unregister partition %s, err code: %d, error msg %s", partition, rsp.GetErrCode(), rsp.GetErrMsg())
+	}
 }
 
 func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
@@ -455,7 +462,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 					continue
 				}
 				if !rsp.GetSuccess() {
-					log.Warnf("[connect2Broker] err code:%d, err msg: %s", rsp.ErrCode, rsp.ErrMsg)
+					log.Warnf("[connect2Broker] err code:%d, err msg: %s", rsp.GetErrCode(), rsp.GetErrMsg())
 					return
 				}
 
@@ -698,7 +705,7 @@ func (c *consumer) convertMessages(filtered bool, topic string, rsp *protocol.Ge
 	return msgSize, msgs
 }
 
-func (c *consumer) close2Master() error {
+func (c *consumer) close2Master() {
 	log.Infof("[CONSUMER] close2Master begin, client=%s", c.clientID)
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
 	defer cancel()
@@ -719,13 +726,14 @@ func (c *consumer) close2Master() error {
 	c.subInfo.SetMasterCertificateInfo(mci)
 	rsp, err := c.client.CloseRequestC2M(ctx, m, c.subInfo)
 	if err != nil {
-		return err
+		log.Errorf("[CONSUMER] fail to close master, error: %s", err.Error())
+		return
 	}
 	if !rsp.GetSuccess() {
-		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+		log.Errorf("[CONSUMER] fail to close master, error code: %d, error msg: %s", rsp.GetErrCode(), rsp.GetErrMsg())
+		return
 	}
 	log.Infof("[CONSUMER] close2Master finished, client=%s", c.clientID)
-	return nil
 }
 
 func (c *consumer) closeAllBrokers() {

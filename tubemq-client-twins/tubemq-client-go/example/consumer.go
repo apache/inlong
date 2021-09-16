@@ -63,9 +63,5 @@ func main() {
 			continue
 		}
 	}
-	err = c.Close()
-	if err != nil {
-		log.Errorf("Close err %s", err.Error())
-		panic(err)
-	}
+	c.Close()
 }
