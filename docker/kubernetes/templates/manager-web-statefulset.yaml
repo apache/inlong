@@ -37,31 +37,33 @@ spec:
         component: {{ .Values.managerWeb.component }}
     spec:
       initContainers:
-        - name: wait-tubemq-manager
+        - name: wait-{{ .Values.tubemqManager.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
-          command: [ "/bin/bash", "-c" ]
+          command: [ "/bin/sh", "-c" ]
           args:
-            - >-
-              for ((i=0;i<{{ .Values.tubemqManager.replicaCount }};i++))
+            - |
+              count={{ .Values.tubemqManager.replicaCount }}
+              for i in $(seq 0 $(expr $count - 1))
               do
-                host="{{ template "inlong.fullname" $ }}-{{ .Values.tubemqManager.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.tubemqManager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}-$i"
+                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
                 port={{ .Values.tubemqManager.containerPort }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
                 do
-                  echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.tubemqManager.component }}-$i to be ready"
+                  echo "waiting for $replica to be ready"
                   sleep 3
                 done
               done
       containers:
-        - name: {{ template "inlong.name" . }}-{{ .Values.managerWeb.component }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.managerWeb.component }}
           image: {{ .Values.images.managerWeb.repository }}:{{ .Values.images.managerWeb.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: ACTIVE_PROFILE
               value: {{ .Values.managerWeb.activeProfile }}
             - name: JDBC_URL
-              value: "{{ template "inlong.mysql.hostname" }}:{{ .Values.mysql.ports.server }}"
+              value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}"
             - name: USERNAME
               value: {{ .Values.managerWeb.username }}
             - name: PASSWORD

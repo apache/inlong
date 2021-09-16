@@ -37,19 +37,21 @@ spec:
         component: {{ .Values.dataproxy.component }}
     spec:
       initContainers:
-      - name: wait-manager-web
+      - name: wait-{{ .Values.managerWeb.component }}-ready
         image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
-        command: [ "/bin/bash", "-c" ]
+        command: [ "/bin/sh", "-c" ]
         args:
-          - >-
-            for ((i=0;i<{{ .Values.managerWeb.replicaCount }};i++))
+          - |
+            count={{ .Values.managerWeb.replicaCount }}
+            for i in $(seq 0 $(expr $count - 1))
             do
-              host="{{ template "inlong.fullname" $ }}-{{ .Values.managerWeb.component }}-$i.{{ template "inlong.fullname" $ }}-{{ .Values.managerWeb.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.managerWeb.ports.webPort }}
-              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0]
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.managerWeb.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.managerWeb.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              port={{ .Values.managerWeb.ports.webNodePort }}
+              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
-                echo "waiting for {{ template "inlong.fullname" $ }}-{{ .Values.managerWeb.component }}-$i to be ready"
+                echo "waiting for $replica to be ready"
                 sleep 3
               done
             done
@@ -59,11 +61,11 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: MANAGER_OPENAPI_IP
-              value: {{ template "inlong.managerWeb.hostname" . }}
+              value: {{ include "inlong.managerWeb.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.dataproxy.managerOpenApiPort }}
             - name: TUBMQ_MASTER_LIST
-              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort}}"
+              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
           ports:
             - name: {{ .Values.dataproxy.component }}-port
               containerPort: 46801

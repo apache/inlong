@@ -58,14 +58,14 @@ spec:
         - name: data
           {{- if .Values.mysql.persistentVolumeClaim.enabled }}
           persistentVolumeClaim:
-            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-pvc
+            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           {{- else }}
           emptyDir: {}
           {{- end }}
         - name: sql
           {{- if .Values.mysql.persistentVolumeClaim.enabled }}
           persistentVolumeClaim:
-            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-pvc
+            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           {{- else }}
           emptyDir: {}
           {{- end }}

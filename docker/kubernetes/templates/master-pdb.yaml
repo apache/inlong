@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-  {{- if .Values.tubemqMaster.pdb.usePolicy }}
+{{- if .Values.tubemqMaster.pdb.usePolicy }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
