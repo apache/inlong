@@ -151,7 +151,9 @@ func (h *heartbeatManager) sendHeartbeatC2M(m *metadata.Metadata) (*protocol.Hea
 
 func (h *heartbeatManager) processHBResponseM2C(rsp *protocol.HeartResponseM2C) {
 	h.consumer.masterHBRetry = 0
-	h.consumer.subInfo.SetIsNotAllocated(rsp.GetNotAllocated())
+	if !rsp.GetNotAllocated() {
+		h.consumer.subInfo.CASIsNotAllocated(1, 0)
+	}
 	if rsp.GetDefFlowCheckId() != 0 || rsp.GetGroupFlowCheckId() != 0 {
 		if rsp.GetDefFlowCheckId() != 0 {
 			h.consumer.rmtDataCache.UpdateDefFlowCtrlInfo(rsp.GetDefFlowCheckId(), rsp.GetDefFlowControlInfo())

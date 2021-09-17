@@ -20,6 +20,7 @@ package sub
 
 import (
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
@@ -36,14 +37,14 @@ type SubInfo struct {
 	selectBig             bool
 	sourceCount           int32
 	sessionKey            string
-	notAllocated          bool
-	firstRegistered       bool
+	notAllocated          int32
+	firstRegistered       int32
 	subscribedTime        int64
 	boundPartitions       string
 	topics                []string
 	topicConds            []string
 	topicFilter           map[string]bool
-	assignedPartitions    map[string]uint64
+	assignedPartitions    map[string]int64
 	topicFilters          map[string][]string
 	authInfo              *protocol.AuthorizedInfo
 	masterCertificateInfo *protocol.MasterCertificateInfo
@@ -54,7 +55,8 @@ func NewSubInfo(config *config.Config) *SubInfo {
 	s := &SubInfo{
 		boundConsume:    config.Consumer.BoundConsume,
 		subscribedTime:  time.Now().UnixNano() / int64(time.Millisecond),
-		firstRegistered: false,
+		firstRegistered: 1,
+		notAllocated:    1,
 		topics:          config.Consumer.Topics,
 		topicFilters:    config.Consumer.TopicFilters,
 	}
@@ -74,9 +76,9 @@ func NewSubInfo(config *config.Config) *SubInfo {
 		s.sessionKey = config.Consumer.SessionKey
 		s.sourceCount = int32(config.Consumer.SourceCount)
 		s.selectBig = config.Consumer.SelectBig
-		assignedPartitions := config.Consumer.PartitionOffset
+		s.assignedPartitions = config.Consumer.PartitionOffset
 		count := 0
-		for partition, offset := range assignedPartitions {
+		for partition, offset := range s.assignedPartitions {
 			if count > 0 {
 				s.boundPartitions += ","
 			}
@@ -109,9 +111,9 @@ func (s *SubInfo) GetTopicFilters() map[string][]string {
 
 // GetAssignedPartOffset returns the assignedPartOffset of the given partitionKey.
 func (s *SubInfo) GetAssignedPartOffset(partitionKey string) int64 {
-	if !s.firstRegistered && s.boundConsume && s.notAllocated {
+	if s.isFirstRegistered() && s.boundConsume && s.IsNotAllocated() {
 		if offset, ok := s.assignedPartitions[partitionKey]; ok {
-			return int64(offset)
+			return offset
 		}
 	}
 	return InValidOffset
@@ -159,7 +161,7 @@ func (s *SubInfo) GetBoundPartInfo() string {
 
 // IsNotAllocated returns whether it is not allocated.
 func (s *SubInfo) IsNotAllocated() bool {
-	return s.notAllocated
+	return atomic.LoadInt32(&s.notAllocated) == 1
 }
 
 // GetAuthorizedInfo returns the authInfo.
@@ -172,9 +174,9 @@ func (s *SubInfo) GetMasterCertificateInfo() *protocol.MasterCertificateInfo {
 	return s.masterCertificateInfo
 }
 
-// FirstRegistered sets the firstRegistered to true.
-func (s *SubInfo) FirstRegistered() {
-	s.firstRegistered = true
+// SetNotFirstRegistered sets the firstRegistered to false.
+func (s *SubInfo) SetNotFirstRegistered() {
+	atomic.StoreInt32(&s.firstRegistered, 0)
 }
 
 // SetAuthorizedInfo sets the authorizedInfo.
@@ -187,12 +189,16 @@ func (s *SubInfo) SetMasterCertificateInfo(info *protocol.MasterCertificateInfo)
 	s.masterCertificateInfo = info
 }
 
-// SetIsNotAllocated sets the notAllocated.
-func (s *SubInfo) SetIsNotAllocated(isNotAllocated bool) {
-	s.notAllocated = isNotAllocated
+// CASIsNotAllocated sets the notAllocated.
+func (s *SubInfo) CASIsNotAllocated(expected int32, update int32) {
+	atomic.CompareAndSwapInt32(&s.notAllocated, expected, update)
 }
 
 // SetClientID sets the clientID.
 func (s *SubInfo) SetClientID(clientID string) {
 	s.clientID = clientID
+}
+
+func (s *SubInfo) isFirstRegistered() bool {
+	return atomic.LoadInt32(&s.firstRegistered) == 1
 }

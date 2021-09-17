@@ -180,8 +180,8 @@ func (c *consumer) sendRegRequest2Master() (*protocol.RegisterResponseM2C, error
 }
 
 func (c *consumer) processRegisterResponseM2C(rsp *protocol.RegisterResponseM2C) {
-	if rsp.GetNotAllocated() {
-		c.subInfo.SetIsNotAllocated(rsp.GetNotAllocated())
+	if !rsp.GetNotAllocated() {
+		c.subInfo.CASIsNotAllocated(1, 0)
 	}
 	if rsp.GetDefFlowCheckId() != 0 || rsp.GetGroupFlowCheckId() != 0 {
 		if rsp.GetDefFlowCheckId() != 0 {
@@ -464,7 +464,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 			}
 		}
 	}
-	c.subInfo.FirstRegistered()
+	c.subInfo.SetNotFirstRegistered()
 	event.SetEventStatus(metadata.Done)
 	log.Tracef("[connect2Broker] connect event finished, client ID=%s", c.clientID)
 }

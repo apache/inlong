@@ -359,8 +359,9 @@ func (r *RmtDataCache) IsFirstRegister(partitionKey string) bool {
 
 	if _, ok := r.partitionRegBooked[partitionKey]; !ok {
 		r.partitionRegBooked[partitionKey] = true
+		return true
 	}
-	return r.partitionRegBooked[partitionKey]
+	return false
 }
 
 // GetCurConsumeStatus returns the current consumption status.
