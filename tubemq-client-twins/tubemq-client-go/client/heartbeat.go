@@ -268,7 +268,7 @@ func (h *heartbeatManager) close() {
 		if !heartbeat.timer.Stop() {
 			<-heartbeat.timer.C
 		}
-		heartbeat.timer.Stop()
+		heartbeat.timer = nil
 	}
 	h.heartbeats = nil
 }

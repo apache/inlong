@@ -80,11 +80,7 @@ func main() {
 		}(i)
 	}
 	wg.Wait()
-	err = c.Close()
-	if err != nil {
-		log.Errorf("Close err %s", err.Error())
-		panic(err)
-	}
+	c.Close()
 }
 
 func reportMsg(cnt int64) {

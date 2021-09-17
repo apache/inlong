@@ -42,7 +42,7 @@ type Consumer interface {
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
 	GetCurrConsumedInfo() map[string]*remote.ConsumerOffset
 	// Close closes the consumer client and release the resources.
-	Close() error
+	Close()
 	// GetClientID returns the clientID of the consumer.
 	GetClientID() string
 }
