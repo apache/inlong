@@ -456,7 +456,8 @@ bool RmtDataCacheCsm::IsPartitionFirstReg(const string& partition_key) {
   lock_guard<mutex> lck(data_book_mutex_);
   it = part_reg_booked_.find(partition_key);
   if (it == part_reg_booked_.end()) {
-    part_reg_booked_[partition_key] = true;
+    part_reg_booked_[partition_key] = false;
+    return true;
   }
   return part_reg_booked_[partition_key];
 }
