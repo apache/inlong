@@ -42,7 +42,7 @@ class ClientSubInfo {
   ClientSubInfo();
   void SetConsumeTarget(const ConsumerConfig& config);
   bool CompAndSetNotAllocated(bool expect, bool update);
-  void BookFstRegistered() { first_registered_.Set(true); }
+  void BookRegistered() { is_registered_.Set(true); }
   bool IsBoundConsume() const { return bound_consume_; }
   bool IsNotAllocated() const { return not_allocated_.Get(); }
   const int64_t GetSubscribedTime() const { return subscribed_time_; }
@@ -58,7 +58,7 @@ class ClientSubInfo {
 
  private:
   bool bound_consume_;
-  AtomicBoolean first_registered_;
+  AtomicBoolean is_registered_;
   AtomicBoolean not_allocated_;
   int64_t  subscribed_time_;
   map<string, set<string> > topic_and_filter_map_;

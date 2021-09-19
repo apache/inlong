@@ -34,7 +34,7 @@ ClientSubInfo::ClientSubInfo() {
   source_count_ = 0;
   session_key_ = "";
   not_allocated_.Set(true);
-  first_registered_.Set(false);
+  is_registered_.Set(false);
   subscribed_time_ = tb_config::kInvalidValue;
   bound_partions_ = "";
 }
@@ -46,7 +46,7 @@ void ClientSubInfo::SetConsumeTarget(const ConsumerConfig& config) {
   // book register time
   subscribed_time_ = Utils::GetCurrentTimeMillis();
   //
-  first_registered_.Set(false);
+  is_registered_.Set(false);
   bound_consume_ = config.IsBoundConsume();
   topic_and_filter_map_ = config.GetSubTopicAndFilterMap();
   // build topic filter info
@@ -114,7 +114,7 @@ bool ClientSubInfo::IsFilterConsume(const string& topic) {
 void ClientSubInfo::GetAssignedPartOffset(const string& partition_key, int64_t& offset) {
   map<string, int64_t>::iterator it;
   offset = tb_config::kInvalidValue;
-  if (!first_registered_.Get()
+  if (!is_registered_.Get()
     && bound_consume_
     && not_allocated_.Get()) {
     it = assigned_part_map_.find(partition_key);
