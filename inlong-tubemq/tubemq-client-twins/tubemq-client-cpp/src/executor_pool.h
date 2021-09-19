@@ -22,14 +22,14 @@
 
 #include <stdlib.h>
 
-#include <asio.hpp>
-#include <asio/ssl.hpp>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
+#include <functional>
 
+#include <asio.hpp>
+#include <asio/ssl.hpp>
 #include "noncopyable.h"
 
 namespace tubemq {

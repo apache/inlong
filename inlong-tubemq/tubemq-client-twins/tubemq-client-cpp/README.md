@@ -34,7 +34,9 @@
   * install protobuf (./configure --disable-shared CFLAGS="-fPIC" CXXFLAGS="-fPIC" && make && make install)
   * ./build_linux.sh
   * cd release/
-  * ./release_linux.sh
+  * chmod +x release_linux.sh
+  * ./release_linux.sh 
+ 
 
 ## (Optional) build using docker
   * [build c++ sdk](https://github.com/apache/incubator-tubemq/tree/master/tubemq-docker/tubemq-cpp)

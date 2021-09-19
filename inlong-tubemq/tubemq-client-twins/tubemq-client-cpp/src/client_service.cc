@@ -271,7 +271,7 @@ bool TubeMQService::getServiceConfByFile(string& err_info,
   // check configure file
   bool result = false;
   Fileini fileini;
-  string sector = "TubeMQ";    
+  string sector = "TubeMQ";
   result = Utils::ValidConfigFile(err_info, conf_file);
   if (!result) {
     return result;
@@ -305,6 +305,6 @@ bool TubeMQService::getServiceConfByFile(string& err_info,
   serviceConfig.SetServiceThreads(timer_threads, network_threads, signal_threads);
   err_info = "Ok";
   return true;
-}    
+}
 
 }  // namespace tubemq
