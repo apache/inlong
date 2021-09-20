@@ -686,7 +686,7 @@ void BaseConsumer::processConnect2Broker(ConsumerEvent& event) {
       }
     }
   }
-  sub_info_.BookFstRegistered();
+  sub_info_.BookRegistered();
   event.SetEventStatus(2);
   LOG_TRACE("[processConnect2Broker] connect event finished, clientid=%s", client_uuid_.c_str());
 }
