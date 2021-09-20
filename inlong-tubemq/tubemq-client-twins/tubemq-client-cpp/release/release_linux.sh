@@ -33,6 +33,7 @@ mkdir lib
 
 cp ../build/src/libtubemq.a lib/
 cp ../build/third_party/lib/liblog4cplus.a lib/
+cp ../build/third_party/lib64/libsnappy.a lib/
 cp ../build/proto/libtubemq_proto.a lib/
 cp /usr/local/lib/libprotobuf.a lib/
 cp -rf ../include/*  tubemq/include/
@@ -52,7 +53,7 @@ cd ..
 
 cd tubemq/demo
 g++ -g -std=c++11 -c test_consumer.cc -I../include/
-#g++ -g -std=c++11 -o test_consumer test_consumer.o -L../lib/  -ltubemq -ltubemq_proto -lssl -lcrypto -lpthread -lprotobuf -llog4cplus -lrt
+#g++ -g -std=c++11 -o test_consumer test_consumer.o -L../lib/  -ltubemq -ltubemq_proto -lssl -lcrypto -lpthread -lprotobuf -llog4cplus -lsnappy -lrt
 g++ -g -std=c++11 -o test_consumer test_consumer.o -L../lib/  -ltubemq_rel -lssl -lcrypto -lpthread -lrt
 rm *.o
 cd -

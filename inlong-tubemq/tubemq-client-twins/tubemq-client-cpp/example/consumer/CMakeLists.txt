@@ -20,3 +20,5 @@
 
 tubemq_add_example(consumer test_consumer.cc)
 tubemq_add_example(multi_pull test_multithread_pull.cc)
+tubemq_add_example(filter_consume test_multi_thread_filter.cc)
+
