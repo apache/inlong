@@ -20,11 +20,25 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
+)
+
+const (
+	MaxRPCTimeout      = 300000 * time.Millisecond
+	MinRPCTimeout      = 8000 * time.Millisecond
+	MaxSessionKeyLen   = 1024
+	MaxGroupLen        = 1024
+	MaxTopicLen        = 64
+	MaxFilterLen       = 256
+	MaxFilterItemCount = 500
 )
 
 // Config defines multiple configuration options.
@@ -149,12 +163,142 @@ func NewDefaultConfig() *Config {
 	return c
 }
 
+func New(opts ...Option) *Config {
+	c := NewDefaultConfig()
+	for _, o := range opts {
+		o(c)
+	}
+	return c
+}
+
 func (c *Config) String() string {
 	bytes, err := json.Marshal(c)
 	if err != nil {
 		return err.Error()
 	}
 	return string(bytes)
+}
+
+func (c *Config) ValidateConsumer() error {
+	if c.Net.Auth.Enable {
+		if len(c.Net.Auth.UserName) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal parameter: usrName is empty")
+		}
+		if len(c.Net.Auth.Password) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal password: password is empty")
+		}
+	}
+
+	if c.Net.TLS.Enable {
+		if len(c.Net.TLS.CACertFile) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal tls CACert file: CACert file is empty")
+		}
+	}
+
+	err := c.validateMaster()
+	if err != nil {
+		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+
+	err = c.validateGroup(c.Consumer.Group)
+	if err != nil {
+		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+
+	err = c.validateTopicFilters()
+	if err != nil {
+		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+
+	if c.Consumer.BoundConsume {
+		err = c.validateSessionKey()
+		if err != nil {
+			return err
+		}
+		err = c.validatePartOffset()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Config) validateMaster() error {
+	if len(c.Consumer.Masters) == 0 {
+		return errors.New("illegal parameter: len of masters is 0")
+	}
+	if len(util.SplitToMap(c.Consumer.Masters, ",", ":")) == 0 {
+		return errs.New(errs.RetInvalidConfig, "illegal parameter: unrecognized master addresses information")
+	}
+	return nil
+}
+
+func (c *Config) validateSessionKey() error {
+	if len(c.Consumer.SessionKey) == 0 {
+		return errs.New(errs.RetInvalidConfig, "illegal parameter: session key is empty")
+	}
+	if len(c.Consumer.SessionKey) > MaxSessionKeyLen {
+		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: session_key's length over max length %d", MaxSessionKeyLen))
+	}
+	return nil
+}
+
+func (c *Config) validatePartOffset() error {
+	for partition, offset := range c.Consumer.PartitionOffset {
+		s := strings.Split(partition, ":")
+		if len(s) != 3 {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: partOffset's key %s which should be a:b:c", partition))
+		}
+		if _, ok := c.Consumer.TopicFilters[s[1]]; !ok {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: %s topic %s not included in topicFilter's topic list", partition, s[1]))
+		}
+		if strings.Index(partition, ",") != -1 {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: key %s include ,", partition))
+		}
+		if offset < 0 {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: partition %s's offset must >= 0, value is %d", partition, offset))
+		}
+	}
+	return nil
+}
+
+func (c *Config) validateTopicFilters() error {
+	for topic, filters := range c.Consumer.TopicFilters {
+		if len(topic) > MaxTopicLen {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic's length over max length %d", MaxTopicLen))
+		}
+		if valid, err := util.IsValidString(topic); !valid {
+			return errs.New(errs.RetInvalidConfig, err.Error())
+		}
+		for _, filter := range filters {
+			if len(filter) == 0 {
+				return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Checassert.Nil(t, c.ValidateConsumer())k parameter topicFilters error: topic %s's filter is empty", topic))
+			}
+			if len(filter) > MaxFilterLen {
+				return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's length over max length %d", topic, MaxFilterLen))
+			}
+			if valid, err := util.IsValidFilterItem(filter); !valid {
+				return errs.New(errs.RetInvalidConfig, err.Error())
+			}
+		}
+		if len(filters) > MaxFilterLen {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item over max item count %d", topic, MaxFilterLen))
+		}
+	}
+	return nil
+}
+
+func (c *Config) validateGroup(group string) error {
+	if len(group) == 0 {
+		return errs.New(errs.RetInvalidConfig, "group name is empty")
+	}
+	if len(group) > MaxGroupLen {
+		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: %s over max length, the max allowed length is %d", group, MaxGroupLen))
+	}
+	if valid, err := util.IsValidString(group); !valid {
+		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+	return nil
 }
 
 // ParseAddress parses the address to user-defined config.
@@ -268,4 +412,137 @@ func parseDuration(val string) (time.Duration, error) {
 		return 0, err
 	}
 	return time.Duration(maxWait) * time.Millisecond, err
+}
+
+type Option func(*Config)
+
+func WithMaxPartCheckPeriod(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.MaxPartCheckPeriod = d
+	}
+}
+
+func WithPartCheckSlice(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.PartCheckSlice = d
+	}
+}
+
+func WithMsgNotFoundWait(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.MsgNotFoundWait = d
+	}
+}
+
+func WithMaxSubInfoReportInterval(i int) Option {
+	return func(c *Config) {
+		c.Consumer.MaxSubInfoReportInterval = i
+	}
+}
+
+func WithRebConfirmWait(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.RebConfirmWait = d
+	}
+}
+
+func WithMaxConfirmWait(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.MaxConfirmWait = d
+	}
+}
+
+func WithShutdownRebWait(d time.Duration) Option {
+	return func(c *Config) {
+		c.Consumer.ShutdownRebWait = d
+	}
+}
+
+func WithTopicFilters(topicFilters map[string][]string) Option {
+	return func(c *Config) {
+		c.Consumer.TopicFilters = topicFilters
+		for topic := range c.Consumer.TopicFilters {
+			topic = strings.TrimSpace(topic)
+		}
+	}
+}
+
+func WithSourceCount(count int) Option {
+	return func(c *Config) {
+		c.Consumer.SourceCount = count
+	}
+}
+
+func WithSelectBig(selectBig bool) Option {
+	return func(c *Config) {
+		c.Consumer.SelectBig = selectBig
+	}
+}
+
+func WithPartOffsets(partOffsets map[string]int64) Option {
+	return func(c *Config) {
+		c.Consumer.PartitionOffset = partOffsets
+	}
+}
+
+func WithAuth(enable bool, userName string, password string) Option {
+	return func(c *Config) {
+		c.Net.Auth.Enable = enable
+		c.Net.Auth.UserName = strings.TrimSpace(userName)
+		c.Net.Auth.Password = strings.TrimSpace(password)
+	}
+}
+
+func WithTLS(enable bool, certFile, keyFile, caFile, serverName string) Option {
+	return func(c *Config) {
+		c.Net.TLS.Enable = enable
+		c.Net.TLS.TLSCertFile = strings.TrimSpace(certFile)
+		c.Net.TLS.TLSKeyFile = strings.TrimSpace(keyFile)
+		c.Net.TLS.CACertFile = strings.TrimSpace(caFile)
+		c.Net.TLS.TLSServerName = strings.TrimSpace(serverName)
+	}
+}
+
+func WithGroup(group string) Option {
+	return func(c *Config) {
+		c.Consumer.Group = strings.TrimSpace(group)
+	}
+}
+
+func WithTopics(topics []string) Option {
+	return func(c *Config) {
+		c.Consumer.Topics = topics
+		c.Consumer.TopicFilters = make(map[string][]string)
+		for _, topic := range c.Consumer.Topics {
+			c.Consumer.TopicFilters[topic] = nil
+		}
+	}
+}
+
+func WithConsumerMasters(masters string) Option {
+	return func(c *Config) {
+		c.Consumer.Masters = strings.TrimSpace(masters)
+	}
+}
+
+func WithRPCReadTimeout(d time.Duration) Option {
+	return func(c *Config) {
+		if d >= MaxRPCTimeout {
+			c.Net.ReadTimeout = MaxRPCTimeout
+		} else if d <= MinRPCTimeout {
+			c.Net.ReadTimeout = MinRPCTimeout
+		} else {
+			c.Net.ReadTimeout = d
+		}
+	}
+}
+
+func WithBoundConsume(sessionKey string, sourceCount int, selectBig bool, partOffset map[string]int64) Option {
+	return func(c *Config) {
+		c.Consumer.BoundConsume = true
+		c.Consumer.SessionKey = strings.TrimSpace(sessionKey)
+		c.Consumer.SourceCount = sourceCount
+		c.Consumer.SelectBig = selectBig
+		c.Consumer.PartitionOffset = partOffset
+	}
 }

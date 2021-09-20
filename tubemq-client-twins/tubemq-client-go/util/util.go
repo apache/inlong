@@ -19,8 +19,10 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -127,4 +129,20 @@ func SplitToMap(source string, step1 string, step2 string) map[string]string {
 		}
 	}
 	return m
+}
+
+// IsValidString returns whether a string is valid.
+func IsValidString(s string) (bool, error) {
+	if matched, _ := regexp.Match("^[a-zA-Z]\\w+$", []byte(s)); !matched {
+		return false, errors.New(fmt.Sprintf("illegal parameter: %s must begin with a letter,can only contain characters,numbers,and underscores", s))
+	}
+	return true, nil
+}
+
+// IsValidFilterItem returns whether a filter is valid.
+func IsValidFilterItem(s string) (bool, error) {
+	if matched, _ := regexp.Match("^[_A-Za-z0-9]+$", []byte(s)); !matched {
+		return false, errors.New("value only contain characters,numbers,and underscores")
+	}
+	return true, nil
 }

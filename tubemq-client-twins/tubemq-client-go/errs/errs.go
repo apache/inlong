@@ -41,22 +41,24 @@ const (
 	RetInvalidPartitionString = 8
 	// RetInvalidSubscribeInfoString represents the subscribeInfo string is invalid.
 	RetInvalidSubscribeInfoString = 9
-	RetSuccess                    = 200
-	RetErrMoved                   = 301
-	RetBadRequest                 = 400
-	RetErrForbidden               = 403
-	RetErrNotFound                = 404
-	RetErrNoPartAssigned          = 406
-	RetErrAllPartWaiting          = 407
-	RetErrAllPartInUse            = 408
-	RetErrHBNoNode                = 411
-	RetErrDuplicatePartition      = 412
-	RetCertificateFailure         = 415
-	RetConsumeGroupForbidden      = 450
-	RetConsumeContentForbidden    = 455
-	RetErrServiceUnavailable      = 503
-	RetErrConsumeSpeedLimit       = 550
-	RetErrConfirmTimeout          = 2004
+	// RetInvalidConfig represents the config setting is invalid.
+	RetInvalidConfig           = 10
+	RetSuccess                 = 200
+	RetErrMoved                = 301
+	RetBadRequest              = 400
+	RetErrForbidden            = 403
+	RetErrNotFound             = 404
+	RetErrNoPartAssigned       = 406
+	RetErrAllPartWaiting       = 407
+	RetErrAllPartInUse         = 408
+	RetErrHBNoNode             = 411
+	RetErrDuplicatePartition   = 412
+	RetCertificateFailure      = 415
+	RetConsumeGroupForbidden   = 450
+	RetConsumeContentForbidden = 455
+	RetErrServiceUnavailable   = 503
+	RetErrConsumeSpeedLimit    = 550
+	RetErrConfirmTimeout       = 2004
 )
 
 // ErrAssertionFailure represents RetAssertionFailure error.
