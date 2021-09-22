@@ -21,21 +21,67 @@ header:
     copyright-owner: Apache Software Foundation
 
   paths-ignore:
-    - 'licenses'
-    - '**/lib/**'
+    # Exclude license copies
+    - 'licenses/**'
+
+    # Exclude generated content
     - 'LICENSE'
     - 'NOTICE'
-    - '**/.gitignore'
-    - '**/*.json'
+    - 'DISCLAIMER-WIP'
+    - 'codestyle/**'
+
+    # Documents
     - '**/*.md'
+    - '**/*.MD'
+    - '**/*.txt'
     - '**/*.key'
     - '**/*.crt'
     - '**/*.pem'
+    - '**/*.json'
     - '**/*.csv'
+    - '**/*.log'
+    - '**/logs/**'
+    - '**/docs/**'
 
-    # Exclude local files
-    # - '**/target/**'
-    # - '**/build/**'
-    # - '**/node_modules/**'
+    # Web configure files
+    - '**/.env'
+    - '**/.env.production'
+    - '**/.eslintignore'
+    - '**/.eslintrc'
+    - '**/.headerignore'
+    - '**/.prettierrc'
+    - '**/.stylelintrc'
+    - '**/build/**'
+    - '**/node_modules/**'
+
+    # Git files
+    - '**/.gitignore'
+    - '**/.gitmodules'
+    - '**/.git/**'
+
+    # GitHub
+    - '**/.github/**'
+
+    # Intellij IDEA
+    - '**/*.iml'
+    - '**/.idea/**'
+
+    # Build targets
+    - '**/target/**'
+    - '**/out/**'
+    - '**/dist/**'
+
+    # Test case: certificates used in test cases
+    - '**/tubemq-core/src/test/resources/*.keystore'
+
+    # Test case: temporary data for test cases
+    - '**/AgentBaseTestsHelper/**'
+
+    # Referenced 3rd codes
+    - '**/resources/assets/lib/**'
+    - '**/resources/assets/public/**'
+    - '**/tubemq-client-cpp/src/any.h'
+    - '**/tubemq-client-cpp/src/buffer.h'
+    - '**/tubemq-client-cpp/third_party/**'
 
   comment: on-failure
