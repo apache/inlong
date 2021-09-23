@@ -27,11 +27,14 @@ import (
 
 func main() {
 	// Example for using config directly
-	// cfg := config.NewDefaultConfig()
-	// For topic filter
-	// cfg.Consumer.TopicFilters = map[string][]string{"topic1": {"filter1", "filter2"}, "topic2": {"filter3", "filter4"}}
-	// For part offset
-	// cfg.Consumer.PartitionOffset = map[string]int64{"181895251:test_1": 0, "181895251:test_2": 10}
+	// topicFilters := map[string][]string{"topic1": {"filter1", "filter2"}, "topic2": {"filter3", "filter4"}}
+	// partitionOffset := map[string]int64{"181895251:topic1:1": 0, "181895251:topic2:2": 10}
+	// cfg := config.New(config.WithMasters("127.0.0.1:8099"),
+	// config.WithGroup("group"),
+	// For topic filters
+	// config.WithTopicFilters(topicFilters),
+	// For bound consume
+	// config.WithBoundConsume("ss", 1, true, partitionOffset))
 
 	// Example for parseAddress
 	cfg, err := config.ParseAddress("9.23.27.160:8099?topics=test_1&group=test_group")

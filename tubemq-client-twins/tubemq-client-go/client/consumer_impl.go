@@ -74,6 +74,9 @@ type consumer struct {
 
 // NewConsumer returns a consumer which is constructed by a given config.
 func NewConsumer(config *config.Config) (Consumer, error) {
+	if err := config.ValidateConsumer(); err != nil {
+		return nil, err
+	}
 	log.Infof("The config of the consumer is %s", config)
 	selector, err := selector.Get("ip")
 	if err != nil {
@@ -84,6 +87,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 	pool := multiplexing.NewPool()
 	opts := &transport.Options{}
 	if config.Net.TLS.Enable {
+		opts.TLSEnable = true
 		opts.CACertFile = config.Net.TLS.CACertFile
 		opts.TLSCertFile = config.Net.TLS.TLSCertFile
 		opts.TLSKeyFile = config.Net.TLS.TLSKeyFile

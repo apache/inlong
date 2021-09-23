@@ -53,3 +53,67 @@ func TestParseAddress(t *testing.T) {
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 }
+
+func TestValidateGroup(t *testing.T) {
+	config := NewDefaultConfig()
+	err := config.validateGroup("")
+	assert.NotNil(t, err)
+	err = config.validateGroup("123-456[]")
+	assert.NotNil(t, err)
+	err = config.validateGroup("test123_456")
+	assert.Nil(t, err)
+	group := ""
+	for i := 0; i < 1025; i++ {
+		group += "t"
+	}
+	err = config.validateGroup(group)
+	assert.NotNil(t, group)
+}
+
+func TestValidateConsumer(t *testing.T) {
+	c := NewDefaultConfig()
+
+	assert.NotNil(t, c.ValidateConsumer())
+	WithConsumerMasters("masters")(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	WithConsumerMasters("127.0.0.1:8000")(c)
+	WithGroup("test-group")(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	WithGroup("test_group")(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	WithTopics([]string{"topic1", "topic2"})(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	WithTopics([]string{"1topic, topic2"})(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	topicFilters := map[string][]string{"1topic": {"filter1", "filter2"}, "topic2": {"filter3", "filter4"}}
+	WithTopicFilters(topicFilters)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	topicFilters = map[string][]string{"topic1": {"-=-", "filter2"}, "topic2": {"filter3", "filter4"}}
+	WithTopicFilters(topicFilters)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	topicFilters = map[string][]string{"topic1": {"filter1", "filter2"}, "topic2": {"filter3", "filter4"}}
+	WithTopicFilters(topicFilters)(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	partitionOffset := map[string]int64{"181895251:test_1": 0, "181895251:test_2": 10}
+	WithBoundConsume("", 0, true, partitionOffset)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	WithBoundConsume("11", 0, true, partitionOffset)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	partitionOffset = map[string]int64{"181895251:test_1:1": 0, "181895251:test_2:2": 10}
+	WithBoundConsume("11", 0, true, partitionOffset)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	partitionOffset = map[string]int64{"181895251:topic1:1": 0, "181895251:topic2:2": 10}
+	WithBoundConsume("11", 0, true, partitionOffset)(c)
+	assert.Nil(t, c.ValidateConsumer())
+}

@@ -28,6 +28,7 @@ import (
 
 // Options represents the transport options
 type Options struct {
+	TLSEnable     bool
 	CACertFile    string
 	TLSCertFile   string
 	TLSKeyFile    string
@@ -54,7 +55,7 @@ func (c *Client) DoRequest(ctx context.Context, address string, req codec.RPCReq
 		Address: address,
 		Network: "tcp",
 	}
-	if c.opts.CACertFile != "" {
+	if c.opts.TLSEnable {
 		opts.CACertFile = c.opts.CACertFile
 		opts.TLSCertFile = c.opts.TLSCertFile
 		opts.TLSKeyFile = c.opts.TLSKeyFile
