@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check License Header
-        uses: apache/skywalking-eyes@v0.1.0
+        uses: apache/skywalking-eyes@ed749b83e23f10eae9c379870c3d5ed45ce4e67a
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
