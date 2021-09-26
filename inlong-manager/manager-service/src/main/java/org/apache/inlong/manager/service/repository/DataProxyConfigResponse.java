@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.manager.service.repository;
 
 /**
@@ -27,7 +28,7 @@ public class DataProxyConfigResponse {
 
     private boolean result;
     private int errCode;
-//	"md5": "用于校验和NoUpdate场景",
+    // "md5": "用于校验和NoUpdate场景",
     private String md5;
     private DataProxyCluster data;
 

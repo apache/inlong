@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.repository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -166,14 +165,14 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadCacheCluster(Map<String, DataProxyClusterSet> newClusterSets) {
         for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
-            String setName = cacheCluster.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             CacheClusterObject obj = new CacheClusterObject();
             obj.setName(cacheCluster.getClusterName());
             obj.setZone(cacheCluster.getZone());
             cacheClusterMap.put(obj.getName(), obj);
             //
+            String setName = cacheCluster.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getCacheClusterSet().getCacheClusters().add(obj);
         }
     }
@@ -220,13 +219,13 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadCacheTopic(Map<String, DataProxyClusterSet> newClusterSets) {
         for (CacheTopic cacheTopic : clusterSetMapper.selectCacheTopic()) {
-            String setName = cacheTopic.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             CacheTopicObject obj = new CacheTopicObject();
             obj.setTopic(cacheTopic.getTopicName());
             obj.setPartitionNum(cacheTopic.getPartitionNum());
             //
+            String setName = cacheTopic.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getCacheClusterSet().getTopics().add(obj);
         }
     }
@@ -240,12 +239,12 @@ public class DataProxyConfigRepository implements IRepository {
     private void reloadProxyCluster(Map<String, DataProxyClusterSet> newClusterSets) {
         for (ProxyCluster proxyCluster : clusterSetMapper.selectProxyCluster()) {
             String setName = proxyCluster.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             ProxyClusterObject obj = new ProxyClusterObject();
             obj.setName(proxyCluster.getClusterName());
             obj.setSetName(setName);
             obj.setZone(proxyCluster.getZone());
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getProxyClusterList().add(obj);
             this.proxyClusterMap.put(obj.getName(), obj);
         }
@@ -259,12 +258,12 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadFlumeChannel(Map<String, DataProxyClusterSet> newClusterSets) {
         for (FlumeChannel flumeChannel : clusterSetMapper.selectFlumeChannel()) {
-            String setName = flumeChannel.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             ProxyChannel obj = new ProxyChannel();
             obj.setName(flumeChannel.getChannelName());
             obj.setType(flumeChannel.getType());
+            String setName = flumeChannel.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getProxyChannelMap().put(obj.getName(), obj);
         }
     }
@@ -295,8 +294,6 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadFlumeSource(Map<String, DataProxyClusterSet> newClusterSets) {
         for (FlumeSource flumeSource : clusterSetMapper.selectFlumeSource()) {
-            String setName = flumeSource.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             ProxySource obj = new ProxySource();
             obj.setName(flumeSource.getSourceName());
@@ -306,6 +303,8 @@ public class DataProxyConfigRepository implements IRepository {
             String channels = flumeSource.getChannels();
             obj.getChannels().addAll(Arrays.asList(channels.split("\\s+")));
             //
+            String setName = flumeSource.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getProxySourceMap().put(obj.getName(), obj);
         }
     }
@@ -336,14 +335,14 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadFlumeSink(Map<String, DataProxyClusterSet> newClusterSets) {
         for (FlumeSink flumeSink : clusterSetMapper.selectFlumeSink()) {
-            String setName = flumeSink.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             ProxySink obj = new ProxySink();
             obj.setName(flumeSink.getSinkName());
             obj.setType(flumeSink.getType());
             obj.setChannel(flumeSink.getChannel());
             //
+            String setName = flumeSink.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getProxySinkMap().put(obj.getName(), obj);
         }
     }
@@ -374,8 +373,6 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void reloadInlongId(Map<String, DataProxyClusterSet> newClusterSets) {
         for (InLongId inlongId : clusterSetMapper.selectInlongId()) {
-            String setName = inlongId.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             //
             InLongIdObject obj = new InLongIdObject();
             obj.setInlongId(inlongId.getInlongId());
@@ -384,6 +381,8 @@ public class DataProxyConfigRepository implements IRepository {
                 Map<String, String> params = MAP_SPLITTER.split(inlongId.getParams());
                 obj.getParams().putAll(params);
             }
+            String setName = inlongId.getSetName();
+            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getInlongIds().add(obj);
         }
     }
@@ -469,29 +468,5 @@ public class DataProxyConfigRepository implements IRepository {
     public DataProxyClusterSet getDataProxyClusterSet(String setName) {
         DataProxyClusterSet setObj = this.clusterSets.get(setName);
         return setObj;
-    }
-
-    public static void main(String[] args) {
-        Gson gson = new Gson();
-        List<Map<String, String>> listObj = new ArrayList<>();
-        Map<String, String> mapObj1 = new HashMap<>();
-        mapObj1.put("aaa", "aaa");
-        mapObj1.put("bbb", "bbb");
-        Map<String, String> mapObj2 = new HashMap<>();
-        mapObj2.put("ddd", "ddd");
-        mapObj2.put("ccc", "ccc");
-        listObj.add(mapObj2);
-        listObj.add(mapObj1);
-        String result = gson.toJson(listObj);
-        System.out.println(result);
-        InLongIdObject idObj = new InLongIdObject();
-        idObj.setInlongId("inlongid");
-        idObj.setTopic("topic");
-        idObj.getParams().put("ddd", "ddd");
-        idObj.getParams().put("aaa", "aaa");
-        result = gson.toJson(idObj);
-        System.out.println(result);
-        String md5 = DigestUtils.md5Hex(result);
-        System.out.println(md5);
     }
 }
