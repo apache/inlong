@@ -20,81 +20,81 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  * InLongId
  */
 public class InLongId {
-	private String inlongId;
-	private String topic;
-	private String params;
-	private String setName;
+    private String inlongId;
+    private String topic;
+    private String params;
+    private String setName;
 
-	/**
-	 * get inlongId
-	 * 
-	 * @return the inlongId
-	 */
-	public String getInlongId() {
-		return inlongId;
-	}
+    /**
+     * get inlongId
+     * 
+     * @return the inlongId
+     */
+    public String getInlongId() {
+        return inlongId;
+    }
 
-	/**
-	 * set inlongId
-	 * 
-	 * @param inlongId the inlongId to set
-	 */
-	public void setInlongId(String inlongId) {
-		this.inlongId = inlongId;
-	}
+    /**
+     * set inlongId
+     * 
+     * @param inlongId the inlongId to set
+     */
+    public void setInlongId(String inlongId) {
+        this.inlongId = inlongId;
+    }
 
-	/**
-	 * get topic
-	 * 
-	 * @return the topic
-	 */
-	public String getTopic() {
-		return topic;
-	}
+    /**
+     * get topic
+     * 
+     * @return the topic
+     */
+    public String getTopic() {
+        return topic;
+    }
 
-	/**
-	 * set topic
-	 * 
-	 * @param topic the topic to set
-	 */
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
+    /**
+     * set topic
+     * 
+     * @param topic the topic to set
+     */
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
-	/**
-	 * get params
-	 * 
-	 * @return the params
-	 */
-	public String getParams() {
-		return params;
-	}
+    /**
+     * get params
+     * 
+     * @return the params
+     */
+    public String getParams() {
+        return params;
+    }
 
-	/**
-	 * set params
-	 * 
-	 * @param params the params to set
-	 */
-	public void setParams(String params) {
-		this.params = params;
-	}
+    /**
+     * set params
+     * 
+     * @param params the params to set
+     */
+    public void setParams(String params) {
+        this.params = params;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
 }

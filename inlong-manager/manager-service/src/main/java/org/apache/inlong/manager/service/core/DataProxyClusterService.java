@@ -34,7 +34,7 @@ public interface DataProxyClusterService {
      * Save DataProxy cluster information
      *
      * @param clusterInfo Cluster information
-     * @param operator Current operator
+     * @param operator    Current operator
      * @return ID after saving
      */
     Integer save(DataProxyClusterInfo clusterInfo, String operator);
@@ -59,7 +59,7 @@ public interface DataProxyClusterService {
      * Change DataProxy cluster information
      *
      * @param clusterInfo The information to be modified
-     * @param operator Current operator
+     * @param operator    Current operator
      * @return Whether succeed
      */
     Boolean update(DataProxyClusterInfo clusterInfo, String operator);
@@ -67,7 +67,7 @@ public interface DataProxyClusterService {
     /**
      * Delete DataProxy cluster information
      *
-     * @param id Cluster ID to be deleted
+     * @param id       Cluster ID to be deleted
      * @param operator Current operator
      * @return Whether succeed
      */

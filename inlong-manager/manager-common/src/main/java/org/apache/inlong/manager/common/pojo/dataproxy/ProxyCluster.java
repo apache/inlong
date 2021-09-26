@@ -21,64 +21,64 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class ProxyCluster {
 //    `cluster_name`        varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
-	private String clusterName;
+    private String clusterName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-	private String setName;
+    private String setName;
 //    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-	private String zone;
+    private String zone;
 
-	/**
-	 * get clusterName
-	 * 
-	 * @return the clusterName
-	 */
-	public String getClusterName() {
-		return clusterName;
-	}
+    /**
+     * get clusterName
+     * 
+     * @return the clusterName
+     */
+    public String getClusterName() {
+        return clusterName;
+    }
 
-	/**
-	 * set clusterName
-	 * 
-	 * @param clusterName the clusterName to set
-	 */
-	public void setClusterName(String clusterName) {
-		this.clusterName = clusterName;
-	}
+    /**
+     * set clusterName
+     * 
+     * @param clusterName the clusterName to set
+     */
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get zone
-	 * 
-	 * @return the zone
-	 */
-	public String getZone() {
-		return zone;
-	}
+    /**
+     * get zone
+     * 
+     * @return the zone
+     */
+    public String getZone() {
+        return zone;
+    }
 
-	/**
-	 * set zone
-	 * 
-	 * @param zone the zone to set
-	 */
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
+    /**
+     * set zone
+     * 
+     * @param zone the zone to set
+     */
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
 
 }

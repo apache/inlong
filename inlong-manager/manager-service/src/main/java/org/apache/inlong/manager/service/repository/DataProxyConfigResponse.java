@@ -20,87 +20,87 @@ package org.apache.inlong.manager.service.repository;
  * DataProxyConfigResponse
  */
 public class DataProxyConfigResponse {
-	public static final int SUCC = 0; // 成功的状态码
-	public static final int NOUPDATE = 1; // no update, md5相同
-	public static final int FAIL = -1; // 通用错误
-	public static final int REQ_PARAMS_ERROR = -101; // 请求参数错误
+    public static final int SUCC = 0; // 成功的状态码
+    public static final int NOUPDATE = 1; // no update, md5相同
+    public static final int FAIL = -1; // 通用错误
+    public static final int REQ_PARAMS_ERROR = -101; // 请求参数错误
 
-	private boolean result;
-	private int errCode;
+    private boolean result;
+    private int errCode;
 //	"md5": "用于校验和NoUpdate场景",
-	private String md5;
-	private DataProxyCluster data;
+    private String md5;
+    private DataProxyCluster data;
 
-	/**
-	 * get result
-	 * 
-	 * @return the result
-	 */
-	public boolean isResult() {
-		return result;
-	}
+    /**
+     * get result
+     * 
+     * @return the result
+     */
+    public boolean isResult() {
+        return result;
+    }
 
-	/**
-	 * set result
-	 * 
-	 * @param result the result to set
-	 */
-	public void setResult(boolean result) {
-		this.result = result;
-	}
+    /**
+     * set result
+     * 
+     * @param result the result to set
+     */
+    public void setResult(boolean result) {
+        this.result = result;
+    }
 
-	/**
-	 * get errCode
-	 * 
-	 * @return the errCode
-	 */
-	public int getErrCode() {
-		return errCode;
-	}
+    /**
+     * get errCode
+     * 
+     * @return the errCode
+     */
+    public int getErrCode() {
+        return errCode;
+    }
 
-	/**
-	 * set errCode
-	 * 
-	 * @param errCode the errCode to set
-	 */
-	public void setErrCode(int errCode) {
-		this.errCode = errCode;
-	}
+    /**
+     * set errCode
+     * 
+     * @param errCode the errCode to set
+     */
+    public void setErrCode(int errCode) {
+        this.errCode = errCode;
+    }
 
-	/**
-	 * get md5
-	 * 
-	 * @return the md5
-	 */
-	public String getMd5() {
-		return md5;
-	}
+    /**
+     * get md5
+     * 
+     * @return the md5
+     */
+    public String getMd5() {
+        return md5;
+    }
 
-	/**
-	 * set md5
-	 * 
-	 * @param md5 the md5 to set
-	 */
-	public void setMd5(String md5) {
-		this.md5 = md5;
-	}
+    /**
+     * set md5
+     * 
+     * @param md5 the md5 to set
+     */
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
 
-	/**
-	 * get data
-	 * 
-	 * @return the data
-	 */
-	public DataProxyCluster getData() {
-		return data;
-	}
+    /**
+     * get data
+     * 
+     * @return the data
+     */
+    public DataProxyCluster getData() {
+        return data;
+    }
 
-	/**
-	 * set data
-	 * 
-	 * @param data the data to set
-	 */
-	public void setData(DataProxyCluster data) {
-		this.data = data;
-	}
+    /**
+     * set data
+     * 
+     * @param data the data to set
+     */
+    public void setData(DataProxyCluster data) {
+        this.data = data;
+    }
 
 }

@@ -21,84 +21,84 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class CacheClusterExt {
 //    `cluster_name`        varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-	private String clusterName;
+    private String clusterName;
 //    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
-	private String keyName;
+    private String keyName;
 //    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
-	private String keyValue;
+    private String keyValue;
 //    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-	private int isDeleted;
+    private int isDeleted;
 
-	/**
-	 * get clusterName
-	 * 
-	 * @return the clusterName
-	 */
-	public String getClusterName() {
-		return clusterName;
-	}
+    /**
+     * get clusterName
+     * 
+     * @return the clusterName
+     */
+    public String getClusterName() {
+        return clusterName;
+    }
 
-	/**
-	 * set clusterName
-	 * 
-	 * @param clusterName the clusterName to set
-	 */
-	public void setClusterName(String clusterName) {
-		this.clusterName = clusterName;
-	}
+    /**
+     * set clusterName
+     * 
+     * @param clusterName the clusterName to set
+     */
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
 
-	/**
-	 * get keyName
-	 * 
-	 * @return the keyName
-	 */
-	public String getKeyName() {
-		return keyName;
-	}
+    /**
+     * get keyName
+     * 
+     * @return the keyName
+     */
+    public String getKeyName() {
+        return keyName;
+    }
 
-	/**
-	 * set keyName
-	 * 
-	 * @param keyName the keyName to set
-	 */
-	public void setKeyName(String keyName) {
-		this.keyName = keyName;
-	}
+    /**
+     * set keyName
+     * 
+     * @param keyName the keyName to set
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
 
-	/**
-	 * get keyValue
-	 * 
-	 * @return the keyValue
-	 */
-	public String getKeyValue() {
-		return keyValue;
-	}
+    /**
+     * get keyValue
+     * 
+     * @return the keyValue
+     */
+    public String getKeyValue() {
+        return keyValue;
+    }
 
-	/**
-	 * set keyValue
-	 * 
-	 * @param keyValue the keyValue to set
-	 */
-	public void setKeyValue(String keyValue) {
-		this.keyValue = keyValue;
-	}
+    /**
+     * set keyValue
+     * 
+     * @param keyValue the keyValue to set
+     */
+    public void setKeyValue(String keyValue) {
+        this.keyValue = keyValue;
+    }
 
-	/**
-	 * get isDeleted
-	 * 
-	 * @return the isDeleted
-	 */
-	public int getIsDeleted() {
-		return isDeleted;
-	}
+    /**
+     * get isDeleted
+     * 
+     * @return the isDeleted
+     */
+    public int getIsDeleted() {
+        return isDeleted;
+    }
 
-	/**
-	 * set isDeleted
-	 * 
-	 * @param isDeleted the isDeleted to set
-	 */
-	public void setIsDeleted(int isDeleted) {
-		this.isDeleted = isDeleted;
-	}
+    /**
+     * set isDeleted
+     * 
+     * @param isDeleted the isDeleted to set
+     */
+    public void setIsDeleted(int isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 
 }

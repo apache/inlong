@@ -23,62 +23,62 @@ import java.util.Map;
  * DataProxyChannel
  */
 public class ProxyChannel {
-	private String name;
-	private String type;
-	private Map<String, String> params = new HashMap<>();
+    private String name;
+    private String type;
+    private Map<String, String> params = new HashMap<>();
 
-	/**
-	 * get name
-	 * 
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * get name
+     * 
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * set name
-	 * 
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * set name
+     * 
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * get type
-	 * 
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    /**
+     * get type
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
 
-	/**
-	 * set type
-	 * 
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * set type
+     * 
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	/**
-	 * get params
-	 * 
-	 * @return the params
-	 */
-	public Map<String, String> getParams() {
-		return params;
-	}
+    /**
+     * get params
+     * 
+     * @return the params
+     */
+    public Map<String, String> getParams() {
+        return params;
+    }
 
-	/**
-	 * set params
-	 * 
-	 * @param params the params to set
-	 */
-	public void setParams(Map<String, String> params) {
-		this.params = params;
-	}
+    /**
+     * set params
+     * 
+     * @param params the params to set
+     */
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 
 }

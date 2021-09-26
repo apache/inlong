@@ -23,138 +23,138 @@ import java.util.List;
  * DataProxyCluster
  */
 public class ProxyClusterObject {
-	private String name;
-	private String setName;
-	private String zone;
-	private List<ProxyChannel> channels = new ArrayList<>();
-	private List<InLongIdObject> inlongIds = new ArrayList<>();
-	private List<ProxySource> sources = new ArrayList<>();
-	private List<ProxySink> sinks = new ArrayList<>();
+    private String name;
+    private String setName;
+    private String zone;
+    private List<ProxyChannel> channels = new ArrayList<>();
+    private List<InLongIdObject> inlongIds = new ArrayList<>();
+    private List<ProxySource> sources = new ArrayList<>();
+    private List<ProxySink> sinks = new ArrayList<>();
 
-	/**
-	 * get name
-	 * 
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * get name
+     * 
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * set name
-	 * 
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * set name
+     * 
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get zone
-	 * 
-	 * @return the zone
-	 */
-	public String getZone() {
-		return zone;
-	}
+    /**
+     * get zone
+     * 
+     * @return the zone
+     */
+    public String getZone() {
+        return zone;
+    }
 
-	/**
-	 * set zone
-	 * 
-	 * @param zone the zone to set
-	 */
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
+    /**
+     * set zone
+     * 
+     * @param zone the zone to set
+     */
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
 
-	/**
-	 * get channels
-	 * 
-	 * @return the channels
-	 */
-	public List<ProxyChannel> getChannels() {
-		return channels;
-	}
+    /**
+     * get channels
+     * 
+     * @return the channels
+     */
+    public List<ProxyChannel> getChannels() {
+        return channels;
+    }
 
-	/**
-	 * set channels
-	 * 
-	 * @param channels the channels to set
-	 */
-	public void setChannels(List<ProxyChannel> channels) {
-		this.channels = channels;
-	}
+    /**
+     * set channels
+     * 
+     * @param channels the channels to set
+     */
+    public void setChannels(List<ProxyChannel> channels) {
+        this.channels = channels;
+    }
 
-	/**
-	 * get inlongIds
-	 * 
-	 * @return the inlongIds
-	 */
-	public List<InLongIdObject> getInlongIds() {
-		return inlongIds;
-	}
+    /**
+     * get inlongIds
+     * 
+     * @return the inlongIds
+     */
+    public List<InLongIdObject> getInlongIds() {
+        return inlongIds;
+    }
 
-	/**
-	 * set inlongIds
-	 * 
-	 * @param inlongIds the inlongIds to set
-	 */
-	public void setInlongIds(List<InLongIdObject> inlongIds) {
-		this.inlongIds = inlongIds;
-	}
+    /**
+     * set inlongIds
+     * 
+     * @param inlongIds the inlongIds to set
+     */
+    public void setInlongIds(List<InLongIdObject> inlongIds) {
+        this.inlongIds = inlongIds;
+    }
 
-	/**
-	 * get sources
-	 * 
-	 * @return the sources
-	 */
-	public List<ProxySource> getSources() {
-		return sources;
-	}
+    /**
+     * get sources
+     * 
+     * @return the sources
+     */
+    public List<ProxySource> getSources() {
+        return sources;
+    }
 
-	/**
-	 * set sources
-	 * 
-	 * @param sources the sources to set
-	 */
-	public void setSources(List<ProxySource> sources) {
-		this.sources = sources;
-	}
+    /**
+     * set sources
+     * 
+     * @param sources the sources to set
+     */
+    public void setSources(List<ProxySource> sources) {
+        this.sources = sources;
+    }
 
-	/**
-	 * get sinks
-	 * 
-	 * @return the sinks
-	 */
-	public List<ProxySink> getSinks() {
-		return sinks;
-	}
+    /**
+     * get sinks
+     * 
+     * @return the sinks
+     */
+    public List<ProxySink> getSinks() {
+        return sinks;
+    }
 
-	/**
-	 * set sinks
-	 * 
-	 * @param sinks the sinks to set
-	 */
-	public void setSinks(List<ProxySink> sinks) {
-		this.sinks = sinks;
-	}
+    /**
+     * set sinks
+     * 
+     * @param sinks the sinks to set
+     */
+    public void setSinks(List<ProxySink> sinks) {
+        this.sinks = sinks;
+    }
 
 }

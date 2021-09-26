@@ -20,43 +20,43 @@ package org.apache.inlong.manager.service.repository;
  * DataProxyCluster
  */
 public class DataProxyCluster {
-	private ProxyClusterObject proxyCluster = new ProxyClusterObject();
-	private CacheClusterSetObject cacheClusterSet = new CacheClusterSetObject();
+    private ProxyClusterObject proxyCluster = new ProxyClusterObject();
+    private CacheClusterSetObject cacheClusterSet = new CacheClusterSetObject();
 
-	/**
-	 * get proxyCluster
-	 * 
-	 * @return the proxyCluster
-	 */
-	public ProxyClusterObject getProxyCluster() {
-		return proxyCluster;
-	}
+    /**
+     * get proxyCluster
+     * 
+     * @return the proxyCluster
+     */
+    public ProxyClusterObject getProxyCluster() {
+        return proxyCluster;
+    }
 
-	/**
-	 * set proxyCluster
-	 * 
-	 * @param proxyCluster the proxyCluster to set
-	 */
-	public void setProxyCluster(ProxyClusterObject proxyCluster) {
-		this.proxyCluster = proxyCluster;
-	}
+    /**
+     * set proxyCluster
+     * 
+     * @param proxyCluster the proxyCluster to set
+     */
+    public void setProxyCluster(ProxyClusterObject proxyCluster) {
+        this.proxyCluster = proxyCluster;
+    }
 
-	/**
-	 * get cacheClusterSet
-	 * 
-	 * @return the cacheClusterSet
-	 */
-	public CacheClusterSetObject getCacheClusterSet() {
-		return cacheClusterSet;
-	}
+    /**
+     * get cacheClusterSet
+     * 
+     * @return the cacheClusterSet
+     */
+    public CacheClusterSetObject getCacheClusterSet() {
+        return cacheClusterSet;
+    }
 
-	/**
-	 * set cacheClusterSet
-	 * 
-	 * @param cacheClusterSet the cacheClusterSet to set
-	 */
-	public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
-		this.cacheClusterSet = cacheClusterSet;
-	}
+    /**
+     * set cacheClusterSet
+     * 
+     * @param cacheClusterSet the cacheClusterSet to set
+     */
+    public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
+        this.cacheClusterSet = cacheClusterSet;
+    }
 
 }

@@ -21,104 +21,104 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class FlumeChannelExt {
 //    `parent_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
-	private String parentName;
+    private String parentName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-	private String setName;
+    private String setName;
 //    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
-	private String keyName;
+    private String keyName;
 //    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
-	private String keyValue;
+    private String keyValue;
 //    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-	private int isDeleted;
+    private int isDeleted;
 
-	/**
-	 * get parentName
-	 * 
-	 * @return the parentName
-	 */
-	public String getParentName() {
-		return parentName;
-	}
+    /**
+     * get parentName
+     * 
+     * @return the parentName
+     */
+    public String getParentName() {
+        return parentName;
+    }
 
-	/**
-	 * set parentName
-	 * 
-	 * @param parentName the parentName to set
-	 */
-	public void setParentName(String parentName) {
-		this.parentName = parentName;
-	}
+    /**
+     * set parentName
+     * 
+     * @param parentName the parentName to set
+     */
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get keyName
-	 * 
-	 * @return the keyName
-	 */
-	public String getKeyName() {
-		return keyName;
-	}
+    /**
+     * get keyName
+     * 
+     * @return the keyName
+     */
+    public String getKeyName() {
+        return keyName;
+    }
 
-	/**
-	 * set keyName
-	 * 
-	 * @param keyName the keyName to set
-	 */
-	public void setKeyName(String keyName) {
-		this.keyName = keyName;
-	}
+    /**
+     * set keyName
+     * 
+     * @param keyName the keyName to set
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
 
-	/**
-	 * get keyValue
-	 * 
-	 * @return the keyValue
-	 */
-	public String getKeyValue() {
-		return keyValue;
-	}
+    /**
+     * get keyValue
+     * 
+     * @return the keyValue
+     */
+    public String getKeyValue() {
+        return keyValue;
+    }
 
-	/**
-	 * set keyValue
-	 * 
-	 * @param keyValue the keyValue to set
-	 */
-	public void setKeyValue(String keyValue) {
-		this.keyValue = keyValue;
-	}
+    /**
+     * set keyValue
+     * 
+     * @param keyValue the keyValue to set
+     */
+    public void setKeyValue(String keyValue) {
+        this.keyValue = keyValue;
+    }
 
-	/**
-	 * get isDeleted
-	 * 
-	 * @return the isDeleted
-	 */
-	public int getIsDeleted() {
-		return isDeleted;
-	}
+    /**
+     * get isDeleted
+     * 
+     * @return the isDeleted
+     */
+    public int getIsDeleted() {
+        return isDeleted;
+    }
 
-	/**
-	 * set isDeleted
-	 * 
-	 * @param isDeleted the isDeleted to set
-	 */
-	public void setIsDeleted(int isDeleted) {
-		this.isDeleted = isDeleted;
-	}
+    /**
+     * set isDeleted
+     * 
+     * @param isDeleted the isDeleted to set
+     */
+    public void setIsDeleted(int isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 
 }

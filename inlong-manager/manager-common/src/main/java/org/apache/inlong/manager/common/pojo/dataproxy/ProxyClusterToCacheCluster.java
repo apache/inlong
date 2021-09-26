@@ -21,44 +21,44 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class ProxyClusterToCacheCluster {
 //    `proxy_cluster_name`  varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
-	private String proxyClusterName;
+    private String proxyClusterName;
 //    `cache_cluster_name`  varchar(128)  NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-	private String cacheClusterName;
+    private String cacheClusterName;
 
-	/**
-	 * get proxyClusterName
-	 * 
-	 * @return the proxyClusterName
-	 */
-	public String getProxyClusterName() {
-		return proxyClusterName;
-	}
+    /**
+     * get proxyClusterName
+     * 
+     * @return the proxyClusterName
+     */
+    public String getProxyClusterName() {
+        return proxyClusterName;
+    }
 
-	/**
-	 * set proxyClusterName
-	 * 
-	 * @param proxyClusterName the proxyClusterName to set
-	 */
-	public void setProxyClusterName(String proxyClusterName) {
-		this.proxyClusterName = proxyClusterName;
-	}
+    /**
+     * set proxyClusterName
+     * 
+     * @param proxyClusterName the proxyClusterName to set
+     */
+    public void setProxyClusterName(String proxyClusterName) {
+        this.proxyClusterName = proxyClusterName;
+    }
 
-	/**
-	 * get cacheClusterName
-	 * 
-	 * @return the cacheClusterName
-	 */
-	public String getCacheClusterName() {
-		return cacheClusterName;
-	}
+    /**
+     * get cacheClusterName
+     * 
+     * @return the cacheClusterName
+     */
+    public String getCacheClusterName() {
+        return cacheClusterName;
+    }
 
-	/**
-	 * set cacheClusterName
-	 * 
-	 * @param cacheClusterName the cacheClusterName to set
-	 */
-	public void setCacheClusterName(String cacheClusterName) {
-		this.cacheClusterName = cacheClusterName;
-	}
+    /**
+     * set cacheClusterName
+     * 
+     * @param cacheClusterName the cacheClusterName to set
+     */
+    public void setCacheClusterName(String cacheClusterName) {
+        this.cacheClusterName = cacheClusterName;
+    }
 
 }

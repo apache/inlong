@@ -20,43 +20,43 @@ package org.apache.inlong.manager.service.repository;
  * CacheTopic
  */
 public class CacheTopicObject {
-	private String topic;
-	private int partitionNum;
+    private String topic;
+    private int partitionNum;
 
-	/**
-	 * get topic
-	 * 
-	 * @return the topic
-	 */
-	public String getTopic() {
-		return topic;
-	}
+    /**
+     * get topic
+     * 
+     * @return the topic
+     */
+    public String getTopic() {
+        return topic;
+    }
 
-	/**
-	 * set topic
-	 * 
-	 * @param topic the topic to set
-	 */
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
+    /**
+     * set topic
+     * 
+     * @param topic the topic to set
+     */
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
-	/**
-	 * get partitionNum
-	 * 
-	 * @return the partitionNum
-	 */
-	public int getPartitionNum() {
-		return partitionNum;
-	}
+    /**
+     * get partitionNum
+     * 
+     * @return the partitionNum
+     */
+    public int getPartitionNum() {
+        return partitionNum;
+    }
 
-	/**
-	 * set partitionNum
-	 * 
-	 * @param partitionNum the partitionNum to set
-	 */
-	public void setPartitionNum(int partitionNum) {
-		this.partitionNum = partitionNum;
-	}
+    /**
+     * set partitionNum
+     * 
+     * @param partitionNum the partitionNum to set
+     */
+    public void setPartitionNum(int partitionNum) {
+        this.partitionNum = partitionNum;
+    }
 
 }

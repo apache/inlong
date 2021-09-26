@@ -38,30 +38,30 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ClusterSetMapper {
-	List<ClusterSet> selectClusterSet();
+    List<ClusterSet> selectClusterSet();
 
-	List<InLongId> selectInlongId();
+    List<InLongId> selectInlongId();
 
-	List<CacheCluster> selectCacheCluster();
+    List<CacheCluster> selectCacheCluster();
 
-	List<CacheClusterExt> selectCacheClusterExt();
+    List<CacheClusterExt> selectCacheClusterExt();
 
-	List<CacheTopic> selectCacheTopic();
+    List<CacheTopic> selectCacheTopic();
 
-	List<ProxyCluster> selectProxyCluster();
+    List<ProxyCluster> selectProxyCluster();
 
-	List<ProxyClusterToCacheCluster> selectProxyClusterToCacheCluster();
+    List<ProxyClusterToCacheCluster> selectProxyClusterToCacheCluster();
 
-	List<FlumeSource> selectFlumeSource();
+    List<FlumeSource> selectFlumeSource();
 
-	List<FlumeSourceExt> selectFlumeSourceExt();
+    List<FlumeSourceExt> selectFlumeSourceExt();
 
-	List<FlumeChannel> selectFlumeChannel();
+    List<FlumeChannel> selectFlumeChannel();
 
-	List<FlumeChannelExt> selectFlumeChannelExt();
+    List<FlumeChannelExt> selectFlumeChannelExt();
 
-	List<FlumeSink> selectFlumeSink();
+    List<FlumeSink> selectFlumeSink();
 
-	List<FlumeSinkExt> selectFlumeSinkExt();
+    List<FlumeSinkExt> selectFlumeSinkExt();
 
 }

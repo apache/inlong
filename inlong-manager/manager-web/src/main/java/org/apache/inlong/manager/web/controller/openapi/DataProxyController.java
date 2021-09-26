@@ -40,25 +40,25 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = "DataProxy Config")
 public class DataProxyController {
 
-	@Autowired
-	private DataProxyClusterService dataProxyClusterService;
+    @Autowired
+    private DataProxyClusterService dataProxyClusterService;
 
-	@PostMapping("/getIpList")
-	@ApiOperation(value = "get data proxy ip list")
-	public Response<List<DataProxyIpResponse>> getIpList(@RequestBody DataProxyIpRequest request) {
-		return Response.success(dataProxyClusterService.getIpList(request));
-	}
+    @PostMapping("/getIpList")
+    @ApiOperation(value = "get data proxy ip list")
+    public Response<List<DataProxyIpResponse>> getIpList(@RequestBody DataProxyIpRequest request) {
+        return Response.success(dataProxyClusterService.getIpList(request));
+    }
 
-	@GetMapping("/getConfig")
-	@ApiOperation(value = "get data proxy config list")
-	public Response<List<DataProxyConfig>> getConfig() {
-		return Response.success(dataProxyClusterService.getConfig());
-	}
+    @GetMapping("/getConfig")
+    @ApiOperation(value = "get data proxy config list")
+    public Response<List<DataProxyConfig>> getConfig() {
+        return Response.success(dataProxyClusterService.getConfig());
+    }
 
-	@GetMapping("/getAllConfig")
-	@ApiOperation(value = "get data proxy config")
-	public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
-			@RequestParam("md5") String md5) {
-		return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
-	}
+    @GetMapping("/getAllConfig")
+    @ApiOperation(value = "get data proxy config")
+    public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
+            @RequestParam("md5") String md5) {
+        return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
+    }
 }

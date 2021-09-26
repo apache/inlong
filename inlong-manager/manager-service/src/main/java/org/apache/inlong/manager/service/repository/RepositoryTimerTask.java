@@ -27,19 +27,19 @@ import org.slf4j.LoggerFactory;
  */
 public class RepositoryTimerTask<T extends IRepository> extends TimerTask {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryTimerTask.class);
-	private T repository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryTimerTask.class);
+    private T repository;
 
-	public RepositoryTimerTask(T repository) {
-		this.repository = repository;
-	}
+    public RepositoryTimerTask(T repository) {
+        this.repository = repository;
+    }
 
-	@Override
-	public void run() {
-		try {
-			repository.reload();
-		} catch (Throwable e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-	}
+    @Override
+    public void run() {
+        try {
+            repository.reload();
+        } catch (Throwable e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
 }

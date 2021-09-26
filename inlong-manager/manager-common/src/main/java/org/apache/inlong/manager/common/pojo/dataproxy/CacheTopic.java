@@ -21,64 +21,64 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class CacheTopic {
 //    `topic_name`          varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
-	private String topicName;
+    private String topicName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-	private String setName;
+    private String setName;
 //    `partition_num`       int(11) NOT NULL COMMENT 'Partition number',
-	private int partitionNum;
+    private int partitionNum;
 
-	/**
-	 * get topicName
-	 * 
-	 * @return the topicName
-	 */
-	public String getTopicName() {
-		return topicName;
-	}
+    /**
+     * get topicName
+     * 
+     * @return the topicName
+     */
+    public String getTopicName() {
+        return topicName;
+    }
 
-	/**
-	 * set topicName
-	 * 
-	 * @param topicName the topicName to set
-	 */
-	public void setTopicName(String topicName) {
-		this.topicName = topicName;
-	}
+    /**
+     * set topicName
+     * 
+     * @param topicName the topicName to set
+     */
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get partitionNum
-	 * 
-	 * @return the partitionNum
-	 */
-	public int getPartitionNum() {
-		return partitionNum;
-	}
+    /**
+     * get partitionNum
+     * 
+     * @return the partitionNum
+     */
+    public int getPartitionNum() {
+        return partitionNum;
+    }
 
-	/**
-	 * set partitionNum
-	 * 
-	 * @param partitionNum the partitionNum to set
-	 */
-	public void setPartitionNum(int partitionNum) {
-		this.partitionNum = partitionNum;
-	}
+    /**
+     * set partitionNum
+     * 
+     * @param partitionNum the partitionNum to set
+     */
+    public void setPartitionNum(int partitionNum) {
+        this.partitionNum = partitionNum;
+    }
 
 }

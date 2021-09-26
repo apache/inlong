@@ -21,9 +21,9 @@ package org.apache.inlong.manager.service.repository;
  * IRepository
  */
 public interface IRepository {
-	public static final long DEFAULT_HEARTBEAT_INTERVAL_MS = 60000;
-	public static final String SEPARATOR = "&";
-	public static final String KEY_VALUE_SEPARATOR = "=";
+    public static final long DEFAULT_HEARTBEAT_INTERVAL_MS = 60000;
+    public static final String SEPARATOR = "&";
+    public static final String KEY_VALUE_SEPARATOR = "=";
 
-	void reload();
+    void reload();
 }

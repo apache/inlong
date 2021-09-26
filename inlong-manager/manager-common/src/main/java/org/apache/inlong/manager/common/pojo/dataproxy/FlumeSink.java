@@ -21,84 +21,84 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class FlumeSink {
 //    `sink_name`           varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
-	private String sinkName;
+    private String sinkName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-	private String setName;
+    private String setName;
 //    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSink classname',
-	private String type;
+    private String type;
 //    `channel`             varchar(128)  NOT NULL COMMENT 'FlumeSink channel',
-	private String channel;
+    private String channel;
 
-	/**
-	 * get sinkName
-	 * 
-	 * @return the sinkName
-	 */
-	public String getSinkName() {
-		return sinkName;
-	}
+    /**
+     * get sinkName
+     * 
+     * @return the sinkName
+     */
+    public String getSinkName() {
+        return sinkName;
+    }
 
-	/**
-	 * set sinkName
-	 * 
-	 * @param sinkName the sinkName to set
-	 */
-	public void setSinkName(String sinkName) {
-		this.sinkName = sinkName;
-	}
+    /**
+     * set sinkName
+     * 
+     * @param sinkName the sinkName to set
+     */
+    public void setSinkName(String sinkName) {
+        this.sinkName = sinkName;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get type
-	 * 
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    /**
+     * get type
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
 
-	/**
-	 * set type
-	 * 
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * set type
+     * 
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	/**
-	 * get channel
-	 * 
-	 * @return the channel
-	 */
-	public String getChannel() {
-		return channel;
-	}
+    /**
+     * get channel
+     * 
+     * @return the channel
+     */
+    public String getChannel() {
+        return channel;
+    }
 
-	/**
-	 * set channel
-	 * 
-	 * @param channel the channel to set
-	 */
-	public void setChannel(String channel) {
-		this.channel = channel;
-	}
+    /**
+     * set channel
+     * 
+     * @param channel the channel to set
+     */
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
 
 }

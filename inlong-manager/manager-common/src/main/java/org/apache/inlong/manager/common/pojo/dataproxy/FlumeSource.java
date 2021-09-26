@@ -21,104 +21,104 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  */
 public class FlumeSource {
 //    `source_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
-	private String sourceName;
+    private String sourceName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-	private String setName;
+    private String setName;
 //    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSource classname',
-	private String type;
+    private String type;
 //    `channels`            varchar(128)  NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
-	private String channels;
+    private String channels;
 //    `selector_type`       varchar(128)  NOT NULL COMMENT 'FlumeSource channel selector classname',
-	private String selectorType;
+    private String selectorType;
 
-	/**
-	 * get sourceName
-	 * 
-	 * @return the sourceName
-	 */
-	public String getSourceName() {
-		return sourceName;
-	}
+    /**
+     * get sourceName
+     * 
+     * @return the sourceName
+     */
+    public String getSourceName() {
+        return sourceName;
+    }
 
-	/**
-	 * set sourceName
-	 * 
-	 * @param sourceName the sourceName to set
-	 */
-	public void setSourceName(String sourceName) {
-		this.sourceName = sourceName;
-	}
+    /**
+     * set sourceName
+     * 
+     * @param sourceName the sourceName to set
+     */
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
 
-	/**
-	 * get setName
-	 * 
-	 * @return the setName
-	 */
-	public String getSetName() {
-		return setName;
-	}
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
 
-	/**
-	 * set setName
-	 * 
-	 * @param setName the setName to set
-	 */
-	public void setSetName(String setName) {
-		this.setName = setName;
-	}
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
 
-	/**
-	 * get type
-	 * 
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    /**
+     * get type
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
 
-	/**
-	 * set type
-	 * 
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * set type
+     * 
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	/**
-	 * get channels
-	 * 
-	 * @return the channels
-	 */
-	public String getChannels() {
-		return channels;
-	}
+    /**
+     * get channels
+     * 
+     * @return the channels
+     */
+    public String getChannels() {
+        return channels;
+    }
 
-	/**
-	 * set channels
-	 * 
-	 * @param channels the channels to set
-	 */
-	public void setChannels(String channels) {
-		this.channels = channels;
-	}
+    /**
+     * set channels
+     * 
+     * @param channels the channels to set
+     */
+    public void setChannels(String channels) {
+        this.channels = channels;
+    }
 
-	/**
-	 * get selectorType
-	 * 
-	 * @return the selectorType
-	 */
-	public String getSelectorType() {
-		return selectorType;
-	}
+    /**
+     * get selectorType
+     * 
+     * @return the selectorType
+     */
+    public String getSelectorType() {
+        return selectorType;
+    }
 
-	/**
-	 * set selectorType
-	 * 
-	 * @param selectorType the selectorType to set
-	 */
-	public void setSelectorType(String selectorType) {
-		this.selectorType = selectorType;
-	}
+    /**
+     * set selectorType
+     * 
+     * @param selectorType the selectorType to set
+     */
+    public void setSelectorType(String selectorType) {
+        this.selectorType = selectorType;
+    }
 
 }

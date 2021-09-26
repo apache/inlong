@@ -23,62 +23,62 @@ import java.util.Map;
  * CacheCluster
  */
 public class CacheClusterObject {
-	private String name;
-	private String zone;
-	private Map<String, String> params = new HashMap<>();
+    private String name;
+    private String zone;
+    private Map<String, String> params = new HashMap<>();
 
-	/**
-	 * get name
-	 * 
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * get name
+     * 
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * set name
-	 * 
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * set name
+     * 
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * get zone
-	 * 
-	 * @return the zone
-	 */
-	public String getZone() {
-		return zone;
-	}
+    /**
+     * get zone
+     * 
+     * @return the zone
+     */
+    public String getZone() {
+        return zone;
+    }
 
-	/**
-	 * set zone
-	 * 
-	 * @param zone the zone to set
-	 */
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
+    /**
+     * set zone
+     * 
+     * @param zone the zone to set
+     */
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
 
-	/**
-	 * get params
-	 * 
-	 * @return the params
-	 */
-	public Map<String, String> getParams() {
-		return params;
-	}
+    /**
+     * get params
+     * 
+     * @return the params
+     */
+    public Map<String, String> getParams() {
+        return params;
+    }
 
-	/**
-	 * set params
-	 * 
-	 * @param params the params to set
-	 */
-	public void setParams(Map<String, String> params) {
-		this.params = params;
-	}
+    /**
+     * set params
+     * 
+     * @param params the params to set
+     */
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 
 }

@@ -23,62 +23,62 @@ import java.util.Map;
  * InLongId
  */
 public class InLongIdObject {
-	private String inlongId;
-	private String topic;
-	private Map<String, String> params = new HashMap<>();
+    private String inlongId;
+    private String topic;
+    private Map<String, String> params = new HashMap<>();
 
-	/**
-	 * get inlongId
-	 * 
-	 * @return the inlongId
-	 */
-	public String getInlongId() {
-		return inlongId;
-	}
+    /**
+     * get inlongId
+     * 
+     * @return the inlongId
+     */
+    public String getInlongId() {
+        return inlongId;
+    }
 
-	/**
-	 * set inlongId
-	 * 
-	 * @param inlongId the inlongId to set
-	 */
-	public void setInlongId(String inlongId) {
-		this.inlongId = inlongId;
-	}
+    /**
+     * set inlongId
+     * 
+     * @param inlongId the inlongId to set
+     */
+    public void setInlongId(String inlongId) {
+        this.inlongId = inlongId;
+    }
 
-	/**
-	 * get topic
-	 * 
-	 * @return the topic
-	 */
-	public String getTopic() {
-		return topic;
-	}
+    /**
+     * get topic
+     * 
+     * @return the topic
+     */
+    public String getTopic() {
+        return topic;
+    }
 
-	/**
-	 * set topic
-	 * 
-	 * @param topic the topic to set
-	 */
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
+    /**
+     * set topic
+     * 
+     * @param topic the topic to set
+     */
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
-	/**
-	 * get params
-	 * 
-	 * @return the params
-	 */
-	public Map<String, String> getParams() {
-		return params;
-	}
+    /**
+     * get params
+     * 
+     * @return the params
+     */
+    public Map<String, String> getParams() {
+        return params;
+    }
 
-	/**
-	 * set params
-	 * 
-	 * @param params the params to set
-	 */
-	public void setParams(Map<String, String> params) {
-		this.params = params;
-	}
+    /**
+     * set params
+     * 
+     * @param params the params to set
+     */
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 
 }
