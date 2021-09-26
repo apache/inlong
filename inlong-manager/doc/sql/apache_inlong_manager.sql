@@ -845,4 +845,225 @@ CREATE TABLE `wf_task_instance`
   AUTO_INCREMENT = 704
   DEFAULT CHARSET = utf8mb4 COMMENT ='Task instance';
 
+-- ----------------------------
+-- Table structure for cluster_set
+-- ----------------------------
+DROP TABLE IF EXISTS `cluster_set`;
+CREATE TABLE `cluster_set`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `set_name`                varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `cn_name`             varchar(256)          DEFAULT NULL COMMENT 'Chinese display name',
+    `description`         varchar(256)          DEFAULT NULL COMMENT 'ClusterSet Introduction',
+    `middleware_type`     varchar(10)           DEFAULT 'Pulsar' COMMENT 'The middleware type of data storage, high throughput: Pulsar',
+    `in_charges`          varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
+    `followers`           varchar(512)          DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
+    `status`              int(11)               DEFAULT '21' COMMENT 'ClusterSet status',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `creator`             varchar(64)           DEFAULT NULL COMMENT 'creator name',
+    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'modifier name',
+    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_set` (`set_name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 16
+  DEFAULT CHARSET = utf8mb4 COMMENT ='ClusterSet table';
+
+-- ----------------------------
+-- Table structure for cluster_set_inlongid
+-- ----------------------------
+DROP TABLE IF EXISTS `cluster_set_inlongid`;
+CREATE TABLE `cluster_set_inlongid`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `set_name`                varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `business_identifier` varchar(128) NOT NULL COMMENT 'Business identifier, filled in by the user, undeleted ones cannot be repeated',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`,`business_identifier`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 16
+  DEFAULT CHARSET = utf8mb4 COMMENT ='InlongId table';
+    
+-- ----------------------------
+-- Table structure for cache_cluster
+-- ----------------------------
+DROP TABLE IF EXISTS `cache_cluster`;
+CREATE TABLE `cache_cluster`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`        varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cache_cluster` (`cluster_name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 16
+  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheCluster table';
+
+-- ----------------------------
+-- Table structure for cache_cluster_ext
+-- ----------------------------
+DROP TABLE IF EXISTS `cache_cluster_ext`;
+CREATE TABLE `cache_cluster_ext`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`        varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
+    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
+    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_cache_cluster` (`cluster_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheCluster extension table';
+
+-- ----------------------------
+-- Table structure for cache_topic
+-- ----------------------------
+DROP TABLE IF EXISTS `cache_topic`;
+CREATE TABLE `cache_topic`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `topic_name`          varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `partition_num`       int(11) NOT NULL COMMENT 'Partition number',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cache_topic` (`topic_name`,`set_name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 16
+  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheTopic table';
+
+-- ----------------------------
+-- Table structure for proxy_cluster
+-- ----------------------------
+DROP TABLE IF EXISTS `proxy_cluster`;
+CREATE TABLE `proxy_cluster`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`        varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_proxy_cluster` (`cluster_name`,`set_name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 16
+  DEFAULT CHARSET = utf8mb4 COMMENT ='ProxyCluster table';
+
+-- ----------------------------
+-- Table structure for proxy_cluster_to_cache_cluster
+-- ----------------------------
+DROP TABLE IF EXISTS `proxy_cluster_to_cache_cluster`;
+CREATE TABLE `proxy_cluster_to_cache_cluster`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `proxy_cluster_name`  varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
+    `cache_cluster_name`  varchar(128)  NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_proxy_cluster_to_cache_cluster` (`proxy_cluster_name`,`cache_cluster_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='The relation table of ProxyCluster and CacheCluster';
+
+-- ----------------------------
+-- Table structure for flume_source
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_source`;
+CREATE TABLE `flume_source`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `source_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSource classname',
+    `channels`            varchar(128)  NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
+    `selector_type`       varchar(128)  NOT NULL COMMENT 'FlumeSource channel selector classname',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_source` (`source_name`,`set_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSource table';
+
+-- ----------------------------
+-- Table structure for flume_source_ext
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_source_ext`;
+CREATE TABLE `flume_source_ext`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
+    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_source_ext` (`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSource extension table';
+
+-- ----------------------------
+-- Table structure for flume_channel
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_channel`;
+CREATE TABLE `flume_channel`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `channel_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `type`                varchar(128)  NOT NULL COMMENT 'FlumeChannel classname',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_channel` (`channel_name`,`set_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeChannel table';
+
+-- ----------------------------
+-- Table structure for flume_channel_ext
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_channel_ext`;
+CREATE TABLE `flume_channel_ext`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
+    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_channel_ext` (`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeChannel extension table';
+
+-- ----------------------------
+-- Table structure for flume_sink
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_sink`;
+CREATE TABLE `flume_sink`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `sink_name`           varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSink classname',
+    `channel`             varchar(128)  NOT NULL COMMENT 'FlumeSink channel',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_sink` (`sink_name`,`set_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink table';
+
+-- ----------------------------
+-- Table structure for flume_sink_ext
+-- ----------------------------
+DROP TABLE IF EXISTS `flume_sink_ext`;
+CREATE TABLE `flume_sink_ext`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`        varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
+    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
+    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_sink_ext` (`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
+  
 SET FOREIGN_KEY_CHECKS = 1;

@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import java.util.List;
+
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
@@ -30,25 +29,36 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/openapi/dataproxy")
 @Api(tags = "DataProxy Config")
 public class DataProxyController {
 
-    @Autowired
-    private DataProxyClusterService dataProxyClusterService;
+	@Autowired
+	private DataProxyClusterService dataProxyClusterService;
 
-    @PostMapping("/getIpList")
-    @ApiOperation(value = "get data proxy ip list")
-    public Response<List<DataProxyIpResponse>> getIpList(@RequestBody DataProxyIpRequest request) {
-        return Response.success(dataProxyClusterService.getIpList(request));
-    }
+	@PostMapping("/getIpList")
+	@ApiOperation(value = "get data proxy ip list")
+	public Response<List<DataProxyIpResponse>> getIpList(@RequestBody DataProxyIpRequest request) {
+		return Response.success(dataProxyClusterService.getIpList(request));
+	}
 
-    @GetMapping("/getConfig")
-    @ApiOperation(value = "get data proxy config list")
-    public Response<List<DataProxyConfig>> getConfig() {
-        return Response.success(dataProxyClusterService.getConfig());
-    }
+	@GetMapping("/getConfig")
+	@ApiOperation(value = "get data proxy config list")
+	public Response<List<DataProxyConfig>> getConfig() {
+		return Response.success(dataProxyClusterService.getConfig());
+	}
+
+	@GetMapping("/getAllConfig")
+	@ApiOperation(value = "get data proxy config")
+	public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
+			@RequestParam("md5") String md5) {
+		return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
+	}
 }

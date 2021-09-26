@@ -88,4 +88,13 @@ public interface DataProxyClusterService {
      */
     List<DataProxyConfig> getConfig();
 
+    /**
+     * query data proxy config by cluster id
+     * 
+     * @param clusterName
+     * @param setName
+     * @param md5
+     * @return data proxy config
+     */
+    String getAllConfig(String clusterName, String setName, String md5);
 }
