@@ -21,14 +21,13 @@ package org.apache.inlong.manager.common.pojo.dataproxy;
  * DataProxyConfigResponse
  */
 public class DataProxyConfigResponse {
-    public static final int SUCC = 0; // 成功的状态码
-    public static final int NOUPDATE = 1; // no update, md5相同
-    public static final int FAIL = -1; // 通用错误
-    public static final int REQ_PARAMS_ERROR = -101; // 请求参数错误
+    public static final int SUCC = 0; // success
+    public static final int NOUPDATE = 1; // no update, for same md5
+    public static final int FAIL = -1; // general error
+    public static final int REQ_PARAMS_ERROR = -101; // error request parameter
 
     private boolean result;
     private int errCode;
-    // "md5": "用于校验和NoUpdate场景",
     private String md5;
     private DataProxyCluster data;
 
