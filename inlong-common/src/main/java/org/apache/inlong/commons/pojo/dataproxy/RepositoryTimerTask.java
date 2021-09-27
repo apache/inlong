@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
+package org.apache.inlong.commons.pojo.dataproxy;
 
 import java.util.TimerTask;
 
