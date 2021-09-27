@@ -15,49 +15,49 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
 /**
- * DataProxyCluster
+ * CacheTopic
  */
-public class DataProxyCluster {
-    private ProxyClusterObject proxyCluster = new ProxyClusterObject();
-    private CacheClusterSetObject cacheClusterSet = new CacheClusterSetObject();
+public class CacheTopicObject {
+    private String topic;
+    private int partitionNum;
 
     /**
-     * get proxyCluster
+     * get topic
      * 
-     * @return the proxyCluster
+     * @return the topic
      */
-    public ProxyClusterObject getProxyCluster() {
-        return proxyCluster;
+    public String getTopic() {
+        return topic;
     }
 
     /**
-     * set proxyCluster
+     * set topic
      * 
-     * @param proxyCluster the proxyCluster to set
+     * @param topic the topic to set
      */
-    public void setProxyCluster(ProxyClusterObject proxyCluster) {
-        this.proxyCluster = proxyCluster;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     /**
-     * get cacheClusterSet
+     * get partitionNum
      * 
-     * @return the cacheClusterSet
+     * @return the partitionNum
      */
-    public CacheClusterSetObject getCacheClusterSet() {
-        return cacheClusterSet;
+    public int getPartitionNum() {
+        return partitionNum;
     }
 
     /**
-     * set cacheClusterSet
+     * set partitionNum
      * 
-     * @param cacheClusterSet the cacheClusterSet to set
+     * @param partitionNum the partitionNum to set
      */
-    public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
-        this.cacheClusterSet = cacheClusterSet;
+    public void setPartitionNum(int partitionNum) {
+        this.partitionNum = partitionNum;
     }
 
 }

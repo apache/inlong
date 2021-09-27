@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * FlumeSourceExt
+ * CacheClusterExt
  */
-public class FlumeSourceExt {
-//    `parent_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
-    private String parentName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    private String setName;
+public class CacheClusterExt {
+//    `cluster_name`        varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
+    private String clusterName;
 //    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
     private String keyName;
 //    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
@@ -33,39 +31,21 @@ public class FlumeSourceExt {
     private int isDeleted;
 
     /**
-     * get parentName
+     * get clusterName
      * 
-     * @return the parentName
+     * @return the clusterName
      */
-    public String getParentName() {
-        return parentName;
+    public String getClusterName() {
+        return clusterName;
     }
 
     /**
-     * set parentName
+     * set clusterName
      * 
-     * @param parentName the parentName to set
+     * @param clusterName the clusterName to set
      */
-    public void setParentName(String parentName) {
-        this.parentName = parentName;
-    }
-
-    /**
-     * get setName
-     * 
-     * @return the setName
-     */
-    public String getSetName() {
-        return setName;
-    }
-
-    /**
-     * set setName
-     * 
-     * @param setName the setName to set
-     */
-    public void setSetName(String setName) {
-        this.setName = setName;
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
     /**

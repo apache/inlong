@@ -15,37 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * FlumeSink
+ * FlumeSource
  */
-public class FlumeSink {
-//    `sink_name`           varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
-    private String sinkName;
+public class FlumeSource {
+//    `source_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
+    private String sourceName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSink classname',
+//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSource classname',
     private String type;
-//    `channel`             varchar(128)  NOT NULL COMMENT 'FlumeSink channel',
-    private String channel;
+//    `channels`            varchar(128)  NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
+    private String channels;
+//    `selector_type`       varchar(128)  NOT NULL COMMENT 'FlumeSource channel selector classname',
+    private String selectorType;
 
     /**
-     * get sinkName
+     * get sourceName
      * 
-     * @return the sinkName
+     * @return the sourceName
      */
-    public String getSinkName() {
-        return sinkName;
+    public String getSourceName() {
+        return sourceName;
     }
 
     /**
-     * set sinkName
+     * set sourceName
      * 
-     * @param sinkName the sinkName to set
+     * @param sourceName the sourceName to set
      */
-    public void setSinkName(String sinkName) {
-        this.sinkName = sinkName;
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     /**
@@ -85,21 +87,39 @@ public class FlumeSink {
     }
 
     /**
-     * get channel
+     * get channels
      * 
-     * @return the channel
+     * @return the channels
      */
-    public String getChannel() {
-        return channel;
+    public String getChannels() {
+        return channels;
     }
 
     /**
-     * set channel
+     * set channels
      * 
-     * @param channel the channel to set
+     * @param channels the channels to set
      */
-    public void setChannel(String channel) {
-        this.channel = channel;
+    public void setChannels(String channels) {
+        this.channels = channels;
+    }
+
+    /**
+     * get selectorType
+     * 
+     * @return the selectorType
+     */
+    public String getSelectorType() {
+        return selectorType;
+    }
+
+    /**
+     * set selectorType
+     * 
+     * @param selectorType the selectorType to set
+     */
+    public void setSelectorType(String selectorType) {
+        this.selectorType = selectorType;
     }
 
 }

@@ -17,38 +17,17 @@
 
 package org.apache.inlong.manager.common.pojo.dataproxy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * FlumeSource
+ * CacheClusterSet
  */
-public class FlumeSource {
-//    `source_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
-    private String sourceName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+public class CacheClusterSetObject {
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSource classname',
     private String type;
-//    `channels`            varchar(128)  NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
-    private String channels;
-//    `selector_type`       varchar(128)  NOT NULL COMMENT 'FlumeSource channel selector classname',
-    private String selectorType;
-
-    /**
-     * get sourceName
-     * 
-     * @return the sourceName
-     */
-    public String getSourceName() {
-        return sourceName;
-    }
-
-    /**
-     * set sourceName
-     * 
-     * @param sourceName the sourceName to set
-     */
-    public void setSourceName(String sourceName) {
-        this.sourceName = sourceName;
-    }
+    private List<CacheClusterObject> cacheClusters = new ArrayList<>();
+    private List<CacheTopicObject> topics = new ArrayList<>();
 
     /**
      * get setName
@@ -87,39 +66,39 @@ public class FlumeSource {
     }
 
     /**
-     * get channels
+     * get cacheClusters
      * 
-     * @return the channels
+     * @return the cacheClusters
      */
-    public String getChannels() {
-        return channels;
+    public List<CacheClusterObject> getCacheClusters() {
+        return cacheClusters;
     }
 
     /**
-     * set channels
+     * set cacheClusters
      * 
-     * @param channels the channels to set
+     * @param cacheClusters the cacheClusters to set
      */
-    public void setChannels(String channels) {
-        this.channels = channels;
+    public void setCacheClusters(List<CacheClusterObject> cacheClusters) {
+        this.cacheClusters = cacheClusters;
     }
 
     /**
-     * get selectorType
+     * get topics
      * 
-     * @return the selectorType
+     * @return the topics
      */
-    public String getSelectorType() {
-        return selectorType;
+    public List<CacheTopicObject> getTopics() {
+        return topics;
     }
 
     /**
-     * set selectorType
+     * set topics
      * 
-     * @param selectorType the selectorType to set
+     * @param topics the topics to set
      */
-    public void setSelectorType(String selectorType) {
-        this.selectorType = selectorType;
+    public void setTopics(List<CacheTopicObject> topics) {
+        this.topics = topics;
     }
 
 }

@@ -15,35 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * CacheTopic
+ * FlumeChannel
  */
-public class CacheTopic {
-//    `topic_name`          varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
-    private String topicName;
+public class FlumeChannel {
+//    `channel_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
+    private String channelName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `partition_num`       int(11) NOT NULL COMMENT 'Partition number',
-    private int partitionNum;
+//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeChannel classname',
+    private String type;
 
     /**
-     * get topicName
+     * get channelName
      * 
-     * @return the topicName
+     * @return the channelName
      */
-    public String getTopicName() {
-        return topicName;
+    public String getChannelName() {
+        return channelName;
     }
 
     /**
-     * set topicName
+     * set channelName
      * 
-     * @param topicName the topicName to set
+     * @param channelName the channelName to set
      */
-    public void setTopicName(String topicName) {
-        this.topicName = topicName;
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     /**
@@ -65,21 +65,21 @@ public class CacheTopic {
     }
 
     /**
-     * get partitionNum
+     * get type
      * 
-     * @return the partitionNum
+     * @return the type
      */
-    public int getPartitionNum() {
-        return partitionNum;
+    public String getType() {
+        return type;
     }
 
     /**
-     * set partitionNum
+     * set type
      * 
-     * @param partitionNum the partitionNum to set
+     * @param type the type to set
      */
-    public void setPartitionNum(int partitionNum) {
-        this.partitionNum = partitionNum;
+    public void setType(String type) {
+        this.type = type;
     }
 
 }

@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.apache.inlong.manager.dao.entity;
 
 /**
  * InLongId
  */
-public class InLongIdObject {
+public class InLongId {
     private String inlongId;
     private String topic;
-    private Map<String, String> params = new HashMap<>();
+    private String params;
+    private String setName;
 
     /**
      * get inlongId
@@ -69,7 +67,7 @@ public class InLongIdObject {
      * 
      * @return the params
      */
-    public Map<String, String> getParams() {
+    public String getParams() {
         return params;
     }
 
@@ -78,8 +76,26 @@ public class InLongIdObject {
      * 
      * @param params the params to set
      */
-    public void setParams(Map<String, String> params) {
+    public void setParams(String params) {
         this.params = params;
+    }
+
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
+
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
     }
 
 }

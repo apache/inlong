@@ -15,21 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * DataProxySource
+ * DataProxyChannel
  */
-public class ProxySource {
+public class ProxyChannel {
     private String name;
     private String type;
-    private String selectorType;
-    private List<String> channels = new ArrayList<>();
     private Map<String, String> params = new HashMap<>();
 
     /**
@@ -66,42 +62,6 @@ public class ProxySource {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * get selectorType
-     * 
-     * @return the selectorType
-     */
-    public String getSelectorType() {
-        return selectorType;
-    }
-
-    /**
-     * set selectorType
-     * 
-     * @param selectorType the selectorType to set
-     */
-    public void setSelectorType(String selectorType) {
-        this.selectorType = selectorType;
-    }
-
-    /**
-     * get channels
-     * 
-     * @return the channels
-     */
-    public List<String> getChannels() {
-        return channels;
-    }
-
-    /**
-     * set channels
-     * 
-     * @param channels the channels to set
-     */
-    public void setChannels(List<String> channels) {
-        this.channels = channels;
     }
 
     /**

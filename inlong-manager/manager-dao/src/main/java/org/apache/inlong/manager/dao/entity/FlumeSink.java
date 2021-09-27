@@ -15,36 +15,55 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * DataProxySink
+ * FlumeSink
  */
-public class ProxySink {
-    private String name;
+public class FlumeSink {
+//    `sink_name`           varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
+    private String sinkName;
+//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    private String setName;
+//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSink classname',
     private String type;
+//    `channel`             varchar(128)  NOT NULL COMMENT 'FlumeSink channel',
     private String channel;
-    private Map<String, String> params = new HashMap<>();
 
     /**
-     * get name
+     * get sinkName
      * 
-     * @return the name
+     * @return the sinkName
      */
-    public String getName() {
-        return name;
+    public String getSinkName() {
+        return sinkName;
     }
 
     /**
-     * set name
+     * set sinkName
      * 
-     * @param name the name to set
+     * @param sinkName the sinkName to set
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setSinkName(String sinkName) {
+        this.sinkName = sinkName;
+    }
+
+    /**
+     * get setName
+     * 
+     * @return the setName
+     */
+    public String getSetName() {
+        return setName;
+    }
+
+    /**
+     * set setName
+     * 
+     * @param setName the setName to set
+     */
+    public void setSetName(String setName) {
+        this.setName = setName;
     }
 
     /**
@@ -81,24 +100,6 @@ public class ProxySink {
      */
     public void setChannel(String channel) {
         this.channel = channel;
-    }
-
-    /**
-     * get params
-     * 
-     * @return the params
-     */
-    public Map<String, String> getParams() {
-        return params;
-    }
-
-    /**
-     * set params
-     * 
-     * @param params the params to set
-     */
-    public void setParams(Map<String, String> params) {
-        this.params = params;
     }
 
 }

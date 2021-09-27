@@ -15,35 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * ProxyCluster
+ * CacheTopic
  */
-public class ProxyCluster {
-//    `cluster_name`        varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
-    private String clusterName;
+public class CacheTopic {
+//    `topic_name`          varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
+    private String topicName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-    private String zone;
+//    `partition_num`       int(11) NOT NULL COMMENT 'Partition number',
+    private int partitionNum;
 
     /**
-     * get clusterName
+     * get topicName
      * 
-     * @return the clusterName
+     * @return the topicName
      */
-    public String getClusterName() {
-        return clusterName;
+    public String getTopicName() {
+        return topicName;
     }
 
     /**
-     * set clusterName
+     * set topicName
      * 
-     * @param clusterName the clusterName to set
+     * @param topicName the topicName to set
      */
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
     /**
@@ -65,21 +65,21 @@ public class ProxyCluster {
     }
 
     /**
-     * get zone
+     * get partitionNum
      * 
-     * @return the zone
+     * @return the partitionNum
      */
-    public String getZone() {
-        return zone;
+    public int getPartitionNum() {
+        return partitionNum;
     }
 
     /**
-     * set zone
+     * set partitionNum
      * 
-     * @param zone the zone to set
+     * @param partitionNum the partitionNum to set
      */
-    public void setZone(String zone) {
-        this.zone = zone;
+    public void setPartitionNum(int partitionNum) {
+        this.partitionNum = partitionNum;
     }
 
 }

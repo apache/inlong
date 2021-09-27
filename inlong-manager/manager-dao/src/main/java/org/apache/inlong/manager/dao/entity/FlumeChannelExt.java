@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
  * FlumeChannelExt

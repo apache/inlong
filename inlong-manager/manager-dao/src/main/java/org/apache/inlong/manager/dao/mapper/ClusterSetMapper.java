@@ -19,19 +19,19 @@ package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
 
-import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
-import org.apache.inlong.manager.common.pojo.dataproxy.CacheClusterExt;
-import org.apache.inlong.manager.common.pojo.dataproxy.CacheTopic;
-import org.apache.inlong.manager.common.pojo.dataproxy.ClusterSet;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeChannel;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeChannelExt;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeSink;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeSinkExt;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeSource;
-import org.apache.inlong.manager.common.pojo.dataproxy.FlumeSourceExt;
-import org.apache.inlong.manager.common.pojo.dataproxy.InLongId;
-import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
-import org.apache.inlong.manager.common.pojo.dataproxy.ProxyClusterToCacheCluster;
+import org.apache.inlong.manager.dao.entity.CacheCluster;
+import org.apache.inlong.manager.dao.entity.CacheClusterExt;
+import org.apache.inlong.manager.dao.entity.CacheTopic;
+import org.apache.inlong.manager.dao.entity.ClusterSet;
+import org.apache.inlong.manager.dao.entity.FlumeChannel;
+import org.apache.inlong.manager.dao.entity.FlumeChannelExt;
+import org.apache.inlong.manager.dao.entity.FlumeSink;
+import org.apache.inlong.manager.dao.entity.FlumeSinkExt;
+import org.apache.inlong.manager.dao.entity.FlumeSource;
+import org.apache.inlong.manager.dao.entity.FlumeSourceExt;
+import org.apache.inlong.manager.dao.entity.InLongId;
+import org.apache.inlong.manager.dao.entity.ProxyCluster;
+import org.apache.inlong.manager.dao.entity.ProxyClusterToCacheCluster;
 import org.springframework.stereotype.Repository;
 
 /**

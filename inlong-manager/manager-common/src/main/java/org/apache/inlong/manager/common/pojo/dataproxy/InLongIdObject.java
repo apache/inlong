@@ -15,53 +15,53 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DataProxyChannel
+ * InLongId
  */
-public class ProxyChannel {
-    private String name;
-    private String type;
+public class InLongIdObject {
+    private String inlongId;
+    private String topic;
     private Map<String, String> params = new HashMap<>();
 
     /**
-     * get name
+     * get inlongId
      * 
-     * @return the name
+     * @return the inlongId
      */
-    public String getName() {
-        return name;
+    public String getInlongId() {
+        return inlongId;
     }
 
     /**
-     * set name
+     * set inlongId
      * 
-     * @param name the name to set
+     * @param inlongId the inlongId to set
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setInlongId(String inlongId) {
+        this.inlongId = inlongId;
     }
 
     /**
-     * get type
+     * get topic
      * 
-     * @return the type
+     * @return the topic
      */
-    public String getType() {
-        return type;
+    public String getTopic() {
+        return topic;
     }
 
     /**
-     * set type
+     * set topic
      * 
-     * @param type the type to set
+     * @param topic the topic to set
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     /**

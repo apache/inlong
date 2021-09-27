@@ -15,36 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.repository;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * CacheClusterSet
+ * DataProxySink
  */
-public class CacheClusterSetObject {
-    private String setName;
+public class ProxySink {
+    private String name;
     private String type;
-    private List<CacheClusterObject> cacheClusters = new ArrayList<>();
-    private List<CacheTopicObject> topics = new ArrayList<>();
+    private String channel;
+    private Map<String, String> params = new HashMap<>();
 
     /**
-     * get setName
+     * get name
      * 
-     * @return the setName
+     * @return the name
      */
-    public String getSetName() {
-        return setName;
+    public String getName() {
+        return name;
     }
 
     /**
-     * set setName
+     * set name
      * 
-     * @param setName the setName to set
+     * @param name the name to set
      */
-    public void setSetName(String setName) {
-        this.setName = setName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -66,39 +66,39 @@ public class CacheClusterSetObject {
     }
 
     /**
-     * get cacheClusters
+     * get channel
      * 
-     * @return the cacheClusters
+     * @return the channel
      */
-    public List<CacheClusterObject> getCacheClusters() {
-        return cacheClusters;
+    public String getChannel() {
+        return channel;
     }
 
     /**
-     * set cacheClusters
+     * set channel
      * 
-     * @param cacheClusters the cacheClusters to set
+     * @param channel the channel to set
      */
-    public void setCacheClusters(List<CacheClusterObject> cacheClusters) {
-        this.cacheClusters = cacheClusters;
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     /**
-     * get topics
+     * get params
      * 
-     * @return the topics
+     * @return the params
      */
-    public List<CacheTopicObject> getTopics() {
-        return topics;
+    public Map<String, String> getParams() {
+        return params;
     }
 
     /**
-     * set topics
+     * set params
      * 
-     * @param topics the topics to set
+     * @param params the params to set
      */
-    public void setTopics(List<CacheTopicObject> topics) {
-        this.topics = topics;
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
 }

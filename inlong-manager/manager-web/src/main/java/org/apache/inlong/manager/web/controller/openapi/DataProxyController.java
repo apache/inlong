@@ -20,9 +20,9 @@ package org.apache.inlong.manager.web.controller.openapi;
 import java.util.List;
 
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
+import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

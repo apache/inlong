@@ -21,9 +21,9 @@ import com.github.pagehelper.PageInfo;
 import java.util.List;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
+import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 
 /**
  * DataProxy cluster service layer interface

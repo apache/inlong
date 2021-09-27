@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * FlumeSinkExt
+ * FlumeSourceExt
  */
-public class FlumeSinkExt {
-//    `parent_name`        varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
+public class FlumeSourceExt {
+//    `parent_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
     private String parentName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;

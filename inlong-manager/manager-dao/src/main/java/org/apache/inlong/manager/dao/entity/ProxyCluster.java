@@ -15,35 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.manager.dao.entity;
 
 /**
- * FlumeChannel
+ * ProxyCluster
  */
-public class FlumeChannel {
-//    `channel_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
-    private String channelName;
+public class ProxyCluster {
+//    `cluster_name`        varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
+    private String clusterName;
 //    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeChannel classname',
-    private String type;
+//    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
+    private String zone;
 
     /**
-     * get channelName
+     * get clusterName
      * 
-     * @return the channelName
+     * @return the clusterName
      */
-    public String getChannelName() {
-        return channelName;
+    public String getClusterName() {
+        return clusterName;
     }
 
     /**
-     * set channelName
+     * set clusterName
      * 
-     * @param channelName the channelName to set
+     * @param clusterName the clusterName to set
      */
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
     /**
@@ -65,21 +65,21 @@ public class FlumeChannel {
     }
 
     /**
-     * get type
+     * get zone
      * 
-     * @return the type
+     * @return the zone
      */
-    public String getType() {
-        return type;
+    public String getZone() {
+        return zone;
     }
 
     /**
-     * set type
+     * set zone
      * 
-     * @param type the type to set
+     * @param zone the zone to set
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 
 }
