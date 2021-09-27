@@ -21,9 +21,7 @@ package org.apache.inlong.manager.dao.entity;
  * ProxyClusterToCacheCluster
  */
 public class ProxyClusterToCacheCluster {
-//    `proxy_cluster_name`  varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
     private String proxyClusterName;
-//    `cache_cluster_name`  varchar(128)  NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
     private String cacheClusterName;
 
     /**

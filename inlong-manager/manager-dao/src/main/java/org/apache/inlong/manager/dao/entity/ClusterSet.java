@@ -21,30 +21,15 @@ package org.apache.inlong.manager.dao.entity;
  * ClusterSet
  */
 public class ClusterSet {
-    // `set_name` varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers
-    // and underscore',
     private String setName;
-    // `cn_name` varchar(256) DEFAULT NULL COMMENT 'Chinese display name',
     private String cnName;
-    // `description` varchar(256) DEFAULT NULL COMMENT 'ClusterSet Introduction',
     private String description;
-    // `middleware_type` varchar(10) DEFAULT 'Pulsar' COMMENT 'The middleware type
-    // of data storage, high throughput: Pulsar',
     private String middlewareType;
-    // `in_charges` varchar(512) DEFAULT NULL COMMENT 'Name of responsible person,
-    // separated by commas',
     private String inCharges;
-    // `followers` varchar(512) DEFAULT NULL COMMENT 'List of names of business
-    // followers, separated by commas',
     private String followers;
-    // `status` int(11) DEFAULT '21' COMMENT 'ClusterSet status',
     private int status;
-    // `is_deleted` tinyint(1) DEFAULT '0' COMMENT 'Whether to delete, 0: not
-    // deleted, 1: deleted',
     private int isDeleted;
-    // `creator` varchar(64) DEFAULT NULL COMMENT 'creator name',
     private String creator;
-    // `modifier` varchar(64) DEFAULT NULL COMMENT 'modifier name',
     private String modifier;
 
     /**

@@ -21,11 +21,8 @@ package org.apache.inlong.manager.dao.entity;
  * FlumeChannel
  */
 public class FlumeChannel {
-//    `channel_name`        varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
     private String channelName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeChannel classname',
     private String type;
 
     /**

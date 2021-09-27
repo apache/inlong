@@ -21,11 +21,8 @@ package org.apache.inlong.manager.dao.entity;
  * ProxyCluster
  */
 public class ProxyCluster {
-//    `cluster_name`        varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
     private String clusterName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `zone`                varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
     private String zone;
 
     /**

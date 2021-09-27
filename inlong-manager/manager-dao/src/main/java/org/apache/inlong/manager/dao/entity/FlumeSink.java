@@ -21,13 +21,9 @@ package org.apache.inlong.manager.dao.entity;
  * FlumeSink
  */
 public class FlumeSink {
-//    `sink_name`           varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
     private String sinkName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSink classname',
     private String type;
-//    `channel`             varchar(128)  NOT NULL COMMENT 'FlumeSink channel',
     private String channel;
 
     /**

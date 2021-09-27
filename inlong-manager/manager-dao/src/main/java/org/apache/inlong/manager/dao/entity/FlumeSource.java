@@ -21,15 +21,10 @@ package org.apache.inlong.manager.dao.entity;
  * FlumeSource
  */
 public class FlumeSource {
-//    `source_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
     private String sourceName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `type`                varchar(128)  NOT NULL COMMENT 'FlumeSource classname',
     private String type;
-//    `channels`            varchar(128)  NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
     private String channels;
-//    `selector_type`       varchar(128)  NOT NULL COMMENT 'FlumeSource channel selector classname',
     private String selectorType;
 
     /**

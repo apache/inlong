@@ -21,13 +21,9 @@ package org.apache.inlong.manager.dao.entity;
  * CacheClusterExt
  */
 public class CacheClusterExt {
-//    `cluster_name`        varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
     private String clusterName;
-//    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
     private String keyName;
-//    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     private String keyValue;
-//    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     private int isDeleted;
 
     /**

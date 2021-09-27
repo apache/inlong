@@ -21,11 +21,8 @@ package org.apache.inlong.manager.dao.entity;
  * CacheTopic
  */
 public class CacheTopic {
-//    `topic_name`          varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
     private String topicName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `partition_num`       int(11) NOT NULL COMMENT 'Partition number',
     private int partitionNum;
 
     /**

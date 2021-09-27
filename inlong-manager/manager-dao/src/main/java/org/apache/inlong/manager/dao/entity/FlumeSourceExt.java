@@ -21,15 +21,10 @@ package org.apache.inlong.manager.dao.entity;
  * FlumeSourceExt
  */
 public class FlumeSourceExt {
-//    `parent_name`         varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
     private String parentName;
-//    `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     private String setName;
-//    `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
     private String keyName;
-//    `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     private String keyValue;
-//    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     private int isDeleted;
 
     /**
