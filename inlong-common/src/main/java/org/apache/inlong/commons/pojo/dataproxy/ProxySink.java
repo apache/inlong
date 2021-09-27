@@ -15,17 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.commons.pojo.dataproxy;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * CacheCluster
+ * DataProxySink
  */
-public class CacheClusterObject {
+public class ProxySink {
     private String name;
-    private String zone;
+    private String type;
+    private String channel;
     private Map<String, String> params = new HashMap<>();
 
     /**
@@ -47,21 +48,39 @@ public class CacheClusterObject {
     }
 
     /**
-     * get zone
+     * get type
      * 
-     * @return the zone
+     * @return the type
      */
-    public String getZone() {
-        return zone;
+    public String getType() {
+        return type;
     }
 
     /**
-     * set zone
+     * set type
      * 
-     * @param zone the zone to set
+     * @param type the type to set
      */
-    public void setZone(String zone) {
-        this.zone = zone;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     * get channel
+     * 
+     * @return the channel
+     */
+    public String getChannel() {
+        return channel;
+    }
+
+    /**
+     * set channel
+     * 
+     * @param channel the channel to set
+     */
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     /**

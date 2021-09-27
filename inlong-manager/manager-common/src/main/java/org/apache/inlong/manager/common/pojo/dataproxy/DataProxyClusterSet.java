@@ -24,6 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.inlong.commons.pojo.dataproxy.CacheClusterSetObject;
+import org.apache.inlong.commons.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyChannel;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyClusterObject;
+import org.apache.inlong.commons.pojo.dataproxy.ProxySink;
+import org.apache.inlong.commons.pojo.dataproxy.ProxySource;
+
 /**
  * DataProxyClusterSet
  */

@@ -15,53 +15,53 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.commons.pojo.dataproxy;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * InLongId
+ * CacheCluster
  */
-public class InLongIdObject {
-    private String inlongId;
-    private String topic;
+public class CacheClusterObject {
+    private String name;
+    private String zone;
     private Map<String, String> params = new HashMap<>();
 
     /**
-     * get inlongId
+     * get name
      * 
-     * @return the inlongId
+     * @return the name
      */
-    public String getInlongId() {
-        return inlongId;
+    public String getName() {
+        return name;
     }
 
     /**
-     * set inlongId
+     * set name
      * 
-     * @param inlongId the inlongId to set
+     * @param name the name to set
      */
-    public void setInlongId(String inlongId) {
-        this.inlongId = inlongId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * get topic
+     * get zone
      * 
-     * @return the topic
+     * @return the zone
      */
-    public String getTopic() {
-        return topic;
+    public String getZone() {
+        return zone;
     }
 
     /**
-     * set topic
+     * set zone
      * 
-     * @param topic the topic to set
+     * @param zone the zone to set
      */
-    public void setTopic(String topic) {
-        this.topic = topic;
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 
     /**

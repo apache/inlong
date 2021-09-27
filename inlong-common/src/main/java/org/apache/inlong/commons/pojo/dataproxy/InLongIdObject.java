@@ -15,14 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.commons.pojo.dataproxy;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * CacheTopic
+ * InLongId
  */
-public class CacheTopicObject {
+public class InLongIdObject {
+    private String inlongId;
     private String topic;
-    private int partitionNum;
+    private Map<String, String> params = new HashMap<>();
+
+    /**
+     * get inlongId
+     * 
+     * @return the inlongId
+     */
+    public String getInlongId() {
+        return inlongId;
+    }
+
+    /**
+     * set inlongId
+     * 
+     * @param inlongId the inlongId to set
+     */
+    public void setInlongId(String inlongId) {
+        this.inlongId = inlongId;
+    }
 
     /**
      * get topic
@@ -43,21 +65,21 @@ public class CacheTopicObject {
     }
 
     /**
-     * get partitionNum
+     * get params
      * 
-     * @return the partitionNum
+     * @return the params
      */
-    public int getPartitionNum() {
-        return partitionNum;
+    public Map<String, String> getParams() {
+        return params;
     }
 
     /**
-     * set partitionNum
+     * set params
      * 
-     * @param partitionNum the partitionNum to set
+     * @param params the params to set
      */
-    public void setPartitionNum(int partitionNum) {
-        this.partitionNum = partitionNum;
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
 }
