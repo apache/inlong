@@ -26,8 +26,8 @@ public class DataProxyConfigResponse {
     public static final int FAIL = -1; // general error
     public static final int REQ_PARAMS_ERROR = -101; // error request parameter
 
-    private boolean result;
-    private int errCode;
+    private Boolean result;
+    private Integer errCode;
     private String md5;
     private DataProxyCluster data;
 
@@ -36,7 +36,7 @@ public class DataProxyConfigResponse {
      * 
      * @return the result
      */
-    public boolean isResult() {
+    public Boolean isResult() {
         return result;
     }
 
@@ -45,7 +45,7 @@ public class DataProxyConfigResponse {
      * 
      * @param result the result to set
      */
-    public void setResult(boolean result) {
+    public void setResult(Boolean result) {
         this.result = result;
     }
 
@@ -54,7 +54,7 @@ public class DataProxyConfigResponse {
      * 
      * @return the errCode
      */
-    public int getErrCode() {
+    public Integer getErrCode() {
         return errCode;
     }
 
@@ -63,7 +63,7 @@ public class DataProxyConfigResponse {
      * 
      * @param errCode the errCode to set
      */
-    public void setErrCode(int errCode) {
+    public void setErrCode(Integer errCode) {
         this.errCode = errCode;
     }
 

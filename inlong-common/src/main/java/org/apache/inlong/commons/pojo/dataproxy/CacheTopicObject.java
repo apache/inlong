@@ -22,7 +22,7 @@ package org.apache.inlong.commons.pojo.dataproxy;
  */
 public class CacheTopicObject {
     private String topic;
-    private int partitionNum;
+    private Integer partitionNum;
 
     /**
      * get topic
@@ -47,7 +47,7 @@ public class CacheTopicObject {
      * 
      * @return the partitionNum
      */
-    public int getPartitionNum() {
+    public Integer getPartitionNum() {
         return partitionNum;
     }
 
@@ -56,7 +56,7 @@ public class CacheTopicObject {
      * 
      * @param partitionNum the partitionNum to set
      */
-    public void setPartitionNum(int partitionNum) {
+    public void setPartitionNum(Integer partitionNum) {
         this.partitionNum = partitionNum;
     }
 
