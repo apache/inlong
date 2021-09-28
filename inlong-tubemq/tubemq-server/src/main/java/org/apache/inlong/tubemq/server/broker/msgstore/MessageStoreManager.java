@@ -83,7 +83,6 @@ public class MessageStoreManager implements StoreService {
     // the status that is deleting topic.
     private AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
 
-
     public MessageStoreManager(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) throws IOException {
         super();
@@ -615,7 +614,6 @@ public class MessageStoreManager implements StoreService {
             targetFile.delete();
         }
     }
-
 
     public void refreshMessageStoresHoldVals(Map<String, TopicMetadata> oldTopicConfigMap,
                                              Map<String, TopicMetadata> newTopicConfigMap) {

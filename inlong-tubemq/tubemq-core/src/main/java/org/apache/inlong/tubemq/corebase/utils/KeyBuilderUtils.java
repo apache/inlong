@@ -15,15 +15,10 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.corebase.utils;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
-
-
-
-
 
 public class KeyBuilderUtils {
 

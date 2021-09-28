@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.channel;
 
-
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.JobProfile;

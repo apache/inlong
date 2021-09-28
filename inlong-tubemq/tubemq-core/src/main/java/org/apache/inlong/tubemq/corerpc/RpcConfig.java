@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-
 public class RpcConfig {
 
     private final Map<String, Object> params = new HashMap<>();

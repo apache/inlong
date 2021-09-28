@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corerpc.service;
 
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 
-
 public interface MasterService {
 
     ClientMaster.RegisterResponseM2P producerRegisterP2M(ClientMaster.RegisterRequestP2M request,

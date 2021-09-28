@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.metrics.gauge;
 
-
 import org.apache.inlong.agent.metrics.MutableMetric;
 
 public interface Gauge<T> extends MutableMetric {

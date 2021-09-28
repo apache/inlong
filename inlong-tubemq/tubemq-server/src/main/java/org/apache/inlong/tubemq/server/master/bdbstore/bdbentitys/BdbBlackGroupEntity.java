@@ -28,7 +28,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbBlackGroupEntity implements Serializable {
 
@@ -66,7 +65,6 @@ public class BdbBlackGroupEntity implements Serializable {
         this.createUser = createUser;
         this.createDate = createDate;
     }
-
 
     public String getAttributes() {
         return attributes;
@@ -139,7 +137,6 @@ public class BdbBlackGroupEntity implements Serializable {
         return TStringUtils.getAttrValFrmAttributes(
                 this.attributes, TStoreConstants.TOKEN_BLK_REASON);
     }
-
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         return sBuilder.append("{\"type\":\"BdbBlackGroupEntity\",")

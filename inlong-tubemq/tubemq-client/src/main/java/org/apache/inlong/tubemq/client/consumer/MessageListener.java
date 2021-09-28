@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import org.apache.inlong.tubemq.client.common.PeerInfo;
 import org.apache.inlong.tubemq.corebase.Message;
 
-
 public interface MessageListener {
 
     void receiveMessages(PeerInfo peerInfo, List<Message> messages) throws InterruptedException;
@@ -30,6 +29,5 @@ public interface MessageListener {
     Executor getExecutor();
 
     void stop();
-
 
 }

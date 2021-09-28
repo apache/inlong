@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.common;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
 public final class TServerConstants {
 
     public static final String TOKEN_JOB_TOPICS = "topics";
@@ -27,7 +26,6 @@ public final class TServerConstants {
     public static final String TOKEN_DEFAULT_FLOW_CONTROL = "default_master_ctrl";
 
     public static final long DEFAULT_DATA_VERSION = 0L;
-
 
     public static final String BLANK_FLOWCTRL_RULES = "[]";
     public static final String BLANK_FILTER_ITEM_STR = ",,";

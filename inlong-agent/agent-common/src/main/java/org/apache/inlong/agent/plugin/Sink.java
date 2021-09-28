@@ -29,7 +29,6 @@ public interface Sink extends Stage {
      */
     void write(Message message);
 
-
     /**
      * set source file name where the message is generated
      * @param sourceFileName

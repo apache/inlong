@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 
-
 public class ConsumerBandInfo {
 
     private boolean isBandConsume = false;

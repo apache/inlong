@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 
-
 public interface CertificateMasterHandler {
 
     CertifiedResult identityValidBrokerInfo(ClientMaster.MasterCertificateInfo authenticInfo);
@@ -34,6 +33,5 @@ public interface CertificateMasterHandler {
 
     CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
                                                Map<String, TreeSet<String>> topicConds, String clientIp);
-
 
 }

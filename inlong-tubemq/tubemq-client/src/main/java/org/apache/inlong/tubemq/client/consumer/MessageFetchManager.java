@@ -44,7 +44,6 @@ public class MessageFetchManager {
     private AtomicInteger managerStatus = new AtomicInteger(-1);
     private Thread[] fetchWorkerPool;
 
-
     public MessageFetchManager(final ConsumerConfig consumerConfig,
                                final SimplePushMessageConsumer pushConsumer) {
         this.consumerConfig = consumerConfig;
@@ -86,7 +85,6 @@ public class MessageFetchManager {
         }
         logger.info("Fetch Worker Pool started !");
     }
-
 
     /**
      * Check if the fetch manager is shut down.

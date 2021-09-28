@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc.service;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corerpc.client.Callback;
 
-
 public interface BrokerWriteService {
 
     ClientBroker.SendMessageResponseB2P sendMessageP2B(ClientBroker.SendMessageRequestP2B request,

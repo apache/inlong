@@ -23,7 +23,6 @@ import org.apache.inlong.tubemq.corerpc.client.Callback;
 import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
-
 public abstract class AbstractServiceInvoker implements InvocationHandler {
 
     protected ClientFactory clientFactory;

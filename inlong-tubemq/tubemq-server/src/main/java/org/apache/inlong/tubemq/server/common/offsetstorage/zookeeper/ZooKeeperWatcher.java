@@ -32,7 +32,6 @@ import org.apache.zookeeper.data.ACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Acts as the single ZooKeeper Watcher. One instance of this is instantiated for each Master,
  * RegionServer, and client process.
@@ -163,7 +162,6 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     public String getBaseZNode() {
         return baseZNode;
     }
-
 
     public void saslLatchAwait() throws InterruptedException {
         saslLatch.await();

@@ -43,7 +43,6 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
     private String fullInfo;
     private String fullTLSInfo;
 
-
     //create with strBrokerInfo (brokerId:host:port)
     public BrokerInfo(String strBrokerInfo) {
         String[] strBrokers =
@@ -213,7 +212,6 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         }
         return 0;
     }
-
 
     // init the tube broker string info
     private void buildStrInfo() {

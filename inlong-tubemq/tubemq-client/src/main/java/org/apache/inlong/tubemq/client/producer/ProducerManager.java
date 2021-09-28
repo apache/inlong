@@ -100,7 +100,6 @@ public class ProducerManager {
             new ConcurrentHashMap<>();
     private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
 
-
     public ProducerManager(final InnerSessionFactory sessionFactory,
                            final TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");

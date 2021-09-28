@@ -46,7 +46,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.RebProcess
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /* Load balance class for server side load balance, (partition size) mod (consumer size) */
 public class DefaultLoadBalancer implements LoadBalancer {
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancer.class);

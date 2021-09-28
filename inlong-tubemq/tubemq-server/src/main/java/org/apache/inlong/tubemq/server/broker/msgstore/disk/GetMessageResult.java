@@ -42,7 +42,6 @@ public class GetMessageResult {
     public List<TransferedMessage> transferedMessageList = new ArrayList<>();
     public long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
-
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
                             final long reqOffset, final int lastReadOffset,
                             final long lastRdDataOffset, final int totalSize,
@@ -51,7 +50,6 @@ public class GetMessageResult {
         this(isSuccess, retCode, errInfo, reqOffset, lastReadOffset,
                 lastRdDataOffset, totalSize, tmpCounters, transferedMessageList, false);
     }
-
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
                             final long reqOffset, final int lastReadOffset,

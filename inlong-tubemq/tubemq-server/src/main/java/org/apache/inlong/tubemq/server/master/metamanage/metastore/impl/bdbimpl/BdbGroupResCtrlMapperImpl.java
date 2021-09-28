@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-
 import com.sleepycat.je.rep.ReplicatedEnvironment;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
@@ -36,8 +35,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 

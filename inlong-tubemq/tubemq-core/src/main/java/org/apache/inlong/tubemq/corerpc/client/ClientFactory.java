@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc.client;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 
-
 public interface ClientFactory {
 
     Client getClient(NodeAddrInfo addressInfo, RpcConfig conf) throws Exception;

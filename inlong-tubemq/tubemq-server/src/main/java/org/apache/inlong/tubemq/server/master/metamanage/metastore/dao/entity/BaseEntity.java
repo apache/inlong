@@ -29,8 +29,6 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
-
-
 // AbstractEntity: entity's abstract class
 public class BaseEntity implements Serializable, Cloneable {
 

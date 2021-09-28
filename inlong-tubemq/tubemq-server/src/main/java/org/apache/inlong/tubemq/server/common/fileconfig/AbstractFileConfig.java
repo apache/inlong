@@ -29,7 +29,6 @@ import org.ini4j.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_MASTER = "master";
     protected static final String SECT_TOKEN_BROKER = "broker";
@@ -43,7 +42,6 @@ public abstract class AbstractFileConfig {
     private String configPath;
     private long loadFileChkSum = -1;
     private long loadFileModified = -1;
-
 
     public AbstractFileConfig() {
         super();
@@ -81,7 +79,6 @@ public abstract class AbstractFileConfig {
     public void reload() {
         load();
     }
-
 
     /**
      * Get integer configuration value from a specific section with key. It returns a default value if no value
@@ -239,7 +236,6 @@ public abstract class AbstractFileConfig {
         return tlsConfig;
     }
 
-
     protected ZKConfig loadZKeeperSectConf(final Ini iniConf) {
         final Profile.Section zkeeperSect = iniConf.get(SECT_TOKEN_ZKEEPER);
         if (zkeeperSect == null) {
@@ -329,6 +325,5 @@ public abstract class AbstractFileConfig {
         this.loadFileChkSum = FileUtils.checksumCRC32(file);
         return conf;
     }
-
 
 }

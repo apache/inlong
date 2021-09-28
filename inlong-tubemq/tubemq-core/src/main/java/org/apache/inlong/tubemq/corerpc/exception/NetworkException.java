@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.exception;
 
-
 public class NetworkException extends Exception {
 
     private static final long serialVersionUID = 498621339525987435L;

@@ -28,7 +28,6 @@ public enum TopicStsChgType {
     private int code;
     private String description;
 
-
     TopicStsChgType(int code, String description) {
         this.code = code;
         this.description = description;

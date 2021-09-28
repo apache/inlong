@@ -401,7 +401,6 @@ public class ProxyClientConfig {
         this.metricIntervalInMs = metricIntervalInMs;
     }
 
-
     public String getMetricBid() {
         return metricBid;
     }

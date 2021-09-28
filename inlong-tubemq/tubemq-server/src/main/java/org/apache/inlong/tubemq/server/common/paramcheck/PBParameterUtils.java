@@ -40,9 +40,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
-
 public class PBParameterUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(PBParameterUtils.class);

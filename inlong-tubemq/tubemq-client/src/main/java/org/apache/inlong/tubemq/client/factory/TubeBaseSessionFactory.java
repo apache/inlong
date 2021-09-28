@@ -39,7 +39,6 @@ import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class TubeBaseSessionFactory implements InnerSessionFactory {
 
     private static final Logger logger =
@@ -80,7 +79,6 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     public TubeClientConfig getTubeClientConfig() {
         return this.tubeClientConfig;
     }
-
 
     public CopyOnWriteArrayList<Shutdownable> getCurrClients() {
         return this.clientLst;

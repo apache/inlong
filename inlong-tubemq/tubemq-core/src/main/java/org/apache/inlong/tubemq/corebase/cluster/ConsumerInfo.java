@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
 public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
 
     private static final long serialVersionUID = 3095734962491009711L;
@@ -39,7 +38,6 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     private int sourceCount = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean overTLS = false;
     private Map<String, Long> requiredPartition;
-
 
     public ConsumerInfo(String consumerId,
                         boolean overTLS,

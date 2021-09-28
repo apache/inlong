@@ -214,7 +214,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         tubeClientConfig.setHeartbeatPeriodMs(15000L);
         tubeClientConfig.setRpcTimeoutMs(20000L);
 
-
         return tubeClientConfig;
     }
 
@@ -282,7 +281,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         logger.debug("closed meta producer");
     }
 
-
     private void initTopicSet(Set<String> topicSet) throws Exception {
         List<String> sortedList = new ArrayList(topicSet);
         Collections.sort(sortedList);
@@ -321,7 +319,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         logger.info(getName() + " producer is ready for topics : " + producerMap.keySet());
     }
 
-
     @Override
     public void start() {
         try {
@@ -359,9 +356,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         }
 
     }
-
-
-
 
     class SinkTask implements Runnable {
         private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
@@ -525,7 +519,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         }
     }
 
-
     public class MyCallback implements MessageSentCallback {
         private EventStat myEventStat;
 
@@ -567,7 +560,6 @@ public class MetaSink extends AbstractSink implements Configurable {
         }
     }
 
-
     /**
      * resend event
      *
@@ -598,7 +590,6 @@ public class MetaSink extends AbstractSink implements Configurable {
                     + resendQueue.size(), throwable);
         }
     }
-
 
     @Override
     public Status process() throws EventDeliveryException {

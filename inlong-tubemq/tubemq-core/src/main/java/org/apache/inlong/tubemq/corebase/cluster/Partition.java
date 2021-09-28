@@ -21,7 +21,6 @@ import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class Partition implements Comparable<Partition>, Serializable {
 
     private static final long serialVersionUID = 7587964123917870096L;
@@ -34,7 +33,6 @@ public class Partition implements Comparable<Partition>, Serializable {
     private String partitionTLSFullStr;
     private int retries = 0;
     private long delayTimeStamp = TBaseConstants.META_VALUE_UNDEFINED;
-
 
     /**
      * create a Partition with broker info , topic and partitionId

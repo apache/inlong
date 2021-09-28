@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-
 import com.sleepycat.je.rep.ReplicatedEnvironment;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
@@ -43,8 +42,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.Gr
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
 
     private static final Logger logger =
@@ -59,8 +56,6 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
             grpConsumeCtrlTopicCache = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
             grpConsumeCtrlGroupCache = new ConcurrentHashMap<>();
-
-
 
     public BdbGroupConsumeCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         groupConsumeStore = new EntityStore(repEnv,

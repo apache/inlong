@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.common.aaaserver;
 
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
-
 public class CertifiedResult {
     public boolean result = false;
     public int errCode = TErrCodeConstants.BAD_REQUEST;

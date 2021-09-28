@@ -29,7 +29,6 @@ import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 public class ClusterManager implements Action {
 
     private TMaster master;

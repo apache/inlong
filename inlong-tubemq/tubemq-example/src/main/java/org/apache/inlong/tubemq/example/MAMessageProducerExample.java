@@ -80,8 +80,6 @@ public class MAMessageProducerExample {
             });
     private final AtomicInteger producerIndex = new AtomicInteger(0);
 
-
-
     public MAMessageProducerExample(String masterHostAndPort) throws Exception {
         TubeClientConfig clientConfig = new TubeClientConfig(masterHostAndPort);
         for (int i = 0; i < SESSION_FACTORY_NUM; i++) {
@@ -159,7 +157,6 @@ public class MAMessageProducerExample {
             }
         }
     }
-
 
     public void shutdown() throws Throwable {
         sendExecutorService.shutdownNow();

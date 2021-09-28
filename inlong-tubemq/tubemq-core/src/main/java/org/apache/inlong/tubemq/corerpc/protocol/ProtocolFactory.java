@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class ProtocolFactory {
 
     private static final Map<Integer, Class<? extends Protocol>> protocols =

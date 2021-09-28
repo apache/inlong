@@ -23,7 +23,6 @@ import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
 
-
 public interface MessageConsumer extends Shutdownable {
 
     String getClientVersion();

@@ -73,7 +73,6 @@ public enum TaskState {
     SKIPPED,
     ;
 
-
     /**
      * Completed
      */

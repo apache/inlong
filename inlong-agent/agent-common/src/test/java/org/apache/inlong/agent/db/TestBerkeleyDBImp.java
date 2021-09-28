@@ -24,7 +24,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 public class TestBerkeleyDBImp {
 
     private static BerkeleyDbImp db;
@@ -77,7 +76,6 @@ public class TestBerkeleyDBImp {
 
     }
 
-
     @Test
     public void testCommandDb() {
         CommandEntity commandEntity = new CommandEntity("1", 0, false, "1", "");
@@ -122,7 +120,6 @@ public class TestBerkeleyDBImp {
         Assert.assertEquals("searchKey1", entityResult1.getKey());
         Assert.assertNull(entityResult);
     }
-
 
     @Test
     public void testFileNameSearch() {

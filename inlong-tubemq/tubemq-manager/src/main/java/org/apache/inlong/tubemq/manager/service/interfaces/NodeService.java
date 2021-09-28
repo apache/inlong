@@ -82,7 +82,6 @@ public interface NodeService {
     boolean configBrokersForTopics(MasterEntry masterEntry,
                                    Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
-
     void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList);
 
     void close() throws IOException;
@@ -111,7 +110,6 @@ public interface NodeService {
      * @return
      */
     void addNode(MasterEntry masterEntry);
-
 
     /**
      * modify master node

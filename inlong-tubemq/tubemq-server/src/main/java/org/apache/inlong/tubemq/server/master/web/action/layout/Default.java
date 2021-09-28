@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.master.web.action.layout;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.web.action.screen.Tubeweb;
 
-
 public class Default extends Tubeweb {
 
     public Default(TMaster master) {

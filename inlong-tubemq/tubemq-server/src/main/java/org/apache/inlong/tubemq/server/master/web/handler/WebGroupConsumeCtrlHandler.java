@@ -31,9 +31,6 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
-
-
-
 public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
 
     public WebGroupConsumeCtrlHandler(TMaster master) {
@@ -57,7 +54,6 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         registerModifyWebMethod("admin_delete_group_csmctrl_info",
                 "adminDelGroupConsumeCtrlInfo");
     }
-
 
     /**
      * query group consume control info

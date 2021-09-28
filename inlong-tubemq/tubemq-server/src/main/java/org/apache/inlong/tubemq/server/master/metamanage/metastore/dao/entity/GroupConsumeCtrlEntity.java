@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 
-
 /*
  * store the group consume control setting
  *
@@ -39,7 +38,6 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     // filter consume setting
     private EnableStatus filterEnable = EnableStatus.STATUS_UNDEFINE;
     private String filterCondStr = "";
-
 
     public GroupConsumeCtrlEntity() {
         super();

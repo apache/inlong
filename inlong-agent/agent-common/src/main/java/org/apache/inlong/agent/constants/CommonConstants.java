@@ -29,7 +29,6 @@ public class CommonConstants {
 
     public static final String PROXY_TID = "proxy.tid";
 
-
     public static final String PROXY_LOCAL_HOST = "proxy.localHost";
     public static final String DEFAULT_PROXY_LOCALHOST = AgentUtils.getLocalIp();
 
@@ -122,15 +121,12 @@ public class CommonConstants {
     public static final String PULSAR_PRODUCER_BLOCK_QUEUE = "pulsar.producer.block.queue";
     public static final boolean DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE = true;
 
-
     public static final String FILE_MAX_NUM = "file.max.num";
     public static final int DEFAULT_FILE_MAX_NUM = 4096;
 
     public static final String TRIGGER_ID_PREFIX = "trigger_";
 
-
     public static final String COMMAND_STORE_INSTANCE_NAME = "commandStore";
-
 
     public static final String AGENT_OS_NAME = "os.name";
     public static final String AGENT_NIX_OS = "nix";

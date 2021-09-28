@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class NodeRebInfo {
 
     private String clientId;

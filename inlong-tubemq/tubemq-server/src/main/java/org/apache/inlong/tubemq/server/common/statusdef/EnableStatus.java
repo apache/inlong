@@ -28,7 +28,6 @@ public enum EnableStatus {
     private int code;
     private String description;
 
-
     EnableStatus(int code, String description) {
         this.code = code;
         this.description = description;

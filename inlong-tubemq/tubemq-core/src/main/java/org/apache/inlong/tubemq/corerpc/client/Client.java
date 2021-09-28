@@ -22,7 +22,6 @@ import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
 import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 
-
 public interface Client {
 
     ResponseWrapper call(RequestWrapper request, Callback callback,

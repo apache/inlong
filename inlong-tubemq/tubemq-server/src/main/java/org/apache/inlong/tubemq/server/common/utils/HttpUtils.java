@@ -38,8 +38,6 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * This class is used to process http connection and return result conversion,
  * currently does not support https
@@ -48,7 +46,6 @@ public class HttpUtils {
     // log printer
     private static final Logger logger =
             LoggerFactory.getLogger(HttpUtils.class);
-
 
     /* Send request to target server. */
     public static JsonObject requestWebService(String url,
@@ -122,7 +119,6 @@ public class HttpUtils {
         }
         return jsonRes;
     }
-
 
     public static void main(String[] args) {
         /** Test scenario:

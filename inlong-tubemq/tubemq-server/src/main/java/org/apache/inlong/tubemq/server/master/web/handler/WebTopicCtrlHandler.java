@@ -32,9 +32,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Ba
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
-
-
-
 public class WebTopicCtrlHandler extends AbstractWebHandler {
 
     /**
@@ -45,8 +42,6 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     public WebTopicCtrlHandler(TMaster master) {
         super(master);
     }
-
-
 
     @Override
     public void registerWebApiMethod() {

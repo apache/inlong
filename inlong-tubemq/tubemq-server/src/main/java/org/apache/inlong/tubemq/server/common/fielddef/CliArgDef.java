@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.fielddef;
 
-
-
 public enum CliArgDef {
 
     // Note: Due to compatibility considerations,
@@ -104,8 +102,6 @@ public enum CliArgDef {
     FILEPATH("f", "file",
             "String: file path.",
             "File path.");
-
-
 
     CliArgDef(String opt, String longOpt, String optDesc) {
         this(opt, longOpt, false, "", optDesc);

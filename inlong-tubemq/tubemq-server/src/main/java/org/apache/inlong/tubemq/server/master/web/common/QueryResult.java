@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.common;
 
 import java.util.List;
 
-
 public class QueryResult<E> {
 
     private List<E> resultList;

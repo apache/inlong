@@ -21,9 +21,6 @@ import java.io.Serializable;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
-
-
-
 public class ResponseWrapper implements Serializable {
 
     private static final long serialVersionUID = -3852197088007144687L;
@@ -37,7 +34,6 @@ public class ResponseWrapper implements Serializable {
     private Object responseData;
     private String errMsg;
     private String stackTrace;
-
 
     public ResponseWrapper(int flagId, int serialNo,
                            int serviceType, int locVersion,
@@ -167,6 +163,5 @@ public class ResponseWrapper implements Serializable {
     public void setStackTrace(String stackTrace) {
         this.stackTrace = stackTrace;
     }
-
 
 }

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 
-
 public class ConsumerEvent {
 
     private long rebalanceId;
@@ -29,7 +28,6 @@ public class ConsumerEvent {
     private EventStatus status;
     private List<SubscribeInfo> subscribeInfoList =
             new ArrayList<>();
-
 
     public ConsumerEvent(long rebalanceId,
                          EventType type,

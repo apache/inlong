@@ -72,7 +72,6 @@ public final class MessageConsumerExample {
         this.messageConsumer = messageSessionFactory.createPushConsumer(consumerConfig);
     }
 
-
     public static void main(String[] args) {
         final String masterServers = args[0];
         final String topics = args[1];

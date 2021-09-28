@@ -22,5 +22,4 @@ package org.apache.inlong.manager.workflow.model.definition;
  */
 public interface TaskForm extends Form {
 
-
 }

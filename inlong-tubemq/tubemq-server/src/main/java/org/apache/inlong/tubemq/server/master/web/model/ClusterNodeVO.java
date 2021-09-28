@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.model;
 
-
 public class ClusterNodeVO {
     private String nodeName;
     private String hostName;

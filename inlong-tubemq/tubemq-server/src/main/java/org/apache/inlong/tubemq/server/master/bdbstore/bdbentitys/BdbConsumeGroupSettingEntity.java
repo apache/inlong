@@ -27,7 +27,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbConsumeGroupSettingEntity implements Serializable {
 
@@ -40,7 +39,6 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     private String attributes;
     private String createUser;
     private Date createDate;
-
 
     public BdbConsumeGroupSettingEntity() {
 

@@ -97,7 +97,6 @@ public class AgentConstants {
     public static final String JOB_THREAD_RUNNING_CORE = "job.thread.running.core";
     public static final int DEFAULT_JOB_THREAD_RUNNING_CORE = 4;
 
-
     public static final String JOB_MONITOR_INTERVAL = "job.monitor.interval";
     public static final int DEFAULT_JOB_MONITOR_INTERVAL = 5;
 

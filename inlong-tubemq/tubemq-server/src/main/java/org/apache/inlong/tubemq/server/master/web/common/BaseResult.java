@@ -28,7 +28,6 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-
 /**
  * Paging algorithm package.
  *   * <p/>
@@ -348,7 +347,6 @@ public class BaseResult implements Serializable {
 
         return result;
     }
-
 
     public int getPageFirstItem() {
         int cPage = this.getCurrentPage().intValue();

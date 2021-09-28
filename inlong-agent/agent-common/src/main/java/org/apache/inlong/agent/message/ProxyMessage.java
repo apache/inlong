@@ -32,7 +32,6 @@ public class ProxyMessage implements Message {
     private final String bid;
     private final String tid;
 
-
     public ProxyMessage(byte[] body, Map<String, String> header) {
         this.body = body;
         this.header = header;

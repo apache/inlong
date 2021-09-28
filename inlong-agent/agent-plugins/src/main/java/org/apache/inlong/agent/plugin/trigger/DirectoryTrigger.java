@@ -44,7 +44,6 @@ import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Watch directory, if new valid files are created, create
  * jobs correspondingly.

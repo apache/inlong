@@ -21,7 +21,6 @@ import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
-
 public class TopicInfo implements Serializable {
 
     private static final long serialVersionUID = -2394664452604382172L;
@@ -33,7 +32,6 @@ public class TopicInfo implements Serializable {
     private int topicStoreNum = 1;
     private boolean acceptPublish;
     private boolean acceptSubscribe;
-
 
     public TopicInfo(final BrokerInfo broker, final String topic,
                      final int partitionNum, final int topicStoreNum,

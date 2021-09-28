@@ -49,13 +49,10 @@ import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 
-
-
 public class WebParameterUtils {
 
     private static final List<String> allowedDelUnits = Arrays.asList("s", "m", "h");
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
-
 
     public static StringBuilder buildFailResult(StringBuilder sBuffer, String errMsg) {
         return sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
@@ -1600,7 +1597,6 @@ public class WebParameterUtils {
         }
         return false;
     }
-
 
     /**
      * translate broker manage status from int to string value

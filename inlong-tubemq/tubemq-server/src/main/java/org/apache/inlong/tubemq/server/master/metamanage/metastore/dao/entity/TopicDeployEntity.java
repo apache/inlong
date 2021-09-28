@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
 
-
 /*
  * store the topic configure setting
  *
@@ -40,7 +39,6 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerAddress = "";
     private int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
-
 
     public TopicDeployEntity() {
         super();
@@ -113,7 +111,6 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
         this.brokerAddress = KeyBuilderUtils.buildAddressInfo(brokerIp, brokerPort);
     }
-
 
     public String getRecordKey() {
         return recordKey;

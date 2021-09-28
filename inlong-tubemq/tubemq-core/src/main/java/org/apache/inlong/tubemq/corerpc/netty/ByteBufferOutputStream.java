@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
-
 /**
  * Utility to collect data written to an {@link java.io.OutputStream} in {@link java.nio.ByteBuffer}s.
  * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>

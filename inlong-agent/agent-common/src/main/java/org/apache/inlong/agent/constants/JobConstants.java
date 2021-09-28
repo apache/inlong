@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.constants;
 
-
 /**
  * Basic config for a single job
  */
@@ -28,7 +27,6 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_INSTANCE_ID = "job.instance.id";
     public static final String JOB_IP = "job.ip";
     public static final String JOB_RETRY = "job.retry";
-
 
     public static final String JOB_SOURCE = "job.source";
     public static final String JOB_SINK = "job.sink";

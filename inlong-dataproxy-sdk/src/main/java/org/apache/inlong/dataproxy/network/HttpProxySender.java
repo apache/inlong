@@ -47,7 +47,6 @@ public class HttpProxySender extends Thread {
     private final ProxyClientConfig proxyClientConfig;
     private ProxyConfigManager proxyConfigManager;
 
-
     private boolean bShutDown = false;
 
     private final InternalHttpSender internalHttpSender;
@@ -121,7 +120,6 @@ public class HttpProxySender extends Thread {
             }
         }
     }
-
 
     /**
      * send by http

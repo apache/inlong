@@ -56,7 +56,6 @@ public class TestWatchDirTrigger {
         helper.teardownAgentHome();
     }
 
-
     @Test
     public void testWatchEntity() throws Exception {
         PathPattern a1 = new PathPattern(helper.getParentPath().toString());

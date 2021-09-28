@@ -45,9 +45,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
-
-
-
 public class WebTopicDeployHandler extends AbstractWebHandler {
 
     /**
@@ -58,8 +55,6 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     public WebTopicDeployHandler(TMaster master) {
         super(master);
     }
-
-
 
     @Override
     public void registerWebApiMethod() {
@@ -108,7 +103,6 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 "adminRmvTopicDeployInfo");
         // Deprecated methods end
     }
-
 
     /**
      * Query topic info with new format return
@@ -936,7 +930,6 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
-
 
     /**
      * Internal method to perform topic deploy status change

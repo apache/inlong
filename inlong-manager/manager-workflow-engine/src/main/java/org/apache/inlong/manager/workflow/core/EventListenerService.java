@@ -64,5 +64,4 @@ public interface EventListenerService {
      */
     void triggerTaskEvent(Integer taskInstId, TaskEvent taskEvent);
 
-
 }

@@ -29,7 +29,6 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbTopicConfEntity implements Serializable {
     private static final long serialVersionUID = -3266492818900652275L;
@@ -57,7 +56,6 @@ public class BdbTopicConfEntity implements Serializable {
     private Date createDate;            //create date
     private String modifyUser;          //modify user
     private Date modifyDate;            //modify date
-
 
     public BdbTopicConfEntity() {
     }
@@ -235,7 +233,6 @@ public class BdbTopicConfEntity implements Serializable {
     public int getBrokerPort() {
         return brokerPort;
     }
-
 
     public String getTopicName() {
         return topicName;

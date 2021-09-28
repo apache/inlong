@@ -33,8 +33,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Ba
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
-
-
 public class WebGroupResCtrlHandler extends AbstractWebHandler {
 
     public WebGroupResCtrlHandler(TMaster master) {

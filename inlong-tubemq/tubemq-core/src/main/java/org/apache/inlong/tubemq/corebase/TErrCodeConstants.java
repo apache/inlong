@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corebase;
 
-
 import java.util.Arrays;
 import java.util.List;
 

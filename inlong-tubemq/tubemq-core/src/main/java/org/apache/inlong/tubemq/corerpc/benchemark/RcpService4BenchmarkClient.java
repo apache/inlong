@@ -26,7 +26,6 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 import org.apache.inlong.tubemq.corerpc.netty.NettyClientFactory;
 
-
 public class RcpService4BenchmarkClient {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();

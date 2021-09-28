@@ -60,7 +60,6 @@ public class TubeHttpTopicInfoList {
                 private String brokerManageStatus;
             }
 
-
             private String topicName;
             private int topicStatusId;
             private int brokerId;
@@ -90,7 +89,6 @@ public class TubeHttpTopicInfoList {
         private List<TopicInfo> topicInfo;
     }
 
-
     public List<Integer> getTopicBrokerIdList() {
         List<Integer> tmpBrokerIdList = new ArrayList<>();
         if (data != null) {
@@ -104,7 +102,6 @@ public class TubeHttpTopicInfoList {
         }
         return tmpBrokerIdList;
     }
-
 
     public List<TopicInfo> getTopicInfo() {
         if (CollectionUtils.isEmpty(data)) {
@@ -132,7 +129,6 @@ public class TubeHttpTopicInfoList {
         setAttributes(token, req, topicInfo, brokerStr, topic);
         return req;
     }
-
 
     private void setAttributes(String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr,
                                String topic) {

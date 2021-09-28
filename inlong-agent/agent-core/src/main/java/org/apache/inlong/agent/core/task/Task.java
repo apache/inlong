@@ -22,7 +22,6 @@ import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
 
-
 /**
  * task meta definition which contains reader -> channel -> sink and job config information
  */

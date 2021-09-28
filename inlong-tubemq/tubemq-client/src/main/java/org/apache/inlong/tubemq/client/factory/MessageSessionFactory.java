@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
 
-
 public interface MessageSessionFactory extends Shutdownable {
 
     @Override

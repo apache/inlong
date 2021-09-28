@@ -50,7 +50,6 @@ public class ClientMgr {
     private static final Logger logger = LoggerFactory
             .getLogger(ClientMgr.class);
 
-
     private final Map<HostInfo, NettyClient> clientMapData = new ConcurrentHashMap<HostInfo, NettyClient>();
 
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMapHB = new ConcurrentHashMap<HostInfo, NettyClient>();
@@ -65,7 +64,6 @@ public class ClientMgr {
     //    private final Map<HostInfo, Integer> channelLoadMap = new ConcurrentHashMap<HostInfo, Integer>();
     private final Map<HostInfo, int[]> channelLoadMapData = new ConcurrentHashMap<HostInfo, int[]>();
     private final Map<HostInfo, int[]> channelLoadMapHB = new ConcurrentHashMap<HostInfo, int[]>();
-
 
     private ClientBootstrap bootstrap;
     private int currentIndex = 0;
@@ -440,7 +438,6 @@ public class ClientMgr {
         }
     }
 
-
     private void loadDataInfo(Map<HostInfo, Integer> loadData) {
         for (Map.Entry<HostInfo, int[]> entry : channelLoadMapData.entrySet()) {
             HostInfo key = entry.getKey();
@@ -508,7 +505,6 @@ public class ClientMgr {
                 }
             });
 
-
             logger.info("show info: last compute result!");
             for (Map.Entry<HostInfo, Integer> item : listData) {
 //                System.out.println("listData:"+listData.get(i));
@@ -545,7 +541,6 @@ public class ClientMgr {
                     clientMapHB.remove(hbHost);
                 }
             }
-
 
             if (!isLoadSwitch) {
                 logger.info("Choose other HBClient because there is no load balancing! ");
@@ -619,7 +614,6 @@ public class ClientMgr {
 
     private void fillUpWorkClientWithLastBadClient() {
 
-
         int currentRealSize = aliveConnections - clientMapData.size();
 
         List<HostInfo> pendingBadList = new ArrayList<>();
@@ -668,7 +662,6 @@ public class ClientMgr {
         }
     }
 
-
     private void removeBadHBClients(List<HostInfo> badHostLists, List<HostInfo> normalHostLists) {
         for (HostInfo hostInfo : clientMapHB.keySet()) {
             if (hostInfo == null) {
@@ -712,7 +705,6 @@ public class ClientMgr {
             }
         }
     }
-
 
     public void replaceBadConnectionHB() {
         try {
@@ -772,16 +764,13 @@ public class ClientMgr {
                 }
             }
 
-
             if (clientMapData.size() < aliveConnections) {
                 fillUpWorkClientWithHBClient();
             }
 
-
             if (clientMapData.size() < aliveConnections) {
                 fillUpWorkClientWithLastBadClient();
             }
-
 
             for (HostInfo hostInfo : badHostLists) {
                 AtomicLong tmpValue = new AtomicLong(0);
@@ -799,7 +788,6 @@ public class ClientMgr {
             logger.info(
                     "replace bad connection ,client map size {},client list size {}",
                     clientMapData.size(), clientList.size());
-
 
         } catch (Exception e) {
             logger.error("replaceBadConnection exception {}, {}", e.toString(), e.getStackTrace());
@@ -866,7 +854,6 @@ public class ClientMgr {
         return resultHosts;
     }
 
-
     private class SendHBThread extends Thread {
 
         private boolean bShutDown = false;
@@ -903,6 +890,5 @@ public class ClientMgr {
             }
         }
     }
-
 
 }

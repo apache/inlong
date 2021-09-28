@@ -26,7 +26,6 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
 
-
 /*
  * Topic property group, save topic related storage and configuration information.
  *
@@ -408,7 +407,6 @@ public class TopicPropGroup implements Serializable, Cloneable {
         return changed;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -442,7 +440,6 @@ public class TopicPropGroup implements Serializable, Cloneable {
             return null;
         }
     }
-
 
     private Tuple2<CleanPolType, Long> parseDelPolicy(String delPolicy) {
         long validDuration = 0;

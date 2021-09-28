@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corebase.policies;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
 public class FlowCtrlItem {
 
     private int type = 0;   // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency control
@@ -29,7 +28,6 @@ public class FlowCtrlItem {
     private long dataLtInSZ = TBaseConstants.META_VALUE_UNDEFINED;
     private int freqLtInMs = TBaseConstants.META_VALUE_UNDEFINED;
     private int zeroCnt = TBaseConstants.META_VALUE_UNDEFINED;
-
 
     public FlowCtrlItem(int type, int startTime, int endTime,
                         long dltInM, long dataLtInSZ, int freqLtInMs) {
@@ -131,7 +129,6 @@ public class FlowCtrlItem {
     public int getEndTime() {
         return endTime;
     }
-
 
     public long getDltInM() {
         return dltInM;

@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corerpc;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-
 public class RemoteConErrStats {
     private long statisticDuration = 60000;
     private int maxConnAllowedFailCount = 5;

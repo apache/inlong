@@ -45,5 +45,4 @@ public interface ProcessService {
      */
     WorkflowContext cancel(Integer processInstId, String operator, String remark);
 
-
 }

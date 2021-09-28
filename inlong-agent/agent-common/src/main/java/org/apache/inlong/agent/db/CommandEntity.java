@@ -25,7 +25,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Entity(version = 1)
 @Data
 @AllArgsConstructor
@@ -38,7 +37,6 @@ public class CommandEntity {
     private boolean isAcked;
     private String taskId;
     private String deliveryTime;
-
 
     public static String generateCommanid(String taskId, int opType) {
         return taskId + opType;

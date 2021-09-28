@@ -52,9 +52,7 @@ import org.slf4j.LoggerFactory;
 @Slf4j
 public class PluginUtils {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginUtils.class);
-
 
     /**
      * convert string compress type to enum compress type
@@ -79,7 +77,6 @@ public class PluginUtils {
         Gson gson = gsonBuilder.create();
         return gson.toJson(obj);
     }
-
 
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
         String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
@@ -141,7 +138,6 @@ public class PluginUtils {
         }
         return allIps;
     }
-
 
     private static void addIp(List<String> allIps, NetworkInterface ni) {
         Enumeration<InetAddress> ias = ni.getInetAddresses();

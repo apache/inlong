@@ -32,7 +32,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
-
 public interface MetaStoreService extends KeepAlive, Server {
 
     boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result);
@@ -219,7 +218,6 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
                                                   TopicCtrlEntity qryEntity);
-
 
     // group resource configure api
     /**

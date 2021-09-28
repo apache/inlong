@@ -24,14 +24,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class WebMethodMapper {
     // log printer
     private static final Logger logger =
             LoggerFactory.getLogger(WebMethodMapper.class);
     private static final Map<String, WebApiRegInfo> WEB_METHOD_MAP =
             new HashMap<>();
-
 
     public static WebApiRegInfo getWebApiRegInfo(String webMethodName) {
         return WEB_METHOD_MAP.get(webMethodName);
@@ -60,14 +58,11 @@ public class WebMethodMapper {
         return WEB_METHOD_MAP.keySet();
     }
 
-
-
     public static class WebApiRegInfo {
         public Method method;
         public Object webHandler;
         public boolean onlyMasterOp = false;
         public boolean needAuthToken = false;
-
 
         public WebApiRegInfo(Method method,
                              Object webHandler,

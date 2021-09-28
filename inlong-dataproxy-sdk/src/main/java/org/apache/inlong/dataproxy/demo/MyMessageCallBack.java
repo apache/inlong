@@ -44,7 +44,6 @@ public class MyMessageCallBack extends FileCallback {
         logger.info("onMessageAck return result = {}", result);
     }
 
-
     public void onMessageAck(SendResult result) {
         if (result == SendResult.OK) {
             logger.info("onMessageAck return Ok");

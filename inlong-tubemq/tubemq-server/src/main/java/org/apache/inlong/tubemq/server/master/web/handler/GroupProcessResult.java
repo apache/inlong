@@ -19,8 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.handler;
 
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 
-
-
 public class GroupProcessResult extends ProcessResult {
     private String groupName = "";
     private String topicName = "";

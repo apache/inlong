@@ -23,8 +23,6 @@ import static org.apache.flume.sink.tubemq.ConfigOptions.TOPIC;
 import java.util.Map;
 import org.apache.flume.Event;
 
-
-
 /**
  * Event with retry time
  */

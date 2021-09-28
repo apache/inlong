@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
-
 public class ConsumerInfoHolder {
 
     private final ConcurrentHashMap<String/* group */, ConsumerBandInfo> groupInfoMap =
@@ -438,7 +437,6 @@ public class ConsumerInfoHolder {
             rwLock.readLock().unlock();
         }
     }
-
 
     public List<String> getAllGroup() {
         try {

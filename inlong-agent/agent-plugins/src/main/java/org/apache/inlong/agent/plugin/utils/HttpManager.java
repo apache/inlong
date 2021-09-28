@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
@@ -36,7 +35,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class HttpManager {
 
@@ -60,7 +58,6 @@ public class HttpManager {
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
     }
-
 
     public HttpManager(AgentConfiguration conf) {
         httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
@@ -86,7 +83,6 @@ public class HttpManager {
         }
         return null;
     }
-
 
     public String doSendGet(String url) {
         try {

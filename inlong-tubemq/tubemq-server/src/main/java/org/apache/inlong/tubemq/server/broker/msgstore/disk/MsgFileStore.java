@@ -80,7 +80,6 @@ public class MsgFileStore implements Closeable {
     // close status
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-
     public MsgFileStore(final MessageStore messageStore,
                         final BrokerConfig tubeConfig,
                         final String baseStorePath,

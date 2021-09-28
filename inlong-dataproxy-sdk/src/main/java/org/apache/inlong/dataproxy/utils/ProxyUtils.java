@@ -89,8 +89,6 @@ public class ProxyUtils {
         return true;
     }
 
-
-
     public static long covertZeroDt(long dt) {
         if (dt == 0) {
             return System.currentTimeMillis();

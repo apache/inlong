@@ -145,7 +145,6 @@ public class TestClusterController {
                 result.getResponse().getContentType());
     }
 
-
     private ClusterEntry getOneClusterEntry() {
         ClusterEntry clusterEntry = new ClusterEntry();
         clusterEntry.setClusterId(1);

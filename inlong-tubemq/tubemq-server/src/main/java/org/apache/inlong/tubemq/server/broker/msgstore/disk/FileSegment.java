@@ -49,7 +49,6 @@ public class FileSegment implements Segment {
     private AtomicBoolean expired = new AtomicBoolean(false);
     private AtomicBoolean closed = new AtomicBoolean(false);
 
-
     public FileSegment(final long start, final File file, SegmentType type) throws IOException {
         this(start, file, true, type, Long.MAX_VALUE);
     }
@@ -487,6 +486,5 @@ public class FileSegment implements Segment {
             return isEqual;
         }
     }
-
 
 }

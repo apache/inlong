@@ -54,7 +54,6 @@ public class EncodeObject {
     private String msgUUID = null;
     private EncryptConfigEntry encryptEntry = null;
 
-
     private boolean isException = false;
     private ErrorCode exceptionError = null;
 

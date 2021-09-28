@@ -17,9 +17,7 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-
 public final class TBDBStoreTables {
-
 
     public static final String BDB_CLUSTER_SETTING_STORE_NAME = "bdbClusterSetting";
     public static final String BDB_TOPIC_CONFIG_STORE_NAME = "bdbTopicConfig";

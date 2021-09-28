@@ -40,7 +40,6 @@ import org.apache.inlong.tubemq.corerpc.server.ServiceRpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Tube Rpc Service Factory used by all tube service process
  */
@@ -159,7 +158,6 @@ public class RpcServiceFactory {
     public ConcurrentHashMap<Integer, Long> getUnavailableBrokerMap() {
         return brokerUnavailableMap;
     }
-
 
     /**
      * @param remoteAddr
@@ -493,7 +491,6 @@ public class RpcServiceFactory {
         private Class clazzType;
         private NodeAddrInfo addressInfo;
         private RpcConfig config;
-
 
         public ConnectionNode(Class clazzType,
                               NodeAddrInfo nodeAddrInfo,

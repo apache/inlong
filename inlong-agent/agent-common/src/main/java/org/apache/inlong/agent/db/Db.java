@@ -26,7 +26,6 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  */
 public interface Db extends Closeable {
 
-
     abstract KeyValueEntity get(String key);
 
     /**

@@ -23,8 +23,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.exception.RemoteException;
 import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 
-
-
 public class MixUtils {
 
     public static String replaceClassNamePrefix(String className,

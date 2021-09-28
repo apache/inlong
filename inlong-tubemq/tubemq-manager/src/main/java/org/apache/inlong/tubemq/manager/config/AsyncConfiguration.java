@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.config;
 
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 

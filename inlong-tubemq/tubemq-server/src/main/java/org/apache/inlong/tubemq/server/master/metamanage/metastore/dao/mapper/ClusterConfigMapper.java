@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 
-
 public interface ClusterConfigMapper extends AbstractMapper {
 
     boolean addClusterConfig(ClusterSettingEntity memEntity, ProcessResult result);

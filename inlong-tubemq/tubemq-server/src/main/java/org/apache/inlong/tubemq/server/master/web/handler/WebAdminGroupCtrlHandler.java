@@ -38,13 +38,11 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInf
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Deprecated
 public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
 
     private static final Logger logger =
             LoggerFactory.getLogger(WebAdminGroupCtrlHandler.class);
-
 
     public WebAdminGroupCtrlHandler(TMaster master) {
         super(master);

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.repository;
 
-
 import java.util.List;
 
 import org.apache.inlong.tubemq.manager.entry.TopicTaskEntry;

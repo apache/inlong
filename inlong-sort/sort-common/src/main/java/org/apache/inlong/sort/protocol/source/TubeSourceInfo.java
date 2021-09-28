@@ -65,7 +65,6 @@ public class TubeSourceInfo extends SourceInfo {
         return masterAddress;
     }
 
-
     @JsonProperty("consumer_group")
     @Nullable
     public String getConsumerGroup() {

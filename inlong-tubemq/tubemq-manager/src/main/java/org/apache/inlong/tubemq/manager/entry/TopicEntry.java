@@ -119,7 +119,6 @@ public class TopicEntry {
     @Size(max = 32)
     private String issueMethod;
 
-
     public TopicEntry(String businessName, String schemaName,
                       String username, String passwd, String topic, String encodingType) {
         this.businessName = businessName;

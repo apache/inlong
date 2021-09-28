@@ -22,7 +22,6 @@ import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public interface PartitionRouter {
 
     Partition getPartition(Message message, List<Partition> partitions) throws TubeClientException;

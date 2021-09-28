@@ -23,7 +23,6 @@ import java.util.Map;
 
 public enum ErrorCode {
 
-
     ATTR_ERROR(1),
 
     DT_ERROR(2),

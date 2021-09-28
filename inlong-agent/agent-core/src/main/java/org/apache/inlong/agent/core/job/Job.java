@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;

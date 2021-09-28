@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core;
 
-
 import static org.apache.inlong.agent.constants.AgentConstants.AGENT_CONF_PARENT;
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_TRIGGER;
@@ -57,8 +56,6 @@ public class AgentManager extends AbstractDaemon {
 
     // jetty for config operations via http.
     private ConfigJetty configJetty;
-
-
 
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;

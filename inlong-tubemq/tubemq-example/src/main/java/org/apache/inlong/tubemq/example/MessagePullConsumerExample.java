@@ -34,7 +34,6 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This demo shows how to consume message by pull.
  *
@@ -149,5 +148,4 @@ public final class MessagePullConsumerExample {
         }
     }
 }
-
 

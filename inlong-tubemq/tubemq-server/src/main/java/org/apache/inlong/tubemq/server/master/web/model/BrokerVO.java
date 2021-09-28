@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.model;
 
 import java.util.Date;
 
-
 public class BrokerVO {
 
     private int id;

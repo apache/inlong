@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
 
-
 /*
  * store the topic authenticate control setting
  *
@@ -37,7 +36,6 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     private EnableStatus authCtrlStatus = EnableStatus.STATUS_UNDEFINE;
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
     private int maxMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
-
 
     public TopicCtrlEntity() {
         super();

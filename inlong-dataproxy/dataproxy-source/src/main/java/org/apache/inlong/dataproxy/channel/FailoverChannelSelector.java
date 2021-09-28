@@ -51,7 +51,6 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
     private final List<Channel> agentFileMetricChannels = new ArrayList<Channel>();
     private final List<Channel> slaMetricChannels = new ArrayList<Channel>();
 
-
     @Override
     public List<Channel> getRequiredChannels(Event event) {
         List<Channel> retChannels = new ArrayList<Channel>();
@@ -60,7 +59,6 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
         } else if (event.getHeaders().containsKey(ConfigConstants.FILE_CHECK_DATA)) {
             retChannels.add(agentFileMetricChannels.get(0));
         } else if (event.getHeaders().containsKey(ConfigConstants.SLA_METRIC_DATA)) {
-
 
             retChannels.add(slaMetricChannels.get(0));
         } else {
@@ -117,7 +115,6 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
         List<String> transferList = splitChannelName(transfer);
         List<String> fileMetricList = splitChannelName(fileMertic);
         List<String> slaMetricList = splitChannelName(slaMetric);
-
 
         for (Map.Entry<String, Channel> entry : getChannelNameMap().entrySet()) {
             String channelName = entry.getKey();

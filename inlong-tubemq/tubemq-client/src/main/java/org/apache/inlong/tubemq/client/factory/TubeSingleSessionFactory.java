@@ -30,14 +30,12 @@ import org.apache.inlong.tubemq.corebase.Shutdownable;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.netty.NettyClientFactory;
 
-
 public class TubeSingleSessionFactory implements MessageSessionFactory {
 
     private static final NettyClientFactory clientFactory = new NettyClientFactory();
     private static final AtomicBoolean isShutDown = new AtomicBoolean(true);
     private static final AtomicLong referenceCounter = new AtomicLong(0);
     private static TubeBaseSessionFactory baseSessionFactory;
-
 
     public TubeSingleSessionFactory(final TubeClientConfig tubeClientConfig) throws TubeClientException {
         if (referenceCounter.incrementAndGet() == 1) {

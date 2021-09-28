@@ -56,7 +56,6 @@ public class TestUtils {
             + "  }";
     }
 
-
     public static void createHugeFiles(String fileName, String rootDir, String record) throws Exception {
         final Path hugeFile = Paths.get(rootDir, fileName);
         FileWriter writer = new FileWriter(hugeFile.toFile());
@@ -66,8 +65,6 @@ public class TestUtils {
         writer.flush();
         writer.close();
     }
-
-
 
     public static void createMultipleLineFiles(String fileName, String rootDir,
         String record, int lineNum) throws Exception {

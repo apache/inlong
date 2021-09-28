@@ -47,7 +47,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHol
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
-
 /**
  *
  * The class to handle the default config of broker, including:
@@ -674,7 +673,6 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
-
 
     private StringBuilder innAddOrUpdBrokerConfInfo(HttpServletRequest req,
                                                     StringBuilder sBuffer,

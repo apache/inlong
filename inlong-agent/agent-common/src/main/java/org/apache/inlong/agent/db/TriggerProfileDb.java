@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.db;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.agent.conf.TriggerProfile;

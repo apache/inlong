@@ -68,7 +68,6 @@ public class PbEnDecoder {
         return rspDataMessage.toByteArray();
     }
 
-
     /**
      * lizard forgives
      *
@@ -192,7 +191,6 @@ public class PbEnDecoder {
         }
     }
 
-
     public static int getMethIdByName(String methodName) throws Exception {
         Integer methodId = rpcMethodMap.get(methodName);
         if (methodId == null) {
@@ -212,7 +210,6 @@ public class PbEnDecoder {
             return serviceId;
         }
     }
-
 
     /**
      * lizard forgives

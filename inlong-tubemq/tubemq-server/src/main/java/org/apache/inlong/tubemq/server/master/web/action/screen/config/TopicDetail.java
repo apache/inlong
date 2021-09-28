@@ -21,7 +21,6 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 public class TopicDetail implements Action {
 
     private TMaster master;

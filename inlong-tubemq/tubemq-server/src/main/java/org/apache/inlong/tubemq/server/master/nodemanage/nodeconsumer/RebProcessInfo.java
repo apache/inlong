@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class RebProcessInfo {
 
     public List<String> needProcessList =

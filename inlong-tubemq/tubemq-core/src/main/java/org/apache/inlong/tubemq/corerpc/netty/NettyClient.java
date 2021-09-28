@@ -55,7 +55,6 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * The network Client for tube rpc service
  */
@@ -190,7 +189,6 @@ public class NettyClient implements Client {
         }
         return null;
     }
-
 
     @Override
     public NodeAddrInfo getServerAddressInfo() {

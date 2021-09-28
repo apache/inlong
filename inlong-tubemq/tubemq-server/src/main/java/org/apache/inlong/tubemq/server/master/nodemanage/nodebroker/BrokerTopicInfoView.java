@@ -33,7 +33,6 @@ import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 
-
 /*
  * Topic view of Broker's current operations
  */

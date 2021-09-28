@@ -25,7 +25,6 @@ import lombok.ToString;
 import org.apache.inlong.tubemq.manager.service.TubeConst;
 import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
 
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

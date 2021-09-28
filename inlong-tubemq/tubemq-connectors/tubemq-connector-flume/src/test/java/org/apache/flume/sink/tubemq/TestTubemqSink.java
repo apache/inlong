@@ -39,7 +39,6 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.junit.Test;
 
-
 public class TestTubemqSink {
 
     private Context prepareDefaultContext() {
@@ -80,7 +79,6 @@ public class TestTubemqSink {
         Configurables.configure(memoryChannel, context);
         tubeSink.setChannel(memoryChannel);
         tubeSink.start();
-
 
         String msg = "default-topic-test";
         Transaction tx = memoryChannel.getTransaction();

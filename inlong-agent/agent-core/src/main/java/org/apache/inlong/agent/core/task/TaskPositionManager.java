@@ -105,7 +105,6 @@ public class TaskPositionManager extends AbstractDaemon {
         };
     }
 
-
     private void flushJobProfile(String jobId, JobProfile jobProfile) {
         jobTaskPositionMap.get(jobId).forEach(
             (fileName, position) -> jobProfile.setLong(fileName + POSITION_SUFFIX, position)
@@ -136,7 +135,6 @@ public class TaskPositionManager extends AbstractDaemon {
         Long beforePosition = filePosition.getOrDefault(sourceFilePath, 1L);
         filePosition.put(sourceFilePath, beforePosition + size);
     }
-
 
     public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {
         return jobTaskPositionMap.get(jobId);

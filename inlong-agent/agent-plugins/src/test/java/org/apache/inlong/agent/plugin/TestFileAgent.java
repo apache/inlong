@@ -173,5 +173,4 @@ public class TestFileAgent {
         Assert.assertEquals(1, jobConf.getInt("job.id"));
     }
 
-
 }

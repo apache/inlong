@@ -19,12 +19,10 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 
-
 public interface AbstractMapper {
 
     void close();
 
     void loadConfig() throws LoadMetaException;
-
 
 }

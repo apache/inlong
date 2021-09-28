@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corerpc.server;
 
 import java.util.concurrent.ExecutorService;
 
-
 public interface ServiceRpcServer extends RpcServer {
 
     void publishService(String serviceName, Object serviceInstance,

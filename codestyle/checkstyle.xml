@@ -429,12 +429,23 @@
             <property name="tokens" value="BLOCK_COMMENT_BEGIN"/>
         </module>
 
-
         <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
         <module name="SuppressionXpathFilter">
             <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
                       default="checkstyle-xpath-suppressions.xml" />
             <property name="optional" value="true"/>
+        </module>
+
+        <module name="EmptyLineSeparator">
+            <!-- Checks for empty line separator between tokens. The only
+                 excluded token is VARIABLE_DEF, allowing class fields to
+                 be declared on consecutive lines.
+            -->
+            <property name="allowMultipleEmptyLines" value="false"/>
+            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
+            <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF,
+                                           INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF,
+                                           CTOR_DEF"/>
         </module>
     </module>
 </module>

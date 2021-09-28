@@ -25,8 +25,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEn
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 public class TopicDeployEntityTest {
 
     @Test

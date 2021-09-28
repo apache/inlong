@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import java.io.Writer;
 
-
 public interface TemplateEngine {
 
     void init() throws Exception;

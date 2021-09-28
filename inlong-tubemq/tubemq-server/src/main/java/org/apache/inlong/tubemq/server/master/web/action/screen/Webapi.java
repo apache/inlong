@@ -42,7 +42,6 @@ import org.apache.inlong.tubemq.server.master.web.handler.WebTopicDeployHandler;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 /**
  * Public APIs for master
  *
@@ -52,7 +51,6 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 public class Webapi implements Action {
 
     private TMaster master;
-
 
     public Webapi(TMaster master) {
         this.master = master;

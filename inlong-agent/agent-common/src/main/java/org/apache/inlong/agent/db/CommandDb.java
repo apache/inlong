@@ -49,7 +49,6 @@ public class CommandDb {
         return db.searchCommands(false);
     }
 
-
     /**
      * save normal command result for trigger
      * @param profile

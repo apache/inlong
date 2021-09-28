@@ -64,5 +64,4 @@ public class TubeHttpGroupDetailInfo {
         return consumerIds;
     }
 
-
 }

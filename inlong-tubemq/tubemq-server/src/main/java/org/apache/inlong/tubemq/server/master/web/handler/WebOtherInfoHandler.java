@@ -39,8 +39,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBa
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
 
-
-
 public class WebOtherInfoHandler extends AbstractWebHandler {
 
     /**

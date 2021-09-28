@@ -67,7 +67,6 @@ public class WorkflowTaskExecuteLog {
                 .build();
     }
 
-
     @Data
     @Builder
     @NoArgsConstructor
@@ -107,7 +106,6 @@ public class WorkflowTaskExecuteLog {
                     .build();
         }
     }
-
 
     @Data
     @Builder

@@ -48,7 +48,6 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonDBServerServiceImpl.class);
 
-
     @Autowired
     private CommonDbServerEntityMapper commonDbServerMapper;
 

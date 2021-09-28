@@ -28,7 +28,6 @@ import java.util.Enumeration;
 import org.apache.inlong.tubemq.corebase.exception.AddressException;
 import org.jboss.netty.channel.Channel;
 
-
 public class AddressUtils {
 
     private static String localIPAddress = null;

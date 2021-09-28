@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.entry;
-
 
 import java.util.Date;
 import javax.persistence.Entity;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corebase;
 
-
 public interface Shutdownable {
     void shutdown() throws Throwable;
 }

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common;
 
-
 public class TStatusConstants {
 
     public static final int STATUS_MANAGE_NOT_DEFINED = -2;

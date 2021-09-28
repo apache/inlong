@@ -27,7 +27,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 /*
  * store the cluster default setting
  *

@@ -187,7 +187,6 @@ public class MultiTopicPulsarSourceFunction extends RichParallelSourceFunction<S
             queueEvent(SourceEventType.ADDED, dataFlowInfo);
         }
 
-
         @Override
         public void updateDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             queueEvent(SourceEventType.UPDATE, dataFlowInfo);

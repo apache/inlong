@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-
 public class RpcDataPack {
     private int serialNo;
     private List<ByteBuffer> dataLst;

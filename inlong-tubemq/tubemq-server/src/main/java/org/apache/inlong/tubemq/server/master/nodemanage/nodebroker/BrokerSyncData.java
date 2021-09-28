@@ -38,7 +38,6 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /*
  * Broker sync data holder
  */
@@ -64,7 +63,6 @@ public class BrokerSyncData {
     private List<String> syncUpTopicConfInfos = new ArrayList<>();
     Map<String, TopicInfo> syncUpTopicInfoMap = new HashMap<>();
     private long lastDataUpTime = 0;
-
 
     public BrokerSyncData() {
 

@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ServiceStatusHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(ServiceStatusHolder.class);
@@ -42,7 +41,6 @@ public class ServiceStatusHolder {
     private static AtomicLong lastWriteStatsTime =
             new AtomicLong(System.currentTimeMillis());
     private static AtomicBoolean isPauseWrite = new AtomicBoolean(false);
-
 
     public static void setStatisParameters(int paraAllowedReadIOExcptCnt,
                                            int paraAllowedWriteIOExcptCnt,

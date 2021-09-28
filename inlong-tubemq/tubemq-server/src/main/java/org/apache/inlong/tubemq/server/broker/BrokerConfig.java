@@ -173,7 +173,6 @@ public class BrokerConfig extends AbstractFileConfig {
         return socketRecvBuffer;
     }
 
-
     @Override
     protected void loadFileSectAttributes(final Ini iniConf) {
         this.loadBrokerSectConf(iniConf);
@@ -455,10 +454,8 @@ public class BrokerConfig extends AbstractFileConfig {
         return webPort;
     }
 
-
     public String getMasterAddressList() {
         return masterAddressList;
     }
-
 
 }

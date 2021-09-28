@@ -41,7 +41,6 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     private int ruleCnt = 0;           // flow control rule count
     private String flowCtrlInfo = "";  // flow control info
 
-
     // only for query
     public GroupResCtrlEntity() {
         super();

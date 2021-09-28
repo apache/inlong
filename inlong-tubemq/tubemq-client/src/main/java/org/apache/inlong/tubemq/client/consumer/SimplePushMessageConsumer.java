@@ -31,7 +31,6 @@ import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * An implementation of PushMessageConsumer.
  */
@@ -43,7 +42,6 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     private AtomicLong lastLogPrintTime = new AtomicLong(0);
     private AtomicLong lastFailureCount = new AtomicLong(0);
     private CountDownLatch consumeSync = new CountDownLatch(0);
-
 
     public SimplePushMessageConsumer(final InnerSessionFactory messageSessionFactory,
                                      final ConsumerConfig consumerConfig) throws TubeClientException {
@@ -293,6 +291,5 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
             }
         }
     }
-
 
 }

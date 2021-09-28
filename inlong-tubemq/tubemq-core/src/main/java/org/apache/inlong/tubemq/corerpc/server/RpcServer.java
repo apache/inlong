@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.server;
 
-
 public interface RpcServer {
 
     void start(int listenPort) throws Exception;

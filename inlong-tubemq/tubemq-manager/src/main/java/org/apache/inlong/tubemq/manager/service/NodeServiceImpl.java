@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-
 import static org.apache.inlong.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
 
 import com.google.common.collect.Lists;
@@ -69,7 +68,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class NodeServiceImpl implements NodeService {
 
-
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
 
@@ -113,7 +111,6 @@ public class NodeServiceImpl implements NodeService {
         }
         return null;
     }
-
 
     /**
      * clone source broker to generate brokers with the same config and copy the topics in it.
@@ -287,7 +284,6 @@ public class NodeServiceImpl implements NodeService {
         } while (end < needReloadList.size());
     }
 
-
     @Override
     public void close() throws IOException {
         httpclient.close();
@@ -363,7 +359,6 @@ public class NodeServiceImpl implements NodeService {
         }
         return addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
     }
-
 
     @Override
     public void addNode(MasterEntry masterEntry) {

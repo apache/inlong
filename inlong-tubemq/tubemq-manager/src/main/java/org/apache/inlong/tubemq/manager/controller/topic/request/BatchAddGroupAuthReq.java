@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.controller.topic.request;
 
 import java.util.List;

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
@@ -35,7 +34,6 @@ import org.apache.inlong.tubemq.manager.service.interfaces.ClusterService;
 import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 
 @Component
 @Slf4j
@@ -105,6 +103,5 @@ public class ClusterServiceImpl implements ClusterService {
         masterEntry.setToken(req.getToken());
         nodeService.addNode(masterEntry);
     }
-
 
 }

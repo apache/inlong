@@ -21,8 +21,6 @@ import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.reg
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 
-
-
 public abstract class AbstractWebHandler {
 
     protected TMaster master;

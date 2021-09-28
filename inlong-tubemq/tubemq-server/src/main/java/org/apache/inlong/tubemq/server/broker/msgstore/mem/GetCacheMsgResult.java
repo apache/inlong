@@ -33,7 +33,6 @@ public class GetCacheMsgResult {
     public int totalMsgSize;
     public List<ByteBuffer> cacheMsgList;
 
-
     public GetCacheMsgResult(boolean isSuccess, int retCode, long readOffset, String errInfo) {
         this.isSuccess = isSuccess;
         this.retCode = retCode;

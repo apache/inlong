@@ -96,7 +96,6 @@ public class ProxyConfigEntry implements java.io.Serializable {
                 + ", switch=" + switchStat + "]";
     }
 
-
     public String getClusterId() {
         return clusterId;
     }

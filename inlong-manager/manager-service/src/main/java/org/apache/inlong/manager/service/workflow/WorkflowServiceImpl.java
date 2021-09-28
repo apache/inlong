@@ -211,7 +211,6 @@ public class WorkflowServiceImpl implements WorkflowService {
                 .collect(Collectors.toList());
     }
 
-
     private Consumer<ProcessListView> addCurrentTask(TaskQuery baseTaskQuery) {
         return plv -> {
             baseTaskQuery.setProcessInstId(plv.getId());

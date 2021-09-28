@@ -30,7 +30,6 @@ import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 
-
 public class ReadTimeoutHandler extends SimpleChannelUpstreamHandler implements
         LifeCycleAwareChannelHandler, ExternalResourceReleasable {
 

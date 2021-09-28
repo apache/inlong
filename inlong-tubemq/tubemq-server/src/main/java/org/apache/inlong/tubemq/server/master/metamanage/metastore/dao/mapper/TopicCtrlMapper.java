@@ -24,9 +24,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
-
-
-
 public interface TopicCtrlMapper extends AbstractMapper {
 
     boolean addTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
@@ -41,6 +38,5 @@ public interface TopicCtrlMapper extends AbstractMapper {
 
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
                                                   TopicCtrlEntity qryEntity);
-
 
 }

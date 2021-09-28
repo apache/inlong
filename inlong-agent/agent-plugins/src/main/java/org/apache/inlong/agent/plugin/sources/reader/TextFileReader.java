@@ -84,7 +84,6 @@ public class TextFileReader implements Reader {
         return null;
     }
 
-
     private boolean validateMessage(String message) {
         if (validators.isEmpty()) {
             return true;
@@ -127,7 +126,6 @@ public class TextFileReader implements Reader {
         }
         validators.add(new PatternValidator(pattern));
     }
-
 
     @Override
     public void init(JobProfile jobConf) {

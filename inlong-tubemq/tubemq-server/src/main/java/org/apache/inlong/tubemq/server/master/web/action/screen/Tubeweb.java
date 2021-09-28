@@ -23,7 +23,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 public class Tubeweb implements Action {
 
     private TMaster master;

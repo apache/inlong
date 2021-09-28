@@ -49,7 +49,6 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Network communication between service processes based on netty
  * see @link MessageSessionFactory Manage network connections
@@ -80,7 +79,6 @@ public class NettyClientFactory implements ClientFactory {
     public NettyClientFactory() {
 
     }
-
 
     /**
      * initial the network by rpc config object
@@ -317,6 +315,5 @@ public class NettyClientFactory implements ClientFactory {
         client.setChannel(future.getChannel(), addressInfo);
         return client;
     }
-
 
 }

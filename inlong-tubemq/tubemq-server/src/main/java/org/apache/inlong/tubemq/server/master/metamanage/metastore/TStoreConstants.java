@@ -17,9 +17,7 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 
-
 public final class TStoreConstants {
-
 
     public static final String TOKEN_DEFAULT_CLUSTER_SETTING = "default_cluster_config";
 

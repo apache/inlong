@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SimpleVisitTokenManager extends AbstractDaemonService {
     private static final Logger logger = LoggerFactory.getLogger(SimpleVisitTokenManager.class);
 
@@ -81,6 +80,5 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
         }
         logger.info("[VisitToken Manager] VisitToken Manager service stopped!");
     }
-
 
 }

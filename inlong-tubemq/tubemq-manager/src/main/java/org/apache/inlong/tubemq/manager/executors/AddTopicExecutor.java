@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.executors;
 
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,6 @@ public class AddTopicExecutor {
     @Value("${manager.max.config.topic.retry.time:50}")
     private int maxRetryTimes = 5000;
 
-
     @Autowired
     TopicTaskRepository topicTaskRepository;
 
@@ -68,7 +66,6 @@ public class AddTopicExecutor {
 
     @Autowired
     MasterService masterService;
-
 
     @Async("asyncExecutor")
     public void addTopicConfig(Long clusterId, List<TopicTaskEntry> topicTasks) {
@@ -127,7 +124,6 @@ public class AddTopicExecutor {
             topicTaskRepository.save(topicTask);
         }
     }
-
 
     private void handleAddingTopic(MasterEntry masterEntry,
                                    TubeHttpBrokerInfoList brokerInfoList,

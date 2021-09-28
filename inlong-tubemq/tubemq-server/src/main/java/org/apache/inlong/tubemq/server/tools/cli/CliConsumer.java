@@ -48,8 +48,6 @@ import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * This class is use to process CLI Consumer process.
  *
@@ -80,7 +78,6 @@ public class CliConsumer extends CliAbstractBase {
     private boolean isPushConsume = false;
 
     private boolean isStarted = false;
-
 
     public CliConsumer() {
         super("tubemq-consumer-test.sh");
@@ -272,7 +269,6 @@ public class CliConsumer extends CliAbstractBase {
         }
     }
 
-
     private static class TupleValue {
         public Thread[] fetchRunners = null;
 
@@ -288,7 +284,6 @@ public class CliConsumer extends CliAbstractBase {
         }
 
     }
-
 
     // for push consumer callback process
     private static class DefaultMessageListener implements MessageListener {
@@ -385,6 +380,5 @@ public class CliConsumer extends CliAbstractBase {
         }
 
     }
-
 
 }

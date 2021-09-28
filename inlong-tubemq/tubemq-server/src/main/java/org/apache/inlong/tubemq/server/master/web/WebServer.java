@@ -44,8 +44,6 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-
-
 public class WebServer implements Server {
 
     private final MasterConfig masterConfig;

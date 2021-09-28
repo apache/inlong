@@ -23,7 +23,6 @@ public enum TaskStatusEnum {
     FAILED(2, "failed"),
     SUCCESS(3, "success");
 
-
     private Integer code;
 
     private String message;
@@ -33,7 +32,6 @@ public enum TaskStatusEnum {
         this.message = message;
     }
 
-
     public Integer getCode() {
         return code;
     }
@@ -41,6 +39,5 @@ public enum TaskStatusEnum {
     public String getMessage() {
         return message;
     }
-
 
 }

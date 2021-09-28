@@ -63,7 +63,6 @@ public class CreateResourceWorkflowForm extends BaseWorkflowFormType {
         return businessInfo.getBusinessIdentifier();
     }
 
-
     public String getDataStreamIdentifier() {
         return dataStreamIdentifier;
     }

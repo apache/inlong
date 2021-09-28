@@ -25,8 +25,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthCo
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 public class TopicCtrlEntityTest {
 
     @Test

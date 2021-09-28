@@ -28,7 +28,6 @@ import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
-
 public class RpcServiceInvoker extends AbstractServiceInvoker {
     private NodeAddrInfo targetAddress;
 

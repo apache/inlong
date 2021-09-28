@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc.protocol;
 import java.util.concurrent.ExecutorService;
 import org.apache.inlong.tubemq.corerpc.server.RequestContext;
 
-
 public interface Protocol {
 
     void registerService(boolean isOverTLS, String serviceName,

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.client.exception;
 
-
 public class TubeClientException extends Exception {
 
     static final long serialVersionUID = -1L;

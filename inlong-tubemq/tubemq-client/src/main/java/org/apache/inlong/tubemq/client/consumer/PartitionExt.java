@@ -70,7 +70,6 @@ public class PartitionExt extends Partition {
                 this.limitDlt, this.curDataDlt, this.isRequireSlow) - dltTime;
     }
 
-
     /**
      * Process the consume result.
      *

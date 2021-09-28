@@ -47,7 +47,6 @@ public interface WorkflowContextBuilder {
      */
     WorkflowContext buildContextForProcess(Integer processInstId);
 
-
     /**
      * Build context information based on task ID
      *

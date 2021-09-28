@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.master.web.handler;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 
-
 public class BrokerProcessResult extends ProcessResult {
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerIp = "";

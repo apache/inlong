@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
-
 import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;

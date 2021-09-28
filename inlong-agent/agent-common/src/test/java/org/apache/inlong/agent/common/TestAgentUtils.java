@@ -69,7 +69,6 @@ public class TestAgentUtils {
         LOGGER.info("agent time is {}", time);
     }
 
-
     @Test
     public void testParseAddictiveStr() {
         String addStr = "m=10&__addcol1__worldid=&t=1";

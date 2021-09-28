@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.plugin.fetcher;
 
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
@@ -88,8 +87,6 @@ public class ManagerResultFormatter {
         return newHostList.subList(0, num);
     }
 
-
-
     public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
@@ -136,6 +133,5 @@ public class ManagerResultFormatter {
         proxy.setManager(manager);
         return proxy;
     }
-
 
 }

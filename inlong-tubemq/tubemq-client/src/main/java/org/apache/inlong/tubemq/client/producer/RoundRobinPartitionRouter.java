@@ -25,7 +25,6 @@ import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public class RoundRobinPartitionRouter implements PartitionRouter {
 
     private final AtomicInteger steppedCounter = new AtomicInteger(0);

@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public interface BrokerRcvQltyStats {
 
     List<Partition> getAllowedBrokerPartitions(

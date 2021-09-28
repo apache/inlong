@@ -99,7 +99,6 @@ public class TubeBroker implements Stoppable {
     private AtomicLong heartbeatErrors = new AtomicLong(0);
     private int maxReleaseTryCnt = 10;
 
-
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
@@ -415,7 +414,6 @@ public class TubeBroker implements Stoppable {
             }
         }
     }
-
 
     private void procConfigFromRegister(StringBuilder sBuilder,
                                         final RegisterResponseM2B response) {

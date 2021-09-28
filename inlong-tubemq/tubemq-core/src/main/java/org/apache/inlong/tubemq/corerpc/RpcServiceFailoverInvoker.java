@@ -31,14 +31,12 @@ import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
-
 public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
 
     private final AtomicInteger retryCounter = new AtomicInteger(0);
     private MasterInfo masterInfo;
     private Client currentClient;
     private int masterNodeCnt;
-
 
     public RpcServiceFailoverInvoker(ClientFactory clientFactory, Class serviceClass,
                                      RpcConfig conf, MasterInfo masterInfo) {

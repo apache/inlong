@@ -36,7 +36,6 @@ public enum ManageStatus {
     private boolean isAcceptPublish;
     private boolean isAcceptSubscribe;
 
-
     ManageStatus(int code, String description,
                  boolean acceptPublish,
                  boolean acceptSubscribe) {

@@ -186,9 +186,7 @@ public class InternalHttpSender {
                 httpClient = constructHttpClient(timeout, timeUnit);
             }
 
-
             String url = "http://" + hostInfo.getHostName() + ":" + DEFAULT_PORT + "/manager/message";
-
 
             httpPost = new HttpPost(url);
             httpPost.setHeader(HttpHeaders.CONNECTION, "close");

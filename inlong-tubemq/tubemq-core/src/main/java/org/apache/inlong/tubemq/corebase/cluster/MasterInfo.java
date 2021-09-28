@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-
 public class MasterInfo {
 
     private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover =

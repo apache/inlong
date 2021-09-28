@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.benchemark;
 
-
 public interface SimpleService {
 
     String echo(String content);

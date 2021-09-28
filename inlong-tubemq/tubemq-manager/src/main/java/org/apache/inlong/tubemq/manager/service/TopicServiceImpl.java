@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-
 import com.google.gson.Gson;
 
 import java.io.InputStreamReader;
@@ -115,7 +114,6 @@ public class TopicServiceImpl implements TopicService {
         }
     }
 
-
     @Override
     public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req) {
         MasterEntry master = masterService.getMasterNode(req);
@@ -140,7 +138,6 @@ public class TopicServiceImpl implements TopicService {
         return result;
     }
 
-
     @Override
     public TubeHttpTopicInfoList requestTopicConfigInfo(MasterEntry masterEntry, String topic) {
         String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
@@ -160,7 +157,6 @@ public class TopicServiceImpl implements TopicService {
         }
         return null;
     }
-
 
     @Override
     public TubeMQResult rebalanceGroup(RebalanceGroupReq req) {
@@ -193,7 +189,6 @@ public class TopicServiceImpl implements TopicService {
         tubeResult.setData(gson.toJson(rebalanceGroupResult));
         return tubeResult;
     }
-
 
     @Override
     public TubeMQResult deleteOffset(DeleteOffsetReq req) {
@@ -272,7 +267,6 @@ public class TopicServiceImpl implements TopicService {
         }
         return TubeMQResult.errorResult(ErrorCode.TOPIC_NOT_WRITABLE);
     }
-
 
     private void generateOffsetInfo(List<OffsetInfo> offsetPerBroker,
                                     TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,

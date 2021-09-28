@@ -42,7 +42,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 public class Master implements Action {
 
     private TMaster master;

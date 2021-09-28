@@ -23,7 +23,6 @@ import lombok.Data;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter;
 
-
 @Data
 public class TaskResult {
     private List<CmdConfig> cmdConfigs;

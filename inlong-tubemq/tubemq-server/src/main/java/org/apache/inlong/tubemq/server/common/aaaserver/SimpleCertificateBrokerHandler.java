@@ -30,7 +30,6 @@ import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler {
 
     private static final Logger logger =

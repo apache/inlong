@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.model;
 
 import java.util.List;
 
-
 public class ClusterGroupVO {
     private String groupName = "";
     private boolean isPrimaryNodeActive = true;

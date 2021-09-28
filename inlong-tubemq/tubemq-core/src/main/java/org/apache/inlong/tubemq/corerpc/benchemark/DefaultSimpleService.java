@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.benchemark;
 
-
 public class DefaultSimpleService implements SimpleService {
 
     @Override

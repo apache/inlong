@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service.region;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -49,7 +48,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestRegionService {
 
-
     @MockBean
     private RegionRepository regionRepository;
 
@@ -71,7 +69,6 @@ public class TestRegionService {
         TubeMQResult result = regionService.createNewRegion(regionEntry, brokerIdList);
         assertThat(result.getErrMsg().equals(TubeMQErrorConst.RESOURCE_NOT_EXIST));
     }
-
 
     @Test
     public void testCreateNewRegion() {

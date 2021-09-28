@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.statusdef;
 
-
 /*
  * The file clean policy type
  */
@@ -27,7 +26,6 @@ public enum CleanPolType {
     private int code;
     private String description;
 
-
     CleanPolType(int code, String description) {
         this.code = code;
         this.description = description;
@@ -36,7 +34,6 @@ public enum CleanPolType {
     public int getCode() {
         return code;
     }
-
 
     public static CleanPolType valueOf(int code) {
         for (CleanPolType status : CleanPolType.values()) {

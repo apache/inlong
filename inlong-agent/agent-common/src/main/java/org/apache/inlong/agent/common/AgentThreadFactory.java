@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.common;
 
-
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;

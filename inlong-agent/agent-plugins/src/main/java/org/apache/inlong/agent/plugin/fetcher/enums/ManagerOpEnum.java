@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.plugin.fetcher.enums;
-
 
 import static java.util.Objects.requireNonNull;
 

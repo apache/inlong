@@ -62,7 +62,6 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         super.start();
     }
 
-
     @Override
     protected void loopProcess(long intervalMs) {
         while (!super.isStopped()) {
@@ -709,6 +708,5 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return new StringBuilder(256).append(topic)
                 .append("-").append(partitionId).toString();
     }
-
 
 }

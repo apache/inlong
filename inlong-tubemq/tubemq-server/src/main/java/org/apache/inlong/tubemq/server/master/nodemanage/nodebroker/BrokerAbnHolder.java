@@ -36,7 +36,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /*
  * The broker node abnormal status reporting management class
  */
@@ -51,7 +50,6 @@ public class BrokerAbnHolder {
     private final MetaDataManager metaDataManager;
     private final AtomicInteger brokerForbiddenCount =
             new AtomicInteger(0);
-
 
     public BrokerAbnHolder(final int maxAutoForbiddenCnt,
                            final MetaDataManager metaDataManager) {

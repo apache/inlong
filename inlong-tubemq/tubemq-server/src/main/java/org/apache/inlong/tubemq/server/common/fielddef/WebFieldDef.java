@@ -22,7 +22,6 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.RegexDef;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
-
 public enum WebFieldDef {
 
     // Note: Due to compatibility considerations,
@@ -254,7 +253,6 @@ public enum WebFieldDef {
     ONLYENABLETLS(91, "onlyEnableTLS", "oEtls",
                 WebFieldType.BOOLEAN, "only enable tls broker info.");
 
-
     public final int id;
     public final String name;
     public final String shortName;
@@ -266,7 +264,6 @@ public enum WebFieldDef {
     public final int valMaxLen;
     public final boolean regexCheck;
     public final RegexDef regexDef;
-
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type, String desc) {
         this(id, name, shortName, type, desc, TBaseConstants.META_VALUE_UNDEFINED,

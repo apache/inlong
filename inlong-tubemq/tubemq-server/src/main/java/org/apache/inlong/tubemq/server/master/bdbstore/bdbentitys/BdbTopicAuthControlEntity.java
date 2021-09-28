@@ -27,7 +27,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbTopicAuthControlEntity implements Serializable {
 
@@ -145,7 +144,6 @@ public class BdbTopicAuthControlEntity implements Serializable {
                         String.valueOf(topicId));
     }
 
-
     public int getMaxMsgSize() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
@@ -162,7 +160,6 @@ public class BdbTopicAuthControlEntity implements Serializable {
                         TStoreConstants.TOKEN_MAX_MSG_SIZE,
                         String.valueOf(maxMsgSize));
     }
-
 
     public void setCreateInfo(String createUser, Date createDate) {
         if (TStringUtils.isNotBlank(createUser)) {

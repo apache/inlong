@@ -19,9 +19,7 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
 public class SettingValidUtils {
-
 
     public static int validAndGetMsgSizeInMB(int inMaxMsgSizeInMB) {
         return MixedUtils.mid(inMaxMsgSizeInMB,

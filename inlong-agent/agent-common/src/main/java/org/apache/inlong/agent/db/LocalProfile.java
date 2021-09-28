@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.db;
 
 import java.nio.file.Files;

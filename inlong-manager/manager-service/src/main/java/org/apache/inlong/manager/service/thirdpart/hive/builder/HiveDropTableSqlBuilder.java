@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive.builder;
 
-
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
 
 /**

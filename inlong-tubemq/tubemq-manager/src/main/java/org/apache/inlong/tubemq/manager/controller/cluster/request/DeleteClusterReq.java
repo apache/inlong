@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.controller.cluster.request;
 
 import lombok.Data;

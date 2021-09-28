@@ -25,11 +25,9 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 
-
 public class SimpleCertificateMasterHandler implements CertificateMasterHandler {
 
     private final MasterConfig masterConfig;
-
 
     public SimpleCertificateMasterHandler(final MasterConfig masterConfig) {
         this.masterConfig = masterConfig;
@@ -171,6 +169,5 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
         result.setSuccessResult("", "");
         return result;
     }
-
 
 }

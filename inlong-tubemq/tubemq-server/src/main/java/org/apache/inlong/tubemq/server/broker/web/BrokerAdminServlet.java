@@ -43,12 +43,10 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
-
 /***
  * Broker's web servlet. Used for admin operation, like query consumer's status etc.
  */
 public class BrokerAdminServlet extends AbstractWebHandler {
-
 
     public BrokerAdminServlet(TubeBroker broker) {
         super(broker);

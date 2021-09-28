@@ -21,7 +21,6 @@ import java.util.concurrent.Executors;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 
-
 public class RpcService4BenchmarkServer {
 
     private final RpcServiceFactory rpcServiceFactory =

@@ -75,7 +75,6 @@ public class RmtDataCache implements Closeable {
     private AtomicBoolean isClosed = new AtomicBoolean(false);
     private CountDownLatch dataProcessSync = new CountDownLatch(0);
 
-
     /**
      * Construct a remote data cache object.
      *
@@ -920,7 +919,4 @@ public class RmtDataCache implements Closeable {
         }
     }
 }
-
-
-
 

@@ -114,7 +114,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     // status of broker service.
     private AtomicBoolean started = new AtomicBoolean(false);
 
-
     public BrokerServiceServer(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) {
         this.tubeConfig = tubeConfig;

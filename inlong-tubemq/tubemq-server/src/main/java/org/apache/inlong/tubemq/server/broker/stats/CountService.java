@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.Map;
 
-
 public interface CountService {
 
     void close(long waitTimeMs);

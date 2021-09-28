@@ -317,7 +317,6 @@ public class TubemqSink extends AbstractSink implements Configurable {
         return producerMap.get(topic);
     }
 
-
     class SinkTask implements Runnable {
 
         private void sleepIfOverflow() throws Exception {
