@@ -27,8 +27,8 @@ public class ClusterSet {
     private String middlewareType;
     private String inCharges;
     private String followers;
-    private int status;
-    private int isDeleted;
+    private Integer status;
+    private Integer isDeleted;
     private String creator;
     private String modifier;
 
@@ -145,7 +145,7 @@ public class ClusterSet {
      * 
      * @return the status
      */
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
@@ -154,7 +154,7 @@ public class ClusterSet {
      * 
      * @param status the status to set
      */
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -163,7 +163,7 @@ public class ClusterSet {
      * 
      * @return the isDeleted
      */
-    public int getIsDeleted() {
+    public Integer getIsDeleted() {
         return isDeleted;
     }
 
@@ -172,7 +172,7 @@ public class ClusterSet {
      * 
      * @param isDeleted the isDeleted to set
      */
-    public void setIsDeleted(int isDeleted) {
+    public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
 

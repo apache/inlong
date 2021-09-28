@@ -25,7 +25,7 @@ public class FlumeChannelExt {
     private String setName;
     private String keyName;
     private String keyValue;
-    private int isDeleted;
+    private Integer isDeleted;
 
     /**
      * get parentName
@@ -104,7 +104,7 @@ public class FlumeChannelExt {
      * 
      * @return the isDeleted
      */
-    public int getIsDeleted() {
+    public Integer getIsDeleted() {
         return isDeleted;
     }
 
@@ -113,7 +113,7 @@ public class FlumeChannelExt {
      * 
      * @param isDeleted the isDeleted to set
      */
-    public void setIsDeleted(int isDeleted) {
+    public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
 

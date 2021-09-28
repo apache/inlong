@@ -23,7 +23,7 @@ package org.apache.inlong.manager.dao.entity;
 public class CacheTopic {
     private String topicName;
     private String setName;
-    private int partitionNum;
+    private Integer partitionNum;
 
     /**
      * get topicName
@@ -66,7 +66,7 @@ public class CacheTopic {
      * 
      * @return the partitionNum
      */
-    public int getPartitionNum() {
+    public Integer getPartitionNum() {
         return partitionNum;
     }
 
@@ -75,7 +75,7 @@ public class CacheTopic {
      * 
      * @param partitionNum the partitionNum to set
      */
-    public void setPartitionNum(int partitionNum) {
+    public void setPartitionNum(Integer partitionNum) {
         this.partitionNum = partitionNum;
     }
 

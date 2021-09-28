@@ -21,10 +21,11 @@ package org.apache.inlong.manager.dao.entity;
  * CacheClusterExt
  */
 public class CacheClusterExt {
+
     private String clusterName;
     private String keyName;
     private String keyValue;
-    private int isDeleted;
+    private Integer isDeleted;
 
     /**
      * get clusterName
@@ -81,20 +82,20 @@ public class CacheClusterExt {
     }
 
     /**
-     * get isDeleted
+     * getJIsDeleted
      * 
-     * @return the isDeleted
+     * @return
      */
-    public int getIsDeleted() {
+    public Integer getJIsDeleted() {
         return isDeleted;
     }
 
     /**
-     * set isDeleted
+     * setIsDeleted
      * 
-     * @param isDeleted the isDeleted to set
+     * @param isDeleted
      */
-    public void setIsDeleted(int isDeleted) {
+    public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
 
