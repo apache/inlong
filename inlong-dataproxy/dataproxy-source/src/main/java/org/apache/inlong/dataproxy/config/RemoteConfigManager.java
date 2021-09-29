@@ -109,7 +109,8 @@ public class RemoteConfigManager implements IRepository {
                     //
                     String ipListParserType = ConfigManager.getInstance().getCommonProperties()
                             .get(IManagerIpListParser.KEY_MANAGER_TYPE);
-                    Class<? extends IManagerIpListParser> ipListParserClass = (Class<? extends IManagerIpListParser>) Class
+                    Class<? extends IManagerIpListParser> ipListParserClass;
+                    ipListParserClass = (Class<? extends IManagerIpListParser>) Class
                             .forName(ipListParserType);
                     instance.ipListParser = ipListParserClass.getDeclaredConstructor().newInstance();
                     //
@@ -334,7 +335,8 @@ public class RemoteConfigManager implements IRepository {
             builder.setLength(0);
             builder.append(proxyClusterName).append(".sinks.").append(sink.getName()).append(FLUME_SEPARATOR);
             String prefix = builder.toString();
-            builder.append("channel");
+            builder.setLength(0);
+            builder.append(prefix).append("channel");
             newConfig.put(builder.toString(), sink.getChannel());
             builder.setLength(0);
             builder.append(prefix).append("type");
@@ -395,7 +397,8 @@ public class RemoteConfigManager implements IRepository {
             builder.setLength(0);
             builder.append(proxyClusterName).append(".sources.").append(source.getName()).append(FLUME_SEPARATOR);
             String prefix = builder.toString();
-            builder.append("channels");
+            builder.setLength(0);
+            builder.append(prefix).append("channels");
             String channelsKey = builder.toString();
             builder.setLength(0);
             for (String channel : source.getChannels()) {

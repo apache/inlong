@@ -96,7 +96,8 @@ public class Application {
                 // update dataproxy config
                 if (component instanceof IDataProxyConfigHolder) {
                     ((IDataProxyConfigHolder) component)
-                            .setDataProxyConfig(RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
+                            .setDataProxyConfig(
+                                    RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
                 }
                 supervisor.supervise(component,
                         new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
@@ -139,7 +140,8 @@ public class Application {
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
             logger.info("Shutting down configuration: {}", this.materializedConfiguration);
-            for (Entry<String, SourceRunner> entry : this.materializedConfiguration.getSourceRunners().entrySet()) {
+            for (Entry<String, SourceRunner> entry : this.materializedConfiguration
+                    .getSourceRunners().entrySet()) {
                 try {
                     logger.info("Stopping Source " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -148,7 +150,8 @@ public class Application {
                 }
             }
 
-            for (Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners().entrySet()) {
+            for (Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners()
+                    .entrySet()) {
                 try {
                     logger.info("Stopping Sink " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -157,7 +160,8 @@ public class Application {
                 }
             }
 
-            for (Entry<String, Channel> entry : this.materializedConfiguration.getChannels().entrySet()) {
+            for (Entry<String, Channel> entry : this.materializedConfiguration.getChannels()
+                    .entrySet()) {
                 try {
                     logger.info("Stopping Channel " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -193,8 +197,8 @@ public class Application {
             while (ch.getLifecycleState() != LifecycleState.START
                     && !supervisor.isComponentInErrorState(ch)) {
                 try {
-                    logger.info("Waiting for channel: " + ch.getName() +
-                            " to start. Sleeping for 500 ms");
+                    logger.info("Waiting for channel: " + ch.getName()
+                            + " to start. Sleeping for 500 ms");
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     logger.error("Interrupted while waiting for channel to start.", e);
@@ -203,7 +207,8 @@ public class Application {
             }
         }
 
-        for (Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners().entrySet()) {
+        for (Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners()
+                .entrySet()) {
             try {
                 logger.info("Starting Sink " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
@@ -213,7 +218,8 @@ public class Application {
             }
         }
 
-        for (Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners().entrySet()) {
+        for (Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners()
+                .entrySet()) {
             try {
                 logger.info("Starting Source " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
@@ -331,22 +337,22 @@ public class Application {
                 if (reload) {
                     EventBus eventBus = new EventBus(agentName + "-event-bus");
                     List<LifecycleAware> components = Lists.newArrayList();
-                    PollingZooKeeperConfigurationProvider zookeeperConfigurationProvider = new PollingZooKeeperConfigurationProvider(
+                    PollingZooKeeperConfigurationProvider zProvider = new PollingZooKeeperConfigurationProvider(
                             agentName, zkConnectionStr, baseZkPath, eventBus);
-                    components.add(zookeeperConfigurationProvider);
+                    components.add(zProvider);
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
-                    StaticZooKeeperConfigurationProvider zookeeperConfigurationProvider = new StaticZooKeeperConfigurationProvider(
+                    StaticZooKeeperConfigurationProvider zProvider = new StaticZooKeeperConfigurationProvider(
                             agentName, zkConnectionStr, baseZkPath);
                     application = new Application();
-                    application.handleConfigurationEvent(zookeeperConfigurationProvider.getConfiguration());
+                    application.handleConfigurationEvent(zProvider.getConfiguration());
                 }
             } else {
                 File configurationFile = new File(commandLine.getOptionValue('f'));
 
                 /*
-                 * The following is to ensure that by default the agent will fail on startup if the file does not exist.
+                 * The following is to ensure that by default the agent will fail on startup <br> if the file does not exist.
                  */
                 if (!configurationFile.exists()) {
                     // If command line invocation, then need to fail fast
@@ -366,13 +372,15 @@ public class Application {
 
                 if (reload) {
                     EventBus eventBus = new EventBus(agentName + "-event-bus");
-                    PollingPropertiesFileConfigurationProvider configurationProvider = new PollingPropertiesFileConfigurationProvider(
+                    PollingPropertiesFileConfigurationProvider configurationProvider;
+                    configurationProvider = new PollingPropertiesFileConfigurationProvider(
                             agentName, configurationFile, eventBus, 30);
                     components.add(configurationProvider);
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
-                    PropertiesFileConfigurationProvider configurationProvider = new PropertiesFileConfigurationProvider(
+                    PropertiesFileConfigurationProvider configurationProvider;
+                    configurationProvider = new PropertiesFileConfigurationProvider(
                             agentName, configurationFile);
                     application = new Application();
                     application.handleConfigurationEvent(configurationProvider.getConfiguration());
