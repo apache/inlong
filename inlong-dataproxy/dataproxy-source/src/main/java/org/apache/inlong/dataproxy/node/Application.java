@@ -351,9 +351,8 @@ public class Application {
             } else {
                 File configurationFile = new File(commandLine.getOptionValue('f'));
 
-                /*
-                 * The following is to ensure that by default the agent will fail on startup <br> if the file does not exist.
-                 */
+                // The following is to ensure that by default the agent will fail on startup
+                // if the file does not exist.
                 if (!configurationFile.exists()) {
                     // If command line invocation, then need to fail fast
                     if (System.getProperty(Constants.SYSPROP_CALLED_FROM_SERVICE) == null) {
