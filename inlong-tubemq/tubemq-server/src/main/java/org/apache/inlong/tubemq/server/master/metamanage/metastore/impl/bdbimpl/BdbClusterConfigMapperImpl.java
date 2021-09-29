@@ -35,7 +35,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.Cl
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
 
     private static final Logger logger =

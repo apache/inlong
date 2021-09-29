@@ -25,7 +25,6 @@ public class ValidateUtils {
         return object == null;
     }
 
-
     public static boolean isEmptyList(List<?> seq) {
         return isNull(seq) || seq.isEmpty();
     }

@@ -67,7 +67,6 @@ public class AgentUtils {
     public static final String HOUR_LOW_CASE = "h";
     public static final String MINUTE = "m";
 
-
     /**
      * get md5 of file.
      * @param file - file name
@@ -227,7 +226,6 @@ public class AgentUtils {
         return DateTimeFormatter.ofPattern(formatter).withLocale(Locale.getDefault()).format(zoned);
     }
 
-
     public static String formatCurrentTimeWithoutOffset(String formatter) {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(0).plusHours(0).plusMinutes(0);
         return DateTimeFormatter.ofPattern(formatter).withLocale(Locale.getDefault()).format(zoned);
@@ -303,7 +301,6 @@ public class AgentUtils {
         return mValueAttrs.getRight();
     }
 
-
     /**
      * get m value in additionStr
      * @param addictiveAttr
@@ -355,9 +352,5 @@ public class AgentUtils {
         }
         return System.currentTimeMillis();
     }
-
-
-
-
 
 }

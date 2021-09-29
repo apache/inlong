@@ -34,7 +34,6 @@ import org.apache.inlong.tubemq.server.master.web.model.BrokerVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
-
 public class BrokerList implements Action {
 
     private TMaster master;

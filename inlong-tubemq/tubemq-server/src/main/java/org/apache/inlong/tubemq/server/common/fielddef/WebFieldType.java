@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.fielddef;
 
-
-
 public enum WebFieldType {
 
     UNKNOWN(-1, "Unknown field type"),
@@ -33,7 +31,6 @@ public enum WebFieldType {
     JSONDICT(9, "Json dict"),
     JSONSET(10, "Json set"),
     DELPOLICY(11, "Delete policy");
-
 
     private int value;
     private String desc;

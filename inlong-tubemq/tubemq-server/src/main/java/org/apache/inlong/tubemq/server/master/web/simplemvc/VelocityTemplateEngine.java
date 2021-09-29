@@ -26,7 +26,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-
 public class VelocityTemplateEngine implements TemplateEngine {
 
     private WebConfig config;

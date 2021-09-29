@@ -402,7 +402,6 @@ public class ProtocolEncoder extends OneToOneEncoder {
         return buf;
     }
 
-
     private byte[] processCompress(byte[] body) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

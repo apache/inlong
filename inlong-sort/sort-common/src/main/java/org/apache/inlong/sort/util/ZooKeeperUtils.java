@@ -211,7 +211,6 @@ public class ZooKeeperUtils {
         return zkClient.create().withMode(createMode).forPath(nodePath, data);
     }
 
-
     /**
      * Secure {@link ACLProvider} implementation.
      */

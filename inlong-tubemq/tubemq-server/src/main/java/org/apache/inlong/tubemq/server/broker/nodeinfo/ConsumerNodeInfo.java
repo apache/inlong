@@ -61,7 +61,6 @@ public class ConsumerNodeInfo {
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private long createTime = System.currentTimeMillis();
 
-
     public ConsumerNodeInfo(final MessageStoreManager storeManager,
                             final String consumerId, Set<String> filterCodes,
                             final String sessionKey, long sessionTime, final String partStr) {

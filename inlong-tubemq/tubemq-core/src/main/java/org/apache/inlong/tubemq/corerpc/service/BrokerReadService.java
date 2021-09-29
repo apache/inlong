@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corerpc.service;
 
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 
-
 public interface BrokerReadService {
 
     ClientBroker.RegisterResponseB2C consumerRegisterC2B(ClientBroker.RegisterRequestC2B request,

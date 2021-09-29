@@ -62,7 +62,6 @@ public class MsgMemStore implements Closeable {
     private ByteBuffer cachedIndexSegment;
     private int maxAllowedMsgCount;
 
-
     public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;

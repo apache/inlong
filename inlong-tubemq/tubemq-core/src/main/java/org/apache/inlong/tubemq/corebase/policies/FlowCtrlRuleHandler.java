@@ -158,7 +158,6 @@ public class FlowCtrlRuleHandler {
         return null;
     }
 
-
     public int getNormFreqInMs() {
         return this.filterCtrlItem.getFreqLtInMs();
     }
@@ -287,7 +286,6 @@ public class FlowCtrlRuleHandler {
         return qryPriorityId.get();
     }
 
-
     /**
      * @param qryPriorityId
      */
@@ -310,7 +308,6 @@ public class FlowCtrlRuleHandler {
             writeLock.unlock();
         }
     }
-
 
     /**
      * Parse FlowCtrlInfo value

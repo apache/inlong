@@ -25,8 +25,6 @@ import java.util.TreeSet;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
-
 public class MixedUtils {
     // java version cache
     private static String javaVersion = "";

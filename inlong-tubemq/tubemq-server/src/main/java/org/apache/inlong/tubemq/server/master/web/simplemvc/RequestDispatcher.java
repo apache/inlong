@@ -35,7 +35,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
-
 public class RequestDispatcher {
 
     private static final String TYPE_LAYOUT = "layout";

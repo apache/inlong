@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-
 import java.util.Arrays;
 import java.util.HashSet;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;

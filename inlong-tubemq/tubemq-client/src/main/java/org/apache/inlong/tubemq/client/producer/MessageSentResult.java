@@ -21,7 +21,6 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public class MessageSentResult {
     private final boolean success;
     private final int errCode;

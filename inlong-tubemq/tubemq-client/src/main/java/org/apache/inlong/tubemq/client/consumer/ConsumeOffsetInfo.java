@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.client.consumer;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class ConsumeOffsetInfo {
     private String partitionKey;
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;

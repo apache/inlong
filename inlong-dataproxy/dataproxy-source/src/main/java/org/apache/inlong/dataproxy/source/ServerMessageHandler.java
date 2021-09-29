@@ -103,7 +103,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     private final ChannelBuffer heartbeatBuffer;
     private final String protocolType;
 
-
     public ServerMessageHandler(ChannelProcessor processor, ServiceDecoder serProcessor,
                                 ChannelGroup allChannels,
                                 String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,
@@ -175,7 +174,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 .putShort(dataLen + (BIN_MSG_FORMAT_SIZE - BIN_MSG_ATTRLEN_SIZE - BIN_MSG_MAGIC_SIZE),
                         (short) (strAttr.length() + attrLen));
 
-
         System.arraycopy(strAttr.getBytes(StandardCharsets.UTF_8), 0, dataBuf.array(),
                 dataLen + (BIN_MSG_FORMAT_SIZE - BIN_MSG_MAGIC_SIZE) + attrLen,
                 strAttr.length());
@@ -199,7 +197,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             return false;
         }
     }
-
 
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
@@ -234,12 +231,10 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
             }
 
-
             String value = configManager.getTopicProperties().get(bid);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
-
 
             Map<String, String> mxValue = configManager.getMxPropertiesMaps().get(bid);
             if (mxValue != null && mxValue.size() != 0) {
@@ -271,7 +266,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     attrMap.put(AttributeConstants.INTERFACE_ID, tid);
                     message.setBid(bid);
                     message.setTid(tid);
-
 
                     String value = configManager.getTopicProperties().get(bid);
                     if (StringUtils.isNotEmpty(value)) {
@@ -370,7 +364,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     }
                 }
 
-
                 long pkgTimeInMillis = tdMsg.getCreatetime();
                 String pkgTimeStr = dateFormator.get().format(pkgTimeInMillis);
 
@@ -381,7 +374,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                         pkgTimeStr = dateFormator.get().format(System.currentTimeMillis());
                     }
                 }
-
 
                 if (commonAttrMap.get(AttributeConstants.DATA_TIME) != null) {
                     headers.put(AttributeConstants.DATA_TIME, commonAttrMap.get(AttributeConstants.DATA_TIME));
@@ -397,13 +389,11 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 String proxyMetricMsgCnt = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);
                 headers.put(ConfigConstants.MSG_COUNTER_KEY, proxyMetricMsgCnt);
 
-
                 byte[] data = tdMsg.buildArray();
                 headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
 
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
-
 
                     StringBuilder sidBuilder = new StringBuilder();
                     sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(tidEntry.getKey())
@@ -623,7 +613,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     processor.processEvent(event);
                 } catch (Throwable ex) {
                     logger.error("Error writing to controller,data will discard.", ex);
-
 
                     throw new ChannelException(
                             "Process Controller Event error can't write event to channel.");

@@ -28,8 +28,6 @@ import org.apache.inlong.tubemq.server.common.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * This class is use to process CLI Broker Admin process.
  *
@@ -41,7 +39,6 @@ public class CliBrokerAdmin extends CliAbstractBase {
             LoggerFactory.getLogger(CliBrokerAdmin.class);
 
     private static final String defBrokerPortal = "127.0.0.1:8081";
-
 
     public CliBrokerAdmin() {
         super("tubemq-broker-admin.sh");
@@ -108,6 +105,5 @@ public class CliBrokerAdmin extends CliAbstractBase {
         }
 
     }
-
 
 }

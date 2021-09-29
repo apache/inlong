@@ -40,7 +40,6 @@ public enum EventStatus {
      * */
     FAILED(-2, "Process failed");
 
-
     private int value;
     private String description;
 

@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.client.consumer;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 
-
 public interface PullMessageConsumer extends MessageConsumer {
 
     boolean isPartitionsReady(long maxWaitTime);

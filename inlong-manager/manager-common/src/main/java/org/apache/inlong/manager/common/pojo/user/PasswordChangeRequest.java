@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.user;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class PasswordChangeRequest {

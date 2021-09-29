@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.client.consumer;
 
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public class PartitionSelectResult {
     private boolean success;
     private int errCode;
@@ -53,7 +52,6 @@ public class PartitionSelectResult {
         this.usedToken = usedToken;
         this.isLastPackConsumed = isLastPackConsumed;
     }
-
 
     public boolean isSuccess() {
         return success;

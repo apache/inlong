@@ -81,7 +81,6 @@ public class MetricsRegister {
         }
     }
 
-
     /**
      * handle class level annotation
      */
@@ -94,7 +93,6 @@ public class MetricsRegister {
         }
         return null;
     }
-
 
     private static boolean initFieldByType(Object source, Field field) {
         try {

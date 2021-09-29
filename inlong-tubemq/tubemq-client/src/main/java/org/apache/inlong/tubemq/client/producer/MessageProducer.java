@@ -22,7 +22,6 @@ import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
 
-
 public interface MessageProducer extends Shutdownable {
 
     void publish(String topic) throws TubeClientException;

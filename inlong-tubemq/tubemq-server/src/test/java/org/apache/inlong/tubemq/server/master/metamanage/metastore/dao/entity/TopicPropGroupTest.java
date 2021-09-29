@@ -22,9 +22,6 @@ import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
-
 public class TopicPropGroupTest {
 
     @Test

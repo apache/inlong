@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corebase.utils;
 import junit.framework.TestCase;
 import org.junit.Test;
 
-
 public class ConcurrentHashSetTest extends TestCase {
 
     @Test

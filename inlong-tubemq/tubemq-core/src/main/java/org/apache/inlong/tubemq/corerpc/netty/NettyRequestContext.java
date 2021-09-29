@@ -35,7 +35,6 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class NettyRequestContext implements RequestContext {
 
     private static final Logger logger =

@@ -96,7 +96,6 @@ public class ConfigManager {
         return instance;
     }
 
-
     public Map<String, String> getWeightProperties() {
         return weightHolder.getHolder();
     }
@@ -239,9 +238,7 @@ public class ConfigManager {
 
         private void checkLocalFile() {
 
-
             for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
-
 
                 boolean isChanged = holder.checkAndUpdateHolder();
                 if (isChanged) {

@@ -23,8 +23,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 
-
-
 public interface BrokerConfigMapper extends AbstractMapper {
 
     boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result);

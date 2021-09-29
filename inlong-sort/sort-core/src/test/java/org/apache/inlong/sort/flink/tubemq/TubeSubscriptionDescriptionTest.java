@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.sort.flink.tubemq;
 
 import static org.junit.Assert.assertEquals;

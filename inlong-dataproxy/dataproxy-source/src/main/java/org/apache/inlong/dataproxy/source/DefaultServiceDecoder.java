@@ -64,14 +64,12 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     private static final int BIN_HB_ATTRLEN_SIZE = 2;
     private static final int BIN_HB_FORMAT_SIZE = 17;
 
-
     private static final Logger LOG = LoggerFactory
             .getLogger(DefaultServiceDecoder.class);
 
     private static final Splitter.MapSplitter mapSplitter = Splitter
             .on(AttributeConstants.SEPARATOR).trimResults()
             .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
-
 
     /**
      * extract bin heart beat data, message type is 8
@@ -264,7 +262,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         int msgCount = cb.readUnsignedShort();
         long uniq = cb.readUnsignedInt();
 
-
         dataTime = dataTime * 1000;
         Map<String, String> commonAttrMap = new HashMap<String, String>();
         cb.skipBytes(BIN_MSG_BODYLEN_SIZE + bodyLen + BIN_MSG_ATTRLEN_SIZE);
@@ -341,7 +338,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
         return resultMap;
     }
-
 
     /**
      * extract bin data, message type less than 7
@@ -449,7 +445,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         return resultMap;
     }
 
-
     private byte[] processUnCompress(byte[] input, String compressType) {
         byte[] result = null;
         try {
@@ -462,7 +457,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         }
         return result;
     }
-
 
     /**
      * BEFORE                                                                   AFTER

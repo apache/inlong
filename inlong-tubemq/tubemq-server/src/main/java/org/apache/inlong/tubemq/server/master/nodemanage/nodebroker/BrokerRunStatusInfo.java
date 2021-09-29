@@ -35,8 +35,6 @@ import org.apache.inlong.tubemq.server.master.utils.BrokerStatusSamplePrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /*
  * Broker run status management class
  */
@@ -73,8 +71,6 @@ public class BrokerRunStatusInfo {
     private long lastBrokerSyncTime = 0;
     private long maxConfLoadedTimeInMs = 0;
     private long curConfLoadTimeInMs = 0;
-
-
 
     public BrokerRunStatusInfo(BrokerRunManager brokerRunManager, BrokerInfo brokerInfo,
                                ManageStatus mngStatus, String brokerConfInfo,

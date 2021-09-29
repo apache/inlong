@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.manager.controller.node.request;
 import lombok.Data;
 import org.apache.inlong.tubemq.manager.service.TubeConst;
 
-
 @Data
 public class QueryBrokerCfgReq {
 

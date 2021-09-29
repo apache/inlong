@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-
 public abstract class AbstractSamplePrint {
 
     protected final StringBuilder sBuilder = new StringBuilder(512);
@@ -31,7 +30,6 @@ public abstract class AbstractSamplePrint {
     protected long maxTotalCount = 15;
     protected long maxUncheckDetailCount = 15;
     protected AtomicLong totalUncheckCount = new AtomicLong(10);
-
 
     public AbstractSamplePrint() {
 

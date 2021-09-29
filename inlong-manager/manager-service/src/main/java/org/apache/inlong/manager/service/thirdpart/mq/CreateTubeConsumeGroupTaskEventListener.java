@@ -60,7 +60,6 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
         return TaskEvent.COMPLETE;
     }
 
-
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();

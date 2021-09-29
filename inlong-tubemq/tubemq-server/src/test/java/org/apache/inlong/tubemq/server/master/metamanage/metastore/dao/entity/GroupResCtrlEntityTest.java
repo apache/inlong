@@ -25,8 +25,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCt
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 public class GroupResCtrlEntityTest {
 
     @Test
@@ -129,8 +127,6 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(resEntry4.getCreateDateStr(), bdbEntity5.getStrCreateDate());
         Assert.assertEquals(resEntry4.getModifyUser(), bdbEntity5.getModifyUser());
         Assert.assertEquals(resEntry4.getModifyDateStr(), bdbEntity5.getStrModifyDate());
-
-
 
     }
 

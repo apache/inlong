@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.entry;
 
-
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;

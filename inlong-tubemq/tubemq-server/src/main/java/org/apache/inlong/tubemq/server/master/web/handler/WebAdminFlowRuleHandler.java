@@ -33,7 +33,6 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
-
 @Deprecated
 public class WebAdminFlowRuleHandler extends AbstractWebHandler {
 
@@ -41,7 +40,6 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
     private static final Set<String> rsvGroupNameSet =
             new HashSet<>(Arrays.asList(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL));
-
 
     public WebAdminFlowRuleHandler(TMaster master) {
         super(master);
@@ -256,6 +254,5 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
-
 
 }

@@ -53,5 +53,4 @@ public class CommandConstants {
     public static final String FIELD_SPLITTER = "field_splitter";
     public static final String MD5 = "md5";
 
-
 }

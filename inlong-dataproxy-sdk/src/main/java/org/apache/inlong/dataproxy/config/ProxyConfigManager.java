@@ -74,7 +74,6 @@ import org.apache.inlong.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ProxyConfigManager extends Thread {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
@@ -376,7 +375,6 @@ public class ProxyConfigManager extends Thread {
         return encryptEntry;
     }
 
-
     private void updateEncryptConfigEntry() {
         if (Utils.isBlank(this.clientConfig.getUserName())) {
             return;
@@ -588,7 +586,6 @@ public class ProxyConfigManager extends Thread {
         return proxyEntry;
     }
 
-
     private Map<String, HostInfo> getHostInfoMap(JsonObject localProxyAddrJson)
         throws Exception {
         Map<String, HostInfo> hostMap = new HashMap<String, HostInfo>();
@@ -658,7 +655,6 @@ public class ProxyConfigManager extends Thread {
         }
         return isInterVisit;
     }
-
 
     public ProxyConfigEntry requestProxyList(String url) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();

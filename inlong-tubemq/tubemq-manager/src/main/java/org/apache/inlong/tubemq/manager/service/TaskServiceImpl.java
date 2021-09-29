@@ -48,7 +48,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-
 @Slf4j
 @Component
 public class TaskServiceImpl implements TaskService {
@@ -115,7 +114,6 @@ public class TaskServiceImpl implements TaskService {
         return taskEntry != null;
     }
 
-
     @Scheduled(cron = "${topic.config.schedule}")
     public void executeTopicConfigTasks() {
         List<ClusterEntry> allClusters = clusterService.getAllClusters();
@@ -127,7 +125,6 @@ public class TaskServiceImpl implements TaskService {
             addTopicExecutor.addTopicConfig(clusterId, topicTasks);
         }
     }
-
 
     @Scheduled(cron = "${broker.reload.schedule}")
     public void reloadBrokers() {
@@ -154,7 +151,6 @@ public class TaskServiceImpl implements TaskService {
         updateCreateTopicTaskStatus(clusterId);
     }
 
-
     @Transactional(rollbackOn = Exception.class)
     public void updateCreateTopicTaskStatus(long clusterId) {
         List<TopicTaskEntry> topicTasks = topicTaskRepository
@@ -175,7 +171,6 @@ public class TaskServiceImpl implements TaskService {
         }
         updateTaskRepo(topicTasks, topicViewMap, brokerInfoList);
     }
-
 
     private void updateTaskRepo(List<TopicTaskEntry> topicTasks,
                                 Map<String, TopicView.TopicViewInfo> topicViewMap,
@@ -199,6 +194,5 @@ public class TaskServiceImpl implements TaskService {
         }
         topicTaskRepository.saveAll(topicTasks);
     }
-
 
 }

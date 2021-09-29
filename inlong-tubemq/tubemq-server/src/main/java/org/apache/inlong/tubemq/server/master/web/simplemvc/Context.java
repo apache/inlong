@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import java.util.Set;
 
-
 public interface Context {
 
     void put(String key, Object value);

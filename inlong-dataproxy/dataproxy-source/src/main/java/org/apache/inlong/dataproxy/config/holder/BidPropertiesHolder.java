@@ -32,7 +32,6 @@ public class BidPropertiesHolder extends PropertiesConfigHolder {
     private static final Logger LOG = LoggerFactory.getLogger(BidPropertiesHolder.class);
     private static final String BID_VALUE_SPLITTER = "#";
 
-
     private Map<String, String> bidMappingProperties =
             new HashMap<String, String>();
     private Map<String, Map<String, String>> tidMappingProperties =

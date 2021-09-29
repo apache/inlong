@@ -48,5 +48,4 @@ public class HiveChangeColumnBuilder extends SqlBuilder<HiveTableQueryBean> {
         return null;
     }
 
-
 }

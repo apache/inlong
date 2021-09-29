@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 public class TopicProcessor {
     private MessageListener messageListener;
     private TreeSet<String> filterCondStrs;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.task;
 
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -176,7 +175,6 @@ public class TaskWrapper extends AbstractStateWrapper {
 
         });
     }
-
 
     @Override
     public void run() {

@@ -46,7 +46,6 @@ public class EventListenerServiceImpl implements EventListenerService {
 
     private WorkflowEventListenerManager workflowEventListenerManager;
 
-
     public EventListenerServiceImpl(
             WorkflowDataAccessor workflowDataAccessor,
             WorkflowContextBuilder workflowContextBuilder,

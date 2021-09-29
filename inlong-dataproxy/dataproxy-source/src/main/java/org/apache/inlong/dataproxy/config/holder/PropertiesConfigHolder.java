@@ -100,10 +100,8 @@ public class PropertiesConfigHolder extends ConfigHolder {
                 FileUtils.copyFile(sourceFile, targetFile);
             }
 
-
             List<String> lines = getStringListFromHolder(tmpHolder);
             FileUtils.writeLines(tmpNewFile, lines);
-
 
             FileUtils.copyFile(tmpNewFile, sourceFile);
             tmpNewFile.delete();

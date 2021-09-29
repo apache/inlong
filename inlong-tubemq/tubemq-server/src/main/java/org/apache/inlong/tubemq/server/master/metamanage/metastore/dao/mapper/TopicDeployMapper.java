@@ -24,8 +24,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
-
-
 public interface TopicDeployMapper extends AbstractMapper {
 
     boolean addTopicConf(TopicDeployEntity entity, ProcessResult result);
@@ -35,7 +33,6 @@ public interface TopicDeployMapper extends AbstractMapper {
     boolean delTopicConf(String recordKey, ProcessResult result);
 
     boolean delTopicConfByBrokerId(Integer brokerId, ProcessResult result);
-
 
     boolean hasConfiguredTopics(int brokerId);
 

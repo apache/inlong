@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.trigger;
 
-
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constants.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_ID;
@@ -90,7 +89,6 @@ public class TriggerManager extends AbstractDaemon {
         return true;
     }
 
-
     public Trigger getTrigger(String triggerId) {
         return triggerMap.get(triggerId);
     }
@@ -106,9 +104,6 @@ public class TriggerManager extends AbstractDaemon {
         addTrigger(triggerProfile);
         return true;
     }
-
-
-
 
     private Runnable jobFetchThread() {
         return () -> {
@@ -152,7 +147,6 @@ public class TriggerManager extends AbstractDaemon {
     private void deleteJob(String jobInstanceId) {
         manager.getJobManager().deleteJob(jobInstanceId);
     }
-
 
     private Runnable jobCheckThread() {
         return () -> {
@@ -210,8 +204,6 @@ public class TriggerManager extends AbstractDaemon {
         return false;
     }
 
-
-
     /**
      * init all triggers when daemon started.
      */
@@ -236,13 +228,10 @@ public class TriggerManager extends AbstractDaemon {
         submitWorker(jobCheckThread());
     }
 
-
-
     @Override
     public void stop() {
         // stop all triggers
         stopTriggers();
     }
-
 
 }

@@ -116,7 +116,6 @@ import org.apache.inlong.tubemq.server.master.web.WebServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class TMaster extends HasThread implements MasterService, Stoppable {
 
     private static final Logger logger = LoggerFactory.getLogger(TMaster.class);
@@ -255,7 +254,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public MasterConfig getMasterConfig() {
         return masterConfig;
     }
-
 
     public MetaDataManager getDefMetaDataManager() {
         return defMetaDataManager;
@@ -1240,7 +1238,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return initialized;
     }
 
-
     /**
      * Load balance
      */
@@ -1727,7 +1724,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return outClientConfig;
     }
 
-
     /**
      * build cluster configure info
      *
@@ -1833,7 +1829,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public ConsumerInfoHolder getConsumerHolder() {
         return consumerHolder;
     }
-
 
     /**
      * check bdb data path, create it if not exist

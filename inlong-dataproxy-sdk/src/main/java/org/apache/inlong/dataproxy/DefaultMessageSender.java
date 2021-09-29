@@ -50,7 +50,6 @@ public class DefaultMessageSender implements MessageSender {
     private boolean isSupportLF = false;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
 
-
     private static final ConcurrentHashMap<String, DefaultMessageSender> cacheSender =
             new ConcurrentHashMap<>();
 
@@ -189,14 +188,12 @@ public class DefaultMessageSender implements MessageSender {
         return ConfigConstants.PROXY_SDK_VERSION;
     }
 
-
     @Deprecated
     public SendResult sendMessage(byte[] body, String attributes, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
         return sender.syncSendMessage(new EncodeObject(body, attributes,
                 idGenerator.getNextId()), msgUUID, timeout, timeUnit);
     }
-
 
     public SendResult sendMessage(byte[] body, String bid, String tid, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
@@ -226,8 +223,6 @@ public class DefaultMessageSender implements MessageSender {
 
         return null;
     }
-
-
 
     public SendResult sendMessage(byte[] body, String bid, String tid, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
@@ -261,9 +256,7 @@ public class DefaultMessageSender implements MessageSender {
         }
         return null;
 
-
     }
-
 
     public SendResult sendMessage(List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
@@ -292,7 +285,6 @@ public class DefaultMessageSender implements MessageSender {
         }
         return null;
     }
-
 
     public SendResult sendMessage(List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
@@ -325,15 +317,12 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-
-
     @Deprecated
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID,
                                  long timeout, TimeUnit timeUnit) throws ProxysdkException {
         sender.asyncSendMessage(new EncodeObject(body, attributes, idGenerator.getNextId()),
                 callback, msgUUID, timeout, timeUnit);
     }
-
 
     public void asyncSendMessage(SendMessageCallback callback, byte[] body,
                                  String bid, String tid, long dt, String msgUUID,
@@ -364,7 +353,6 @@ public class DefaultMessageSender implements MessageSender {
         }
 
     }
-
 
     public void asyncSendMessage(SendMessageCallback callback,
                                  byte[] body, String bid, String tid, long dt, String msgUUID,
@@ -399,7 +387,6 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList,
                                  String bid, String tid, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit) throws ProxysdkException {
@@ -430,7 +417,6 @@ public class DefaultMessageSender implements MessageSender {
             }
         }
     }
-
 
     public void asyncSendMessage(SendMessageCallback callback,
                                  List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
@@ -480,8 +466,6 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-
-
     public void asyncsendMessageData(FileCallback callback, List<byte[]> bodyList, String bid,
                                      String tid, long dt, int sid, boolean isSupportLF, String msgUUID,
                                      long timeout, TimeUnit timeUnit,
@@ -519,23 +503,17 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-
-
-
     public void asyncsendMessageProxy(FileCallback callback, byte[] body, String bid, String tid,
                                     long dt, int sid, String ip, String msgUUID,
                                     long timeout, TimeUnit timeUnit) throws ProxysdkException {
         asyncSendMetric(callback, body, bid, tid, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
     }
 
-
     public void asyncsendMessageFile(FileCallback callback, byte[] body, String bid,
                                      String tid, long dt, int sid, String msgUUID,
                                      long timeout, TimeUnit timeUnit) throws ProxysdkException {
         asyncSendMetric(callback, body, bid, tid, dt, sid, "", msgUUID, timeout, timeUnit, "file");
     }
-
-
 
     public String sendMessageData(List<byte[]> bodyList, String bid,
                                   String tid, long dt, int sid, boolean isSupportLF, String msgUUID,
@@ -573,14 +551,10 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-
-
-
     public String sendMessageProxy(byte[] body, String bid, String tid, long dt, int sid, String ip, String msgUUID,
                                  long timeout, TimeUnit timeUnit) {
         return sendMetric(body, bid, tid, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
     }
-
 
     public String sendMessageFile(byte[] body, String bid, String tid, long dt, int sid, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {

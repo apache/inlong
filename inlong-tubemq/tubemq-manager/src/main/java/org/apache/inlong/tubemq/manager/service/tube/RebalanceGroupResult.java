@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.service.tube;
 
 import com.google.common.collect.Lists;

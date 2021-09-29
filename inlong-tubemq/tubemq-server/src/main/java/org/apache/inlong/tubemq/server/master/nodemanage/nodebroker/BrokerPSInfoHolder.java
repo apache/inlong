@@ -26,7 +26,6 @@ import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 
-
 /*
  *  Broker publish and subscribe information holder
  */
@@ -40,7 +39,6 @@ public class BrokerPSInfoHolder {
     private final BrokerTopicInfoView subTopicInfoView = new BrokerTopicInfoView();
     // broker publish topic view info
     private final BrokerTopicInfoView pubTopicInfoView = new BrokerTopicInfoView();
-
 
     public BrokerPSInfoHolder() {
 

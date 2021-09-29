@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
-
 public interface MessageSentCallback {
 
     void onMessageSent(MessageSentResult result);

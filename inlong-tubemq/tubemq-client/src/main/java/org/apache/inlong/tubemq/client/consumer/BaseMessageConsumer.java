@@ -1175,7 +1175,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         }
     }
 
-
     private ClientMaster.MasterCertificateInfo.Builder genMasterCertificateInfo(boolean force) {
         boolean needAdd = false;
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;

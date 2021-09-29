@@ -39,9 +39,6 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunMan
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
 
-
-
-
 public class WebMasterInfoHandler extends AbstractWebHandler {
 
     /**
@@ -235,7 +232,6 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, false);
     }
 
-
     /**
      * Query cluster topic overall view
      *
@@ -361,7 +357,6 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         return buildRetInfo(sBuffer, false);
     }
 
-
     /**
      * add default flow control rule
      *
@@ -465,7 +460,6 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         return buildRetInfo(sBuffer, isNewVer);
     }
-
 
     private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
         int totalCnt = 0;

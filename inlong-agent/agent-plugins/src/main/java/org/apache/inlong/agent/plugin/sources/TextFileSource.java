@@ -59,8 +59,6 @@ public class TextFileSource implements Source {
         return result;
     }
 
-
-
     private void addValidator(String filterPattern, TextFileReader textFileReader) {
         textFileReader.addPatternValidator(filterPattern);
     }

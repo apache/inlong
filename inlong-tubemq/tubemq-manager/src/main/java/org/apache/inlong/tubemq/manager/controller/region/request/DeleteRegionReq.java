@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.controller.region.request;
-
 
 import lombok.Data;
 

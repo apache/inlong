@@ -32,7 +32,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Ba
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
-
 @Deprecated
 public class WebAdminTopicAuthHandler extends AbstractWebHandler {
 

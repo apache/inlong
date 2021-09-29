@@ -21,11 +21,9 @@ import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ConsumerSamplePrint extends AbstractSamplePrint {
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumerSamplePrint.class);
-
 
     public ConsumerSamplePrint() {
         super();

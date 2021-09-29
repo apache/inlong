@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.core.job;
 
 import java.util.concurrent.atomic.AtomicBoolean;

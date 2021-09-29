@@ -245,7 +245,6 @@ public class NettyRpcServer implements ServiceRpcServer {
 
         private int protocolType = RpcProtocol.RPC_PROTOCOL_TCP;
 
-
         public NettyServerHandler(int protocolType) {
             this.protocolType = protocolType;
         }

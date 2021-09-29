@@ -252,7 +252,6 @@ public class ServiceDiscoveryUtils {
         return newestIp;
     }
 
-
     public static void updateManagerInfo2Local(String storeString, String path) {
         if (StringUtils.isBlank(storeString)) {
             log.warn("ServiceDiscovery updateTdmInfo2Local error, configMap is empty or managerIpList is blank.");

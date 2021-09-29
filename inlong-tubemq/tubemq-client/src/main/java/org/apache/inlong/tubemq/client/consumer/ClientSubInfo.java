@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class ClientSubInfo {
     private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
             new ConcurrentHashMap<>();

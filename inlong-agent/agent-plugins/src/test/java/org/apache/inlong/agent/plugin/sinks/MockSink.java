@@ -66,5 +66,4 @@ public class MockSink implements Sink {
         LOGGER.info("destroy mockSink, sink line number is : {}", number.get());
     }
 
-
 }

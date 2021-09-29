@@ -35,7 +35,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Internal utility class for ZooKeeper.
  *
@@ -106,7 +105,6 @@ public class ZKUtil {
         return idx <= 0 ? null : node.substring(0, idx);
     }
 
-
     /**
      * Check if the specified node exists. Sets no watches.
      * <p/>
@@ -132,7 +130,6 @@ public class ZKUtil {
             return -1;
         }
     }
-
 
     /**
      * Get the data at the specified znode and set a watch.
@@ -203,7 +200,6 @@ public class ZKUtil {
             return null;
         }
     }
-
 
     /**
      * Sets the data of the existing znode to be the specified data. Ensures that the current data
@@ -309,7 +305,6 @@ public class ZKUtil {
         }
     }
 
-
     /**
      * Creates the specified node with the specified data and watches it.
      * <p/>
@@ -345,7 +340,6 @@ public class ZKUtil {
             return -1;
         }
     }
-
 
     /**
      * Creates the specified node, if the node does not exist. Does not set a watch and fails
@@ -411,7 +405,6 @@ public class ZKUtil {
         }
     }
 
-
     private static void logRetrievedMsg(final ZooKeeperWatcher zkw, final String znode,
                                         final byte[] data, final boolean watcherSet) {
         if (!logger.isDebugEnabled()) {
@@ -421,7 +414,6 @@ public class ZKUtil {
                 + " byte(s) of data from znode " + znode + (watcherSet ? " and set watcher; " : "; data=")
                 + (data == null ? "null" : data.length == 0 ? "empty" : new String(data))));
     }
-
 
     /**
      * Create a persistent node.
@@ -459,7 +451,6 @@ public class ZKUtil {
     /* The APIs are nearly compatible with old tube */
     /*---------------------------------------------------------*/
     /*---------------------------------------------------------*/
-
 
     /**
      * create the parent path

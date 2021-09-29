@@ -35,7 +35,6 @@ public class TubeConst {
     public static final String RELOAD_BROKER =
             "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
 
-
     /**
      * http method type
      */
@@ -62,7 +61,6 @@ public class TubeConst {
     public static final Integer DELETE_FAIL = 0;
     public static final Long DEFAULT_REGION = 0L;
     public static final String TUBEADMIN = "tubeAdmin";
-
 
     /**
      * tube master method name
@@ -92,6 +90,5 @@ public class TubeConst {
     public static final String SCHEMA = "http://";
     public static final String WEB_API = "webapi";
     public static final String TUBE_REQUEST_PATH = "webapi.htm";
-
 
 }

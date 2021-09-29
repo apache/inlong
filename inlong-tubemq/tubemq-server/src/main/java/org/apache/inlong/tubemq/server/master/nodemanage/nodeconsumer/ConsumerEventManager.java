@@ -30,7 +30,6 @@ import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ConsumerEventManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsumerEventManager.class);

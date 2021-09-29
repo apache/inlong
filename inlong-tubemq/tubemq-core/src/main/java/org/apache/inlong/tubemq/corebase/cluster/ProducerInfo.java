@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class ProducerInfo implements Serializable {
 
     private static final long serialVersionUID = 8324918571047041166L;

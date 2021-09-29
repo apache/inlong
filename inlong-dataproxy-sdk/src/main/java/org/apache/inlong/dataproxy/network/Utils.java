@@ -33,7 +33,6 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static String userIp;
@@ -166,12 +165,10 @@ public class Utils {
         return result;
     }
 
-
     public static String getAuthorizenInfo(final String secretId, final String secretKey, long timestamp, int nonce) {
         String signature = generateSignature(secretId, timestamp, nonce, secretKey);
         return "manager " + secretId + " " + timestamp + " " + nonce + " " + signature;
     }
-
 
     public static String convertSetToString(Set<String> list, Character ch) {
         if (list == null || list.isEmpty()) {

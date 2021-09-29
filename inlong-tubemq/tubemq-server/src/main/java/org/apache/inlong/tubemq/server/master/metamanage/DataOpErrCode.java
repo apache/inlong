@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage;
 
-
 public enum DataOpErrCode {
     DERR_SUCCESS(200, "Success."),
     DERR_SUCCESS_UNCHANGED(201, "Success, but unchanged"),
@@ -36,7 +35,6 @@ public enum DataOpErrCode {
 
     private int code;
     private String description;
-
 
     DataOpErrCode(int code, String description) {
         this.code = code;

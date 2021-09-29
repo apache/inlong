@@ -31,7 +31,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 
-
 public class MasterStatusCheckFilter implements Filter {
 
     private TMaster master;

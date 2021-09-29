@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc;
 import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
 public class RequestWrapper implements Serializable {
 
     private static final long serialVersionUID = -2469749661773014443L;
@@ -32,7 +31,6 @@ public class RequestWrapper implements Serializable {
     private long timeout;
     private int methodId = TBaseConstants.META_VALUE_UNDEFINED;
     private Object requestData;
-
 
     public RequestWrapper(int serviceType, int protocolVersion,
                           int flagId, long timeout) {
@@ -51,7 +49,6 @@ public class RequestWrapper implements Serializable {
         this.flagId = flagId;
         this.timeout = timeout;
     }
-
 
     public int getFlagId() {
         return flagId;

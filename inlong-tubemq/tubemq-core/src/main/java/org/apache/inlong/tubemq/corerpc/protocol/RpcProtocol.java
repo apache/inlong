@@ -34,7 +34,6 @@ import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class RpcProtocol implements Protocol {
 
     public static final int RPC_PROTOCOL_TCP = 10;
@@ -175,6 +174,5 @@ public class RpcProtocol implements Protocol {
             logger.error("Write response error!", e);
         }
     }
-
 
 }

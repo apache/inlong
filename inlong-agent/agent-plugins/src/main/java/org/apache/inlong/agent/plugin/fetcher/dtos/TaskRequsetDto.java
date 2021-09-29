@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
 import java.util.ArrayList;

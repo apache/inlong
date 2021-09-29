@@ -32,9 +32,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
-
 public class WebParameterUtilsTest {
 
     @Test
@@ -282,7 +279,6 @@ public class WebParameterUtilsTest {
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (TopicPropGroup) result.getRetData();
-
 
     }
 

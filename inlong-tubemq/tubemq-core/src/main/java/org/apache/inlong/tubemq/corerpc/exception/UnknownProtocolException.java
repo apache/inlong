@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corerpc.exception;
 
 import java.io.IOException;
 
-
 public class UnknownProtocolException extends IOException {
     private static final long serialVersionUID = 395293249729422L;
 

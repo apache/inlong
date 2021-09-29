@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping(path = "/v1/node")
 @Slf4j
@@ -74,7 +73,6 @@ public class NodeController {
         return masterService.queryMaster(url);
     }
 
-
     /**
      * query brokers' configuration
      * this method supports batch operation
@@ -87,7 +85,6 @@ public class NodeController {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
     }
-
 
     /**
      * broker method proxy
@@ -116,7 +113,6 @@ public class NodeController {
         }
     }
 
-
     @RequestMapping(value = "/master")
     public @ResponseBody
         TubeMQResult masterMethodProxy(@RequestParam String method, @RequestBody String req) {
@@ -127,6 +123,5 @@ public class NodeController {
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
     }
-
 
 }

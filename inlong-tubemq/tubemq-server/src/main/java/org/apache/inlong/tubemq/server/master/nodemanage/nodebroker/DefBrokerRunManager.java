@@ -48,7 +48,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /*
  * Broker run manager
  */
@@ -174,7 +173,6 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
     public Tuple2<Boolean, Boolean> getBrokerPublishStatus(int brokerId) {
         return brokerPubSubInfo.getBrokerPubStatus(brokerId);
     }
-
 
     @Override
     public BrokerAbnHolder getBrokerAbnHolder() {

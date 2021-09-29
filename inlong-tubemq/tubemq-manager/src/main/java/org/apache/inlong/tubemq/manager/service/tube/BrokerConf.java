@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.manager.service.tube;
 
 import lombok.Data;
 
-
 @Data
 public class BrokerConf {
 
@@ -61,7 +60,5 @@ public class BrokerConf {
         this.deletePolicy = other.deletePolicy;
     }
 
-
 }
-
 

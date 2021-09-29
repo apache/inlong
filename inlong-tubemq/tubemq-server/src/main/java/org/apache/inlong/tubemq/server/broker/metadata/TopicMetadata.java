@@ -28,7 +28,6 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 
-
 /***
  * Topic's metadata. Contains topic name, partitions count, etc.
  */

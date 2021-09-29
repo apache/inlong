@@ -20,10 +20,8 @@ package org.apache.inlong.tubemq.server.common.utils;
 import java.io.IOException;
 import java.util.HashMap;
 
-
 public class WritableComparator {
     private static HashMap<Class, WritableComparator> comparators = new HashMap();
-
 
     public static int hashBytes(byte[] bytes, int offset, int length) {
         int hash = 1;

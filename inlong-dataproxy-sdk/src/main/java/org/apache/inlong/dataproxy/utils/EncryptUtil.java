@@ -48,7 +48,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class EncryptUtil {
     private static final Logger logger =
             LoggerFactory.getLogger(EncryptUtil.class);
@@ -58,7 +57,6 @@ public class EncryptUtil {
     public static final int MAX_DECRYPT_BLOCK = 128;
 
     public static final String DES = "DES";
-
 
     /**
      * load key
@@ -270,7 +268,6 @@ public class EncryptUtil {
 
     }
 
-
     /**
      * key encrypt
      *
@@ -373,8 +370,6 @@ public class EncryptUtil {
         }
     }
 
-
-
     /**
      * generate des key
      *
@@ -394,7 +389,6 @@ public class EncryptUtil {
         SecretKey secretKey = kg.generateKey();
         return secretKey.getEncoded();
     }
-
 
     /**
      * des encrypt
@@ -425,7 +419,6 @@ public class EncryptUtil {
             return null;
         }
     }
-
 
     /**
      * des decrypt
@@ -458,7 +451,6 @@ public class EncryptUtil {
             return null;
         }
     }
-
 
     public static void main(String[] args) {
         String plainText = "TDB-30001 Create Tdw Table Error26880 FAILED: "

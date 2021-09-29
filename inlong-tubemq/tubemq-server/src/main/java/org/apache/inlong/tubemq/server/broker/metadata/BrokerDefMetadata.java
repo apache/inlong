@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.metadata;
 
-
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
@@ -52,7 +51,6 @@ public class BrokerDefMetadata {
     private int memCacheMsgCnt = 5 * 1024;
     // the max interval(milliseconds) that topic's memory cache will flush to disk.
     private int memCacheFlushInterval = 20000;
-
 
     public BrokerDefMetadata() {
 
@@ -184,6 +182,5 @@ public class BrokerDefMetadata {
     public void setMemCacheFlushInterval(int memCacheFlushInterval) {
         this.memCacheFlushInterval = memCacheFlushInterval;
     }
-
 
 }

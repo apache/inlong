@@ -19,6 +19,5 @@ package org.apache.inlong.tubemq.server.master.web.common;
 
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 
-
 public class ClusterQueryResult extends QueryResult<ClusterGroupVO> {
 }

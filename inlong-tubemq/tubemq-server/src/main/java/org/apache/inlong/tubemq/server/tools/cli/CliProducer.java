@@ -47,7 +47,6 @@ import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class is use to process CLI Producer process.
  *
@@ -84,7 +83,6 @@ public class CliProducer extends CliAbstractBase {
     private boolean withoutDelay = false;
     private boolean isStarted = false;
     private ExecutorService sendExecutorService = null;
-
 
     public CliProducer() {
         super("tubemq-producer-test.sh");
@@ -369,6 +367,5 @@ public class CliProducer extends CliAbstractBase {
         }
 
     }
-
 
 }

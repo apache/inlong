@@ -67,7 +67,6 @@ public class AgentDynamicMBean implements DynamicMBean {
         }
     }
 
-
     private MBeanInfo metricsMetaToInfo() {
         // overwrite name, desc from MetricsMeta if not null.
         String name = this.module == null ? metricsMeta.getName() : this.module;

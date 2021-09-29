@@ -26,7 +26,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 
-
 public interface LoadBalancer {
 
     Map<String, Map<String, List<Partition>>> balanceCluster(
@@ -63,7 +62,6 @@ public interface LoadBalancer {
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
                                                       List<String> consumers);
-
 
     ConsumerInfo randomAssignment(List<ConsumerInfo> servers);
 }

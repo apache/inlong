@@ -34,7 +34,6 @@ import org.ini4j.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Basic config for master service
  */

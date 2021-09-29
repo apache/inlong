@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc.exception;
 
-
 public class TemplateNotFoundException extends Exception {
 
     public TemplateNotFoundException() {

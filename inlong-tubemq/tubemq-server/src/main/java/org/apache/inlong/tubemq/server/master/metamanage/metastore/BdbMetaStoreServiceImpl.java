@@ -86,10 +86,6 @@ import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
-
-
 public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     private static final int REP_HANDLE_RETRY_MAX = 1;
@@ -148,9 +144,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // group consume control configure
     private GroupConsumeCtrlMapper groupConsumeCtrlMapper;
 
-
-
-
     public BdbMetaStoreServiceImpl(String nodeHost, String metaDataPath,
                                    MasterReplicationConfig replicationConfig) {
         this.nodeHost = nodeHost;
@@ -166,7 +159,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         this.replicationGroupAdmin =
                 new ReplicationGroupAdmin(this.replicationConfig.getRepGroupName(), helpers);
     }
-
 
     @Override
     public void start() throws Exception {
@@ -568,7 +560,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             Set<String> topicNameSet, Set<Integer> brokerIdSet) {
         return topicDeployMapper.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
     }
-
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicDepInfoByTopicBrokerId(

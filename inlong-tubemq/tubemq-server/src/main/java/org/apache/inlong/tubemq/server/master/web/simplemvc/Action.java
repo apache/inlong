@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
-
 public interface Action {
 
     void execute(RequestContext context);

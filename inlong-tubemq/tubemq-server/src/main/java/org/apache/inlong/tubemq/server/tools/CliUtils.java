@@ -27,8 +27,6 @@ import org.apache.commons.cli.Options;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 
-
-
 public class CliUtils {
 
     public static boolean getConfigFilePath(final String[] args, ProcessResult result) {

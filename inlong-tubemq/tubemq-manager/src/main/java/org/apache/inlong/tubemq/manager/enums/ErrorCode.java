@@ -23,7 +23,6 @@ public enum ErrorCode {
     NO_SUCH_TOPIC(101, "no such topic in master"),
     TASK_EXIST(200, "task already exist");
 
-
     private Integer code;
 
     private String message;
@@ -32,7 +31,6 @@ public enum ErrorCode {
         this.code = code;
         this.message = message;
     }
-
 
     public Integer getCode() {
         return code;

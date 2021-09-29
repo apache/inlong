@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.controller.TubeMQResult.errorResult;
@@ -41,7 +40,6 @@ import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 
 @Slf4j
 @Component
@@ -100,7 +98,6 @@ public class MasterServiceImpl implements MasterService {
         return gson.toJson(defaultResult);
     }
 
-
     @Override
     public TubeMQResult baseRequestMaster(BaseReq req) {
         if (req.getClusterId() == null) {
@@ -116,7 +113,6 @@ public class MasterServiceImpl implements MasterService {
                 + ConvertUtils.convertReqToQueryStr(req);
         return requestMaster(url);
     }
-
 
     @Override
     public MasterEntry getMasterNode(BaseReq req) {
@@ -141,7 +137,6 @@ public class MasterServiceImpl implements MasterService {
         }
         return master;
     }
-
 
     @Override
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {

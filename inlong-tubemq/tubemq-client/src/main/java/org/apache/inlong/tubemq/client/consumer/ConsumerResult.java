@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
-
 public class ConsumerResult {
     private boolean success = false;
     private int errCode = TBaseConstants.META_VALUE_UNDEFINED;
@@ -33,7 +32,6 @@ public class ConsumerResult {
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
     private List<Message> messageList = new ArrayList<>();
-
 
     public ConsumerResult(int errCode, String errMsg) {
         this.success = false;

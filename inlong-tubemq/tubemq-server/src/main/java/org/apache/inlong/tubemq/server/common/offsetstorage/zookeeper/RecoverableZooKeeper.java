@@ -32,7 +32,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A zookeeper that can handle 'recoverable' errors. To handle recoverable errors, developers need
  * to realize that there are two classes of requests: idempotent and non-idempotent requests. Read

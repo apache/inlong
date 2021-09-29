@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.service.TubeConst.DEFAULT_REGION;

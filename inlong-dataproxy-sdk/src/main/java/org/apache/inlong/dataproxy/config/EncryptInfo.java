@@ -18,7 +18,6 @@
 
 package org.apache.inlong.dataproxy.config;
 
-
 public class EncryptInfo {
     private String version;
     private byte[] desKey;

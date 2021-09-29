@@ -21,7 +21,6 @@ import java.net.SocketAddress;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
 import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 
-
 public interface RequestContext {
 
     RequestWrapper getRequest();

@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
 
-
 public class BdbStoreSamplePrint extends AbstractSamplePrint {
     /**
      * Log limit class

@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
-
 @Entity
 public class BdbConsumerGroupEntity implements Serializable {
     private static final long serialVersionUID = 4395735199580415319L;

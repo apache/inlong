@@ -162,7 +162,6 @@ public class ClusterController {
         return new TubeMQResult();
     }
 
-
     /**
      * query cluster info
      */

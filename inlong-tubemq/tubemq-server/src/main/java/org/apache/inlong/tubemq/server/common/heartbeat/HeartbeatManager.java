@@ -31,7 +31,6 @@ import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class HeartbeatManager {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartbeatManager.class);

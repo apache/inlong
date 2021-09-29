@@ -70,7 +70,6 @@ public class SqlReader implements Reader {
             String.valueOf(CharUtils.LF)};
     private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
 
-
     private final String sql;
     // use statement for mysql due to compatibility
     private Statement statement;

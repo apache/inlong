@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server;
 
-
 public interface Server {
 
     void start() throws Exception;

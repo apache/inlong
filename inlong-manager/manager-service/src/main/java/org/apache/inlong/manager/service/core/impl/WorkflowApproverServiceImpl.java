@@ -163,5 +163,4 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
                 || StringUtils.equals(filterKey2ValueMap.get(filterKey), config.getFilterValue());
     }
 
-
 }

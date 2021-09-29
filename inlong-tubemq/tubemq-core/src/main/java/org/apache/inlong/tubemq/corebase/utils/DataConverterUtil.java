@@ -144,7 +144,6 @@ public class DataConverterUtil {
         return brokerInfoMap;
     }
 
-
     /*********
      * convert string info to  a map of TopicCondition TreeSet
      *
@@ -181,7 +180,6 @@ public class DataConverterUtil {
         }
         return topicConditions;
     }
-
 
     /**
      * convert a list of @link ClientBroker.TransferedMessage with topicName

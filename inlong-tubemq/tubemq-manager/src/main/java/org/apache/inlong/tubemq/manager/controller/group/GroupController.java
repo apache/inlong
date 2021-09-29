@@ -104,7 +104,6 @@ public class GroupController {
         return masterService.queryMaster(url);
     }
 
-
     @PostMapping("/offset")
     public @ResponseBody
         TubeMQResult offsetProxy(
@@ -121,7 +120,6 @@ public class GroupController {
         }
     }
 
-
     @PostMapping("/blackGroup")
     public @ResponseBody
         TubeMQResult blackGroupProxy(
@@ -135,7 +133,6 @@ public class GroupController {
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
     }
-
 
     /**
      * query the black list for certain topic
@@ -151,6 +148,5 @@ public class GroupController {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }
-
 
 }

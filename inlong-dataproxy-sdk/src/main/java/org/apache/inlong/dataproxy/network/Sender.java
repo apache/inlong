@@ -264,7 +264,6 @@ public class Sender {
         return message;
     }
 
-
     private SendResult syncSendMessageIndexInternal(NettyClient client,
         EncodeObject encodeObject, String msgUUID, long timeout,
         TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
@@ -492,7 +491,6 @@ public class Sender {
         return !needEqual;
     }
 
-
     /* Following methods used by asynchronously message sending. */
     public void asyncSendMessage(EncodeObject encodeObject,
                                  SendMessageCallback callback, String msgUUID,
@@ -690,6 +688,5 @@ public class Sender {
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
     }
-
 
 }

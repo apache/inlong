@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.exception;
 
-
 public class ServiceStoppingException extends Exception {
 
     private static final long serialVersionUID = 253790701521672986L;

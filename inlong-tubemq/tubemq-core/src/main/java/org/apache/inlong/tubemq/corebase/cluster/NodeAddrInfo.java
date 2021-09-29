@@ -21,7 +21,6 @@ import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-
 public class NodeAddrInfo implements Comparable<NodeAddrInfo>, Serializable {
 
     private static final long serialVersionUID = -1L;

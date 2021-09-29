@@ -29,7 +29,6 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbBrokerConfEntity implements Serializable {
     private static final long serialVersionUID = 3961934697293763691L;
@@ -182,7 +181,6 @@ public class BdbBrokerConfEntity implements Serializable {
     public int getDataStoreType() {
         return dataStoreType;
     }
-
 
     public void setBrokerLoaded() {
         this.isBrokerLoaded = true;

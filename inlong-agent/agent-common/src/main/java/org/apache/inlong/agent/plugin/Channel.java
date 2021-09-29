@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface Channel extends Stage {
 
-
     /**
      * write message
      *

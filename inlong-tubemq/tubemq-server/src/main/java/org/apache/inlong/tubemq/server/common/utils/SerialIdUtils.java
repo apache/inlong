@@ -19,8 +19,6 @@ package org.apache.inlong.tubemq.server.common.utils;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-
-
 public class SerialIdUtils {
 
     public static void updTimeStampSerialIdValue(final AtomicLong serialId) {

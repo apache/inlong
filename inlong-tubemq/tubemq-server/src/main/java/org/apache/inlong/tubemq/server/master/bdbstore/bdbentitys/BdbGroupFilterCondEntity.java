@@ -29,7 +29,6 @@ import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
 @Entity
 public class BdbGroupFilterCondEntity implements Serializable {
     private static final long serialVersionUID = 5305233169489425210L;

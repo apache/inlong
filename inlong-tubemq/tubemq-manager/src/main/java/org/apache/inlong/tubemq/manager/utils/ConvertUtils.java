@@ -39,7 +39,6 @@ import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupR
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 
-
 @Slf4j
 public class ConvertUtils {
 
@@ -90,7 +89,6 @@ public class ConvertUtils {
         return fieldsList;
     }
 
-
     public static RebalanceConsumerReq convertToRebalanceConsumerReq(RebalanceGroupReq req, String consumerId) {
         RebalanceConsumerReq consumerReq = new RebalanceConsumerReq();
         consumerReq.setConsumerId(consumerId);
@@ -103,7 +101,6 @@ public class ConvertUtils {
         return consumerReq;
     }
 
-
     public static String covertMapToQueryString(Map<String, String> requestMap) throws Exception {
         List<String> queryList = new ArrayList<>();
 
@@ -114,7 +111,6 @@ public class ConvertUtils {
         return StringUtils.join(queryList, "&");
     }
 
-
     public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry, MasterEntry masterEntry) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
@@ -122,6 +118,5 @@ public class ConvertUtils {
         cluster.setClusterName(clusterEntry.getClusterName());
         return cluster;
     }
-
 
 }

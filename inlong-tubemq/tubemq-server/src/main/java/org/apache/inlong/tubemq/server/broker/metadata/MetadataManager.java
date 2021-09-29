@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.metadata;
 
-
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Map;

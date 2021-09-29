@@ -141,13 +141,11 @@ public class BerkeleyDbImp implements Db {
         return primaryIndex.get(key);
     }
 
-
     @Override
     public CommandEntity getCommand(String commandId) {
         requireNonNull(commandId);
         return commandPrimaryIndex.get(commandId);
     }
-
 
     @Override
     public CommandEntity putCommand(CommandEntity entity) {

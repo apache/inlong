@@ -23,9 +23,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilter
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
-
 public class GroupConsumeCtrlEntityTest {
 
     @Test
@@ -87,9 +84,6 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(ctrlEntry2.getAttributes(), bdbEntity3.getAttributes());
         Assert.assertEquals(ctrlEntry2.getDisableReason(), bdbEntity3.getDisableConsumeReason());
         Assert.assertEquals(ctrlEntry2.getRecordKey(), bdbEntity3.getRecordKey());
-
-
-
 
     }
 

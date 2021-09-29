@@ -35,7 +35,6 @@ public class GroupCountService extends AbstractDaemonService implements CountSer
     private final CountSet[] countSets = new CountSet[2];
     private AtomicInteger index = new AtomicInteger(0);
 
-
     public GroupCountService(String logFileName, String countType, long scanIntervalMs) {
         super(logFileName, scanIntervalMs);
         this.cntHdr = countType;

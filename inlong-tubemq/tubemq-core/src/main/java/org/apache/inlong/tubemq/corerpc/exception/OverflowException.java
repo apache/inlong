@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.exception;
 
-
 public class OverflowException extends RuntimeException {
 
     private static final long serialVersionUID = 457644321965437488L;

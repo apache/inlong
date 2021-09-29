@@ -26,7 +26,6 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-
 public class ConfigFileParser {
     private static final String ROOT_ELEMENT = "simpleMVConfig";
     private static final String DEFAULT_PAGE = "default-page";

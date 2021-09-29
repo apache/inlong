@@ -40,7 +40,6 @@ public abstract class AbstractStateWrapper implements Runnable {
      */
     public abstract void addCallbacks();
 
-
     public AbstractStateWrapper addCallback(State begin, State end, StateCallback callback) {
         callBacks.put(new ImmutablePair<>(begin, end), callback);
         return this;

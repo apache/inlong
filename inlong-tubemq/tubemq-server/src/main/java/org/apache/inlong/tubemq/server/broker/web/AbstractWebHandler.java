@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.WebApiRegInfo;
 
-
-
 public abstract class AbstractWebHandler extends HttpServlet {
 
     protected final TubeBroker broker;

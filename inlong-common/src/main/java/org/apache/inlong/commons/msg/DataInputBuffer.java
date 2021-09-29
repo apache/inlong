@@ -17,7 +17,6 @@
 
 package org.apache.inlong.commons.msg;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 

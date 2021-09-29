@@ -37,7 +37,6 @@ public class ProtocolDecoder extends FrameDecoder {
                             ChannelBuffer buffer) throws Exception {
         //        if(!channel.isConnected()||channel.isReadable()){return null;}
 
-
         buffer.markReaderIndex();
         // totallen
         int totalLen = buffer.readInt();
@@ -99,7 +98,6 @@ public class ProtocolDecoder extends FrameDecoder {
                 byte[] attrContent = new byte[attrLen];
                 buffer.readBytes(attrContent);
             }
-
 
             buffer.readShort();
 

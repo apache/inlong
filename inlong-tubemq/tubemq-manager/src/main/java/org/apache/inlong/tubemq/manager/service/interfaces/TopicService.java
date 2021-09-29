@@ -73,7 +73,6 @@ public interface TopicService {
      */
     TubeMQResult deleteOffset(DeleteOffsetReq req);
 
-
     /**
      * query offset given topic and group name
      *

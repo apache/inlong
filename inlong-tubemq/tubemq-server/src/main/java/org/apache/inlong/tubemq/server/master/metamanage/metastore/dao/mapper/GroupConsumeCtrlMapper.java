@@ -23,8 +23,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
-
-
 public interface GroupConsumeCtrlMapper extends AbstractMapper {
 
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity, ProcessResult result);

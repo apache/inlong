@@ -21,7 +21,6 @@ import org.apache.inlong.tubemq.client.producer.ProducerManager;
 import org.apache.inlong.tubemq.client.producer.qltystats.DefaultBrokerRcvQltyStats;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 
-
 public interface InnerSessionFactory extends MessageSessionFactory {
 
     RpcServiceFactory getRpcServiceFactory();

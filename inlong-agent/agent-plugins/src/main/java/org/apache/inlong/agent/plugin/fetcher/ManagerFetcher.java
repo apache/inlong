@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.plugin.fetcher;
-
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constants.AgentConstants.AGENT_HOME;
@@ -105,8 +103,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private final HttpManager httpManager;
     private String localIp;
 
-
-
     private CommandDb commandDb;
 
     private boolean requiredKeys(AgentConfiguration conf) {
@@ -140,8 +136,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         }
     }
 
-
-
     /**
      * for manager to get job profiles
      * @return -  job profile list
@@ -165,7 +159,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         }
         localFileCache.writeToCache(String.join(",", managerIpList));
     }
-
 
     /**
      * request manager to get commands, make sure it not throwing exceptions
@@ -312,14 +305,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         commandDb.saveNormalCmds(triggerProfile, success);
     }
 
-
     /**
      * check agent ip from manager
      */
     private void fetchLocalIp() {
         localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
     }
-
 
     /**
      * confirm local ips from manager
@@ -335,7 +326,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         }
         return resultData.get(AGENT_MANAGER_RETURN_PARAM_IP).getAsString();
     }
-
 
     /**
      * fetch manager list, make sure it not throwing exceptions
@@ -360,7 +350,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             fetchTdmList(false, retryTime + 1);
         }
     }
-
 
     /**
      * thread for profile fetcher.

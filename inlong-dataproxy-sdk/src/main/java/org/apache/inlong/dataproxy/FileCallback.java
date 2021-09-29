@@ -22,7 +22,6 @@ package org.apache.inlong.dataproxy;
  * Created by jesseyzhou on 2018/6/5.
  */
 
-
 public abstract class FileCallback implements SendMessageCallback {
     /* Invoked when a message is confirmed by TDBus. */
     public void onMessageAck(String result) {

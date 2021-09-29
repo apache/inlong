@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 
-
 public interface KeepAlive {
 
     boolean isMasterNow();

@@ -91,7 +91,6 @@ public class DataStoreUtils {
     public static final String DATA_FILE_SUFFIX = ".tube";
     public static final String INDEX_FILE_SUFFIX = ".index";
 
-
     public static int getInt(final int offset, final byte[] data) {
         return ByteBuffer.wrap(data, offset, 4).getInt();
     }

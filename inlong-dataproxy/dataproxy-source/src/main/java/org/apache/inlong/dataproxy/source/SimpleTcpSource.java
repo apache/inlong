@@ -67,7 +67,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     private static long propsLastModified;
     private static final String CONNECTIONS = "connections";
 
-
     protected int maxConnections = Integer.MAX_VALUE;
     private ServerBootstrap serverBootstrap = null;
     protected ChannelGroup allChannels;
@@ -156,7 +155,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         return arrayList;
     }
 
-
     private class CheckBlackListThread extends Thread {
         private boolean shutdown = false;
 
@@ -233,7 +231,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
             fac = (ChannelPipelineFactory) ctor.newInstance(getChannelProcessor(), allChannels,
                     "tcp", serviceDecoder, messageHandlerName,
                     maxMsgLength, topic, attr, filterEmptyMsg, maxConnections, isCompressed, this.getName());
-
 
         } catch (Exception e) {
             logger.error("Simple Tcp Source start error, fail to construct ChannelPipelineFactory with name {}, ex {}",
@@ -342,7 +339,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
 
         filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
-
 
         msgFactoryName =
                 context.getString(ConfigConstants.MSG_FACTORY_NAME,

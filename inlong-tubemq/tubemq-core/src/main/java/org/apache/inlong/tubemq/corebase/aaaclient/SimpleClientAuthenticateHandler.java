@@ -23,7 +23,6 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-
 public class SimpleClientAuthenticateHandler implements ClientAuthenticateHandler {
 
     public SimpleClientAuthenticateHandler() {

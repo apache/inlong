@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.tubemq.manager.controller.topic;
 
 import com.google.gson.Gson;
@@ -48,7 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TopicWebController {
 
-
     @Autowired
     private NodeService nodeService;
 
@@ -59,7 +57,6 @@ public class TopicWebController {
 
     @Autowired
     private TopicService topicService;
-
 
     /**
      * broker method proxy

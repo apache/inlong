@@ -150,7 +150,6 @@ public class JobProfileDb {
         return null;
     }
 
-
     /**
      * get job reading specific file
      * @param fileName

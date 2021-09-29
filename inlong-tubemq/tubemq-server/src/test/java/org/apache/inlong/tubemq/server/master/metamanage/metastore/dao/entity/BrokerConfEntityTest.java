@@ -23,9 +23,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfE
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
-
 public class BrokerConfEntityTest {
 
     @Test
@@ -191,7 +188,6 @@ public class BrokerConfEntityTest {
                 confEntity31.buildBdbBrokerConfEntity();
         BrokerConfEntity confEntity32 = new BrokerConfEntity(bdbEntry3);
         Assert.assertTrue(confEntity32.isDataEquals(confEntity31));
-
 
     }
 

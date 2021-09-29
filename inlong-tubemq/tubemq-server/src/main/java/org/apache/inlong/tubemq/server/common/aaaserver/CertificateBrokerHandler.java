@@ -21,7 +21,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 
-
 public interface CertificateBrokerHandler {
 
     void configure(ClientMaster.EnableBrokerFunInfo enableFunInfo);
@@ -33,7 +32,6 @@ public interface CertificateBrokerHandler {
 
     CertifiedResult validProduceAuthorizeInfo(String userName, String topicName,
                                               String msgType, String clientIp);
-
 
     CertifiedResult validConsumeAuthorizeInfo(String userName, String groupName,
                                               String topicName, Set<String> msgTypeLst,

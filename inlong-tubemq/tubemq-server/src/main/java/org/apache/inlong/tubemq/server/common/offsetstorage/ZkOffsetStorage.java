@@ -35,8 +35,6 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * A offset storage implementation with zookeeper
  */
@@ -69,7 +67,6 @@ public class ZkOffsetStorage implements OffsetStorage {
     private final String strBrokerId;
     private ZKConfig zkConfig;
     private ZooKeeperWatcher zkw;
-
 
     public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;

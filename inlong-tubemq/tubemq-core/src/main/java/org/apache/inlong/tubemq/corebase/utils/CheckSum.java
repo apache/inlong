@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 import java.util.zip.CRC32;
 
-
 public class CheckSum {
     public static final int crc32(byte[] array) {
         return crc32(array, 0, array.length);

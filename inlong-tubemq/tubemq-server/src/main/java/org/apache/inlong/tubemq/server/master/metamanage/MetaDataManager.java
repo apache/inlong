@@ -67,8 +67,6 @@ import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public class MetaDataManager implements Server {
 
     private static final Logger logger =
@@ -84,8 +82,6 @@ public class MetaDataManager implements Server {
     private volatile boolean isStopped = false;
     private MetaStoreService metaStoreService;
     private long serviceStartTime = System.currentTimeMillis();
-
-
 
     public MetaDataManager(TMaster tMaster) {
         this.tMaster = tMaster;
@@ -323,7 +319,6 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-
     private boolean checkFilterRstrTopics(final String groupName, final String consumerId,
                                           Set<String> enableFltCsmTopicSet,
                                           Map<String, TreeSet<String>> reqTopicCondMap,
@@ -385,7 +380,6 @@ public class MetaDataManager implements Server {
         result.setSuccResult("Ok!");
         return result.isSuccess();
     }
-
 
     // ///////////////////////////////////////////////////////////////////////////////
 
@@ -858,8 +852,6 @@ public class MetaDataManager implements Server {
         return result.isSuccess();
     }
 
-
-
     /**
      * Find the broker and delete all topic info in the broker
      *
@@ -919,7 +911,6 @@ public class MetaDataManager implements Server {
     public Set<String> getTotalConfiguredTopicNames() {
         return metaStoreService.getConfiguredTopicSet();
     }
-
 
     public BrokerConfEntity getBrokerConfByBrokerId(int brokerId) {
         return metaStoreService.getBrokerConfByBrokerId(brokerId);
@@ -1555,8 +1546,6 @@ public class MetaDataManager implements Server {
         return metaStoreService.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
-
-
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -2019,6 +2008,5 @@ public class MetaDataManager implements Server {
     }
 
     // //////////////////////////////////////////////////////////////////////////////
-
 
 }

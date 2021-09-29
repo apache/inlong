@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.statusdef;
 
-
 /*
  * The step status of broker operation
  */
@@ -34,9 +33,6 @@ public enum StepStatus {
     private String description;
     private long normalDelayDurIdnMs;
     private long shortDelayDurIdnMs;
-
-
-
 
     StepStatus(int code, String description,
                long normalDelayDurIdnMs, long shortDelayDurIdnMs) {

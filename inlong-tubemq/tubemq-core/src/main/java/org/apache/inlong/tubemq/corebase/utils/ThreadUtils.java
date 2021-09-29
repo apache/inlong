@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Thread Utility
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>

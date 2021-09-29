@@ -19,8 +19,6 @@ package org.apache.inlong.tubemq.server.broker.utils;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-
-
 public class TopicPubStoreInfo {
 
     public String topicName = null;

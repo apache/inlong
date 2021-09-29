@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
 import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;

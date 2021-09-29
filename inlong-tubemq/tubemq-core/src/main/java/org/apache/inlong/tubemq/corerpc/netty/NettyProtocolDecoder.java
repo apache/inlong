@@ -32,7 +32,6 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class NettyProtocolDecoder extends FrameDecoder {
     private static final Logger logger =
             LoggerFactory.getLogger(NettyProtocolDecoder.class);
@@ -116,7 +115,6 @@ public class NettyProtocolDecoder extends FrameDecoder {
                     .append(channel.getRemoteAddress().toString()).toString());
         }
     }
-
 
     private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
                                           int allowSize, Channel channel) throws UnknownProtocolException {

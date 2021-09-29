@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.corebase.cluster;
 
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class SubscribeInfo {
 
     private String consumerId;
@@ -27,7 +26,6 @@ public class SubscribeInfo {
     private Partition partition;
     private boolean overTLS = false;
     private String fullInfo;
-
 
     public SubscribeInfo(String strSubInfo) {
         String strConsumerInfo = strSubInfo.split(TokenConstants.SEGMENT_SEP)[0];

@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
-
 @Slf4j
 @Component
 public class RegionServiceImpl implements RegionService {
@@ -148,7 +147,6 @@ public class RegionServiceImpl implements RegionService {
                 .findRegionEntriesByClusterIdEqualsAndRegionIdEquals(clusterId, regionId);
     }
 
-
     private boolean existBrokerIdAlreadyInRegion(Long clusterId, List<Long> newBrokerIdList, Long regionId) {
         if (ValidateUtils.isNull(clusterId) || ValidateUtils.isEmptyList(newBrokerIdList)) {
             return true;
@@ -171,6 +169,5 @@ public class RegionServiceImpl implements RegionService {
         }
         return false;
     }
-
 
 }

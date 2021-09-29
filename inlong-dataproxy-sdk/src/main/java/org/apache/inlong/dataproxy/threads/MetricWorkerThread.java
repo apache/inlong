@@ -43,15 +43,11 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
     private final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
 
-
     private final ConcurrentHashMap<String, MessageRecord> metricValueCache = new ConcurrentHashMap<>();
-
 
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricPackTimeMap = new ConcurrentHashMap<>();
 
-
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap = new ConcurrentHashMap<>();
-
 
     private static final String DEFAULT_KEY_ITEM = "";
     private static final String DEFAULT_KEY_SPLITTER = "#";
@@ -144,7 +140,6 @@ public class MetricWorkerThread extends Thread implements Closeable {
             String dtKeyName = getKeyStringByConfig(messageRecord.getBid(), messageRecord.getTid(),
                     messageRecord.getLocalIp(), messageRecord.getDt());
 
-
             MetricTimeNumSummary packTimeSummary = getMetricSummary(packTimeKeyName,
                     new MetricTimeNumSummary(messageRecord.getPackTime()), metricPackTimeMap);
 
@@ -169,7 +164,6 @@ public class MetricWorkerThread extends Thread implements Closeable {
                     messageRecord.getLocalIp(), messageRecord.getPackTime());
             String dtKeyName = getKeyStringByConfig(messageRecord.getBid(), messageRecord.getTid(),
                     messageRecord.getLocalIp(), messageRecord.getDt());
-
 
             MetricTimeNumSummary packTimeSummary = getMetricSummary(packTimeKeyName,
                     new MetricTimeNumSummary(messageRecord.getMessageTime()), metricPackTimeMap);

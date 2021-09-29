@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
-
-
 public enum RegexDef {
 
     TMP_FILTER(0, "^[_A-Za-z0-9]+$",
@@ -34,11 +32,9 @@ public enum RegexDef {
             "((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))",
             "must matches the IP V4 address regulation");
 
-
     private final int id;
     private final String pattern;
     private final String errMsgTemp;
-
 
     RegexDef(int id, String pattern, String errMsgTemp) {
         this.id = id;

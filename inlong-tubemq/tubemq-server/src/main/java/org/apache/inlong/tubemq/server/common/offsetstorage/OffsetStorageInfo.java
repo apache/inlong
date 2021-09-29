@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 
-
 public class OffsetStorageInfo implements Serializable {
 
     private static final long serialVersionUID = -4232003748320500757L;

@@ -36,7 +36,6 @@ public interface WorkflowEngine {
      */
     ProcessService processService();
 
-
     /**
      * Obtain task processing services
      *

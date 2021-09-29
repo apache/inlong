@@ -18,7 +18,6 @@
 
 package org.apache.inlong.dataproxy.config;
 
-
 public class HostInfo implements Comparable<HostInfo>, java.io.Serializable {
     private final String referenceName;
     private final String hostName;

@@ -50,7 +50,6 @@ public class DataBaseSource implements Source {
         return null;
     }
 
-
     /**
      * Use SQL or binlog to read data.
      *

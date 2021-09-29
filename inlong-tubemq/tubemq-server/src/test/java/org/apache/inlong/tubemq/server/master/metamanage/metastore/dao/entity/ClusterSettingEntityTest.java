@@ -26,8 +26,6 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSett
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 public class ClusterSettingEntityTest {
 
     @Test

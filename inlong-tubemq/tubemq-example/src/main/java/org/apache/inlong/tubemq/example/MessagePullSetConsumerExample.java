@@ -38,7 +38,6 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This demo shows how to reset offset on consuming. The main difference from {@link MessagePullConsumerExample}
  * is that we call {@link PullMessageConsumer#completeSubscribe(String, int, boolean, Map)} instead of
@@ -186,5 +185,4 @@ public final class MessagePullSetConsumerExample {
         return messagePullConsumer.getCurConsumedPartitions();
     }
 }
-
 

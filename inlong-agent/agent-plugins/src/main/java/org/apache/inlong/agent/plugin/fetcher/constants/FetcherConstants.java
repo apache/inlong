@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.agent.plugin.fetcher.constants;
 
 public class FetcherConstants {

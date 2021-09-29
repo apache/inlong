@@ -25,7 +25,6 @@ import org.apache.commons.cli.Options;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 
-
 public abstract class CliAbstractBase {
 
     protected final String commandName;
@@ -67,9 +66,7 @@ public abstract class CliAbstractBase {
         options.addOption(option);
     }
 
-
     protected abstract void initCommandOptions();
-
 
     public abstract boolean processParams(String[] args) throws Exception;
 

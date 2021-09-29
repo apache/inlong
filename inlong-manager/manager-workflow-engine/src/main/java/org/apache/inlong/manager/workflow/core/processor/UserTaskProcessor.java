@@ -199,7 +199,6 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         return JsonUtils.toJson(extMap);
     }
 
-
     private TaskState toTaskState(Action action) {
         switch (action) {
             case APPROVE:

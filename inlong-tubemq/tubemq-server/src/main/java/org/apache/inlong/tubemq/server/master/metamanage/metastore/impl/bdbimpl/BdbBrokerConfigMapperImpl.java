@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-
 import com.sleepycat.je.rep.ReplicatedEnvironment;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
@@ -38,8 +37,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.BrokerConfigMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
@@ -357,7 +354,6 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         }
         return true;
     }
-
 
     private void delCacheRecord(int brokerId) {
         BrokerConfEntity curEntity =

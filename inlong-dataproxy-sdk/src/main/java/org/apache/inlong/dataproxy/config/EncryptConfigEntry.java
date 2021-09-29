@@ -39,7 +39,6 @@ public class EncryptConfigEntry implements java.io.Serializable {
     private String rsaEncryptedKey;
     private AtomicLong lastUpdateTime = new AtomicLong(0);
 
-
     public EncryptConfigEntry(final String userName, final String version, final String pubKey) {
         this.userName = userName;
         this.version = version;
@@ -86,7 +85,6 @@ public class EncryptConfigEntry implements java.io.Serializable {
         }
         return rsaEncryptedKey;
     }
-
 
     public EncryptInfo getRsaEncryptInfo() {
         EncryptInfo encryptInfo = null;

@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.client.producer.qltystats;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
-
 public class BrokerStatsItemSet {
 
     private AtomicLong sendNum = new AtomicLong();

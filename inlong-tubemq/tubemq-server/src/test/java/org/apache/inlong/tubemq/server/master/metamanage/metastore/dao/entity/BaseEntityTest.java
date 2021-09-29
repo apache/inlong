@@ -24,8 +24,6 @@ import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 public class BaseEntityTest {
 
     @Test

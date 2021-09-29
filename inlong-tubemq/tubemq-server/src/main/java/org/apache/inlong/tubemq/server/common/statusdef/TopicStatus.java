@@ -30,7 +30,6 @@ public enum TopicStatus {
     private int code;
     private String description;
 
-
     TopicStatus(int code, String description) {
         this.code = code;
         this.description = description;

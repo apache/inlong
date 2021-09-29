@@ -26,8 +26,6 @@ import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
-
-
 /*
  * store the cluster default setting
  *
@@ -51,8 +49,6 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     private int gloFlowCtrlRuleCnt = TBaseConstants.META_VALUE_UNDEFINED;
     // flow control info
     private String gloFlowCtrlRuleInfo = "";
-
-
 
     public ClusterSettingEntity() {
         super();

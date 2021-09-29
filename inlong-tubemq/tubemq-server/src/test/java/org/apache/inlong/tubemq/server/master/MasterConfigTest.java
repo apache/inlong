@@ -24,7 +24,6 @@ import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 public class MasterConfigTest {
     @Test
     public void loadFileSectAttributes() {

@@ -17,10 +17,8 @@
 
 package org.apache.inlong.tubemq.client.common;
 
-
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
-
 
 public class PeerInfo {
     private int partitionId = TBaseConstants.META_VALUE_UNDEFINED;

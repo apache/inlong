@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 
-
 public class WebConfig {
 
     private final HashMap<String, Object> tools = new HashMap<>();

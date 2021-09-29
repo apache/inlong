@@ -29,7 +29,6 @@ import org.apache.inlong.tubemq.corebase.Shutdownable;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.netty.NettyClientFactory;
 
-
 public class TubeMultiSessionFactory implements MessageSessionFactory {
 
     private final NettyClientFactory clientFactory = new NettyClientFactory();

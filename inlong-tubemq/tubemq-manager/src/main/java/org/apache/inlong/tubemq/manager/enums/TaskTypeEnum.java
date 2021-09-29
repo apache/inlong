@@ -29,7 +29,6 @@ public enum TaskTypeEnum {
         this.typeName = typeName;
     }
 
-
     public Integer getTaskType() {
         return taskType;
     }
