@@ -66,6 +66,14 @@
         <knife4j.version>2.0.5</knife4j.version>
         <swagger.version>3.0.0</swagger.version>
         <swagger-annotations.version>1.6.2</swagger-annotations.version>
+
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<checkstyle.version>6.19</checkstyle.version>
+		<project.build.encoding>UTF-8</project.build.encoding>
+		<plugin.compile.version>3.8.1</plugin.compile.version>
+		<dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+		<docker.organization>inlong</docker.organization>
     </properties>
 
     <dependencies>
@@ -342,4 +350,25 @@
             </snapshots>
         </repository>
     </repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>${project.build.encoding}</encoding>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+				<version>${plugin.compile.version}</version>
+			</plugin>
+		</plugins>
+	</build>
 </project>

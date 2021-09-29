@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.business.BusinessPageRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 import org.springframework.stereotype.Repository;
 
 @Repository

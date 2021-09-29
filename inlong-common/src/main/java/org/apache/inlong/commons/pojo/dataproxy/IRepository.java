@@ -1,10 +1,10 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,17 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
-
-import lombok.Data;
+package org.apache.inlong.commons.pojo.dataproxy;
 
 /**
- * DataProxy config
+ * IRepository
  */
-@Data
-public class DataProxyConfig {
+public interface IRepository {
+    public static final long DEFAULT_HEARTBEAT_INTERVAL_MS = 60000;
+    public static final String SEPARATOR = "&";
+    public static final String KEY_VALUE_SEPARATOR = "=";
 
-    private String topic;
-    private String m;
-    private String bid;
+    void reload();
 }

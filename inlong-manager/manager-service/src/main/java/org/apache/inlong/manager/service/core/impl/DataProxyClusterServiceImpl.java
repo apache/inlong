@@ -17,35 +17,42 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
+import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
+import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -62,6 +69,8 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     private SourceFileDetailEntityMapper sourceFileDetailMapper;
     @Autowired
     private BusinessEntityMapper businessEntityMapper;
+    @Autowired
+    private DataProxyConfigRepository proxyRepository;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -104,9 +113,10 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<DataProxyClusterEntity> entityPage = (Page<DataProxyClusterEntity>) dataProxyClusterMapper
                 .selectByCondition(request);
-        List<DataProxyClusterInfo> clusterList = CommonBeanUtils
-                .copyListProperties(entityPage, DataProxyClusterInfo::new);
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
+        List<DataProxyClusterInfo> clusterList = CommonBeanUtils.copyListProperties(entityPage,
+                DataProxyClusterInfo::new);
+        // Encapsulate the paging query results into the PageInfo object to obtain
+        // related paging information
         PageInfo<DataProxyClusterInfo> page = new PageInfo<>(clusterList);
         page.setTotal(entityPage.getTotal());
 
@@ -208,4 +218,42 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
         return configList;
     }
+
+    /**
+     * query data proxy config by cluster id
+     * 
+     * @param clusterName
+     * @param setName
+     * @param md5
+     * @return data proxy config
+     */
+    public String getAllConfig(String clusterName, String setName, String md5) {
+        DataProxyClusterSet setObj = proxyRepository.getDataProxyClusterSet(setName);
+        if (setObj == null) {
+            return this.getErrorAllConfig();
+        }
+        String configMd5 = setObj.getMd5Map().get(clusterName);
+        if (configMd5 == null || !configMd5.equals(md5)) {
+            return this.getErrorAllConfig();
+        }
+        String configJson = setObj.getProxyConfigJson().get(clusterName);
+        if (configJson == null) {
+            return this.getErrorAllConfig();
+        }
+        return configJson;
+    }
+
+    /**
+     * getErrorAllConfig
+     * 
+     * @return
+     */
+    private String getErrorAllConfig() {
+        DataProxyConfigResponse response = new DataProxyConfigResponse();
+        response.setResult(false);
+        response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
+        Gson gson = new Gson();
+        return gson.toJson(response);
+    }
+
 }
