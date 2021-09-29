@@ -21,6 +21,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <packaging>pom</packaging>
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>23</version>
+  </parent>
+
   <groupId>org.apache.inlong</groupId>
   <artifactId>inlong</artifactId>
   <version>0.11.0-incubating-SNAPSHOT</version>
@@ -79,8 +85,14 @@
 
   <modules>
     <module>inlong-common</module>
+    <module>inlong-tubemq</module>
     <module>inlong-dataproxy</module>
+    <module>inlong-dataproxy-sdk</module>
+    <module>inlong-agent</module>
     <module>inlong-manager</module>
+    <module>inlong-sort</module>
+    <module>inlong-website</module>
+    <module>inlong-distribution</module>
   </modules>
 
   <properties>
@@ -142,6 +154,99 @@
         <version>2.0.0</version>
         <configuration>
           <!-- here add configures -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <consoleOutput>true</consoleOutput>
+          <excludeSubProjects>false</excludeSubProjects>
+          <numUnapprovedLicenses>0</numUnapprovedLicenses>
+          <licenses>
+            <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+              <licenseFamilyCategory>AL2</licenseFamilyCategory>
+              <licenseFamilyName>Apache License 2.0</licenseFamilyName>
+              <notes/>
+              <patterns>
+                <pattern>Licensed to the Apache Software Foundation (ASF) under one </pattern>
+              </patterns>
+            </license>
+          </licenses>
+          <licenseFamilies>
+            <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+              <familyName>Apache License 2.0</familyName>
+            </licenseFamily>
+          </licenseFamilies>
+          <excludes>
+            <!-- Exclude license copies -->
+            <exclude>licenses/**</exclude>
+
+            <!-- Generated content -->
+            <exclude>LICENSE</exclude>
+            <exclude>NOTICE</exclude>
+            <exclude>DISCLAIMER-WIP</exclude>
+            <exclude>codestyle/checkstyle.xml</exclude>
+
+            <!-- Documents -->
+            <exclude>**/*.md</exclude>
+            <exclude>**/*.MD</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.json</exclude>
+            <exclude>**/docs/**</exclude>
+            <exclude>**/*.csv</exclude>
+            <exclude>**/logs/**</exclude>
+            <exclude>**/*.log</exclude>
+
+            <!-- Web configure files -->
+            <exclude>**/.env</exclude>
+            <exclude>**/.env.production</exclude>
+            <exclude>**/.eslintignore</exclude>
+            <exclude>**/.eslintrc</exclude>
+            <exclude>**/.headerignore</exclude>
+            <exclude>**/.prettierrc</exclude>
+            <exclude>**/.stylelintrc</exclude>
+            <exclude>**/build/**</exclude>
+            <exclude>**/node_modules/**</exclude>
+
+            <!-- Github -->
+            <exclude>**/.github/**</exclude>
+
+            <!-- Intellij IDEA -->
+            <exclude>**/*.iml</exclude>
+            <exclude>**/.idea/**</exclude>
+
+            <!-- Git files -->
+            <exclude>**/.gitignore</exclude>
+            <exclude>**/.gitmodules</exclude>
+            <exclude>**/.git/**</exclude>
+
+            <!-- Build targets -->
+            <exclude>**/target/**</exclude>
+            <exclude>**/out/**</exclude>
+            <exclude>**/dist/**</exclude>
+
+            <!-- Test case : certificates used in test cases -->
+            <exclude>**/tubemq-core/src/test/resources/*.keystore</exclude>
+            <!-- Test case : temporary data for test cases -->
+            <exclude>**/AgentBaseTestsHelper/**</exclude>
+
+            <!-- Referenced 3rd codes -->
+            <exclude>**/resources/assets/lib/**</exclude>
+            <exclude>**/resources/assets/public/**</exclude>
+            <exclude>**/tubemq-client-cpp/src/any.h</exclude>
+            <exclude>**/tubemq-client-cpp/src/buffer.h</exclude>
+            <exclude>**/tubemq-client-cpp/third_party/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
