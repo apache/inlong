@@ -146,3 +146,17 @@ func IsValidFilterItem(s string) (bool, error) {
 	}
 	return true, nil
 }
+
+// Join returns the joined result of a map.
+func Join(m map[string]string, step1 string, step2 string) string {
+	cnt := 0
+	s := ""
+	for k, v := range m {
+		if cnt > 0 {
+			s += step1
+		}
+		s += k + step2 + v
+		cnt++
+	}
+	return s
+}

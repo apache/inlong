@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/tdmsg"
 )
 
 var lastPrintTime int64
@@ -74,7 +75,8 @@ func main() {
 					log.Errorf("Go routine %d, Confirm error %s", i, err.Error())
 					continue
 				}
-				reportMsg(int64(len(cr.Messages)))
+				//parseRawTypeMsg(int64(len(cr.Messages)))
+				parseTDMsgTypeMsg(cr.Messages)
 			}
 			log.Infof("Go routine %d finished", i)
 		}(i)
@@ -83,7 +85,7 @@ func main() {
 	c.Close()
 }
 
-func reportMsg(cnt int64) {
+func parseRawTypeMsg(cnt int64) {
 	lastTime := atomic.LoadInt64(&lastPrintTime)
 	atomic.AddInt64(&lastMsgCount, cnt)
 	curCount := atomic.LoadInt64(&lastMsgCount)
@@ -92,5 +94,29 @@ func reportMsg(cnt int64) {
 		atomic.StoreInt64(&lastPrintTime, curTime)
 		log.Infof("Current time %d Current message count=%d", curTime, atomic.LoadInt64(&lastMsgCount))
 		atomic.StoreInt64(&lastPrintCount, curCount)
+	}
+}
+
+func parseTDMsgTypeMsg(messages []*client.Message) {
+	for _, message := range messages {
+		log.Infof("Message id is %d, topic is %s", message.ID, message.Topic)
+		msg, err := tdmsg.New(message.Data)
+		if err != nil {
+			log.Errorf("fail to parse td msg")
+			break
+		}
+		for attr, items := range msg.Attr2Data {
+			if attrs, err := msg.ParseAttrValue(attr); err != nil {
+				log.Errorf("parse attribute error, attr is %s, reason is %s", attr, err.Error())
+			} else {
+				log.Infof("parsed attrs %v", attrs)
+				for k, v := range attrs {
+					log.Infof("key is %s, value is %s", k, v)
+				}
+			}
+			for _, item := range items {
+				log.Infof("parsed msg data %v", item)
+			}
+		}
 	}
 }

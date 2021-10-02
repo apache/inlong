@@ -42,7 +42,9 @@ const (
 	// RetInvalidSubscribeInfoString represents the subscribeInfo string is invalid.
 	RetInvalidSubscribeInfoString = 9
 	// RetInvalidConfig represents the config setting is invalid.
-	RetInvalidConfig           = 10
+	RetInvalidConfig = 10
+	// RetTDMsgParseFailure represents the error code of td msg parse error.
+	RetTDMsgParseFailure       = 11
 	RetSuccess                 = 200
 	RetErrMoved                = 301
 	RetBadRequest              = 400
