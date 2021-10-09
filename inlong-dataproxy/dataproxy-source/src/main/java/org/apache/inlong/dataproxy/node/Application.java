@@ -51,7 +51,7 @@ import org.apache.flume.node.PollingZooKeeperConfigurationProvider;
 import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
-import org.apache.inlong.commons.pojo.dataproxy.IDataProxyConfigHolder;
+import org.apache.inlong.commons.config.IDataProxyConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.slf4j.Logger;

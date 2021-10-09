@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.commons.pojo.dataproxy;
+package org.apache.inlong.commons.config;
 
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyCluster;
 
 /**
  * 
