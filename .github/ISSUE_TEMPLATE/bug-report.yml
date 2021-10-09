@@ -39,41 +39,41 @@ body:
       required: true
 
   - type: textarea
-      attributes:
-        label: What you expected to happen
-        description: What do you think went wrong?
-        placeholder: >
-          Please explain why you think the behaviour is erroneous. It is extremely helpful if you copy and paste
-          the fragment of logs showing the exact error messages or wrong behaviour and screenshots for
-          UI problems. You can include files by dragging and dropping them here.
-      validations:
-        required: true
+    attributes:
+      label: What you expected to happen
+      description: What do you think went wrong?
+      placeholder: >
+        Please explain why you think the behaviour is erroneous. It is extremely helpful if you copy and paste
+        the fragment of logs showing the exact error messages or wrong behaviour and screenshots for
+        UI problems. You can include files by dragging and dropping them here.
+    validations:
+      required: true
 
   - type: textarea
-      attributes:
-        label: How to reproduce
-        description: >
-          What should we do to reproduce the problem?
-        placeholder: >
-          Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
-          as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
-          Remember that non-reproducible issues will be closed! Opening a discussion is recommended as a
-          first step.
-      validations:
-        required: true
+    attributes:
+      label: How to reproduce
+      description: >
+        What should we do to reproduce the problem?
+      placeholder: >
+        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
+        as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
+        Remember that non-reproducible issues will be closed! Opening a discussion is recommended as a
+        first step.
+    validations:
+      required: true
 
   - type: dropdown
-      attributes:
-        label: InLong version
-        description: |
-          Which version of Apache InLong are you using?
-        multiple: false
-        options:
-          - '0.9.0'
-          - '0.10.0 RC0'
-          - '0.10.0 RC1'
-      validations:
-        required: true
+    attributes:
+      label: InLong version
+      description: |
+        Which version of Apache InLong are you using?
+      multiple: false
+      options:
+        - '0.9.0'
+        - '0.10.0 RC0'
+        - '0.10.0 RC1'
+    validations:
+      required: true
 
   - type: checkboxes
     attributes:
