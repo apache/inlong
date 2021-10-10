@@ -69,6 +69,7 @@ body:
         Which version of Apache InLong are you using?
       multiple: false
       options:
+        - 'master'
         - '0.9.0'
         - '0.10.0 RC1'
         - 'master'

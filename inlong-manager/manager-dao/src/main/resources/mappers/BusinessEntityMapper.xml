@@ -97,7 +97,7 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectDataProxyConfig" resultType="org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig">
+    <select id="selectDataProxyConfig" resultType="org.apache.inlong.manager.dao.entity.DataProxyConfig">
         select biz.business_identifier as bid, biz.mq_resource_obj as topic, d.sort_type as m
         from business biz,
              data_schema d
