@@ -15,47 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.util;
 
 import com.google.common.collect.Lists;
 import java.util.Map;
 import java.util.function.Function;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.util.InLongCollectionUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Env info
- *
- */
-public enum Env {
-    /**
-     * Development env
-     */
-    DEV,
+public class InLongCollectionUtilsTest {
 
-    /**
-     * Test env
-     */
-    TEST,
+    @Test
+    public void transformToImmutableMap() {
+        Map<String, String> emptyMap =
+                InLongCollectionUtils.transformToImmutableMap(null, Function.identity(), Function.identity());
+        Assert.assertTrue(emptyMap.isEmpty());
 
-    /**
-     * Production env
-     */
-    PROD;
+        Map<String, Integer> stringIntegerMap =
+                InLongCollectionUtils.transformToImmutableMap(Lists.newArrayList("1", "2", "3"),
+                        Function.identity(), Integer::valueOf);
+        Assert.assertEquals(1, (int) stringIntegerMap.get("1"));
 
-    private static final Map<String, Env> NAME_MAP = InLongCollectionUtils.transformToImmutableMap(
-            Lists.newArrayList(Env.values()),
-            Env::name,
-            Function.identity()
-    );
-
-    public static Env forName(String name) {
-        String nameUpper = StringUtils.upperCase(name);
-        if (!NAME_MAP.containsKey(nameUpper)) {
-            throw new IllegalArgumentException("Env type not support");
-        }
-
-        return NAME_MAP.get(nameUpper);
     }
-
 }
