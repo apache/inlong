@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="mq_resource_obj" jdbcType="VARCHAR" property="mqResourceObj"/>
+        <result column="data_source_type" jdbcType="VARCHAR" property="dataSourceType"/>
+        <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
+        <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
+        <result column="data_encoding" jdbcType="VARCHAR" property="dataEncoding"/>
+        <result column="file_delimiter" jdbcType="VARCHAR" property="fileDelimiter"/>
+        <result column="have_predefined_fields" jdbcType="INTEGER" property="havePredefinedFields"/>
+        <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+    </resultMap>
+
+    <resultMap id="dataStreamFullInfo"
+            type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="name" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="field_splitter" jdbcType="VARCHAR" property="fieldSplitter"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
+        <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
+        <result column="partition_type" jdbcType="VARCHAR" property="partitionType"/>
+        <result column="partition_field_position" jdbcType="VARCHAR"
+                property="partitionFieldPosition"/>
+        <result column="primary_partition" jdbcType="BIT" property="primaryPartition"/>
+        <result column="secondary_partition" jdbcType="BIT" property="secondaryPartition"/>
+        <result column="file_format" jdbcType="BIT" property="fileFormat"/>
+        <result column="clusterid" jdbcType="BIT" property="clusterId"/>
+        <result column="storage_period" jdbcType="VARCHAR" property="storagePeriod"/>
+        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="username" jdbcType="TIMESTAMP" property="userName"/>
+        <result column="PASSWORD" jdbcType="TIMESTAMP" property="password"/>
+        <result column="warehouse_dir" jdbcType="TIMESTAMP" property="warehouseDir"/>
+        <result column="hdfs_defaultfs" jdbcType="TIMESTAMP" property="fsDefaultName"/>
+        <result column="hdfs_ugi" jdbcType="TIMESTAMP" property="hadoopUgi"/>
+        <result column="encoding_type" jdbcType="VARCHAR" property="encodingType"/>
+        <result column="us_task_id" jdbcType="VARCHAR" property="usTaskId"/>
+        <result column="usage_interval" jdbcType="VARCHAR" property="usageInterval"/>
+    </resultMap>
+
+    <resultMap id="streamSummaryMap" type="java.util.Map">
+        <result column="dataSourceType" property="dataSourceType" jdbcType="VARCHAR"/>
+        <result column="dataStorageType" property="dataStorageType" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, data_stream_identifier, business_identifier, name, description, mq_resource_obj, data_source_type,
+        storage_period, data_type, data_encoding, file_delimiter, have_predefined_fields, in_charges,
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, temp_view
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByIdentifier"
+            resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectExistByIdentifier" resultType="java.lang.Integer">
+        select count(1)
+        from data_stream
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream
+        <where>
+            is_deleted = 0
+            and (creator = #{currentUser,jdbcType=VARCHAR} or
+            find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dataSourceType != null and dataSourceType != ''">
+                and data_source_type = #{dataSourceType, jdbcType=VARCHAR}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                and (name like CONCAT('%', #{keyWord}, '%') or description like CONCAT('%',
+                #{keyWord}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+    <select id="selectByBid" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <select id="selectByBidAndCondition"
+            resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_stream
+        <where>
+            business_identifier = #{request.bid,jdbcType=VARCHAR}
+            and is_deleted = 0
+            and (creator = #{request.currentUser,jdbcType=VARCHAR}
+            or find_in_set(#{request.currentUser,jdbcType=VARCHAR}, #{inCharges,jdbcType=VARCHAR}))
+            <if test="request.keyWord != null and request.keyWord != ''">
+                and (name like CONCAT('%', #{request.keyWord}, '%') or description like CONCAT('%',
+                #{request.keyWord},
+                '%'))
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+    <select id="selectCountByBid" resultType="java.lang.Integer">
+        select count(1)
+        from data_stream
+        <where>
+            business_identifier = #{bid,jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from data_stream
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteAllByBid">
+        delete
+        from data_stream
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        insert into data_stream (id, data_stream_identifier, business_identifier,
+                                 name, description, mq_resource_obj,
+                                 data_source_type, storage_period, data_type,
+                                 data_encoding, file_delimiter, have_predefined_fields,
+                                 in_charges, status, previous_status,
+                                 is_deleted, creator, modifier,
+                                 create_time, modify_time, temp_view)
+        values (#{id,jdbcType=INTEGER}, #{dataStreamIdentifier,jdbcType=VARCHAR},
+                #{businessIdentifier,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResourceObj,jdbcType=VARCHAR},
+                #{dataSourceType,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER}, #{dataType,jdbcType=VARCHAR},
+                #{dataEncoding,jdbcType=VARCHAR}, #{fileDelimiter,jdbcType=VARCHAR},
+                #{havePredefinedFields,jdbcType=INTEGER},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        insert into data_stream
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj,
+            </if>
+            <if test="dataSourceType != null">
+                data_source_type,
+            </if>
+            <if test="storagePeriod != null">
+                storage_period,
+            </if>
+            <if test="dataType != null">
+                data_type,
+            </if>
+            <if test="dataEncoding != null">
+                data_encoding,
+            </if>
+            <if test="fileDelimiter != null">
+                file_delimiter,
+            </if>
+            <if test="havePredefinedFields != null">
+                have_predefined_fields,
+            </if>
+            <if test="inCharges != null">
+                in_charges,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="tempView != null">
+                temp_view,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                #{mqResourceObj,jdbcType=VARCHAR},
+            </if>
+            <if test="dataSourceType != null">
+                #{dataSourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="dataType != null">
+                #{dataType,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEncoding != null">
+                #{dataEncoding,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDelimiter != null">
+                #{fileDelimiter,jdbcType=VARCHAR},
+            </if>
+            <if test="havePredefinedFields != null">
+                #{havePredefinedFields,jdbcType=INTEGER},
+            </if>
+            <if test="inCharges != null">
+                #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        update data_stream
+        <set>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
+            </if>
+            <if test="dataSourceType != null">
+                data_source_type = #{dataSourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                storage_period = #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="dataType != null">
+                data_type = #{dataType,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEncoding != null">
+                data_encoding = #{dataEncoding,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDelimiter != null">
+                file_delimiter = #{fileDelimiter,jdbcType=VARCHAR},
+            </if>
+            <if test="havePredefinedFields != null">
+                have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey"
+            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        update data_stream
+        set data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+            name                   = #{name,jdbcType=VARCHAR},
+            description            = #{description,jdbcType=VARCHAR},
+            mq_resource_obj        = #{mqResourceObj,jdbcType=VARCHAR},
+            data_source_type       = #{dataSourceType,jdbcType=VARCHAR},
+            storage_period         = #{storagePeriod,jdbcType=INTEGER},
+            data_type              = #{dataType,jdbcType=VARCHAR},
+            data_encoding          = #{dataEncoding,jdbcType=VARCHAR},
+            file_delimiter         = #{fileDelimiter,jdbcType=VARCHAR},
+            have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            in_charges             = #{inCharges,jdbcType=VARCHAR},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByIdentifierSelective"
+            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        update data_stream
+        <set>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR},
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier, jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name, jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj = #{mqResourceObj, jdbcType=VARCHAR},
+            </if>
+            <if test="dataSourceType != null">
+                data_source_type = #{dataSourceType, jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                storage_period = #{storagePeriod, jdbcType=INTEGER},
+            </if>
+            <if test="dataType != null">
+                data_type = #{dataType, jdbcType=VARCHAR},
+            </if>
+            <if test="dataEncoding != null">
+                data_encoding = #{dataEncoding, jdbcType=VARCHAR},
+            </if>
+            <if test="fileDelimiter != null">
+                file_delimiter = #{fileDelimiter, jdbcType=VARCHAR},
+            </if>
+            <if test="havePredefinedFields != null">
+                have_predefined_fields = #{havePredefinedFields, jdbcType=INTEGER},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges, jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                status = #{previousStatus, jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted, jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator, jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier, jdbcType=VARCHAR},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        and data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </update>
+    <update id="updateStatusByIdentifier">
+        update data_stream
+        set status = #{status, jdbcType=INTEGER}, modifier = #{modifier, jdbcType=VARCHAR}
+        <where>
+            business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+        </where>
+    </update>
+
+    <select id="queryStreamToHiveBaseInfoByBid" resultMap="dataStreamFullInfo">
+        SELECT h.id,
+               h.jdbc_url,
+               h.password,
+               h.username,
+               h.status,
+               data_type,
+               usage_interval,
+               description,
+               s.data_stream_identifier,
+               s.business_identifier,
+               db_name,
+               field_splitter,
+               h.creator,
+               table_name,
+               partition_type,
+               primary_partition,
+               secondary_partition,
+               file_format,
+               h.storage_period,
+               h.encoding_type
+        FROM data_stream s,
+             storage_hive h
+        WHERE s.is_deleted = 0
+          and h.is_deleted = 0
+          and s.data_stream_identifier = h.data_stream_identifier
+          AND s.business_identifier = h.business_identifier
+          and s.business_identifier = #{bid, jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryStreamToHiveBaseInfoByIdentifier" resultMap="dataStreamFullInfo">
+        SELECT h.id,
+               h.jdbc_url,
+               h.password,
+               h.username,
+               h.status,
+               data_type,
+               usage_interval,
+               description,
+               s.data_stream_identifier,
+               s.business_identifier,
+               db_name,
+               field_splitter,
+               h.creator,
+               table_name,
+               partition_type,
+               primary_partition,
+               secondary_partition,
+               file_format,
+               h.storage_period,
+               h.encoding_type
+        FROM data_stream s,
+             storage_hive h
+        WHERE s.is_deleted = 0
+          and h.is_deleted = 0
+          and s.data_stream_identifier = h.data_stream_identifier
+          AND s.business_identifier = h.business_identifier
+          and s.business_identifier = #{bid, jdbcType=VARCHAR}
+          and s.data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

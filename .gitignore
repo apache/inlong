@@ -1,13 +1,50 @@
-.idea/
-target/
-*.iml
-/.metadata/
+# Common
 *.class
 !.github/
 !.gitignore
 !.gitkeep
 !.travis.yml
+**/*.versionsBackup
+
+# Eclipse
+.classpath
+.project
+.settings/
+.recommenders/
+.factorypath
+/.metadata/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Mac
+**/.DS_Store
+.java-version
+
+# VisualStudioCode artifacts
+.vscode/
+
+# Maven
+log/
+target/
+target/dist/
+
+# Python
 venv/
 eggs/
 wheels/
-tubemq-client-twins/tubemq-client-cpp/build/
+*.pyc
+
+# C/C++
+inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/build/
+
+# Gradle
+.gradle
+
+# Log
+*.log

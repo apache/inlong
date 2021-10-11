@@ -1,4 +1,4 @@
-# TubeMQ Changelog
+# InLong Changelog
 
 <!---
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -21,92 +21,310 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
+## Release 0.10.0-incubating - Released (as of 2021-09-01)
+
+### IMPROVEMENTS:
+| ISSUE  | Summary  |
+| :---- | :------- |
+| [INLONG-570](https://issues.apache.org/jira/browse/INLONG-570) | Optimizing the implementations of HTTP API for Master
+| [INLONG-726](https://issues.apache.org/jira/browse/INLONG-726) | Optimize The Deployment For InLong
+| [INLONG-732](https://issues.apache.org/jira/browse/INLONG-732) | Optimize the CI/CD workflow for build and integration test
+| [INLONG-733](https://issues.apache.org/jira/browse/INLONG-733) | Unity the Manger-API/Manger-OpenAPI, and change Manager-API to Manager-Web
+| [INLONG-744](https://issues.apache.org/jira/browse/INLONG-744) | Error log, should use log4j
+| [INLONG-750](https://issues.apache.org/jira/browse/INLONG-750) | Add configuration descriptions for 'defEthName' in 'broker.ini'
+| [INLONG-756](https://issues.apache.org/jira/browse/INLONG-756) | package start.sh script executable for agent
+| [INLONG-768](https://issues.apache.org/jira/browse/INLONG-768) | add github pull request template
+| [INLONG-789](https://issues.apache.org/jira/browse/INLONG-789) | make agent readme more friendly
+| [INLONG-792](https://issues.apache.org/jira/browse/INLONG-792) | tubemanager add a cluster after configuration
+| [INLONG-800](https://issues.apache.org/jira/browse/INLONG-800) | Fix codestyle of some comments and methods names.
+| [INLONG-804](https://issues.apache.org/jira/browse/INLONG-804) | Optimize the ASF Configuration
+| [INLONG-805](https://issues.apache.org/jira/browse/INLONG-805) | Migrate InLong Issues from JIRA to GitHub
+| [INLONG-808](https://issues.apache.org/jira/browse/INLONG-808) | Missing dataproxy sdk readme
+| [INLONG-809](https://issues.apache.org/jira/browse/INLONG-809) | dataproxy readme delete reference url
+| [INLONG-1498](https://github.com/apache/incubator-inlong/issues/1498) |  ignore the files with versionsBackup suffix for the bumped version
+| [INLONG-1487](https://github.com/apache/incubator-inlong/issues/1487) |  remove the user number limit  when create a new data stream
+| [INLONG-1486](https://github.com/apache/incubator-inlong/issues/1486) |  [agent] update the document about configuring the dataprxy address
+| [INLONG-1485](https://github.com/apache/incubator-inlong/issues/1485) |  [sort] add the guide documents for using Pulsar
+| [INLONG-1484](https://github.com/apache/incubator-inlong/issues/1484) |  Bid and Tid is not well explained in agent and might cause send error
+| [INLONG-1464](https://github.com/apache/incubator-inlong/issues/1464) |  Add code CheckStyle rules
+| [INLONG-1459](https://github.com/apache/incubator-inlong/issues/1459) |  proxy address configuration is redundant for inlong-agent
+| [INLONG-1457](https://github.com/apache/incubator-inlong/issues/1457) |  remove the user limit for creating a new data access
+| [INLONG-1455](https://github.com/apache/incubator-inlong/issues/1455) |  add a script to publish docker images
+| [INLONG-1443](https://github.com/apache/incubator-inlong/issues/1443) |   Provide management interface SDK
+| [INLONG-1439](https://github.com/apache/incubator-inlong/issues/1439) |  Add the port legal check and remove the useless deleteWhen field
+| [INLONG-1430](https://github.com/apache/incubator-inlong/issues/1430) |  Go SDK example
+| [INLONG-1429](https://github.com/apache/incubator-inlong/issues/1429) |  update the asf config for inlong office website
+| [INLONG-1427](https://github.com/apache/incubator-inlong/issues/1427) |  Go SDK return maxOffset and updateTime in ConsumerOffset
+| [INLONG-1424](https://github.com/apache/incubator-inlong/issues/1424) |  change the format of the configuration file: make the yaml to properties
+| [INLONG-1423](https://github.com/apache/incubator-inlong/issues/1423) |  modify the docker image of the inlong-manager module
+| [INLONG-1417](https://github.com/apache/incubator-inlong/issues/1417) |  rename the distribution file for inlong
+| [INLONG-1415](https://github.com/apache/incubator-inlong/issues/1415) |  [TubeMQ Docker] expose zookeeper port for other component usages
+| [INLONG-1409](https://github.com/apache/incubator-inlong/issues/1409) |  Sort out the LICENSE information of the 3rd-party components that the DataProxy submodule depends on
+| [INLONG-1407](https://github.com/apache/incubator-inlong/issues/1407) |  [DataProxy]Adjust the pom dependency of the DataProxy module
+| [INLONG-1405](https://github.com/apache/incubator-inlong/issues/1405) |  too many issues mail at dev@inlong mailbox
+
+### BUG FIXES:
+| ISSUE  | Summary  |
+| :---- | :------- |
+| [INLONG-751](https://issues.apache.org/jira/browse/INLONG-751) | InLong Manager start up error
+| [INLONG-776](https://issues.apache.org/jira/browse/INLONG-776) | fix the version error for tubemq cpp client docker image
+| [INLONG-777](https://issues.apache.org/jira/browse/INLONG-777) | InLong Manager new data stream error
+| [INLONG-782](https://issues.apache.org/jira/browse/INLONG-782) | Optimize The PULL_REQUEST_TEMPLATE
+| [INLONG-787](https://issues.apache.org/jira/browse/INLONG-787) | The actions "reviewdog/action-setup" is not allowed to be used
+| [INLONG-797](https://issues.apache.org/jira/browse/INLONG-797) | the document for deployment DataProxy is not complete
+| [INLONG-799](https://issues.apache.org/jira/browse/INLONG-799) | can not find common.properties for dataproxy
+| [INLONG-1488](https://github.com/apache/incubator-inlong/issues/1488) |  there are still some chinese characters for website
+| [INLONG-1475](https://github.com/apache/incubator-inlong/issues/1475) |  Tube manager compile ch.qos.logback with error
+| [INLONG-1474](https://github.com/apache/incubator-inlong/issues/1474) |  the interface of get data proxy configurations got abnormal status result
+| [INLONG-1470](https://github.com/apache/incubator-inlong/issues/1470) |  Java.util.ConcurrentModificationException error when rebalance
+| [INLONG-1468](https://github.com/apache/incubator-inlong/issues/1468) |  The update interval of dataproxy is quite long and may cause produce error when config is not updated
+| [INLONG-1466](https://github.com/apache/incubator-inlong/issues/1466) |  get snappy error when the agent collecting data
+| [INLONG-1462](https://github.com/apache/incubator-inlong/issues/1462) |  dataproxy can not create configuration properties successfully in the docker container
+| [INLONG-1458](https://github.com/apache/incubator-inlong/issues/1458) |  The http port in agent readme should be 8008 to be consistent with the code
+| [INLONG-1453](https://github.com/apache/incubator-inlong/issues/1453) |  agent connect dataproxy fail when using docker-compose
+| [INLONG-1448](https://github.com/apache/incubator-inlong/issues/1448) |  The Manager throws an exception when creating a business
+| [INLONG-1447](https://github.com/apache/incubator-inlong/issues/1447) |  Fix Group Control API logic bug
+| [INLONG-1444](https://github.com/apache/incubator-inlong/issues/1444) |  Fix Web API multiple field search logic bug
+| [INLONG-1441](https://github.com/apache/incubator-inlong/issues/1441) |  Repair Broker configuration API bugs
+| [INLONG-1436](https://github.com/apache/incubator-inlong/issues/1436) |  [CI] The checkstyle workflow is redundant
+| [INLONG-1432](https://github.com/apache/incubator-inlong/issues/1432) |  The manager url of agent and dataproxy need to be updated since manager merged openapi and api into one module
+| [INLONG-1403](https://github.com/apache/incubator-inlong/issues/1403) |  fix some error in dataproxy-sdk readme
+
+### SUB-TASK:
+| ISSUE  | Summary  |
+| :---- | :------- |
+| [INLONG-576](https://issues.apache.org/jira/browse/INLONG-576) | Build metadata entity classes
+| [INLONG-578](https://issues.apache.org/jira/browse/INLONG-578) | Build implementation classes based on BDB storage
+| [INLONG-579](https://issues.apache.org/jira/browse/INLONG-579) | Add structure mapping of BDB and metadata entity classes
+| [INLONG-580](https://issues.apache.org/jira/browse/INLONG-580) | Build active and standby keep-alive services
+| [INLONG-581](https://issues.apache.org/jira/browse/INLONG-581) | Add data cache in BDB metadata Mapper implementations
+| [INLONG-582](https://issues.apache.org/jira/browse/INLONG-582) | Adjust the business logic related to the BdbClusterSettingEntity class
+| [INLONG-583](https://issues.apache.org/jira/browse/INLONG-583) | Adjust BrokerConfManager class implementation
+| [INLONG-584](https://issues.apache.org/jira/browse/INLONG-584) | Adjust WebMasterInfoHandler class implementation
+| [INLONG-593](https://issues.apache.org/jira/browse/INLONG-593) | Add WebGroupConsumeCtrlHandler class implementation
+| [INLONG-595](https://issues.apache.org/jira/browse/INLONG-595) | Add WebBrokerConfHandler class implementation
+| [INLONG-596](https://issues.apache.org/jira/browse/INLONG-596) | Add WebTopicConfHandler class implementation
+| [INLONG-597](https://issues.apache.org/jira/browse/INLONG-597) | Adjust WebTopicCtrlHandler class implementation
+| [INLONG-598](https://issues.apache.org/jira/browse/INLONG-598) | Adjust WebTopicCtrlHandler class implementation
+| [INLONG-599](https://issues.apache.org/jira/browse/INLONG-599) | Adjust WebParameterUtils.java's static functions
+| [INLONG-601](https://issues.apache.org/jira/browse/INLONG-601) | Adjust WebBrokerDefConfHandler class implementation
+| [INLONG-602](https://issues.apache.org/jira/browse/INLONG-602) | Add replacement processing after metadata changes
+| [INLONG-611](https://issues.apache.org/jira/browse/INLONG-611) | Add FSM for broker configure manage
+| [INLONG-617](https://issues.apache.org/jira/browse/INLONG-617) | Add unit tests for WebParameterUtils
+| [INLONG-618](https://issues.apache.org/jira/browse/INLONG-618) | Add unit tests for metastore.dao.entity.*
+| [INLONG-625](https://issues.apache.org/jira/browse/INLONG-625) | Add unit tests for metamanage.metastore.impl.*
+| [INLONG-626](https://issues.apache.org/jira/browse/INLONG-626) | Fix broker and topic confiugre implement bugs
+| [INLONG-707](https://issues.apache.org/jira/browse/INLONG-707) | Bumped version to 0.10.0-SNAPSHOT
+| [INLONG-740](https://issues.apache.org/jira/browse/INLONG-740) | Merge the changes in INLONG-739 to master and delete the temporary branch
+| [INLONG-755](https://issues.apache.org/jira/browse/INLONG-755) | Go SDK Consumer Result
+| [INLONG-757](https://issues.apache.org/jira/browse/INLONG-757) | fix the artifactId of dataproxy
+| [INLONG-758](https://issues.apache.org/jira/browse/INLONG-758) | remove redundant baseDirectory for manager output files
+| [INLONG-759](https://issues.apache.org/jira/browse/INLONG-759) | fix assembly issue for TubeMQ manager
+| [INLONG-760](https://issues.apache.org/jira/browse/INLONG-760) | standardize the directories name for the sort sub-module
+| [INLONG-761](https://issues.apache.org/jira/browse/INLONG-761) | unify all modules target files to a singe directory
+| [INLONG-762](https://issues.apache.org/jira/browse/INLONG-762) | refactor the deployment document
+| [INLONG-763](https://issues.apache.org/jira/browse/INLONG-763) | make the inlong-websit be a maven module of InLong project
+| [INLONG-764](https://issues.apache.org/jira/browse/INLONG-764) | Fix Go SDK RPC Request bug
+| [INLONG-766](https://issues.apache.org/jira/browse/INLONG-766) | Fix Go SDK Codec Bug
+| [INLONG-770](https://issues.apache.org/jira/browse/INLONG-770) | update the readme document
+| [INLONG-771](https://issues.apache.org/jira/browse/INLONG-771) | Fix Go SDK Authorization Bug
+| [INLONG-773](https://issues.apache.org/jira/browse/INLONG-773) | add manager docker image
+| [INLONG-774](https://issues.apache.org/jira/browse/INLONG-774) | update TubeMQ docker images to InLong repo
+| [INLONG-778](https://issues.apache.org/jira/browse/INLONG-778) | Fix Go SDK Consumer Bug
+| [INLONG-779](https://issues.apache.org/jira/browse/INLONG-779) | update tubemq manager docker image
+| [INLONG-781](https://issues.apache.org/jira/browse/INLONG-781) | add inlong agent docker image support
+| [INLONG-784](https://issues.apache.org/jira/browse/INLONG-784) | Fix Go SDK Heartbeat Bug
+| [INLONG-785](https://issues.apache.org/jira/browse/INLONG-785) | Fix Go SDK Metadata Bug
+| [INLONG-786](https://issues.apache.org/jira/browse/INLONG-786) | add dataproxy docker image
+| [INLONG-788](https://issues.apache.org/jira/browse/INLONG-788) | Fix Go SDK Remote Cache Bug
+| [INLONG-791](https://issues.apache.org/jira/browse/INLONG-791) | Go SDK Support multiple topic address
+| [INLONG-793](https://issues.apache.org/jira/browse/INLONG-793) | Fix Some Corner Case in Go SDK
+| [INLONG-794](https://issues.apache.org/jira/browse/INLONG-794) | add website docker image
+| [INLONG-803](https://issues.apache.org/jira/browse/INLONG-803) | add docker requirement for building InLong
+| [INLONG-806](https://issues.apache.org/jira/browse/INLONG-806) | open GitHub Issue For InLong
+| [INLONG-807](https://issues.apache.org/jira/browse/INLONG-807) | migrate issue history to inlong
+| [INLONG-1491](https://github.com/apache/incubator-inlong/issues/1491) |  Add 0.10.0 version release modification to CHANGES.md
+| [INLONG-1492](https://github.com/apache/incubator-inlong/issues/1492) |  Bumped version to 0.11.0-incubating-SNAPSHOT
+| [INLONG-1493](https://github.com/apache/incubator-inlong/issues/1493) |  Modify download&release notes for 0.10.0
+| [INLONG-1494](https://github.com/apache/incubator-inlong/issues/1494) |  Adjust the version information of all pom.xml to 0.10.0-incubating
+| [INLONG-1495](https://github.com/apache/incubator-inlong/issues/1495) |  Update Office website content for release 0.10.0
+| [INLONG-1496](https://github.com/apache/incubator-inlong/issues/1496) |  Release InLong 0.10.0
+| [INLONG-1497](https://github.com/apache/incubator-inlong/issues/1497) |  create a 0.10.0 branch to release
+| [INLONG-1502](https://github.com/apache/incubator-inlong/issues/1502) |  publish all 0.10.0 images to docker hub
+
+## Release 0.9.0-incubating - Released (as of 2021-07-11)
+
+### IMPROVEMENTS:
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [INLONG-594](https://issues.apache.org/jira/browse/INLONG-594) | Trpc-go  tube sdk strongly rely on local config  | Major |
+| [INLONG-616](https://issues.apache.org/jira/browse/INLONG-616) | Adjust the content in .asf.yaml according to the new project name  | Major |
+| [INLONG-651](https://issues.apache.org/jira/browse/INLONG-651) | Refine the tubemq-client-cpp build description  | Major |
+| [INLONG-655](https://issues.apache.org/jira/browse/INLONG-655) | add dependency in tube-manager  | Major |
+| [INLONG-656](https://issues.apache.org/jira/browse/INLONG-656) | fix tubemanager start.sh  | Major |
+| [INLONG-657](https://issues.apache.org/jira/browse/INLONG-657) | remove some test cases in agent  | Major |
+| [INLONG-659](https://issues.apache.org/jira/browse/INLONG-659) | fix unit test in agent  | Major |
+| [INLONG-666](https://issues.apache.org/jira/browse/INLONG-666) | change tar name in agent  | Major |
+| [INLONG-697](https://issues.apache.org/jira/browse/INLONG-697) | fix decode error in proxySdk  | Major |
+| [INLONG-705](https://issues.apache.org/jira/browse/INLONG-705) | add stop.sh in dataproxy  | Major |
+| [INLONG-743](https://issues.apache.org/jira/browse/INLONG-743) | Adjust the rat check setting of the pom.xml  | Major |
+
+### BUG FIXES:
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [INLONG-577](https://issues.apache.org/jira/browse/INLONG-577) | reload status output and topic config output mismatch | Major |
+| [INLONG-612](https://issues.apache.org/jira/browse/INLONG-612) | Restful api "admin_snapshot_message" is not compatible with the old version | Major |
+| [INLONG-638](https://issues.apache.org/jira/browse/INLONG-638) | Issues About Disk Error recovery | Major |
+| [INLONG-688](https://issues.apache.org/jira/browse/INLONG-688) | change additionstr to additionAtr in agent | Major |
+| [INLONG-703](https://issues.apache.org/jira/browse/INLONG-703) | Query after adding a consumer group policy and report a null error | Major |
+| [INLONG-724](https://issues.apache.org/jira/browse/INLONG-724) | Encountered a symbol not found error when compiling | Major |
+
+### TASK:
+| JIRA | Summary | Priority |
+|:---- |:---- | :--- |
+| [INLONG-613](https://issues.apache.org/jira/browse/INLONG-613) | Adjust the project codes according to the renaming requirements  | Major |
+
+### SUB-TASK:
+| JIRA  | Summary  | Priority |
+| :---- | :------- | :------- |
+| [INLONG-519](https://issues.apache.org/jira/browse/INLONG-519) | Bumped version to 0.9.0-SNAPSHOT | Major |
+| [INLONG-565](https://issues.apache.org/jira/browse/INLONG-565) | Replace simple scripts and code implementation | Major |
+| [INLONG-571](https://issues.apache.org/jira/browse/INLONG-571) | Adjust WebOtherInfoHandler class implementation | Major |
+| [INLONG-573](https://issues.apache.org/jira/browse/INLONG-573) | Adjust WebAdminFlowRuleHandler class implementation | Major |
+| [INLONG-574](https://issues.apache.org/jira/browse/INLONG-574) | Adjust WebAdminGroupCtrlHandler class implementation | Major |
+| [INLONG-632](https://issues.apache.org/jira/browse/INLONG-632) | Add inlong-manager subdirectory | Major |
+| [INLONG-633](https://issues.apache.org/jira/browse/INLONG-633) | Add inlong-sort subdirectory | Major |
+| [INLONG-634](https://issues.apache.org/jira/browse/INLONG-634) | Add inlong-tubemq subdirectory | Major |
+| [INLONG-635](https://issues.apache.org/jira/browse/INLONG-635) | Add inlong-dataproxy subdirectory | Major |
+| [INLONG-636](https://issues.apache.org/jira/browse/INLONG-636) | Add inlong-agent subdirectory | Major |
+| [INLONG-640](https://issues.apache.org/jira/browse/INLONG-640) | Adjust the main frame of the InLong project | Major |
+| [INLONG-641](https://issues.apache.org/jira/browse/INLONG-641) | Add inlong-common module | Major |
+| [INLONG-642](https://issues.apache.org/jira/browse/INLONG-642) | Add inlong-website subdirectory | Major |
+| [INLONG-643](https://issues.apache.org/jira/browse/INLONG-643) | Add inlong-dataproxy-sdk subdirectory | Major |
+| [INLONG-644](https://issues.apache.org/jira/browse/INLONG-644) | Remove "/dist" from .gitignore and add subdirectory dist in inlong-sort | Major |
+| [INLONG-646](https://issues.apache.org/jira/browse/INLONG-646) | Remove time related unit tests until timezone is configurable in inlong-sort | Major |
+| [INLONG-647](https://issues.apache.org/jira/browse/INLONG-647) | Adjust the introduction content of the README.md | Major |
+| [INLONG-648](https://issues.apache.org/jira/browse/INLONG-648) | Change initial version of inlong-sort to 0.9.0-incubating-SNAPSHOT | Major |
+| [INLONG-649](https://issues.apache.org/jira/browse/INLONG-649) | Modify the suffix of the docs/zh-cn/download/release-0.8.0.md file | Major |
+| [INLONG-650](https://issues.apache.org/jira/browse/INLONG-650) | Adjust .asf.yaml's label | Major |
+| [INLONG-654](https://issues.apache.org/jira/browse/INLONG-654) | Adjust the link in ReadMe.md according to the latest document | Major |
+| [INLONG-658](https://issues.apache.org/jira/browse/INLONG-658) | modify the dependency of inlong-manager | Major |
+| [INLONG-663](https://issues.apache.org/jira/browse/INLONG-663) | modify the tar package name of inlong-manager | Major |
+| [INLONG-667](https://issues.apache.org/jira/browse/INLONG-667) | rename tar in agent | Major |
+| [INLONG-673](https://issues.apache.org/jira/browse/INLONG-673) | add tube cluster id in inlong-manager | Major |
+| [INLONG-674](https://issues.apache.org/jira/browse/INLONG-674) | adjust HiveSinkInfo in inlong-manager | Major |
+| [INLONG-675](https://issues.apache.org/jira/browse/INLONG-675) | modify the npm script of inlong-website | Major |
+| [INLONG-676](https://issues.apache.org/jira/browse/INLONG-676) | modify manager-web to manager-api in inlong-manager module | Major |
+| [INLONG-677](https://issues.apache.org/jira/browse/INLONG-677) | Support dt as built-in data time partition field in inlong-sort | Major |
+| [INLONG-681](https://issues.apache.org/jira/browse/INLONG-681) | modify assembly in agent proxy tubemanager | Major |
+| [INLONG-687](https://issues.apache.org/jira/browse/INLONG-687) | set schemaName to m0_day when save business in inlong-manager | Major |
+| [INLONG-689](https://issues.apache.org/jira/browse/INLONG-689) | add sort app name | Major |
+| [INLONG-691](https://issues.apache.org/jira/browse/INLONG-691) | update properties and scripts for inlong-manager | Major |
+| [INLONG-692](https://issues.apache.org/jira/browse/INLONG-692) | remove hive cluster entity in inlong-manager | Major |
+| [INLONG-693](https://issues.apache.org/jira/browse/INLONG-693) | change data type to tdmsg | Major |
+| [INLONG-694](https://issues.apache.org/jira/browse/INLONG-694) | Add retry mechanism for creating tube consumer group | Major |
+| [INLONG-695](https://issues.apache.org/jira/browse/INLONG-695) | update getConfig API in inlong-manager | Major |
+| [INLONG-696](https://issues.apache.org/jira/browse/INLONG-696) | modify the status of the entities after approval | Major |
+| [INLONG-699](https://issues.apache.org/jira/browse/INLONG-699) | Fix serialization issue of DeserializationInfo 's subType in inlong-sort | Major |
+| [INLONG-700](https://issues.apache.org/jira/browse/INLONG-700) | Optimize dependencies in inlong-sort | Major |
+| [INLONG-701](https://issues.apache.org/jira/browse/INLONG-701) | Update create resource workflow definition | Major |
+| [INLONG-702](https://issues.apache.org/jira/browse/INLONG-702) | sort config field spillter | Major |
+| [INLONG-706](https://issues.apache.org/jira/browse/INLONG-706) | Add 0.9.0 version release modification to CHANGES.md | Major |
+| [INLONG-709](https://issues.apache.org/jira/browse/INLONG-709) | Adjust the version information of all pom.xml to 0.9.0-incubating | Major |
+| [INLONG-712](https://issues.apache.org/jira/browse/INLONG-712) | adjust partition info for hive sink | Major |
+| [INLONG-713](https://issues.apache.org/jira/browse/INLONG-713) | add partition filed when create hive table | Major |
+| [INLONG-714](https://issues.apache.org/jira/browse/INLONG-714) | Enable checkpointing in inlong-sort | Major |
+| [INLONG-715](https://issues.apache.org/jira/browse/INLONG-715) | Make shouldRollOnCheckpoint always return true in DefaultRollingPolicy in inlong-sort | Major |
+| [INLONG-716](https://issues.apache.org/jira/browse/INLONG-716) | set terminated symbol when create hive table | Major |
+| [INLONG-717](https://issues.apache.org/jira/browse/INLONG-717) | Declare the 3rd party Catagory x LICENSE components in use | Major |
+
+
 ## Release 0.8.0-incubating - Released (as of 2021-01-18)
 
 ### IMPROVEMENTS:
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-430](https://issues.apache.org/jira/browse/TUBEMQ-430) | Optimizing the implementation of HTTP API for broke  | Major |
-| [TUBEMQ-445](https://issues.apache.org/jira/browse/TUBEMQ-445) | Adjust the status check default sleep interval of pullConsumeReadyChkSliceMs  | Major |
-| [TUBEMQ-448](https://issues.apache.org/jira/browse/TUBEMQ-448) | Add Committer and PPMC operation process  | Major |
-| [TUBEMQ-449](https://issues.apache.org/jira/browse/TUBEMQ-449) | Adjust Example implementation  | Major |
-| [TUBEMQ-452](https://issues.apache.org/jira/browse/TUBEMQ-452) | Optimize rebalance performance | Major |
-| [TUBEMQ-467](https://issues.apache.org/jira/browse/TUBEMQ-467) | Add WEB APIs of Master and Broker | Major |
-| [TUBEMQ-489](https://issues.apache.org/jira/browse/TUBEMQ-489) | Add the maximum message length parameter setting | Major |
-| [TUBEMQ-495](https://issues.apache.org/jira/browse/TUBEMQ-495) | Code implementation adjustment based on SpotBugs check | Major |
-| [TUBEMQ-511](https://issues.apache.org/jira/browse/TUBEMQ-511) | Replace the conditional operator (?:) with mid()  | Major |
-| [TUBEMQ-512](https://issues.apache.org/jira/browse/TUBEMQ-512) | Add package length control based on Topic  | Major |
-| [TUBEMQ-515](https://issues.apache.org/jira/browse/TUBEMQ-515) | Add cluster Topic view web api  | Major |
+| [INLONG-430](https://issues.apache.org/jira/browse/INLONG-430) | Optimizing the implementation of HTTP API for broke  | Major |
+| [INLONG-445](https://issues.apache.org/jira/browse/INLONG-445) | Adjust the status check default sleep interval of pullConsumeReadyChkSliceMs  | Major |
+| [INLONG-448](https://issues.apache.org/jira/browse/INLONG-448) | Add Committer and PPMC operation process  | Major |
+| [INLONG-449](https://issues.apache.org/jira/browse/INLONG-449) | Adjust Example implementation  | Major |
+| [INLONG-452](https://issues.apache.org/jira/browse/INLONG-452) | Optimize rebalance performance | Major |
+| [INLONG-467](https://issues.apache.org/jira/browse/INLONG-467) | Add WEB APIs of Master and Broker | Major |
+| [INLONG-489](https://issues.apache.org/jira/browse/INLONG-489) | Add the maximum message length parameter setting | Major |
+| [INLONG-495](https://issues.apache.org/jira/browse/INLONG-495) | Code implementation adjustment based on SpotBugs check | Major |
+| [INLONG-511](https://issues.apache.org/jira/browse/INLONG-511) | Replace the conditional operator (?:) with mid()  | Major |
+| [INLONG-512](https://issues.apache.org/jira/browse/INLONG-512) | Add package length control based on Topic  | Major |
+| [INLONG-515](https://issues.apache.org/jira/browse/INLONG-515) | Add cluster Topic view web api  | Major |
 
 ### BUG FIXES:
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-437](https://issues.apache.org/jira/browse/TUBEMQ-437) | Fix tubemq table source sink factory instance creating problem | Major |
-| [TUBEMQ-441](https://issues.apache.org/jira/browse/TUBEMQ-441) | An error occurred when using the Tubemq class to create a sink table | Major |
-| [TUBEMQ-442](https://issues.apache.org/jira/browse/TUBEMQ-442) | Modifying the jvm parameters when the broker starts does not take effect  | Major    |
-| [TUBEMQ-443](https://issues.apache.org/jira/browse/TUBEMQ-443) | TubemqSourceFunction class prints too many logs problem | Major |
-| [TUBEMQ-446](https://issues.apache.org/jira/browse/TUBEMQ-446) | Small bugs fix that do not affect the main logics | Major |
-| [TUBEMQ-450](https://issues.apache.org/jira/browse/TUBEMQ-450) | TubeClientException: Generate producer id failed  | Major |
-| [TUBEMQ-453](https://issues.apache.org/jira/browse/TUBEMQ-453) | TubemqSourceFunction class prints too many logs problem | Major |
-| [TUBEMQ-506](https://issues.apache.org/jira/browse/TUBEMQ-506) | cmakelist error | Major |
-| [TUBEMQ-510](https://issues.apache.org/jira/browse/TUBEMQ-510) | Found a bug in MessageProducerExample class | Major |
-| [TUBEMQ-518](https://issues.apache.org/jira/browse/TUBEMQ-518) | fix parameter pass error | Major |
-| [TUBEMQ-526](https://issues.apache.org/jira/browse/TUBEMQ-526) | Adjust the packaging script and version check list, remove the "-WIP" tag | Major |
-| [TUBEMQ-555](https://issues.apache.org/jira/browse/TUBEMQ-555) | short session data can only be written to a specific partition | Major |
-| [TUBEMQ-556](https://issues.apache.org/jira/browse/TUBEMQ-556) | Index value is bigger than the actual number of records | Low |
+| [INLONG-437](https://issues.apache.org/jira/browse/INLONG-437) | Fix tubemq table source sink factory instance creating problem | Major |
+| [INLONG-441](https://issues.apache.org/jira/browse/INLONG-441) | An error occurred when using the Tubemq class to create a sink table | Major |
+| [INLONG-442](https://issues.apache.org/jira/browse/INLONG-442) | Modifying the jvm parameters when the broker starts does not take effect  | Major    |
+| [INLONG-443](https://issues.apache.org/jira/browse/INLONG-443) | TubemqSourceFunction class prints too many logs problem | Major |
+| [INLONG-446](https://issues.apache.org/jira/browse/INLONG-446) | Small bugs fix that do not affect the main logics | Major |
+| [INLONG-450](https://issues.apache.org/jira/browse/INLONG-450) | TubeClientException: Generate producer id failed  | Major |
+| [INLONG-453](https://issues.apache.org/jira/browse/INLONG-453) | TubemqSourceFunction class prints too many logs problem | Major |
+| [INLONG-506](https://issues.apache.org/jira/browse/INLONG-506) | cmakelist error | Major |
+| [INLONG-510](https://issues.apache.org/jira/browse/INLONG-510) | Found a bug in MessageProducerExample class | Major |
+| [INLONG-518](https://issues.apache.org/jira/browse/INLONG-518) | fix parameter pass error | Major |
+| [INLONG-526](https://issues.apache.org/jira/browse/INLONG-526) | Adjust the packaging script and version check list, remove the "-WIP" tag | Major |
+| [INLONG-555](https://issues.apache.org/jira/browse/INLONG-555) | short session data can only be written to a specific partition | Major |
+| [INLONG-556](https://issues.apache.org/jira/browse/INLONG-556) | Index value is bigger than the actual number of records | Low |
 
 
 ### TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-| [TUBEMQ-505](https://issues.apache.org/jira/browse/TUBEMQ-505) | Remove the "WIP" label of the DISCLAIMER file  | Major |
-| [TUBEMQ-543](https://issues.apache.org/jira/browse/TUBEMQ-543) | Modify the LICENSE statement of multiple files and others  | Major |
-| [TUBEMQ-557](https://issues.apache.org/jira/browse/TUBEMQ-557) | Handle the issues mentioned in the 0.8.0-RC2 review  | Major |
-| [TUBEMQ-562](https://issues.apache.org/jira/browse/TUBEMQ-562) | Update project contents according to the 0.8.0-RC3 review  | Major |
+| [INLONG-505](https://issues.apache.org/jira/browse/INLONG-505) | Remove the "WIP" label of the DISCLAIMER file  | Major |
+| [INLONG-543](https://issues.apache.org/jira/browse/INLONG-543) | Modify the LICENSE statement of multiple files and others  | Major |
+| [INLONG-557](https://issues.apache.org/jira/browse/INLONG-557) | Handle the issues mentioned in the 0.8.0-RC2 review  | Major |
+| [INLONG-562](https://issues.apache.org/jira/browse/INLONG-562) | Update project contents according to the 0.8.0-RC3 review  | Major |
 
 ### SUB-TASK:
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-428](https://issues.apache.org/jira/browse/TUBEMQ-433) | Bumped version to 0.8.0-SNAPSHOT | Major |
-| [TUBEMQ-433](https://issues.apache.org/jira/browse/TUBEMQ-433) | add tubemq perf-consumer/producer scripts | Major |
-| [TUBEMQ-434](https://issues.apache.org/jira/browse/TUBEMQ-434) | Adjust Broker API mapping | Major |
-| [TUBEMQ-435](https://issues.apache.org/jira/browse/TUBEMQ-435) | Create Web field Mapping | Major |
-| [TUBEMQ-436](https://issues.apache.org/jira/browse/TUBEMQ-436) | Adjust Broker's HTTP API implementation | Major |
-| [TUBEMQ-439](https://issues.apache.org/jira/browse/TUBEMQ-439) | Add Cli field Scheme definition | Major |
-| [TUBEMQ-440](https://issues.apache.org/jira/browse/TUBEMQ-440) | Add feature package tube-manager to zip  | Major |
-| [TUBEMQ-444](https://issues.apache.org/jira/browse/TUBEMQ-444) | Add consume and produce Cli commands | Major |
-| [TUBEMQ-447](https://issues.apache.org/jira/browse/TUBEMQ-447) | Add Broker-Admin Cli | Major |
-| [TUBEMQ-451](https://issues.apache.org/jira/browse/TUBEMQ-451) | Replace ConsumeTupleInfo with Tuple2  | Major    |
-| [TUBEMQ-457](https://issues.apache.org/jira/browse/TUBEMQ-457) | There is no need to return StringBuilder in Master.java | Major |
-| [TUBEMQ-463](https://issues.apache.org/jira/browse/TUBEMQ-463) | Adjust Master rebalance process implementation  | Major |
-| [TUBEMQ-464](https://issues.apache.org/jira/browse/TUBEMQ-464) | Add parameter rebalanceParallel in master.ini | Major |
-| [TUBEMQ-470](https://issues.apache.org/jira/browse/TUBEMQ-470) | Add query API of TopicName and BrokerId collection  | Major |
-| [TUBEMQ-471](https://issues.apache.org/jira/browse/TUBEMQ-471) | Add query API Introduction of TopicName and BrokerId collection | Major |
-| [TUBEMQ-472](https://issues.apache.org/jira/browse/TUBEMQ-472) | Adjust Broker's AbstractWebHandler class implementation  | Major |
-| [TUBEMQ-475](https://issues.apache.org/jira/browse/TUBEMQ-475) | add the offset clone api of the consume group  | Major |
-| [TUBEMQ-482](https://issues.apache.org/jira/browse/TUBEMQ-482) | Add offset query api  | Major |
-| [TUBEMQ-484](https://issues.apache.org/jira/browse/TUBEMQ-484) | Add query API for topic publication information  | Major |
-| [TUBEMQ-485](https://issues.apache.org/jira/browse/TUBEMQ-485) | Add the batch setting API of consume group offset  | Major |
-| [TUBEMQ-486](https://issues.apache.org/jira/browse/TUBEMQ-486) | Add the delete API of consumer group offset  | Major |
-| [TUBEMQ-494](https://issues.apache.org/jira/browse/TUBEMQ-494) | Update API interface instruction document | Major |
-| [TUBEMQ-499](https://issues.apache.org/jira/browse/TUBEMQ-499) | Add configure store  | Major |
-| [TUBEMQ-500](https://issues.apache.org/jira/browse/TUBEMQ-500) | Add setting operate API  | Major |
-| [TUBEMQ-501](https://issues.apache.org/jira/browse/TUBEMQ-501) | Adjust max message size check logic  | Major |
-| [TUBEMQ-502](https://issues.apache.org/jira/browse/TUBEMQ-502) | Add setting API interface document  | Major |
-| [TUBEMQ-504](https://issues.apache.org/jira/browse/TUBEMQ-504) | Adjust the WebMethodMapper class interfaces  | Major |
-| [TUBEMQ-508](https://issues.apache.org/jira/browse/TUBEMQ-508) | Optimize Broker's PB parameter check processing logic  | Major |
-| [TUBEMQ-509](https://issues.apache.org/jira/browse/TUBEMQ-509) | Adjust the packet length check when data is loaded  | Major |
-| [TUBEMQ-522](https://issues.apache.org/jira/browse/TUBEMQ-522) | Add admin_query_cluster_topic_view API document  | Major |
-| [TUBEMQ-544](https://issues.apache.org/jira/browse/TUBEMQ-544) | Adjust the LICENSE statement in the client.conf files of Python and C/C++ SDK | Major |
-| [TUBEMQ-546](https://issues.apache.org/jira/browse/TUBEMQ-546) | Restore the original license header of the referenced external source files | Major |
-| [TUBEMQ-547](https://issues.apache.org/jira/browse/TUBEMQ-547) | Recode the implementation of the *Startup.java classes in the Tool package | Major |
-| [TUBEMQ-548](https://issues.apache.org/jira/browse/TUBEMQ-548) | Handle the LICENSE authorization of font files in the resources | Major |
-| [TUBEMQ-549](https://issues.apache.org/jira/browse/TUBEMQ-549) | Handling the problem of compilation failure | Major |
-| [TUBEMQ-550](https://issues.apache.org/jira/browse/TUBEMQ-550) | Adjust LICENSE file content | Major |
-| [TUBEMQ-551](https://issues.apache.org/jira/browse/TUBEMQ-551) | Adjust NOTICE file content | Major |
-| [TUBEMQ-558](https://issues.apache.org/jira/browse/TUBEMQ-558) | Adjust the LICENSE of the file header | Major |
-| [TUBEMQ-559](https://issues.apache.org/jira/browse/TUBEMQ-559) | Update the LICENSE file according to the 0.8.0-RC2 review | Major |
-| [TUBEMQ-560](https://issues.apache.org/jira/browse/TUBEMQ-560) | Remove unprepared modules | Major |
+| [INLONG-428](https://issues.apache.org/jira/browse/INLONG-433) | Bumped version to 0.8.0-SNAPSHOT | Major |
+| [INLONG-433](https://issues.apache.org/jira/browse/INLONG-433) | add tubemq perf-consumer/producer scripts | Major |
+| [INLONG-434](https://issues.apache.org/jira/browse/INLONG-434) | Adjust Broker API mapping | Major |
+| [INLONG-435](https://issues.apache.org/jira/browse/INLONG-435) | Create Web field Mapping | Major |
+| [INLONG-436](https://issues.apache.org/jira/browse/INLONG-436) | Adjust Broker's HTTP API implementation | Major |
+| [INLONG-439](https://issues.apache.org/jira/browse/INLONG-439) | Add Cli field Scheme definition | Major |
+| [INLONG-440](https://issues.apache.org/jira/browse/INLONG-440) | Add feature package tube-manager to zip  | Major |
+| [INLONG-444](https://issues.apache.org/jira/browse/INLONG-444) | Add consume and produce Cli commands | Major |
+| [INLONG-447](https://issues.apache.org/jira/browse/INLONG-447) | Add Broker-Admin Cli | Major |
+| [INLONG-451](https://issues.apache.org/jira/browse/INLONG-451) | Replace ConsumeTupleInfo with Tuple2  | Major    |
+| [INLONG-457](https://issues.apache.org/jira/browse/INLONG-457) | There is no need to return StringBuilder in Master.java | Major |
+| [INLONG-463](https://issues.apache.org/jira/browse/INLONG-463) | Adjust Master rebalance process implementation  | Major |
+| [INLONG-464](https://issues.apache.org/jira/browse/INLONG-464) | Add parameter rebalanceParallel in master.ini | Major |
+| [INLONG-470](https://issues.apache.org/jira/browse/INLONG-470) | Add query API of TopicName and BrokerId collection  | Major |
+| [INLONG-471](https://issues.apache.org/jira/browse/INLONG-471) | Add query API Introduction of TopicName and BrokerId collection | Major |
+| [INLONG-472](https://issues.apache.org/jira/browse/INLONG-472) | Adjust Broker's AbstractWebHandler class implementation  | Major |
+| [INLONG-475](https://issues.apache.org/jira/browse/INLONG-475) | add the offset clone api of the consume group  | Major |
+| [INLONG-482](https://issues.apache.org/jira/browse/INLONG-482) | Add offset query api  | Major |
+| [INLONG-484](https://issues.apache.org/jira/browse/INLONG-484) | Add query API for topic publication information  | Major |
+| [INLONG-485](https://issues.apache.org/jira/browse/INLONG-485) | Add the batch setting API of consume group offset  | Major |
+| [INLONG-486](https://issues.apache.org/jira/browse/INLONG-486) | Add the delete API of consumer group offset  | Major |
+| [INLONG-494](https://issues.apache.org/jira/browse/INLONG-494) | Update API interface instruction document | Major |
+| [INLONG-499](https://issues.apache.org/jira/browse/INLONG-499) | Add configure store  | Major |
+| [INLONG-500](https://issues.apache.org/jira/browse/INLONG-500) | Add setting operate API  | Major |
+| [INLONG-501](https://issues.apache.org/jira/browse/INLONG-501) | Adjust max message size check logic  | Major |
+| [INLONG-502](https://issues.apache.org/jira/browse/INLONG-502) | Add setting API interface document  | Major |
+| [INLONG-504](https://issues.apache.org/jira/browse/INLONG-504) | Adjust the WebMethodMapper class interfaces  | Major |
+| [INLONG-508](https://issues.apache.org/jira/browse/INLONG-508) | Optimize Broker's PB parameter check processing logic  | Major |
+| [INLONG-509](https://issues.apache.org/jira/browse/INLONG-509) | Adjust the packet length check when data is loaded  | Major |
+| [INLONG-522](https://issues.apache.org/jira/browse/INLONG-522) | Add admin_query_cluster_topic_view API document  | Major |
+| [INLONG-544](https://issues.apache.org/jira/browse/INLONG-544) | Adjust the LICENSE statement in the client.conf files of Python and C/C++ SDK | Major |
+| [INLONG-546](https://issues.apache.org/jira/browse/INLONG-546) | Restore the original license header of the referenced external source files | Major |
+| [INLONG-547](https://issues.apache.org/jira/browse/INLONG-547) | Recode the implementation of the *Startup.java classes in the Tool package | Major |
+| [INLONG-548](https://issues.apache.org/jira/browse/INLONG-548) | Handle the LICENSE authorization of font files in the resources | Major |
+| [INLONG-549](https://issues.apache.org/jira/browse/INLONG-549) | Handling the problem of compilation failure | Major |
+| [INLONG-550](https://issues.apache.org/jira/browse/INLONG-550) | Adjust LICENSE file content | Major |
+| [INLONG-551](https://issues.apache.org/jira/browse/INLONG-551) | Adjust NOTICE file content | Major |
+| [INLONG-558](https://issues.apache.org/jira/browse/INLONG-558) | Adjust the LICENSE of the file header | Major |
+| [INLONG-559](https://issues.apache.org/jira/browse/INLONG-559) | Update the LICENSE file according to the 0.8.0-RC2 review | Major |
+| [INLONG-560](https://issues.apache.org/jira/browse/INLONG-560) | Remove unprepared modules | Major |
 
 
 ## Release 0.7.0-incubating - Released (as of 2020-11-25)
@@ -115,66 +333,66 @@
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-162](https://issues.apache.org/jira/browse/TUBEMQ-162) | Python SDK support in TubeMQ | High |
-| [TUBEMQ-336](https://issues.apache.org/jira/browse/TUBEMQ-336) | Propose web portal to manage tube cluster Phase-I | Major |
-| [TUBEMQ-390](https://issues.apache.org/jira/browse/TUBEMQ-390)   | support build C++ SDK with docker image | Normal |
+| [INLONG-162](https://issues.apache.org/jira/browse/INLONG-162) | Python SDK support in TubeMQ | High |
+| [INLONG-336](https://issues.apache.org/jira/browse/INLONG-336) | Propose web portal to manage tube cluster Phase-I | Major |
+| [INLONG-390](https://issues.apache.org/jira/browse/INLONG-390)   | support build C++ SDK with docker image | Normal |
 
 ### IMPROVEMENTS:
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-369](https://issues.apache.org/jira/browse/TUBEMQ-369) | hope to add an option in the compilation script (like `make lib` etc...)                 | Major    |
-| [TUBEMQ-373](https://issues.apache.org/jira/browse/TUBEMQ-373) | Reduce the redundant code of Utils::Split functions             | Major    |
-| [TUBEMQ-374](https://issues.apache.org/jira/browse/TUBEMQ-374) | Adjust some coding style issues     | Major    |
-| [TUBEMQ-375](https://issues.apache.org/jira/browse/TUBEMQ-375) | Add a section to the README file about how to compile the project| Major    |
-| [TUBEMQ-385](https://issues.apache.org/jira/browse/TUBEMQ-385) | update docker images     | Major    |
-| [TUBEMQ-393](https://issues.apache.org/jira/browse/TUBEMQ-393) | Optimize the mapping code of WEB API     | Major    |
-| [TUBEMQ-406](https://issues.apache.org/jira/browse/TUBEMQ-406) | test_consumer.py works for both Python 2 and 3   | Minor |
-| [TUBEMQ-410](https://issues.apache.org/jira/browse/TUBEMQ-410) | install python package and simplify test_consumer.py    | Major    |
-| [TUBEMQ-416](https://issues.apache.org/jira/browse/TUBEMQ-416) | support consume from specified position   | Major    |
-| [TUBEMQ-417](https://issues.apache.org/jira/browse/TUBEMQ-417) | C++ Client support parse message from binary data for Python SDK    | Major    |
-| [TUBEMQ-419](https://issues.apache.org/jira/browse/TUBEMQ-419) | SetMaxPartCheckPeriodMs() negative number, getMessage() still  | Major    |
+| [INLONG-369](https://issues.apache.org/jira/browse/INLONG-369) | hope to add an option in the compilation script (like `make lib` etc...)                 | Major    |
+| [INLONG-373](https://issues.apache.org/jira/browse/INLONG-373) | Reduce the redundant code of Utils::Split functions             | Major    |
+| [INLONG-374](https://issues.apache.org/jira/browse/INLONG-374) | Adjust some coding style issues     | Major    |
+| [INLONG-375](https://issues.apache.org/jira/browse/INLONG-375) | Add a section to the README file about how to compile the project| Major    |
+| [INLONG-385](https://issues.apache.org/jira/browse/INLONG-385) | update docker images     | Major    |
+| [INLONG-393](https://issues.apache.org/jira/browse/INLONG-393) | Optimize the mapping code of WEB API     | Major    |
+| [INLONG-406](https://issues.apache.org/jira/browse/INLONG-406) | test_consumer.py works for both Python 2 and 3   | Minor |
+| [INLONG-410](https://issues.apache.org/jira/browse/INLONG-410) | install python package and simplify test_consumer.py    | Major    |
+| [INLONG-416](https://issues.apache.org/jira/browse/INLONG-416) | support consume from specified position   | Major    |
+| [INLONG-417](https://issues.apache.org/jira/browse/INLONG-417) | C++ Client support parse message from binary data for Python SDK    | Major    |
+| [INLONG-419](https://issues.apache.org/jira/browse/INLONG-419) | SetMaxPartCheckPeriodMs() negative number, getMessage() still  | Major    |
 
 ### BUG FIXES:
 
 | JIRA                                                         | Summary                                                      | Priority |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :------- |
-| [TUBEMQ-365](https://issues.apache.org/jira/browse/TUBEMQ-365) | Whether the consumption setting is wrong after the processRequest exception | Major    |
-| [TUBEMQ-370](https://issues.apache.org/jira/browse/TUBEMQ-370) | Calling GetCurConsumedInfo API always returns failure      | Major    |
-| [TUBEMQ-376](https://issues.apache.org/jira/browse/TUBEMQ-376) | Move pullrequests_status notifications commits mail list | Major    |
-| [TUBEMQ-366](https://issues.apache.org/jira/browse/TUBEMQ-366) | Found a nullpointerexception bug in broker | Normal |
-| [TUBEMQ-379](https://issues.apache.org/jira/browse/TUBEMQ-379) | Modify the memory cache size default to 3M | Normal |
-| [TUBEMQ-380](https://issues.apache.org/jira/browse/TUBEMQ-380) | Cpp client link error when gcc optimization is disabled   | Major    |
-| [TUBEMQ-405](https://issues.apache.org/jira/browse/TUBEMQ-405) | python sdk install files lack of the whole cpp configuration | Major |
-| [TUBEMQ-401](https://issues.apache.org/jira/browse/TUBEMQ-401) | python sdk readme bug | Minor |
-| [TUBEMQ-407](https://issues.apache.org/jira/browse/TUBEMQ-407) | Fix some content in README.md | Trivial |
-| [TUBEMQ-418](https://issues.apache.org/jira/browse/TUBEMQ-418) | C++ SDK function SetMaxPartCheckPeriodMs() can't work | Major |
+| [INLONG-365](https://issues.apache.org/jira/browse/INLONG-365) | Whether the consumption setting is wrong after the processRequest exception | Major    |
+| [INLONG-370](https://issues.apache.org/jira/browse/INLONG-370) | Calling GetCurConsumedInfo API always returns failure      | Major    |
+| [INLONG-376](https://issues.apache.org/jira/browse/INLONG-376) | Move pullrequests_status notifications commits mail list | Major    |
+| [INLONG-366](https://issues.apache.org/jira/browse/INLONG-366) | Found a nullpointerexception bug in broker | Normal |
+| [INLONG-379](https://issues.apache.org/jira/browse/INLONG-379) | Modify the memory cache size default to 3M | Normal |
+| [INLONG-380](https://issues.apache.org/jira/browse/INLONG-380) | Cpp client link error when gcc optimization is disabled   | Major    |
+| [INLONG-405](https://issues.apache.org/jira/browse/INLONG-405) | python sdk install files lack of the whole cpp configuration | Major |
+| [INLONG-401](https://issues.apache.org/jira/browse/INLONG-401) | python sdk readme bug | Minor |
+| [INLONG-407](https://issues.apache.org/jira/browse/INLONG-407) | Fix some content in README.md | Trivial |
+| [INLONG-418](https://issues.apache.org/jira/browse/INLONG-418) | C++ SDK function SetMaxPartCheckPeriodMs() can't work | Major |
 
 ### SUB-TASK:
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-276](https://issues.apache.org/jira/browse/TUBEMQ-276) | add python client encode/decode protobuf message for TubeMQ RPC Protocol                                 | Major    |
-| [TUBEMQ-338](https://issues.apache.org/jira/browse/TUBEMQ-338) | web pages for tubemq manager                                     | Major    |
-| [TUBEMQ-341](https://issues.apache.org/jira/browse/TUBEMQ-341) | open independent sub-project for tubemq                                | Major    |
-| [TUBEMQ-342](https://issues.apache.org/jira/browse/TUBEMQ-342) | abstract backend threads for routine management                              | Major    |
-| [TUBEMQ-346](https://issues.apache.org/jira/browse/TUBEMQ-346) | remove chinese comments                                          | Minor |
-| [TUBEMQ-355](https://issues.apache.org/jira/browse/TUBEMQ-355) | Add business entity for topic manager                            | Major    |
-| [TUBEMQ-361](https://issues.apache.org/jira/browse/TUBEMQ-361) | create topic when getting request             | Major    |
-| [TUBEMQ-364](https://issues.apache.org/jira/browse/TUBEMQ-364) | uniform response format for exception state                              | Major    |
-| [TUBEMQ-383](https://issues.apache.org/jira/browse/TUBEMQ-383) | document about Installation/API Reference/Example                                   | Major    |
-| [TUBEMQ-387](https://issues.apache.org/jira/browse/TUBEMQ-387) | add manager web pages                                       | Major    |
-| [TUBEMQ-392](https://issues.apache.org/jira/browse/TUBEMQ-392) | add query rest api for clusters| Major    |
-| [TUBEMQ-394](https://issues.apache.org/jira/browse/TUBEMQ-394) | Creating Mapper class from web api to inner handler | Major    |
-| [TUBEMQ-395](https://issues.apache.org/jira/browse/TUBEMQ-395) | Create Abstract WebHandler class                            | Major    |
-| [TUBEMQ-396](https://issues.apache.org/jira/browse/TUBEMQ-396) | Adjust the WebXXXHandler classes implementation  | Major    |
-| [TUBEMQ-397](https://issues.apache.org/jira/browse/TUBEMQ-397) | Add master info and other info web handler   | Major    |
-| [TUBEMQ-398](https://issues.apache.org/jira/browse/TUBEMQ-398) | reinit project for using pybind11                            | Major    |
-| [TUBEMQ-399](https://issues.apache.org/jira/browse/TUBEMQ-399) | expose C++ SDK method by Pybind11                                         | Major    |
-| [TUBEMQ-400](https://issues.apache.org/jira/browse/TUBEMQ-400) | add example for consume message by bypind11                                 | Major    |
-| [TUBEMQ-402](https://issues.apache.org/jira/browse/TUBEMQ-402) | add modify rest api for clusters                           | Major    |
-| [TUBEMQ-412](https://issues.apache.org/jira/browse/TUBEMQ-402) | tube manager start stop scrrpts                           | Major    |
-| [TUBEMQ-415](https://issues.apache.org/jira/browse/TUBEMQ-415) | exclude apache license for front end code  | Major    |
+| [INLONG-276](https://issues.apache.org/jira/browse/INLONG-276) | add python client encode/decode protobuf message for TubeMQ RPC Protocol                                 | Major    |
+| [INLONG-338](https://issues.apache.org/jira/browse/INLONG-338) | web pages for tubemq manager                                     | Major    |
+| [INLONG-341](https://issues.apache.org/jira/browse/INLONG-341) | open independent sub-project for tubemq                                | Major    |
+| [INLONG-342](https://issues.apache.org/jira/browse/INLONG-342) | abstract backend threads for routine management                              | Major    |
+| [INLONG-346](https://issues.apache.org/jira/browse/INLONG-346) | remove chinese comments                                          | Minor |
+| [INLONG-355](https://issues.apache.org/jira/browse/INLONG-355) | Add business entity for topic manager                            | Major    |
+| [INLONG-361](https://issues.apache.org/jira/browse/INLONG-361) | create topic when getting request             | Major    |
+| [INLONG-364](https://issues.apache.org/jira/browse/INLONG-364) | uniform response format for exception state                              | Major    |
+| [INLONG-383](https://issues.apache.org/jira/browse/INLONG-383) | document about Installation/API Reference/Example                                   | Major    |
+| [INLONG-387](https://issues.apache.org/jira/browse/INLONG-387) | add manager web pages                                       | Major    |
+| [INLONG-392](https://issues.apache.org/jira/browse/INLONG-392) | add query rest api for clusters| Major    |
+| [INLONG-394](https://issues.apache.org/jira/browse/INLONG-394) | Creating Mapper class from web api to inner handler | Major    |
+| [INLONG-395](https://issues.apache.org/jira/browse/INLONG-395) | Create Abstract WebHandler class                            | Major    |
+| [INLONG-396](https://issues.apache.org/jira/browse/INLONG-396) | Adjust the WebXXXHandler classes implementation  | Major    |
+| [INLONG-397](https://issues.apache.org/jira/browse/INLONG-397) | Add master info and other info web handler   | Major    |
+| [INLONG-398](https://issues.apache.org/jira/browse/INLONG-398) | reinit project for using pybind11                            | Major    |
+| [INLONG-399](https://issues.apache.org/jira/browse/INLONG-399) | expose C++ SDK method by Pybind11                                         | Major    |
+| [INLONG-400](https://issues.apache.org/jira/browse/INLONG-400) | add example for consume message by bypind11                                 | Major    |
+| [INLONG-402](https://issues.apache.org/jira/browse/INLONG-402) | add modify rest api for clusters                           | Major    |
+| [INLONG-412](https://issues.apache.org/jira/browse/INLONG-402) | tube manager start stop scrrpts                           | Major    |
+| [INLONG-415](https://issues.apache.org/jira/browse/INLONG-415) | exclude apache license for front end code  | Major    |
 
 ## Release 0.6.0-incubating - Released (as of 2020-09-25)
 
@@ -182,204 +400,204 @@
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-319](https://issues.apache.org/jira/browse/TUBEMQ-319) | In the pull mode, consumers support the  suspension of consumption for a certain partition | Major    |
-| [TUBEMQ-3](https://issues.apache.org/jira/browse/TUBEMQ-3)   | C++ SDK support in TubeMQ                                    | Normal   |
+| [INLONG-319](https://issues.apache.org/jira/browse/INLONG-319) | In the pull mode, consumers support the  suspension of consumption for a certain partition | Major    |
+| [INLONG-3](https://issues.apache.org/jira/browse/INLONG-3)   | C++ SDK support in TubeMQ                                    | Normal   |
 
 ### IMPROVEMENTS:
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-311](https://issues.apache.org/jira/browse/TUBEMQ-311) | Feedback more production information                 | Major    |
-| [TUBEMQ-312](https://issues.apache.org/jira/browse/TUBEMQ-312) | Feedback more consumption information                | Major    |
-| [TUBEMQ-325](https://issues.apache.org/jira/browse/TUBEMQ-325) | Add 406 ~ 408 error code to pullSelect call          | Major    |
-| [TUBEMQ-345](https://issues.apache.org/jira/browse/TUBEMQ-345) | Optimize the call logic of getMessage() in Pull mode | Major    |
-| [TUBEMQ-352](https://issues.apache.org/jira/browse/TUBEMQ-352) | Set the parameters of the example at startup         | Major    |
-| [TUBEMQ-353](https://issues.apache.org/jira/browse/TUBEMQ-353) | Update LICENSE about C/C++ SDK's code reference      | Major    |
-| [TUBEMQ-356](https://issues.apache.org/jira/browse/TUBEMQ-356) | C++ SDK Codec decode add requestid                   | Major    |
-| [TUBEMQ-327](https://issues.apache.org/jira/browse/TUBEMQ-327) | Fix the concurrency problem in the example           | Normal   |
+| [INLONG-311](https://issues.apache.org/jira/browse/INLONG-311) | Feedback more production information                 | Major    |
+| [INLONG-312](https://issues.apache.org/jira/browse/INLONG-312) | Feedback more consumption information                | Major    |
+| [INLONG-325](https://issues.apache.org/jira/browse/INLONG-325) | Add 406 ~ 408 error code to pullSelect call          | Major    |
+| [INLONG-345](https://issues.apache.org/jira/browse/INLONG-345) | Optimize the call logic of getMessage() in Pull mode | Major    |
+| [INLONG-352](https://issues.apache.org/jira/browse/INLONG-352) | Set the parameters of the example at startup         | Major    |
+| [INLONG-353](https://issues.apache.org/jira/browse/INLONG-353) | Update LICENSE about C/C++ SDK's code reference      | Major    |
+| [INLONG-356](https://issues.apache.org/jira/browse/INLONG-356) | C++ SDK Codec decode add requestid                   | Major    |
+| [INLONG-327](https://issues.apache.org/jira/browse/INLONG-327) | Fix the concurrency problem in the example           | Normal   |
 
 ### BUG FIXES:
 
 | JIRA                                                         | Summary                                                      | Priority |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :------- |
-| [TUBEMQ-316](https://issues.apache.org/jira/browse/TUBEMQ-316) | Where the port the port is aleady used, the  process throw the exception, but not exit | Major    |
-| [TUBEMQ-317](https://issues.apache.org/jira/browse/TUBEMQ-317) | The Store Manager throws java.lang.NullPointerException      | Major    |
-| [TUBEMQ-320](https://issues.apache.org/jira/browse/TUBEMQ-320) | Request for static web contents would get responses with no content | Major    |
-| [TUBEMQ-354](https://issues.apache.org/jira/browse/TUBEMQ-354) | Found a dns translate bug in C/C++ sdk                       | Major    |
-| [TUBEMQ-306](https://issues.apache.org/jira/browse/TUBEMQ-306) | Raise Nullpointer Exception when create tubemq instance      | Low      |
-| [TUBEMQ-359](https://issues.apache.org/jira/browse/TUBEMQ-359) | TubeMQ consume speed dropped to 0 in some partitions, it is a very serious bug | Blocker  |
+| [INLONG-316](https://issues.apache.org/jira/browse/INLONG-316) | Where the port the port is aleady used, the  process throw the exception, but not exit | Major    |
+| [INLONG-317](https://issues.apache.org/jira/browse/INLONG-317) | The Store Manager throws java.lang.NullPointerException      | Major    |
+| [INLONG-320](https://issues.apache.org/jira/browse/INLONG-320) | Request for static web contents would get responses with no content | Major    |
+| [INLONG-354](https://issues.apache.org/jira/browse/INLONG-354) | Found a dns translate bug in C/C++ sdk                       | Major    |
+| [INLONG-306](https://issues.apache.org/jira/browse/INLONG-306) | Raise Nullpointer Exception when create tubemq instance      | Low      |
+| [INLONG-359](https://issues.apache.org/jira/browse/INLONG-359) | TubeMQ consume speed dropped to 0 in some partitions, it is a very serious bug | Blocker  |
 
 ### SUB-TASK:
 
 | JIRA  | Summary  | Priority |
 | :---- | :------- | :------- |
-| [TUBEMQ-250](https://issues.apache.org/jira/browse/TUBEMQ-250) | Create C/C++ configure files                                 | Major    |
-| [TUBEMQ-251](https://issues.apache.org/jira/browse/TUBEMQ-251) | Create C/C++ Codec utils                                     | Major    |
-| [TUBEMQ-252](https://issues.apache.org/jira/browse/TUBEMQ-252) | Create C/C++ Metadata classes                                | Major    |
-| [TUBEMQ-262](https://issues.apache.org/jira/browse/TUBEMQ-262) | Create C++ flow control handler                              | Major    |
-| [TUBEMQ-263](https://issues.apache.org/jira/browse/TUBEMQ-263) | Create C/C++ ini file read utils                             | Major    |
-| [TUBEMQ-266](https://issues.apache.org/jira/browse/TUBEMQ-266) | [TUBEMQ-266] Add Tencent/rapidjson as submodule              | Major    |
-| [TUBEMQ-267](https://issues.apache.org/jira/browse/TUBEMQ-267) | Create C/C++ Message class                                   | Major    |
-| [TUBEMQ-269](https://issues.apache.org/jira/browse/TUBEMQ-269) | Create C/C++ RmtDataCache class                              | Major    |
-| [TUBEMQ-272](https://issues.apache.org/jira/browse/TUBEMQ-272) | Unified C/C++ files's code style                             | Major    |
-| [TUBEMQ-274](https://issues.apache.org/jira/browse/TUBEMQ-274) | Support CMake compilation                                    | Major    |
-| [TUBEMQ-275](https://issues.apache.org/jira/browse/TUBEMQ-275) | Thread Pool & Timer                                          | Major    |
-| [TUBEMQ-280](https://issues.apache.org/jira/browse/TUBEMQ-280) | Create C/C++ subscribe info class                            | Major    |
-| [TUBEMQ-281](https://issues.apache.org/jira/browse/TUBEMQ-281) | atomic_def.h use C++11 stdlib class                          | Major    |
-| [TUBEMQ-282](https://issues.apache.org/jira/browse/TUBEMQ-282) | Create C/C++ return result class                             | Major    |
-| [TUBEMQ-283](https://issues.apache.org/jira/browse/TUBEMQ-283) | Adjust C/C++ some file names: add "tubemq_" prefix           | Major    |
-| [TUBEMQ-285](https://issues.apache.org/jira/browse/TUBEMQ-285) | Replace C/C++ pthread's mutex to std::mutex                  | Major    |
-| [TUBEMQ-286](https://issues.apache.org/jira/browse/TUBEMQ-286) | Create C/C++ SDK's manager class                             | Major    |
-| [TUBEMQ-287](https://issues.apache.org/jira/browse/TUBEMQ-287) | C++ SDK io buffer                                            | Major    |
-| [TUBEMQ-288](https://issues.apache.org/jira/browse/TUBEMQ-288) | C++ SDK Codec interface                                      | Major    |
-| [TUBEMQ-289](https://issues.apache.org/jira/browse/TUBEMQ-289) | C++ SDK Codec TubeMQ proto support                           | Major    |
-| [TUBEMQ-290](https://issues.apache.org/jira/browse/TUBEMQ-290) | C++ SDK TCP Connect                                          | Major    |
-| [TUBEMQ-291](https://issues.apache.org/jira/browse/TUBEMQ-291) | C++ SDK Connect Pool                                         | Major    |
-| [TUBEMQ-293](https://issues.apache.org/jira/browse/TUBEMQ-293) | C++ SDK Create Future class                                  | Major    |
-| [TUBEMQ-296](https://issues.apache.org/jira/browse/TUBEMQ-296) | Adjust the version information of all pom.xml                | Major    |
-| [TUBEMQ-300](https://issues.apache.org/jira/browse/TUBEMQ-300) | Update LICENSE                                               | Major    |
-| [TUBEMQ-308](https://issues.apache.org/jira/browse/TUBEMQ-308) | Upgrade Jetty 6 (mortbay) => Jetty 9 (eclipse)               | Major    |
-| [TUBEMQ-309](https://issues.apache.org/jira/browse/TUBEMQ-309) | Add POST support to WebAPI                                   | Major    |
-| [TUBEMQ-326](https://issues.apache.org/jira/browse/TUBEMQ-326) | [website] Added 405 ~ 408 error code definition              | Major    |
-| [TUBEMQ-347](https://issues.apache.org/jira/browse/TUBEMQ-347) | C++ SDK Create client API                                    | Major    |
-| [TUBEMQ-348](https://issues.apache.org/jira/browse/TUBEMQ-348) | C++SDK Client handler detail                                 | Major    |
-| [TUBEMQ-349](https://issues.apache.org/jira/browse/TUBEMQ-349) | C++ SDK Create Thread Pool                                   | Major    |
-| [TUBEMQ-350](https://issues.apache.org/jira/browse/TUBEMQ-350) | C++ SDK client code adj                                      | Major    |
-| [TUBEMQ-351](https://issues.apache.org/jira/browse/TUBEMQ-351) | C++ SDK example&tests                                        | Major    |
-| [TUBEMQ-358](https://issues.apache.org/jira/browse/TUBEMQ-358) | Adjust tubemq-manager, remove it from master, and develop with TUBEMQ-336  branch | Major    |
-| [TUBEMQ-268](https://issues.apache.org/jira/browse/TUBEMQ-268) | C++ SDK log module                                           | Normal   |
-| [TUBEMQ-292](https://issues.apache.org/jira/browse/TUBEMQ-292) | C++ SDK singleton & executor_pool optimization               | Normal   |
-| [TUBEMQ-270](https://issues.apache.org/jira/browse/TUBEMQ-270) | this point c++ SDK class                                     | Minor    |
-| [TUBEMQ-271](https://issues.apache.org/jira/browse/TUBEMQ-271) | C++ SDK copy constructor and  assignment constructor         | Minor    |
-| [TUBEMQ-273](https://issues.apache.org/jira/browse/TUBEMQ-273) | C++ SDK dir name change inc -> include/tubemq/               | Minor    |
+| [INLONG-250](https://issues.apache.org/jira/browse/INLONG-250) | Create C/C++ configure files                                 | Major    |
+| [INLONG-251](https://issues.apache.org/jira/browse/INLONG-251) | Create C/C++ Codec utils                                     | Major    |
+| [INLONG-252](https://issues.apache.org/jira/browse/INLONG-252) | Create C/C++ Metadata classes                                | Major    |
+| [INLONG-262](https://issues.apache.org/jira/browse/INLONG-262) | Create C++ flow control handler                              | Major    |
+| [INLONG-263](https://issues.apache.org/jira/browse/INLONG-263) | Create C/C++ ini file read utils                             | Major    |
+| [INLONG-266](https://issues.apache.org/jira/browse/INLONG-266) | [INLONG-266] Add Tencent/rapidjson as submodule              | Major    |
+| [INLONG-267](https://issues.apache.org/jira/browse/INLONG-267) | Create C/C++ Message class                                   | Major    |
+| [INLONG-269](https://issues.apache.org/jira/browse/INLONG-269) | Create C/C++ RmtDataCache class                              | Major    |
+| [INLONG-272](https://issues.apache.org/jira/browse/INLONG-272) | Unified C/C++ files's code style                             | Major    |
+| [INLONG-274](https://issues.apache.org/jira/browse/INLONG-274) | Support CMake compilation                                    | Major    |
+| [INLONG-275](https://issues.apache.org/jira/browse/INLONG-275) | Thread Pool & Timer                                          | Major    |
+| [INLONG-280](https://issues.apache.org/jira/browse/INLONG-280) | Create C/C++ subscribe info class                            | Major    |
+| [INLONG-281](https://issues.apache.org/jira/browse/INLONG-281) | atomic_def.h use C++11 stdlib class                          | Major    |
+| [INLONG-282](https://issues.apache.org/jira/browse/INLONG-282) | Create C/C++ return result class                             | Major    |
+| [INLONG-283](https://issues.apache.org/jira/browse/INLONG-283) | Adjust C/C++ some file names: add "tubemq_" prefix           | Major    |
+| [INLONG-285](https://issues.apache.org/jira/browse/INLONG-285) | Replace C/C++ pthread's mutex to std::mutex                  | Major    |
+| [INLONG-286](https://issues.apache.org/jira/browse/INLONG-286) | Create C/C++ SDK's manager class                             | Major    |
+| [INLONG-287](https://issues.apache.org/jira/browse/INLONG-287) | C++ SDK io buffer                                            | Major    |
+| [INLONG-288](https://issues.apache.org/jira/browse/INLONG-288) | C++ SDK Codec interface                                      | Major    |
+| [INLONG-289](https://issues.apache.org/jira/browse/INLONG-289) | C++ SDK Codec TubeMQ proto support                           | Major    |
+| [INLONG-290](https://issues.apache.org/jira/browse/INLONG-290) | C++ SDK TCP Connect                                          | Major    |
+| [INLONG-291](https://issues.apache.org/jira/browse/INLONG-291) | C++ SDK Connect Pool                                         | Major    |
+| [INLONG-293](https://issues.apache.org/jira/browse/INLONG-293) | C++ SDK Create Future class                                  | Major    |
+| [INLONG-296](https://issues.apache.org/jira/browse/INLONG-296) | Adjust the version information of all pom.xml                | Major    |
+| [INLONG-300](https://issues.apache.org/jira/browse/INLONG-300) | Update LICENSE                                               | Major    |
+| [INLONG-308](https://issues.apache.org/jira/browse/INLONG-308) | Upgrade Jetty 6 (mortbay) => Jetty 9 (eclipse)               | Major    |
+| [INLONG-309](https://issues.apache.org/jira/browse/INLONG-309) | Add POST support to WebAPI                                   | Major    |
+| [INLONG-326](https://issues.apache.org/jira/browse/INLONG-326) | [website] Added 405 ~ 408 error code definition              | Major    |
+| [INLONG-347](https://issues.apache.org/jira/browse/INLONG-347) | C++ SDK Create client API                                    | Major    |
+| [INLONG-348](https://issues.apache.org/jira/browse/INLONG-348) | C++SDK Client handler detail                                 | Major    |
+| [INLONG-349](https://issues.apache.org/jira/browse/INLONG-349) | C++ SDK Create Thread Pool                                   | Major    |
+| [INLONG-350](https://issues.apache.org/jira/browse/INLONG-350) | C++ SDK client code adj                                      | Major    |
+| [INLONG-351](https://issues.apache.org/jira/browse/INLONG-351) | C++ SDK example&tests                                        | Major    |
+| [INLONG-358](https://issues.apache.org/jira/browse/INLONG-358) | Adjust tubemq-manager, remove it from master, and develop with INLONG-336  branch | Major    |
+| [INLONG-268](https://issues.apache.org/jira/browse/INLONG-268) | C++ SDK log module                                           | Normal   |
+| [INLONG-292](https://issues.apache.org/jira/browse/INLONG-292) | C++ SDK singleton & executor_pool optimization               | Normal   |
+| [INLONG-270](https://issues.apache.org/jira/browse/INLONG-270) | this point c++ SDK class                                     | Minor    |
+| [INLONG-271](https://issues.apache.org/jira/browse/INLONG-271) | C++ SDK copy constructor and  assignment constructor         | Minor    |
+| [INLONG-273](https://issues.apache.org/jira/browse/INLONG-273) | C++ SDK dir name change inc -> include/tubemq/               | Minor    |
 
 ## Release 0.5.0-incubating - released (as of 2020-07-22)
 
 ### NEW FEATURES:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-122](https://issues.apache.org/jira/browse/TUBEMQ-122) | Increase JAVA version collection of SDK environment |  Major|
-|[TUBEMQ-163](https://issues.apache.org/jira/browse/TUBEMQ-163) | Flume sink for TubeMQ |  Major|
-|[TUBEMQ-197](https://issues.apache.org/jira/browse/TUBEMQ-197) | Support TubeMQ connector for Apache Flink |  Major|
-|[TUBEMQ-238](https://issues.apache.org/jira/browse/TUBEMQ-238) | Support TubeMQ connector for Apache Spark Streaming |  Major|
-|[TUBEMQ-239](https://issues.apache.org/jira/browse/TUBEMQ-239) | support deployment on kubernetes |  Major|
+|[INLONG-122](https://issues.apache.org/jira/browse/INLONG-122) | Increase JAVA version collection of SDK environment |  Major|
+|[INLONG-163](https://issues.apache.org/jira/browse/INLONG-163) | Flume sink for TubeMQ |  Major|
+|[INLONG-197](https://issues.apache.org/jira/browse/INLONG-197) | Support TubeMQ connector for Apache Flink |  Major|
+|[INLONG-238](https://issues.apache.org/jira/browse/INLONG-238) | Support TubeMQ connector for Apache Spark Streaming |  Major|
+|[INLONG-239](https://issues.apache.org/jira/browse/INLONG-239) | support deployment on kubernetes |  Major|
 
 ### IMPROVEMENTS:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-| [TUBEMQ-46](https://issues.apache.org/jira/browse/TUBEMQ-46) | Correct some spelling issues |	Low|
-| [TUBEMQ-53](https://issues.apache.org/jira/browse/TUBEMQ-53) | fix some typos |	Low|
-| [TUBEMQ-55](https://issues.apache.org/jira/browse/TUBEMQ-55) | fix some typos |	Low|
-| [TUBEMQ-57](https://issues.apache.org/jira/browse/TUBEMQ-57) | fix some typos & todo |	Low|
-| [TUBEMQ-58](https://issues.apache.org/jira/browse/TUBEMQ-58) | fix some typos |	Low|
-| [TUBEMQ-60](https://issues.apache.org/jira/browse/TUBEMQ-60) | Remove unnecessary synchronized & using IllegalArgumentException instead of IllegalStateException |	Low|
-| [TUBEMQ-61](https://issues.apache.org/jira/browse/TUBEMQ-61) | minor update & fix some typos |	Low|
-| [TUBEMQ-64](https://issues.apache.org/jira/browse/TUBEMQ-64) | minor update & fix some typos |	Low|
-| [TUBEMQ-67](https://issues.apache.org/jira/browse/TUBEMQ-67) | remove synchronized & fix some typos |	Low|
-| [TUBEMQ-71](https://issues.apache.org/jira/browse/TUBEMQ-71) | using IllegalArgumentException & fix some typos |	Low|
-| [TUBEMQ-73](https://issues.apache.org/jira/browse/TUBEMQ-73) | remove duplicate codes & some minor updates |	Normal|
-| [TUBEMQ-74](https://issues.apache.org/jira/browse/TUBEMQ-74) | minor updates for DefaultBdbStoreService |	Low|
-| [TUBEMQ-75](https://issues.apache.org/jira/browse/TUBEMQ-75) | remove unused Logger |	Major|
-| [TUBEMQ-76](https://issues.apache.org/jira/browse/TUBEMQ-76) | rename the classes |	Low|
-| [TUBEMQ-77](https://issues.apache.org/jira/browse/TUBEMQ-77) | fix typo |	Low|
-| [TUBEMQ-79](https://issues.apache.org/jira/browse/TUBEMQ-79) | fix typo |	Major|
-| [TUBEMQ-80](https://issues.apache.org/jira/browse/TUBEMQ-80) | Fix some typos |	Low|
-| [TUBEMQ-82](https://issues.apache.org/jira/browse/TUBEMQ-82) | Fix some typos & update comments |	Low|
-| [TUBEMQ-83](https://issues.apache.org/jira/browse/TUBEMQ-83) | Fix some typos |	Low|
-| [TUBEMQ-87](https://issues.apache.org/jira/browse/TUBEMQ-87) | Minor updates |	Low|
-| [TUBEMQ-89](https://issues.apache.org/jira/browse/TUBEMQ-89) | Minor updates |	Low|
-| [TUBEMQ-90](https://issues.apache.org/jira/browse/TUBEMQ-90) | Remove unused codes in TubeBroker |	Normal|
-| [TUBEMQ-91](https://issues.apache.org/jira/browse/TUBEMQ-91) | replace explicit type with <> |	Low|
-| [TUBEMQ-93](https://issues.apache.org/jira/browse/TUBEMQ-93) | Substitute the parameterized type for client module & missed server module |	Low|
-| [TUBEMQ-94](https://issues.apache.org/jira/browse/TUBEMQ-94) | Substitute the parameterized type for core module |	Low|
-| [TUBEMQ-95](https://issues.apache.org/jira/browse/TUBEMQ-95) | Substitute the parameterized type for server module |	Low|
-| [TUBEMQ-96](https://issues.apache.org/jira/browse/TUBEMQ-96) | Fix typo & use IllegalArgumentException |	Low|
-| [TUBEMQ-98](https://issues.apache.org/jira/browse/TUBEMQ-98) | Fix typo & Simplify 'instanceof' judgment |	Low|
-| [TUBEMQ-100](https://issues.apache.org/jira/browse/TUBEMQ-100) | Fix typos & remove unused codes |	Low|
-| [TUBEMQ-101](https://issues.apache.org/jira/browse/TUBEMQ-101) | Optimize code & Fix type |	Low|
-| [TUBEMQ-103](https://issues.apache.org/jira/browse/TUBEMQ-103) | Substitute Chinese comments with English |	Normal|
-| [TUBEMQ-108](https://issues.apache.org/jira/browse/TUBEMQ-108) | About maven jdk version configuration problem |	Minor|
-| [TUBEMQ-127](https://issues.apache.org/jira/browse/TUBEMQ-127) | Fixed a bug & minor changes |	Low|
-| [TUBEMQ-128](https://issues.apache.org/jira/browse/TUBEMQ-128) | Shorten the log clearup check cycle |	Major|
-| [TUBEMQ-138](https://issues.apache.org/jira/browse/TUBEMQ-138) | Optimize core module test case code |	Low|
-| [TUBEMQ-141](https://issues.apache.org/jira/browse/TUBEMQ-141) | Remove the requirement to provide localHostIP |	Major|
-| [TUBEMQ-152](https://issues.apache.org/jira/browse/TUBEMQ-152) | Modify the master.ini file's annotations |	Normal|
-| [TUBEMQ-154](https://issues.apache.org/jira/browse/TUBEMQ-154) | Modify the wrong comment & Minor changes for example module |	Low|
-| [TUBEMQ-155](https://issues.apache.org/jira/browse/TUBEMQ-155) | Use enum class for consume position |	Normal|
-| [TUBEMQ-156](https://issues.apache.org/jira/browse/TUBEMQ-156) | Update for README.md |	Normal|
-| [TUBEMQ-166](https://issues.apache.org/jira/browse/TUBEMQ-166) | Hide `bdbStore` configs in master.ini |	Major|
-| [TUBEMQ-167](https://issues.apache.org/jira/browse/TUBEMQ-167) | Change to relative paths in default configs |	Trivial|
-| [TUBEMQ-168](https://issues.apache.org/jira/browse/TUBEMQ-168) | Example module: remove localhost IP configuration parameters |	Minor|
-| [TUBEMQ-170](https://issues.apache.org/jira/browse/TUBEMQ-170) | improve build/deployment/configuration for quick start |	Major|
-| [TUBEMQ-196](https://issues.apache.org/jira/browse/TUBEMQ-196) | use log to print exception |	Low|
-| [TUBEMQ-201](https://issues.apache.org/jira/browse/TUBEMQ-201) | [Website] Adjust user guide & fix demo example |	Major|
-| [TUBEMQ-202](https://issues.apache.org/jira/browse/TUBEMQ-202) | Add protobuf protocol syntax declaration |	Major|
-| [TUBEMQ-213](https://issues.apache.org/jira/browse/TUBEMQ-213) | Optimize code & Minor changes |	Low|
-| [TUBEMQ-216](https://issues.apache.org/jira/browse/TUBEMQ-216) | use ThreadUtil.sleep replace Thread.sleep |	Low|
-| [TUBEMQ-222](https://issues.apache.org/jira/browse/TUBEMQ-222) | Optimize code: Unnecessary boxing/unboxing conversion |	Normal|
-| [TUBEMQ-224](https://issues.apache.org/jira/browse/TUBEMQ-224) | Fixed: Unnecessary conversion to string inspection for server module |	Low|
-| [TUBEMQ-226](https://issues.apache.org/jira/browse/TUBEMQ-226) | Add Windows startup scripts |	High|
-| [TUBEMQ-227](https://issues.apache.org/jira/browse/TUBEMQ-227) | remove build guide in docker-build readme |	Major|
-| [TUBEMQ-232](https://issues.apache.org/jira/browse/TUBEMQ-232) | TubeBroker#register2Master, reconnect and wait |	Low|
-| [TUBEMQ-234](https://issues.apache.org/jira/browse/TUBEMQ-234) | Add .asf.yaml to change notifications |	Major|
-| [TUBEMQ-235](https://issues.apache.org/jira/browse/TUBEMQ-235) | Add code coverage supporting for pull request created. |	Normal|
-| [TUBEMQ-237](https://issues.apache.org/jira/browse/TUBEMQ-237) | add maven module build for docker image |	Major|
+| [INLONG-46](https://issues.apache.org/jira/browse/INLONG-46) | Correct some spelling issues |	Low|
+| [INLONG-53](https://issues.apache.org/jira/browse/INLONG-53) | fix some typos |	Low|
+| [INLONG-55](https://issues.apache.org/jira/browse/INLONG-55) | fix some typos |	Low|
+| [INLONG-57](https://issues.apache.org/jira/browse/INLONG-57) | fix some typos & todo |	Low|
+| [INLONG-58](https://issues.apache.org/jira/browse/INLONG-58) | fix some typos |	Low|
+| [INLONG-60](https://issues.apache.org/jira/browse/INLONG-60) | Remove unnecessary synchronized & using IllegalArgumentException instead of IllegalStateException |	Low|
+| [INLONG-61](https://issues.apache.org/jira/browse/INLONG-61) | minor update & fix some typos |	Low|
+| [INLONG-64](https://issues.apache.org/jira/browse/INLONG-64) | minor update & fix some typos |	Low|
+| [INLONG-67](https://issues.apache.org/jira/browse/INLONG-67) | remove synchronized & fix some typos |	Low|
+| [INLONG-71](https://issues.apache.org/jira/browse/INLONG-71) | using IllegalArgumentException & fix some typos |	Low|
+| [INLONG-73](https://issues.apache.org/jira/browse/INLONG-73) | remove duplicate codes & some minor updates |	Normal|
+| [INLONG-74](https://issues.apache.org/jira/browse/INLONG-74) | minor updates for DefaultBdbStoreService |	Low|
+| [INLONG-75](https://issues.apache.org/jira/browse/INLONG-75) | remove unused Logger |	Major|
+| [INLONG-76](https://issues.apache.org/jira/browse/INLONG-76) | rename the classes |	Low|
+| [INLONG-77](https://issues.apache.org/jira/browse/INLONG-77) | fix typo |	Low|
+| [INLONG-79](https://issues.apache.org/jira/browse/INLONG-79) | fix typo |	Major|
+| [INLONG-80](https://issues.apache.org/jira/browse/INLONG-80) | Fix some typos |	Low|
+| [INLONG-82](https://issues.apache.org/jira/browse/INLONG-82) | Fix some typos & update comments |	Low|
+| [INLONG-83](https://issues.apache.org/jira/browse/INLONG-83) | Fix some typos |	Low|
+| [INLONG-87](https://issues.apache.org/jira/browse/INLONG-87) | Minor updates |	Low|
+| [INLONG-89](https://issues.apache.org/jira/browse/INLONG-89) | Minor updates |	Low|
+| [INLONG-90](https://issues.apache.org/jira/browse/INLONG-90) | Remove unused codes in TubeBroker |	Normal|
+| [INLONG-91](https://issues.apache.org/jira/browse/INLONG-91) | replace explicit type with <> |	Low|
+| [INLONG-93](https://issues.apache.org/jira/browse/INLONG-93) | Substitute the parameterized type for client module & missed server module |	Low|
+| [INLONG-94](https://issues.apache.org/jira/browse/INLONG-94) | Substitute the parameterized type for core module |	Low|
+| [INLONG-95](https://issues.apache.org/jira/browse/INLONG-95) | Substitute the parameterized type for server module |	Low|
+| [INLONG-96](https://issues.apache.org/jira/browse/INLONG-96) | Fix typo & use IllegalArgumentException |	Low|
+| [INLONG-98](https://issues.apache.org/jira/browse/INLONG-98) | Fix typo & Simplify 'instanceof' judgment |	Low|
+| [INLONG-100](https://issues.apache.org/jira/browse/INLONG-100) | Fix typos & remove unused codes |	Low|
+| [INLONG-101](https://issues.apache.org/jira/browse/INLONG-101) | Optimize code & Fix type |	Low|
+| [INLONG-103](https://issues.apache.org/jira/browse/INLONG-103) | Substitute Chinese comments with English |	Normal|
+| [INLONG-108](https://issues.apache.org/jira/browse/INLONG-108) | About maven jdk version configuration problem |	Minor|
+| [INLONG-127](https://issues.apache.org/jira/browse/INLONG-127) | Fixed a bug & minor changes |	Low|
+| [INLONG-128](https://issues.apache.org/jira/browse/INLONG-128) | Shorten the log clearup check cycle |	Major|
+| [INLONG-138](https://issues.apache.org/jira/browse/INLONG-138) | Optimize core module test case code |	Low|
+| [INLONG-141](https://issues.apache.org/jira/browse/INLONG-141) | Remove the requirement to provide localHostIP |	Major|
+| [INLONG-152](https://issues.apache.org/jira/browse/INLONG-152) | Modify the master.ini file's annotations |	Normal|
+| [INLONG-154](https://issues.apache.org/jira/browse/INLONG-154) | Modify the wrong comment & Minor changes for example module |	Low|
+| [INLONG-155](https://issues.apache.org/jira/browse/INLONG-155) | Use enum class for consume position |	Normal|
+| [INLONG-156](https://issues.apache.org/jira/browse/INLONG-156) | Update for README.md |	Normal|
+| [INLONG-166](https://issues.apache.org/jira/browse/INLONG-166) | Hide `bdbStore` configs in master.ini |	Major|
+| [INLONG-167](https://issues.apache.org/jira/browse/INLONG-167) | Change to relative paths in default configs |	Trivial|
+| [INLONG-168](https://issues.apache.org/jira/browse/INLONG-168) | Example module: remove localhost IP configuration parameters |	Minor|
+| [INLONG-170](https://issues.apache.org/jira/browse/INLONG-170) | improve build/deployment/configuration for quick start |	Major|
+| [INLONG-196](https://issues.apache.org/jira/browse/INLONG-196) | use log to print exception |	Low|
+| [INLONG-201](https://issues.apache.org/jira/browse/INLONG-201) | [Website] Adjust user guide & fix demo example |	Major|
+| [INLONG-202](https://issues.apache.org/jira/browse/INLONG-202) | Add protobuf protocol syntax declaration |	Major|
+| [INLONG-213](https://issues.apache.org/jira/browse/INLONG-213) | Optimize code & Minor changes |	Low|
+| [INLONG-216](https://issues.apache.org/jira/browse/INLONG-216) | use ThreadUtil.sleep replace Thread.sleep |	Low|
+| [INLONG-222](https://issues.apache.org/jira/browse/INLONG-222) | Optimize code: Unnecessary boxing/unboxing conversion |	Normal|
+| [INLONG-224](https://issues.apache.org/jira/browse/INLONG-224) | Fixed: Unnecessary conversion to string inspection for server module |	Low|
+| [INLONG-226](https://issues.apache.org/jira/browse/INLONG-226) | Add Windows startup scripts |	High|
+| [INLONG-227](https://issues.apache.org/jira/browse/INLONG-227) | remove build guide in docker-build readme |	Major|
+| [INLONG-232](https://issues.apache.org/jira/browse/INLONG-232) | TubeBroker#register2Master, reconnect and wait |	Low|
+| [INLONG-234](https://issues.apache.org/jira/browse/INLONG-234) | Add .asf.yaml to change notifications |	Major|
+| [INLONG-235](https://issues.apache.org/jira/browse/INLONG-235) | Add code coverage supporting for pull request created. |	Normal|
+| [INLONG-237](https://issues.apache.org/jira/browse/INLONG-237) | add maven module build for docker image |	Major|
 
 ### BUG FIXES:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-| [TUBEMQ-47](https://issues.apache.org/jira/browse/TUBEMQ-47) | Fix some typos |	Major|
-| [TUBEMQ-102](https://issues.apache.org/jira/browse/TUBEMQ-102) | Fix question [TUBEMQ-101] [Optimize code] |	Major|
-| [TUBEMQ-121](https://issues.apache.org/jira/browse/TUBEMQ-121) | Fix compilation alarm |	Major|
-| [TUBEMQ-139](https://issues.apache.org/jira/browse/TUBEMQ-139) | a bug in the equals method of the TubeClientConfig class |	Major|
-| [TUBEMQ-157](https://issues.apache.org/jira/browse/TUBEMQ-157) | Optimize Broker disk anomaly check |	Normal|
-| [TUBEMQ-158](https://issues.apache.org/jira/browse/TUBEMQ-158) | nextWithAuthInfo2B status should be managed independently according to Broker |	Normal|
-| [TUBEMQ-159](https://issues.apache.org/jira/browse/TUBEMQ-159) | Fix some typos |	Normal|
-| [TUBEMQ-165](https://issues.apache.org/jira/browse/TUBEMQ-165) | Remove unnecessary fiiles |	Major|
-| [TUBEMQ-205](https://issues.apache.org/jira/browse/TUBEMQ-205) | Duplicate dependency of jetty in tuber-server pom file |	Minor|
-| [TUBEMQ-206](https://issues.apache.org/jira/browse/TUBEMQ-206) | There are some residual files after executed unit tests |	Major|
-| [TUBEMQ-210](https://issues.apache.org/jira/browse/TUBEMQ-210) | Add log4j properties file for unit tests |	Minor|
-| [TUBEMQ-217](https://issues.apache.org/jira/browse/TUBEMQ-217) | UPdate the je download path |	Major|
-| [TUBEMQ-218](https://issues.apache.org/jira/browse/TUBEMQ-218) | build failed: Too many files with unapproved license |	Major|
-| [TUBEMQ-230](https://issues.apache.org/jira/browse/TUBEMQ-230) | TubeMQ run mvn test failed with openjdk version 13.0.2 |	Major|
-| [TUBEMQ-236](https://issues.apache.org/jira/browse/TUBEMQ-236) | Can't get dependencies from the maven repository |	Major|
-| [TUBEMQ-253](https://issues.apache.org/jira/browse/TUBEMQ-253) | tube-consumer fetch-worker cpu used too high |	Major|
-| [TUBEMQ-254](https://issues.apache.org/jira/browse/TUBEMQ-254) | support using different mapping port for standalone mode |	Major|
-| [TUBEMQ-265](https://issues.apache.org/jira/browse/TUBEMQ-265) | Unexpected broker disappearance in broker list after updating default broker metadata |	Major|
+| [INLONG-47](https://issues.apache.org/jira/browse/INLONG-47) | Fix some typos |	Major|
+| [INLONG-102](https://issues.apache.org/jira/browse/INLONG-102) | Fix question [INLONG-101] [Optimize code] |	Major|
+| [INLONG-121](https://issues.apache.org/jira/browse/INLONG-121) | Fix compilation alarm |	Major|
+| [INLONG-139](https://issues.apache.org/jira/browse/INLONG-139) | a bug in the equals method of the TubeClientConfig class |	Major|
+| [INLONG-157](https://issues.apache.org/jira/browse/INLONG-157) | Optimize Broker disk anomaly check |	Normal|
+| [INLONG-158](https://issues.apache.org/jira/browse/INLONG-158) | nextWithAuthInfo2B status should be managed independently according to Broker |	Normal|
+| [INLONG-159](https://issues.apache.org/jira/browse/INLONG-159) | Fix some typos |	Normal|
+| [INLONG-165](https://issues.apache.org/jira/browse/INLONG-165) | Remove unnecessary fiiles |	Major|
+| [INLONG-205](https://issues.apache.org/jira/browse/INLONG-205) | Duplicate dependency of jetty in tuber-server pom file |	Minor|
+| [INLONG-206](https://issues.apache.org/jira/browse/INLONG-206) | There are some residual files after executed unit tests |	Major|
+| [INLONG-210](https://issues.apache.org/jira/browse/INLONG-210) | Add log4j properties file for unit tests |	Minor|
+| [INLONG-217](https://issues.apache.org/jira/browse/INLONG-217) | UPdate the je download path |	Major|
+| [INLONG-218](https://issues.apache.org/jira/browse/INLONG-218) | build failed: Too many files with unapproved license |	Major|
+| [INLONG-230](https://issues.apache.org/jira/browse/INLONG-230) | TubeMQ run mvn test failed with openjdk version 13.0.2 |	Major|
+| [INLONG-236](https://issues.apache.org/jira/browse/INLONG-236) | Can't get dependencies from the maven repository |	Major|
+| [INLONG-253](https://issues.apache.org/jira/browse/INLONG-253) | tube-consumer fetch-worker cpu used too high |	Major|
+| [INLONG-254](https://issues.apache.org/jira/browse/INLONG-254) | support using different mapping port for standalone mode |	Major|
+| [INLONG-265](https://issues.apache.org/jira/browse/INLONG-265) | Unexpected broker disappearance in broker list after updating default broker metadata |	Major|
 
 ### TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-193](https://issues.apache.org/jira/browse/TUBEMQ-193)  | Update project document content |  Major |
+|[INLONG-193](https://issues.apache.org/jira/browse/INLONG-193)  | Update project document content |  Major |
 
 ### SUB-TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-123](https://issues.apache.org/jira/browse/TUBEMQ-123) | Batch flush data to disk |  Major |
-|[TUBEMQ-126](https://issues.apache.org/jira/browse/TUBEMQ-126) | Increase the unflushed data bytes control |  Major |
-|[TUBEMQ-140](https://issues.apache.org/jira/browse/TUBEMQ-140) | Remove the SSD auxiliary consumption function |  Major |
-|[TUBEMQ-160](https://issues.apache.org/jira/browse/TUBEMQ-160) | Improve the protocol between Broker and Master |  Major |
-|[TUBEMQ-169](https://issues.apache.org/jira/browse/TUBEMQ-169) | support build with docker image |  Major |
-|[TUBEMQ-171](https://issues.apache.org/jira/browse/TUBEMQ-171) | master and broker support config hostname with “localhost” or "127.0.0.1" or dns address |  Major |
-|[TUBEMQ-172](https://issues.apache.org/jira/browse/TUBEMQ-172) | simplify start/stop script |  Major |
-|[TUBEMQ-173](https://issues.apache.org/jira/browse/TUBEMQ-173) | change jvm memory parameters for default deployment |  Major |
-|[TUBEMQ-174](https://issues.apache.org/jira/browse/TUBEMQ-174) | hange defaule accessing url of web gui to http://your-master-ip:8080 |  Major |
-|[TUBEMQ-178](https://issues.apache.org/jira/browse/TUBEMQ-178) | change default IPs configuration to localhost |  Major |
-|[TUBEMQ-188](https://issues.apache.org/jira/browse/TUBEMQ-188) | the example for demo topic catch exception |  Major |
-|[TUBEMQ-194](https://issues.apache.org/jira/browse/TUBEMQ-194) | [website]Remove SSD auxiliary storage introduction |  Major |
-|[TUBEMQ-195](https://issues.apache.org/jira/browse/TUBEMQ-195) | [website] Adjust the content of the Chinese part of the document |  Major |
-|[TUBEMQ-198](https://issues.apache.org/jira/browse/TUBEMQ-198) | Support TubeMQ source for flink |  Major |
-|[TUBEMQ-199](https://issues.apache.org/jira/browse/TUBEMQ-199) | Support TubeMQ sink for flink |  Major |
-|[TUBEMQ-204](https://issues.apache.org/jira/browse/TUBEMQ-204) | Remove document address guideline |  Major |
-|[TUBEMQ-221](https://issues.apache.org/jira/browse/TUBEMQ-221) | make quick start doc more easy for reading |  Major |
-|[TUBEMQ-240](https://issues.apache.org/jira/browse/TUBEMQ-240) | add status command for broker/master script |  Major |
-|[TUBEMQ-241](https://issues.apache.org/jira/browse/TUBEMQ-241) | add helm chart for tubemq |  Major |
-|[TUBEMQ-242](https://issues.apache.org/jira/browse/TUBEMQ-242) | Support Table interface for TubeMQ flink connector |  Major |
-|[TUBEMQ-244](https://issues.apache.org/jira/browse/TUBEMQ-244) | tubemq web support access using proxy IP |  Major |
-|[TUBEMQ-246](https://issues.apache.org/jira/browse/TUBEMQ-246) | support register broker using hostname |  Major |
-|[TUBEMQ-295](https://issues.apache.org/jira/browse/TUBEMQ-295) | Modify CHANGES.md to add 0.5.0 version release modification |  Major |
-|[TUBEMQ-299](https://issues.apache.org/jira/browse/TUBEMQ-299) | Fix RAT check warnning |  Major |
-|[TUBEMQ-300](https://issues.apache.org/jira/browse/TUBEMQ-300) | Update LICENSE |  Major |
+|[INLONG-123](https://issues.apache.org/jira/browse/INLONG-123) | Batch flush data to disk |  Major |
+|[INLONG-126](https://issues.apache.org/jira/browse/INLONG-126) | Increase the unflushed data bytes control |  Major |
+|[INLONG-140](https://issues.apache.org/jira/browse/INLONG-140) | Remove the SSD auxiliary consumption function |  Major |
+|[INLONG-160](https://issues.apache.org/jira/browse/INLONG-160) | Improve the protocol between Broker and Master |  Major |
+|[INLONG-169](https://issues.apache.org/jira/browse/INLONG-169) | support build with docker image |  Major |
+|[INLONG-171](https://issues.apache.org/jira/browse/INLONG-171) | master and broker support config hostname with “localhost” or "127.0.0.1" or dns address |  Major |
+|[INLONG-172](https://issues.apache.org/jira/browse/INLONG-172) | simplify start/stop script |  Major |
+|[INLONG-173](https://issues.apache.org/jira/browse/INLONG-173) | change jvm memory parameters for default deployment |  Major |
+|[INLONG-174](https://issues.apache.org/jira/browse/INLONG-174) | hange defaule accessing url of web gui to http://your-master-ip:8080 |  Major |
+|[INLONG-178](https://issues.apache.org/jira/browse/INLONG-178) | change default IPs configuration to localhost |  Major |
+|[INLONG-188](https://issues.apache.org/jira/browse/INLONG-188) | the example for demo topic catch exception |  Major |
+|[INLONG-194](https://issues.apache.org/jira/browse/INLONG-194) | [website]Remove SSD auxiliary storage introduction |  Major |
+|[INLONG-195](https://issues.apache.org/jira/browse/INLONG-195) | [website] Adjust the content of the Chinese part of the document |  Major |
+|[INLONG-198](https://issues.apache.org/jira/browse/INLONG-198) | Support TubeMQ source for flink |  Major |
+|[INLONG-199](https://issues.apache.org/jira/browse/INLONG-199) | Support TubeMQ sink for flink |  Major |
+|[INLONG-204](https://issues.apache.org/jira/browse/INLONG-204) | Remove document address guideline |  Major |
+|[INLONG-221](https://issues.apache.org/jira/browse/INLONG-221) | make quick start doc more easy for reading |  Major |
+|[INLONG-240](https://issues.apache.org/jira/browse/INLONG-240) | add status command for broker/master script |  Major |
+|[INLONG-241](https://issues.apache.org/jira/browse/INLONG-241) | add helm chart for tubemq |  Major |
+|[INLONG-242](https://issues.apache.org/jira/browse/INLONG-242) | Support Table interface for TubeMQ flink connector |  Major |
+|[INLONG-244](https://issues.apache.org/jira/browse/INLONG-244) | tubemq web support access using proxy IP |  Major |
+|[INLONG-246](https://issues.apache.org/jira/browse/INLONG-246) | support register broker using hostname |  Major |
+|[INLONG-295](https://issues.apache.org/jira/browse/INLONG-295) | Modify CHANGES.md to add 0.5.0 version release modification |  Major |
+|[INLONG-299](https://issues.apache.org/jira/browse/INLONG-299) | Fix RAT check warnning |  Major |
+|[INLONG-300](https://issues.apache.org/jira/browse/INLONG-300) | Update LICENSE |  Major |
 
 
 
@@ -389,65 +607,65 @@
 
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-42](https://issues.apache.org/jira/browse/TUBEMQ-42) | Add peer information about message received	Major	New Feature |  Major|
+|[INLONG-42](https://issues.apache.org/jira/browse/INLONG-42) | Add peer information about message received	Major	New Feature |  Major|
 
 ### IMPROVEMENTS:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-| [TUBEMQ-16](https://issues.apache.org/jira/browse/TUBEMQ-16) |Correct BdbStoreService#isPrimaryNodeActived to BdbStoreService#isPrimaryNodeActive|	Low|
-| [TUBEMQ-18](https://issues.apache.org/jira/browse/TUBEMQ-18) |Correct TMaster#idGenerater to TMaster#idGenerator|	Low|
-| [TUBEMQ-19](https://issues.apache.org/jira/browse/TUBEMQ-19) |Correct parameter names to fit in camel case|	Low|
-| [TUBEMQ-20](https://issues.apache.org/jira/browse/TUBEMQ-20) |Correct DefaultLoadBalancer#balance parameter	| Low|
-| [TUBEMQ-21](https://issues.apache.org/jira/browse/TUBEMQ-21) |Change version number from x.y-SNAPSHOT to x.y.z-incubating-SNAPSHOT|	Normal|
-| [TUBEMQ-22](https://issues.apache.org/jira/browse/TUBEMQ-22) |Correct ClientSubInfo#getTopicProcesser -> ClientSubInfo#getTopicProcessor|	Low|
-| [TUBEMQ-23](https://issues.apache.org/jira/browse/TUBEMQ-23) |Improve project README content introduction|	Major|
-| [TUBEMQ-24](https://issues.apache.org/jira/browse/TUBEMQ-24) |Add NOTICE and adjust LICENSE	| Major|
-| [TUBEMQ-26](https://issues.apache.org/jira/browse/TUBEMQ-26) |correct spelling (difftime-> diffTime)	|Low|
-| [TUBEMQ-27](https://issues.apache.org/jira/browse/TUBEMQ-27) |replace StringBuffer with StringBuilder |	Major|
-| [TUBEMQ-28](https://issues.apache.org/jira/browse/TUBEMQ-28) |ignore path error	|Major|
-| [TUBEMQ-29](https://issues.apache.org/jira/browse/TUBEMQ-29) |Change the package name to org.apache.tubemq.""	|Major|
-| [TUBEMQ-33](https://issues.apache.org/jira/browse/TUBEMQ-33) |refactor enum implement from annoymouse inner class	| Major|
-| [TUBEMQ-38](https://issues.apache.org/jira/browse/TUBEMQ-38) |Add Broker's running status check	| Major||
-| [TUBEMQ-39](https://issues.apache.org/jira/browse/TUBEMQ-39) |Optimize the loadMessageStores() logic	| Nor|mal|
-| [TUBEMQ-40](https://issues.apache.org/jira/browse/TUBEMQ-40) |Optimize message disk store classes's logic	| Major|
-| [TUBEMQ-43](https://issues.apache.org/jira/browse/TUBEMQ-43) |Add DeletePolicy's value check	| Major|
-| [TUBEMQ-44](https://issues.apache.org/jira/browse/TUBEMQ-44) |Remove unnecessary synchronized definition of shutdown () function	| Normal|
-| [TUBEMQ-49](https://issues.apache.org/jira/browse/TUBEMQ-49) |setTimeoutTime change to updTimeoutTime	| Major|
-| [TUBEMQ-50](https://issues.apache.org/jira/browse/TUBEMQ-50) |Replace fastjson to gson	| Major|
-| [TUBEMQ-7](https://issues.apache.org/jira/browse/TUBEMQ-7) | Using StringBuilder instead of StringBuffer in BaseResult	| Low|
-| [TUBEMQ-9](https://issues.apache.org/jira/browse/TUBEMQ-9) | Remove some unnecessary code	| Minor |
+| [INLONG-16](https://issues.apache.org/jira/browse/INLONG-16) |Correct BdbStoreService#isPrimaryNodeActived to BdbStoreService#isPrimaryNodeActive|	Low|
+| [INLONG-18](https://issues.apache.org/jira/browse/INLONG-18) |Correct TMaster#idGenerater to TMaster#idGenerator|	Low|
+| [INLONG-19](https://issues.apache.org/jira/browse/INLONG-19) |Correct parameter names to fit in camel case|	Low|
+| [INLONG-20](https://issues.apache.org/jira/browse/INLONG-20) |Correct DefaultLoadBalancer#balance parameter	| Low|
+| [INLONG-21](https://issues.apache.org/jira/browse/INLONG-21) |Change version number from x.y-SNAPSHOT to x.y.z-incubating-SNAPSHOT|	Normal|
+| [INLONG-22](https://issues.apache.org/jira/browse/INLONG-22) |Correct ClientSubInfo#getTopicProcesser -> ClientSubInfo#getTopicProcessor|	Low|
+| [INLONG-23](https://issues.apache.org/jira/browse/INLONG-23) |Improve project README content introduction|	Major|
+| [INLONG-24](https://issues.apache.org/jira/browse/INLONG-24) |Add NOTICE and adjust LICENSE	| Major|
+| [INLONG-26](https://issues.apache.org/jira/browse/INLONG-26) |correct spelling (difftime-> diffTime)	|Low|
+| [INLONG-27](https://issues.apache.org/jira/browse/INLONG-27) |replace StringBuffer with StringBuilder |	Major|
+| [INLONG-28](https://issues.apache.org/jira/browse/INLONG-28) |ignore path error	|Major|
+| [INLONG-29](https://issues.apache.org/jira/browse/INLONG-29) |Change the package name to org.apache.tubemq.""	|Major|
+| [INLONG-33](https://issues.apache.org/jira/browse/INLONG-33) |refactor enum implement from annoymouse inner class	| Major|
+| [INLONG-38](https://issues.apache.org/jira/browse/INLONG-38) |Add Broker's running status check	| Major||
+| [INLONG-39](https://issues.apache.org/jira/browse/INLONG-39) |Optimize the loadMessageStores() logic	| Nor|mal|
+| [INLONG-40](https://issues.apache.org/jira/browse/INLONG-40) |Optimize message disk store classes's logic	| Major|
+| [INLONG-43](https://issues.apache.org/jira/browse/INLONG-43) |Add DeletePolicy's value check	| Major|
+| [INLONG-44](https://issues.apache.org/jira/browse/INLONG-44) |Remove unnecessary synchronized definition of shutdown () function	| Normal|
+| [INLONG-49](https://issues.apache.org/jira/browse/INLONG-49) |setTimeoutTime change to updTimeoutTime	| Major|
+| [INLONG-50](https://issues.apache.org/jira/browse/INLONG-50) |Replace fastjson to gson	| Major|
+| [INLONG-7](https://issues.apache.org/jira/browse/INLONG-7) | Using StringBuilder instead of StringBuffer in BaseResult	| Low|
+| [INLONG-9](https://issues.apache.org/jira/browse/INLONG-9) | Remove some unnecessary code	| Minor |
 
 ### BUG FIXES:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-| [TUBEMQ-10](https://issues.apache.org/jira/browse/TUBEMQ-10) |Fix Javadoc error|Low|
-| [TUBEMQ-14](https://issues.apache.org/jira/browse/TUBEMQ-14) |Some compilation errors|Major|
-| [TUBEMQ-15](https://issues.apache.org/jira/browse/TUBEMQ-15) |Correct typo in http_access_API_definition.md|Low|
-| [TUBEMQ-32](https://issues.apache.org/jira/browse/TUBEMQ-32) |File path not match with package name in tubemq-client module|Major|
-| [TUBEMQ-35](https://issues.apache.org/jira/browse/TUBEMQ-35) |check illegal package's field value|Normal|
-| [TUBEMQ-36](https://issues.apache.org/jira/browse/TUBEMQ-36) |Remove unnecessary removefirst() function printing|Normal|
-| [TUBEMQ-37](https://issues.apache.org/jira/browse/TUBEMQ-37) |Offset is set to 0 when Broker goes offline|Major|
-| [TUBEMQ-45](https://issues.apache.org/jira/browse/TUBEMQ-45) |Check groupName with checkHostName function|Major|
-| [TUBEMQ-48](https://issues.apache.org/jira/browse/TUBEMQ-48) |No timeout when setting consumer timeout|Major|
-| [TUBEMQ-59](https://issues.apache.org/jira/browse/TUBEMQ-59) |Null pointer exception is thrown while constructing ConsumerConfig with MasterInfo|Normal|
-| [TUBEMQ-62](https://issues.apache.org/jira/browse/TUBEMQ-62) |consumed and set consumerConfig.setConsumeModel (0) for the first time|Major|
-| [TUBEMQ-66](https://issues.apache.org/jira/browse/TUBEMQ-66) |TubeSingleSessionFactory shutdown bug|Normal|
-| [TUBEMQ-85](https://issues.apache.org/jira/browse/TUBEMQ-85) |There is NPE when creating PullConsumer with TubeSingleSessionFactory|Major|
-| [TUBEMQ-88](https://issues.apache.org/jira/browse/TUBEMQ-88) |Broker does not take effect after the deletePolicy value is changed|Major|
-| [TUBEMQ-149](https://issues.apache.org/jira/browse/TUBEMQ-149) |Some of the consumers stop consuming their corresponding partitions and never release the partition to others|Major|
-| [TUBEMQ-153](https://issues.apache.org/jira/browse/TUBEMQ-153) |update copyright notices year to 2020|  Major |
-| [TUBEMQ-165](https://issues.apache.org/jira/browse/TUBEMQ-165) |Remove unnecessary fiiles|  Major |
+| [INLONG-10](https://issues.apache.org/jira/browse/INLONG-10) |Fix Javadoc error|Low|
+| [INLONG-14](https://issues.apache.org/jira/browse/INLONG-14) |Some compilation errors|Major|
+| [INLONG-15](https://issues.apache.org/jira/browse/INLONG-15) |Correct typo in http_access_API_definition.md|Low|
+| [INLONG-32](https://issues.apache.org/jira/browse/INLONG-32) |File path not match with package name in tubemq-client module|Major|
+| [INLONG-35](https://issues.apache.org/jira/browse/INLONG-35) |check illegal package's field value|Normal|
+| [INLONG-36](https://issues.apache.org/jira/browse/INLONG-36) |Remove unnecessary removefirst() function printing|Normal|
+| [INLONG-37](https://issues.apache.org/jira/browse/INLONG-37) |Offset is set to 0 when Broker goes offline|Major|
+| [INLONG-45](https://issues.apache.org/jira/browse/INLONG-45) |Check groupName with checkHostName function|Major|
+| [INLONG-48](https://issues.apache.org/jira/browse/INLONG-48) |No timeout when setting consumer timeout|Major|
+| [INLONG-59](https://issues.apache.org/jira/browse/INLONG-59) |Null pointer exception is thrown while constructing ConsumerConfig with MasterInfo|Normal|
+| [INLONG-62](https://issues.apache.org/jira/browse/INLONG-62) |consumed and set consumerConfig.setConsumeModel (0) for the first time|Major|
+| [INLONG-66](https://issues.apache.org/jira/browse/INLONG-66) |TubeSingleSessionFactory shutdown bug|Normal|
+| [INLONG-85](https://issues.apache.org/jira/browse/INLONG-85) |There is NPE when creating PullConsumer with TubeSingleSessionFactory|Major|
+| [INLONG-88](https://issues.apache.org/jira/browse/INLONG-88) |Broker does not take effect after the deletePolicy value is changed|Major|
+| [INLONG-149](https://issues.apache.org/jira/browse/INLONG-149) |Some of the consumers stop consuming their corresponding partitions and never release the partition to others|Major|
+| [INLONG-153](https://issues.apache.org/jira/browse/INLONG-153) |update copyright notices year to 2020|  Major |
+| [INLONG-165](https://issues.apache.org/jira/browse/INLONG-165) |Remove unnecessary fiiles|  Major |
 
 ### TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-12](https://issues.apache.org/jira/browse/TUBEMQ-12)  |Change to use Apache License V2   |  Major |
+|[INLONG-12](https://issues.apache.org/jira/browse/INLONG-12)  |Change to use Apache License V2   |  Major |
 
 ### SUB-TASK:
 | JIRA | Summary | Priority |
 |:---- |:---- | :--- |
-|[TUBEMQ-130](https://issues.apache.org/jira/browse/TUBEMQ-130) |Generate CHANGES.md and DISCLAIMER-WIP   |  Major |
-|[TUBEMQ-133](https://issues.apache.org/jira/browse/TUBEMQ-133) |Add Apache parent pom |  Major |
-|[TUBEMQ-134](https://issues.apache.org/jira/browse/TUBEMQ-134) |add maven-source-plugin for generate source jar|  Major |
-|[TUBEMQ-135](https://issues.apache.org/jira/browse/TUBEMQ-135) |Refactoring all pom.xml|  Major |
-|[TUBEMQ-136](https://issues.apache.org/jira/browse/TUBEMQ-136) |Add LICENSE/NOTICE/DISCLAIMER-WIP to binary package|  Major |
+|[INLONG-130](https://issues.apache.org/jira/browse/INLONG-130) |Generate CHANGES.md and DISCLAIMER-WIP   |  Major |
+|[INLONG-133](https://issues.apache.org/jira/browse/INLONG-133) |Add Apache parent pom |  Major |
+|[INLONG-134](https://issues.apache.org/jira/browse/INLONG-134) |add maven-source-plugin for generate source jar|  Major |
+|[INLONG-135](https://issues.apache.org/jira/browse/INLONG-135) |Refactoring all pom.xml|  Major |
+|[INLONG-136](https://issues.apache.org/jira/browse/INLONG-136) |Add LICENSE/NOTICE/DISCLAIMER-WIP to binary package|  Major |

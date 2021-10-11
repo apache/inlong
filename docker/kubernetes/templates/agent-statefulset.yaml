@@ -1,0 +1,98 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "inlong.commonLabels" . | nindent 4 }}
+    component: {{ .Values.agent.component }}
+spec:
+  serviceName: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
+  replicas: {{ .Values.agent.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "inlong.matchLabels" . | nindent 6 }}
+      component: {{ .Values.agent.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "inlong.template.labels" . | nindent 8 }}
+        component: {{ .Values.agent.component }}
+    spec:
+      initContainers:
+      - name: wait-{{ .Values.website.component }}-ready
+        image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        command: [ "/bin/sh", "-c" ]
+        args:
+          - |
+            count={{ .Values.website.replicaCount }}
+            for i in $(seq 0 $(expr $count - 1))
+            do
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.website.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.website.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              port={{ .Values.website.ports.webPort }}
+              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+              do
+                echo "waiting for $replica to be ready"
+                sleep 3
+              done
+            done
+      - name: wait-{{ .Values.dataproxy.component }}-ready
+        image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        command: [ "/bin/sh", "-c" ]
+        args:
+          - |
+            count={{ .Values.dataproxy.replicaCount }}
+            for i in $(seq 0 $(expr $count - 1))
+            do
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              port={{ .Values.dataproxy.containerPort }}
+              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+              do
+                echo "waiting for $replica to be ready"
+                sleep 3
+              done
+            done
+      containers:
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
+          image: {{ .Values.images.agent.repository }}:{{ .Values.images.agent.tag }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          env:
+            - name: MANAGER_OPENAPI_IP
+              value: {{ include "inlong.tubemqManager.hostname" . | quote }}
+            - name: MANAGER_OPENAPI_PORT
+              value: {{ .Values.agent.ports.managerOpenApi }}
+            - name: DATAPROXY_IP
+              value: {{ include "inlong.dataproxy.hostname" . | quote }}
+            - name: DATAPROXY_PORT
+              value: {{ .Values.agent.ports.dataProxy }}
+          ports:
+            - name: {{ .Values.agent.component }}-port
+              containerPort: 8008
+          volumeMounts:
+            - name: data
+              mountPath: /data/collect-data
+      volumes:
+        - name: data
+          emptyDir: {}
+      restartPolicy: Always

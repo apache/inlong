@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="access_type" jdbcType="VARCHAR" property="accessType"/>
+        <result column="server_name" jdbcType="VARCHAR" property="serverName"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="port" jdbcType="INTEGER" property="port"/>
+        <result column="is_inner_ip" jdbcType="INTEGER" property="isInnerIp"/>
+        <result column="issue_type" jdbcType="VARCHAR" property="issueType"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="file_path" jdbcType="VARCHAR" property="filePath"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+    </resultMap>
+
+    <resultMap id="FileAgentTask" type="org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig">
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="file_path" jdbcType="VARCHAR" property="dataName"/>
+        <result column="op" jdbcType="VARCHAR" property="op"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
+        <result column="id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="timeOffset" jdbcType="VARCHAR" property="timeOffset"/>
+        <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
+        <result column="mq_resource_obj" jdbcType="VARCHAR" property="topic"/>
+        <result column="data_generate_rule" jdbcType="VARCHAR" property="dataGenerateRule"/>
+        <result column="file_delimiter" jdbcType="VARCHAR" property="fieldSplitter"/>
+        <result column="sort_type" jdbcType="VARCHAR" property="sortType"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, business_identifier, data_stream_identifier, access_type, server_name, ip, port, is_inner_ip,
+        issue_type, username, password, file_path, status, previous_status,
+        is_deleted, creator, modifier, create_time, modify_time, temp_view
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from source_file_detail
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from source_file_detail
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                and ip like CONCAT('%', #{keyWord}, '%')
+            </if>
+            <if test="accessType != null and accessType != ''">
+                and access_type = #{accessType, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+    <select id="selectDetailExist" resultType="java.lang.Integer">
+        select count(1)
+        from source_file_detail
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and ip = #{ip, jdbcType=VARCHAR}
+          and username = #{username, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </select>
+
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from source_file_detail
+        <where>
+            is_deleted = 0
+            <if test="bid != null and bid != ''">
+                and business_identifier = #{bid, jdbcType=VARCHAR}
+            </if>
+            <if test="dsid != null and dsid != ''">
+                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from source_file_detail
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByIdentifier">
+        delete
+        from source_file_detail
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        insert into source_file_detail (id, business_identifier, data_stream_identifier,
+                                        access_type, server_name, ip,
+                                        port, is_inner_ip, issue_type,
+                                        username, password, file_path,
+                                        status, previous_status,
+                                        is_deleted, creator, modifier,
+                                        create_time, modify_time, temp_view)
+        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+                #{accessType,jdbcType=VARCHAR}, #{serverName,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
+                #{port,jdbcType=INTEGER}, #{isInnerIp,jdbcType=INTEGER}, #{issueType,jdbcType=VARCHAR},
+                #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{filePath,jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        insert into source_file_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier,
+            </if>
+            <if test="accessType != null">
+                access_type,
+            </if>
+            <if test="serverName != null">
+                server_name,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="isInnerIp != null">
+                is_inner_ip,
+            </if>
+            <if test="issueType != null">
+                issue_type,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="filePath != null">
+                file_path,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="tempView != null">
+                temp_view,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="accessType != null">
+                #{accessType,jdbcType=VARCHAR},
+            </if>
+            <if test="serverName != null">
+                #{serverName,jdbcType=VARCHAR},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="isInnerIp != null">
+                #{isInnerIp,jdbcType=INTEGER},
+            </if>
+            <if test="issueType != null">
+                #{issueType,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        update source_file_detail
+        <set>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStreamIdentifier != null">
+                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="accessType != null">
+                access_type = #{accessType,jdbcType=VARCHAR},
+            </if>
+            <if test="serverName != null">
+                server_name = #{serverName,jdbcType=VARCHAR},
+            </if>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                port = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="isInnerIp != null">
+                is_inner_ip = #{isInnerIp,jdbcType=INTEGER},
+            </if>
+            <if test="issueType != null">
+                issue_type = #{issueType,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                file_path = #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SourceFileDetailEntity">
+        update source_file_detail
+        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            access_type            = #{accessType,jdbcType=VARCHAR},
+            server_name            = #{serverName,jdbcType=VARCHAR},
+            ip                     = #{ip,jdbcType=VARCHAR},
+            port                   = #{port,jdbcType=INTEGER},
+            is_inner_ip            = #{isInnerIp,jdbcType=INTEGER},
+            issue_type             = #{issueType,jdbcType=VARCHAR},
+            username               = #{username,jdbcType=VARCHAR},
+            password               = #{password,jdbcType=VARCHAR},
+            file_path              = #{filePath,jdbcType=VARCHAR},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="logicDeleteByIdentifier">
+        update source_file_detail
+        set is_deleted = 1,
+            modifier   = #{operator,jdbcType=VARCHAR}
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </update>
+
+    <select id="selectFileAgentTaskByIp" resultMap="FileAgentTask">
+        select detail.business_identifier,
+               detail.data_stream_identifier,
+               detail.ip,
+               detail.file_path,
+               detail.status,
+               detail.status mod 100                             as op,
+               detail.modify_time,
+               detail.id,
+               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
+               biz.middleware_type,
+               biz.mq_resource_obj,
+               ds.data_generate_rule,
+               ds.sort_type,
+               stream.file_delimiter
+        from source_file_basic basic,
+             source_file_detail detail,
+             business biz,
+             data_schema ds,
+             data_stream stream
+        where detail.ip = #{ip,jdbcType=VARCHAR}
+          and detail.is_deleted = 0
+          and (floor(detail.STATUS / 100) = 2 OR floor(detail.STATUS / 100) = 3)
+          and basic.business_identifier = detail.business_identifier
+          and basic.data_stream_identifier = detail.data_stream_identifier
+          and biz.business_identifier = detail.business_identifier
+          and biz.schema_name = ds.name
+          and stream.data_stream_identifier = detail.data_stream_identifier
+          and stream.business_identifier = detail.business_identifier
+    </select>
+    <select id="selectFileAgentTaskByIpForCheck" resultMap="FileAgentTask">
+        select detail.business_identifier,
+               detail.data_stream_identifier,
+               detail.ip,
+               detail.file_path,
+               detail.status,
+               detail.status mod 100                             as op,
+               detail.modify_time,
+               detail.id,
+               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
+               biz.middleware_type,
+               biz.mq_resource_obj,
+               ds.data_generate_rule,
+               ds.sort_type,
+               stream.file_delimiter
+        from source_file_basic basic,
+             source_file_detail detail,
+             business biz,
+             data_schema ds,
+             data_stream stream
+        where detail.ip = #{ip,jdbcType=VARCHAR}
+          and detail.is_deleted = 0
+          and basic.business_identifier = detail.business_identifier
+          and basic.data_stream_identifier = detail.data_stream_identifier
+          and biz.business_identifier = basic.business_identifier
+          and biz.schema_name = ds.name
+          and stream.data_stream_identifier = basic.data_stream_identifier
+          and stream.business_identifier = basic.business_identifier
+    </select>
+
+    <select id="selectByIp" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from source_file_detail
+        where ip = #{ip,jdbcType=VARCHAR} and is_deleted = 0;
+    </select>
+</mapper>

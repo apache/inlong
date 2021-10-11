@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.CommonDbServerEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.CommonDbServerEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="access_type" jdbcType="VARCHAR" property="accessType"/>
+        <result column="connection_name" jdbcType="VARCHAR" property="connectionName"/>
+        <result column="db_type" jdbcType="VARCHAR" property="dbType"/>
+        <result column="db_server_ip" jdbcType="VARCHAR" property="dbServerIp"/>
+        <result column="port" jdbcType="INTEGER" property="port"/>
+        <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="has_select" jdbcType="BIT" property="hasSelect"/>
+        <result column="has_insert" jdbcType="BIT" property="hasInsert"/>
+        <result column="has_update" jdbcType="BIT" property="hasUpdate"/>
+        <result column="has_delete" jdbcType="BIT" property="hasDelete"/>
+        <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
+        <result column="db_description" jdbcType="VARCHAR" property="dbDescription"/>
+        <result column="backup_db_server_ip" jdbcType="VARCHAR" property="backupDbServerIp"/>
+        <result column="backup_db_port" jdbcType="INTEGER" property="backupDbPort"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="visible_person" jdbcType="VARCHAR" property="visiblePerson"/>
+        <result column="visible_group" jdbcType="VARCHAR" property="visibleGroup"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, access_type, connection_name, db_type, db_server_ip, port, db_name, username, password, has_select,
+        has_insert, has_update, has_delete, in_charges, db_description, backup_db_server_ip,
+        backup_db_port, status, is_deleted, creator, modifier, create_time, modify_time, visible_person, visible_group
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from common_db_server
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from common_db_server
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.CommonDbServerEntity">
+        insert into common_db_server (id, access_type, connection_name,
+                                      db_type, db_server_ip, port,
+                                      db_name, username, password,
+                                      has_select, has_insert, has_update,
+                                      has_delete, in_charges,
+                                      db_description, backup_db_server_ip,
+                                      backup_db_port, creator, modifier,
+                                      create_time, modify_time, status,
+                                      is_deleted, visible_person, visible_group)
+        values (#{id,jdbcType=INTEGER}, #{accessType,jdbcType=VARCHAR}, #{connectionName,jdbcType=VARCHAR},
+                #{dbType,jdbcType=VARCHAR}, #{dbServerIp,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER},
+                #{dbName,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{hasSelect,jdbcType=INTEGER}, #{hasInsert,jdbcType=INTEGER}, #{hasUpdate,jdbcType=INTEGER},
+                #{hasDelete,jdbcType=INTEGER}, #{inCharges,jdbcType=VARCHAR},
+                #{dbDescription,jdbcType=VARCHAR}, #{backupDbServerIp,jdbcType=VARCHAR},
+                #{backupDbPort,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{visiblePerson,jdbcType=VARCHAR}, #{visibleGroup,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.CommonDbServerEntity">
+        insert into common_db_server
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="accessType != null">
+                access_type,
+            </if>
+            <if test="connectionName != null">
+                connection_name,
+            </if>
+            <if test="dbType != null">
+                db_type,
+            </if>
+            <if test="dbServerIp != null">
+                db_server_ip,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="dbName != null">
+                db_name,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="hasSelect != null">
+                has_select,
+            </if>
+            <if test="hasInsert != null">
+                has_insert,
+            </if>
+            <if test="hasUpdate != null">
+                has_update,
+            </if>
+            <if test="hasDelete != null">
+                has_delete,
+            </if>
+            <if test="inCharges != null">
+                in_charges,
+            </if>
+            <if test="dbDescription != null">
+                db_description,
+            </if>
+            <if test="backupDbServerIp != null">
+                backup_db_server_ip,
+            </if>
+            <if test="backupDbPort != null">
+                backup_db_port,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="visiblePerson != null">
+                visible_person,
+            </if>
+            <if test="visibleGroup != null">
+                visible_group,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="accessType != null">
+                #{accessType,jdbcType=VARCHAR},
+            </if>
+            <if test="connectionName != null">
+                #{connectionName,jdbcType=VARCHAR},
+            </if>
+            <if test="dbType != null">
+                #{dbType,jdbcType=VARCHAR},
+            </if>
+            <if test="dbServerIp != null">
+                #{dbServerIp,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="dbName != null">
+                #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="hasSelect != null">
+                #{hasSelect,jdbcType=INTEGER},
+            </if>
+            <if test="hasInsert != null">
+                #{hasInsert,jdbcType=INTEGER},
+            </if>
+            <if test="hasUpdate != null">
+                #{hasUpdate,jdbcType=INTEGER},
+            </if>
+            <if test="hasDelete != null">
+                #{hasDelete,jdbcType=INTEGER},
+            </if>
+            <if test="inCharges != null">
+                #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="dbDescription != null">
+                #{dbDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="backupDbServerIp != null">
+                #{backupDbServerIp,jdbcType=VARCHAR},
+            </if>
+            <if test="backupDbPort != null">
+                #{backupDbPort,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="visiblePerson != null">
+                #{visiblePerson,jdbcType=VARCHAR},
+            </if>
+            <if test="visibleGroup != null">
+                #{visibleGroup,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.CommonDbServerEntity">
+        update common_db_server
+        <set>
+            <if test="accessType != null">
+                access_type = #{accessType,jdbcType=VARCHAR},
+            </if>
+            <if test="connectionName != null">
+                connection_name = #{connectionName,jdbcType=VARCHAR},
+            </if>
+            <if test="dbType != null">
+                db_type = #{dbType,jdbcType=VARCHAR},
+            </if>
+            <if test="dbServerIp != null">
+                db_server_ip = #{dbServerIp,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                port = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="dbName != null">
+                db_name = #{dbName,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="hasSelect != null">
+                has_select = #{hasSelect,jdbcType=INTEGER},
+            </if>
+            <if test="hasInsert != null">
+                has_insert = #{hasInsert,jdbcType=INTEGER},
+            </if>
+            <if test="hasUpdate != null">
+                has_update = #{hasUpdate,jdbcType=INTEGER},
+            </if>
+            <if test="hasDelete != null">
+                has_delete = #{hasDelete,jdbcType=INTEGER},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="dbDescription != null">
+                db_description = #{dbDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="backupDbServerIp != null">
+                backup_db_server_ip = #{backupDbServerIp,jdbcType=VARCHAR},
+            </if>
+            <if test="backupDbPort != null">
+                backup_db_port = #{backupDbPort,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="visiblePerson != null">
+                visible_person = #{visiblePerson,jdbcType=VARCHAR},
+            </if>
+            <if test="visibleGroup != null">
+                visible_group = #{visibleGroup,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.CommonDbServerEntity">
+        update common_db_server
+        set access_type         = #{accessType,jdbcType=VARCHAR},
+            connection_name     = #{connectionName,jdbcType=VARCHAR},
+            db_type             = #{dbType,jdbcType=VARCHAR},
+            db_server_ip        = #{dbServerIp,jdbcType=VARCHAR},
+            port                = #{port,jdbcType=INTEGER},
+            db_name             = #{dbName,jdbcType=VARCHAR},
+            username            = #{username,jdbcType=VARCHAR},
+            password            = #{password,jdbcType=VARCHAR},
+            has_select          = #{hasSelect,jdbcType=INTEGER},
+            has_insert          = #{hasInsert,jdbcType=INTEGER},
+            has_update          = #{hasUpdate,jdbcType=INTEGER},
+            has_delete          = #{hasDelete,jdbcType=INTEGER},
+            in_charges          = #{inCharges,jdbcType=VARCHAR},
+            db_description      = #{dbDescription,jdbcType=VARCHAR},
+            backup_db_server_ip = #{backupDbServerIp,jdbcType=VARCHAR},
+            backup_db_port      = #{backupDbPort,jdbcType=INTEGER},
+            status              = #{status,jdbcType=INTEGER},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER},
+            creator             = #{creator,jdbcType=VARCHAR},
+            modifier            = #{modifier,jdbcType=VARCHAR},
+            create_time         = #{createTime,jdbcType=TIMESTAMP},
+            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
+            visible_person      = #{visiblePerson,jdbcType=VARCHAR},
+            visible_group       = #{visibleGroup,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from common_db_server
+        where is_deleted = 0
+    </select>
+    <select id="selectByUsernameAndIpPort" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from common_db_server
+        where username = #{username,jdbcType=VARCHAR}
+        and db_type = #{dbType,jdbcType=VARCHAR}
+        and db_server_ip = #{dbServerIp,jdbcType=VARCHAR}
+        and port = #{port,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from common_db_server
+        <where>
+            is_deleted = 0
+            and (creator = #{currentUser,jdbcType=VARCHAR}
+            or find_in_set(#{currentUser,jdbcType=VARCHAR},in_charges)
+            or find_in_set(#{currentUser,jdbcType=VARCHAR},visible_person)
+            <if test="userGroups!= null and userGroups.size() >0">
+                <foreach collection="userGroups" item="group">
+                    or find_in_set(#{group,jdbcType=VARCHAR},visible_group)
+                </foreach>
+            </if>
+            )
+            <if test="dbServerIp != null and dbServerIp != ''">
+                and db_server_ip = #{dbServerIp, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+</mapper>

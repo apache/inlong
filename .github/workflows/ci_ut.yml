@@ -1,0 +1,73 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: InLong Unit Test
+
+on:
+  push:
+    branches: [ master, 'INLONG-*' ]
+  pull_request:
+    branches: [ master, 'INLONG-*' ]
+
+jobs:
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Unit test with Maven
+        run: mvn --batch-mode --update-snapshots -e -V clean verify -pl !inlong-website
+
+      - name: Upload unit test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: surefire-reports
+          path: ./**/target/surefire-reports/
+          if-no-files-found: ignore
+
+      - name: Upload integration test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: failsafe-reports
+          path: ./**/target/failsafe-reports/
+          if-no-files-found: ignore
+
+      - name: Upload coverage to Codecov
+        if: ${{ success() }}
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

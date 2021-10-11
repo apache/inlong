@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="managerMapperAutoGenerator" targetRuntime="MyBatis3">
+        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <commentGenerator>
+            <!-- Whether the comment contains the generated date, true: not generated, false: generated -->
+            <!-- If the date is generated, even if one field is modified, the entire entity class will change,
+            which is not conducive to version control, so set to true -->
+            <property name="suppressDate" value="true"/>
+            <!-- Whether to remove the automatically generated comments, true: yes: false: no -->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!-- Database connection URL, username, password -->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                connectionURL="jdbc:mysql://127.0.0.1:3306/apache_inlong_manager?nullCatalogMeansCurrent=true"
+                userId="xxxxxx" password="xxxxxx">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <!-- This property is used to specify whether MyBatis Generator should
+                force the use of java.math.BigDecimal for DECIMAL and NUMERIC fields, -->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- The package name and location of the generated model -->
+        <javaModelGenerator targetPackage="org.apache.inlong.manager.dao.entity"
+                targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- The package name and location of the generated mapping file -->
+        <sqlMapGenerator targetPackage="mappers" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- The package name and location of the generated DAO -->
+        <javaClientGenerator type="XMLMAPPER"
+                targetPackage="org.apache.inlong.manager.dao.mapper"
+                targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!-- Which entities to generate -->
+        <!--<table tableName="agent_heartbeat_log" domainObjectName="AgentHeartBeatLogEntity" enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="user" domainObjectName="UserEntity"
+          enableSelectByPrimaryKey="true"
+          enableUpdateByPrimaryKey="true"
+          enableDeleteByPrimaryKey="true" enableInsert="true"
+          enableCountByExample="false" enableDeleteByExample="false"
+          enableSelectByExample="true" enableUpdateByExample="false"/>
+
+        <table tableName="user_role" domainObjectName="UserRoleEntity"
+                enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="business" domainObjectName="BusinessEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="business_ext" domainObjectName="BusinessExtEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="data_schema" domainObjectName="DataSchemaEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="data_proxy_cluster" domainObjectName="DataProxyClusterEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="cluster_info" domainObjectName="ClusterInfoEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="data_stream" domainObjectName="DataStreamEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="data_stream_ext" domainObjectName="DataStreamExtEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="data_stream_field" domainObjectName="DataStreamFieldEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="source_file_basic" domainObjectName="SourceFileBasicEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="source_file_detail" domainObjectName="SourceFileDetailEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="source_db_basic" domainObjectName="SourceDbBasicEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="source_db_detail" domainObjectName="SourceDbDetailEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="storage_ext" domainObjectName="StorageExtEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="storage_hive" domainObjectName="StorageHiveEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="storage_hive_field" domainObjectName="StorageHiveFieldEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="common_file_server" domainObjectName="CommonFileServerEntity"
+                        enableSelectByPrimaryKey="true"
+                        enableUpdateByPrimaryKey="true"
+                        enableDeleteByPrimaryKey="true" enableInsert="true"
+                        enableCountByExample="false" enableDeleteByExample="false"
+                        enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="common_db_server" domainObjectName="CommonDbServerEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="consumption" domainObjectName="ConsumptionEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>-->
+
+    </context>
+</generatorConfiguration>

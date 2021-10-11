@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.BusinessEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="cn_name" jdbcType="VARCHAR" property="cnName"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
+        <result column="mq_resource_obj" jdbcType="VARCHAR" property="mqResourceObj"/>
+        <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
+        <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
+        <result column="peak_records" jdbcType="INTEGER" property="peakRecords"/>
+        <result column="max_length" jdbcType="INTEGER" property="maxLength"/>
+        <result column="schema_name" jdbcType="VARCHAR" property="schemaName"/>
+        <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
+        <result column="followers" jdbcType="VARCHAR" property="followers"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+    </resultMap>
+
+    <resultMap id="statusCountMap" type="java.util.Map">
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="total" property="count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, business_identifier, name, cn_name, description, middleware_type, mq_resource_obj,
+        daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
+        status, is_deleted, creator, modifier, create_time, modify_time, temp_view
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from business
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="countCurrentUserBusiness" resultMap="statusCountMap">
+        select count(*) as total, status
+        from business
+        where is_deleted = 0
+          and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
+        group by status
+    </select>
+    <select id="selectByIdentifier" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from business
+        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <select id="selectIdentifierExist" resultType="java.lang.Integer">
+        select count(1)
+        from business
+        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.common.pojo.business.BusinessPageRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from business
+        <where>
+            is_deleted = 0 and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(
+            #{currentUser,jdbcType=VARCHAR},in_charges))
+            <if test="keyWord != null and keyWord != ''">
+                and (business_identifier like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+    <select id="selectDataProxyConfig" resultType="org.apache.inlong.manager.common.pojo.dataproxy.DataProxyConfig">
+        select biz.business_identifier as bid, biz.mq_resource_obj as topic, d.sort_type as m
+        from business biz,
+             data_schema d
+        where biz.status = 130
+          and biz.is_deleted = 0
+          and biz.schema_name = d.name
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from business
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        insert into business (id, business_identifier, name,
+                              cn_name, description, middleware_type,
+                              mq_resource_obj, daily_records, daily_storage,
+                              peak_records, max_length, schema_name,
+                              in_charges, followers, status,
+                              is_deleted, creator, modifier,
+                              create_time, modify_time, temp_view)
+        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+                #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
+                #{mqResourceObj,jdbcType=VARCHAR}, #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
+                #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER}, #{schemaName,jdbcType=VARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        insert into business
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessIdentifier != null">
+                business_identifier,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="cnName != null">
+                cn_name,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="middlewareType != null">
+                middleware_type,
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj,
+            </if>
+            <if test="dailyRecords != null">
+                daily_records,
+            </if>
+            <if test="dailyStorage != null">
+                daily_storage,
+            </if>
+            <if test="peakRecords != null">
+                peak_records,
+            </if>
+            <if test="maxLength != null">
+                max_length,
+            </if>
+            <if test="schemaName != null">
+                schema_name,
+            </if>
+            <if test="inCharges != null">
+                in_charges,
+            </if>
+            <if test="followers != null">
+                followers,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="tempView != null">
+                temp_view,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessIdentifier != null">
+                #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="cnName != null">
+                #{cnName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="middlewareType != null">
+                #{middlewareType,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                #{mqResourceObj,jdbcType=VARCHAR},
+            </if>
+            <if test="dailyRecords != null">
+                #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage != null">
+                #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                #{maxLength,jdbcType=INTEGER},
+            </if>
+            <if test="schemaName != null">
+                #{schemaName,jdbcType=VARCHAR},
+            </if>
+            <if test="inCharges != null">
+                #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="followers != null">
+                #{followers,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        update business
+        <set>
+            <if test="businessIdentifier != null">
+                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="cnName != null">
+                cn_name = #{cnName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="middlewareType != null">
+                middleware_type = #{middlewareType,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
+            </if>
+            <if test="dailyRecords != null">
+                daily_records = #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage != null">
+                daily_storage = #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                peak_records = #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                max_length = #{maxLength,jdbcType=INTEGER},
+            </if>
+            <if test="schemaName != null">
+                schema_name = #{schemaName,jdbcType=VARCHAR},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="followers != null">
+                followers = #{followers,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        update business
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="cnName != null">
+                cn_name = #{cnName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="middlewareType != null">
+                middleware_type = #{middlewareType,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResourceObj != null">
+                mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
+            </if>
+            <if test="dailyRecords != null">
+                daily_records = #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage != null">
+                daily_storage = #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                peak_records = #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                max_length = #{maxLength,jdbcType=INTEGER},
+            </if>
+            <if test="schemaName != null">
+                schema_name = #{schemaName,jdbcType=VARCHAR},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="followers != null">
+                followers = #{followers,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="tempView != null">
+                temp_view = #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
+        update business
+        set business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            name                = #{name,jdbcType=VARCHAR},
+            cn_name             = #{cnName,jdbcType=VARCHAR},
+            description         = #{description,jdbcType=VARCHAR},
+            middleware_type     = #{middlewareType,jdbcType=VARCHAR},
+            mq_resource_obj     = #{mqResourceObj,jdbcType=VARCHAR},
+            daily_records       = #{dailyRecords,jdbcType=INTEGER},
+            daily_storage       = #{dailyStorage,jdbcType=INTEGER},
+            peak_records        = #{peakRecords,jdbcType=INTEGER},
+            max_length          = #{maxLength,jdbcType=INTEGER},
+            schema_name         = #{schemaName,jdbcType=VARCHAR},
+            in_charges          = #{inCharges,jdbcType=VARCHAR},
+            followers           = #{followers,jdbcType=VARCHAR},
+            status              = #{status,jdbcType=INTEGER},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER},
+            creator             = #{creator,jdbcType=VARCHAR},
+            modifier            = #{modifier,jdbcType=VARCHAR},
+            create_time         = #{createTime,jdbcType=TIMESTAMP},
+            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateStatusByIdentifier">
+        update business
+        set status   = #{status,jdbcType=INTEGER},
+            modifier = #{modifier,jdbcType=VARCHAR}
+        where business_identifier = #{bid, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </update>
+
+</mapper>

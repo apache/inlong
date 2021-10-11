@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StorageExtEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageExtEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="storage_type" jdbcType="VARCHAR" property="storageType"/>
+        <result column="storage_id" jdbcType="INTEGER" property="storageId"/>
+        <result column="key_name" jdbcType="VARCHAR" property="keyName"/>
+        <result column="key_value" jdbcType="VARCHAR" property="keyValue"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, storage_type, storage_id, key_name, key_value, is_deleted, modify_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_ext
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByStorageTypeAndId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from storage_ext
+        where storage_type = #{storageType, jdbcType=VARCHAR}
+        and storage_id = #{storageId, jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from storage_ext
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByStorageTypeAndId">
+        delete
+        from storage_ext
+        where storage_type = #{storageType, jdbcType=VARCHAR}
+          and storage_id = #{storageId, jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.StorageExtEntity">
+        insert into storage_ext (id, storage_type, storage_id,
+                                 key_name, key_value, is_deleted, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{storageType,jdbcType=VARCHAR}, #{storageId,jdbcType=INTEGER},
+                #{keyName,jdbcType=VARCHAR}, #{keyValue,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER},
+                #{modifyTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.StorageExtEntity">
+        insert into storage_ext
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="storageType != null">
+                storage_type,
+            </if>
+            <if test="storageId != null">
+                storage_id,
+            </if>
+            <if test="keyName != null">
+                key_name,
+            </if>
+            <if test="keyValue != null">
+                key_value,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="storageType != null">
+                #{storageType,jdbcType=VARCHAR},
+            </if>
+            <if test="storageId != null">
+                #{storageId,jdbcType=INTEGER},
+            </if>
+            <if test="keyName != null">
+                #{keyName,jdbcType=VARCHAR},
+            </if>
+            <if test="keyValue != null">
+                #{keyValue,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StorageExtEntity">
+        update storage_ext
+        <set>
+            <if test="storageType != null">
+                storage_type = #{storageType,jdbcType=VARCHAR},
+            </if>
+            <if test="storageId != null">
+                storage_id = #{storageId,jdbcType=INTEGER},
+            </if>
+            <if test="keyName != null">
+                key_name = #{keyName,jdbcType=VARCHAR},
+            </if>
+            <if test="keyValue != null">
+                key_value = #{keyValue,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageExtEntity">
+        update storage_ext
+        set storage_type = #{storageType,jdbcType=VARCHAR},
+            storage_id   = #{storageId,jdbcType=INTEGER},
+            key_name     = #{keyName,jdbcType=VARCHAR},
+            key_value    = #{keyValue,jdbcType=VARCHAR},
+            is_deleted   = #{isDeleted,jdbcType=INTEGER},
+            modify_time  = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="logicDeleteAll">
+        update storage_ext
+        set is_deleted = 1
+        where storage_id = #{storageId, jdbcType=INTEGER}
+          and is_deleted = 0
+    </update>
+</mapper>

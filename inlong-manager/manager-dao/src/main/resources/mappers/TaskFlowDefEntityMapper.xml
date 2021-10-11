@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskFlowDefEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskFlowDefEntity">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="descrip" jdbcType="VARCHAR" property="descrip"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="isValid" jdbcType="INTEGER" property="isvalid"/>
+        <result column="trigger_event" jdbcType="VARCHAR" property="triggerEvent"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, descrip, create_time, create_by, isValid, trigger_event
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from taskflow_def
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from taskflow_def
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskFlowDefEntity">
+        insert into taskflow_def (id, name, descrip,
+                                  create_time, create_by, isValid,
+                                  trigger_event)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{descrip,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{isvalid,jdbcType=INTEGER},
+                #{triggerEvent,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskFlowDefEntity">
+        insert into taskflow_def
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="descrip != null">
+                descrip,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="isvalid != null">
+                isValid,
+            </if>
+            <if test="triggerEvent != null">
+                trigger_event,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="descrip != null">
+                #{descrip,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="isvalid != null">
+                #{isvalid,jdbcType=INTEGER},
+            </if>
+            <if test="triggerEvent != null">
+                #{triggerEvent,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskFlowDefEntity">
+        update taskflow_def
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="descrip != null">
+                descrip = #{descrip,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="isvalid != null">
+                isValid = #{isvalid,jdbcType=INTEGER},
+            </if>
+            <if test="triggerEvent != null">
+                trigger_event = #{triggerEvent,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey"
+            parameterType="org.apache.inlong.manager.dao.entity.TaskFlowDefEntity">
+        update taskflow_def
+        set name          = #{name,jdbcType=VARCHAR},
+            descrip       = #{descrip,jdbcType=VARCHAR},
+            create_time   = #{createTime,jdbcType=TIMESTAMP},
+            create_by     = #{createBy,jdbcType=VARCHAR},
+            isValid       = #{isvalid,jdbcType=INTEGER},
+            trigger_event = #{triggerEvent,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>
