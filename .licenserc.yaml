@@ -84,4 +84,10 @@ header:
     - '**/tubemq-client-cpp/src/buffer.h'
     - '**/tubemq-client-cpp/third_party/**'
 
+    # Go mod
+    - '**/tubemq-client-go/go.mod'
+
+    # Go sum
+    - '**/tubemq-client-go/go.sum'
+
   comment: on-failure
