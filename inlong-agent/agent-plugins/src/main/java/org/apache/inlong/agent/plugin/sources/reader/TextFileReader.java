@@ -52,6 +52,7 @@ public class TextFileReader implements Reader {
     private Iterator<String> iterator;
     private Stream<String> stream;
     private long timeout;
+    private long waitTimeout;
     private long lastTime = 0;
     private final PluginMetric textFileMetric;
     private List<Validator> validators = new ArrayList<>();
@@ -81,6 +82,7 @@ public class TextFileReader implements Reader {
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
+        AgentUtils.silenceSleepInMs(waitTimeout);
         return null;
     }
 
@@ -118,6 +120,11 @@ public class TextFileReader implements Reader {
     @Override
     public void setReadTimeout(long millis) {
         timeout = millis;
+    }
+
+    @Override
+    public void setWaitMillisecs(long millis) {
+        waitTimeout = millis;
     }
 
     public void addPatternValidator(String pattern) {

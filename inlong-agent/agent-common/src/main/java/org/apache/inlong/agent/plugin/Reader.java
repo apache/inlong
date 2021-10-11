@@ -46,4 +46,10 @@ public interface Reader extends Stage {
      * set readTimeout
      */
     void setReadTimeout(long mill);
+
+    /**
+     * set wait milliseconds when tailing a file
+     * to solve while loop cause too much cpu usage
+     */
+    void setWaitMillisecs(long millis);
 }
