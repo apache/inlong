@@ -21,9 +21,11 @@ import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
 import static org.awaitility.Awaitility.await;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -85,16 +87,30 @@ public class TestFileAgent {
         for (int i = 0; i < 10; i++) {
             createFiles(String.format("hugeFile.%s.txt", i));
         }
+        createJobProfile(0);
+        assertJobSuccess();
+    }
+
+    @Test
+    public void testReadTimeout() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            createFiles(String.format("hugeFile.%s.txt", i));
+        }
+        createJobProfile(10);
+        assertJobSuccess();
+    }
+
+    private void createJobProfile(long readWaitTimeMilliseconds) throws IOException {
         try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
                     "hugeFile.[0-9].txt").toString());
+                profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 agent.submitJob(profile);
             }
         }
-        assertJobSuccess();
     }
 
     @Test

@@ -53,6 +53,10 @@ public class JobConstants extends CommonConstants {
     // time in min
     public static final int DEFAULT_JOB_FILE_MAX_WAIT = 1;
 
+    public static final String JOB_READ_WAIT_TIMEOUT = "job.file.read.wait";
+
+    public static final int DEFAULT_JOB_READ_WAIT_TIMEOUT = 100;
+
     public static final String JOB_DIR_FILTER_PATTERN = "job.dir.pattern";
 
     public static final String JOB_DIR_FILTER_PATH = "job.dir.path";

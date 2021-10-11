@@ -138,6 +138,11 @@ public class TestTaskWrapper {
 
         }
 
+        @Override
+        public void setWaitMillisecs(long millis) {
+
+        }
+
         public int getCount() {
             return count;
         }

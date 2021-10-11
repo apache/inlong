@@ -137,6 +137,11 @@ public class SqlReader implements Reader {
 
     }
 
+    @Override
+    public void setWaitMillisecs(long millis) {
+
+    }
+
     /**
      * Init column meta data.
      *

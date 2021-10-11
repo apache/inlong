@@ -19,7 +19,9 @@ package org.apache.inlong.agent.plugin.sources;
 
 import static org.apache.inlong.agent.constants.CommonConstants.POSITION_SUFFIX;
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,6 +55,8 @@ public class TextFileSource implements Source {
             LOGGER.info("read from history position {} with job profile {}", seekPosition, jobConf.getInstanceId());
             String md5 = jobConf.get(file.getAbsolutePath() + MD5_SUFFIX, "");
             TextFileReader textFileReader = new TextFileReader(file, seekPosition);
+            long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
+            textFileReader.setWaitMillisecs(waitTimeout);
             addValidator(filterPattern, textFileReader);
             result.add(textFileReader);
         }
