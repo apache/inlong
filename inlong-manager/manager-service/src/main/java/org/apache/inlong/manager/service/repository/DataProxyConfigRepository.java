@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.repository;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +65,7 @@ import com.google.gson.Gson;
 /**
  * DataProxyConfigRepository
  */
+@SuppressWarnings("UnstableApiUsage")
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
@@ -158,7 +158,7 @@ public class DataProxyConfigRepository implements IRepository {
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new RepositoryTimerTask<DataProxyConfigRepository>(this);
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+        reloadTimer.scheduleAtFixedRate(task, reloadInterval, reloadInterval);
     }
 
     /**
