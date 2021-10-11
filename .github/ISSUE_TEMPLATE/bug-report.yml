@@ -70,8 +70,8 @@ body:
       multiple: false
       options:
         - '0.9.0'
-        - '0.10.0 RC0'
         - '0.10.0 RC1'
+        - 'master'
     validations:
       required: true
 

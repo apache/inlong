@@ -18,10 +18,11 @@
 package org.apache.inlong.manager.common.pojo.workflow;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.function.Function;
+import org.apache.inlong.manager.common.util.InLongCollectionUtils;
 
 /**
  * Approvers filter key of workflow
@@ -31,14 +32,11 @@ public enum FilterKey {
     DEFAULT;
 
     private static final List<FilterKey> FILTER_KEY_ORDER = ImmutableList.of(DEFAULT);
-    private static final Map<String, FilterKey> NAME_MAP;
-
-    static {
-        ImmutableMap.Builder<String, FilterKey> builder = ImmutableMap.builder();
-        Stream.of(FilterKey.values())
-                .forEach(filterKey -> builder.put(filterKey.name(), filterKey));
-        NAME_MAP = builder.build();
-    }
+    private static final Map<String, FilterKey> NAME_MAP = InLongCollectionUtils.transformToImmutableMap(
+            Lists.newArrayList(FilterKey.values()),
+            FilterKey::name,
+            Function.identity()
+    );
 
     /**
      * Filter order-from small to large range

@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.function.Function;
+import org.apache.inlong.manager.common.util.InLongCollectionUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
@@ -52,15 +53,11 @@ public enum ConsumptionStatus {
 
     public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAITING_ASSIGN);
 
-    private static final Map<Integer, ConsumptionStatus> STATUS_MAP;
-
-    static {
-
-        ImmutableMap.Builder<Integer, ConsumptionStatus> builder = ImmutableMap.builder();
-        Stream.of(ConsumptionStatus.values())
-                .forEach(status -> builder.put(status.status, status));
-        STATUS_MAP = builder.build();
-    }
+    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InLongCollectionUtils.transformToImmutableMap(
+            Lists.newArrayList(ConsumptionStatus.values()),
+            ConsumptionStatus::getStatus,
+            Function.identity()
+    );
 
     private final int status;
 

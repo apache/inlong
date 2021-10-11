@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 
 /**
  * Entity status enum
@@ -73,7 +73,7 @@ public enum EntityStatus {
      * The status of the business that can initiate the approval process:
      * <p/>[BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
      */
-    public static final List<Integer> ALLOW_START_WORKFLOW_STATUS = Arrays.asList(
+    public static final Set<Integer> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(
             BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(), BIZ_CONFIG_FAILED.getCode(),
             BIZ_CONFIG_SUCCESSFUL.getCode());
 
@@ -82,7 +82,7 @@ public enum EntityStatus {
      * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
      * <p/>[BIZ_CONFIG_ING] status cannot be modified
      */
-    public static final List<Integer> ALLOW_UPDATE_BIZ_STATUS = Arrays.asList(
+    public static final Set<Integer> ALLOW_UPDATE_BIZ_STATUS = ImmutableSet.of(
             DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
             BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
@@ -91,26 +91,26 @@ public enum EntityStatus {
      * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_ING] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
      * <p/>[BIZ_WAIT_APPROVAL] [BIZ_APPROVE_PASSED] status cannot be deleted
      */
-    public static final List<Integer> ALLOW_DELETE_BIZ_STATUS = Arrays.asList(
+    public static final Set<Integer> ALLOW_DELETE_BIZ_STATUS = ImmutableSet.of(
             DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
             BIZ_CONFIG_ING.getCode(), BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * The business can cascade to delete the status of the associated data:
      */
-    public static final List<Integer> ALLOW_DELETE_BIZ_CASCADE_STATUS = Arrays.asList(
+    public static final Set<Integer> ALLOW_DELETE_BIZ_CASCADE_STATUS = ImmutableSet.of(
             DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode());
 
     /**
      * Status of business approval
      */
-    public static final List<Integer> BIZ_APPROVE_PASS_STATUS = Arrays.asList(
+    public static final Set<Integer> BIZ_APPROVE_PASS_STATUS = ImmutableSet.of(
             BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * Temporary business status, adding, deleting and modifying operations are not allowed
      */
-    public static final List<Integer> BIZ_TEMP_STATUS = Arrays.asList(
+    public static final ImmutableSet<Integer> BIZ_TEMP_STATUS = ImmutableSet.of(
             BIZ_WAIT_APPROVAL.getCode(), BIZ_CONFIG_ING.getCode());
 
     private final Integer code;
