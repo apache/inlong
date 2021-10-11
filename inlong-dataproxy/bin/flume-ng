@@ -23,7 +23,7 @@
 # constants
 ################################
 
-FLUME_AGENT_CLASS="org.apache.flume.node.Application"
+FLUME_AGENT_CLASS="org.apache.inlong.dataproxy.node.Application"
 FLUME_AVRO_CLIENT_CLASS="org.apache.flume.client.avro.AvroCLIClient"
 FLUME_VERSION_CLASS="org.apache.flume.tools.VersionInfo"
 
