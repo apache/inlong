@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.repository;
 
+import com.google.common.base.Splitter;
+import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import javax.annotation.PostConstruct;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.commons.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.commons.pojo.dataproxy.CacheClusterSetObject;
@@ -59,9 +61,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.google.common.base.Splitter;
-import com.google.gson.Gson;
-
 /**
  * DataProxyConfigRepository
  */
@@ -77,23 +76,23 @@ public class DataProxyConfigRepository implements IRepository {
     private Map<String, DataProxyClusterSet> clusterSets = new HashMap<>();
 
     // Map<proxyClusterName, ProxyClusterObject>
-    private Map<String, ProxyClusterObject> proxyClusterMap = new HashMap<>();
+    private final Map<String, ProxyClusterObject> proxyClusterMap = new HashMap<>();
     // Map<cacheClusterName, CacheClusterObject>
-    private Map<String, CacheClusterObject> cacheClusterMap = new HashMap<>();
+    private final Map<String, CacheClusterObject> cacheClusterMap = new HashMap<>();
 
-    private long reloadInterval;
-    private Timer reloadTimer;
+    private long  reloadInterval;
 
     private Gson gson = new Gson();
 
-    public DataProxyConfigRepository() {
+    @PostConstruct
+    public void initialize() {
         LOGGER.info("create repository for {}" + DataProxyConfigRepository.class.getSimpleName());
         try {
             this.reloadInterval = DEFAULT_HEARTBEAT_INTERVAL_MS;
             reload();
             setReloadTimer();
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("Initialize DataProxyConfigRepository error", t);
         }
     }
 
@@ -156,7 +155,7 @@ public class DataProxyConfigRepository implements IRepository {
      * setReloadTimer
      */
     private void setReloadTimer() {
-        reloadTimer = new Timer(true);
+        Timer reloadTimer = new Timer(true);
         TimerTask task = new RepositoryTimerTask<DataProxyConfigRepository>(this);
         reloadTimer.scheduleAtFixedRate(task, reloadInterval, reloadInterval);
     }

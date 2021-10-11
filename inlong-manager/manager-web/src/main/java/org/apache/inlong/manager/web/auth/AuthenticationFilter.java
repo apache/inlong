@@ -77,9 +77,7 @@ public class AuthenticationFilter implements Filter {
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        LoginUserUtil.setUserLoginInfo((UserDetail) subject.getPrincipal());
-        filterChain.doFilter(servletRequest, servletResponse);
-        LoginUserUtil.removeUserLoginInfo();
+        doFilter(servletRequest, servletResponse, filterChain, (UserDetail) subject.getPrincipal());
     }
 
     private void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain,

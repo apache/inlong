@@ -36,10 +36,10 @@ public class HiveServerDao {
     private static final Logger LOG = LoggerFactory.getLogger(HiveServerDao.class);
 
     public void executeDDL(String ddl, String hiveUrl, String user, String password) throws Exception {
-        Connection conn = this.getHiveConnection(hiveUrl, user, password);
-        Statement stmt = conn.createStatement();
-        stmt.execute(ddl);
-        conn.close();
+        try (Connection conn = this.getHiveConnection(hiveUrl, user, password)) {
+            Statement stmt = conn.createStatement();
+            stmt.execute(ddl);
+        }
     }
 
     /**
@@ -47,23 +47,23 @@ public class HiveServerDao {
      */
     public List<ColumnInfoBean> queryStructure(String querySql, String jdbcUrl,
             String user, String password) throws Exception {
-        Connection conn = this.getHiveConnection(jdbcUrl, user, password);
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(querySql);
-        List<ColumnInfoBean> columnInfoBeans = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                ColumnInfoBean columnInfoBean = new ColumnInfoBean();
-                columnInfoBean.setColumnName(rs.getString(1));
-                columnInfoBean.setColumnType(rs.getString(2));
-                columnInfoBean.setColumnDesc(rs.getString(3));
-                columnInfoBeans.add(columnInfoBean);
+        try (Connection conn = this.getHiveConnection(jdbcUrl, user, password)) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(querySql);
+            List<ColumnInfoBean> columnInfoBeans = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    ColumnInfoBean columnInfoBean = new ColumnInfoBean();
+                    columnInfoBean.setColumnName(rs.getString(1));
+                    columnInfoBean.setColumnType(rs.getString(2));
+                    columnInfoBean.setColumnDesc(rs.getString(3));
+                    columnInfoBeans.add(columnInfoBean);
+                }
+            } catch (Exception e) {
+                LOG.error("query table structure error", e);
             }
-        } catch (Exception e) {
-            LOG.error("query table structure error", e);
+            return columnInfoBeans;
         }
-        conn.close();
-        return columnInfoBeans;
     }
 
     /**
