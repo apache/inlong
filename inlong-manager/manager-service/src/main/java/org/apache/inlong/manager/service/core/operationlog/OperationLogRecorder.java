@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -44,12 +45,12 @@ public class OperationLogRecorder {
      * Save operation logs of all Controller
      */
     public static Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
-        if (RequestContextHolder.getRequestAttributes() == null) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
             return joinPoint.proceed();
         }
 
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                .getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
         UserDetail userDetail = Optional.ofNullable(LoginUserUtil.getLoginUserDetail())
                 .orElseGet(UserDetail::new);

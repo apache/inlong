@@ -125,7 +125,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             if (currentStatus / 100 == 2) { // Modify status 20x -> 30x
                 int nextStatus = currentStatus % 100 + 300;
                 SourceFileDetailEntity update = new SourceFileDetailEntity();
-                update.setId(Integer.valueOf(config.getTaskId()));
+                update.setId(config.getTaskId());
                 update.setStatus(nextStatus);
                 update.setPreviousStatus(currentStatus);
                 sourceFileDetailEntityMapper.updateByPrimaryKeySelective(update);
@@ -160,7 +160,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                             continue;
                         }
                         int nextStatus = 101;
-                        if (current != null && current.getStatus() / 100 == 3) { // Modify 30x -> 10x
+                        if (current.getStatus() != null && current.getStatus() / 100 == 3) { // Modify 30x -> 10x
                             if (command.getCommandResult() == 0) { // Processed successfully
                                 if (current.getStatus() == 300 || current.getStatus() == 305) {
                                     nextStatus = 100;
