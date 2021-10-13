@@ -62,6 +62,14 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    attributes:
+      label: Environment
+      description: >
+        In which environment did you find this problem?
+      placeholder: >
+        MacOs Big Sur Version 11.3.1
+
   - type: dropdown
     attributes:
       label: InLong version
