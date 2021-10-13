@@ -48,3 +48,6 @@ inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/build/
 
 # Log
 *.log
+
+# Docker mysql storage
+docker/docker-compose/mysql
