@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.config;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -41,6 +42,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+@Data
 @Configuration
 @ConditionalOnMissingBean(RestTemplate.class)
 @ConfigurationProperties(prefix = "common.http-client")
@@ -49,13 +51,13 @@ public class RestTemplateConfig {
     /**
      * Max total
      */
-    private Integer maxTotal = 5000;
+    private int maxTotal = 5000;
     /**
      * Concurrency
      */
-    private Integer defaultMaxPerRoute = 2000;
+    private int defaultMaxPerRoute = 2000;
 
-    private Integer validateAfterInactivity = 5000;
+    private int validateAfterInactivity = 5000;
 
     /**
      * Time to connect to the server (successful handshake), timeout throws connect timeout
