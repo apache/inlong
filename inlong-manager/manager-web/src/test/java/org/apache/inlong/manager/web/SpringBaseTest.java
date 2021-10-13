@@ -17,15 +17,13 @@
 
 package org.apache.inlong.manager.web;
 
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+@ActiveProfiles(value = {"test"})
 @RunWith(SpringRunner.class)
-class WebApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
-
+@SpringBootTest
+public abstract class SpringBaseTest {
 }
