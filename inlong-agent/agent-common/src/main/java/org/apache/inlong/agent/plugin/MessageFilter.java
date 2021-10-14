@@ -17,11 +17,7 @@
 
 package org.apache.inlong.agent.plugin;
 
-/**
- * @Author pengzirui
- * @Date 2021/10/14 2:18 下午
- * @Version 1.0
- */
+
 public interface MessageFilter {
 
     /**

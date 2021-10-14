@@ -25,8 +25,6 @@ import org.apache.inlong.agent.utils.ByteUtil;
  * @Author pengzirui
  * filter message to get tid
  * use the first word to set tid string
- * @Date 2021/10/14 1:06 下午
- * @Version 1.0
  */
 public class DefaultMessageFilter implements MessageFilter {
 

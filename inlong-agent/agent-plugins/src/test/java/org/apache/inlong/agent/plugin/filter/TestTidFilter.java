@@ -27,11 +27,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * @Author pengzirui
- * @Date 2021/10/14 4:05 下午
- * @Version 1.0
- */
+
 public class TestTidFilter {
 
     private static AgentBaseTestsHelper helper;
