@@ -22,7 +22,6 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.ByteUtil;
 
 /**
- * @Author pengzirui
  * filter message to get tid
  * use the first word to set tid string
  */
