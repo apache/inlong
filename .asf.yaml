@@ -39,7 +39,7 @@ github:
     # enable squash button:
     squash:  true
     # disable merge button:
-    merge:   true
+    merge:   false
     # disable rebase button:
     rebase:  false
 
