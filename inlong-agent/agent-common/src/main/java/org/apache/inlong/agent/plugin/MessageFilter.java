@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin;
 
-
 public interface MessageFilter {
 
     /**
