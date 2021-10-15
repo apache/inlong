@@ -25,7 +25,7 @@ import (
 )
 
 func TestParseAddress(t *testing.T) {
-	address := "127.0.0.1:9092,127.0.0.1:9093?topics=Topic1@12312323,1212;Topic2@121212,2321323&group=Group&tlsEnable=false&msgNotFoundWait=10000&heartbeatMaxRetryTimes=6"
+	address := "127.0.0.1:9092,127.0.0.1:9093?topic=Topic1&filters=12312323&filters=1212&topic=Topic2&filters=121212&filters=2321323&group=Group&tlsEnable=false&msgNotFoundWait=10000&heartbeatMaxRetryTimes=6"
 	topicFilters := make(map[string][]string)
 	topicFilters["Topic1"] = []string{"12312323", "1212"}
 	topicFilters["Topic2"] = []string{"121212", "2321323"}
@@ -50,6 +50,21 @@ func TestParseAddress(t *testing.T) {
 	assert.NotNil(t, err)
 
 	address = "127.0.0.1:9092,127.0.0.1:9093?topics=Topic&ttt=ttt"
+	_, err = ParseAddress(address)
+	assert.NotNil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic1&filters=12312323&filters=1212"
+	c, err = ParseAddress(address)
+	delete(topicFilters, "Topic2")
+	assert.Nil(t, err)
+	assert.Equal(t, c.Consumer.Topics, []string{"Topic1"})
+	assert.Equal(t, c.Consumer.TopicFilters, topicFilters)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?filters=1231232"
+	_, err = ParseAddress(address)
+	assert.NotNil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?filters=12312323&filters=1212"
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
 }
