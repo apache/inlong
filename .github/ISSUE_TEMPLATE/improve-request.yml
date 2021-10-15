@@ -45,10 +45,10 @@ body:
         - 'InLong DataProxy'
         - 'InLong DataProxy-SDK'
         - 'InLong TubeMQ'
-        - 'InLong TubeMQ-Manager'
         - 'InLong Sort'
+        - 'Other for not specified component'
     validations:
-      required: false
+      required: true
 
   - type: checkboxes
     attributes:
