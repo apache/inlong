@@ -19,8 +19,6 @@ name: '👍 Improve Request'
 title: "[Improve]"
 description: Suggest an idea for Apache InLong
 labels: [ "improve" ]
-assignees:
-  - dockerzhang
 body:
   - type: markdown
     attributes:
@@ -33,6 +31,24 @@ body:
     attributes:
       label: Description
       description: A short description of your improvement suggestion.
+
+  - type: dropdown
+    attributes:
+      label: InLong Component
+      description: |
+        Which component of Apache InLong do you want to improve?
+      multiple: true
+      options:
+        - 'InLong Manager'
+        - 'InLong Website'
+        - 'InLong Agent'
+        - 'InLong DataProxy'
+        - 'InLong DataProxy-SDK'
+        - 'InLong TubeMQ'
+        - 'InLong TubeMQ-Manager'
+        - 'InLong Sort'
+    validations:
+      required: false
 
   - type: checkboxes
     attributes:

@@ -19,8 +19,6 @@ name: '❓ Question'
 title: '[Question]'
 description: Ask a question about Apache InLong
 labels: [ 'question' ]
-assignees:
-  - dockerzhang
 body:
   - type: markdown
     attributes:

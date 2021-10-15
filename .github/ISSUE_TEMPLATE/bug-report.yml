@@ -19,8 +19,6 @@ name: '🐛 Bug Report'
 title: '[Bug]'
 description: Problems and issues with code of Apache InLong
 labels: [ 'bug' ]
-assignees:
-  - dockerzhang
 body:
   - type: markdown
     attributes:
@@ -82,6 +80,24 @@ body:
         - 'master'
     validations:
       required: true
+
+  - type: dropdown
+    attributes:
+      label: InLong Component
+      description: |
+        Which component of Apache InLong did you find the bug from?
+      multiple: true
+      options:
+        - 'InLong Manager'
+        - 'InLong Website'
+        - 'InLong Agent'
+        - 'InLong DataProxy'
+        - 'InLong DataProxy-SDK'
+        - 'InLong TubeMQ'
+        - 'InLong TubeMQ-Manager'
+        - 'InLong Sort'
+    validations:
+      required: false
 
   - type: checkboxes
     attributes:

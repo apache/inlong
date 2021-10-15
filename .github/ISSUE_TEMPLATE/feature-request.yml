@@ -19,8 +19,6 @@ name: '🎉 Feature Request'
 title: "[Feature]"
 description: Suggest an idea for Apache InLong
 labels: [ "feature" ]
-assignees:
-  - dockerzhang
 body:
   - type: markdown
     attributes:
