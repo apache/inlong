@@ -85,7 +85,7 @@ body:
     attributes:
       label: InLong Component
       description: |
-        Which component of Apache InLong did you find the bug from?
+        Which components of Apache InLong did you find the bug from?
       multiple: true
       options:
         - 'InLong Manager'

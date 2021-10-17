@@ -36,7 +36,7 @@ body:
     attributes:
       label: InLong Component
       description: |
-        Which component of Apache InLong do you want to improve?
+        Which components of Apache InLong do you want to improve?
       multiple: true
       options:
         - 'InLong Manager'
