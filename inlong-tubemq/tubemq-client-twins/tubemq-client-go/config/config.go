@@ -155,6 +155,7 @@ func NewDefaultConfig() *Config {
 	c.Consumer.RebConfirmWait = 3000 * time.Millisecond
 	c.Consumer.MaxConfirmWait = 60000 * time.Millisecond
 	c.Consumer.ShutdownRebWait = 10000 * time.Millisecond
+	c.Consumer.TopicFilters = make(map[string][]string)
 
 	c.Heartbeat.Interval = 10000 * time.Millisecond
 	c.Heartbeat.MaxRetryTimes = 5
@@ -348,17 +349,15 @@ func getConfigFromToken(config *Config, values []string) error {
 		config.Net.TLS.TLSServerName = values[1]
 	case "group":
 		config.Consumer.Group = values[1]
-	case "topics":
-		topicFilters := strings.Split(values[1], ";")
-		config.Consumer.TopicFilters = make(map[string][]string)
-		for _, topicFilter := range topicFilters {
-			tf := strings.Split(topicFilter, "@")
-			config.Consumer.Topics = append(config.Consumer.Topics, tf[0])
-			if len(tf) > 1 {
-				filters := strings.Split(tf[1], ",")
-				config.Consumer.TopicFilters[tf[0]] = filters
-			}
+	case "topic":
+		config.Consumer.Topics = append(config.Consumer.Topics, values[1])
+	case "filters":
+		topicFilters := config.Consumer.TopicFilters
+		if len(config.Consumer.Topics) == 0 {
+			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("topic filters %s should have topic", values[1]))
 		}
+		topic := config.Consumer.Topics[len(config.Consumer.Topics)-1]
+		topicFilters[topic] = append(topicFilters[topic], values[1])
 	case "consumePosition":
 		config.Consumer.ConsumePosition, err = strconv.Atoi(values[1])
 	case "boundConsume":
