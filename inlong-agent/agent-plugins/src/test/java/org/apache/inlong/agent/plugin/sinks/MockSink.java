@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -50,6 +51,11 @@ public class MockSink implements Sink {
     @Override
     public void setSourceFile(String sourceFileName) {
         this.sourceFileName = sourceFileName;
+    }
+
+    @Override
+    public MessageFilter initMessageFilter(JobProfile jobConf) {
+        return null;
     }
 
     @Override

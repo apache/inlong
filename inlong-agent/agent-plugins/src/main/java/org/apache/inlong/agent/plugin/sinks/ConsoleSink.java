@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sinks;
 import java.nio.charset.StandardCharsets;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 
 /**
@@ -37,6 +38,11 @@ public class ConsoleSink implements Sink {
     @Override
     public void setSourceFile(String sourceFileName) {
 
+    }
+
+    @Override
+    public MessageFilter initMessageFilter(JobProfile jobConf) {
+        return null;
     }
 
     @Override

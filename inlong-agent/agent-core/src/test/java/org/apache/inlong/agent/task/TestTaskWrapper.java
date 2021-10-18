@@ -30,6 +30,7 @@ import org.apache.inlong.agent.core.task.TaskWrapper;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
 import org.junit.AfterClass;
@@ -171,6 +172,11 @@ public class TestTaskWrapper {
         @Override
         public void setSourceFile(String sourceFileName) {
 
+        }
+
+        @Override
+        public MessageFilter initMessageFilter(JobProfile jobConf) {
+            return null;
         }
 
         public int getWriterCount() {

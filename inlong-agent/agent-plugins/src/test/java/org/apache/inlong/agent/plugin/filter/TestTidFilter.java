@@ -17,11 +17,17 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
+import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.MessageFilter;
+import org.apache.inlong.agent.plugin.sinks.AbstractSink;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -50,6 +56,41 @@ public class TestTidFilter {
             StandardCharsets.UTF_8), new HashMap<>());
         String s = messageFilter.filterTid(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "tid");
+    }
+
+    @Test
+    public void testAbstractSink() {
+        MockSink sinkTest = new MockSink();
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set(AGENT_MESSAGE_FILTER_CLASSNAME, "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
+        MessageFilter messageFilter = sinkTest.initMessageFilter(jobProfile);
+        ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
+            StandardCharsets.UTF_8), new HashMap<>());
+        String s = messageFilter.filterTid(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
+        Assert.assertEquals(s, "tid");
+    }
+
+    class MockSink extends AbstractSink {
+
+        @Override
+        public void write(Message message) {
+
+        }
+
+        @Override
+        public void setSourceFile(String sourceFileName) {
+
+        }
+
+        @Override
+        public void init(JobProfile jobConf) {
+
+        }
+
+        @Override
+        public void destroy() {
+
+        }
     }
 
 }

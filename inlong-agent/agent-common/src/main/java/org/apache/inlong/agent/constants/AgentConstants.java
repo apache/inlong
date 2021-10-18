@@ -50,6 +50,8 @@ public class AgentConstants {
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
 
+    public static final String AGENT_MESSAGE_FILTER_CLASSNAME = "agent.message.filter.classname";
+
     public static final String AGENT_CONF_PARENT = "agent.conf.parent";
     public static final String DEFAULT_AGENT_CONF_PARENT = "conf";
 

@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
@@ -91,6 +92,11 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     @Override
     public void setSourceFile(String sourceFileName) {
 
+    }
+
+    @Override
+    public MessageFilter initMessageFilter(JobProfile jobConf) {
+        return null;
     }
 
     @Override

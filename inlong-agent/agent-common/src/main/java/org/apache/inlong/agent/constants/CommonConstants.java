@@ -77,6 +77,9 @@ public class CommonConstants {
     public static final String PROXY_RETRY_SLEEP = "proxy.retry.sleep";
     public static final long DEFAULT_PROXY_RETRY_SLEEP = 500;
 
+    public static final String FIELD_SPLITTER = "proxy.field.splitter";
+    public static final String DEFAULT_FIELD_SPLITTER = "|";
+
     public static final String PROXY_KEY_BID = "bid";
     public static final String PROXY_KEY_TID = "tid";
     public static final String PROXY_KEY_ID = "id";

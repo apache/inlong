@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_FIELD_SPLITTER;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_BID;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_AGENT_IP;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_ID;
@@ -39,6 +40,7 @@ import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_IP;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,16 +56,18 @@ import org.apache.inlong.agent.constants.CommonConstants;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProxySink implements Sink {
+public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
+    private MessageFilter messageFilter;
     private SenderManager senderManager;
+    private byte[] fieldSplitter;
     private String bid;
     private String tid;
     private String sourceFile;
@@ -85,7 +89,7 @@ public class ProxySink implements Sink {
     public void write(Message message) {
         if (message != null) {
             message.getHeader().put(CommonConstants.PROXY_KEY_BID, bid);
-            message.getHeader().put(CommonConstants.PROXY_KEY_TID, tid);
+            extractTidFromMessage(message, fieldSplitter);
             if (!(message instanceof EndMessage)) {
                 ProxyMessage proxyMessage = ProxyMessage.parse(message);
                     // add proxy message to cache.
@@ -102,6 +106,20 @@ public class ProxySink implements Sink {
                         return packProxyMessage;
                     });
             }
+        }
+    }
+
+    /**
+     * extract tid from message if message filter is presented
+     * or use the default tid
+     * @param message
+     */
+    private void extractTidFromMessage(Message message, byte[] fieldSplitter) {
+        if (messageFilter != null) {
+            message.getHeader().put(CommonConstants.PROXY_KEY_TID,
+                messageFilter.filterTid(message, fieldSplitter));
+        } else {
+            message.getHeader().put(CommonConstants.PROXY_KEY_TID, tid);
         }
     }
 
@@ -154,7 +172,10 @@ public class ProxySink implements Sink {
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
             jobConf.get(JOB_CYCLE_UNIT, ""));
         bid = jobConf.get(PROXY_BID);
-        tid = jobConf.get(PROXY_TID);
+        tid = jobConf.get(PROXY_TID, "");
+        messageFilter = initMessageFilter(jobConf);
+        fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
+            StandardCharsets.UTF_8);
         executorService.execute(flushCache());
         senderManager = new SenderManager(jobConf, bid, sourceFile);
         try {
