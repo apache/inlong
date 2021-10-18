@@ -30,7 +30,7 @@ CREATE TABLE `agent_heartbeat_log`
     `modify_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`ip`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8 COMMENT ='Agent heartbeat information table';
+  COMMENT ='Agent heartbeat information table';
 
 -- ----------------------------
 -- Table structure for agent_sys_conf
@@ -65,7 +65,7 @@ CREATE TABLE `agent_sys_conf`
     `is_calMD5`                     tinyint(2)           DEFAULT NULL COMMENT 'Do you want to calculate the cumulative md5 of read characters',
     PRIMARY KEY (`ip`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8 COMMENT ='Agent system configuration table';
+  COMMENT ='Agent system configuration table';
 
 -- ----------------------------
 -- Table structure for business
@@ -97,8 +97,7 @@ CREATE TABLE `business`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`business_identifier`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Business table';
+  COMMENT ='Business table';
 
 -- ----------------------------
 -- Table structure for business_ext
@@ -115,7 +114,7 @@ CREATE TABLE `business_ext`
     PRIMARY KEY (`id`),
     KEY `index_bid` (`business_identifier`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
+  COMMENT ='Business extension table';
 
 -- ----------------------------
 -- Table structure for cluster_info
@@ -140,7 +139,7 @@ CREATE TABLE `cluster_info`
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Cluster Information Table';
+  COMMENT ='Cluster Information Table';
 
 -- ----------------------------
 -- Table structure for common_db_server
@@ -176,7 +175,7 @@ CREATE TABLE `common_db_server`
     `visible_group`       varchar(1024)      DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='public DB data source';
+  COMMENT ='public DB data source';
 
 -- ----------------------------
 -- Table structure for common_file_server
@@ -202,7 +201,7 @@ CREATE TABLE `common_file_server`
     `visible_group`  varchar(1024)      DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='public file data source';
+  COMMENT ='public file data source';
 
 -- ----------------------------
 -- Table structure for consumption
@@ -228,8 +227,7 @@ CREATE TABLE `consumption`
     PRIMARY KEY (`id`),
     UNIQUE KEY `consumer_group_id_is_deleted_uindex` (`consumer_group_id`, `is_deleted`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 6
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
+  COMMENT ='Data consumption configuration table';
 
 -- ----------------------------
 -- Table structure for data_proxy_cluster
@@ -255,7 +253,7 @@ CREATE TABLE `data_proxy_cluster`
     `modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
+  COMMENT ='DataProxy cluster table';
 
 -- ----------------------------
 -- Table structure for data_schema
@@ -272,8 +270,7 @@ CREATE TABLE `data_schema`
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 10
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data format table';
+  COMMENT ='Data format table';
 
 -- create default data schema
 INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time_offset)
@@ -295,8 +292,7 @@ CREATE TABLE `data_source_cmd_config`
     `result_info`         varchar(64)          DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `index_1` (`task_id`, `bSend`, `specified_data_time`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB;
 
 -- ----------------------------
 -- Table structure for data_stream
@@ -328,8 +324,7 @@ CREATE TABLE `data_stream`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_data_stream` (`data_stream_identifier`, `business_identifier`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 28
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream table';
+  COMMENT ='Data stream table';
 
 -- ----------------------------
 -- Table structure for data_stream_ext
@@ -347,7 +342,7 @@ CREATE TABLE `data_stream_ext`
     PRIMARY KEY (`id`),
     KEY `index_bid` (`data_stream_identifier`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream extension table';
+  COMMENT ='Data stream extension table';
 
 -- ----------------------------
 -- Table structure for data_stream_field
@@ -373,8 +368,7 @@ CREATE TABLE `data_stream_field`
     PRIMARY KEY (`id`),
     KEY `index_stream_id` (`data_stream_identifier`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 39
-  DEFAULT CHARSET = utf8mb4 COMMENT ='File/DB data source field table';
+  COMMENT ='File/DB data source field table';
 
 -- ----------------------------
 -- Table structure for operation_log
@@ -398,9 +392,7 @@ CREATE TABLE `operation_log`
     `request_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'request time',
     `err_msg`             text COMMENT 'Error message',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 289
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB;
 
 -- ----------------------------
 -- Table structure for role
@@ -420,7 +412,7 @@ CREATE TABLE `role`
     UNIQUE KEY `role_role_code_uindex` (`role_code`),
     UNIQUE KEY `role_role_name_uindex` (`role_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Role Table';
+  COMMENT ='Role Table';
 
 -- ----------------------------
 -- Table structure for source_db_basic
@@ -440,7 +432,7 @@ CREATE TABLE `source_db_basic`
     `temp_view`              json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Basic configuration of DB data source';
+  COMMENT ='Basic configuration of DB data source';
 
 -- ----------------------------
 -- Table structure for source_db_detail
@@ -469,7 +461,7 @@ CREATE TABLE `source_db_detail`
     `temp_view`              json                  DEFAULT NULL COMMENT 'Temporary view, used to save unsubmitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='DB data source details table';
+  COMMENT ='DB data source details table';
 
 -- ----------------------------
 -- Table structure for source_file_basic
@@ -495,8 +487,7 @@ CREATE TABLE `source_file_basic`
     `temp_view`              json                  DEFAULT NULL COMMENT 'temp view',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 9
-  DEFAULT CHARSET = utf8mb4 COMMENT ='basic configuration of file data source';
+  COMMENT ='basic configuration of file data source';
 
 -- ----------------------------
 -- Table structure for source_file_detail
@@ -526,8 +517,7 @@ CREATE TABLE `source_file_detail`
     `temp_view`              json                  DEFAULT NULL COMMENT 'Temporary view, used to save unsubmitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 3
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
+  COMMENT ='Detailed table of file data source';
 
 -- ----------------------------
 -- Table structure for storage_ext
@@ -545,8 +535,7 @@ CREATE TABLE `storage_ext`
     PRIMARY KEY (`id`),
     KEY `index_bid` (`storage_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 11
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data storage extension table';
+  COMMENT ='Data storage extension table';
 
 -- ----------------------------
 -- Table structure for storage_hive
@@ -584,8 +573,7 @@ CREATE TABLE `storage_hive`
     `opt_log`                varchar(5000)         DEFAULT NULL COMMENT 'Background operation log',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 21
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data is stored in Hive configuration table';
+  COMMENT ='Data is stored in Hive configuration table';
 
 -- ----------------------------
 -- Table structure for storage_hive_field
@@ -610,8 +598,7 @@ CREATE TABLE `storage_hive_field`
     PRIMARY KEY (`id`),
     KEY `index_storage_id` (`storage_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 34
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stored in Hive field';
+  COMMENT ='Data stored in Hive field';
 
 -- ----------------------------
 -- Table structure for task
@@ -632,7 +619,7 @@ CREATE TABLE `task`
     `update_by`   varchar(0)    DEFAULT NULL COMMENT 'last modified person',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = latin1 COMMENT ='Task information table';
+  COMMENT ='Task information table';
 
 -- ----------------------------
 -- Table structure for task_def
@@ -652,7 +639,7 @@ CREATE TABLE `task_def`
     `delivery_id`     bigint(20)   DEFAULT NULL COMMENT 'Task push method',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = latin1 COMMENT ='Task definition under workflow';
+  COMMENT ='Task definition under workflow';
 
 -- ----------------------------
 -- Table structure for taskflow
@@ -670,7 +657,7 @@ CREATE TABLE `taskflow`
     `event`           varchar(255) DEFAULT NULL COMMENT 'trigger event',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = latin1 COMMENT ='Task flow instance';
+  COMMENT ='Task flow instance';
 
 -- ----------------------------
 -- Table structure for taskflow_def
@@ -687,7 +674,7 @@ CREATE TABLE `taskflow_def`
     `trigger_event` varchar(255) DEFAULT NULL COMMENT 'trigger event',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = latin1 COMMENT ='Task flow definition';
+  COMMENT ='Task flow definition';
 
 -- ----------------------------
 -- Table structure for user
@@ -707,8 +694,7 @@ CREATE TABLE `user`
     PRIMARY KEY (`id`),
     UNIQUE KEY `user_name_uindex` (`name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 25
-  DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
+  COMMENT ='User table';
 
 -- create default admin user, username is 'admin', password is 'inlong'
 INSERT INTO `user` (name, password, account_type, due_date, create_time, update_time, create_by, update_by)
@@ -731,7 +717,7 @@ CREATE TABLE `user_role`
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='User Role Table';
+  COMMENT ='User Role Table';
 
 -- ----------------------------
 -- Table structure for wf_approver
@@ -754,8 +740,7 @@ CREATE TABLE `wf_approver`
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 5
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
+  COMMENT ='Workflow approver table';
 
 -- create default approver for new consumption and new business
 INSERT INTO `wf_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
@@ -791,8 +776,7 @@ CREATE TABLE `wf_event_log`
     `exception`            text COMMENT 'Exception information',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 5170
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
+  COMMENT ='Workflow event log table';
 
 -- ----------------------------
 -- Table structure for wf_process_instance
@@ -815,8 +799,7 @@ CREATE TABLE `wf_process_instance`
     `hidden`       tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 197
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Process instance';
+  COMMENT ='Process instance';
 
 -- ----------------------------
 -- Table structure for wf_task_instance
@@ -842,8 +825,7 @@ CREATE TABLE `wf_task_instance`
     `ext`                  text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 704
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Task instance';
+  COMMENT ='Task instance';
 
 -- ----------------------------
 -- Table structure for cluster_set
@@ -867,8 +849,7 @@ CREATE TABLE `cluster_set`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cluster_set` (`set_name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='ClusterSet table';
+  COMMENT ='ClusterSet table';
 
 -- ----------------------------
 -- Table structure for cluster_set_inlongid
@@ -882,9 +863,8 @@ CREATE TABLE `cluster_set_inlongid`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`,`business_identifier`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='InlongId table';
-    
+  COMMENT ='InlongId table';
+
 -- ----------------------------
 -- Table structure for cache_cluster
 -- ----------------------------
@@ -898,8 +878,7 @@ CREATE TABLE `cache_cluster`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cache_cluster` (`cluster_name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheCluster table';
+  COMMENT ='CacheCluster table';
 
 -- ----------------------------
 -- Table structure for cache_cluster_ext
@@ -916,7 +895,7 @@ CREATE TABLE `cache_cluster_ext`
     PRIMARY KEY (`id`),
     KEY `index_cache_cluster` (`cluster_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheCluster extension table';
+  COMMENT ='CacheCluster extension table';
 
 -- ----------------------------
 -- Table structure for cache_topic
@@ -931,8 +910,7 @@ CREATE TABLE `cache_topic`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cache_topic` (`topic_name`,`set_name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='CacheTopic table';
+  COMMENT ='CacheTopic table';
 
 -- ----------------------------
 -- Table structure for proxy_cluster
@@ -947,8 +925,7 @@ CREATE TABLE `proxy_cluster`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_proxy_cluster` (`cluster_name`,`set_name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
-  DEFAULT CHARSET = utf8mb4 COMMENT ='ProxyCluster table';
+  COMMENT ='ProxyCluster table';
 
 -- ----------------------------
 -- Table structure for proxy_cluster_to_cache_cluster
@@ -962,7 +939,7 @@ CREATE TABLE `proxy_cluster_to_cache_cluster`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_proxy_cluster_to_cache_cluster` (`proxy_cluster_name`,`cache_cluster_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='The relation table of ProxyCluster and CacheCluster';
+  COMMENT ='The relation table of ProxyCluster and CacheCluster';
 
 -- ----------------------------
 -- Table structure for flume_source
@@ -979,7 +956,7 @@ CREATE TABLE `flume_source`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_flume_source` (`source_name`,`set_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSource table';
+  COMMENT ='FlumeSource table';
 
 -- ----------------------------
 -- Table structure for flume_source_ext
@@ -997,7 +974,7 @@ CREATE TABLE `flume_source_ext`
     PRIMARY KEY (`id`),
     KEY `index_flume_source_ext` (`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSource extension table';
+  COMMENT ='FlumeSource extension table';
 
 -- ----------------------------
 -- Table structure for flume_channel
@@ -1012,7 +989,7 @@ CREATE TABLE `flume_channel`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_flume_channel` (`channel_name`,`set_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeChannel table';
+  COMMENT ='FlumeChannel table';
 
 -- ----------------------------
 -- Table structure for flume_channel_ext
@@ -1030,7 +1007,7 @@ CREATE TABLE `flume_channel_ext`
     PRIMARY KEY (`id`),
     KEY `index_flume_channel_ext` (`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeChannel extension table';
+  COMMENT ='FlumeChannel extension table';
 
 -- ----------------------------
 -- Table structure for flume_sink
@@ -1046,7 +1023,7 @@ CREATE TABLE `flume_sink`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_flume_sink` (`sink_name`,`set_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink table';
+  COMMENT ='FlumeSink table';
 
 -- ----------------------------
 -- Table structure for flume_sink_ext
@@ -1064,6 +1041,6 @@ CREATE TABLE `flume_sink_ext`
     PRIMARY KEY (`id`),
     KEY `index_flume_sink_ext` (`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
-  
+  COMMENT ='FlumeSink extension table';
+
 SET FOREIGN_KEY_CHECKS = 1;
