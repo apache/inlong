@@ -21,10 +21,10 @@
 
 
 # Apache InLong
-[![Build Status](https://travis-ci.org/apache/incubator-inlong.svg?branch=master)](https://travis-ci.org/apache/incubator-inlong)
+[![Build Status](https://travis-ci.org/apache/incubator-inlong.svg?branch=master)](https://github.com/apache/incubator-inlong/actions)
 [![CodeCov](https://codecov.io/gh/apache/incubator-inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/incubator-inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
-[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/en-us/docs/download/download.html)
+[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/main)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 
@@ -43,7 +43,7 @@
 
 InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
 
-For getting more information, please visit our project documentation at https://inlong.apache.org/en-us/ .
+For getting more information, please visit our project documentation at https://inlong.apache.org/ .
 <img src="https://github.com/apache/incubator-inlong-website/blob/master/img/inlong_architecture.png" align="center" alt="Apache InLong"/>
 
 
@@ -62,7 +62,7 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 
 ## Build InLong
-More detailed instructions can be found at [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) section in the documentation.
+More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/user_guide/quick_start) section in the documentation.
 
 Requirements:
 - Java [JDK 8](https://adoptopenjdk.net/?variant=openjdk8)
@@ -81,11 +81,11 @@ $ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install 
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
 ## Deploy InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/en-us/docs/quick_start.html) in our project documentation.
+InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/docs/user_guide/quick_start) in our project documentation.
 
 ## Contribute to InLong
 - Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
-- Code pull request according to [How to contribute](https://inlong.apache.org/en-us/docs/development/how-to-contribute.html).
+- Code pull request according to [How to contribute](https://inlong.apache.org/development/how-to-contribute).
 
 ## Contact Us
 - Join Apache InLong mailing lists:
@@ -95,7 +95,7 @@ InLong integrates a complete component chain for data reporting in big data scen
 - Ask questions on [Apache InLong Slack](https://the-asf.slack.com/archives/C01QAG6U00L)
 
 ## Documentation
-- Home page: https://inlong.apache.org/en-us/
+- Home page: https://inlong.apache.org/
 - Issues: https://github.com/apache/incubator-inlong/issues
 
 ## License
