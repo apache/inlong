@@ -37,7 +37,7 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
 
   const [form] = useForm();
 
-  const { data } = useRequest(
+  const { data, run: getDetail } = useRequest(
     {
       url: `/consumption/get/${id}`,
     },
@@ -81,6 +81,7 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
       method: 'POST',
       data: submitData,
     });
+    await getDetail();
     setFalse();
     message.success(t('basic.OperatingSuccess'));
   };
