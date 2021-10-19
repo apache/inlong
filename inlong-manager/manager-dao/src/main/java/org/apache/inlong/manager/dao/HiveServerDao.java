@@ -27,9 +27,9 @@ import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
-@Service
+@Repository
 public class HiveServerDao {
 
     private static final String HIVE_DRIVER_CLASS = "org.apache.hive.jdbc.HiveDriver";

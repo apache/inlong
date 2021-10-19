@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.config;
+package org.apache.inlong.manager.dao.config;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import javax.sql.DataSource;
@@ -34,7 +34,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  */
 @Configuration
 @MapperScan(
-        basePackages = "org.apache.inlong.manager.dao",
+        basePackages = "org.apache.inlong.manager.dao.mapper",
         sqlSessionTemplateRef = "sqlSessionTemplate")
 public class InLongManagerDatasourceConfig {
 
