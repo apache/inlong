@@ -354,7 +354,7 @@ func getMagic(data []byte) (int32, error) {
 func getCreateTime(data []byte) (uint64, error) {
 	remain := len(data)
 	if remain < 8 {
-		return -1, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for createTime data")
+		return 0, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for createTime data")
 	}
 	return binary.BigEndian.Uint64(data[0:8]), nil
 }
