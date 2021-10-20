@@ -56,23 +56,10 @@
   "pre-commit": "lint-staged",
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS --verbose --no-verify"
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+      "pre-commit": "lint-staged"
     }
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
     "@hot-loader/react-dom": "=16.13.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -88,7 +75,6 @@
     "babel-plugin-import": "^1.13.0",
     "customize-cra": "^1.0.0-alpha.0",
     "customize-cra-react-refresh": "^1.1.0",
-    "cz-conventional-changelog": "^3.2.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-config-react-app": "^5.2.0",
