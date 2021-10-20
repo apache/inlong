@@ -182,7 +182,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         processQuery.setNameList(query.getProcessNames());
         processQuery.setHidden(true);
 
-        // 分页查询流程实例，构造流程执行日志
+        // Paging query process instance, construct process execution log
         QueryService queryService = workflowEngine.queryService();
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<ProcessInstance> instanceList = (Page<ProcessInstance>) queryService.listProcess(processQuery);
@@ -196,7 +196,7 @@ public class WorkflowServiceImpl implements WorkflowService {
                 .build()
         );
 
-        // 根据流程执行日志，查询流程中各个任务的执行日志
+        // According to the process execution log, query the execution log of each task in the process
         for (WorkflowTaskExecuteLog executeLog : pageInfo.getList()) {
             TaskQuery taskQuery = new TaskQuery();
             taskQuery.setProcessInstId(executeLog.getProcessInstId());
@@ -206,7 +206,7 @@ public class WorkflowServiceImpl implements WorkflowService {
                     .map(TaskExecutorLog::buildFromTaskInst)
                     .collect(Collectors.toList());
 
-            // 设置任务的监听器的执行日志
+            // Set the execution log of the task's listener
             for (TaskExecutorLog taskExecutorLog : taskExecutorLogs) {
                 EventLogQuery eventLogQuery = new EventLogQuery();
                 eventLogQuery.setTaskInstId(taskExecutorLog.getTaskInstId());
