@@ -18,7 +18,7 @@
 #
 FROM rikorose/gcc-cmake:gcc-4
 RUN apt-get remove openssl -y
-RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
+RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz --no-check-certificate \
     && tar -xzvf openssl-1.1.0f.tar.gz \
     && rm openssl-1.1.0f.tar.gz && cd openssl-1.1.0f \
     && ./config && make && make install
