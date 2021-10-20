@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go
+module github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go
 
 go 1.14
 

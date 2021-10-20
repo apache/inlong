@@ -20,7 +20,7 @@
 package client
 
 import (
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/remote"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/remote"
 )
 
 // ConsumerResult of a consumption.

@@ -21,7 +21,7 @@ package selector
 import (
 	"fmt"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 // Selector is abstraction of route selector which can return an available address

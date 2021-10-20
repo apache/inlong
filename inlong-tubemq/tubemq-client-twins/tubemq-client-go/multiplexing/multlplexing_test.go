@@ -32,7 +32,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
 )
 
 var (

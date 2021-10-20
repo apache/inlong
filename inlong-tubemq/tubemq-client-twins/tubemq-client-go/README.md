@@ -35,13 +35,13 @@ depend on the [TubeMQ C++ library](https://github.com/apache/incubator-inlong/tr
 
 Import the `client` and`config` library:
 ```go
-import "github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
-import "github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
+import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
+import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 ```
 
 Import the `log` library for log if needed:
 ```go
-import "github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
+import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 ```
 
 Create a Consumer by parsing address:
@@ -64,7 +64,7 @@ cr, err := c.GetMessage()
 cr, err = c.Confirm(cr.ConfirmContext, true)
 
 for _, msg := range cr.Messages {
-	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", cr.ID(), string(cr.Messages.Data))
+	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", msg.ID, string(msg.Data))
 }
 ```
 
@@ -92,7 +92,7 @@ cr, err := c.GetMessage()
 cr, err = c.Confirm(cr.ConfirmContext, true)
 
 for _, msg := range cr.Messages {
-	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", cr.ID(), string(cr.Messages.Data))
+	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", msg.ID, string(msg.Data))
 }
 ```
 

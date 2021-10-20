@@ -20,7 +20,7 @@ package tdmsg
 import (
 	"encoding/binary"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 const (
