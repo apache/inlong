@@ -43,8 +43,8 @@
 
 InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
 
-For getting more information, please visit our project documentation at https://inlong.apache.org/ .
-<img src="https://github.com/apache/incubator-inlong-website/blob/master/img/inlong_architecture.png" align="center" alt="Apache InLong"/>
+For getting more information, please visit our project documentation at https://inlong.apache.org/
+<img src="https://github.com/apache/incubator-inlong-website/blob/master/static/img/inlong_architecture.png" align="center" alt="Apache InLong"/>
 
 
 ## Features
