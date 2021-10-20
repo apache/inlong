@@ -25,10 +25,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/flowctrl"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/flowctrl"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
 // RmtDataCache represents the data returned from TubeMQ.

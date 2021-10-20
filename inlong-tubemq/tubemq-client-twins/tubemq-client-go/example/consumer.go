@@ -20,9 +20,9 @@ package main
 import (
 	"time"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/client"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 )
 
 func main() {

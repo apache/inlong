@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
 )
 
 // SubscribeInfo represents the metadata of the subscribe info.

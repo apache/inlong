@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/flowctrl"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/flowctrl"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
 // Partition represents the metadata of a partition.

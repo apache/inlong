@@ -21,15 +21,15 @@ package rpc
 import (
 	"context"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/config"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/remote"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/sub"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/transport"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/multiplexing"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/remote"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/sub"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/transport"
 )
 
 const (

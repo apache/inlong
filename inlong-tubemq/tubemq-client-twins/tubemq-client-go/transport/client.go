@@ -22,8 +22,8 @@ package transport
 import (
 	"context"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/codec"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/multiplexing"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/multiplexing"
 )
 
 // Options represents the transport options

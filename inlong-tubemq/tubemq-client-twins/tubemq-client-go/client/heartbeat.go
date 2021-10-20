@@ -24,11 +24,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/log"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/metadata"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/protocol"
-	"github.com/apache/incubator-inlong/tubemq-client-twins/tubemq-client-go/util"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
+	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
 type heartbeatMetadata struct {
