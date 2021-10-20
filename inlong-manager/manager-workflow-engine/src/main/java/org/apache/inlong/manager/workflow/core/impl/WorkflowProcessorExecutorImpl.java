@@ -123,7 +123,7 @@ public class WorkflowProcessorExecutorImpl implements WorkflowProcessorExecutor 
 
     private void executeSkipAndNext(Element element, WorkflowContext context) {
         if (!(element instanceof SkippableElement)) {
-            throw new WorkflowException("element not instance of skipable element " + element.getDisplayName());
+            throw new WorkflowException("element not instance of skip element " + element.getDisplayName());
         }
 
         if (!(element instanceof NextableElement)) {
@@ -134,7 +134,7 @@ public class WorkflowProcessorExecutorImpl implements WorkflowProcessorExecutor 
 
         if (!(processor instanceof SkipAbleElementProcessor)) {
             throw new WorkflowException(
-                    "element processor not instance of skipable processor " + element.getDisplayName());
+                    "element processor not instance of skip processor " + element.getDisplayName());
         }
 
         // Execute skip logic

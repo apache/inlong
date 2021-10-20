@@ -79,21 +79,17 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
 
         Integer tryNumber = tryBean.getMaxAttempts();
         Long delay = tryBean.getDelay();
-        while (--tryNumber > 0) {
-            if (topicExist) {
-                break;
-            }
-
+        while (!topicExist && --tryNumber > 0) {
+            log.info("check whether the tube topic exists, try count={}", tryNumber);
             try {
                 Thread.sleep(delay);
                 delay *= tryBean.getMultiplier();
                 topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
             } catch (InterruptedException e) {
-                log.error("Try to determine whether the tube topic exists {}", e.getMessage());
+                log.error("check the tube topic exists error", e);
             }
-
         }
-        log.info("Try to determine whether the tube topic exists ,try number is {}", tryNumber);
+
         AddTubeConsumeGroupRequest addTubeConsumeGroupRequest = new AddTubeConsumeGroupRequest();
         addTubeConsumeGroupRequest.setClusterId(clusterId);
         addTubeConsumeGroupRequest.setCreateUser(businessInfo.getCreator());

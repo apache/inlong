@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog.ListenerExecutorLog;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog.TaskExecutorLog;
+import org.apache.inlong.manager.workflow.core.QueryService;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.exception.WorkflowNoRollbackException;
 import org.apache.inlong.manager.workflow.model.TaskState;
@@ -85,8 +86,8 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
-    public WorkflowResult start(ProcessName name, String applicant, ProcessForm form) {
-        return WorkflowResult.of(workflowEngine.processService().start(name.name(), applicant, form));
+    public WorkflowResult start(ProcessName process, String applicant, ProcessForm form) {
+        return WorkflowResult.of(workflowEngine.processService().start(process.name(), applicant, form));
     }
 
     @Override
@@ -171,27 +172,57 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public List<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query) {
-        Preconditions.checkNotNull(query, "query params can't be null");
-        Preconditions.checkNotEmpty(query.getBusinessId(), "business id can't be null");
-        Preconditions.checkNotEmpty(query.getProcessNames(), "process names can't be null");
+    public PageInfo<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query) {
+        Preconditions.checkNotNull(query, "workflow task execute log query params cannot be null");
+        Preconditions.checkNotEmpty(query.getBusinessId(), "business id cannot be null");
+        Preconditions.checkNotEmpty(query.getProcessNames(), "process name list cannot be null");
 
-        List<WorkflowTaskExecuteLog> workflowTaskExecuteLogs = query.getProcessNames().stream()
-                .map(processName -> ProcessQuery.builder().businessId(query.getBusinessId()).name(processName).build())
-                .map(workflowEngine.queryService()::listProcess)
-                .flatMap(List::stream)
-                .map(WorkflowTaskExecuteLog::buildBaseInfoFromProcessInst)
-                .collect(Collectors.toList());
+        ProcessQuery processQuery = new ProcessQuery();
+        processQuery.setBusinessId(query.getBusinessId());
+        processQuery.setNameList(query.getProcessNames());
+        processQuery.setHidden(true);
 
-        workflowTaskExecuteLogs.forEach(executeLog -> {
-                    List<TaskExecutorLog> taskExecutorLogs = getTaskExecutorLogs(executeLog.getProcessInstId(),
-                            query.getTaskType());
-                    taskExecutorLogs.forEach(taskExecutorLog -> taskExecutorLog
-                            .setListenerExecutorLogs(getListenerExecutorLogs(taskExecutorLog)));
-                    executeLog.setTaskExecutorLogs(taskExecutorLogs);
-                }
+        // 分页查询流程实例，构造流程执行日志
+        QueryService queryService = workflowEngine.queryService();
+        PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        Page<ProcessInstance> instanceList = (Page<ProcessInstance>) queryService.listProcess(processQuery);
+
+        PageInfo<WorkflowTaskExecuteLog> pageInfo = instanceList.toPageInfo(inst -> WorkflowTaskExecuteLog.builder()
+                .processInstId(inst.getId())
+                .processDisplayName(inst.getDisplayName())
+                .state(inst.getState())
+                .startTime(inst.getStartTime())
+                .endTime(inst.getEndTime())
+                .build()
         );
-        return workflowTaskExecuteLogs;
+
+        // 根据流程执行日志，查询流程中各个任务的执行日志
+        for (WorkflowTaskExecuteLog executeLog : pageInfo.getList()) {
+            TaskQuery taskQuery = new TaskQuery();
+            taskQuery.setProcessInstId(executeLog.getProcessInstId());
+            taskQuery.setType(query.getTaskType());
+            List<TaskExecutorLog> taskExecutorLogs = queryService.listTask(taskQuery)
+                    .stream()
+                    .map(TaskExecutorLog::buildFromTaskInst)
+                    .collect(Collectors.toList());
+
+            // 设置任务的监听器的执行日志
+            for (TaskExecutorLog taskExecutorLog : taskExecutorLogs) {
+                EventLogQuery eventLogQuery = new EventLogQuery();
+                eventLogQuery.setTaskInstId(taskExecutorLog.getTaskInstId());
+                List<ListenerExecutorLog> logs = queryService.listEventLog(eventLogQuery)
+                        .stream()
+                        .map(ListenerExecutorLog::fromEventLog)
+                        .collect(Collectors.toList());
+                taskExecutorLog.setListenerExecutorLogs(logs);
+            }
+
+            executeLog.setTaskExecutorLogs(taskExecutorLogs);
+        }
+
+        log.info("success to page list task execute logs for " + query);
+        pageInfo.setTotal(instanceList.getTotal());
+        return pageInfo;
     }
 
     private List<TaskExecutorLog> getTaskExecutorLogs(Integer processInstId, String taskType) {
@@ -241,7 +272,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         List<Integer> processInstIds = taskList.stream().map(TaskListView::getProcessInstId)
                 .distinct().collect(Collectors.toList());
         List<ProcessInstance> processInstances = this.workflowEngine.queryService().listProcess(
-                ProcessQuery.builder().ids(processInstIds).build());
+                ProcessQuery.builder().idList(processInstIds).build());
         Map<Integer, Map<String, Object>> process2ShowInListMap = Maps.newHashMap();
         processInstances.forEach(p -> process2ShowInListMap.put(p.getId(), getShowInList(p)));
         taskList.forEach(task -> task.setShowInList(process2ShowInListMap.get(task.getProcessInstId())));

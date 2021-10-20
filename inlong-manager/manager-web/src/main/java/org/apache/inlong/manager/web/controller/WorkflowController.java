@@ -22,7 +22,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
@@ -162,7 +161,7 @@ public class WorkflowController {
 
     @GetMapping("/listTaskExecuteLogs")
     @ApiOperation(value = "Get task execution log")
-    public Response<List<WorkflowTaskExecuteLog>> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query) {
+    public Response<PageInfo<WorkflowTaskExecuteLog>> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query) {
         return Response.success(workflowService.listTaskExecuteLogs(query));
     }
 

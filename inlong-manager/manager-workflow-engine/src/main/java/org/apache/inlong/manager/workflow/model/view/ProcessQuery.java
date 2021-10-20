@@ -17,25 +17,23 @@
 
 package org.apache.inlong.manager.workflow.model.view;
 
-import org.apache.inlong.manager.workflow.model.ProcessState;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Date;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
+import org.apache.inlong.manager.workflow.model.ProcessState;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Process query conditions
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -46,10 +44,10 @@ public class ProcessQuery extends PageQuery {
     private Integer id;
 
     @ApiModelProperty("process form list of ID")
-    private List<Integer> ids;
+    private List<Integer> idList;
 
-    @ApiModelProperty("process name")
-    private String name;
+    @ApiModelProperty("process form list of name")
+    private List<String> nameList;
 
     @ApiModelProperty("process display name")
     private String displayName;
@@ -87,4 +85,5 @@ public class ProcessQuery extends PageQuery {
 
     @ApiModelProperty("whether to include the form information displayed in the list")
     private boolean includeShowInList = true;
+
 }
