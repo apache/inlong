@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.web.config;
 
-import org.apache.inlong.manager.web.SpringBaseTest;
+import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RestTemplateConfigTest extends SpringBaseTest {
+public class RestTemplateConfigTest extends ServiceBaseTest {
 
     private final int maxTotal = 5000;
     private final int defaultMaxPerRoute = 2000;
