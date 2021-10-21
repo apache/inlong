@@ -24,6 +24,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @ActiveProfiles(value = {"test"})
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = InLongWebApplication.class)
 public abstract class SpringBaseTest {
 }

@@ -18,13 +18,11 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Maps;
-
+import java.util.Map;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionStorage;
 import org.apache.inlong.manager.workflow.exception.WorkflowException;
 import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.common.util.Preconditions;
-
-import java.util.Map;
 
 /**
  * Memory process memory
