@@ -39,12 +39,12 @@ public interface WorkflowService {
     /**
      * Initiation process
      *
-     * @param name Process name
+     * @param process Process name
      * @param applicant Applicant
      * @param form Process form
      * @return result
      */
-    WorkflowResult start(ProcessName name, String applicant, ProcessForm form);
+    WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
 
     /**
      * Cancellation process application
@@ -144,6 +144,6 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Execution log
      */
-    List<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query);
+    PageInfo<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query);
 
 }

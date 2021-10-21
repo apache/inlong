@@ -19,25 +19,26 @@ package org.apache.inlong.manager.service.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import java.util.Set;
-
+import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.workflow.model.view.PageQuery;
 
 /**
  * Task execution log query
- *
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @ApiModel("Task execution log query conditions")
-public class WorkflowTaskExecuteLogQuery {
+public class WorkflowTaskExecuteLogQuery extends PageQuery {
 
     @ApiModelProperty("Business ID")
     private String businessId;
 
     @ApiModelProperty("Process name")
-    private Set<String> processNames;
+    private List<String> processNames;
 
     @ApiModelProperty("Task type: system task: ServiceTask; user task: UserTask")
     private String taskType;
+
 }

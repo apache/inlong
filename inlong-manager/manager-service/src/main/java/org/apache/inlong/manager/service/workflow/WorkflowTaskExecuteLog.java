@@ -26,7 +26,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.workflow.model.instance.EventLog;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
 import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
 
 /**
@@ -56,16 +55,6 @@ public class WorkflowTaskExecuteLog {
 
     @ApiModelProperty("Task execution log")
     private List<TaskExecutorLog> taskExecutorLogs;
-
-    public static WorkflowTaskExecuteLog buildBaseInfoFromProcessInst(ProcessInstance processInstance) {
-        return WorkflowTaskExecuteLog.builder()
-                .processInstId(processInstance.getId())
-                .processDisplayName(processInstance.getDisplayName())
-                .state(processInstance.getState())
-                .startTime(processInstance.getStartTime())
-                .endTime(processInstance.getEndTime())
-                .build();
-    }
 
     @Data
     @Builder
