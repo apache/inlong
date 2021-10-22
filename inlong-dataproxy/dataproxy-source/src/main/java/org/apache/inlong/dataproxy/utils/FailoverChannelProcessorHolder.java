@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.dataproxy.utils;
 
 import org.apache.flume.channel.ChannelProcessor;
-
 
 public class FailoverChannelProcessorHolder {
     private static ChannelProcessor channelProcessor;

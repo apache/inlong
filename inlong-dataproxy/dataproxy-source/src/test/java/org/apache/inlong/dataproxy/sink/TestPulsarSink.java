@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.dataproxy.sink;
 
 import com.google.common.base.Charsets;
@@ -36,9 +37,6 @@ import org.testng.annotations.Test;
 
 import org.testng.Assert;
 
-/**
- *
- */
 public class TestPulsarSink {
     private static final Logger logger = LoggerFactory
             .getLogger(TestPulsarSink.class);

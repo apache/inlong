@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.dataproxy.utils;
 
 import java.util.HashMap;
@@ -22,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class MonitorIndexExt {
     private static final Logger logger = LoggerFactory.getLogger(MonitorIndexExt.class);
