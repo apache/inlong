@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-dataproxy</artifactId>
-    <version>0.11.0-incubating-SNAPSHOT</version>
+    <version>0.12.0-incubating-SNAPSHOT</version>
   </parent>
   <artifactId>dataproxy-docker</artifactId>
   <modelVersion>4.0.0</modelVersion>

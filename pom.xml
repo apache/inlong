@@ -29,7 +29,7 @@
 
   <groupId>org.apache.inlong</groupId>
   <artifactId>inlong</artifactId>
-  <version>0.11.0-incubating-SNAPSHOT</version>
+  <version>0.12.0-incubating-SNAPSHOT</version>
   <name>Apache InLong</name>
 
   <description>InLong is a one-stop data streaming platform that provides automatic,
