@@ -41,6 +41,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <flume.version>1.9.0</flume.version>
+        <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <netty.version>3.8.0.Final</netty.version>
         <codec.version>1.15</codec.version>
         <servlet.version>2.5-20110124</servlet.version>

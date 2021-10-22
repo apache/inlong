@@ -76,6 +76,7 @@
         <mockito.version>2.18.0</mockito.version>
         <powermock.version>2.0.4</powermock.version>
         <exec.maven.version>1.6.0</exec.maven.version>
+        <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
         <protobuf.version>2.5.0</protobuf.version>
         <je.version>7.3.7</je.version>
