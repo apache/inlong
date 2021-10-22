@@ -356,7 +356,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
         messageHandlerName =
                 context.getString(ConfigConstants.MESSAGE_HANDLER_NAME,
-                        "org.apache.flume.source.ServerMessageHandler");
+                        "org.apache.inlong.dataproxy.source.ServerMessageHandler");
         messageHandlerName = messageHandlerName.trim();
         Preconditions.checkArgument(StringUtils.isNotBlank(messageHandlerName),
                 "messageHandlerName is empty");
