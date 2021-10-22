@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin;
 
+import org.apache.inlong.agent.conf.JobProfile;
+
 /**
  * Sink data to remote data center
  */
@@ -34,4 +36,9 @@ public interface Sink extends Stage {
      * @param sourceFileName
      */
     void setSourceFile(String sourceFileName);
+
+    /**
+     * every sink should include a message filter to filter out tid
+     */
+    MessageFilter initMessageFilter(JobProfile jobConf);
 }

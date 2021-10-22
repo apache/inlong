@@ -17,41 +17,30 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import java.nio.charset.StandardCharsets;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * message write to console
- */
-public class ConsoleSink implements Sink {
+public abstract class AbstractSink implements Sink {
 
-    @Override
-    public void write(Message message) {
-        if (message != null) {
-            System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
-        }
-    }
-
-    @Override
-    public void setSourceFile(String sourceFileName) {
-
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentManager.class);
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {
+        if (jobConf.hasKey(AGENT_MESSAGE_FILTER_CLASSNAME)) {
+            try {
+                return (MessageFilter) Class.forName(jobConf.get(AGENT_MESSAGE_FILTER_CLASSNAME))
+                    .getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                LOGGER.error("init message filter error", e);
+            }
+        }
         return null;
     }
 
-    @Override
-    public void init(JobProfile jobConf) {
-
-    }
-
-    @Override
-    public void destroy() {
-
-    }
 }
