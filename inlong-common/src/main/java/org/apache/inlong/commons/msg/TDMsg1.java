@@ -261,7 +261,6 @@ public class TDMsg1 {
         return addMsg(attr, ByteBuffer.wrap(data));
     }
 
-    /* 新增支持新数据消息 */
     public boolean addMsg(byte[] data) {
         return addMsg(ByteBuffer.wrap(data));
     }
@@ -300,7 +299,6 @@ public class TDMsg1 {
     }
 
     private boolean checkBinData(ByteBuffer data) {
-        // 检查消息合法性
         int totalLen = data.getInt(BIN_MSG_TOTALLEN_OFFSET);
         int bodyLen = data.getInt(BIN_MSG_BODYLEN_OFFSET);
         int attrLen = data.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
@@ -682,7 +680,7 @@ public class TDMsg1 {
             parsedInput.skip(len - 1);
 
             while (bodyBuffer.remaining() > 0) {
-                // total message length = （data length + attributes length) * N
+                // total message length = (data length + attributes length) * N
                 int singleTotalLen = bodyBuffer.getInt();
                 if (singleTotalLen > bodyBuffer.remaining()) {
                     return;

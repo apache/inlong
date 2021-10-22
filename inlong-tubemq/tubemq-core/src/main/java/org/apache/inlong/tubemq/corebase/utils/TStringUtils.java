@@ -78,7 +78,7 @@ public class TStringUtils {
      *
      * @param origStr The string to be converted
      * @return Convert the string to Camel Case
-     * if it is <code>null</code>，return<code>null</code>
+     * if it is <code>null</code>, return<code>null</code>
      */
     public static String toCamelCase(String origStr) {
         if (isEmpty(origStr)) {

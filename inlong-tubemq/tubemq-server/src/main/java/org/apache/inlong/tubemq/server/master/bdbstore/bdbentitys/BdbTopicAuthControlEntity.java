@@ -33,7 +33,7 @@ public class BdbTopicAuthControlEntity implements Serializable {
     private static final long serialVersionUID = 7356175918639562340L;
     @PrimaryKey
     private String topicName;
-    private int enableAuthControl = -1; // -1 : undefine； 0：disable， 1：enable
+    private int enableAuthControl = -1; // -1 : undefine; 0: disable, 1: enable
     // ** Based on the data compatibility consideration of the original version:
     //     the creation information in this example is the last modified information,
     //     and the modified information is the creation information

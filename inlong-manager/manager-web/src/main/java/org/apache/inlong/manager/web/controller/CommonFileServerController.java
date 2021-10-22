@@ -227,7 +227,7 @@ public class CommonFileServerController {
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
         Preconditions.checkFalse(file.isEmpty(), "File cannot be empty");
         String fileName = file.getOriginalFilename();
-        LOGGER.info("The name of the upload file is：" + fileName);
+        LOGGER.info("The name of the upload file is: " + fileName);
 
         String filePath = ClassUtils.getDefaultClassLoader().getResource("").getPath();
         File fileDir = new File(filePath, "common_server");
@@ -269,7 +269,7 @@ public class CommonFileServerController {
                     return "Failed, the number of data exceeds the upper limit [10000]";
                 }
                 StringBuilder sb = new StringBuilder();
-                sb.append("csv format，The fields are  ip, port, type, isInnerIp, issueType, username, password, "
+                sb.append("csv format, The fields are  ip, port, type, isInnerIp, issueType, username, password, "
                         + "visiblePerson, visibleGroup\n");
                 sb.append("Incorrect data check\n");
                 // check

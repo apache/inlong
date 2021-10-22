@@ -35,7 +35,7 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     @PrimaryKey
     private String groupName;           //group name
     private long serialId = -1L;        //serial id
-    private int statusId = -1;         // 0:not active； 1：active
+    private int statusId = -1;         // 0:not active; 1: active
     private String flowCtrlInfo;
     private int ruleCnt = 0;            //flow control rule count
     private long ssdTranslateId = System.currentTimeMillis();

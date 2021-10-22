@@ -32,7 +32,7 @@ public class StorageExtInfo {
     @ApiModelProperty("key")
     private Integer id;
 
-    @ApiModelProperty("storage type, like: HDFS、HIVE")
+    @ApiModelProperty("storage type, like: HDFS, HIVE")
     private String storageType;
 
     @ApiModelProperty("storage id")

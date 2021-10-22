@@ -35,7 +35,7 @@ public class BdbTopicConfEntity implements Serializable {
 
     @PrimaryKey
     private String recordKey;
-    private int topicStatusId = 0; // topic status，0: valid，1: soft deleted
+    private int topicStatusId = 0; // topic status, 0: valid, 1: soft deleted
     private int brokerId = -2;      //broker id
     private String brokerIp;        //broker ip
     private int brokerPort;         //broker port

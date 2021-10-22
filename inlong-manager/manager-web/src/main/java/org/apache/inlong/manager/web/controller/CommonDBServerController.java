@@ -207,7 +207,7 @@ public class CommonDBServerController {
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
         Preconditions.checkFalse(file.isEmpty(), "File cannot be empty");
         String fileName = file.getOriginalFilename();
-        LOGGER.info("The name of the uploaded file is：" + fileName);
+        LOGGER.info("The name of the uploaded file is: " + fileName);
 
         String filePath = ClassUtils.getDefaultClassLoader().getResource("").getPath();
         File fileDir = new File(filePath, "common_server");
@@ -251,7 +251,7 @@ public class CommonDBServerController {
                 }
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("csv format，The fields are connectionName, dbType, dbServerIp, port, dbName, "
+                sb.append("csv format, The fields are connectionName, dbType, dbServerIp, port, dbName, "
                         + "username, password, hasSelect, hasInsert, hasUpdate, hasDelete, inCharges, "
                         + "isRegionId, dbDescription, backupDbServerIp, backupDbPort, visiblePerson, visibleGroup\n");
                 sb.append("Incorrect data check\n");

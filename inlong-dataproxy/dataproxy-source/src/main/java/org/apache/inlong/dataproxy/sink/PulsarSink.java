@@ -192,7 +192,6 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static final  LoadingCache<String, Long> agentIdCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4 * 8).initialCapacity(500).expireAfterAccess(30, TimeUnit.SECONDS)
             .build(new CacheLoader<String, Long>() {
-                //默认的数据加载实现，当调用get取值时，如果key没有对应的值，则调用此方法进行加载。
                 @Override
                 public Long load(String key) {
                     return System.currentTimeMillis();

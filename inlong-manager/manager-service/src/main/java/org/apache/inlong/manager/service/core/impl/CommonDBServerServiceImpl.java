@@ -85,7 +85,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         // Check validity
         checkValidity(info);
 
-        // Check for duplicates based on username 、dbType 、dbServerIp and port
+        // Check for duplicates based on username, dbType, dbServerIp and port
         List<CommonDbServerEntity> entities = commonDbServerMapper.selectByUsernameAndIpPort(
                 info.getUsername(),
                 info.getDbType(),

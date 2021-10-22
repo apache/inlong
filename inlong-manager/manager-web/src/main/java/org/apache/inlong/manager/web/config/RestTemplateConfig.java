@@ -75,7 +75,7 @@ public class RestTemplateConfig {
 
     @Bean
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
-        // Support HTTP、HTTPS
+        // Support HTTP, HTTPS
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", SSLConnectionSocketFactory.getSocketFactory())
