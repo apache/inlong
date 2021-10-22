@@ -69,23 +69,19 @@
         <swagger.version>3.0.0</swagger.version>
         <swagger-annotations.version>1.6.2</swagger-annotations.version>
 
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<checkstyle.version>6.19</checkstyle.version>
-		<project.build.encoding>UTF-8</project.build.encoding>
-		<plugin.compile.version>3.8.1</plugin.compile.version>
-		<dockerfile-maven.version>1.4.13</dockerfile-maven.version>
-		<docker.organization>inlong</docker.organization>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <checkstyle.version>6.19</checkstyle.version>
+        <project.build.encoding>UTF-8</project.build.encoding>
+        <plugin.compile.version>3.8.1</plugin.compile.version>
+        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <docker.organization>inlong</docker.organization>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -96,10 +92,32 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-junit-jupiter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>android-json</artifactId>
+                    <groupId>com.vaadin.external.google</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -129,18 +147,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-cache</artifactId>
                 <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring-boot.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.mockito</groupId>
-                        <artifactId>mockito-junit-jupiter</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
@@ -205,12 +211,6 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -359,7 +359,9 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -374,25 +376,27 @@
             </snapshots>
         </repository>
     </repositories>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<encoding>${project.build.encoding}</encoding>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-							<version>${lombok.version}</version>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
-				<version>${plugin.compile.version}</version>
-			</plugin>
-		</plugins>
-	</build>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+                <version>${plugin.compile.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

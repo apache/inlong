@@ -17,22 +17,22 @@
 
 package org.apache.inlong.manager.web.config;
 
-import org.apache.inlong.manager.web.SpringBaseTest;
+import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RestTemplateConfigTest extends SpringBaseTest {
+public class RestTemplateConfigTest extends ServiceBaseTest {
+
+    private final int maxTotal = 5000;
+    private final int defaultMaxPerRoute = 2000;
+    private final int validateAfterInactivity = 5000;
+    private final int connectionTimeout = 3000;
+    private final int readTimeout = 10000;
+    private final int connectionRequestTimeout = 3000;
 
     @Autowired
     private RestTemplateConfig restTemplateConfig;
-
-    private final int maxTotal                 = 5001;
-    private final int defaultMaxPerRoute       = 2001;
-    private final int validateAfterInactivity  = 5001;
-    private final int connectionTimeout        = 3001;
-    private final int readTimeout              = 10001;
-    private final int connectionRequestTimeout = 3001;
 
     @Test
     public void configValue() {

@@ -40,10 +40,6 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
             <exclusions>
@@ -134,6 +130,10 @@
                 <exclusion>
                     <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>com.tdunning</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

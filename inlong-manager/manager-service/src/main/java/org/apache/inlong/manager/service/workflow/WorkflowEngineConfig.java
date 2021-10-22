@@ -55,16 +55,19 @@ public class WorkflowEngineConfig {
     private PlatformTransactionManager platformTransactionManager;
 
     @Bean
-    public WorkflowEngine workflowEngineer() {
-        WorkflowDataAccessor workflowDataAccessor = new WorkflowDataAccessorImpl(
+    public WorkflowDataAccessor workflowDataAccessor() {
+        return new WorkflowDataAccessorImpl(
                 new MemoryProcessDefinitionStorage(),
                 processInstanceStorage,
                 taskInstanceStorage,
                 eventLogStorage
         );
+    }
 
+    @Bean
+    public WorkflowEngine workflowEngineer() {
         WorkflowConfig workFlowConfig = new WorkflowConfig()
-                .setWorkflowDataAccessor(workflowDataAccessor)
+                .setWorkflowDataAccessor(this.workflowDataAccessor())
                 .setPlatformTransactionManager(platformTransactionManager);
 
         return new WorkflowEngineImpl(workFlowConfig);

@@ -15,10 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao;
+package org.apache.inlong.manager.web;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootApplication
-public class DaoApplicationTest {
+@ActiveProfiles(value = {"test"})
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = InLongWebApplication.class)
+public abstract class ServiceBaseTest {
 }

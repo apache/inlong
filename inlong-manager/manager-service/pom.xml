@@ -123,6 +123,10 @@
                     <artifactId>tephra-hbase-compat-1.0</artifactId>
                     <groupId>co.cask.tephra</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>com.tdunning</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
