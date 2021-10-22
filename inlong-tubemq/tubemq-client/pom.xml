@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
-        <version>0.11.0-incubating-SNAPSHOT</version>
+        <version>0.11.0-incubating</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>tubemq-client</artifactId>

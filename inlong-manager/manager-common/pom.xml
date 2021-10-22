@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-manager</artifactId>
-        <version>0.11.0-incubating-SNAPSHOT</version>
+        <version>0.11.0-incubating</version>
     </parent>
 
     <artifactId>manager-common</artifactId>

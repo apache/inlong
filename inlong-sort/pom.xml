@@ -26,10 +26,10 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.11.0-incubating-SNAPSHOT</version>
+        <version>0.11.0-incubating</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
-    <version>0.11.0-incubating-SNAPSHOT</version>
+    <version>0.11.0-incubating</version>
 
     <name>Apache InLong - Sort</name>
     <packaging>pom</packaging>
@@ -121,7 +121,7 @@
             <dependency>
                 <groupId>org.apache.inlong</groupId>
                 <artifactId>inlong-common</artifactId>
-                <version>0.11.0-incubating-SNAPSHOT</version>
+                <version>0.11.0-incubating</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>slf4j-api</artifactId>
