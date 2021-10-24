@@ -42,7 +42,7 @@ public class SourceFileDetailListVO {
     @ApiModelProperty(value = "Data source port")
     private Integer port;
 
-    @ApiModelProperty(value = "Issue type, including: SSH、TCS")
+    @ApiModelProperty(value = "Issue type, including: SSH, TCS")
     private String issueType;
 
     @ApiModelProperty(value = "Access type, support: Agent, DataProxy Client, LoadProxy, the File can only be Agent")

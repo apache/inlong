@@ -77,7 +77,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             int defAllowBClientRate,
             StringBuilder strBuffer) {
         // #lizard forgives
-        //　load balance according to group
+        // load balance according to group
         Map<String/* consumer */,
                 Map<String/* topic */, List<Partition>>> finalSubInfoMap =
                 new HashMap<>();
@@ -196,7 +196,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     }
                 }
             }
-            //　random allocate
+            // random allocate
             if (!partMap.isEmpty()) {
                 onlineOfflineGroupSet.add(group);
                 if (!newConsumerList2.isEmpty()) {

@@ -40,7 +40,7 @@ public class CommonDbServerInfo {
     @ApiModelProperty("connection alias name")
     private String connectionName;
 
-    @ApiModelProperty("DB type, like: MySQL、Oracle")
+    @ApiModelProperty("DB type, like: MySQL, Oracle")
     private String dbType;
 
     @ApiModelProperty("DB Server IP")

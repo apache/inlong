@@ -22,7 +22,7 @@ public class MasterNodeInfo {
     private String nodeName;
     private String hostName;
     private int port;
-    private int nodeStatus = 0; // -1:invalid；0：replica； 1：master
+    private int nodeStatus = 0; // -1:invalid; 0: replica; 1: master
 
     public MasterNodeInfo() {
 

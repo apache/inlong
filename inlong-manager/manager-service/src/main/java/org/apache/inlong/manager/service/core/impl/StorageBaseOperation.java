@@ -90,7 +90,7 @@ public class StorageBaseOperation {
      * heck whether the business status is temporary
      *
      * @param bid Business identifier
-     * @return Business entity，For caller reuse
+     * @return Business entity, For caller reuse
      */
     public BusinessEntity checkBizIsTempStatus(String bid) {
         BusinessEntity businessEntity = businessMapper.selectByIdentifier(bid);

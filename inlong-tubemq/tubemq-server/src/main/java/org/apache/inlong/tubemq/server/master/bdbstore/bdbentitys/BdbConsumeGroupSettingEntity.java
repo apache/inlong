@@ -33,7 +33,7 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     private static final long serialVersionUID = 6801442997689232316L;
     @PrimaryKey
     private String consumeGroupName;
-    private int enableBind = -2;   // -2: undefine; 0: not started，1: started
+    private int enableBind = -2;   // -2: undefine; 0: not started, 1: started
     private Date lastBindUsedDate;
     private int allowedBrokerClientRate = -2;
     private String attributes;

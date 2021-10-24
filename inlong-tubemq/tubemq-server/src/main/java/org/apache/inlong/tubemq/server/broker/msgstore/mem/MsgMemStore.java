@@ -42,18 +42,18 @@ import sun.nio.ch.DirectBuffer;
  */
 public class MsgMemStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MsgMemStore.class);
-    //　statistics of memory store
+    // statistics of memory store
     private final AtomicInteger cacheDataOffset = new AtomicInteger(0);
     private final AtomicInteger cacheIndexOffset = new AtomicInteger(0);
     private final AtomicInteger curMessageCount = new AtomicInteger(0);
     private final ReentrantLock writeLock = new ReentrantLock();
-    //　partitionId to index position, accelerate query
+    // partitionId to index position, accelerate query
     private final ConcurrentHashMap<Integer, Integer> queuesMap =
             new ConcurrentHashMap<>(20);
-    //　key to index position, used for filter consume
+    // key to index position, used for filter consume
     private final ConcurrentHashMap<Integer, Integer> keysMap =
             new ConcurrentHashMap<>(100);
-    //　where messages in memory will sink to disk
+    // where messages in memory will sink to disk
     private int maxDataCacheSize;
     private long writeDataStartPos = -1;
     private ByteBuffer cacheDataSegment;
@@ -87,7 +87,7 @@ public class MsgMemStore implements Closeable {
         long dataOffset = TBaseConstants.META_VALUE_UNDEFINED;
         this.writeLock.lock();
         try {
-            //　judge whether can write to memory or not.
+            // judge whether can write to memory or not.
             if ((fullDataSize = (this.cacheDataOffset.get() + entryLength > this.maxDataCacheSize))
                 || (fullIndexSize =
                 (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
@@ -141,7 +141,7 @@ public class MsgMemStore implements Closeable {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
-        //　judge memory contains the given offset or not.
+        // judge memory contains the given offset or not.
         List<ByteBuffer> cacheMsgList = new ArrayList<>();
         if (lstRdIndexOffset < this.writeIndexStartPos) {
             return new GetCacheMsgResult(false, TErrCodeConstants.MOVED,
@@ -159,7 +159,7 @@ public class MsgMemStore implements Closeable {
         this.writeLock.lock();
         try {
             if (isFilterConsume) {
-                //　filter conduct. accelerate by keysMap.
+                // filter conduct. accelerate by keysMap.
                 for (Integer keyCode : filterKeySet) {
                     if (keyCode != null) {
                         lastWritePos = this.keysMap.get(keyCode);
@@ -194,7 +194,7 @@ public class MsgMemStore implements Closeable {
                         limitReadSize, lastDataRdOff, totalReadSize, cacheMsgList);
             }
         }
-        //　fetch data by index.
+        // fetch data by index.
         int readedSize = 0;
         int cPartitionId = 0;
         long cDataPos = 0L;
@@ -204,10 +204,10 @@ public class MsgMemStore implements Closeable {
         int cDataOffset = 0;
         ByteBuffer tmpIndexRdBuf = this.cachedIndexSegment.asReadOnlyBuffer();
         ByteBuffer tmpDataRdBuf = this.cacheDataSegment.asReadOnlyBuffer();
-        //　loop read by index
+        // loop read by index
         for (int count = 0; count < maxReadCount;
              count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
-            //　cannot find matched message, return
+            // cannot find matched message, return
             if ((startReadOff >= currIndexOffset)
                 || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
                 break;
@@ -220,7 +220,7 @@ public class MsgMemStore implements Closeable {
             cKeyCode = tmpIndexRdBuf.getInt();
             cTimeRecv = tmpIndexRdBuf.getLong();
             cDataOffset = (int) (cDataPos - this.writeDataStartPos);
-            //　skip when mismatch condition
+            // skip when mismatch condition
             if ((cDataOffset < 0)
                     || (cDataSize <= 0)
                     || (cDataOffset >= currDataOffset)
@@ -234,7 +234,7 @@ public class MsgMemStore implements Closeable {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
-            //　read data file.
+            // read data file.
             byte[] tmpArray = new byte[cDataSize];
             final ByteBuffer buffer = ByteBuffer.wrap(tmpArray);
             tmpDataRdBuf.position(cDataOffset);

@@ -168,7 +168,7 @@ public class ClickHouseShardOutputFormat extends AbstractClickHouseOutputFormat 
             }
             connectionProvider.closeConnections();
         } catch (SQLException se) {
-            LOG.warn("ClickHouse connection could not be closed！", se);
+            LOG.warn("ClickHouse connection could not be closed!", se);
         }
     }
 }

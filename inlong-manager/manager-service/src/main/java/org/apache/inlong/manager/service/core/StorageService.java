@@ -52,7 +52,7 @@ public interface StorageService {
      * Query storage information based on business and data stream identifiers
      *
      * @param bid Business identifier
-     * @param dsid Data stream identifier，Can be empty
+     * @param dsid Data stream identifier, Can be empty
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */

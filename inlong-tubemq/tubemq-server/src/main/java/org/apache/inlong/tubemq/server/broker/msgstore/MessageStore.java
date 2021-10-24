@@ -184,7 +184,7 @@ public class MessageStore implements Closeable {
         reqSwitch = (reqSwitch <= 0)
                 ? 0 : (consumerNodeInfo.isFilterConsume() ? (reqSwitch % 100) : (reqSwitch / 100));
         if (reqSwitch > 1) {
-            //　in read memory situation, read main memory or backup memory by consumer's config.
+            // in read memory situation, read main memory or backup memory by consumer's config.
             long maxIndexOffset = TBaseConstants.META_VALUE_UNDEFINED;
             if (requestOffset >= this.msgFileStore.getIndexMaxOffset()) {
                 this.writeCacheMutex.readLock().lock();

@@ -114,7 +114,7 @@ public class FileSegmentList implements SegmentList {
      */
     @Override
     public void delExpiredSegments(final StringBuilder sb) {
-        //　delete expired segment
+        // delete expired segment
         for (Segment segment : segmentList.get()) {
             if (segment == null) {
                 continue;

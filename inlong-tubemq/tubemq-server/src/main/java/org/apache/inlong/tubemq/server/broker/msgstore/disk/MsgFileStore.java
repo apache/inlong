@@ -115,7 +115,7 @@ public class MsgFileStore implements Closeable {
     public void batchAppendMsg(final StringBuilder sb, final int msgCnt,
                                final int indexSize, final ByteBuffer indexBuffer,
                                final int dataSize, final ByteBuffer dataBuffer) throws Throwable {
-        //　append message, put in data file first, then index file.
+        // append message, put in data file first, then index file.
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
                 .append("Closed MessageStore for storeKey ")
@@ -236,7 +236,7 @@ public class MsgFileStore implements Closeable {
                                         final String statisKeyBase,
                                         final int maxMsgTransferSize) {
         // #lizard forgives
-        //　Orderly read from index file, then random read from data file.
+        // Orderly read from index file, then random read from data file.
         int retCode = 0;
         int totalSize = 0;
         String errInfo = "Ok";
@@ -574,7 +574,7 @@ public class MsgFileStore implements Closeable {
     }
 
     private void validateSegments(final String segTypeStr, final List<Segment> segments) {
-        //　valid segments, continuous
+        // valid segments, continuous
         for (int i = 0; i < segments.size() - 1; i++) {
             final Segment curr = segments.get(i);
             final Segment next = segments.get(i + 1);

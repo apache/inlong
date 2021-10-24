@@ -29,7 +29,7 @@ public class JobProfile extends AbstractConfiguration {
     private final Gson gson = new Gson();
 
     /**
-     * parse json string to configuration instance。
+     * parse json string to configuration instance.
      *
      * @param jsonStr
      * @return job configuration
