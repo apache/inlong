@@ -30,8 +30,8 @@ conf_file="${file_path}"/conf/application-"${ACTIVE_PROFILE}".properties
 # replace the configuration
 sed -i "s/spring.profiles.active=.*$/spring.profiles.active=${ACTIVE_PROFILE}/g" "${file_path}"/conf/application.properties
 sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
-sed -i "s/datasource.username=.*$/datasource.username=${USERNAME}/g" "${conf_file}"
-sed -i "s/datasource.password=.*$/datasource.password=${PASSWORD}/g" "${conf_file}"
+sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
+sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
 
 sed -i "s/cluster.tube.manager=.*$/cluster.tube.manager\=${TUBE_MANAGER}/g" "${conf_file}"
 sed -i "s/cluster.tube.master=.*$/cluster.tube.master\=${TUBE_MASTER}/g" "${conf_file}"
