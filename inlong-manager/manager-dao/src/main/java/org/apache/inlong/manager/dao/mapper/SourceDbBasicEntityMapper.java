@@ -36,23 +36,23 @@ public interface SourceDbBasicEntityMapper {
 
     int updateByPrimaryKey(SourceDbBasicEntity record);
 
-    SourceDbBasicEntity selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    SourceDbBasicEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier,
+     * According to the business group id and data stream identifier,
      * physically delete the basic information of the DB data source
      *
      * @return rows deleted
      */
-    int deleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier,
+     * According to the business group id and data stream identifier,
      * logically delete the basic information of the DB data source
      *
      * @return rows deleted
      */
-    int logicDeleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid,
+    int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);
 
 }

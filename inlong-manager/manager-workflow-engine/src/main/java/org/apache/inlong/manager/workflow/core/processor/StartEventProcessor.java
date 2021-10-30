@@ -87,7 +87,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
                 .setDisplayName(process.getDisplayName())
                 .setType(process.getType())
                 .setTitle(form.getTitle())
-                .setBusinessId(form.getBusinessId())
+                .setInlongGroupId(form.getInlongGroupId())
                 .setApplicant(applicant)
                 .setState(ProcessState.PROCESSING.name())
                 .setFormData(JsonUtils.toJson(form))

@@ -38,8 +38,8 @@ public class BizConstant {
 
     public static final String SCHEMA_M0_DAY = "m0_day";
 
-    public static final String BID_IS_EMPTY = "businessIdentifier is empty";
+    public static final String GROUP_ID_IS_EMPTY = "business group id is empty";
 
-    public static final String DSID_IS_EMPTY = "dataStreamIdentifier is empty";
+    public static final String STREAM_ID_IS_EMPTY = "data stream id is empty";
 
 }

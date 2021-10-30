@@ -27,5 +27,5 @@ public class DataProxyConfig {
 
     private String topic;
     private String m;
-    private String bid;
+    private String inlongGroupId;
 }

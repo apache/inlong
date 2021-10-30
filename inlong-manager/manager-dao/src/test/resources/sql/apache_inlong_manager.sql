@@ -72,7 +72,7 @@ DROP TABLE IF EXISTS `business`;
 CREATE TABLE `business`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier` varchar(128) NOT NULL COMMENT 'Business identifier, filled in by the user, undeleted ones cannot be repeated',
+    `inlong_group_id` varchar(128) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
     `name`                varchar(128)          DEFAULT '' COMMENT 'Business name, English, numbers and underscore',
     `cn_name`             varchar(256)          DEFAULT NULL COMMENT 'Chinese display name',
     `description`         varchar(256)          DEFAULT NULL COMMENT 'Business Introduction',
@@ -93,7 +93,7 @@ CREATE TABLE `business`
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_business` (`business_identifier`, `is_deleted`, `modify_time`)
+    UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );
 -- ----------------------------
 -- Table structure for business_ext
@@ -102,7 +102,7 @@ DROP TABLE IF EXISTS `business_ext`;
 CREATE TABLE `business_ext`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier` varchar(128) NOT NULL COMMENT 'business descriptor',
+    `inlong_group_id` varchar(128) NOT NULL COMMENT 'business descriptor',
     `key_name`            varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`           varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
@@ -204,11 +204,11 @@ CREATE TABLE `consumption`
     `consumer_group_name`    varchar(255) NOT NULL COMMENT 'consumer group name',
     `consumer_group_id`      varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`             varchar(512)          DEFAULT NULL COMMENT 'Person in charge of consumption',
-    `business_identifier`    varchar(255)          DEFAULT NULL COMMENT 'Business ID',
+    `inlong_group_id`    varchar(255)          DEFAULT NULL COMMENT 'Business ID',
     `middleware_type`        varchar(64)           DEFAULT NULL COMMENT 'The middleware type of data storage, high throughput: Tube',
     `topic`                  varchar(255)          DEFAULT NULL COMMENT 'Consumption topic',
     `filter_enabled`         int(2)                DEFAULT NULL COMMENT 'Whether to filter',
-    `data_stream_identifier` varchar(1024)         DEFAULT NULL COMMENT 'Consumption data stream ID',
+    `inlong_stream_id` varchar(1024)         DEFAULT NULL COMMENT 'Consumption data stream ID',
     `status`                 int(11)      NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator',
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'modifier',
@@ -287,8 +287,8 @@ DROP TABLE IF EXISTS `data_stream`;
 CREATE TABLE `data_stream`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Data stream descriptor, non-deleted globally unique',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'Data stream descriptor, non-deleted globally unique',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
     `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
     `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id',
@@ -317,8 +317,8 @@ DROP TABLE IF EXISTS `data_stream_ext`;
 CREATE TABLE `data_stream_ext`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
     `key_name`               varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`              varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
@@ -333,8 +333,8 @@ DROP TABLE IF EXISTS `data_stream_field`;
 CREATE TABLE `data_stream_field`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(256) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream descriptor',
     `is_predefined_field`    tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
     `field_name`             varchar(20)  DEFAULT NULL COMMENT 'field name',
     `field_value`            varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
@@ -397,8 +397,8 @@ DROP TABLE IF EXISTS `source_db_basic`;
 CREATE TABLE `source_db_basic`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(256) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream descriptor',
     `sync_type`              tinyint(1)            DEFAULT '0' COMMENT 'Data synchronization type, 0: FULL, full amount, 1: INCREMENTAL, incremental',
     `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)           DEFAULT NULL COMMENT 'creator name',
@@ -416,8 +416,8 @@ DROP TABLE IF EXISTS `source_db_detail`;
 CREATE TABLE `source_db_detail`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
     `access_type`            varchar(20)           DEFAULT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
     `db_name`                varchar(128)          DEFAULT NULL COMMENT 'database name',
     `transfer_ip`            varchar(64)           DEFAULT NULL COMMENT 'Transfer IP',
@@ -444,8 +444,8 @@ DROP TABLE IF EXISTS `source_file_basic`;
 CREATE TABLE `source_file_basic`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'id',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'business identifier',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'data stream identifier',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'business group id',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'data stream identifier',
     `is_hybrid_source`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to mix data sources',
     `is_table_mapping`       tinyint(1)            DEFAULT '0' COMMENT 'Is there a table name mapping',
     `date_offset`            int(4)                DEFAULT '0' COMMENT 'Time offset\n',
@@ -469,8 +469,8 @@ DROP TABLE IF EXISTS `source_file_detail`;
 CREATE TABLE `source_file_detail`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
     `access_type`            varchar(20)           DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
     `server_name`            varchar(64)           DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
     `ip`                     varchar(128)          DEFAULT NULL COMMENT 'Data source IP address',
@@ -515,8 +515,8 @@ DROP TABLE IF EXISTS `storage_hive`;
 CREATE TABLE `storage_hive`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `business_identifier`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
-    `data_stream_identifier` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
+    `inlong_group_id`    varchar(128) NOT NULL COMMENT 'Owning business descriptor',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'Owning data stream descriptor',
     `jdbc_url`               varchar(255)          DEFAULT NULL COMMENT 'Hive JDBC connection URL, such as "jdbc:hive2://127.0.0.1:10000"',
     `username`               varchar(128)          DEFAULT NULL COMMENT 'Username',
     `password`               varchar(255)          DEFAULT NULL COMMENT 'User password',
@@ -716,14 +716,14 @@ CREATE TABLE `wf_event_log`
 (
     `id`                   int(11)      NOT NULL AUTO_INCREMENT,
     `process_inst_id`      int(11)      NOT NULL,
-    `process_name`         varchar(255)  DEFAULT NULL COMMENT 'process name',
-    `process_display_name` varchar(255) NOT NULL COMMENT 'process name',
-    `business_id`          varchar(128)  DEFAULT NULL COMMENT 'Business ID',
-    `task_inst_id`         int(11)       DEFAULT NULL COMMENT 'task ID',
+    `process_name`         varchar(255)  DEFAULT NULL COMMENT 'Process name',
+    `process_display_name` varchar(255) NOT NULL COMMENT 'Process name',
+    `group_id`          varchar(128)  DEFAULT NULL COMMENT 'Business group id',
+    `task_inst_id`         int(11)       DEFAULT NULL COMMENT 'Task id',
     `element_name`         varchar(255) NOT NULL COMMENT 'The name of the component that triggered the event',
     `element_display_name` varchar(255) NOT NULL COMMENT 'Chinese name of the component that triggered the event',
     `event_type`           varchar(64)  NOT NULL COMMENT 'Event type: process event/task event',
-    `event`                varchar(64)  NOT NULL COMMENT 'event',
+    `event`                varchar(64)  NOT NULL COMMENT 'Event name',
     `listener`             varchar(1024) DEFAULT NULL COMMENT 'Event listener name',
     `state`                int(11)      NOT NULL COMMENT 'state',
     `async`                tinyint(1)   NOT NULL COMMENT 'Asynchronous or not',
@@ -744,9 +744,9 @@ CREATE TABLE `wf_process_instance`
     `id`           int(11)      NOT NULL AUTO_INCREMENT,
     `name`         varchar(255) NOT NULL COMMENT 'process name',
     `display_name` varchar(255) NOT NULL COMMENT 'Process display name',
-    `type`         varchar(255)          DEFAULT NULL COMMENT 'process classification',
-    `title`        varchar(255)          DEFAULT NULL COMMENT 'process title',
-    `business_id`  varchar(128)          DEFAULT NULL COMMENT 'Business ID: to facilitate related business',
+    `type`         varchar(255)          DEFAULT NULL COMMENT 'Process classification',
+    `title`        varchar(255)          DEFAULT NULL COMMENT 'Process title',
+    `group_id`  varchar(128)          DEFAULT NULL COMMENT 'Business group id: to facilitate related business',
     `applicant`    varchar(255) NOT NULL COMMENT 'applicant',
     `state`        varchar(64)  NOT NULL COMMENT 'state',
     `form_data`    mediumtext COMMENT 'form information',
@@ -812,7 +812,7 @@ CREATE TABLE `cluster_set_inlongid`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `set_name`            varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `business_identifier` varchar(128) NOT NULL COMMENT 'Business identifier, filled in by the user, undeleted ones cannot be repeated',
+    `inlong_group_id` varchar(128) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
     PRIMARY KEY (`id`)
 );
 

@@ -26,14 +26,14 @@
         where is_deleted = 0
     </select>
     <select id="selectInlongId" resultType="org.apache.inlong.manager.dao.entity.InLongId">
-        select biz.business_identifier as inlong_id, biz.mq_resource_obj as topic, d.sort_type as params, c.set_name as set_name
+        select biz.inlong_group_id as inlong_id, biz.mq_resource_obj as topic, d.sort_type as params, c.set_name as set_name
         from business biz,
              data_schema d,
              cluster_set_inlongid c
         where biz.status = 130
           and biz.is_deleted = 0
           and biz.schema_name = d.name
-          and biz.business_identifier = c.business_identifier
+          and biz.inlong_group_id = c.inlong_group_id
     </select>
     <select id="selectCacheCluster" resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
         select cluster_name,set_name,zone

@@ -33,7 +33,7 @@ import org.apache.inlong.manager.workflow.model.view.PageQuery;
 public class WorkflowTaskExecuteLogQuery extends PageQuery {
 
     @ApiModelProperty("Business ID")
-    private String businessId;
+    private String groupId;
 
     @ApiModelProperty("Process name")
     private List<String> processNames;

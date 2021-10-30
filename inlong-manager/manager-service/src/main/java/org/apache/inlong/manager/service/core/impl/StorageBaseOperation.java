@@ -89,12 +89,12 @@ public class StorageBaseOperation {
     /**
      * heck whether the business status is temporary
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return Business entity, For caller reuse
      */
-    public BusinessEntity checkBizIsTempStatus(String bid) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(bid);
-        Preconditions.checkNotNull(businessEntity, "businessIdentifier is invalid");
+    public BusinessEntity checkBizIsTempStatus(String groupId) {
+        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(businessEntity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain business status
         if (EntityStatus.BIZ_TEMP_STATUS.contains(businessEntity.getStatus())) {
             LOGGER.error("business status was not allowed to add/update/delete data storage");
@@ -156,33 +156,33 @@ public class StorageBaseOperation {
 
         private final String operator;
         private final BusinessEntity businessEntity;
-        private final String dataStreamIdentifier;
+        private final String streamId;
 
-        public WorkflowStartRunnable(String operator, BusinessEntity businessEntity, String dataStreamIdentifier) {
+        public WorkflowStartRunnable(String operator, BusinessEntity businessEntity, String streamId) {
             this.operator = operator;
             this.businessEntity = businessEntity;
-            this.dataStreamIdentifier = dataStreamIdentifier;
+            this.streamId = streamId;
         }
 
         @Override
         public void run() {
-            String bid = businessEntity.getBusinessIdentifier();
-            LOGGER.info("begin start data stream workflow, bid={}, dsid={}", bid, dataStreamIdentifier);
+            String groupId = businessEntity.getInlongGroupId();
+            LOGGER.info("begin start data stream workflow, groupId={}, streamId={}", groupId, streamId);
 
             BusinessInfo businessInfo = CommonBeanUtils.copyProperties(businessEntity, BusinessInfo::new);
-            CreateResourceWorkflowForm form = genBizResourceWorkflowForm(businessInfo, dataStreamIdentifier);
+            CreateResourceWorkflowForm form = genBizResourceWorkflowForm(businessInfo, streamId);
 
             workflowService.start(ProcessName.CREATE_DATASTREAM_RESOURCE, operator, form);
-            LOGGER.info("success start data stream workflow, bid={}, dsid={}", bid, dataStreamIdentifier);
+            LOGGER.info("success start data stream workflow, groupId={}, streamId={}", groupId, streamId);
         }
 
         /**
          * Generate [Create Business Resource] form
          */
-        private CreateResourceWorkflowForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String dsid) {
+        private CreateResourceWorkflowForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String streamId) {
             CreateResourceWorkflowForm form = new CreateResourceWorkflowForm();
             form.setBusinessInfo(businessInfo);
-            form.setDataStreamIdentifier(dsid);
+            form.setInlongStreamId(streamId);
             return form;
         }
     }

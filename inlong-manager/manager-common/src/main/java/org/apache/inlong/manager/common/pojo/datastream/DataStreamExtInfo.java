@@ -31,11 +31,11 @@ public class DataStreamExtInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id", required = true)
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier", required = true)
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id", required = true)
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Property name", required = true)
     private String keyName;

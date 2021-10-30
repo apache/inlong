@@ -26,8 +26,8 @@ public class StorageHiveEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String businessIdentifier;
-    private String dataStreamIdentifier;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private String jdbcUrl;
     private String username;
     private String password;

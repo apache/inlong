@@ -51,12 +51,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Data Consumption")
 public class ConsumptionController {
 
-    private ConsumptionService consumptionService;
-
     @Autowired
-    public ConsumptionController(ConsumptionService consumptionService) {
-        this.consumptionService = consumptionService;
-    }
+    private ConsumptionService consumptionService;
 
     @GetMapping("summary")
     @ApiOperation(value = "Get data consumption summary")

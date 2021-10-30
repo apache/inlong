@@ -17,20 +17,17 @@
 
 package org.apache.inlong.manager.workflow.model.view;
 
-import org.apache.inlong.manager.workflow.model.ProcessState;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.workflow.model.ProcessState;
+import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
 
 /**
  * Process list
@@ -42,58 +39,31 @@ import lombok.NoArgsConstructor;
 @ApiModel("Application list view")
 public class ProcessListView {
 
-    /**
-     * Application form ID
-     */
-    @ApiModelProperty(value = "application form ID")
+    @ApiModelProperty(value = "Application form ID")
     private Integer id;
 
-    /**
-     * Process name-English key
-     */
-    @ApiModelProperty(value = "process name-English key")
+    @ApiModelProperty(value = "Process name-English key")
     private String name;
 
-    /**
-     * Process display name-Chinese
-     */
-    @ApiModelProperty(value = "process display name")
+    @ApiModelProperty(value = "Process display name")
     private String displayName;
 
-    /**
-     * Process classification
-     */
-    @ApiModelProperty(value = "process classification")
+    @ApiModelProperty(value = "Process classification")
     private String type;
 
-    /**
-     * Process title
-     */
-    @ApiModelProperty(value = "process title")
+    @ApiModelProperty(value = "Process title")
     private String title;
 
-    /**
-     * Applicant
-     */
-    @ApiModelProperty(value = "applicant")
+    @ApiModelProperty(value = "Applicant")
     private String applicant;
 
-    /**
-     * Process status
-     */
-    @ApiModelProperty(value = "process status")
+    @ApiModelProperty(value = "Process status")
     private ProcessState state;
 
-    /**
-     * Application time
-     */
-    @ApiModelProperty(value = "application time")
+    @ApiModelProperty(value = "Application time")
     private Date startTime;
 
-    /**
-     * End Time
-     */
-    @ApiModelProperty(value = "end time")
+    @ApiModelProperty(value = "End time")
     private Date endTime;
 
     @ApiModelProperty(value = "Tasks currently to be done")

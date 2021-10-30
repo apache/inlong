@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.FullDataStreamPageRequest;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.springframework.stereotype.Repository;
 
@@ -40,47 +39,47 @@ public interface DataStreamEntityMapper {
 
     int updateByPrimaryKey(DataStreamEntity record);
 
-    DataStreamEntity selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    DataStreamEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    Integer selectExistByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    Integer selectExistByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query all data stream according to conditions (do not specify bid, query all data streams)
+     * Query all data stream according to conditions (do not specify groupId, query all data streams)
      *
      * @param request query request
      * @return data stream list
      */
     List<DataStreamEntity> selectByCondition(DataStreamPageRequest request);
 
-    List<DataStreamEntity> selectByBid(@Param("bid") String bid);
+    List<DataStreamEntity> selectByGroupId(@Param("groupId") String groupId);
 
     /**
-     * According to the conditions and business in charges, query all data stream under the specified BID
+     * According to the conditions and business in charges, query all data stream
      *
      * @param request paging query conditions
      * @param inCharges business in charges
      * @return data stream list
      */
-    List<DataStreamEntity> selectByBidAndCondition(@Param("request") FullDataStreamPageRequest request,
+    List<DataStreamEntity> selectByConditionAndInCharges(@Param("request") DataStreamPageRequest request,
             @Param("inCharges") String inCharges);
 
-    List<DataStreamInfoToHiveConfig> queryStreamToHiveBaseInfoByBid(@Param("bid") String bid);
+    List<DataStreamInfoToHiveConfig> selectStreamToHiveInfo(@Param("groupId") String groupId);
 
-    DataStreamInfoToHiveConfig queryStreamToHiveBaseInfoByIdentifier(@Param("bid") String bid,
-            @Param("dsid") String dsid);
+    DataStreamInfoToHiveConfig selectStreamToHiveInfoByIdentifier(@Param("groupId") String groupId,
+            @Param("streamId") String streamId);
 
     int updateByIdentifierSelective(DataStreamEntity streamEntity);
 
-    int selectCountByBid(@Param("bid") String bid);
+    int selectCountByGroupId(@Param("groupId") String groupId);
 
     /**
      * Physically delete all data streams of the specified service identifier
      *
      * @return rows deleted
      */
-    int deleteAllByBid(@Param("bid") String bid);
+    int deleteAllByGroupId(@Param("groupId") String groupId);
 
-    int updateStatusByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid, @Param("status") Integer status,
-            @Param("modifier") String modifier);
+    int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("status") Integer status, @Param("modifier") String modifier);
 
 }

@@ -22,8 +22,8 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.SourceDbBasicEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceDbBasicEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
         <result column="sync_type" jdbcType="INTEGER" property="syncType"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -33,7 +33,7 @@
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, business_identifier, data_stream_identifier, sync_type, is_deleted,
+        id, inlong_group_id, inlong_stream_id, sync_type, is_deleted,
         creator, modifier, create_time, modify_time, temp_view
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -46,8 +46,8 @@
         select
         <include refid="Base_Column_List"/>
         from source_db_basic
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -58,18 +58,17 @@
     <delete id="deleteByIdentifier">
         delete
         from source_db_basic
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </delete>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.SourceDbBasicEntity">
-        insert into source_db_basic (id, business_identifier, data_stream_identifier,
+        insert into source_db_basic (id, inlong_group_id, inlong_stream_id,
                                      sync_type, is_deleted, creator,
                                      modifier, create_time, modify_time,
                                      temp_view)
-        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{syncType,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
                 #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
                 #{tempView,jdbcType=LONGVARCHAR})
@@ -81,11 +80,11 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
             <if test="syncType != null">
                 sync_type,
@@ -113,11 +112,11 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="syncType != null">
                 #{syncType,jdbcType=INTEGER},
@@ -145,11 +144,11 @@
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SourceDbBasicEntity">
         update source_db_basic
         <set>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="syncType != null">
                 sync_type = #{syncType,jdbcType=INTEGER},
@@ -177,23 +176,23 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SourceDbBasicEntity">
         update source_db_basic
-        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
-            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            sync_type              = #{syncType,jdbcType=INTEGER},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
-            modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            sync_type        = #{syncType,jdbcType=INTEGER},
+            is_deleted       = #{isDeleted,jdbcType=INTEGER},
+            creator          = #{creator,jdbcType=VARCHAR},
+            modifier         = #{modifier,jdbcType=VARCHAR},
+            create_time      = #{createTime,jdbcType=TIMESTAMP},
+            modify_time      = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view        = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="logicDeleteByIdentifier">
         update source_db_basic
         set is_deleted = 1,
             modifier   = #{operator,jdbcType=VARCHAR}
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 </mapper>

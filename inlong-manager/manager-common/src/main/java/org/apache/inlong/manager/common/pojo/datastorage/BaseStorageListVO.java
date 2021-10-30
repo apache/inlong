@@ -34,11 +34,11 @@ public class BaseStorageListVO {
     @ApiModelProperty(value = "Status")
     private Integer status;
 
-    @ApiModelProperty(value = "Business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;

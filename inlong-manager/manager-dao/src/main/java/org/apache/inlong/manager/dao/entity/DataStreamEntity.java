@@ -26,8 +26,8 @@ public class DataStreamEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String dataStreamIdentifier;
-    private String businessIdentifier;
+    private String inlongStreamId;
+    private String inlongGroupId;
     private String name;
     private String description;
     private String mqResourceObj;

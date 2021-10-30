@@ -55,9 +55,9 @@ public class ConsumptionInfo {
     @NotNull(message = "inCharges can't be null")
     private String inCharges;
 
-    @ApiModelProperty(value = "consumption target business identifier")
-    @NotBlank(message = "businessIdentifier can't be null")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "consumption target business group id")
+    @NotBlank(message = "business group id cannot be null")
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "middleware type for data storage, support Tube, which has high throughput")
     @NotBlank(message = "middlewareType can't be null")
@@ -73,7 +73,7 @@ public class ConsumptionInfo {
     private Integer filterEnabled = 0;
 
     @ApiModelProperty(value = "consumption target data stream identifier")
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "
             + "20: approval rejected, 20: approved")
@@ -88,12 +88,12 @@ public class ConsumptionInfo {
     private Date modifyTime;
 
     @JsonIgnore
-    @AssertTrue(message = "when filter enabled, dataStreamIdentifier can't be null")
+    @AssertTrue(message = "when filter enabled, data stream id cannot be null")
     public boolean isValidateFilter() {
         if (filterEnabled == 0) {
             return true;
         }
-        return StringUtils.isNotBlank(dataStreamIdentifier);
+        return StringUtils.isNotBlank(inlongStreamId);
     }
 
 }

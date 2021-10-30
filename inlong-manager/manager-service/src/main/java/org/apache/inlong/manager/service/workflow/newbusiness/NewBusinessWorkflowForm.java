@@ -55,14 +55,14 @@ public class NewBusinessWorkflowForm extends BaseWorkflowFormType {
     }
 
     @Override
-    public String getBusinessId() {
-        return businessInfo.getBusinessIdentifier();
+    public String getInlongGroupId() {
+        return businessInfo.getInlongGroupId();
     }
 
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
-        show.put("businessIdentifier", businessInfo.getBusinessIdentifier());
+        show.put("groupId", businessInfo.getInlongGroupId());
         return show;
     }
 }

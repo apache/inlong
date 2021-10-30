@@ -48,9 +48,9 @@ public class ApproveRejectProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
         // after reject, update business status to [BIZ_APPROVE_REJECT]
-        String bid = form.getBusinessId();
+        String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_APPROVE_REJECTED.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();
     }
 

@@ -25,11 +25,11 @@ import java.util.Map;
 public interface ProcessForm extends Form {
 
     /**
-     * Get business identifier
+     * Get business group id
      *
-     * @return business identifier
+     * @return business group id
      */
-    String getBusinessId();
+    String getInlongGroupId();
 
     /**
      * Get title

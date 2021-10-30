@@ -46,7 +46,6 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConf
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullDataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -97,18 +96,18 @@ public class DataStreamServiceImpl implements DataStreamService {
     public Integer save(DataStreamInfo dataStreamInfo, String operator) {
         LOGGER.debug("begin to save data stream info={}", dataStreamInfo);
         Preconditions.checkNotNull(dataStreamInfo, "data stream info is empty");
-        String bid = dataStreamInfo.getBusinessIdentifier();
-        String dsid = dataStreamInfo.getDataStreamIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+        String groupId = dataStreamInfo.getInlongGroupId();
+        String streamId = dataStreamInfo.getInlongStreamId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        BusinessEntity businessEntity = this.checkBizIsTempStatus(bid);
+        BusinessEntity businessEntity = this.checkBizIsTempStatus(groupId);
 
-        // The dataStreamIdentifier under the same bid cannot be repeated
-        Integer count = streamMapper.selectExistByIdentifier(bid, dsid);
+        // The streamId under the same groupId cannot be repeated
+        Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
         if (count >= 1) {
-            LOGGER.error("data stream id [{}] has already exists", dsid);
+            LOGGER.error("data stream id [{}] has already exists", streamId);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_DUPLICATE);
         }
 
@@ -122,28 +121,28 @@ public class DataStreamServiceImpl implements DataStreamService {
         streamMapper.insertSelective(streamEntity);
 
         // Processing extended information
-        this.saveExt(bid, dsid, dataStreamInfo.getExtList(), date);
+        this.saveExt(groupId, streamId, dataStreamInfo.getExtList(), date);
         // Process data source fields
-        this.saveField(bid, dsid, dataStreamInfo.getFieldList());
+        this.saveField(groupId, streamId, dataStreamInfo.getFieldList());
 
         LOGGER.info("success to save data stream info");
         return streamEntity.getId();
     }
 
     @Override
-    public DataStreamInfo get(String bid, String dsid) {
-        LOGGER.debug("begin to get data stream by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public DataStreamInfo get(String groupId, String streamId) {
+        LOGGER.debug("begin to get data stream by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
-        DataStreamEntity streamEntity = streamMapper.selectByIdentifier(bid, dsid);
+        DataStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
-            LOGGER.error("data stream not found by bid={}, dsid={}", bid, dsid);
+            LOGGER.error("data stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_NOT_FOUND);
         }
 
         DataStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, DataStreamInfo::new);
-        this.setStreamExtAndField(bid, dsid, streamInfo);
+        this.setStreamExtAndField(groupId, streamId, streamInfo);
 
         LOGGER.info("success to get data stream");
         return streamInfo;
@@ -152,29 +151,29 @@ public class DataStreamServiceImpl implements DataStreamService {
     /**
      * Query and set the extended information and data source fields of the data stream
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @param streamInfo Data stream that needs to be filled
      */
-    private void setStreamExtAndField(String bid, String dsid, DataStreamInfo streamInfo) {
-        List<DataStreamExtEntity> extEntityList = streamExtMapper.selectByIdentifier(bid, dsid);
+    private void setStreamExtAndField(String groupId, String streamId, DataStreamInfo streamInfo) {
+        List<DataStreamExtEntity> extEntityList = streamExtMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(extEntityList)) {
             streamInfo.setExtList(CommonBeanUtils.copyListProperties(extEntityList, DataStreamExtInfo::new));
         }
-        List<DataStreamFieldEntity> fieldEntityList = streamFieldMapper.selectByIdentifier(bid, dsid);
+        List<DataStreamFieldEntity> fieldEntityList = streamFieldMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(fieldEntityList)) {
             streamInfo.setFieldList(CommonBeanUtils.copyListProperties(fieldEntityList, DataStreamFieldInfo::new));
         }
     }
 
     @Override
-    public List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String businessId) {
-        return streamMapper.queryStreamToHiveBaseInfoByBid(businessId);
+    public List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String groupId) {
+        return streamMapper.selectStreamToHiveInfo(groupId);
     }
 
     @Override
-    public DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String bid, String dsid) {
-        return streamMapper.queryStreamToHiveBaseInfoByIdentifier(bid, dsid);
+    public DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String groupId, String streamId) {
+        return streamMapper.selectStreamToHiveInfoByIdentifier(groupId, streamId);
     }
 
     @Override
@@ -186,20 +185,20 @@ public class DataStreamServiceImpl implements DataStreamService {
         List<DataStreamListVO> dataStreamList = CommonBeanUtils.copyListProperties(entityPage, DataStreamListVO::new);
 
         // Filter out data streams that do not have this storage type (only one of each data stream can be created)
-        String bid = request.getBid();
+        String groupId = request.getInlongGroupId();
         String storageType = request.getStorageType();
         if (StringUtils.isNotEmpty(storageType)) {
-            List<String> dsidList = dataStreamList.stream().map(DataStreamListVO::getDataStreamIdentifier)
+            List<String> streamIdList = dataStreamList.stream().map(DataStreamListVO::getInlongStreamId)
                     .distinct().collect(Collectors.toList());
-            List<String> resultList = storageService.filterStreamIdByStorageType(bid, storageType, dsidList);
-            dataStreamList.removeIf(entity -> resultList.contains(entity.getDataStreamIdentifier()));
+            List<String> resultList = storageService.filterStreamIdByStorageType(groupId, storageType, streamIdList);
+            dataStreamList.removeIf(entity -> resultList.contains(entity.getInlongStreamId()));
         }
 
-        // Query all data storage targets corresponding to each data stream according to dsid
+        // Query all data storage targets corresponding to each data stream according to streamId
         if (request.getNeedStorageList() == 1) {
             dataStreamList.forEach(stream -> {
-                String dsid = stream.getDataStreamIdentifier();
-                List<String> storageTypeList = storageService.getStorageTypeList(bid, dsid);
+                String streamId = stream.getInlongStreamId();
+                List<String> storageTypeList = storageService.getStorageTypeList(groupId, streamId);
                 stream.setStorageTypeList(storageTypeList);
             });
         }
@@ -217,16 +216,16 @@ public class DataStreamServiceImpl implements DataStreamService {
     public boolean update(DataStreamInfo streamInfo, String operator) {
         LOGGER.debug("begin to update data stream info={}", streamInfo);
         Preconditions.checkNotNull(streamInfo, "data stream info is empty");
-        String bid = streamInfo.getBusinessIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        String dsid = streamInfo.getDataStreamIdentifier();
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+        String groupId = streamInfo.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        String streamId = streamInfo.getInlongStreamId();
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be modified
-        BusinessEntity businessEntity = this.checkBizIsTempStatus(bid);
+        BusinessEntity businessEntity = this.checkBizIsTempStatus(groupId);
 
         // Add if it doesn't exist, modify if it exists
-        DataStreamEntity streamEntity = streamMapper.selectByIdentifier(bid, dsid);
+        DataStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
             this.save(streamInfo, operator);
         } else {
@@ -239,8 +238,8 @@ public class DataStreamServiceImpl implements DataStreamService {
             streamMapper.updateByIdentifierSelective(streamEntity);
 
             // Update extended information, field information
-            this.updateExt(bid, dsid, streamInfo.getExtList());
-            this.updateField(bid, dsid, streamInfo.getFieldList());
+            this.updateExt(groupId, streamId, streamInfo.getExtList());
+            this.updateField(groupId, streamId, streamInfo.getFieldList());
         }
 
         LOGGER.info("success to update business info");
@@ -249,29 +248,29 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean delete(String bid, String dsid, String operator) {
-        LOGGER.debug("begin to delete data stream, bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public boolean delete(String groupId, String streamId, String operator) {
+        LOGGER.debug("begin to delete data stream, groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        BusinessEntity businessEntity = this.checkBizIsTempStatus(bid);
+        BusinessEntity businessEntity = this.checkBizIsTempStatus(groupId);
 
-        DataStreamEntity entity = streamMapper.selectByIdentifier(bid, dsid);
+        DataStreamEntity entity = streamMapper.selectByIdentifier(groupId, streamId);
         if (entity == null) {
-            LOGGER.error("data stream not found by bid={}, dsid={}", bid, dsid);
+            LOGGER.error("data stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_NOT_FOUND);
         }
 
         // If there is an undeleted data source, the deletion fails
-        boolean dataSourceExist = hasDataSource(bid, dsid, entity.getDataSourceType());
+        boolean dataSourceExist = hasDataSource(groupId, streamId, entity.getDataSourceType());
         if (dataSourceExist) {
             LOGGER.error("data stream has undeleted data sources, delete failed");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_DELETE_HAS_SOURCE);
         }
 
         // If there is undeleted data storage information, the deletion fails
-        boolean dataStorageExist = hasDataStorage(bid, dsid);
+        boolean dataStorageExist = hasDataStorage(groupId, streamId);
         if (dataStorageExist) {
             LOGGER.error("data stream has undeleted data storages, delete failed");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_DELETE_HAS_STORAGE);
@@ -282,12 +281,12 @@ public class DataStreamServiceImpl implements DataStreamService {
         streamMapper.updateByPrimaryKey(entity);
 
         // To logically delete the associated extension table
-        LOGGER.debug("begin to delete data stream ext property, bid={}, dsid={}", bid, dsid);
-        streamExtMapper.logicDeleteAllByIdentifier(bid, dsid);
+        LOGGER.debug("begin to delete data stream ext property, groupId={}, streamId={}", groupId, streamId);
+        streamExtMapper.logicDeleteAllByIdentifier(groupId, streamId);
 
         // Logically delete the associated field table
-        LOGGER.debug("begin to delete data stream field, dsid={}", dsid);
-        streamFieldMapper.logicDeleteAllByIdentifier(bid, dsid);
+        LOGGER.debug("begin to delete data stream field, streamId={}", streamId);
+        streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
 
         LOGGER.info("success to delete data stream, ext property and fields");
         return true;
@@ -295,16 +294,16 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean logicDeleteAllByBid(String bid, String operator) {
-        LOGGER.debug("begin to delete all data stream by bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public boolean logicDeleteAllByBid(String groupId, String operator) {
+        LOGGER.debug("begin to delete all data stream by groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        List<DataStreamEntity> entityList = streamMapper.selectByBid(bid);
+        List<DataStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         if (CollectionUtils.isEmpty(entityList)) {
-            LOGGER.info("data stream not found by bid={}", bid);
+            LOGGER.info("data stream not found by groupId={}", groupId);
             return true;
         }
 
@@ -313,40 +312,40 @@ public class DataStreamServiceImpl implements DataStreamService {
             entity.setModifier(operator);
             streamMapper.updateByIdentifierSelective(entity);
 
-            String dsid = entity.getDataStreamIdentifier();
+            String streamId = entity.getInlongStreamId();
             // To logically delete the associated extension table
-            streamExtMapper.logicDeleteAllByIdentifier(bid, dsid);
+            streamExtMapper.logicDeleteAllByIdentifier(groupId, streamId);
             // Logically delete the associated field table
-            streamFieldMapper.logicDeleteAllByIdentifier(bid, dsid);
+            streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
             // Tombstone the associated data source
-            sourceFileService.logicDeleteAllByIdentifier(bid, dsid, operator);
-            sourceDbService.logicDeleteAllByIdentifier(bid, dsid, operator);
+            sourceFileService.logicDeleteAllByIdentifier(groupId, streamId, operator);
+            sourceDbService.logicDeleteAllByIdentifier(groupId, streamId, operator);
             // Logical deletion of associated data storage information
-            storageService.logicDeleteAllByIdentifier(bid, dsid, operator);
+            storageService.logicDeleteAllByIdentifier(groupId, streamId, operator);
         }
 
-        LOGGER.info("success to delete all data stream, ext property and fields by bid={}", bid);
+        LOGGER.info("success to delete all data stream, ext property and fields by groupId={}", groupId);
         return true;
     }
 
     /**
-     * According to bid and dsid, query the number of associated undeleted data storage
+     * According to groupId and streamId, query the number of associated undeleted data storage
      */
-    private boolean hasDataStorage(String bid, String dsid) {
-        int count = storageService.getCountByIdentifier(bid, dsid);
+    private boolean hasDataStorage(String groupId, String streamId) {
+        int count = storageService.getCountByIdentifier(groupId, streamId);
         return count > 0;
     }
 
     /**
-     * According to bid and dsid, query whether there are undeleted data sources
+     * According to groupId and streamId, query whether there are undeleted data sources
      */
-    private boolean hasDataSource(String bid, String dsid, String dataSourceType) {
+    private boolean hasDataSource(String groupId, String streamId, String dataSourceType) {
         boolean exist;
         if (BizConstant.DATA_SOURCE_TYPE_FILE.equalsIgnoreCase(dataSourceType)) {
-            List<SourceFileDetailInfo> fileDetailList = sourceFileService.listDetailByIdentifier(bid, dsid);
+            List<SourceFileDetailInfo> fileDetailList = sourceFileService.listDetailByIdentifier(groupId, streamId);
             exist = CollectionUtils.isNotEmpty(fileDetailList);
         } else if (BizConstant.DATA_SOURCE_TYPE_DB.equalsIgnoreCase(dataSourceType)) {
-            List<SourceDbDetailInfo> dbDetailList = sourceDbService.listDetailByIdentifier(bid, dsid);
+            List<SourceDbDetailInfo> dbDetailList = sourceDbService.listDetailByIdentifier(groupId, streamId);
             exist = CollectionUtils.isNotEmpty(dbDetailList);
         } else {
             exist = false;
@@ -355,18 +354,18 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public List<DataStreamSummaryInfo> getSummaryList(String bid) {
-        LOGGER.debug("begin to get data stream summary list by bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public List<DataStreamSummaryInfo> getSummaryList(String groupId) {
+        LOGGER.debug("begin to get data stream summary list by groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        List<DataStreamEntity> entityList = streamMapper.selectByBid(bid);
+        List<DataStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         List<DataStreamSummaryInfo> summaryInfoList = CommonBeanUtils
                 .copyListProperties(entityList, DataStreamSummaryInfo::new);
 
-        // Query data storage based on bid and dsid
+        // Query data storage based on groupId and streamId
         for (DataStreamSummaryInfo summaryInfo : summaryInfoList) {
-            String dsid = summaryInfo.getDataStreamIdentifier();
-            List<StorageSummaryInfo> storageList = storageService.listSummaryByIdentifier(bid, dsid);
+            String streamId = summaryInfo.getInlongStreamId();
+            List<StorageSummaryInfo> storageList = storageService.listSummaryByIdentifier(groupId, streamId);
             summaryInfo.setStorageList(storageList);
         }
 
@@ -385,7 +384,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         Preconditions.checkNotNull(streamInfo, "data stream info is empty");
 
         // Check whether it can be added: check by lower-level specific services
-        // this.checkBizIsTempStatus(streamInfo.getBusinessIdentifier());
+        // this.checkBizIsTempStatus(streamInfo.getInlongGroupId());
 
         // 1. Save data stream
         this.save(streamInfo, operator);
@@ -432,29 +431,29 @@ public class DataStreamServiceImpl implements DataStreamService {
         // Check if it can be added
         DataStreamInfo firstStream = fullPageInfoList.get(0).getStreamInfo();
         Preconditions.checkNotNull(firstStream, "data stream info is empty");
-        String bid = firstStream.getBusinessIdentifier();
-        this.checkBizIsTempStatus(bid);
+        String groupId = firstStream.getInlongGroupId();
+        this.checkBizIsTempStatus(groupId);
 
         // This bulk save is only used when creating new business or editing business after approval is rejected.
         // To ensure data consistency, you need to physically delete all associated data and then add
-        // Note: There may be records with the same bid and dsid in the historical data,
+        // Note: There may be records with the same groupId and streamId in the historical data,
         // and the ones with is_deleted=0 should be deleted
-        streamMapper.deleteAllByBid(bid);
+        streamMapper.deleteAllByGroupId(groupId);
 
         for (FullPageInfo pageInfo : fullPageInfoList) {
-            // 1.1 Delete the data stream extensions and fields corresponding to bid and dsid
+            // 1.1 Delete the data stream extensions and fields corresponding to groupId and streamId
             DataStreamInfo streamInfo = pageInfo.getStreamInfo();
-            String dsid = streamInfo.getDataStreamIdentifier();
+            String streamId = streamInfo.getInlongStreamId();
 
-            streamExtMapper.deleteAllByIdentifier(bid, dsid);
-            streamFieldMapper.deleteAllByIdentifier(bid, dsid);
+            streamExtMapper.deleteAllByIdentifier(groupId, streamId);
+            streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
 
             // 2. Delete file data source, DB data source information
-            sourceFileService.deleteAllByIdentifier(bid, dsid);
-            sourceDbService.deleteAllByIdentifier(bid, dsid);
+            sourceFileService.deleteAllByIdentifier(groupId, streamId);
+            sourceDbService.deleteAllByIdentifier(groupId, streamId);
 
             // 3. Delete data storage information
-            storageService.deleteAllByIdentifier(bid, dsid);
+            storageService.deleteAllByIdentifier(groupId, streamId);
 
             // 4. Save the data stream of this batch
             this.saveAll(pageInfo, operator);
@@ -464,32 +463,32 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public PageInfo<FullPageInfo> listAllWithBid(FullDataStreamPageRequest request) {
+    public PageInfo<FullPageInfo> listAllWithGroupId(DataStreamPageRequest request) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to list full data stream page by {}", request);
         }
         LOGGER.debug("begin to list full data stream page by {}", request);
         Preconditions.checkNotNull(request, "request is empty");
-        Preconditions.checkNotNull(request.getBid(), BizConstant.BID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
 
-        // 1. Query all valid data sources under bid
-        String bid = request.getBid();
+        // 1. Query all valid data sources under groupId
+        String groupId = request.getInlongGroupId();
         // The person in charge of the business has the authority of all data streams
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(bid);
-        Preconditions.checkNotNull(businessEntity, "business not found by bid=" + bid);
+        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(businessEntity, "business not found by groupId=" + groupId);
         String inCharges = businessEntity.getInCharges();
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<DataStreamEntity> entityPage = (Page<DataStreamEntity>) streamMapper
-                .selectByBidAndCondition(request, inCharges);
-        List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(entityPage, DataStreamInfo::new);
+        Page<DataStreamEntity> page = (Page<DataStreamEntity>) streamMapper.selectByConditionAndInCharges(request,
+                inCharges);
+        List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, DataStreamInfo::new);
 
         // Convert and encapsulate the paged results
         List<FullPageInfo> fullPageInfoList = new ArrayList<>(streamInfoList.size());
         for (DataStreamInfo streamInfo : streamInfoList) {
             // 2.1 Set the extended information and field information of the data stream
-            String dsid = streamInfo.getDataStreamIdentifier();
-            setStreamExtAndField(bid, dsid, streamInfo);
+            String streamId = streamInfo.getInlongStreamId();
+            setStreamExtAndField(groupId, streamId, streamInfo);
 
             // 2.3 Set the data stream to the result sub-object
             FullPageInfo pageInfo = new FullPageInfo();
@@ -502,15 +501,17 @@ public class DataStreamServiceImpl implements DataStreamService {
             }
             switch (dataSourceType.toUpperCase(Locale.ROOT)) {
                 case BizConstant.DATA_SOURCE_TYPE_FILE:
-                    SourceFileBasicInfo fileBasicInfo = sourceFileService.getBasicByIdentifier(bid, dsid);
+                    SourceFileBasicInfo fileBasicInfo = sourceFileService.getBasicByIdentifier(groupId, streamId);
                     pageInfo.setFileBasicInfo(fileBasicInfo);
-                    List<SourceFileDetailInfo> fileDetailInfoList = sourceFileService.listDetailByIdentifier(bid, dsid);
+                    List<SourceFileDetailInfo> fileDetailInfoList = sourceFileService.listDetailByIdentifier(groupId,
+                            streamId);
                     pageInfo.setFileDetailInfoList(fileDetailInfoList);
                     break;
                 case BizConstant.DATA_SOURCE_TYPE_DB:
-                    SourceDbBasicInfo dbBasicInfo = sourceDbService.getBasicByIdentifier(bid, dsid);
+                    SourceDbBasicInfo dbBasicInfo = sourceDbService.getBasicByIdentifier(groupId, streamId);
                     pageInfo.setDbBasicInfo(dbBasicInfo);
-                    List<SourceDbDetailInfo> dbDetailInfoList = sourceDbService.listDetailByIdentifier(bid, dsid);
+                    List<SourceDbDetailInfo> dbDetailInfoList = sourceDbService.listDetailByIdentifier(groupId,
+                            streamId);
                     pageInfo.setDbDetailInfoList(dbDetailInfoList);
                     break;
                 case BizConstant.DATA_SOURCE_TYPE_AUTO_PUSH:
@@ -520,36 +521,36 @@ public class DataStreamServiceImpl implements DataStreamService {
             }
 
             // 4. Query various data storage and its extended information, field information
-            List<BaseStorageInfo> storageInfoList = storageService.listByIdentifier(bid, dsid);
+            List<BaseStorageInfo> storageInfoList = storageService.listByIdentifier(groupId, streamId);
             pageInfo.setStorageInfo(storageInfoList);
 
             // 5. Add a single result to the paginated list
             fullPageInfoList.add(pageInfo);
         }
 
-        PageInfo<FullPageInfo> page = new PageInfo<>(fullPageInfoList);
-        page.setTotal(entityPage.getTotal());
+        PageInfo<FullPageInfo> pageInfo = new PageInfo<>(fullPageInfoList);
+        pageInfo.setTotal(pageInfo.getTotal());
 
         LOGGER.info("success to list full data stream info");
-        return page;
+        return pageInfo;
     }
 
     @Override
-    public List<DataStreamInfo> listAllByBid(String bid) {
-        LOGGER.debug("begin to list all data stream page by bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public List<DataStreamInfo> listAllByBid(String groupId) {
+        LOGGER.debug("begin to list all data stream page by groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        // Query all valid data sources under bid
-        List<DataStreamEntity> entityList = streamMapper.selectByBid(bid);
+        // Query all valid data sources under groupId
+        List<DataStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(entityList, DataStreamInfo::new);
 
         // Set the extended information and field information of the data stream
         for (DataStreamInfo streamInfo : streamInfoList) {
-            String dsid = streamInfo.getDataStreamIdentifier();
-            setStreamExtAndField(bid, dsid, streamInfo);
+            String streamId = streamInfo.getInlongStreamId();
+            setStreamExtAndField(groupId, streamId, streamInfo);
         }
 
-        LOGGER.info("success to list all data stream page by bid={}", bid);
+        LOGGER.info("success to list all data stream page by groupId={}", groupId);
 
         return streamInfoList;
     }
@@ -564,7 +565,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         Preconditions.checkNotNull(updateInfo.getStreamInfo(), "data stream info is empty");
 
         // Check whether it can be added: check by sub-layer specific services
-        // this.checkBizIsTempStatus(streamInfo.getBusinessIdentifier());
+        // this.checkBizIsTempStatus(streamInfo.getInlongGroupId());
 
         // 1. Modify the data stream (data stream information cannot be empty)
         this.update(updateInfo.getStreamInfo(), operator);
@@ -584,12 +585,12 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public int selectCountByBid(String bid) {
-        LOGGER.debug("begin bo get count by bid={}", bid);
-        if (StringUtils.isEmpty(bid)) {
+    public int selectCountByBid(String groupId) {
+        LOGGER.debug("begin bo get count by groupId={}", groupId);
+        if (StringUtils.isEmpty(groupId)) {
             return 0;
         }
-        int count = streamMapper.selectCountByBid(bid);
+        int count = streamMapper.selectCountByGroupId(groupId);
         LOGGER.info("success to get count");
         return count;
     }
@@ -606,8 +607,8 @@ public class DataStreamServiceImpl implements DataStreamService {
         for (DataStreamApproveInfo info : streamApproveList) {
             // Modify mqResourceObj
             DataStreamEntity streamEntity = new DataStreamEntity();
-            streamEntity.setBusinessIdentifier(info.getBusinessIdentifier());
-            streamEntity.setDataStreamIdentifier(info.getDataStreamIdentifier());
+            streamEntity.setInlongGroupId(info.getInlongGroupId());
+            streamEntity.setInlongStreamId(info.getInlongStreamId());
             streamEntity.setStatus(EntityStatus.DATA_STREAM_CONFIG_ING.getCode());
             streamMapper.updateByIdentifierSelective(streamEntity);
             // Update status to [DATA_STREAM_CONFIG_ING]
@@ -622,11 +623,11 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public boolean updateStatus(String bid, String dsid, Integer status, String operator) {
-        LOGGER.debug("begin to update status by bid={}, dsid={}", bid, dsid);
+    public boolean updateStatus(String groupId, String streamId, Integer status, String operator) {
+        LOGGER.debug("begin to update status by groupId={}, streamId={}", groupId, streamId);
 
-        // businessMapper.updateStatusByIdentifier(bid, status, operator);
-        streamMapper.updateStatusByIdentifier(bid, dsid, status, operator);
+        // businessMapper.updateStatusByIdentifier(groupId, status, operator);
+        streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);
 
         LOGGER.info("success to update stream after approve");
         return true;
@@ -637,14 +638,15 @@ public class DataStreamServiceImpl implements DataStreamService {
      * <p/>First physically delete the existing extended information, and then add this batch of extended information
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateExt(String bid, String dsid, List<DataStreamExtInfo> extInfoList) {
+    void updateExt(String groupId, String streamId, List<DataStreamExtInfo> extInfoList) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update data stream ext, bid={}, dsid={}, ext={}", bid, dsid, extInfoList);
+            LOGGER.debug("begin to update data stream ext, groupId={}, streamId={}, ext={}", groupId, streamId,
+                    extInfoList);
         }
 
         try {
-            streamExtMapper.deleteAllByIdentifier(bid, dsid);
-            saveExt(bid, dsid, extInfoList, new Date());
+            streamExtMapper.deleteAllByIdentifier(groupId, streamId);
+            saveExt(groupId, streamId, extInfoList, new Date());
             LOGGER.info("success to update data stream ext");
         } catch (Exception e) {
             LOGGER.error("failed to update data stream ext: ", e);
@@ -653,14 +655,14 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveExt(String bid, String dsid, List<DataStreamExtInfo> infoList, Date date) {
+    void saveExt(String groupId, String streamId, List<DataStreamExtInfo> infoList, Date date) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
         List<DataStreamExtEntity> entityList = CommonBeanUtils.copyListProperties(infoList, DataStreamExtEntity::new);
         for (DataStreamExtEntity entity : entityList) {
-            entity.setBusinessIdentifier(bid);
-            entity.setDataStreamIdentifier(dsid);
+            entity.setInlongGroupId(groupId);
+            entity.setInlongStreamId(streamId);
             entity.setModifyTime(date);
         }
         streamExtMapper.insertAll(entityList);
@@ -671,11 +673,12 @@ public class DataStreamServiceImpl implements DataStreamService {
      * <p/>First physically delete the existing field information, and then add the field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateField(String bid, String dsid, List<DataStreamFieldInfo> fieldInfoList) {
-        LOGGER.debug("begin to update data stream field, bid={}, dsid={}, field={}", bid, dsid, fieldInfoList);
+    void updateField(String groupId, String streamId, List<DataStreamFieldInfo> fieldInfoList) {
+        LOGGER.debug("begin to update data stream field, groupId={}, streamId={}, field={}", groupId, streamId,
+                fieldInfoList);
         try {
-            streamFieldMapper.deleteAllByIdentifier(bid, dsid);
-            saveField(bid, dsid, fieldInfoList);
+            streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
+            saveField(groupId, streamId, fieldInfoList);
             LOGGER.info("success to update data stream field");
         } catch (Exception e) {
             LOGGER.error("failed to update data stream field: ", e);
@@ -684,14 +687,14 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveField(String bid, String dsid, List<DataStreamFieldInfo> infoList) {
+    void saveField(String groupId, String streamId, List<DataStreamFieldInfo> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
         List<DataStreamFieldEntity> entities = CommonBeanUtils.copyListProperties(infoList, DataStreamFieldEntity::new);
         for (DataStreamFieldEntity entity : entities) {
-            entity.setBusinessIdentifier(bid);
-            entity.setDataStreamIdentifier(dsid);
+            entity.setInlongGroupId(groupId);
+            entity.setInlongStreamId(streamId);
         }
         streamFieldMapper.insertAll(entities);
     }
@@ -699,12 +702,12 @@ public class DataStreamServiceImpl implements DataStreamService {
     /**
      * Check whether the business status is temporary
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return usiness entity for caller reuse
      */
-    private BusinessEntity checkBizIsTempStatus(String bid) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(bid);
-        Preconditions.checkNotNull(businessEntity, "businessIdentifier is invalid");
+    private BusinessEntity checkBizIsTempStatus(String groupId) {
+        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(businessEntity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain business status
         if (EntityStatus.BIZ_TEMP_STATUS.contains(businessEntity.getStatus())) {
             LOGGER.error("business status was not allowed to add/update/delete data stream");
@@ -738,12 +741,12 @@ public class DataStreamServiceImpl implements DataStreamService {
                 EntityStatus.BIZ_APPROVE_REJECTED.getCode(),
                 EntityStatus.BIZ_CONFIG_FAILED.getCode());
         if (statusList.contains(bizStatus)) {
-            String bid = streamInfo.getBusinessIdentifier();
-            String dsid = streamInfo.getDataStreamIdentifier();
+            String groupId = streamInfo.getInlongGroupId();
+            String streamId = streamInfo.getInlongStreamId();
             // Whether there is an undeleted data source
-            boolean dataSourceExist = hasDataSource(bid, dsid, streamInfo.getDataSourceType());
+            boolean dataSourceExist = hasDataSource(groupId, streamId, streamInfo.getDataSourceType());
             // Whether there is undeleted data storage
-            boolean dataStorageExist = hasDataStorage(bid, dsid);
+            boolean dataStorageExist = hasDataStorage(groupId, streamId);
             if (dataSourceExist || dataStorageExist) {
                 checkUpdatedFields(streamEntity, streamInfo);
             }
@@ -751,17 +754,17 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     /**
-     * Check that bid, dsid, and dataSourceType are not allowed to be modified
+     * Check that groupId, streamId, and dataSourceType are not allowed to be modified
      */
     private void checkUpdatedFields(DataStreamEntity streamEntity, DataStreamInfo streamInfo) {
-        String newBid = streamInfo.getBusinessIdentifier();
-        if (newBid != null && !newBid.equals(streamEntity.getBusinessIdentifier())) {
-            LOGGER.error("current status was not allowed to update business identifier");
+        String newBid = streamInfo.getInlongGroupId();
+        if (newBid != null && !newBid.equals(streamEntity.getInlongGroupId())) {
+            LOGGER.error("current status was not allowed to update business group id");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_BID_UPDATE_NOT_ALLOWED);
         }
 
-        String newDsid = streamInfo.getDataStreamIdentifier();
-        if (newDsid != null && !newDsid.equals(streamEntity.getDataStreamIdentifier())) {
+        String newDsid = streamInfo.getInlongStreamId();
+        if (newDsid != null && !newDsid.equals(streamEntity.getInlongStreamId())) {
             LOGGER.error("current status was not allowed to update data stream identifier");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_UPDATE_NOT_ALLOWED);
         }

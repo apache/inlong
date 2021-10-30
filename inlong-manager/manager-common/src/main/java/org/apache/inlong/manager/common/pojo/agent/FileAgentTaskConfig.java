@@ -30,9 +30,9 @@ import lombok.Data;
 @Data
 public class FileAgentTaskConfig {
 
-    private String businessIdentifier;
+    private String inlongGroupId;
 
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Operation type")
     private String op;

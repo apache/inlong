@@ -101,13 +101,13 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             StringBuilder s = new StringBuilder();
 
             s.append("m=").append(config.getSortType()).append("&");
-            s.append("iname=").append(config.getDataStreamIdentifier()).append("&");
+            s.append("iname=").append(config.getInlongStreamId()).append("&");
             if (config.getDataGenerateRule().equalsIgnoreCase("minute")) {
                 s.append("p=t").append("&");
             }
 
             List<DataStreamFieldEntity> preFields = dataStreamFieldEntityMapper
-                    .queryDataStreamPreFields(config.getBusinessIdentifier(), config.getDataStreamIdentifier());
+                    .selectDataStreamFields(config.getInlongGroupId(), config.getInlongStreamId());
 
             if (!config.getSortType().equalsIgnoreCase("13")) {
                 int fIndex = 0;
@@ -257,14 +257,14 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         StringBuilder s = new StringBuilder();
 
         s.append("m=").append(config.getSortType()).append("&");
-        s.append("iname=").append(config.getDataStreamIdentifier()).append("&");
+        s.append("iname=").append(config.getInlongStreamId()).append("&");
         if (config.getDataGenerateRule().equalsIgnoreCase("minute")) {
             s.append("p=t").append("&");
         }
 
-        List<DataStreamFieldEntity> preFields = dataStreamFieldEntityMapper.queryDataStreamPreFields(
-                config.getBusinessIdentifier(),
-                config.getDataStreamIdentifier());
+        List<DataStreamFieldEntity> preFields = dataStreamFieldEntityMapper.selectDataStreamFields(
+                config.getInlongGroupId(),
+                config.getInlongStreamId());
 
         if (!config.getSortType().equalsIgnoreCase("13")) {
             int fIndex = 0;

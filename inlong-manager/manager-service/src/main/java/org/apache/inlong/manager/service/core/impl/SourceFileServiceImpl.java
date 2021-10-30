@@ -67,16 +67,16 @@ public class SourceFileServiceImpl implements SourceFileService {
     public Integer saveBasic(SourceFileBasicInfo basicInfo, String operator) {
         LOGGER.info("begin to save file data source basic={}", basicInfo);
         Preconditions.checkNotNull(basicInfo, "file data source basic is empty");
-        String bid = basicInfo.getBusinessIdentifier();
-        String dsid = basicInfo.getDataStreamIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+        String groupId = basicInfo.getInlongGroupId();
+        String streamId = basicInfo.getInlongStreamId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        // Each businessIdentifier + dataStreamIdentifier has only 1 valid basic information
-        SourceFileBasicEntity exist = fileBasicMapper.selectByIdentifier(bid, dsid);
+        // Each groupId + streamId has only 1 valid basic information
+        SourceFileBasicEntity exist = fileBasicMapper.selectByIdentifier(groupId, streamId);
         if (exist != null) {
             LOGGER.error("file data source basic already exists, please check");
             throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
@@ -93,15 +93,15 @@ public class SourceFileServiceImpl implements SourceFileService {
     }
 
     @Override
-    public SourceFileBasicInfo getBasicByIdentifier(String bid, String dsid) {
-        LOGGER.info("begin to get file data source basic by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public SourceFileBasicInfo getBasicByIdentifier(String groupId, String streamId) {
+        LOGGER.info("begin to get file data source basic by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
-        SourceFileBasicEntity entity = fileBasicMapper.selectByIdentifier(bid, dsid);
+        SourceFileBasicEntity entity = fileBasicMapper.selectByIdentifier(groupId, streamId);
         SourceFileBasicInfo basicInfo = new SourceFileBasicInfo();
         if (entity == null) {
-            LOGGER.error("file data source basic not found by dataStreamIdentifier={}", dsid);
+            LOGGER.error("file data source basic not found by streamId={}", streamId);
             // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOTFOUND);
             return basicInfo;
         }
@@ -116,9 +116,9 @@ public class SourceFileServiceImpl implements SourceFileService {
         LOGGER.info("begin to update file data source basic={}", basicInfo);
         Preconditions.checkNotNull(basicInfo, "file data source basic is empty");
 
-        // The bid may be modified, it is necessary to determine whether the business status of
-        // the modified bid supports modification
-        this.checkBizIsTempStatus(basicInfo.getBusinessIdentifier());
+        // The groupId may be modified, it is necessary to determine whether the business status of
+        // the modified groupId supports modification
+        this.checkBizIsTempStatus(basicInfo.getInlongGroupId());
 
         // If id is empty, add
         if (basicInfo.getId() == null) {
@@ -151,13 +151,13 @@ public class SourceFileServiceImpl implements SourceFileService {
             throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOT_FOUND);
         }
 
-        String bid = entity.getBusinessIdentifier();
-        String dsid = entity.getDataStreamIdentifier();
+        String groupId = entity.getInlongGroupId();
+        String streamId = entity.getInlongStreamId();
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
         // If there are related data source details, it is not allowed to delete
-        List<SourceFileDetailEntity> detailEntities = fileDetailMapper.selectByIdentifier(bid, dsid);
+        List<SourceFileDetailEntity> detailEntities = fileDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(detailEntities)) {
             LOGGER.error("the data source basic have [{}] details, delete failed", detailEntities.size());
             throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_DELETE_HAS_DETAIL);
@@ -175,11 +175,11 @@ public class SourceFileServiceImpl implements SourceFileService {
     public Integer saveDetail(SourceFileDetailInfo detailInfo, String operator) {
         LOGGER.info("begin to save file data source detail={}", detailInfo);
         Preconditions.checkNotNull(detailInfo, "file data source detail is empty");
-        Preconditions.checkNotNull(detailInfo.getBusinessIdentifier(), BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(detailInfo.getDataStreamIdentifier(), BizConstant.DSID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        this.checkBizIsTempStatus(detailInfo.getBusinessIdentifier());
+        this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
 
         int id = saveDetailOpt(detailInfo, operator);
         LOGGER.info("success to save file data source detail");
@@ -203,11 +203,11 @@ public class SourceFileServiceImpl implements SourceFileService {
     }
 
     @Override
-    public List<SourceFileDetailInfo> listDetailByIdentifier(String bid, String dsid) {
-        LOGGER.info("begin list file data source detail by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public List<SourceFileDetailInfo> listDetailByIdentifier(String groupId, String streamId) {
+        LOGGER.info("begin list file data source detail by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        List<SourceFileDetailEntity> entities = fileDetailMapper.selectByIdentifier(bid, dsid);
+        List<SourceFileDetailEntity> entities = fileDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isEmpty(entities)) {
             LOGGER.error("file data source detail not found");
             // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
@@ -240,12 +240,12 @@ public class SourceFileServiceImpl implements SourceFileService {
     public boolean updateDetail(SourceFileDetailInfo detailInfo, String operator) {
         LOGGER.info("begin to update file data source detail={}", detailInfo);
         Preconditions.checkNotNull(detailInfo, "file data source detail is empty");
-        Preconditions.checkNotNull(detailInfo.getBusinessIdentifier(), BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(detailInfo.getDataStreamIdentifier(), BizConstant.DSID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), BizConstant.STREAM_ID_IS_EMPTY);
 
-        // The bid may be modified, it is necessary to determine whether the business status of
-        // the modified bid supports modification
-        this.checkBizIsTempStatus(detailInfo.getBusinessIdentifier());
+        // The groupId may be modified, it is necessary to determine whether the business status of
+        // the modified groupId supports modification
+        this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
 
         // id exists, update, otherwise add
         if (detailInfo.getId() != null) {
@@ -279,7 +279,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         }
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(entity.getBusinessIdentifier());
+        this.checkBizIsTempStatus(entity.getInlongGroupId());
 
         entity.setIsDeleted(1);
         entity.setModifier(operator);
@@ -291,32 +291,32 @@ public class SourceFileServiceImpl implements SourceFileService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean deleteAllByIdentifier(String bid, String dsid) {
-        LOGGER.info("begin delete all file basic and detail by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public boolean deleteAllByIdentifier(String groupId, String streamId) {
+        LOGGER.info("begin delete all file basic and detail by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        fileBasicMapper.deleteByIdentifier(bid, dsid);
-        fileDetailMapper.deleteByIdentifier(bid, dsid);
+        fileBasicMapper.deleteByIdentifier(groupId, streamId);
+        fileDetailMapper.deleteByIdentifier(groupId, streamId);
         LOGGER.info("success delete all file basic and detail");
         return true;
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean logicDeleteAllByIdentifier(String bid, String dsid, String operator) {
-        LOGGER.info("begin logic delete all file basic and detail by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator) {
+        LOGGER.info("begin logic delete all file basic and detail by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        fileBasicMapper.logicDeleteByIdentifier(bid, dsid, operator);
-        fileDetailMapper.logicDeleteByIdentifier(bid, dsid, operator);
+        fileBasicMapper.logicDeleteByIdentifier(groupId, streamId, operator);
+        fileDetailMapper.logicDeleteByIdentifier(groupId, streamId, operator);
         LOGGER.info("success logic delete all file basic and detail");
         return true;
     }
@@ -326,14 +326,14 @@ public class SourceFileServiceImpl implements SourceFileService {
      */
     @Transactional(rollbackFor = Throwable.class)
     int saveDetailOpt(SourceFileDetailInfo detailInfo, String operator) {
-        // If there are data sources under the same bid, dsid, ip, username, the addition fails
-        String bid = detailInfo.getBusinessIdentifier();
-        String dsid = detailInfo.getDataStreamIdentifier();
+        // If there are data sources under the same groupId, streamId, ip, username, the addition fails
+        String groupId = detailInfo.getInlongGroupId();
+        String streamId = detailInfo.getInlongStreamId();
         String ip = detailInfo.getIp();
         String username = detailInfo.getUsername();
-        Integer count = fileDetailMapper.selectDetailExist(bid, dsid, ip, username);
+        Integer count = fileDetailMapper.selectDetailExist(groupId, streamId, ip, username);
         if (count > 0) {
-            LOGGER.error("file data source already exists: bid=" + bid + ", dsid=" + dsid
+            LOGGER.error("file data source already exists: groupId=" + groupId + ", streamId=" + streamId
                     + ", ip=" + ip + ", username=" + username);
             throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
         }
@@ -351,12 +351,12 @@ public class SourceFileServiceImpl implements SourceFileService {
     /**
      * Check whether the business status is temporary
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return Business entity for caller reuse
      */
-    private void checkBizIsTempStatus(String bid) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(bid);
-        Preconditions.checkNotNull(businessEntity, "businessIdentifier is invalid");
+    private void checkBizIsTempStatus(String groupId) {
+        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(businessEntity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain business status
         if (EntityStatus.BIZ_TEMP_STATUS.contains(businessEntity.getStatus())) {
             LOGGER.error("business status was not allowed to add/update/delete data source info");

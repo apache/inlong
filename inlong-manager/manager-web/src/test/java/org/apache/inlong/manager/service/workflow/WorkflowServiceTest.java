@@ -39,10 +39,10 @@ public class WorkflowServiceTest extends ServiceBaseTest {
     @Test
     public void testListTaskExecuteLogs() {
         // insert process instance
-        String businessId = "test_business";
+        String groupId = "test_business";
         ProcessInstance process = new ProcessInstance()
                 .setId(1)
-                .setBusinessId(businessId)
+                .setInlongGroupId(groupId)
                 .setName("CREATE_BUSINESS_RESOURCE")
                 .setHidden(true)
                 .setState(ProcessState.COMPLETED.name());
@@ -56,7 +56,7 @@ public class WorkflowServiceTest extends ServiceBaseTest {
         workflowDataAccessor.taskInstanceStorage().insert(task);
         // query execute logs
         WorkflowTaskExecuteLogQuery query = new WorkflowTaskExecuteLogQuery();
-        query.setBusinessId(businessId);
+        query.setGroupId(groupId);
         query.setProcessNames(Collections.singletonList("CREATE_BUSINESS_RESOURCE"));
         PageInfo<WorkflowTaskExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
 

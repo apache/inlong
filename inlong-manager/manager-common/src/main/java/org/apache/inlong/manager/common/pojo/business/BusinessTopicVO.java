@@ -28,8 +28,8 @@ import lombok.Data;
 @ApiModel("Topic View Object of the Business")
 public class BusinessTopicVO {
 
-    @ApiModelProperty(value = "Business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id", required = true)
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware type of data storage, support high throughput: Tube")
     private String middlewareType;

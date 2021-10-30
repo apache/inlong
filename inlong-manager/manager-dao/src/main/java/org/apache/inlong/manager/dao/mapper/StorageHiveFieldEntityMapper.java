@@ -37,7 +37,7 @@ public interface StorageHiveFieldEntityMapper {
 
     int updateByPrimaryKey(StorageHiveFieldEntity record);
 
-    List<StorageHiveFieldEntity> queryHiveFieldsByStreamId(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<StorageHiveFieldEntity> selectHiveFields(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * According to the storage primary key, logically delete the corresponding field information

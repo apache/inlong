@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullDataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
@@ -80,11 +79,11 @@ public class DataStreamController {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ApiOperation(value = "Query data stream information")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "bid", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "dsid", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<DataStreamInfo> get(@RequestParam String bid, @RequestParam String dsid) {
-        return Response.success(dataStreamService.get(bid, dsid));
+    public Response<DataStreamInfo> get(@RequestParam String groupId, @RequestParam String streamId) {
+        return Response.success(dataStreamService.get(groupId, streamId));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -95,18 +94,18 @@ public class DataStreamController {
     }
 
     @RequestMapping(value = "/listAll", method = RequestMethod.GET)
-    @ApiOperation(value = "Paging query all data of the data stream page under the specified bid")
-    public Response<PageInfo<FullPageInfo>> listAllWithBid(FullDataStreamPageRequest request) {
+    @ApiOperation(value = "Paging query all data of the data stream page under the specified groupId")
+    public Response<PageInfo<FullPageInfo>> listAllWithGroupId(DataStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
-        return Response.success(dataStreamService.listAllWithBid(request));
+        return Response.success(dataStreamService.listAllWithGroupId(request));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data stream information")
     public Response<Boolean> update(@RequestBody DataStreamInfo dataStreamInfo) {
-        return Response
-                .success(dataStreamService.update(dataStreamInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(dataStreamService.update(dataStreamInfo, username));
     }
 
     @RequestMapping(value = "/updateAll", method = RequestMethod.POST)
@@ -121,18 +120,19 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data stream information")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "bid", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "dsid", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> delete(@RequestParam String bid, @RequestParam String dsid) {
-        return Response.success(dataStreamService.delete(bid, dsid, LoginUserUtil.getLoginUserDetail().getUserName()));
+    public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
+        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(dataStreamService.delete(groupId, streamId, username));
     }
 
-    @RequestMapping(value = "/getSummaryList/{bid}", method = RequestMethod.GET)
-    @ApiOperation(value = "Obtain the flow of data stream according to bid")
-    @ApiImplicitParam(name = "bid", value = "Business identifier", dataTypeClass = String.class, required = true)
-    public Response<List<DataStreamSummaryInfo>> getSummaryList(@PathVariable String bid) {
-        return Response.success(dataStreamService.getSummaryList(bid));
+    @RequestMapping(value = "/getSummaryList/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Obtain the flow of data stream according to groupId")
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
+    public Response<List<DataStreamSummaryInfo>> getSummaryList(@PathVariable String groupId) {
+        return Response.success(dataStreamService.getSummaryList(groupId));
     }
 
 }

@@ -193,12 +193,12 @@
           and is_deleted = 0
     </update>
 
-    <select id="queryHiveFieldsByStreamId" resultMap="BaseResultMap">
+    <select id="selectHiveFields" resultMap="BaseResultMap">
         select f.*
         from storage_hive_field f,
              storage_hive s
-        where s.business_identifier = #{bid, jdbcType=VARCHAR}
-          and s.data_stream_identifier = #{dsid,jdbcType=VARCHAR}
+        where s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and f.storage_id = s.id
           and f.is_deleted = 0
           and s.is_deleted = 0

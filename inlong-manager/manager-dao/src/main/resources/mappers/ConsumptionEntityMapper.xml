@@ -26,11 +26,11 @@
         <result column="consumer_group_name" jdbcType="VARCHAR" property="consumerGroupName"/>
         <result column="consumer_group_id" jdbcType="VARCHAR" property="consumerGroupId"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
         <result column="topic" jdbcType="VARCHAR" property="topic"/>
         <result column="filter_enabled" jdbcType="INTEGER" property="filterEnabled"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
@@ -39,9 +39,9 @@
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id,  consumer_group_name, consumer_group_id, in_charges, business_identifier,
-        middleware_type, topic, filter_enabled, data_stream_identifier,
-        status, creator, modifier,create_time, modify_time, is_deleted>0
+        id,  consumer_group_name, consumer_group_id, in_charges, inlong_group_id,
+        middleware_type, topic, filter_enabled, inlong_stream_id,
+        status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer"
             resultMap="BaseResultMap">
@@ -57,18 +57,20 @@
     </delete>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ConsumptionEntity">
-        insert into consumption (id, consumer_group_name, consumer_group_id, in_charges,
-                                 business_identifier, middleware_type, topic,
-                                 filter_enabled, data_stream_identifier,
-                                 status, creator, modifier, create_time, modify_time,
-                                 is_deleted)
+        insert into consumption (id, consumer_group_name,
+                                 consumer_group_id, in_charges,
+                                 inlong_group_id, middleware_type, topic,
+                                 filter_enabled, inlong_stream_id,
+                                 status, is_deleted,
+                                 creator, modifier,
+                                 create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{consumerGroupName,jdbcType=VARCHAR},
                 #{consumerGroupId,jdbcType=VARCHAR}, #{inCharges,jdbcType=VARCHAR},
-                #{businessIdentifier,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
-                #{topic,jdbcType=VARCHAR}, #{filterEnabled,jdbcType=INTEGER},
-                #{dataStreamIdentifier,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
-                #{isDeleted,jdbcType=INTEGER})
+                #{inlongGroupId,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR}, #{topic,jdbcType=VARCHAR},
+                #{filterEnabled,jdbcType=INTEGER}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective"
             parameterType="org.apache.inlong.manager.dao.entity.ConsumptionEntity">
@@ -86,8 +88,8 @@
             <if test="inCharges != null">
                 in_charges,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
             <if test="middlewareType != null">
                 middleware_type,
@@ -98,8 +100,8 @@
             <if test="filterEnabled != null">
                 filter_enabled,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
             <if test="status != null">
                 status,
@@ -133,8 +135,8 @@
             <if test="inCharges != null">
                 #{inCharges,jdbcType=VARCHAR},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="middlewareType != null">
                 #{middlewareType,jdbcType=VARCHAR},
@@ -145,8 +147,8 @@
             <if test="filterEnabled != null">
                 #{filterEnabled,jdbcType=INTEGER},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
                 #{status,jdbcType=INTEGER},
@@ -181,8 +183,8 @@
             <if test="inCharges != null">
                 in_charges = #{inCharges,jdbcType=VARCHAR},
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="middlewareType != null">
                 middleware_type = #{middlewareType,jdbcType=VARCHAR},
@@ -193,8 +195,8 @@
             <if test="filterEnabled != null">
                 filter_enabled = #{filterEnabled,jdbcType=INTEGER},
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
                 status = #{status,jdbcType=INTEGER},
@@ -216,20 +218,20 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ConsumptionEntity">
         update consumption
-        set consumer_group_name    = #{consumerGroupName,jdbcType=VARCHAR},
-            consumer_group_id      = #{consumerGroupId,jdbcType=VARCHAR},
-            in_charges             = #{inCharges,jdbcType=VARCHAR},
-            business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
-            middleware_type        = #{middlewareType,jdbcType=VARCHAR},
-            topic                  = #{topic,jdbcType=VARCHAR},
-            filter_enabled         = #{filterEnabled,jdbcType=INTEGER},
-            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            status                 = #{status,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
-            modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER}
+        set consumer_group_name = #{consumerGroupName,jdbcType=VARCHAR},
+            consumer_group_id   = #{consumerGroupId,jdbcType=VARCHAR},
+            in_charges          = #{inCharges,jdbcType=VARCHAR},
+            inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
+            middleware_type     = #{middlewareType,jdbcType=VARCHAR},
+            topic               = #{topic,jdbcType=VARCHAR},
+            filter_enabled      = #{filterEnabled,jdbcType=INTEGER},
+            inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
+            status              = #{status,jdbcType=INTEGER},
+            creator             = #{creator,jdbcType=VARCHAR},
+            modifier            = #{modifier,jdbcType=VARCHAR},
+            create_time         = #{createTime,jdbcType=TIMESTAMP},
+            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
           and is_deleted = 0
     </update>
@@ -254,8 +256,8 @@
         <if test="inCharges != null and inCharges != ''">
             and FIND_IN_SET(#{inCharges,jdbcType=VARCHAR}, c.in_charges)
         </if>
-        <if test="businessIdentifier != null and businessIdentifier != ''">
-            and c.business_identifier = #{businessIdentifier,jdbcType=VARCHAR}
+        <if test="inlongGroupId != null and inlongGroupId != ''">
+            and c.inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
         </if>
         <if test="middlewareType != null and middlewareType != ''">
             and c.middleware_type = #{middlewareType,jdbcType=VARCHAR}
@@ -270,8 +272,8 @@
         <if test="filterEnabled != null">
             and c.filter_enabled = #{filterEnabled,jdbcType=INTEGER}
         </if>
-        <if test="dataStreamIdentifier != null and dataStreamIdentifier != ''">
-            and c.data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR}
+        <if test="inlongStreamId != null and inlongStreamId != ''">
+            and c.inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
         </if>
         <if test="status != null">
             and c.status = #{status,jdbcType=INTEGER}
@@ -326,8 +328,8 @@
         <if test="inCharges != null and inCharges != ''">
             and FIND_IN_SET(#{inCharges,jdbcType=VARCHAR},in_charges)
         </if>
-        <if test="businessIdentifier != null and businessIdentifier != ''">
-            and business_identifier = #{businessIdentifier,jdbcType=VARCHAR}
+        <if test="inlongGroupId != null and inlongGroupId != ''">
+            and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
         </if>
         <if test="middlewareType != null and middlewareType != ''">
             and middleware_type = #{middlewareType,jdbcType=VARCHAR}
@@ -342,8 +344,8 @@
         <if test="filterEnabled != null">
             and filter_enabled = #{filterEnabled,jdbcType=INTEGER}
         </if>
-        <if test="dataStreamIdentifier != null and dataStreamIdentifier != ''">
-            and data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR}
+        <if test="inlongStreamId != null and inlongStreamId != ''">
+            and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
         </if>
         <if test="status != null">
             and status = #{status,jdbcType=INTEGER}

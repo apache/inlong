@@ -26,8 +26,8 @@ public class SourceDbBasicEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String businessIdentifier;
-    private String dataStreamIdentifier;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private Integer syncType;
     private Integer isDeleted;
     private String creator;

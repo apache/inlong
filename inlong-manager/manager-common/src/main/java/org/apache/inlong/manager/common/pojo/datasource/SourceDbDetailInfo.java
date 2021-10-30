@@ -33,11 +33,11 @@ public class SourceDbDetailInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Collection type, with Agent, DataProxy client, LoadProxy")
     private String accessType;

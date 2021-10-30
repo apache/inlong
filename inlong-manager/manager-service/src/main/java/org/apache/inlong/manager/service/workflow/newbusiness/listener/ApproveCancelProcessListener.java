@@ -48,9 +48,9 @@ public class ApproveCancelProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
         // After canceling the approval, the status becomes [Waiting to submit]
-        String bid = form.getBusinessId();
+        String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
-        businessService.updateStatus(bid, EntityStatus.BIZ_WAIT_SUBMIT.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_WAIT_SUBMIT.getCode(), username);
         return ListenerResult.success();
     }
 

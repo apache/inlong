@@ -48,7 +48,7 @@ public class EventLogView {
     private String processDisplayName;
 
     @ApiModelProperty("business ID")
-    private String businessId;
+    private String inlongGroupId;
 
     @ApiModelProperty("task ID")
     private Integer taskInstId;

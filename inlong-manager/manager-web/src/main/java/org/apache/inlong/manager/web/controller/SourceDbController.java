@@ -60,12 +60,12 @@ public class SourceDbController {
     @RequestMapping(value = "/getBasic", method = RequestMethod.GET)
     @ApiOperation(value = "Query basic information of DB data source")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "businessIdentifier", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "dataStreamIdentifier", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<SourceDbBasicInfo> getBasic(@RequestParam(name = "businessIdentifier") String businessIdentifier,
-            @RequestParam(name = "dataStreamIdentifier") String dataStreamIdentifier) {
-        return Response.success(dbSourceService.getBasicByIdentifier(businessIdentifier, dataStreamIdentifier));
+    public Response<SourceDbBasicInfo> getBasic(@RequestParam(name = "groupId") String groupId,
+            @RequestParam(name = "streamId") String streamId) {
+        return Response.success(dbSourceService.getBasicByIdentifier(groupId, streamId));
     }
 
     @RequestMapping(value = "/updateBasic", method = RequestMethod.POST)

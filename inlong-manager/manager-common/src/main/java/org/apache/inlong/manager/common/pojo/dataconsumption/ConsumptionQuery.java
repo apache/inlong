@@ -20,12 +20,14 @@ package org.apache.inlong.manager.common.pojo.dataconsumption;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
  * Data consumption query
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @ApiModel("Data consumption query conditions")
 public class ConsumptionQuery extends PageRequest {
 
@@ -41,8 +43,8 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Person in charge of consumption")
     private String inCharges;
 
-    @ApiModelProperty(value = "Consumption target business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Consumption target business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "The middleware type of data storage, high throughput: Tube")
     private String middlewareType;
@@ -56,8 +58,8 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Whether to filter consumption")
     private Boolean filterEnabled;
 
-    @ApiModelProperty(value = "Consumption data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Consumption target stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Status: Draft: 0, Pending distribution: 10, "
             + "Pending approval: 11, Approval rejected: 20, Approved: 21")

@@ -34,10 +34,10 @@ public class DataStreamApproveInfo {
     private Integer id;
 
     @ApiModelProperty(value = "Business Identifier")
-    private String businessIdentifier;
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Data storage information list")
     private List<StorageApproveInfo> storageList;

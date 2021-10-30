@@ -37,16 +37,16 @@ public interface DataStreamExtEntityMapper {
 
     int updateByPrimaryKey(DataStreamExtEntity record);
 
-    List<DataStreamExtEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<DataStreamExtEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query the undeleted extended attributes based on the business identifier, data stream identifier, and keyName
+     * Query the undeleted extended attributes based on the business group id, data stream identifier, and keyName
      *
      * @param keyName attribute name
      * @return extended attribute
      */
-    DataStreamExtEntity selectByIdentifierAndKeyName(@Param("bid") String bid, @Param("dsid") String dsid,
-            @Param("keyName") String keyName);
+    DataStreamExtEntity selectByIdentifierAndKeyName(@Param("groupId") String groupId,
+            @Param("streamId") String streamId, @Param("keyName") String keyName);
 
     /**
      * Insert data in batches, update if it exists, create new if it does not exist
@@ -54,13 +54,13 @@ public interface DataStreamExtEntityMapper {
     int insertAll(@Param("extList") List<DataStreamExtEntity> extEntityList);
 
     /**
-     * According to the business identifier and data stream identifier, physically delete all extended fields
+     * According to the business group id and data stream identifier, physically delete all extended fields
      */
-    int deleteAllByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, logically delete all extended fields
+     * According to the business group id and data stream identifier, logically delete all extended fields
      */
-    int logicDeleteAllByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
 }

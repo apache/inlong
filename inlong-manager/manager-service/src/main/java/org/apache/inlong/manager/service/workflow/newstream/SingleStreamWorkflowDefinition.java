@@ -23,12 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.service.core.StorageService;
+import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForOneStreamListener;
+import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigToSortEventListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForOneStreamListener;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.newbusiness.listener.InitBusinessInfoListener;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigToSortEventListener;
 import org.apache.inlong.manager.workflow.model.definition.EndEvent;
 import org.apache.inlong.manager.workflow.model.definition.Process;
 import org.apache.inlong.manager.workflow.model.definition.ServiceTask;
@@ -82,12 +82,13 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createHiveTableTask = new ServiceTask();
         createHiveTableTask.setSkipResolver(c -> {
             CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
-            String bid = form.getBusinessId();
-            String dsid = form.getDataStreamIdentifier();
-            List<String> dsForHive = storageService.filterStreamIdByStorageType(bid, BizConstant.STORAGE_TYPE_HIVE,
-                    Collections.singletonList(dsid));
+            String groupId = form.getInlongGroupId();
+            String streamId = form.getInlongStreamId();
+            List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_TYPE_HIVE,
+                    Collections.singletonList(streamId));
             if (CollectionUtils.isEmpty(dsForHive)) {
-                log.warn("business [{}] adn data stream [{}] does not have storage, skip create hive table", bid, dsid);
+                log.warn("business [{}] adn data stream [{}] does not have storage, skip create hive table", groupId,
+                        streamId);
                 return true;
             }
             return false;

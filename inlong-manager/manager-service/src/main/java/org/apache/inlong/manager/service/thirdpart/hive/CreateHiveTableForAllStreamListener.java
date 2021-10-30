@@ -50,17 +50,17 @@ public class CreateHiveTableForAllStreamListener implements TaskEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
-        String bid = form.getBusinessId();
-        log.info("begin to create hive table for bid={}", bid);
+        String groupId = form.getInlongGroupId();
+        log.info("begin to create hive table for groupId={}", groupId);
 
-        List<DataStreamInfoToHiveConfig> configList = dataStreamService.queryHiveConfigForAllDataStream(bid);
+        List<DataStreamInfoToHiveConfig> configList = dataStreamService.queryHiveConfigForAllDataStream(groupId);
         if (configList == null || configList.size() == 0) {
             return ListenerResult.success();
         }
 
         for (DataStreamInfoToHiveConfig hiveConfig : configList) {
-            hiveTableOperator.createHiveTable(bid, hiveConfig);
-            log.info("finish to create hive table for business {}", bid);
+            hiveTableOperator.createHiveTable(groupId, hiveConfig);
+            log.info("finish to create hive table for business {}", groupId);
         }
         return ListenerResult.success();
     }

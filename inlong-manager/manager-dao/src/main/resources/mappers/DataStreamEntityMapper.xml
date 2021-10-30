@@ -23,8 +23,8 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="mq_resource_obj" jdbcType="VARCHAR" property="mqResourceObj"/>
@@ -48,11 +48,11 @@
     <resultMap id="dataStreamFullInfo"
             type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
         <result column="id" jdbcType="VARCHAR" property="id"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
-        <result column="name" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="name" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
         <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="field_splitter" jdbcType="VARCHAR" property="fieldSplitter"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
@@ -82,7 +82,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, data_stream_identifier, business_identifier, name, description, mq_resource_obj, data_source_type,
+        id, inlong_stream_id, inlong_group_id, name, description, mq_resource_obj, data_source_type,
         storage_period, data_type, data_encoding, file_delimiter, have_predefined_fields, in_charges,
         status, previous_status, is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
@@ -93,26 +93,25 @@
         from data_stream
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByIdentifier"
-            resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         select
         <include refid="Base_Column_List"/>
         from data_stream
         <where>
             is_deleted = 0
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
-            <if test="dsid != null and dsid != ''">
-                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
     <select id="selectExistByIdentifier" resultType="java.lang.Integer">
         select count(1)
         from data_stream
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
@@ -124,8 +123,8 @@
             is_deleted = 0
             and (creator = #{currentUser,jdbcType=VARCHAR} or
             find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
             <if test="dataSourceType != null and dataSourceType != ''">
                 and data_source_type = #{dataSourceType, jdbcType=VARCHAR}
@@ -140,20 +139,19 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectByBid" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <select id="selectByGroupId" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         select
         <include refid="Base_Column_List"/>
         from data_stream
-        where business_identifier = #{bid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
-    <select id="selectByBidAndCondition"
-            resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <select id="selectByConditionAndInCharges" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         select
         <include refid="Base_Column_List"/>
         from data_stream
         <where>
-            business_identifier = #{request.bid,jdbcType=VARCHAR}
+            inlong_group_id = #{request.inlongGroupId,jdbcType=VARCHAR}
             and is_deleted = 0
             and (creator = #{request.currentUser,jdbcType=VARCHAR}
             or find_in_set(#{request.currentUser,jdbcType=VARCHAR}, #{inCharges,jdbcType=VARCHAR}))
@@ -165,11 +163,11 @@
         </where>
         order by create_time desc
     </select>
-    <select id="selectCountByBid" resultType="java.lang.Integer">
+    <select id="selectCountByGroupId" resultType="java.lang.Integer">
         select count(1)
         from data_stream
         <where>
-            business_identifier = #{bid,jdbcType=VARCHAR}
+            inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
             and is_deleted = 0
         </where>
     </select>
@@ -179,24 +177,24 @@
         from data_stream
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <delete id="deleteAllByBid">
+    <delete id="deleteAllByGroupId">
         delete
         from data_stream
-        where business_identifier = #{bid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </delete>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
-        insert into data_stream (id, data_stream_identifier, business_identifier,
+        insert into data_stream (id, inlong_stream_id, inlong_group_id,
                                  name, description, mq_resource_obj,
                                  data_source_type, storage_period, data_type,
-                                 data_encoding, file_delimiter, have_predefined_fields,
+                                 data_encoding, file_delimiter,
+                                 have_predefined_fields,
                                  in_charges, status, previous_status,
                                  is_deleted, creator, modifier,
                                  create_time, modify_time, temp_view)
-        values (#{id,jdbcType=INTEGER}, #{dataStreamIdentifier,jdbcType=VARCHAR},
-                #{businessIdentifier,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongStreamId,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResourceObj,jdbcType=VARCHAR},
                 #{dataSourceType,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER}, #{dataType,jdbcType=VARCHAR},
                 #{dataEncoding,jdbcType=VARCHAR}, #{fileDelimiter,jdbcType=VARCHAR},
@@ -212,11 +210,11 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
             <if test="name != null">
                 name,
@@ -277,11 +275,11 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
@@ -343,11 +341,11 @@
             parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         <set>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
@@ -410,8 +408,8 @@
     <update id="updateByPrimaryKey"
             parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
-        set data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
+        set inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
+            inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
             name                   = #{name,jdbcType=VARCHAR},
             description            = #{description,jdbcType=VARCHAR},
             mq_resource_obj        = #{mqResourceObj,jdbcType=VARCHAR},
@@ -436,17 +434,17 @@
             parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         <set>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR},
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier, jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 name = #{name, jdbcType=VARCHAR},
             </if>
             <if test="description != null">
-                description = #{description,jdbcType=VARCHAR},
+                description = #{description, jdbcType=VARCHAR},
             </if>
             <if test="mqResourceObj != null">
                 mq_resource_obj = #{mqResourceObj, jdbcType=VARCHAR},
@@ -491,23 +489,23 @@
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
         </set>
-        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
-        and data_stream_identifier = #{dataStreamIdentifier, jdbcType=VARCHAR}
+        where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
         and is_deleted = 0
     </update>
     <update id="updateStatusByIdentifier">
         update data_stream
         set status = #{status, jdbcType=INTEGER}, modifier = #{modifier, jdbcType=VARCHAR}
         <where>
-            business_identifier = #{bid, jdbcType=VARCHAR}
-            <if test="dsid != null and dsid != ''">
-                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
             and is_deleted = 0
         </where>
     </update>
 
-    <select id="queryStreamToHiveBaseInfoByBid" resultMap="dataStreamFullInfo">
+    <select id="selectStreamToHiveInfo" resultMap="dataStreamFullInfo">
         SELECT h.id,
                h.jdbc_url,
                h.password,
@@ -516,8 +514,8 @@
                data_type,
                usage_interval,
                description,
-               s.data_stream_identifier,
-               s.business_identifier,
+               s.inlong_stream_id,
+               s.inlong_group_id,
                db_name,
                field_splitter,
                h.creator,
@@ -532,12 +530,12 @@
              storage_hive h
         WHERE s.is_deleted = 0
           and h.is_deleted = 0
-          and s.data_stream_identifier = h.data_stream_identifier
-          AND s.business_identifier = h.business_identifier
-          and s.business_identifier = #{bid, jdbcType=VARCHAR}
+          and s.inlong_stream_id = h.inlong_stream_id
+          AND s.inlong_group_id = h.inlong_group_id
+          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
     </select>
 
-    <select id="queryStreamToHiveBaseInfoByIdentifier" resultMap="dataStreamFullInfo">
+    <select id="selectStreamToHiveInfoByIdentifier" resultMap="dataStreamFullInfo">
         SELECT h.id,
                h.jdbc_url,
                h.password,
@@ -546,8 +544,8 @@
                data_type,
                usage_interval,
                description,
-               s.data_stream_identifier,
-               s.business_identifier,
+               s.inlong_stream_id,
+               s.inlong_group_id,
                db_name,
                field_splitter,
                h.creator,
@@ -562,10 +560,10 @@
              storage_hive h
         WHERE s.is_deleted = 0
           and h.is_deleted = 0
-          and s.data_stream_identifier = h.data_stream_identifier
-          AND s.business_identifier = h.business_identifier
-          and s.business_identifier = #{bid, jdbcType=VARCHAR}
-          and s.data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and s.inlong_stream_id = h.inlong_stream_id
+          AND s.inlong_group_id = h.inlong_group_id
+          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </select>
 
 </mapper>

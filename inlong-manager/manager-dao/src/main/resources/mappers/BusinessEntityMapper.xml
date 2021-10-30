@@ -22,7 +22,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.BusinessEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.BusinessEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="cn_name" jdbcType="VARCHAR" property="cnName"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
@@ -50,7 +50,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, business_identifier, name, cn_name, description, middleware_type, mq_resource_obj,
+        id, inlong_group_id, name, cn_name, description, middleware_type, mq_resource_obj,
         daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
         status, is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
@@ -71,13 +71,13 @@
         select
         <include refid="Base_Column_List"/>
         from business
-        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
     <select id="selectIdentifierExist" resultType="java.lang.Integer">
         select count(1)
         from business
-        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
@@ -89,7 +89,7 @@
             is_deleted = 0 and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(
             #{currentUser,jdbcType=VARCHAR},in_charges))
             <if test="keyWord != null and keyWord != ''">
-                and (business_identifier like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
+                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
             </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
@@ -98,7 +98,7 @@
         order by modify_time desc
     </select>
     <select id="selectDataProxyConfig" resultType="org.apache.inlong.manager.dao.entity.DataProxyConfig">
-        select biz.business_identifier as bid, biz.mq_resource_obj as topic, d.sort_type as m
+        select biz.inlong_group_id as inlongGroupId, biz.mq_resource_obj as topic, d.sort_type as m
         from business biz,
              data_schema d
         where biz.status = 130
@@ -113,14 +113,14 @@
     </delete>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
-        insert into business (id, business_identifier, name,
+        insert into business (id, inlong_group_id, name,
                               cn_name, description, middleware_type,
                               mq_resource_obj, daily_records, daily_storage,
                               peak_records, max_length, schema_name,
                               in_charges, followers, status,
                               is_deleted, creator, modifier,
                               create_time, modify_time, temp_view)
-        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
                 #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
                 #{mqResourceObj,jdbcType=VARCHAR}, #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER}, #{schemaName,jdbcType=VARCHAR},
@@ -135,8 +135,8 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
             <if test="name != null">
                 name,
@@ -200,8 +200,8 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
@@ -265,8 +265,8 @@
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
         update business
         <set>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
@@ -383,39 +383,39 @@
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
         </set>
-        where business_identifier = #{businessIdentifier, jdbcType=VARCHAR}
+        where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and is_deleted = 0
     </update>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
         update business
-        set business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
-            name                = #{name,jdbcType=VARCHAR},
-            cn_name             = #{cnName,jdbcType=VARCHAR},
-            description         = #{description,jdbcType=VARCHAR},
-            middleware_type     = #{middlewareType,jdbcType=VARCHAR},
-            mq_resource_obj     = #{mqResourceObj,jdbcType=VARCHAR},
-            daily_records       = #{dailyRecords,jdbcType=INTEGER},
-            daily_storage       = #{dailyStorage,jdbcType=INTEGER},
-            peak_records        = #{peakRecords,jdbcType=INTEGER},
-            max_length          = #{maxLength,jdbcType=INTEGER},
-            schema_name         = #{schemaName,jdbcType=VARCHAR},
-            in_charges          = #{inCharges,jdbcType=VARCHAR},
-            followers           = #{followers,jdbcType=VARCHAR},
-            status              = #{status,jdbcType=INTEGER},
-            is_deleted          = #{isDeleted,jdbcType=INTEGER},
-            creator             = #{creator,jdbcType=VARCHAR},
-            modifier            = #{modifier,jdbcType=VARCHAR},
-            create_time         = #{createTime,jdbcType=TIMESTAMP},
-            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
+        set inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            name            = #{name,jdbcType=VARCHAR},
+            cn_name         = #{cnName,jdbcType=VARCHAR},
+            description     = #{description,jdbcType=VARCHAR},
+            middleware_type = #{middlewareType,jdbcType=VARCHAR},
+            mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
+            daily_records   = #{dailyRecords,jdbcType=INTEGER},
+            daily_storage   = #{dailyStorage,jdbcType=INTEGER},
+            peak_records    = #{peakRecords,jdbcType=INTEGER},
+            max_length      = #{maxLength,jdbcType=INTEGER},
+            schema_name     = #{schemaName,jdbcType=VARCHAR},
+            in_charges      = #{inCharges,jdbcType=VARCHAR},
+            followers       = #{followers,jdbcType=VARCHAR},
+            status          = #{status,jdbcType=INTEGER},
+            is_deleted      = #{isDeleted,jdbcType=INTEGER},
+            creator         = #{creator,jdbcType=VARCHAR},
+            modifier        = #{modifier,jdbcType=VARCHAR},
+            create_time     = #{createTime,jdbcType=TIMESTAMP},
+            modify_time     = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view       = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateStatusByIdentifier">
         update business
         set status   = #{status,jdbcType=INTEGER},
             modifier = #{modifier,jdbcType=VARCHAR}
-        where business_identifier = #{bid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 

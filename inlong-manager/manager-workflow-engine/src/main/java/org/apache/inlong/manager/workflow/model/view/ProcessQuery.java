@@ -40,26 +40,26 @@ import org.springframework.format.annotation.DateTimeFormat;
 @ApiModel("Application form query conditions")
 public class ProcessQuery extends PageQuery {
 
-    @ApiModelProperty("Process from ID")
+    @ApiModelProperty("Process form ID")
     private Integer id;
 
-    @ApiModelProperty("process form list of ID")
+    @ApiModelProperty("Process form id list")
     private List<Integer> idList;
 
-    @ApiModelProperty("process form list of name")
+    @ApiModelProperty("Process form name list")
     private List<String> nameList;
 
-    @ApiModelProperty("process display name")
+    @ApiModelProperty("Process display name")
     private String displayName;
 
-    @ApiModelProperty("applicant")
+    @ApiModelProperty("Applicant")
     private String applicant;
 
-    @ApiModelProperty("status")
+    @ApiModelProperty("Status")
     private ProcessState state;
 
-    @ApiModelProperty("business ID")
-    private String businessId;
+    @ApiModelProperty("Business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty("start time-lower limit: yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -51,31 +51,31 @@ public interface StorageService {
     /**
      * Query storage information based on business and data stream identifiers
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier, Can be empty
+     * @param groupId Business group id
+     * @param streamId Data stream id, can be null
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */
-    List<BaseStorageInfo> listByIdentifier(String bid, String dsid);
+    List<BaseStorageInfo> listByIdentifier(String groupId, String streamId);
 
     /**
      * Query stored summary information based on business and data stream identifiers, including storage cluster
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */
-    List<StorageSummaryInfo> listSummaryByIdentifier(String bid, String dsid);
+    List<StorageSummaryInfo> listSummaryByIdentifier(String groupId, String streamId);
 
     /**
      * Query the number of undeleted stored information based on business and data stream identifiers
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return Number of stored information
      */
-    int getCountByIdentifier(String bid, String dsid);
+    int getCountByIdentifier(String groupId, String streamId);
 
     /**
      * Paging query storage information based on conditions
@@ -116,41 +116,41 @@ public interface StorageService {
     /**
      * Physically delete data storage information under specified conditions
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return whether succeed
      */
-    boolean deleteAllByIdentifier(String bid, String dsid);
+    boolean deleteAllByIdentifier(String groupId, String streamId);
 
     /**
      * Tombstone data storage information
      *
-     * @param businessIdentifier The business identifier to which the data source belongs
-     * @param dataStreamIdentifier The data stream identifier to which the data source belongs
+     * @param groupId The business group id to which the data source belongs
+     * @param streamId The data stream identifier to which the data source belongs
      * @param operator Operator name
      * @return whether succeed
      */
-    boolean logicDeleteAllByIdentifier(String businessIdentifier, String dataStreamIdentifier, String operator);
+    boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator);
 
     /**
      * According to the existing data stream ID list, filter out the data stream ID list containing the specified
      * storage type
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @param storageType Storage type
-     * @param dataStreamIdentifierList Data stream ID list
+     * @param streamIdList Data stream ID list
      * @return List of filtered data stream IDs
      */
-    List<String> filterStreamIdByStorageType(String bid, String storageType, List<String> dataStreamIdentifierList);
+    List<String> filterStreamIdByStorageType(String groupId, String storageType, List<String> streamIdList);
 
     /**
      * According to the data stream identifier, query the list of storage types owned by it
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return List of storage types
      */
-    List<String> getStorageTypeList(String bid, String dsid);
+    List<String> getStorageTypeList(String groupId, String streamId);
 
     /**
      * Save the information modified when the approval is passed

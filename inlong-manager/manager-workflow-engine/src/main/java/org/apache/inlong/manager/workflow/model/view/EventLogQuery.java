@@ -38,19 +38,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 @ApiModel("Workflow event log query conditions")
 public class EventLogQuery extends PageQuery {
 
-    @ApiModelProperty("id")
     private Integer id;
 
-    @ApiModelProperty("process ID")
+    @ApiModelProperty("Process ID")
     private Integer processInstId;
 
-    @ApiModelProperty("process name")
+    @ApiModelProperty("Process name")
     private String processName;
 
-    @ApiModelProperty("business ID")
-    private String businessId;
+    @ApiModelProperty("Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty("task ID")
+    @ApiModelProperty("Task id")
     private Integer taskInstId;
 
     @ApiModelProperty("the name of the element that triggered the event")

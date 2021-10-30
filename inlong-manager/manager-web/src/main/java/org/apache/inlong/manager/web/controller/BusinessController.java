@@ -60,11 +60,11 @@ public class BusinessController {
         return Response.success(businessService.save(businessInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
-    @RequestMapping(value = "/get/{bid}", method = RequestMethod.GET)
+    @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Query business information")
-    @ApiImplicitParam(name = "bid", value = "Business identifier", dataTypeClass = String.class, required = true)
-    public Response<BusinessInfo> get(@PathVariable String bid) {
-        return Response.success(businessService.get(bid));
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
+    public Response<BusinessInfo> get(@PathVariable String groupId) {
+        return Response.success(businessService.get(groupId));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -81,19 +81,19 @@ public class BusinessController {
         return Response.success(businessService.update(businessInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
-    @RequestMapping(value = "/delete/{bid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete business information")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "bid", value = "Business identifier", dataTypeClass = String.class, required = true)
-    public Response<Boolean> delete(@PathVariable String bid) {
-        return Response.success(businessService.delete(bid, LoginUserUtil.getLoginUserDetail().getUserName()));
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
+    public Response<Boolean> delete(@PathVariable String groupId) {
+        return Response.success(businessService.delete(groupId, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
-    @RequestMapping(value = "/exist/{bid}", method = RequestMethod.GET)
-    @ApiOperation(value = "Query whether the business identifier exists")
-    @ApiImplicitParam(name = "bid", value = "Business identifier", dataTypeClass = String.class, required = true)
-    public Response<Boolean> exist(@PathVariable String bid) {
-        return Response.success(businessService.exist(bid));
+    @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Query whether the business group id exists")
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
+    public Response<Boolean> exist(@PathVariable String groupId) {
+        return Response.success(businessService.exist(groupId));
     }
 
     @RequestMapping(value = "/countByStatus", method = RequestMethod.GET)
@@ -102,18 +102,18 @@ public class BusinessController {
         return Response.success(businessService.countBusinessByUser(LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
-    @RequestMapping(value = "startProcess/{bid}", method = RequestMethod.POST)
+    @RequestMapping(value = "startProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Start approval process")
-    @ApiImplicitParam(name = "bid", value = "Business identifier", dataTypeClass = String.class)
-    public Response<WorkflowResult> startProcess(@PathVariable String bid) {
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
+    public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
         String username = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(bizProcessOperation.startProcess(bid, username));
+        return Response.success(bizProcessOperation.startProcess(groupId, username));
     }
 
-    @RequestMapping(value = "getTopic/{bid}", method = RequestMethod.GET)
+    @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get Topic via the business")
-    public Response<BusinessTopicVO> getTopic(@PathVariable String bid) {
-        return Response.success(businessService.getTopic(bid));
+    public Response<BusinessTopicVO> getTopic(@PathVariable String groupId) {
+        return Response.success(businessService.getTopic(groupId));
     }
 
 }

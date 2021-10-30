@@ -32,8 +32,8 @@ public class BusinessExtInfo {
     @ApiModelProperty(value = "id")
     private Integer id;
 
-    @ApiModelProperty(value = "business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "business group id", required = true)
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "property name")
     private String keyName;

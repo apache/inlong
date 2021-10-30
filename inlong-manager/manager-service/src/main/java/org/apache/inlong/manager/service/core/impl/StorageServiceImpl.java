@@ -65,13 +65,13 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         }
 
         Preconditions.checkNotNull(storageInfo, "storage info is empty");
-        String bid = storageInfo.getBusinessIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        String dsid = storageInfo.getDataStreamIdentifier();
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+        String groupId = storageInfo.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        String streamId = storageInfo.getInlongStreamId();
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        BusinessEntity businessEntity = super.checkBizIsTempStatus(bid);
+        BusinessEntity businessEntity = super.checkBizIsTempStatus(groupId);
 
         // According to the storage type, save storage information
         String storageType = storageInfo.getStorageType();
@@ -88,7 +88,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         // If the business status is [Configuration Successful], then asynchronously initiate
         // the [Single data stream Resource Creation] workflow
         if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(businessEntity.getStatus())) {
-            super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, dsid));
+            super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, streamId));
         }
 
         LOGGER.info("success to save storage info");
@@ -114,39 +114,39 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
     }
 
     @Override
-    public int getCountByIdentifier(String bid, String dsid) {
-        LOGGER.debug("begin to get storage count by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public int getCountByIdentifier(String groupId, String streamId) {
+        LOGGER.debug("begin to get storage count by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
-        int count = hiveStorageMapper.selectCountByIdentifier(bid, dsid);
+        int count = hiveStorageMapper.selectCountByIdentifier(groupId, streamId);
 
-        LOGGER.info("the storage count={} by bid={}, dsid={}", count, bid, dsid);
+        LOGGER.info("the storage count={} by groupId={}, streamId={}", count, groupId, streamId);
         return count;
     }
 
     @Override
-    public List<BaseStorageInfo> listByIdentifier(String bid, String dsid) {
-        LOGGER.debug("begin to list storage by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public List<BaseStorageInfo> listByIdentifier(String groupId, String streamId) {
+        LOGGER.debug("begin to list storage by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Query HDFS, HIVE, ES storage information and encapsulate it in the result set
         List<BaseStorageInfo> storageInfoList = new ArrayList<>();
-        hiveOperation.setHiveStorageInfo(bid, dsid, storageInfoList);
+        hiveOperation.setHiveStorageInfo(groupId, streamId, storageInfoList);
 
         LOGGER.info("success to list storage info");
         return storageInfoList;
     }
 
     @Override
-    public List<StorageSummaryInfo> listSummaryByIdentifier(String bid, String dsid) {
-        LOGGER.debug("begin to list storage summary by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public List<StorageSummaryInfo> listSummaryByIdentifier(String groupId, String streamId) {
+        LOGGER.debug("begin to list storage summary by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Query HDFS, HIVE, ES storage information and encapsulate it in the result set
         List<StorageSummaryInfo> totalList = new ArrayList<>();
-        List<StorageSummaryInfo> hiveSummaryList = hiveStorageMapper.selectSummaryByIdentifier(bid, dsid);
+        List<StorageSummaryInfo> hiveSummaryList = hiveStorageMapper.selectSummaryByIdentifier(groupId, streamId);
 
         totalList.addAll(hiveSummaryList);
 
@@ -159,7 +159,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to list storage page by {}", request);
         }
-        Preconditions.checkNotNull(request.getBid(), BizConstant.BID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
 
         String storageType = request.getStorageType();
         Preconditions.checkNotNull(storageType, "storageType is empty");
@@ -184,13 +184,13 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         }
 
         Preconditions.checkNotNull(storageInfo, "storage info is empty");
-        String bid = storageInfo.getBusinessIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        String dsid = storageInfo.getDataStreamIdentifier();
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+        String groupId = storageInfo.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        String streamId = storageInfo.getInlongStreamId();
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be modified
-        BusinessEntity businessEntity = super.checkBizIsTempStatus(bid);
+        BusinessEntity businessEntity = super.checkBizIsTempStatus(groupId);
 
         String storageType = storageInfo.getStorageType();
         Preconditions.checkNotNull(storageType, "storageType is empty");
@@ -205,7 +205,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         // The business status is [Configuration successful], then asynchronously initiate
         // the [Single data stream resource creation] workflow
         if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(businessEntity.getStatus())) {
-            super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, dsid));
+            super.executorService.execute(new WorkflowStartRunnable(operator, businessEntity, streamId));
         }
         LOGGER.info("success to update storage info");
         return true;
@@ -241,15 +241,15 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean deleteAllByIdentifier(String bid, String dsid) {
-        LOGGER.debug("begin to delete all storage info by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public boolean deleteAllByIdentifier(String groupId, String streamId) {
+        LOGGER.debug("begin to delete all storage info by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        hiveOperation.deleteHiveByIdentifier(bid, dsid);
+        hiveOperation.deleteHiveByIdentifier(groupId, streamId);
 
         LOGGER.info("success to delete all storage info");
         return true;
@@ -257,33 +257,31 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean logicDeleteAllByIdentifier(String bid, String dsid, String operator) {
-        LOGGER.debug("begin to logic delete all storage info by bid={}, dsid={}", bid, dsid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
-        Preconditions.checkNotNull(dsid, BizConstant.DSID_IS_EMPTY);
+    public boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator) {
+        LOGGER.debug("begin to logic delete all storage info by groupId={}, streamId={}", groupId, streamId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(bid);
+        this.checkBizIsTempStatus(groupId);
 
-        hiveOperation.logicDeleteHiveByIdentifier(bid, dsid, operator);
+        hiveOperation.logicDeleteHiveByIdentifier(groupId, streamId, operator);
 
         LOGGER.info("success to logic delete all storage info");
         return true;
     }
 
     @Override
-    public List<String> filterStreamIdByStorageType(String bid, String storageType, List<String> dsidList) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to filter stream by bid={}, storageType={}, dsidList={}", bid, storageType, dsidList);
-        }
+    public List<String> filterStreamIdByStorageType(String groupId, String storageType, List<String> streamIdList) {
+        LOGGER.debug("begin to filter stream by groupId={}, type={}, streamId={}", groupId, storageType, streamIdList);
 
         List<String> resultList = new ArrayList<>();
-        if (StringUtils.isEmpty(storageType) || CollectionUtils.isEmpty(dsidList)) {
+        if (StringUtils.isEmpty(storageType) || CollectionUtils.isEmpty(streamIdList)) {
             return resultList;
         }
 
         if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
-            resultList = hiveStorageMapper.selectDataStreamExists(bid, dsidList);
+            resultList = hiveStorageMapper.selectDataStreamExists(groupId, streamIdList);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
             throw new BusinessException(BizErrorCodeEnum.STORAGE_TYPE_NOT_SUPPORTED);
@@ -294,15 +292,15 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
     }
 
     @Override
-    public List<String> getStorageTypeList(String bid, String dsid) {
-        LOGGER.debug("begin to get storage type list by bid={}, dsid={}", bid, dsid);
+    public List<String> getStorageTypeList(String groupId, String streamId) {
+        LOGGER.debug("begin to get storage type list by groupId={}, streamId={}", groupId, streamId);
 
         List<String> resultList = new ArrayList<>();
-        if (StringUtils.isEmpty(dsid)) {
+        if (StringUtils.isEmpty(streamId)) {
             return resultList;
         }
 
-        if (hiveStorageMapper.selectCountByIdentifier(bid, dsid) > 0) {
+        if (hiveStorageMapper.selectCountByIdentifier(groupId, streamId) > 0) {
             resultList.add(BizConstant.STORAGE_TYPE_HIVE);
         }
 
