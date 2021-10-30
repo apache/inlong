@@ -36,9 +36,9 @@ export interface Props {
   dataType?: string;
   // Whether to use real operations (for example, to call the background interface when deleting/newing, etc.)
   useActionRequest?: boolean;
-  businessIdentifier?: string;
+  inlongGroupId?: string;
   // Data stream ID, required for real operation
-  dataStreamIdentifier?: string;
+  inlongStreamId?: string;
 }
 
 const removeIdFromValues = values =>
@@ -63,8 +63,8 @@ const Comp = ({
   defaultRowTypeFields,
   dataType,
   useActionRequest,
-  businessIdentifier,
-  dataStreamIdentifier,
+  inlongGroupId,
+  inlongStreamId,
 }: Props) => {
   const { t } = useTranslation();
   const [data, setData] = useState(addIdToValues(value) || []);
@@ -94,8 +94,8 @@ const Comp = ({
     const submitData = {
       ...values,
       storageType: type,
-      businessIdentifier,
-      dataStreamIdentifier,
+      inlongGroupId,
+      inlongStreamId,
     };
     if (isUpdate) submitData.id = detailModal.id;
     const newId = await request({
@@ -213,7 +213,7 @@ const Comp = ({
 
       <DetailModal
         {...detailModal}
-        bid={businessIdentifier}
+        inlongGroupId={inlongGroupId}
         id={detailModal.id !== true && detailModal.id}
         dataType={dataType}
         defaultRowTypeFields={defaultRowTypeFields}

@@ -119,8 +119,8 @@ export const getColumns = ({ onDelete }) => {
       width: 120,
     },
     {
-      title: i18n.t('pages.ConsumeDashboard.config.ConsumerBusinessID'),
-      dataIndex: 'businessIdentifier',
+      title: i18n.t('pages.ConsumeDashboard.config.ConsumptionInlongGroupId'),
+      dataIndex: 'inlongGroupId',
     },
     {
       title: i18n.t('pages.ConsumeDashboard.config.RecentConsumptionTime'),

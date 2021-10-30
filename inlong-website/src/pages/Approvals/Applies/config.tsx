@@ -60,10 +60,10 @@ export const getColumns = activedName => [
     dataIndex: 'displayName',
   },
   {
-    title: i18n.t('pages.Approvals.BussinessId'),
-    dataIndex: 'businessIdentifier',
+    title: i18n.t('pages.Approvals.BusinessId'),
+    dataIndex: 'inlongGroupId',
     width: 200,
-    render: (text, record) => record.showInList?.businessIdentifier,
+    render: (text, record) => record.showInList?.inlongGroupId,
   },
   {
     title: i18n.t('pages.Approvals.ApplicationTime'),

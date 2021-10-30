@@ -52,7 +52,7 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp: React.FC<Props> = ({ bid }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const [options, setOptions] = useState({
     keyWord: '',
     pageSize: defaultSize,
@@ -71,7 +71,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
       url: '/storage/list',
       params: {
         ...options,
-        bid,
+        inlongGroupId,
       },
     },
     {
@@ -85,7 +85,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
       params: {
         pageNum: 1,
         pageSize: 1000,
-        bid,
+        inlongGroupId,
         storageType: options.storageType,
       },
     },
@@ -100,7 +100,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
     const submitData = {
       ...values,
       storageType: options.storageType,
-      businessIdentifier: bid,
+      inlongGroupId: inlongGroupId,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
@@ -166,13 +166,13 @@ const Comp: React.FC<Props> = ({ bid }) => {
       {
         type: 'select',
         label: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
-        name: 'dataStreamIdentifier',
+        name: 'inlongStreamId',
         props: {
           notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
           disabled: !!createModal.id,
           options: datastreamList.map(item => ({
-            label: item.dataStreamIdentifier,
-            value: item.dataStreamIdentifier,
+            label: item.inlongStreamId,
+            value: item.inlongStreamId,
           })),
         },
         rules: [{ required: true }],
@@ -182,13 +182,13 @@ const Comp: React.FC<Props> = ({ bid }) => {
   );
 
   const datastreamItem = datastreamList.find(
-    item => item.dataStreamIdentifier === changedValues.dataStreamIdentifier,
+    item => item.inlongStreamId === changedValues.inlongStreamId,
   );
 
   const columns = [
     {
       title: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
-      dataIndex: 'dataStreamIdentifier',
+      dataIndex: 'inlongStreamId',
     },
   ]
     .concat(columnsMap[options.storageType])
@@ -238,7 +238,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
 
       <DataStorageDetailModal
         {...createModal}
-        bid={bid}
+        inlongGroupId={inlongGroupId}
         content={createContent}
         storageType={options.storageType as any}
         visible={createModal.visible as boolean}

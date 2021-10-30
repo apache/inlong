@@ -43,8 +43,8 @@ const Comp: React.FC = () => {
     () =>
       [
         {
-          label: t('pages.AccessDetail.Bussiness'),
-          value: 'bussinessInfo',
+          label: t('pages.AccessDetail.Business'),
+          value: 'businessInfo',
           content: Info,
         },
         {
@@ -71,7 +71,7 @@ const Comp: React.FC = () => {
   const [actived, setActived] = useState(list[0].value);
 
   return (
-    <PageContainer breadcrumb={[{ name: `${t('pages.AccessDetail.BussinessDetail')}${id}` }]}>
+    <PageContainer breadcrumb={[{ name: `${t('pages.AccessDetail.BusinessDetail')}${id}` }]}>
       <Tabs
         activeKey={actived}
         onChange={val => setActived(val)}
@@ -80,7 +80,7 @@ const Comp: React.FC = () => {
         {list.map(({ content: Content, ...item }) => (
           <Tabs.TabPane tab={item.label} key={item.value}>
             <Content
-              bid={id}
+              inlongGroupId={id}
               isActive={actived === item.value}
               readonly={isReadonly}
               extraRef={extraRef}

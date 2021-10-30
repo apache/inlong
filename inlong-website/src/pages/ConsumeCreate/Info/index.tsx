@@ -41,7 +41,7 @@ const Comp = ({ id }: Props, ref) => {
 
   const { data: savedData } = useRequest(
     {
-      url: `/consumption/${id}`,
+      url: `/consumption/get/${id}`,
     },
     {
       ready: !!id && !Object.keys(changedValues).length,
@@ -53,9 +53,9 @@ const Comp = ({ id }: Props, ref) => {
     },
   );
 
-  const { data: bussinessData } = useRequest(`/business/get/${changedValues.businessIdentifier}`, {
-    refreshDeps: [changedValues.businessIdentifier],
-    ready: !!changedValues.businessIdentifier,
+  const { data: businessData } = useRequest(`/business/get/${changedValues.inlongGroupId}`, {
+    refreshDeps: [changedValues.inlongGroupId],
+    ready: !!changedValues.inlongGroupId,
   });
 
   const onOk = async () => {
@@ -64,7 +64,7 @@ const Comp = ({ id }: Props, ref) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroupId: values.consumerGroupName || savedData.consumerGroupId,
-      middlewareType: bussinessData.middlewareType,
+      middlewareType: businessData.middlewareType,
     };
 
     if (id) data.id = id;
@@ -99,7 +99,7 @@ const Comp = ({ id }: Props, ref) => {
     <>
       <FormGenerator
         form={form}
-        content={getFormContent({ bussinessData, changedValues })}
+        content={getFormContent({ businessData, changedValues })}
         useMaxWidth={800}
         onValuesChange={(c, v) => setChangedValues(v)}
         allValues={savedData}

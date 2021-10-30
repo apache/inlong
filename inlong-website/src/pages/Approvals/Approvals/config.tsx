@@ -71,9 +71,9 @@ export const getColumns = activedName => [
     dataIndex: 'processDisplayName',
   },
   {
-    title: i18n.t('pages.Approvals.BussinessId'),
-    dataIndex: 'businessIdentifier',
-    render: (text, record) => record.showInList?.businessIdentifier,
+    title: i18n.t('pages.Approvals.BusinessId'),
+    dataIndex: 'inlongGroupId',
+    render: (text, record) => record.showInList?.inlongGroupId,
   },
   {
     title: i18n.t('pages.Approvals.ApplicationTime'),

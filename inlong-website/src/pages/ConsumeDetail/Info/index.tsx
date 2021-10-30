@@ -52,18 +52,15 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
     },
   );
 
-  const { data: newBussinessData } = useRequest(
-    `/business/get/${changedValues.businessIdentifier}`,
-    {
-      refreshDeps: [changedValues.businessIdentifier],
-      ready: !!changedValues.businessIdentifier,
-      debounceInterval: 500,
-    },
-  );
+  const { data: newBusinessData } = useRequest(`/business/get/${changedValues.inlongGroupId}`, {
+    refreshDeps: [changedValues.inlongGroupId],
+    ready: !!changedValues.inlongGroupId,
+    debounceInterval: 500,
+  });
 
-  const bussinessData =
-    editing && newBussinessData
-      ? newBussinessData
+  const businessData =
+    editing && newBusinessData
+      ? newBusinessData
       : {
           middlewareType: data?.middlewareType,
         };
@@ -74,7 +71,7 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroupId: values.consumerGroupName,
-      middlewareType: bussinessData?.middlewareType || data?.middlewareType,
+      middlewareType: businessData?.middlewareType || data?.middlewareType,
     };
     await request({
       url: `/consumption/update/${id}`,
@@ -113,7 +110,7 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
         content={getFormContent({
           editing,
           initialValues: data,
-          bussinessData,
+          businessData,
         })}
         allValues={data}
         onValuesChange={(c, v) => setChangedValues(v)}

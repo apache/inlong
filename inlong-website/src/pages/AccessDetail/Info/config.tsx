@@ -18,12 +18,12 @@
  */
 
 import React from 'react';
-import { genBussinessFields } from '@/components/AccessHelper';
+import { genBusinessFields } from '@/components/AccessHelper';
 
 export const getFormContent = ({ editing, initialValues }) => [
-  ...genBussinessFields(
+  ...genBusinessFields(
     [
-      'businessIdentifier',
+      'inlongGroupId',
       'mqResourceObj',
       'name',
       'cnName',

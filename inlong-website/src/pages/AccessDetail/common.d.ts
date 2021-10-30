@@ -18,7 +18,7 @@
  */
 
 export interface CommonInterface {
-  bid: string;
+  inlongGroupId: string;
   readonly?: boolean;
   isActive?: boolean;
   // extraRef of Tab

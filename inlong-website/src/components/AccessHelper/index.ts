@@ -18,7 +18,7 @@
  */
 
 // Field configuration list
-export { default as genBussinessFields } from './FieldsConfig/bussinessFields';
+export { default as genBusinessFields } from './FieldsConfig/businessFields';
 export { default as genDataFields } from './FieldsConfig/dataFields';
 
 // Data source creation/selector

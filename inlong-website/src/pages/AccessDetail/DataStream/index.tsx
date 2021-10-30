@@ -36,7 +36,7 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ bid, readonly }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, readonly }) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
@@ -60,7 +60,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
   const [streamItemModal, setStreamItemModal] = useState({
     visible: false,
     record: {},
-    bid,
+    inlongGroupId,
   });
 
   const { data = realTimeValues, run: getList, mutate } = useRequest(
@@ -68,7 +68,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
       url: '/datastream/listAll',
       params: {
         ...options,
-        bid,
+        inlongGroupId,
       },
     },
     {
@@ -97,8 +97,8 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
     // The necessary key, which must be transmitted every time the interface is adjusted
     const reservedFields = new Set([
       'id',
-      'businessIdentifier',
-      'dataStreamIdentifier',
+      'inlongGroupId',
+      'inlongStreamId',
       'dataSourceBasicId',
       'dataSourceType',
       'havePredefinedFields',
@@ -119,7 +119,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
       // update
       const { list } = await getTouchedValues();
       const values = list.find(item => item.id === record.id);
-      const data = valuesToData(values ? [values] : [], bid);
+      const data = valuesToData(values ? [values] : [], inlongGroupId);
       const submitData = data.map(item =>
         pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
       );
@@ -132,7 +132,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
       // create
       const { list } = await form.validateFields();
       const values = list?.[0];
-      const data = valuesToData(values ? [values] : [], bid);
+      const data = valuesToData(values ? [values] : [], inlongGroupId);
       await request({
         url: '/datastream/saveAll',
         method: 'POST',
@@ -162,8 +162,8 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
           url: '/datastream/delete',
           method: 'DELETE',
           params: {
-            bid,
-            dsid: record?.dataStreamIdentifier,
+            inlongGroupId,
+            streamId: record?.inlongStreamId,
           },
         });
         await getList();
@@ -197,8 +197,8 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
   const genHeader = (record = {}, index) => {
     return (
       <div className={styles.collapseHeader}>
-        {(record as any).dataStreamIdentifier ? (
-          ['dataStreamIdentifier', 'name', 'modifier', 'createTime', 'status'].map(key => (
+        {(record as any).inlongStreamId ? (
+          ['inlongStreamId', 'name', 'modifier', 'createTime', 'status'].map(key => (
             <div key={key} className={styles.collapseHeaderItem}>
               {key === 'status' ? genStatusTag(record?.[key]) : record?.[key]}
             </div>
@@ -277,7 +277,7 @@ const Comp: React.FC<Props> = ({ bid, readonly }) => {
                           content={genFormContent(
                             editingId,
                             { ...realTimeValues.list?.[index], inCharges: [userName] },
-                            bid,
+                            inlongGroupId,
                             readonly,
                           ).map(item => {
                             const obj = { ...item } as any;

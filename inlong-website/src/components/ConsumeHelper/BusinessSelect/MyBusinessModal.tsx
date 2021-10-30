@@ -82,21 +82,21 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
   };
 
   const onOk = record => {
-    const { businessIdentifier } = record;
-    modalProps.onOk && modalProps.onOk(businessIdentifier, record);
+    const { inlongGroupId } = record;
+    modalProps.onOk && modalProps.onOk(inlongGroupId, record);
   };
 
   const columns = [
     {
       title: 'ID',
-      dataIndex: 'businessIdentifier',
+      dataIndex: 'inlongGroupId',
     },
     {
-      title: t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.BusinessName'),
+      title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.BusinessName'),
       dataIndex: 'cnName',
     },
     {
-      title: t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.Owners'),
+      title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.Owners'),
       dataIndex: 'inCharges',
     },
     {
@@ -108,7 +108,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
       dataIndex: 'action',
       render: (text, record) => (
         <Button type="link" onClick={() => onOk(record)}>
-          {t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.Select')}
+          {t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.Select')}
         </Button>
       ),
     },
@@ -123,7 +123,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
   return (
     <Modal
       {...modalProps}
-      title={t('components.ConsumeHelper.BussinessSelect.MyBussinessModal.MyAccessBusiness')}
+      title={t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.MyAccessBusiness')}
       width={1024}
       footer={null}
       onOk={onOk}

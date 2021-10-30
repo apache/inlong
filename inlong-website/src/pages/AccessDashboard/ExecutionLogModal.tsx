@@ -30,17 +30,17 @@ import StatusTag from '@/components/StatusTag';
 const { Panel } = Collapse;
 
 export interface Props extends ModalProps {
-  businessIdentifier?: string;
+  inlongGroupId?: string;
 }
 
-const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   const { t } = useTranslation();
 
   const { run: getData, data } = useRequest(
     {
       url: '/workflow/listTaskExecuteLogs',
       params: {
-        businessId: businessIdentifier,
+        inlongGroupId: inlongGroupId,
         processNames: 'CREATE_BUSINESS_RESOURCE,CREATE_DATASTREAM_RESOURCE',
         taskType: 'ServiceTask',
       },
@@ -61,7 +61,7 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
             remark: '',
           },
         });
-        await getData(businessIdentifier);
+        await getData(inlongGroupId);
         message.success(t('pages.AccessDashboard.ExecutionLogModal.Re-executingSuccess'));
       },
     });
@@ -69,9 +69,9 @@ const Comp: React.FC<Props> = ({ businessIdentifier, ...modalProps }) => {
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
-      getData(businessIdentifier);
+      getData(inlongGroupId);
     }
-  }, [modalProps.visible, businessIdentifier]);
+  }, [modalProps.visible, inlongGroupId]);
 
   const columns = [
     {

@@ -18,10 +18,10 @@
  */
 
 // Convert form data into interface submission data format
-export const valuesToData = (values, businessIdentifier) => {
+export const valuesToData = (values, inlongGroupId) => {
   const array = values.map(item => {
     const {
-      dataStreamIdentifier,
+      inlongStreamId,
       predefinedFields = [],
       rowTypeFields = [],
       dataSourceType,
@@ -34,16 +34,16 @@ export const valuesToData = (values, businessIdentifier) => {
     if (dataSourceType === 'DB' || dataSourceType === 'FILE') {
       const dstLow = dataSourceType.toLowerCase();
       output[`${dstLow}BasicInfo`] = {
-        businessIdentifier,
-        dataStreamIdentifier,
+        inlongGroupId,
+        inlongStreamId,
       };
       if (dataSourceBasicId !== undefined) {
         output[`${dstLow}BasicInfo`].id = dataSourceBasicId;
       }
       output[`${dstLow}DetailInfoList`] = dataSourcesConfig.map(k => ({
         ...k,
-        businessIdentifier,
-        dataStreamIdentifier,
+        inlongGroupId,
+        inlongStreamId,
       }));
     }
 
@@ -54,8 +54,8 @@ export const valuesToData = (values, businessIdentifier) => {
       delete rest[`dataStorage${type}`];
       const formatData = data.map(ds => ({
         ...ds,
-        businessIdentifier,
-        dataStreamIdentifier,
+        inlongGroupId,
+        inlongStreamId,
         storageType: type,
       }));
 
@@ -64,15 +64,15 @@ export const valuesToData = (values, businessIdentifier) => {
 
     const fieldList = predefinedFields.concat(rowTypeFields).map((item, idx) => ({
       ...item,
-      businessIdentifier,
-      dataStreamIdentifier,
+      inlongGroupId,
+      inlongStreamId,
       isPredefinedField: idx < predefinedFields.length ? 1 : 0,
     }));
 
     output.streamInfo = {
       ...rest,
-      businessIdentifier,
-      dataStreamIdentifier,
+      inlongGroupId,
+      inlongStreamId,
       inCharges: rest.inCharges?.join(','),
       dataSourceType,
     };
