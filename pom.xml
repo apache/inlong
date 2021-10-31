@@ -33,20 +33,20 @@
   <name>Apache InLong</name>
 
   <description>InLong is a one-stop data streaming platform that provides automatic,
-    ecure, distributed, and efficient data publishing and subscription capabilities.
+    secure, distributed, and efficient data publishing and subscription capabilities.
     This platform helps you easily build stream-based data applications.</description>
   <url>https://github.com/apache/incubator-inlong</url>
 
   <organization>
     <name>Apache Software Foundation</name>
-    <url>http://www.apache.org/</url>
+    <url>https://www.apache.org/</url>
   </organization>
   <inceptionYear>2013</inceptionYear>
 
   <developers>
     <developer>
       <organization>Apache InLong(incubating) developers</organization>
-      <organizationUrl>http://inlong.apache.org/</organizationUrl>
+      <organizationUrl>https://inlong.apache.org/</organizationUrl>
     </developer>
   </developers>
 
