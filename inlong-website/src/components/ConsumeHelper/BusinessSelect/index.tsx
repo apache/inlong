@@ -21,7 +21,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input, Space } from 'antd';
 import type { InputProps } from 'antd/es/input';
 import { useTranslation } from 'react-i18next';
-import MyBussinessModal from './MyBussinessModal';
+import MyBusinessModal from './MyBusinessModal';
 
 export interface Props extends Omit<InputProps, 'onChange'> {
   value?: string;
@@ -34,7 +34,7 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
 
   const [data, setData] = useState(value);
 
-  const [myBussinessModal, setMyBussinessModal] = useState({
+  const [myBusinessModal, setMyBusinessModal] = useState({
     visible: false,
   });
 
@@ -65,22 +65,22 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
     <>
       <Space>
         <Input value={data} onChange={e => onTextChange(e.target.value)} {...rest} />
-        <Button type="link" onClick={() => setMyBussinessModal({ visible: true })}>
-          {t('components.ConsumeHelper.BussinessSelect.Search')}
+        <Button type="link" onClick={() => setMyBusinessModal({ visible: true })}>
+          {t('components.ConsumeHelper.BusinessSelect.Search')}
         </Button>
       </Space>
 
-      <MyBussinessModal
-        {...myBussinessModal}
-        visible={myBussinessModal.visible}
+      <MyBusinessModal
+        {...myBusinessModal}
+        visible={myBusinessModal.visible}
         onOk={(value, record) => {
           onSelectRow(value);
           if (onSelect) {
             onSelect(record);
           }
-          setMyBussinessModal({ visible: false });
+          setMyBusinessModal({ visible: false });
         }}
-        onCancel={() => setMyBussinessModal({ visible: false })}
+        onCancel={() => setMyBusinessModal({ visible: false })}
       />
     </>
   );

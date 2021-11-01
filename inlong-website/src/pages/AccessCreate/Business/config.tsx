@@ -20,34 +20,34 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { genBussinessFields } from '@/components/AccessHelper';
+import { genBusinessFields } from '@/components/AccessHelper';
 
 export const getFormContent = ({ changedValues, isUpdate }) =>
   [
     {
       type: (
         <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Bussiness.config.BusinessInformation')}
+          {i18n.t('pages.AccessCreate.Business.config.BusinessInformation')}
         </Divider>
       ),
     },
-    ...genBussinessFields(['name', 'cnName', 'inCharges', 'description'], changedValues),
+    ...genBusinessFields(['name', 'cnName', 'inCharges', 'description'], changedValues),
     {
       type: (
         <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Bussiness.config.AccessRequirements')}
+          {i18n.t('pages.AccessCreate.Business.config.AccessRequirements')}
         </Divider>
       ),
     },
-    ...genBussinessFields(['middlewareType']),
+    ...genBusinessFields(['middlewareType']),
     {
       type: (
         <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Bussiness.config.AccessScale')}
+          {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
         </Divider>
       ),
     },
-    ...genBussinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']),
+    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']),
   ].map(item => {
     const obj = { ...item };
     if (isUpdate && obj.name === 'name') {

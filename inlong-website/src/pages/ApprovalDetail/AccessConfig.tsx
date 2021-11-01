@@ -20,12 +20,12 @@
 import React from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { genBussinessFields } from '@/components/AccessHelper';
+import { genBusinessFields } from '@/components/AccessHelper';
 
 const getBusinessContent = initialValues => [
-  ...genBussinessFields(
+  ...genBusinessFields(
     [
-      'businessIdentifier',
+      'inlongGroupId',
       'cnName',
       'inCharges',
       'description',
@@ -45,11 +45,7 @@ const getBusinessContent = initialValues => [
     delete obj.rules;
     delete obj.extra;
 
-    if (
-      typeof obj.type === 'string' ||
-      obj.name === 'businessIdentifier' ||
-      obj.name === 'inCharges'
-    ) {
+    if (typeof obj.type === 'string' || obj.name === 'inlongGroupId' || obj.name === 'inCharges') {
       obj.type = 'text';
     }
 
@@ -79,7 +75,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
         <Table
           size="small"
           columns={[
-            { title: 'ID', dataIndex: 'dataStreamIdentifier' },
+            { title: 'ID', dataIndex: 'inlongStreamId' },
             {
               title: i18n.t('pages.ApprovalDetail.AccessConfig.DataStorages'),
               dataIndex: 'storageList',

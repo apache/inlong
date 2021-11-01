@@ -28,7 +28,7 @@ import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from './sourceFields';
 
 type RestParams = {
-  businessIdentifier?: string;
+  inlongGroupId?: string;
   // Whether to use true operation for data source management
   useDataSourcesActionRequest?: boolean;
   // Whether to use real operation for data storage management
@@ -42,7 +42,7 @@ export default (
   names: string[],
   currentValues: Record<string, any> = {},
   {
-    businessIdentifier: bid,
+    inlongGroupId,
     useDataSourcesActionRequest = false,
     useDataStorageActionRequest = false,
     fieldListEditing = true,
@@ -50,19 +50,19 @@ export default (
   }: RestParams = {},
 ): FormItemProps[] => {
   const basicProps = {
-    businessIdentifier: bid,
-    dataStreamIdentifier: currentValues.dataStreamIdentifier,
+    inlongGroupId: inlongGroupId,
+    inlongStreamId: currentValues.inlongStreamId,
   };
 
   const fields: FormItemProps[] = [
     {
       type: 'input',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamID'),
-      name: 'dataStreamIdentifier',
+      name: 'inlongStreamId',
       props: {
         maxLength: 32,
       },
-      initialValue: currentValues.dataStreamIdentifier,
+      initialValue: currentValues.inlongStreamId,
       rules: [
         { required: true },
         {
@@ -76,7 +76,7 @@ export default (
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamName'),
       name: 'name',
       initialValue: currentValues.name,
-      rules: [{ required: true }],
+      rules: [{ required: false }],
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
@@ -99,7 +99,7 @@ export default (
         maxLength: 100,
       },
       initialValue: currentValues.desc,
-      rules: [{ required: true }],
+      rules: [{ required: false }],
     },
     {
       type: 'radio',

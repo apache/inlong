@@ -23,7 +23,7 @@ import { parse } from 'qs';
 import { PageContainer, Container, FooterToolbar } from '@/components/PageContainer';
 import { useHistory, useLocation, useSet } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import Bussiness from './Bussiness';
+import Business from './Business';
 import DataStream from './DataStream';
 
 const { Step } = Steps;
@@ -40,21 +40,21 @@ const Create: React.FC = () => {
   const [, { add: addOpened, has: hasOpened }] = useSet([current]);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const [bid, setBid] = useState(qs.bid);
+  const [inlongGroupId, setGroupId] = useState(qs.inlongGroupId);
 
-  const bussinessRef = useRef(null);
+  const businessRef = useRef(null);
   const dataStreamRef = useRef(null);
 
   const steps = [
     {
       title: t('pages.AccessCreate.BusinessInfo'),
-      content: <Bussiness ref={bussinessRef} bid={bid} />,
+      content: <Business ref={businessRef} inlongGroupId={inlongGroupId} />,
       useCache: true,
-      ref: bussinessRef,
+      ref: businessRef,
     },
     {
       title: t('pages.AccessCreate.DataStreams'),
-      content: <DataStream ref={dataStreamRef} bid={bid} />,
+      content: <DataStream ref={dataStreamRef} inlongGroupId={inlongGroupId} />,
       useCache: true,
       ref: dataStreamRef,
     },
@@ -67,9 +67,9 @@ const Create: React.FC = () => {
     try {
       const result = onOk && (await onOk());
       if (current === 0) {
-        setBid(result);
+        setGroupId(result);
         history.push({
-          search: `?bid=${result}&step=1`,
+          search: `?inlongGroupId=${result}&step=1`,
         });
       }
     } finally {

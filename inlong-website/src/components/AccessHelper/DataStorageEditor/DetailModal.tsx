@@ -29,7 +29,7 @@ import FormGenerator, {
 import { getHiveForm, getHiveColumns } from './hiveConfig';
 
 export interface DetailModalProps extends ModalProps {
-  bid: string;
+  inlongGroupId: string;
   name?: string;
   content?: FormItemProps[];
   // (True operation, save and adjust interface) Need to upload when editing
@@ -48,7 +48,7 @@ export interface DetailModalProps extends ModalProps {
 }
 
 const Comp: React.FC<DetailModalProps> = ({
-  bid,
+  inlongGroupId,
   id,
   record,
   storageType,

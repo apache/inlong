@@ -41,7 +41,7 @@ const Comp: React.FC = () => {
 
   const [executionLogModal, setExecutionLogModal] = useState({
     visible: false,
-    businessIdentifier: '',
+    inlongGroupId: '',
   });
 
   const { data: summary = {} } = useRequest({
@@ -58,12 +58,12 @@ const Comp: React.FC = () => {
     },
   );
 
-  const onDelete = ({ businessIdentifier }) => {
+  const onDelete = ({ inlongGroupId }) => {
     Modal.confirm({
       title: t('pages.AccessDashboard.ConfirmDelete'),
       onOk: async () => {
         await request({
-          url: `/business/delete/${businessIdentifier}`,
+          url: `/business/delete/${inlongGroupId}`,
           method: 'DELETE',
         });
         await getList();
@@ -72,8 +72,8 @@ const Comp: React.FC = () => {
     });
   };
 
-  const openModal = ({ businessIdentifier }) => {
-    setExecutionLogModal({ visible: true, businessIdentifier: businessIdentifier });
+  const openModal = ({ inlongGroupId }) => {
+    setExecutionLogModal({ visible: true, inlongGroupId: inlongGroupId });
   };
 
   const onChange = ({ current: pageNum, pageSize }) => {
@@ -135,8 +135,8 @@ const Comp: React.FC = () => {
 
       <ExecutionLogModal
         {...executionLogModal}
-        onOk={() => setExecutionLogModal({ visible: false, businessIdentifier: '' })}
-        onCancel={() => setExecutionLogModal({ visible: false, businessIdentifier: '' })}
+        onOk={() => setExecutionLogModal({ visible: false, inlongGroupId: '' })}
+        onCancel={() => setExecutionLogModal({ visible: false, inlongGroupId: '' })}
       />
     </PageContainer>
   );

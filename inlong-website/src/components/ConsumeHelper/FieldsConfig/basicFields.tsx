@@ -22,11 +22,11 @@ import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
 import StaffSelect from '@/components/StaffSelect';
 import i18n from '@/i18n';
-import BussinessSelect from '../BussinessSelect';
+import BusinessSelect from '../BusinessSelect';
 
 export default (
   names: string[],
-  bussinessDetail: Record<'middlewareType', string> = { middlewareType: '' },
+  businessDetail: Record<'middlewareType', string> = { middlewareType: '' },
   currentValues: Record<string, any> = {},
 ): FormItemProps[] => {
   const fields: FormItemProps[] = [
@@ -55,17 +55,14 @@ export default (
       rules: [
         {
           required: true,
-          type: 'array',
-          min: 2,
-          message: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.OwnersRule'),
         },
       ],
     },
     {
-      type: BussinessSelect,
+      type: BusinessSelect,
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
-      name: 'businessIdentifier',
-      initialValue: currentValues.businessIdentifier,
+      name: 'inlongGroupId',
+      initialValue: currentValues.inlongGroupId,
       rules: [{ required: true }],
       props: {
         style: { width: 500 },
@@ -82,7 +79,7 @@ export default (
       rules: [{ required: true }],
       props: {
         options: {
-          requestService: `/business/getTopic/${currentValues.businessIdentifier}`,
+          requestService: `/business/getTopic/${currentValues.inlongGroupId}`,
           requestParams: {
             formatResult: result => [
               {
@@ -93,7 +90,7 @@ export default (
           },
         },
       },
-      visible: values => !!values.businessIdentifier,
+      visible: values => !!values.inlongGroupId,
     },
     {
       type: 'radio',
@@ -113,16 +110,16 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: !!bussinessDetail.middlewareType,
+      visible: !!businessDetail.middlewareType,
     },
     {
       type: 'input',
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerDataStreamID'),
-      name: 'dataStreamIdentifier',
-      initialValue: currentValues.dataStreamIdentifier,
+      name: 'inlongStreamId',
+      initialValue: currentValues.inlongStreamId,
       extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.DataStreamIDsHelp'),
       rules: [{ required: true }],
-      visible: values => bussinessDetail.middlewareType && values.filterEnabled,
+      visible: values => businessDetail.middlewareType && values.filterEnabled,
     },
     {
       type: 'text',

@@ -29,13 +29,13 @@ import { getFormContent } from './config';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ bid, isActive, readonly, extraRef }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) => {
   const { t } = useTranslation();
   const [editing, { setTrue, setFalse }] = useBoolean(false);
 
   const [form] = useForm();
 
-  const { data, run: getData } = useRequest(`/business/get/${bid}`, {
+  const { data, run: getData } = useRequest(`/business/get/${inlongGroupId}`, {
     formatResult: data => ({
       ...data,
       inCharges: data.inCharges.split(','),

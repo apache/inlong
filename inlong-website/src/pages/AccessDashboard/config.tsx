@@ -70,16 +70,16 @@ export const getFilterFormContent = defaultValues => [
 ];
 
 export const getColumns = ({ onDelete, openModal }) => {
-  const genCreateUrl = record => `/access/create?bid=${record.businessIdentifier}`;
+  const genCreateUrl = record => `/access/create?inlongGroupId=${record.inlongGroupId}`;
   const genDetailUrl = record =>
     [0, 100].includes(record.status)
       ? genCreateUrl(record)
-      : `/access/detail/${record.businessIdentifier}`;
+      : `/access/detail/${record.inlongGroupId}`;
 
   return [
     {
-      title: 'Identifier',
-      dataIndex: 'businessIdentifier',
+      title: i18n.t('pages.AccessDashboard.config.GroupId'),
+      dataIndex: 'inlongGroupId',
       render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link>,
     },
     {

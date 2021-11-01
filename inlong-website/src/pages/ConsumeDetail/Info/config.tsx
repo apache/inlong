@@ -21,7 +21,7 @@ import React from 'react';
 import { genBasicFields } from '@/components/ConsumeHelper';
 import i18n from '@/i18n';
 
-export const getFormContent = ({ editing, initialValues, bussinessData }) =>
+export const getFormContent = ({ editing, initialValues, businessData }) =>
   [
     {
       type: 'text',
@@ -30,15 +30,11 @@ export const getFormContent = ({ editing, initialValues, bussinessData }) =>
       rules: [{ required: true }],
     },
     ...genBasicFields(
-      ['consumerGroupName', 'inCharges', 'masterUrl', 'businessIdentifier'],
-      bussinessData,
+      ['consumerGroupName', 'inCharges', 'masterUrl', 'inlongGroupId'],
+      businessData,
       initialValues,
     ),
-    ...genBasicFields(
-      ['topic', 'filterEnabled', 'dataStreamIdentifier'],
-      bussinessData,
-      initialValues,
-    ),
+    ...genBasicFields(['topic', 'filterEnabled', 'inlongStreamId'], businessData, initialValues),
   ].map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
@@ -50,10 +46,10 @@ export const getFormContent = ({ editing, initialValues, bussinessData }) =>
       [
         'consumerGroupId',
         'consumerGroupName',
-        'businessIdentifier',
+        'inlongGroupId',
         'topic',
         'filterEnabled',
-        'dataStreamIdentifier',
+        'inlongStreamId',
       ].includes(obj.name as string)
     ) {
       obj.type = 'text';

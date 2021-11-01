@@ -23,22 +23,15 @@ import i18n from '@/i18n';
 import { genBasicFields } from '@/components/ConsumeHelper';
 
 export const getFormContent = ({
-  bussinessData,
+  businessData,
   changedValues,
 }): ReturnType<typeof genBasicFields> => [
   {
     type: <Divider orientation="left">{i18n.t('pages.ConsumeCreate.ConsumerInformation')}</Divider>,
   },
   ...genBasicFields(
-    [
-      'consumerGroupName',
-      'inCharges',
-      'businessIdentifier',
-      'topic',
-      'filterEnabled',
-      'dataStreamIdentifier',
-    ],
-    bussinessData,
+    ['consumerGroupName', 'inCharges', 'inlongGroupId', 'topic', 'filterEnabled', 'inlongGroupId'],
+    businessData,
     changedValues,
   ),
 ];

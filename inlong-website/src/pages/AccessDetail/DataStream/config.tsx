@@ -58,9 +58,9 @@ export const genExtraContent = ({ editingId, record, onSave, onCancel, onEdit, o
       ];
 };
 
-export const genFormContent = (editingId, currentValues, businessIdentifier, readonly) => {
+export const genFormContent = (editingId, currentValues, inlongGroupId, readonly) => {
   const extraParams = {
-    businessIdentifier,
+    inlongGroupId,
     useDataSourcesActionRequest: !!currentValues?.id,
     useDataStorageActionRequest: !!currentValues?.id,
     fieldListEditing: editingId && !currentValues?.id,
@@ -74,7 +74,7 @@ export const genFormContent = (editingId, currentValues, businessIdentifier, rea
       ),
     },
     ...genDataFields(
-      ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
+      ['inlongStreamId', 'name', 'inCharges', 'description'],
       currentValues,
       extraParams,
     ),
@@ -132,7 +132,7 @@ export const genFormContent = (editingId, currentValues, businessIdentifier, rea
       }
     } else {
       // Current edit line
-      if (['dataStreamIdentifier', 'dataSourceType', 'dataType'].includes(obj.name as string)) {
+      if (['inlongStreamId', 'dataSourceType', 'dataType'].includes(obj.name as string)) {
         obj.type = 'text';
       }
     }

@@ -45,7 +45,7 @@ export const getColumns = ({ onEdit, onDelete }) => {
           : i18n.t('pages.UserManagement.config.GeneralUser'),
     },
     {
-      title: i18n.t('pages.UserManagement.config.Creater'),
+      title: i18n.t('pages.UserManagement.config.Creator'),
       dataIndex: 'createBy',
     },
     {

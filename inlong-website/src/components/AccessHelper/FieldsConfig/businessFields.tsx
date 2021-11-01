@@ -27,9 +27,9 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
   const fields: FormItemProps[] = [
     {
       type: 'text',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessID'),
-      name: 'businessIdentifier',
-      initialValue: currentValues.businessIdentifier,
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessID'),
+      name: 'inlongGroupId',
+      initialValue: currentValues.inlongGroupId,
     },
     {
       type: 'text',
@@ -40,7 +40,7 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessEnglishName'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishName'),
       name: 'name',
       props: {
         maxLength: 32,
@@ -50,7 +50,7 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
         {
           pattern: /^[a-z_\d]+$/,
           message: i18n.t(
-            'components.AccessHelper.FieldsConfig.bussinessFields.BusinessEnglishNameRules',
+            'components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishNameRules',
           ),
         },
       ],
@@ -58,17 +58,16 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessLabelName'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessLabelName'),
       name: 'cnName',
       props: {
         maxLength: 32,
       },
       initialValue: currentValues.cnName,
-      rules: [{ required: true }],
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwners'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessOwners'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
       rules: [
@@ -76,29 +75,28 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
           required: true,
         },
       ],
-      extra: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessOwnersExtra'),
+      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessOwnersExtra'),
     },
     {
       type: 'textarea',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.BusinessIntroduction'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessIntroduction'),
       name: 'description',
       props: {
         showCount: true,
         maxLength: 100,
       },
       initialValue: currentValues.description,
-      rules: [{ required: true }],
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.MessageMiddleware'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.MessageMiddleware'),
       name: 'middlewareType',
       initialValue: currentValues.middlewareType ?? 'TUBE',
       rules: [{ required: true }],
       props: {
         options: [
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.Tube'),
+            label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Tube'),
             value: 'TUBE',
           },
         ],
@@ -106,11 +104,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.NumberOfAccess'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.NumberOfAccess'),
       name: 'dailyRecords',
       initialValue: currentValues.dailyRecords,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.thousand/day'),
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.thousand/day'),
       props: {
         min: 1,
         precision: 0,
@@ -118,11 +116,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.AccessSize'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AccessSize'),
       name: 'dailyStorage',
       initialValue: currentValues.dailyStorage,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.GB/Day'),
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.GB/Day'),
       props: {
         min: 1,
         precision: 0,
@@ -130,11 +128,11 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.AccessPeakPerSecond'),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AccessPeakPerSecond'),
       name: 'peakRecords',
       initialValue: currentValues.peakRecords,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.bussinessFields.Stripe/Second'),
+      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Stripe/Second'),
       props: {
         min: 1,
         precision: 0,
@@ -142,9 +140,7 @@ export default (names: string[], currentValues: Record<string, unknown> = {}): F
     },
     {
       type: 'inputnumber',
-      label: i18n.t(
-        'components.AccessHelper.FieldsConfig.bussinessFields.SingleStripMaximumLength',
-      ),
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.SingleStripMaximumLength'),
       name: 'maxLength',
       initialValue: currentValues.maxLength,
       rules: [{ required: true }],

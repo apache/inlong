@@ -28,10 +28,10 @@ import { genFormContent } from './config';
 import { valuesToData, dataToValues } from './helper';
 
 export interface Props {
-  bid: string;
+  inlongGroupId: string;
 }
 
-const Comp = ({ bid }: Props, ref) => {
+const Comp = ({ inlongGroupId }: Props, ref) => {
   const [form] = Form.useForm();
 
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ const Comp = ({ bid }: Props, ref) => {
       params: {
         pageSize: 100,
         pageNum: 1,
-        bid,
+        inlongGroupId,
       },
     },
     {
@@ -77,14 +77,14 @@ const Comp = ({ bid }: Props, ref) => {
 
   const onOk = async () => {
     const { list } = await form.validateFields();
-    const data = valuesToData(list, bid);
+    const data = valuesToData(list, inlongGroupId);
     await request({
       url: '/datastream/batchSaveAll',
       method: 'POST',
       data,
     });
     const result = await request({
-      url: `/business/startProcess/${bid}`,
+      url: `/business/startProcess/${inlongGroupId}`,
       method: 'POST',
     });
     return result;
@@ -150,7 +150,7 @@ const Comp = ({ bid }: Props, ref) => {
                           ...realTimeValues.list?.[index],
                           inCharges: [userName],
                         },
-                        bid,
+                        inlongGroupId,
                       ).map(item => {
                         const obj = { ...item } as any;
                         if (obj.name) {

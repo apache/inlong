@@ -22,9 +22,9 @@ import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genDataFields } from '@/components/AccessHelper';
 
-export const genFormContent = (currentValues, bid) => {
+export const genFormContent = (currentValues, inlongGroupId) => {
   const extraParams = {
-    businessIdentifier: bid,
+    inlongGroupId: inlongGroupId,
   };
 
   return [
@@ -34,7 +34,7 @@ export const genFormContent = (currentValues, bid) => {
       ),
     },
     ...genDataFields(
-      ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
+      ['inlongStreamId', 'name', 'inCharges', 'description'],
       currentValues,
       extraParams,
     ),

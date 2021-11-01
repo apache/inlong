@@ -33,9 +33,9 @@ export interface DataSourcesEditorProps {
   type?: 'DB' | 'FILE';
   // Whether to use real operations (for example, to call the background interface when deleting/newing, etc.)
   useActionRequest?: boolean;
-  businessIdentifier?: string;
+  inlongGroupId?: string;
   // Data stream ID, required for real operation
-  dataStreamIdentifier?: string;
+  inlongStreamId?: string;
 }
 
 const removeIdFromValues = values =>
@@ -60,8 +60,8 @@ const Comp = ({
   readonly = false,
   type = 'DB',
   useActionRequest,
-  businessIdentifier,
-  dataStreamIdentifier,
+  inlongGroupId,
+  inlongStreamId,
 }: DataSourcesEditorProps) => {
   const { t } = useTranslation();
 
@@ -92,8 +92,8 @@ const Comp = ({
     const isUpdate = createModal.id;
     const submitData = {
       ...values,
-      businessIdentifier,
-      dataStreamIdentifier,
+      inlongGroupId,
+      inlongStreamId,
     };
     if (isUpdate) submitData.id = createModal.id;
     const newId = await request({

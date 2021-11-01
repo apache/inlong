@@ -31,7 +31,7 @@ const getConsumerContent = initialValues => {
       initialValue: initialValues.consumerGroupId,
     },
     ...genBasicFields(
-      ['inCharges', 'masterUrl', 'businessIdentifier'],
+      ['inCharges', 'masterUrl', 'inlongGroupId'],
       { middlewareType: initialValues.middlewareType },
       initialValues,
     ),
@@ -48,7 +48,7 @@ const getConsumerContent = initialValues => {
     }
     delete obj.extra;
     delete obj.rules;
-    if (typeof obj.type === 'string' || obj.name === 'businessIdentifier') {
+    if (typeof obj.type === 'string' || obj.name === 'inlongGroupId') {
       obj.type = 'text';
     } else if (obj.name === 'inCharges') {
       obj.type = <span>{initialValues.inCharges}</span>;

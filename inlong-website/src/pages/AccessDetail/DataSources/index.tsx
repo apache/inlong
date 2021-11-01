@@ -60,7 +60,7 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp: React.FC<Props> = ({ bid }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const [options, setOptions] = useState({
     // keyWord: '',
     pageSize: defaultSize,
@@ -78,7 +78,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
       params: {
         ...options,
         type: undefined,
-        bid,
+        inlongGroupId,
       },
     },
     {
@@ -90,7 +90,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
     const isUpdate = createModal.id;
     const submitData = {
       ...values,
-      businessIdentifier: bid,
+      inlongGroupId: inlongGroupId,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
@@ -147,7 +147,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
   const columns = [
     {
       title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
-      dataIndex: 'dataStreamIdentifier',
+      dataIndex: 'inlongStreamId',
       width: 100,
     } as any,
   ]
@@ -178,7 +178,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
     {
       type: 'select',
       label: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
-      name: 'dataStreamIdentifier',
+      name: 'inlongStreamId',
       props: {
         notFoundContent: i18n.t('pages.AccessDetail.DataSources.NoDataStreams'),
         disabled: !!createModal.id,
@@ -188,7 +188,7 @@ const Comp: React.FC<Props> = ({ bid }) => {
             params: {
               pageNum: 1,
               pageSize: 1000,
-              bid,
+              inlongGroupId,
               dataSourceType: options.type,
             },
           },
@@ -196,8 +196,8 @@ const Comp: React.FC<Props> = ({ bid }) => {
             ready: !!(createModal.visible && !createModal.id),
             formatResult: result =>
               result?.list.map(item => ({
-                label: item.dataStreamIdentifier,
-                value: item.dataStreamIdentifier,
+                label: item.inlongStreamId,
+                value: item.inlongStreamId,
               })) || [],
           },
         },

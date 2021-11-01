@@ -29,13 +29,13 @@ import { valuesToData } from '@/pages/AccessCreate/DataStream/helper';
 import { pickObject } from '@/utils';
 
 export interface Props extends ModalProps {
-  bid: string;
+  inlongGroupId: string;
   record?: Record<string, any>;
 }
 
-export const genFormContent = (currentValues, businessIdentifier) => {
+export const genFormContent = (currentValues, inlongGroupId) => {
   const extraParams = {
-    businessIdentifier,
+    inlongGroupId,
   };
 
   return [
@@ -45,7 +45,7 @@ export const genFormContent = (currentValues, businessIdentifier) => {
       ),
     },
     ...genDataFields(
-      ['dataStreamIdentifier', 'name', 'inCharges', 'description'],
+      ['inlongStreamId', 'name', 'inCharges', 'description'],
       currentValues,
       extraParams,
     ),
@@ -68,11 +68,7 @@ export const genFormContent = (currentValues, businessIdentifier) => {
   ].map(item => {
     const obj = { ...item };
 
-    if (
-      obj.name === 'dataStreamIdentifier' ||
-      obj.name === 'dataSourceType' ||
-      obj.name === 'dataType'
-    ) {
+    if (obj.name === 'inlongStreamId' || obj.name === 'dataSourceType' || obj.name === 'dataType') {
       obj.type = 'text';
     }
 
@@ -80,18 +76,15 @@ export const genFormContent = (currentValues, businessIdentifier) => {
   });
 };
 
-const Comp: React.FC<Props> = ({ bid, record, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, record, ...modalProps }) => {
   const [form] = useForm();
   const onOk = async () => {
     const values = {
-      ...pickObject(
-        ['id', 'businessIdentifier', 'dataStreamIdentifier', 'dataSourceBasicId'],
-        record,
-      ),
+      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'dataSourceBasicId'], record),
       ...(await form.validateFields()),
     };
 
-    const data = valuesToData(values ? [values] : [], bid);
+    const data = valuesToData(values ? [values] : [], inlongGroupId);
     const submitData = data.map(item =>
       pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
     );
@@ -124,7 +117,7 @@ const Comp: React.FC<Props> = ({ bid, record, ...modalProps }) => {
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(record, bid)}
+        content={genFormContent(record, inlongGroupId)}
         form={form}
         useMaxWidth
       />

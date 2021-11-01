@@ -26,10 +26,10 @@ import { getFormContent } from './config';
 
 export interface Props {
   // If it has been created, save it again and use this value to update
-  bid?: string;
+  inlongGroupId?: string;
 }
 
-const Comp = ({ bid }: Props, ref) => {
+const Comp = ({ inlongGroupId }: Props, ref) => {
   const [form] = useForm();
 
   const { userName } = useSelector<State, State>(state => state);
@@ -37,12 +37,12 @@ const Comp = ({ bid }: Props, ref) => {
   const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
 
   const isUpdate = useMemo(() => {
-    return !!bid;
-  }, [bid]);
+    return !!inlongGroupId;
+  }, [inlongGroupId]);
 
-  const { data: savedData } = useRequest(`/business/get/${bid}`, {
-    ready: !!bid && !Object.keys(changedValues).length,
-    refreshDeps: [bid],
+  const { data: savedData } = useRequest(`/business/get/${inlongGroupId}`, {
+    ready: !!inlongGroupId && !Object.keys(changedValues).length,
+    refreshDeps: [inlongGroupId],
     formatResult: data => ({
       ...data,
       inCharges: data.inCharges.split(','),
@@ -64,7 +64,7 @@ const Comp = ({ bid }: Props, ref) => {
     };
 
     if (isUpdate) {
-      data.businessIdentifier = bid;
+      data.inlongGroupId = inlongGroupId;
     }
 
     const result = await request({
