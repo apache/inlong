@@ -33,13 +33,13 @@ public interface BusinessExtEntityMapper {
 
     BusinessExtEntity selectByPrimaryKey(Integer id);
 
-    List<BusinessExtEntity> selectByBusinessIdentifier(String businessIdentifier);
+    List<BusinessExtEntity> selectByGroupId(String groupId);
 
     int updateByPrimaryKeySelective(BusinessExtEntity record);
 
     int updateByPrimaryKey(BusinessExtEntity record);
 
-    BusinessExtEntity selectByBidAndKeyName(String businessIdentifier, String keyName);
+    BusinessExtEntity selectByGroupIdAndKeyName(String groupId, String keyName);
 
     /**
      * Insert data in batches, update if it exists, create new if it does not exist
@@ -53,13 +53,13 @@ public interface BusinessExtEntityMapper {
      *
      * @return rows deleted
      */
-    int deleteAllByBid(String businessIdentifier);
+    int deleteAllByGroupId(String groupId);
 
     /**
-     * Logically delete all extended fields based on business identifier
+     * Logically delete all extended fields based on business group id
      *
      * @return rows updated
      */
-    int logicDeleteAllByBid(String businessIdentifier);
+    int logicDeleteAllByGroupId(String groupId);
 
 }

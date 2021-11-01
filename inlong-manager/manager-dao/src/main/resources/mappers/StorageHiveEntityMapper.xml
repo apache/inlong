@@ -22,8 +22,8 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
         <result column="jdbc_url" jdbcType="VARCHAR" property="jdbcUrl"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
@@ -51,7 +51,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, business_identifier, data_stream_identifier, jdbc_url, username, password, db_name, table_name,
+        id, inlong_group_id, inlong_stream_id, jdbc_url, username, password, db_name, table_name,
         primary_partition, secondary_partition, partition_type, file_format, field_splitter, encoding_type,
         hdfs_default_fs, warehouse_dir, usage_interval, storage_period, status, previous_status,
         is_deleted, creator, modifier, create_time, modify_time, opt_log, temp_view
@@ -70,11 +70,11 @@
         from storage_hive
         <where>
             is_deleted = 0
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
-            <if test="dsid != null and dsid != ''">
-                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            <if test="inlongStreamId != null and inlongStreamId != ''">
+                and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
             </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
@@ -88,9 +88,9 @@
         from storage_hive
         <where>
             is_deleted = 0
-            and business_identifier = #{bid, jdbcType=VARCHAR}
-            <if test="dsid != null and dsid != ''">
-                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -99,23 +99,23 @@
         from storage_hive
         <where>
             is_deleted = 0
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
-            <if test="dsid != null and dsid != ''">
-                and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
     <select id="selectDataStreamExists" resultType="java.lang.String">
-        select data_stream_identifier
+        select inlong_stream_id
         from storage_hive
         <where>
-            <if test="bid != null and bid != ''">
-                and business_identifier = #{bid, jdbcType=VARCHAR}
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
-            and data_stream_identifier in
-            <foreach collection="dsidList" open="(" close=")" separator="," index="index" item="item">
+            and inlong_stream_id in
+            <foreach collection="streamIdList" open="(" close=")" separator="," index="index" item="item">
                 #{item}
             </foreach>
             and is_deleted = 0
@@ -124,13 +124,13 @@
     <select id="selectSummaryByIdentifier"
             resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo">
         select s.id,
-               s.business_identifier,
-               s.data_stream_identifier,
+               s.inlong_group_id,
+               s.inlong_stream_id,
                "HIVE" as storage_type
         from storage_hive s
         where s.is_deleted = 0
-          and s.business_identifier = #{bid, jdbcType=VARCHAR}
-          and s.data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -141,7 +141,7 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
-        insert into storage_hive (id, business_identifier, data_stream_identifier,
+        insert into storage_hive (id, inlong_group_id, inlong_stream_id,
                                   jdbc_url, username, password,
                                   db_name, table_name, primary_partition,
                                   secondary_partition, partition_type, file_format,
@@ -150,8 +150,7 @@
                                   status, previous_status, is_deleted,
                                   creator, modifier, create_time,
                                   modify_time, opt_log, temp_view)
-        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{jdbcUrl,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{dbName,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR}, #{primaryPartition,jdbcType=VARCHAR},
                 #{secondaryPartition,jdbcType=VARCHAR}, #{partitionType,jdbcType=VARCHAR},
@@ -170,11 +169,11 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
             <if test="jdbcUrl != null">
                 jdbc_url,
@@ -253,11 +252,11 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="jdbcUrl != null">
                 #{jdbcUrl,jdbcType=VARCHAR},
@@ -336,11 +335,11 @@
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         update storage_hive
         <set>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="jdbcUrl != null">
                 jdbc_url = #{jdbcUrl,jdbcType=VARCHAR},
@@ -419,32 +418,32 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         update storage_hive
-        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
-            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            jdbc_url               = #{jdbcUrl,jdbcType=VARCHAR},
-            username               = #{username,jdbcType=VARCHAR},
-            password               = #{password,jdbcType=VARCHAR},
-            db_name                = #{dbName,jdbcType=VARCHAR},
-            table_name             = #{tableName,jdbcType=VARCHAR},
-            primary_partition      = #{primaryPartition,jdbcType=VARCHAR},
-            secondary_partition    = #{secondaryPartition,jdbcType=VARCHAR},
-            partition_type         = #{partitionType,jdbcType=VARCHAR},
-            file_format            = #{fileFormat,jdbcType=VARCHAR},
-            field_splitter         = #{fieldSplitter,jdbcType=VARCHAR},
-            encoding_type          = #{encodingType,jdbcType=VARCHAR},
-            hdfs_default_fs        = #{hdfsDefaultFs,jdbcType=VARCHAR},
-            warehouse_dir          = #{warehouseDir,jdbcType=VARCHAR},
-            usage_interval         = #{usageInterval,jdbcType=VARCHAR},
-            storage_period         = #{storagePeriod,jdbcType=INTEGER},
-            status                 = #{status,jdbcType=INTEGER},
-            previous_status        = #{previousStatus,jdbcType=INTEGER},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
-            modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
-            opt_log                = #{optLog,jdbcType=VARCHAR},
-            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
+            jdbc_url            = #{jdbcUrl,jdbcType=VARCHAR},
+            username            = #{username,jdbcType=VARCHAR},
+            password            = #{password,jdbcType=VARCHAR},
+            db_name             = #{dbName,jdbcType=VARCHAR},
+            table_name          = #{tableName,jdbcType=VARCHAR},
+            primary_partition   = #{primaryPartition,jdbcType=VARCHAR},
+            secondary_partition = #{secondaryPartition,jdbcType=VARCHAR},
+            partition_type      = #{partitionType,jdbcType=VARCHAR},
+            file_format         = #{fileFormat,jdbcType=VARCHAR},
+            field_splitter      = #{fieldSplitter,jdbcType=VARCHAR},
+            encoding_type       = #{encodingType,jdbcType=VARCHAR},
+            hdfs_default_fs     = #{hdfsDefaultFs,jdbcType=VARCHAR},
+            warehouse_dir       = #{warehouseDir,jdbcType=VARCHAR},
+            usage_interval      = #{usageInterval,jdbcType=VARCHAR},
+            storage_period      = #{storagePeriod,jdbcType=INTEGER},
+            status              = #{status,jdbcType=INTEGER},
+            previous_status     = #{previousStatus,jdbcType=INTEGER},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER},
+            creator             = #{creator,jdbcType=VARCHAR},
+            modifier            = #{modifier,jdbcType=VARCHAR},
+            create_time         = #{createTime,jdbcType=TIMESTAMP},
+            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
+            opt_log             = #{optLog,jdbcType=VARCHAR},
+            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
 

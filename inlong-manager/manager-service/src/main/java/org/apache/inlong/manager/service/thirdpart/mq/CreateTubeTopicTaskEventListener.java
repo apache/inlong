@@ -52,11 +52,11 @@ public class CreateTubeTopicTaskEventListener implements TaskEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
 
-        log.info("begin create tube topic for bid={}", form.getBusinessId());
-        String bid = form.getBusinessId();
+        log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
+        String groupId = form.getInlongGroupId();
 
         try {
-            BusinessInfo businessInfo = businessService.get(bid);
+            BusinessInfo businessInfo = businessService.get(groupId);
             String topicName = businessInfo.getMqResourceObj();
             AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
             request.setUser("inlong-manager");
@@ -65,9 +65,9 @@ public class CreateTubeTopicTaskEventListener implements TaskEventListener {
             request.setAddTopicTasks(Collections.singletonList(tasksBean));
             tubeMqOptService.createNewTopic(request);
 
-            log.info("finish to create tube topic for bid={}", bid);
+            log.info("finish to create tube topic for groupId={}", groupId);
         } catch (Exception e) {
-            log.error("create tube topic for bid={} error, exception {} ", bid, e.getMessage(), e);
+            log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
         }
         return ListenerResult.success();
     }

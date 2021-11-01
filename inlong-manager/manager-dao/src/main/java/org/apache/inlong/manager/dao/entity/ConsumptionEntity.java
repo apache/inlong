@@ -32,11 +32,11 @@ public class ConsumptionEntity implements Serializable {
     private String consumerGroupName;
     private String consumerGroupId;
     private String inCharges;
-    private String businessIdentifier;
+    private String inlongGroupId;
     private String middlewareType;
     private String topic;
     private Integer filterEnabled;
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
     private Integer status;
     private String creator;
     private String modifier;

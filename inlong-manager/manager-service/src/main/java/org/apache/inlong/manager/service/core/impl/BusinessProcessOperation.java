@@ -60,18 +60,18 @@ public class BusinessProcessOperation {
     /**
      * Allocate resource application groups for access services and initiate an approval process
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @param operator Operator name
      * @return Process information
      */
-    public WorkflowResult startProcess(String bid, String operator) {
-        LOGGER.info("begin to start approve process, bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public WorkflowResult startProcess(String groupId, String operator) {
+        LOGGER.info("begin to start approve process, groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Check whether the current status of the business allows the process to be re-initiated
-        BusinessEntity entity = businessMapper.selectByIdentifier(bid);
+        BusinessEntity entity = businessMapper.selectByIdentifier(groupId);
         if (entity == null) {
-            LOGGER.error("business not found by bid={}", bid);
+            LOGGER.error("business not found by groupId={}", groupId);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
         Preconditions.checkTrue(EntityStatus.ALLOW_START_WORKFLOW_STATUS.contains(entity.getStatus()),
@@ -97,8 +97,8 @@ public class BusinessProcessOperation {
         NewBusinessWorkflowForm form = new NewBusinessWorkflowForm();
         form.setBusinessInfo(businessInfo);
 
-        // Query all data streams under the bid and the storage information of each data stream
-        List<DataStreamSummaryInfo> infoList = streamService.getSummaryList(businessInfo.getBusinessIdentifier());
+        // Query all data streams under the groupId and the storage information of each data stream
+        List<DataStreamSummaryInfo> infoList = streamService.getSummaryList(businessInfo.getInlongGroupId());
         form.setStreamInfoList(infoList);
 
         return form;

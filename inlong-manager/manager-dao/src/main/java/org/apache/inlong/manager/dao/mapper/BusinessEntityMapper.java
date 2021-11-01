@@ -38,9 +38,9 @@ public interface BusinessEntityMapper {
 
     List<Map<String, Object>> countCurrentUserBusiness(@Param(value = "currentUser") String currentUser);
 
-    BusinessEntity selectByIdentifier(String businessIdentifier);
+    BusinessEntity selectByIdentifier(String groupId);
 
-    Integer selectIdentifierExist(String businessIdentifier);
+    Integer selectIdentifierExist(String groupId);
 
     List<BusinessEntity> selectByCondition(BusinessPageRequest request);
 
@@ -55,7 +55,7 @@ public interface BusinessEntityMapper {
 
     int updateByPrimaryKey(BusinessEntity record);
 
-    int updateStatusByIdentifier(@Param("bid") String bid, @Param("status") Integer status,
+    int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("status") Integer status,
             @Param("modifier") String modifier);
 
 }

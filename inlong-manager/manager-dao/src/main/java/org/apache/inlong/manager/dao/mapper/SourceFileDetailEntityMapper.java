@@ -44,41 +44,42 @@ public interface SourceFileDetailEntityMapper {
     /**
      * Query whether the same file data source details exist
      *
-     * @param bid business identifier
-     * @param dsid data stream identifier
+     * @param groupId business group id
+     * @param streamId data stream identifier
      * @param ip IP of file source
      * @param username user name corresponding to the data source IP
      * @return number of eligible file sources
      */
-    Integer selectDetailExist(@Param("bid") String bid, @Param("dsid") String dsid, @Param("ip") String ip,
-            @Param("username") String username);
+    Integer selectDetailExist(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("ip") String ip, @Param("username") String username);
 
     List<FileAgentTaskConfig> selectFileAgentTaskByIp(@Param("ip") String agentIp);
 
     List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
 
     /**
-     * According to business identifier and data source identifier, query file source details
+     * According to business group id and data source identifier, query file source details
      *
-     * @param bid business identifier
-     * @param dsid data stream identifier
+     * @param groupId business group id
+     * @param streamId data stream identifier
      * @return file source list
      */
-    List<SourceFileDetailEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<SourceFileDetailEntity> selectByIdentifier(@Param("groupId") String groupId,
+            @Param("streamId") String streamId);
 
     /**
-     * According to business identifier and data stream identifier, physically delete file data source details
+     * According to business group id and data stream identifier, physically delete file data source details
      *
      * @return rows deleted
      */
-    int deleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to business identifier and data stream identifier, logically delete file data source details
+     * According to business group id and data stream identifier, logically delete file data source details
      *
      * @return rows updated
      */
-    int logicDeleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid,
+    int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);
 
     List<SourceFileDetailEntity> selectByIp(@Param("ip") String ip);

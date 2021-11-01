@@ -78,17 +78,17 @@ public class BusinessServiceImpl implements BusinessService {
         Preconditions.checkNotNull(bizName, "business name is empty");
 
         String topic = bizName.toLowerCase(Locale.ROOT);
-        // bid=b_topic, cannot update
-        String bid = "b_" + topic;
-        Integer count = businessMapper.selectIdentifierExist(bid);
+        // groupId=b_topic, cannot update
+        String groupId = "b_" + topic;
+        Integer count = businessMapper.selectIdentifierExist(groupId);
         if (count >= 1) {
-            LOGGER.error("bid [{}] has already exists", bid);
+            LOGGER.error("groupId [{}] has already exists", groupId);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_DUPLICATE);
         }
 
         // Processing business and extended information
         BusinessEntity entity = CommonBeanUtils.copyProperties(businessInfo, BusinessEntity::new);
-        entity.setBusinessIdentifier(bid);
+        entity.setInlongGroupId(groupId);
         entity.setMqResourceObj(topic);
 
         // Only M0 is currently supported
@@ -102,24 +102,24 @@ public class BusinessServiceImpl implements BusinessService {
         entity.setCreateTime(new Date());
         businessMapper.insertSelective(entity);
 
-        this.saveExt(bid, businessInfo.getExtList());
+        this.saveExt(groupId, businessInfo.getExtList());
 
         LOGGER.info("success to save business info");
-        return bid;
+        return groupId;
     }
 
     @Override
     public BusinessInfo get(String identifier) {
-        LOGGER.debug("begin to get business info by bid={}", identifier);
-        Preconditions.checkNotNull(identifier, BizConstant.BID_IS_EMPTY);
+        LOGGER.debug("begin to get business info by groupId={}", identifier);
+        Preconditions.checkNotNull(identifier, BizConstant.GROUP_ID_IS_EMPTY);
         BusinessEntity entity = businessMapper.selectByIdentifier(identifier);
         if (entity == null) {
-            LOGGER.error("business not found by bid={}", identifier);
+            LOGGER.error("business not found by groupId={}", identifier);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
 
         BusinessInfo businessInfo = CommonBeanUtils.copyProperties(entity, BusinessInfo::new);
-        List<BusinessExtEntity> extEntityList = businessExtMapper.selectByBusinessIdentifier(identifier);
+        List<BusinessExtEntity> extEntityList = businessExtMapper.selectByGroupId(identifier);
         List<BusinessExtInfo> extInfoList = CommonBeanUtils
                 .copyListProperties(extEntityList, BusinessExtInfo::new);
         businessInfo.setExtList(extInfoList);
@@ -148,12 +148,12 @@ public class BusinessServiceImpl implements BusinessService {
     public String update(BusinessInfo businessInfo, String operator) {
         LOGGER.debug("begin to update business info={}", businessInfo);
         Preconditions.checkNotNull(businessInfo, "business info is empty");
-        String bid = businessInfo.getBusinessIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+        String groupId = businessInfo.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        BusinessEntity entity = businessMapper.selectByIdentifier(bid);
+        BusinessEntity entity = businessMapper.selectByIdentifier(groupId);
         if (entity == null) {
-            LOGGER.error("business not found by bid={}", bid);
+            LOGGER.error("business not found by groupId={}", groupId);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
 
@@ -168,10 +168,10 @@ public class BusinessServiceImpl implements BusinessService {
         businessMapper.updateByIdentifierSelective(entity);
 
         // Save extended information
-        this.updateExt(bid, businessInfo.getExtList());
+        this.updateExt(groupId, businessInfo.getExtList());
 
         LOGGER.info("success to update business info");
-        return bid;
+        return groupId;
     }
 
     /**
@@ -191,18 +191,18 @@ public class BusinessServiceImpl implements BusinessService {
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_UPDATE_NOT_ALLOWED);
         }
 
-        // Non-[DRAFT] status, no bid modification allowed
+        // Non-[DRAFT] status, no groupId modification allowed
         boolean updateBid = !EntityStatus.DRAFT.getCode().equals(oldStatus)
-                && !Objects.equals(entity.getBusinessIdentifier(), businessInfo.getBusinessIdentifier());
+                && !Objects.equals(entity.getInlongGroupId(), businessInfo.getInlongGroupId());
         if (updateBid) {
-            LOGGER.error("current status was not allowed to update business identifier");
+            LOGGER.error("current status was not allowed to update business group id");
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_BID_UPDATE_NOT_ALLOWED);
         }
 
-        // [Configuration successful] Status, bid and middleware type are not allowed to be modified
+        // [Configuration successful] Status, groupId and middleware type are not allowed to be modified
         if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(oldStatus)) {
-            if (!Objects.equals(entity.getBusinessIdentifier(), businessInfo.getBusinessIdentifier())) {
-                LOGGER.error("current status was not allowed to update business identifier");
+            if (!Objects.equals(entity.getInlongGroupId(), businessInfo.getInlongGroupId())) {
+                LOGGER.error("current status was not allowed to update business group id");
                 throw new BusinessException(BizErrorCodeEnum.BUSINESS_BID_UPDATE_NOT_ALLOWED);
             }
             if (!Objects.equals(entity.getMiddlewareType(), businessInfo.getMiddlewareType())) {
@@ -213,11 +213,11 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public boolean updateStatus(String bid, Integer status, String operator) {
-        LOGGER.debug("begin to update business status, bid={}, status={}, username={}", bid, status, operator);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public boolean updateStatus(String groupId, Integer status, String operator) {
+        LOGGER.debug("begin to update business status, groupId={}, status={}, username={}", groupId, status, operator);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        businessMapper.updateStatusByIdentifier(bid, status, operator);
+        businessMapper.updateStatusByIdentifier(groupId, status, operator);
 
         LOGGER.info("success to update business status");
         return true;
@@ -225,13 +225,13 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean delete(String bid, String operator) {
-        LOGGER.debug("begin to delete business, bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public boolean delete(String groupId, String operator) {
+        LOGGER.debug("begin to delete business, groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        BusinessEntity entity = businessMapper.selectByIdentifier(bid);
+        BusinessEntity entity = businessMapper.selectByIdentifier(groupId);
         if (entity == null) {
-            LOGGER.error("business not found by bid={}", bid);
+            LOGGER.error("business not found by groupId={}", groupId);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
 
@@ -244,14 +244,14 @@ public class BusinessServiceImpl implements BusinessService {
         // [DRAFT] [BIZ_WAIT_SUBMIT] status, all associated data can be logically deleted directly
         if (EntityStatus.ALLOW_DELETE_BIZ_CASCADE_STATUS.contains(entity.getStatus())) {
             // Logically delete data streams, data sources and data storage information
-            streamService.logicDeleteAllByBid(entity.getBusinessIdentifier(), operator);
+            streamService.logicDeleteAllByBid(entity.getInlongGroupId(), operator);
         } else {
             // In other states, you need to delete the associated "data stream" first.
             // When deleting a data stream, you also need to check whether there are
             // some associated "data source" and "data storage"
-            int count = streamService.selectCountByBid(bid);
+            int count = streamService.selectCountByBid(groupId);
             if (count >= 1) {
-                LOGGER.error("bid={} have [{}] data streams, deleted failed", bid, count);
+                LOGGER.error("groupId={} have [{}] data streams, deleted failed", groupId, count);
                 throw new BusinessException(BizErrorCodeEnum.BUSINESS_HAS_DATA_STREAM);
             }
         }
@@ -262,19 +262,19 @@ public class BusinessServiceImpl implements BusinessService {
         businessMapper.updateByIdentifierSelective(entity);
 
         // To logically delete the associated extension table
-        LOGGER.debug("begin to delete business ext property, bid={}", bid);
-        businessExtMapper.logicDeleteAllByBid(bid);
+        LOGGER.debug("begin to delete business ext property, groupId={}", groupId);
+        businessExtMapper.logicDeleteAllByGroupId(groupId);
 
         LOGGER.info("success to delete business and business ext property");
         return true;
     }
 
     @Override
-    public boolean exist(String bid) {
-        LOGGER.debug("begin to check business, bid={}", bid);
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+    public boolean exist(String groupId) {
+        LOGGER.debug("begin to check business, groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
-        Integer count = businessMapper.selectIdentifierExist(bid);
+        Integer count = businessMapper.selectIdentifierExist(groupId);
         LOGGER.info("success to check business");
         return count >= 1;
     }
@@ -302,9 +302,9 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public BusinessTopicVO getTopic(String bid) {
-        LOGGER.debug("begin to get topic by bid={}", bid);
-        BusinessInfo businessInfo = this.get(bid);
+    public BusinessTopicVO getTopic(String groupId) {
+        LOGGER.debug("begin to get topic by groupId={}", groupId);
+        BusinessInfo businessInfo = this.get(groupId);
 
         String middlewareType = businessInfo.getMiddlewareType();
         BusinessTopicVO topicVO = new BusinessTopicVO();
@@ -318,7 +318,7 @@ public class BusinessServiceImpl implements BusinessService {
             throw new BusinessException(BizErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
         }
 
-        topicVO.setBusinessIdentifier(bid);
+        topicVO.setInlongGroupId(groupId);
         topicVO.setMiddlewareType(middlewareType);
         return topicVO;
     }
@@ -330,12 +330,12 @@ public class BusinessServiceImpl implements BusinessService {
 
         // Save the dataSchema, Topic and other information of the business
         Preconditions.checkNotNull(approveInfo, "BusinessApproveInfo is empty");
-        String bid = approveInfo.getBusinessIdentifier();
-        Preconditions.checkNotNull(bid, BizConstant.BID_IS_EMPTY);
+        String groupId = approveInfo.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Update status to [BIZ_CONFIG_ING]
         // If you need to change business info after approve, just do in here
-        this.updateStatus(bid, EntityStatus.BIZ_CONFIG_ING.getCode(), operator);
+        this.updateStatus(groupId, EntityStatus.BIZ_CONFIG_ING.getCode(), operator);
 
         LOGGER.info("success to update business status after approve");
         return true;
@@ -346,11 +346,11 @@ public class BusinessServiceImpl implements BusinessService {
      * <p/>First physically delete the existing extended information, and then add this batch of extended information
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateExt(String bid, List<BusinessExtInfo> extInfoList) {
-        LOGGER.debug("begin to update business ext, bid={}, ext={}", bid, extInfoList);
+    void updateExt(String groupId, List<BusinessExtInfo> extInfoList) {
+        LOGGER.debug("begin to update business ext, groupId={}, ext={}", groupId, extInfoList);
         try {
-            businessExtMapper.deleteAllByBid(bid);
-            saveExt(bid, extInfoList);
+            businessExtMapper.deleteAllByGroupId(groupId);
+            saveExt(groupId, extInfoList);
             LOGGER.info("success to update business ext");
         } catch (Exception e) {
             LOGGER.error("failed to update business ext: ", e);
@@ -359,14 +359,14 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveExt(String bid, List<BusinessExtInfo> infoList) {
+    void saveExt(String groupId, List<BusinessExtInfo> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
         List<BusinessExtEntity> entityList = CommonBeanUtils.copyListProperties(infoList, BusinessExtEntity::new);
         Date date = new Date();
         for (BusinessExtEntity entity : entityList) {
-            entity.setBusinessIdentifier(bid);
+            entity.setInlongGroupId(groupId);
             entity.setModifyTime(date);
         }
         businessExtMapper.insertAll(entityList);

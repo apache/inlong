@@ -35,17 +35,17 @@ public interface BusinessService {
      *
      * @param businessInfo Basic business information
      * @param operator Operator name
-     * @return Business identifier after successfully saved
+     * @return Business group id after successfully saved
      */
     String save(BusinessInfo businessInfo, String operator);
 
     /**
      * Query business information based on identifier
      *
-     * @param businessIdentifier Business identifier
+     * @param groupId Business group id
      * @return Business details
      */
-    BusinessInfo get(String businessIdentifier);
+    BusinessInfo get(String groupId);
 
     /**
      * Query business list based on conditions
@@ -60,36 +60,36 @@ public interface BusinessService {
      *
      * @param businessInfo Business information that needs to be modified
      * @param operator Operator name
-     * @return Business identifier
+     * @return Business group id
      */
     String update(BusinessInfo businessInfo, String operator);
 
     /**
      * Modify the status of the specified business
      *
-     * @param businessIdentifier Business identifier
+     * @param groupId Business group id
      * @param status Modified status
      * @param operator Current operator
      * @return whether succeed
      */
-    boolean updateStatus(String businessIdentifier, Integer status, String operator);
+    boolean updateStatus(String groupId, Integer status, String operator);
 
     /**
      * Delete the business information of the specified identifier
      *
-     * @param businessIdentifier The business identifier that needs to be deleted
+     * @param groupId The business group id that needs to be deleted
      * @param operator Current operator
      * @return whether succeed
      */
-    boolean delete(String businessIdentifier, String operator);
+    boolean delete(String groupId, String operator);
 
     /**
      * Query whether the specified identifier exists
      *
-     * @param businessIdentifier The business identifier to be queried
+     * @param groupId The business group id to be queried
      * @return does it exist
      */
-    boolean exist(String businessIdentifier);
+    boolean exist(String groupId);
 
     /**
      * Query the business information of each status of the current user
@@ -100,13 +100,13 @@ public interface BusinessService {
     BusinessCountVO countBusinessByUser(String operator);
 
     /**
-     * According to the business identifier, query the topic to which it belongs
+     * According to the business group id, query the topic to which it belongs
      *
-     * @param businessIdentifier Business identifier
+     * @param groupId Business group id
      * @return Topic information
      * @apiNote Tube corresponds to the business, only 1 topic
      */
-    BusinessTopicVO getTopic(String businessIdentifier);
+    BusinessTopicVO getTopic(String groupId);
 
     /**
      * Save the business modified when the approval is passed

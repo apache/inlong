@@ -54,14 +54,14 @@ public class SingleStreamFailedProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
-        String bid = form.getBusinessId();
-        String dsid = form.getDataStreamIdentifier();
+        String groupId = form.getInlongGroupId();
+        String streamId = form.getInlongStreamId();
         String username = context.getApplicant();
 
         // update business status
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_FAILED.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_FAILED.getCode(), username);
         // update data stream status
-        dataStreamService.updateStatus(bid, dsid, EntityStatus.DATA_STREAM_CONFIG_FAILED.getCode(), username);
+        dataStreamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_FAILED.getCode(), username);
 
         return ListenerResult.success();
     }

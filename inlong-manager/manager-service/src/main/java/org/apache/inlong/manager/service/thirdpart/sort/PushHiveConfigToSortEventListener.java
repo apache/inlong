@@ -75,11 +75,11 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
 
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
-        String bid = businessInfo.getBusinessIdentifier();
-        // if dsid not null, just push the config belongs to the bid and the dsid
-        String dsid = form.getDataStreamIdentifier();
+        String groupId = businessInfo.getInlongGroupId();
+        // if streamId not null, just push the config belongs to the groupId and the streamId
+        String streamId = form.getInlongStreamId();
 
-        List<StorageHiveEntity> storageHiveEntities = storageHiveMapper.selectByIdentifier(bid, dsid);
+        List<StorageHiveEntity> storageHiveEntities = storageHiveMapper.selectByIdentifier(groupId, streamId);
         for (StorageHiveEntity hiveEntity : storageHiveEntities) {
             Integer storageId = hiveEntity.getId();
             StorageHiveInfo hiveStorage = (StorageHiveInfo) storageService
@@ -167,8 +167,8 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         );
 
         // data stream fields
-        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getBusinessIdentifier(),
-                hiveStorage.getDataStreamIdentifier());
+        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getInlongGroupId(),
+                hiveStorage.getInlongStreamId());
         Stream<FieldInfo> streamFields = dataStream.getFieldList().stream().map(field -> {
             FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
             return new FieldInfo(field.getFieldName(), formatInfo);
@@ -179,7 +179,7 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         TDMsgCsvDeserializationInfo deserializationInfo = null;
         if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataStream.getDataType())) {
             char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
-            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getDataStreamIdentifier(), c);
+            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getInlongStreamId(), c);
         }
         SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumeGroupName,
                 deserializationInfo, streamFields.toArray(FieldInfo[]::new));

@@ -55,9 +55,9 @@ public class StartCreateResourceProcessListener implements ProcessEventListener 
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewBusinessWorkflowForm workflowForm = (NewBusinessWorkflowForm) context.getProcessForm();
 
-        String bid = workflowForm.getBusinessId();
+        String groupId = workflowForm.getInlongGroupId();
         CreateResourceWorkflowForm resourceWorkflowForm = new CreateResourceWorkflowForm();
-        resourceWorkflowForm.setBusinessInfo(businessService.get(bid));
+        resourceWorkflowForm.setBusinessInfo(businessService.get(groupId));
         String username = context.getApplicant();
         workflowService.start(ProcessName.CREATE_BUSINESS_RESOURCE, username, resourceWorkflowForm);
 

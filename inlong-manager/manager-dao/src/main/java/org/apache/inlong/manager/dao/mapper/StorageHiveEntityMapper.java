@@ -48,37 +48,39 @@ public interface StorageHiveEntityMapper {
     List<StorageHiveEntity> selectByCondition(StoragePageRequest request);
 
     /**
-     * According to the business identifier and data stream identifier, query valid storage information
+     * According to the business group id and data stream identifier, query valid storage information
      *
-     * @param bid business identifier
-     * @param dsid data stream identifier
+     * @param groupId business group id
+     * @param streamId data stream identifier
      * @return Hive storage entity list
      */
-    List<StorageHiveEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<StorageHiveEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, query the number of valid Hive storage
+     * According to the business group id and data stream identifier, query the number of valid Hive storage
      *
-     * @param bid business identifier
-     * @param dsid data stream identifier
+     * @param groupId business group id
+     * @param streamId data stream identifier
      * @return Hive storage entity size
      */
-    int selectCountByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int selectCountByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     int updateStorageStatusById(StorageHiveEntity entity);
 
     /**
      * Given a list of data stream ids, filter out data stream id list with Hive storage
      *
-     * @param bid business identifier
-     * @param dsidList data stream identifier list
+     * @param groupId business group id
+     * @param streamIdList data stream identifier list
      * @return a list of data stream ids with Hive storage
      */
-    List<String> selectDataStreamExists(@Param("bid") String bid, @Param("dsidList") List<String> dsidList);
+    List<String> selectDataStreamExists(@Param("groupId") String groupId,
+            @Param("streamIdList") List<String> streamIdList);
 
     /**
-     * According to the business identifier and data stream identifier, query Hive storage summary information
+     * According to the business group id and data stream identifier, query Hive storage summary information
      */
-    List<StorageSummaryInfo> selectSummaryByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<StorageSummaryInfo> selectSummaryByIdentifier(@Param("groupId") String groupId,
+            @Param("streamId") String streamId);
 
 }

@@ -26,7 +26,7 @@
         <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
-        <result column="business_id" jdbcType="VARCHAR" property="businessId"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="applicant" jdbcType="VARCHAR" property="applicant"/>
         <result column="state" jdbcType="VARCHAR" property="state"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
@@ -36,7 +36,7 @@
         <result column="ext" jdbcType="LONGVARCHAR" property="ext"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, display_name, type, title, business_id, applicant,
+        id, name, display_name, type, title, inlong_group_id, applicant,
         state, start_time, end_time, hidden, form_data, ext
     </sql>
 
@@ -70,8 +70,8 @@
             <if test="displayName != null and displayName !=''">
                 and display_name = #{displayName,jdbcType=VARCHAR}
             </if>
-            <if test="businessId != null and businessId !=''">
-                and business_id = #{businessId,jdbcType=VARCHAR}
+            <if test="inlongGroupId != null and inlongGroupId !=''">
+                and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
             </if>
             <if test="applicant != null and applicant !=''">
                 and applicant = #{applicant,jdbcType=VARCHAR}
@@ -103,53 +103,53 @@
             resultType="org.apache.inlong.manager.workflow.model.view.CountByKey">
         select state as `key`,count(1) as value
         from wf_process_instance
-        where 1=1
-        <if test="name != null and name !=''">
-            and name = #{name,jdbcType=VARCHAR}
-        </if>
-        <if test="displayName != null and displayName !=''">
-            and display_name = #{displayName,jdbcType=VARCHAR}
-        </if>
-        <if test="applicant != null and applicant !=''">
-            and applicant = #{applicant,jdbcType=VARCHAR}
-        </if>
-        <if test="businessId != null and businessId !=''">
-            and business_id = #{businessId,jdbcType=VARCHAR}
-        </if>
-        <if test="startTimeBegin != null">
-            and start_time >= #{startTimeBegin,jdbcType=TIMESTAMP}
-        </if>
-        <if test="startTimeEnd != null">
-            and start_time &lt;= #{startTimeEnd,jdbcType=TIMESTAMP}
-        </if>
-        <if test="endTimeBegin != null">
-            and end_time >= #{endTimeBegin,jdbcType=TIMESTAMP}
-        </if>
-        <if test="endTimeEnd != null">
-            and end_time &lt;= #{endTimeEnd,jdbcType=TIMESTAMP}
-        </if>
-        <if test="hidden != null">
-            and hidden = #{hidden,jdbcType=BIT}
-        </if>
+        <where>
+            <if test="name != null and name !=''">
+                and name = #{name,jdbcType=VARCHAR}
+            </if>
+            <if test="displayName != null and displayName !=''">
+                and display_name = #{displayName,jdbcType=VARCHAR}
+            </if>
+            <if test="applicant != null and applicant !=''">
+                and applicant = #{applicant,jdbcType=VARCHAR}
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId !=''">
+                and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+            </if>
+            <if test="startTimeBegin != null">
+                and start_time >= #{startTimeBegin,jdbcType=TIMESTAMP}
+            </if>
+            <if test="startTimeEnd != null">
+                and start_time &lt;= #{startTimeEnd,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTimeBegin != null">
+                and end_time >= #{endTimeBegin,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTimeEnd != null">
+                and end_time &lt;= #{endTimeEnd,jdbcType=TIMESTAMP}
+            </if>
+            <if test="hidden != null">
+                and hidden = #{hidden,jdbcType=BIT}
+            </if>
+        </where>
         group by state
-
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id"
             parameterType="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
         insert into wf_process_instance (name, display_name,
-                                         type, title, business_id, applicant,
-                                         state, start_time, end_time,
+                                         type, title, inlong_group_id,
+                                         applicant, state,
+                                         start_time, end_time,
                                          form_data, ext, hidden)
         values (#{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
-                #{type,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{businessId,jdbcType=VARCHAR},
-                #{applicant,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP},
-                #{endTime,jdbcType=TIMESTAMP}, #{formData,jdbcType=LONGVARCHAR}, #{ext,jdbcType=LONGVARCHAR},
-                #{hidden,jdbcType=BIT})
+                #{type,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{applicant,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR},
+                #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP},
+                #{formData,jdbcType=LONGVARCHAR}, #{ext,jdbcType=LONGVARCHAR}, #{hidden,jdbcType=BIT})
     </insert>
 
-    <update id="update"
-            parameterType="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
+    <update id="update" parameterType="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
         update wf_process_instance
         set state    = #{state,jdbcType=VARCHAR},
             end_time = #{endTime,jdbcType=TIMESTAMP},

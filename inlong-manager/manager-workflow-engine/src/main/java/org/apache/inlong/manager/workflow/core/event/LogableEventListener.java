@@ -109,7 +109,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
                 .setProcessInstId(processInstance.getId())
                 .setProcessName(processInstance.getName())
                 .setProcessDisplayName(processInstance.getDisplayName())
-                .setBusinessId(context.getProcessForm().getBusinessId())
+                .setBusinessId(context.getProcessForm().getInlongGroupId())
                 .setElementName(currentElement.getName())
                 .setElementDisplayName(currentElement.getDisplayName())
                 .setEventType(event().getClass().getSimpleName())

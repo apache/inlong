@@ -240,11 +240,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     "Consumption not allowed to update when its status is" + consumptionStatus.name());
         }
 
-        BusinessTopicVO topicVO = businessService.getTopic(info.getBusinessIdentifier());
-        Preconditions.checkNotNull(topicVO, "Business not exist :" + info.getBusinessIdentifier());
+        BusinessTopicVO topicVO = businessService.getTopic(info.getInlongGroupId());
+        Preconditions.checkNotNull(topicVO, "Business not exist :" + info.getInlongGroupId());
         Preconditions.checkTrue(topicVO.getTopicName() != null
                         && topicVO.getTopicName().equals(info.getTopic()),
-                "Topic [" + info.getTopic() + "] not belong to business " + info.getBusinessIdentifier());
+                "Topic [" + info.getTopic() + "] not belong to business " + info.getInlongGroupId());
 
     }
 

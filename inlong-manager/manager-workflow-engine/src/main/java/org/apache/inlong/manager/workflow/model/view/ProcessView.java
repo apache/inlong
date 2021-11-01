@@ -38,70 +38,37 @@ import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
 @ApiModel("Application form information")
 public class ProcessView {
 
-    /**
-     * Application form ID
-     */
-    @ApiModelProperty(value = "application form ID")
+    @ApiModelProperty(value = "Application form id")
     private Integer id;
 
-    /**
-     * Process name-English key
-     */
     @ApiModelProperty(value = "process name-English key")
     private String name;
 
-    /**
-     * Process display name-Chinese
-     */
-    @ApiModelProperty(value = "process display name-Chinese")
+    @ApiModelProperty(value = "Process display name-Chinese")
     private String displayName;
 
-    /**
-     * Process classification
-     */
-    @ApiModelProperty(value = "process classification")
+    @ApiModelProperty(value = "Process classification")
     private String type;
 
-    /**
-     * Process title
-     */
-    @ApiModelProperty(value = "process title")
+    @ApiModelProperty(value = "Process title")
     private String title;
 
-    /**
-     * Applicant
-     */
-    @ApiModelProperty(value = "applicant")
+    @ApiModelProperty(value = "Applicant")
     private String applicant;
 
-    /**
-     * Process status
-     */
-    @ApiModelProperty(value = "process status")
+    @ApiModelProperty(value = "Process status")
     private ProcessState state;
 
-    /**
-     * Application time
-     */
-    @ApiModelProperty(value = "application time")
+    @ApiModelProperty(value = "Application time")
     private Date startTime;
 
-    /**
-     * End Time
-     */
-    @ApiModelProperty(value = "end Time")
+    @ApiModelProperty(value = "End Time")
     private Date endTime;
 
-    /**
-     * Form information
-     */
-    @ApiModelProperty(value = "form information-JSON")
+    @ApiModelProperty(value = "Form information-JSON")
     private Object formData;
 
-    /**
-     * Extended Information
-     */
-    @ApiModelProperty(value = "extended Information-JSON")
+    @ApiModelProperty(value = "Extended information-JSON")
     private Object ext;
 
     public static ProcessView fromProcessInstance(ProcessInstance processInstance) {

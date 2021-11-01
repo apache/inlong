@@ -25,8 +25,8 @@ public class DataStreamFieldEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String businessIdentifier;
-    private String dataStreamIdentifier;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private Integer isPredefinedField;
     private String fieldName;
     private String fieldValue;

@@ -42,10 +42,10 @@ public class BaseStorageInfo {
     private Integer id;
 
     @ApiModelProperty("Business Identifier")
-    private String businessIdentifier;
+    private String inlongGroupId;
 
-    @ApiModelProperty("Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty("Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty("Storage type, including: HDFS, HIVE, ES, etc.")
     private String storageType;

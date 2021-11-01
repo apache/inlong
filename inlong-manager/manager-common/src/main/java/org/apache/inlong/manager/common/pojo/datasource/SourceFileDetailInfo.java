@@ -34,10 +34,10 @@ public class SourceFileDetailInfo {
     private Integer id;
 
     @ApiModelProperty(value = "Business iIdentifier")
-    private String businessIdentifier;
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Name of the data source service")
     private String serverName;

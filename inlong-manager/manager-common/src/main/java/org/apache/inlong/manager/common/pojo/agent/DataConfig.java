@@ -52,8 +52,8 @@ public class DataConfig {
     @ApiModelProperty(value = "Cluster id")
     private int clusterId;
 
-    @ApiModelProperty(value = "Business identifier")
-    private String businessId;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "Schedule time")
     private String scheduleTime;

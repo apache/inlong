@@ -56,12 +56,12 @@ public class CreateResourceCompleteProcessListener implements ProcessEventListen
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
 
-        String bid = form.getBusinessId();
+        String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
         // update business status
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
         // update data stream status
-        dataStreamService.updateStatus(bid, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
+        dataStreamService.updateStatus(groupId, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
 
         return ListenerResult.success();
     }

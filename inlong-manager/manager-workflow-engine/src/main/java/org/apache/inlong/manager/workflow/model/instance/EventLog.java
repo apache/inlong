@@ -35,7 +35,7 @@ public class EventLog {
 
     private String processDisplayName;
 
-    private String businessId;
+    private String inlongGroupId;
 
     private Integer taskInstId;
 
@@ -100,11 +100,11 @@ public class EventLog {
     }
 
     public String getBusinessId() {
-        return businessId;
+        return inlongGroupId;
     }
 
-    public EventLog setBusinessId(String businessId) {
-        this.businessId = businessId;
+    public EventLog setBusinessId(String groupId) {
+        this.inlongGroupId = groupId;
         return this;
     }
 

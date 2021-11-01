@@ -63,11 +63,11 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
-        String bid = form.getBusinessId();
+        String groupId = form.getInlongGroupId();
 
-        log.info("try to create consumer group for bid {}", bid);
+        log.info("try to create consumer group for groupId {}", groupId);
 
-        BusinessInfo businessInfo = businessService.get(bid);
+        BusinessInfo businessInfo = businessService.get(groupId);
 
         String topicName = businessInfo.getMqResourceObj();
 
@@ -96,16 +96,16 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
 
         GroupNameJsonSetBean groupNameJsonSetBean = new GroupNameJsonSetBean();
         groupNameJsonSetBean.setTopicName(topicName);
-        String consumeGroupName = "sort_" + topicName + "_consumer_group";
+        String consumeGroupName = "sort_" + topicName + "_group";
         groupNameJsonSetBean.setGroupName(consumeGroupName);
         addTubeConsumeGroupRequest.setGroupNameJsonSet(Collections.singletonList(groupNameJsonSetBean));
 
         try {
             tubeMqOptService.createNewConsumerGroup(addTubeConsumeGroupRequest);
         } catch (Exception e) {
-            log.error("create tube consume group for bid={} error {}", bid, e.getMessage(), e);
+            throw new WorkflowListenerException("create tube consumer group for groupId=" + groupId + " error", e);
         }
-        log.info("finish to create consumer group for {}", bid);
+        log.info("finish to create consumer group for {}", groupId);
         return ListenerResult.success();
     }
 

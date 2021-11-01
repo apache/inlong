@@ -33,8 +33,8 @@ public class BusinessListVO {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id", required = true)
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "Business name")
     private String name;

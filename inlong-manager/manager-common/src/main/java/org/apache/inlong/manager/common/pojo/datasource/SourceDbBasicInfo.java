@@ -33,11 +33,11 @@ public class SourceDbBasicInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Data synchronization type, 0: FULL, full, 1: INCREMENTAL, incremental")
     private Integer syncType;

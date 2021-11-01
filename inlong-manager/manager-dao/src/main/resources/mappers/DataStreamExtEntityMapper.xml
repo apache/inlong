@@ -22,15 +22,15 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamExtEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
         <result column="key_name" jdbcType="VARCHAR" property="keyName"/>
         <result column="key_value" jdbcType="VARCHAR" property="keyValue"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, business_identifier, data_stream_identifier, key_name, key_value, is_deleted, modify_time
+        id, inlong_group_id, inlong_stream_id, key_name, key_value, is_deleted, modify_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -42,16 +42,16 @@
         select
         <include refid="Base_Column_List"/>
         from data_stream_ext
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
     <select id="selectByIdentifierAndKeyName" resultType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
         select
         <include refid="Base_Column_List"/>
         from data_stream_ext
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         and key_name = #{keyName, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
@@ -63,15 +63,15 @@
     <delete id="deleteAllByIdentifier">
         delete
         from data_stream_ext
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </delete>
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
-        insert into data_stream_ext (id, business_identifier, data_stream_identifier, key_name,
+        insert into data_stream_ext (id, inlong_group_id, inlong_stream_id, key_name,
                                      key_value, is_deleted, modify_time)
-        values (#{id,jdbcType=INTEGER}, #{bid, jdbcType=VARCHAR},
-                #{dsid,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{groupId, jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR},
                 #{keyValue,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
@@ -80,11 +80,11 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
             <if test="keyName != null">
                 key_name,
@@ -103,11 +103,11 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="keyName != null">
                 #{keyName,jdbcType=VARCHAR},
@@ -127,16 +127,16 @@
     <!-- Bulk insert, update if it exists -->
     <insert id="insertAll" parameterType="java.util.List">
         insert into data_stream_ext
-        (id, business_identifier, data_stream_identifier, key_name, key_value, is_deleted)
+        (id, inlong_group_id, inlong_stream_id, key_name, key_value, is_deleted)
         values
         <foreach collection="extList" separator="," index="index" item="item">
-            (#{item.id}, #{item.businessIdentifier}, #{item.dataStreamIdentifier}, #{item.keyName}, #{item.keyValue},
+            (#{item.id}, #{item.inlongGroupId}, #{item.inlongStreamId}, #{item.keyName}, #{item.keyValue},
             #{item.isDeleted})
         </foreach>
         ON DUPLICATE KEY UPDATE
         id = values(id),
-        business_identifier = values(business_identifier),
-        data_stream_identifier = values(data_stream_identifier),
+        inlong_group_id = values(inlong_group_id),
+        inlong_stream_id = values(inlong_stream_id),
         key_name = values(key_name),
         key_value = values(key_value),
         is_deleted = values(is_deleted)
@@ -145,11 +145,11 @@
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
         update data_stream_ext
         <set>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="keyName != null">
                 key_name = #{keyName,jdbcType=VARCHAR},
@@ -168,19 +168,19 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
         update data_stream_ext
-        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
-            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            key_name               = #{keyName,jdbcType=VARCHAR},
-            key_value              = #{keyValue,jdbcType=VARCHAR},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP}
+        set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            key_name         = #{keyName,jdbcType=VARCHAR},
+            key_value        = #{keyValue,jdbcType=VARCHAR},
+            is_deleted       = #{isDeleted,jdbcType=INTEGER},
+            modify_time      = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="logicDeleteAllByIdentifier">
         update data_stream_ext
         set is_deleted = 1
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 </mapper>

@@ -52,7 +52,7 @@ public class ProcessInstance {
     /**
      * Business ID
      */
-    private String businessId;
+    private String inlongGroupId;
 
     /**
      * applicant
@@ -134,12 +134,12 @@ public class ProcessInstance {
         return this;
     }
 
-    public String getBusinessId() {
-        return businessId;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
-    public ProcessInstance setBusinessId(String businessId) {
-        this.businessId = businessId;
+    public ProcessInstance setInlongGroupId(String groupId) {
+        this.inlongGroupId = groupId;
         return this;
     }
 

@@ -47,7 +47,7 @@ public class InitBusinessInfoListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
-        BusinessInfo businessInfo = businessService.get(context.getProcessForm().getBusinessId());
+        BusinessInfo businessInfo = businessService.get(context.getProcessForm().getInlongGroupId());
         if (businessInfo != null) {
             form.setBusinessInfo(businessInfo);
         } else {

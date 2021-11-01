@@ -38,7 +38,7 @@ public class UtilsTest {
     @Test
     public void testCopyProperties() {
         BusinessEntity entity = new BusinessEntity();
-        entity.setBusinessIdentifier("test");
+        entity.setInlongGroupId("test");
         entity.setStatus(1);
         entity.setCreator("user1");
         entity.setModifier("");
@@ -46,7 +46,7 @@ public class UtilsTest {
         entity.setModifyTime(null);
 
         BusinessInfo info = new BusinessInfo();
-        info.setBusinessIdentifier("info");
+        info.setInlongGroupId("info");
         info.setCreator("");
         info.setModifier("user2");
         info.setCreateTime(null);
@@ -63,7 +63,7 @@ public class UtilsTest {
     @Test
     public void testCopyPropertiesIgnoreNull() {
         BusinessEntity entity = new BusinessEntity();
-        entity.setBusinessIdentifier("test");
+        entity.setInlongGroupId("test");
         entity.setCreator("user1");
         entity.setModifier("");
         entity.setStatus(1);
@@ -71,7 +71,7 @@ public class UtilsTest {
         entity.setModifyTime(null);
 
         BusinessInfo info = new BusinessInfo();
-        info.setBusinessIdentifier("info");
+        info.setInlongGroupId("info");
         info.setCreator("");
         info.setModifier("user2");
         info.setCreateTime(null);

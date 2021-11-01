@@ -31,10 +31,10 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 @ApiModel("Data flow paging query conditions")
 public class DataStreamPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Business Identifier")
-    private String bid;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Keyword")
+    @ApiModelProperty(value = "Key word")
     private String keyWord;
 
     @ApiModelProperty(value = "Data source type, including: FILE, DB, AUTO_PUSH (DATA_PROXY_SDK, HTTP)")

@@ -26,7 +26,7 @@ public class BusinessEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String businessIdentifier;
+    private String inlongGroupId;
     private String name;
     private String cnName;
     private String description;

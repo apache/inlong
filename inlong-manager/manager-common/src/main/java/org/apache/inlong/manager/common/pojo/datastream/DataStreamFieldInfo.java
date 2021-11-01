@@ -30,11 +30,11 @@ public class DataStreamFieldInfo {
 
     private Integer id;
 
-    @ApiModelProperty(value = "business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "business group id", required = true)
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "data stream identifier", required = true)
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "is predefined field, 1: ye, 0: no")
     private Integer isPredefinedField;

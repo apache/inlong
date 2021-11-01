@@ -40,7 +40,7 @@ public class SingleStreamCompleteProcessListener implements ProcessEventListener
     @Autowired
     private BusinessService businessService;
     @Autowired
-    private DataStreamService dataStreamService;
+    private DataStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -54,14 +54,14 @@ public class SingleStreamCompleteProcessListener implements ProcessEventListener
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
-        String bid = form.getBusinessId();
-        String dsid = form.getDataStreamIdentifier();
+        String groupId = form.getInlongGroupId();
+        String streamId = form.getInlongStreamId();
         String username = context.getApplicant();
 
         // update business status
-        businessService.updateStatus(bid, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
         // update data stream status
-        dataStreamService.updateStatus(bid, dsid, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
+        streamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
         return ListenerResult.success();
     }
 

@@ -129,7 +129,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     private List<String> bizOwnerUserTaskApprover(WorkflowContext context) {
         NewConsumptionWorkflowForm form = (NewConsumptionWorkflowForm) context.getProcessForm();
-        BusinessInfo businessInfo = businessService.get(form.getConsumptionInfo().getBusinessIdentifier());
+        BusinessInfo businessInfo = businessService.get(form.getConsumptionInfo().getInlongGroupId());
 
         Iterable<String> inChargesIterator = Splitter.on(",").omitEmptyStrings().trimResults()
                 .split(businessInfo.getInCharges());

@@ -37,20 +37,22 @@ public interface DataStreamFieldEntityMapper {
 
     int updateByPrimaryKey(DataStreamFieldEntity record);
 
-    List<DataStreamFieldEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<DataStreamFieldEntity> selectByIdentifier(@Param("groupId") String groupId,
+            @Param("streamId") String streamId);
 
     int insertAll(@Param("fieldList") List<DataStreamFieldEntity> fieldEntityList);
 
-    List<DataStreamFieldEntity> queryDataStreamPreFields(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<DataStreamFieldEntity> selectDataStreamFields(@Param("groupId") String groupId,
+            @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, physically delete all fields
+     * According to the business group id and data stream identifier, physically delete all fields
      */
-    int deleteAllByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, logically delete all fields
+     * According to the business group id and data stream identifier, logically delete all fields
      */
-    int logicDeleteAllByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
 }

@@ -33,8 +33,8 @@ public class SourceFileDetailListVO {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Data source IP address")
     private String ip;

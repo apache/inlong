@@ -49,14 +49,14 @@ public class HiveTableOperator {
     private DataSourceService<DatabaseQueryBean, HiveTableQueryBean> dataSourceService;
 
     @Autowired
-    private StorageHiveFieldEntityMapper storageHiveFieldMapper;
+    private StorageHiveFieldEntityMapper hiveFieldMapper;
 
     /**
-     * Create hive table according to the bid and hive config
+     * Create hive table according to the groupId and hive config
      */
-    public void createHiveTable(String bid, DataStreamInfoToHiveConfig hiveConfig) {
+    public void createHiveTable(String groupId, DataStreamInfoToHiveConfig hiveConfig) {
         if (log.isDebugEnabled()) {
-            log.debug("begin create hive table for business={}, hiveConfig={}", bid, hiveConfig);
+            log.debug("begin create hive table for business={}, hiveConfig={}", groupId, hiveConfig);
         }
 
         HiveTableQueryBean tableBean = getTableQueryBean(hiveConfig);
@@ -87,15 +87,15 @@ public class HiveTableOperator {
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
 
-        log.info("finish create hive table for business {} ", bid);
+        log.info("finish create hive table for business {} ", groupId);
     }
 
     protected HiveTableQueryBean getTableQueryBean(DataStreamInfoToHiveConfig hiveConfig) {
-        String bid = hiveConfig.getBusinessIdentifier();
-        String dsid = hiveConfig.getDataStreamIdentifier();
-        log.info("begin to get table query bean for bid={}, dsid={}", bid, dsid);
+        String groupId = hiveConfig.getInlongGroupId();
+        String streamId = hiveConfig.getInlongStreamId();
+        log.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);
 
-        List<StorageHiveFieldEntity> fieldEntities = storageHiveFieldMapper.queryHiveFieldsByStreamId(bid, dsid);
+        List<StorageHiveFieldEntity> fieldEntities = hiveFieldMapper.selectHiveFields(groupId, streamId);
 
         List<HiveColumnQueryBean> columnQueryBeans = new ArrayList<>();
         for (StorageHiveFieldEntity field : fieldEntities) {

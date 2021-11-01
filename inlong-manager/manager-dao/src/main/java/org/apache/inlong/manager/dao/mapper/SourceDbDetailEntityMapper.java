@@ -40,22 +40,22 @@ public interface SourceDbDetailEntityMapper {
 
     List<SourceDbDetailEntity> selectByCondition(SourceDbDetailPageRequest request);
 
-    Integer selectDetailExist(String bid, String dsid, String dbName, String connectionName);
+    Integer selectDetailExist(String groupId, String streamId, String dbName, String connectionName);
 
     /**
-     * According to the business identifier and data stream identifier, query data source details
+     * According to the business group id and data stream identifier, query data source details
      */
-    List<SourceDbDetailEntity> selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    List<SourceDbDetailEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, physically delete DB data source details
+     * According to the business group id and data stream identifier, physically delete DB data source details
      */
-    int deleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier, logically delete DB data source details
+     * According to the business group id and data stream identifier, logically delete DB data source details
      */
-    int logicDeleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid,
+    int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);
 
 }

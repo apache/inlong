@@ -31,11 +31,11 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 @ApiModel("Paging query conditions for data storage information")
 public class StoragePageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Business identifier", required = true)
-    private String bid;
+    @ApiModelProperty(value = "Business group id", required = true)
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream identifier")
-    private String dsid;
+    @ApiModelProperty(value = "Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Storage type, such as HIVE", required = true)
     private String storageType;

@@ -39,7 +39,7 @@ public class CreateResourceWorkflowForm extends BaseWorkflowFormType {
 
     private BusinessInfo businessInfo;
 
-    private String dataStreamIdentifier;
+    private String streamId;
 
     public BusinessInfo getBusinessInfo() {
         return businessInfo;
@@ -59,22 +59,22 @@ public class CreateResourceWorkflowForm extends BaseWorkflowFormType {
     }
 
     @Override
-    public String getBusinessId() {
-        return businessInfo.getBusinessIdentifier();
+    public String getInlongGroupId() {
+        return businessInfo.getInlongGroupId();
     }
 
-    public String getDataStreamIdentifier() {
-        return dataStreamIdentifier;
+    public String getInlongStreamId() {
+        return streamId;
     }
 
-    public void setDataStreamIdentifier(String dataStreamIdentifier) {
-        this.dataStreamIdentifier = dataStreamIdentifier;
+    public void setInlongStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
-        show.put("businessIdentifier", businessInfo.getBusinessIdentifier());
+        show.put("groupId", businessInfo.getInlongGroupId());
         return show;
     }
 }

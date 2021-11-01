@@ -31,8 +31,8 @@ public class BusinessApproveInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business identifier", required = true)
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Business group id", required = true)
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware Type")
     private String middlewareType;

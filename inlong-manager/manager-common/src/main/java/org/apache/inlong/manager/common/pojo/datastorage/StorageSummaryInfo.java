@@ -30,11 +30,11 @@ public class StorageSummaryInfo {
 
     private Integer id;
 
-    @ApiModelProperty("Business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty("Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty("Data stream identifier")
-    private String dataStreamIdentifier;
+    @ApiModelProperty("Data stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty("Storage type, support:HIVE")
     private String storageType;

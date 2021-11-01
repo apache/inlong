@@ -47,8 +47,8 @@ public class ConsumptionListVo {
     @ApiModelProperty(value = "Person in charge of consumption")
     private String inCharges;
 
-    @ApiModelProperty(value = "Consumption target business identifier")
-    private String businessIdentifier;
+    @ApiModelProperty(value = "Consumption target business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "The middleware type of data storage, high throughput: TUBE")
     private String middlewareType;

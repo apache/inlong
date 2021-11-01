@@ -31,8 +31,8 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 @ApiModel("DB data source query conditions")
 public class SourceDbDetailPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Business identifier")
-    private String bid;
+    @ApiModelProperty(value = "Business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty(value = "Keywords")
     private String keyWord;

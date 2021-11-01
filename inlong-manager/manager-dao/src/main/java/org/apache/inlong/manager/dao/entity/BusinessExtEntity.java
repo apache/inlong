@@ -26,7 +26,7 @@ public class BusinessExtEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String businessIdentifier;
+    private String inlongGroupId;
     private String keyName;
     private String keyValue;
     private Integer isDeleted;

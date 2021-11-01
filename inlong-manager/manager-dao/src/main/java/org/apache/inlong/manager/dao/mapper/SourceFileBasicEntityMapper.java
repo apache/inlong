@@ -36,19 +36,19 @@ public interface SourceFileBasicEntityMapper {
 
     int updateByPrimaryKey(SourceFileBasicEntity record);
 
-    SourceFileBasicEntity selectByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    SourceFileBasicEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier,
+     * According to the business group id and data stream identifier,
      * physically delete the basic information of the file data source
      */
-    int deleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid);
+    int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business identifier and data stream identifier,
+     * According to the business group id and data stream identifier,
      * logical delete the basic information of the file data source
      */
-    int logicDeleteByIdentifier(@Param("bid") String bid, @Param("dsid") String dsid,
+    int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);
 
 }

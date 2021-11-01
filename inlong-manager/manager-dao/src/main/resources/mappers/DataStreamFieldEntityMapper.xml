@@ -22,8 +22,8 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamFieldEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamFieldEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="business_identifier" jdbcType="VARCHAR" property="businessIdentifier"/>
-        <result column="data_stream_identifier" jdbcType="VARCHAR" property="dataStreamIdentifier"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
         <result column="is_predefined_field" jdbcType="INTEGER" property="isPredefinedField"/>
         <result column="field_name" jdbcType="VARCHAR" property="fieldName"/>
         <result column="field_value" jdbcType="VARCHAR" property="fieldValue"/>
@@ -34,7 +34,7 @@
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, business_identifier, data_stream_identifier, is_predefined_field, field_name, field_value,
+        id, inlong_group_id, inlong_stream_id, is_predefined_field, field_name, field_value,
         pre_expression, field_type, field_comment, rank_num, is_deleted
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -47,20 +47,20 @@
         select
         <include refid="Base_Column_List"/>
         from data_stream_field
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-        and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         and is_deleted = 0
         order by rank_num asc
     </select>
-    <select id="queryDataStreamPreFields" resultMap="BaseResultMap">
+    <select id="selectDataStreamFields" resultMap="BaseResultMap">
         select f.*
         from data_stream_field f,
              data_stream s
         where f.is_deleted = 0
           and s.is_deleted = 0
-          and s.id = f.data_stream_identifier
-          and s.business_identifier = #{bid, jdbcType=VARCHAR}
-          and s.data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+          and s.id = f.inlong_stream_id
+          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and f.is_predefined_field = 0
     </select>
 
@@ -72,18 +72,17 @@
     <delete id="deleteAllByIdentifier">
         delete
         from data_stream_field
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </delete>
 
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.DataStreamFieldEntity">
-        insert into data_stream_field (id, business_identifier, data_stream_identifier,
+        insert into data_stream_field (id, inlong_group_id, inlong_stream_id,
                                        is_predefined_field, field_name, field_value,
                                        pre_expression, field_type, field_comment,
                                        rank_num, is_deleted)
-        values (#{id,jdbcType=INTEGER}, #{businessIdentifier,jdbcType=VARCHAR},
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{isPredefinedField,jdbcType=INTEGER}, #{fieldName,jdbcType=VARCHAR}, #{fieldValue,jdbcType=VARCHAR},
                 #{preExpression,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR},
                 #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
@@ -94,11 +93,11 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="businessIdentifier != null">
-                business_identifier,
+            <if test="inlongGroupId != null">
+                inlong_group_id,
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier,
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
             </if>
             <if test="isPredefinedField != null">
                 is_predefined_field,
@@ -129,11 +128,11 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="businessIdentifier != null">
-                #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="isPredefinedField != null">
                 #{isPredefinedField,jdbcType=INTEGER},
@@ -165,20 +164,20 @@
     <!-- Bulk insert, update if it exists -->
     <insert id="insertAll" parameterType="java.util.List">
         insert into data_stream_field
-        (id, business_identifier, data_stream_identifier, is_predefined_field, field_name, field_value,
+        (id, inlong_group_id, inlong_stream_id, is_predefined_field, field_name, field_value,
         pre_expression, field_type, field_comment, rank_num, is_deleted
         )
         values
         <foreach collection="fieldList" index="index" item="item" separator=",">
-            (#{item.id}, #{item.businessIdentifier}, #{item.dataStreamIdentifier}, #{item.isPredefinedField},
+            (#{item.id}, #{item.inlongGroupId}, #{item.inlongStreamId}, #{item.isPredefinedField},
             #{item.fieldName}, #{item.fieldValue},
             #{item.preExpression}, #{item.fieldType}, #{item.fieldComment}, #{item.rankNum}, #{item.isDeleted}
             )
         </foreach>
         ON DUPLICATE KEY UPDATE
         id = values(id),
-        business_identifier = values(business_identifier),
-        data_stream_identifier = values(data_stream_identifier),
+        inlong_group_id = values(inlong_group_id),
+        inlong_stream_id = values(inlong_stream_id),
         is_predefined_field = values(is_predefined_field),
         field_name = values(field_name),
         field_value = values(field_value),
@@ -193,11 +192,11 @@
             parameterType="org.apache.inlong.manager.dao.entity.DataStreamFieldEntity">
         update data_stream_field
         <set>
-            <if test="businessIdentifier != null">
-                business_identifier = #{businessIdentifier,jdbcType=VARCHAR},
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             </if>
-            <if test="dataStreamIdentifier != null">
-                data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
             <if test="isPredefinedField != null">
                 is_predefined_field = #{isPredefinedField,jdbcType=INTEGER},
@@ -228,23 +227,23 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamFieldEntity">
         update data_stream_field
-        set business_identifier    = #{businessIdentifier,jdbcType=VARCHAR},
-            data_stream_identifier = #{dataStreamIdentifier,jdbcType=VARCHAR},
-            is_predefined_field    = #{isPredefinedField,jdbcType=INTEGER},
-            field_name             = #{fieldName,jdbcType=VARCHAR},
-            field_value            = #{fieldValue,jdbcType=VARCHAR},
-            pre_expression         = #{preExpression,jdbcType=VARCHAR},
-            field_type             = #{fieldType,jdbcType=VARCHAR},
-            field_comment          = #{fieldComment,jdbcType=VARCHAR},
-            rank_num               = #{rankNum,jdbcType=SMALLINT},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER}
+        set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
+            is_predefined_field = #{isPredefinedField,jdbcType=INTEGER},
+            field_name          = #{fieldName,jdbcType=VARCHAR},
+            field_value         = #{fieldValue,jdbcType=VARCHAR},
+            pre_expression      = #{preExpression,jdbcType=VARCHAR},
+            field_type          = #{fieldType,jdbcType=VARCHAR},
+            field_comment       = #{fieldComment,jdbcType=VARCHAR},
+            rank_num            = #{rankNum,jdbcType=SMALLINT},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="logicDeleteAllByIdentifier">
         update data_stream_field
         set is_deleted = 1
-        where business_identifier = #{bid, jdbcType=VARCHAR}
-          and data_stream_identifier = #{dsid, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 

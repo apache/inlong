@@ -48,7 +48,7 @@ public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
     }
 
     @Override
-    public String getBusinessId() {
+    public String getInlongGroupId() {
         return consumptionInfo.getConsumerGroupId();
     }
 
@@ -56,7 +56,7 @@ public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         if (consumptionInfo != null) {
-            show.put("businessIdentifier", consumptionInfo.getBusinessIdentifier());
+            show.put("groupId", consumptionInfo.getInlongGroupId());
         }
         return show;
     }

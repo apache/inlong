@@ -40,13 +40,13 @@ public interface SourceDbService {
     Integer saveBasic(SourceDbBasicInfo basicInfo, String operator);
 
     /**
-     * Query the basic information of the data source based on the business identifier and the data stream identifier
+     * Query the basic information of the data source based on the business group id and the data stream identifier
      *
-     * @param businessIdentifier Business identifier
-     * @param dataStreamIdentifier Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return Basic data source information
      */
-    SourceDbBasicInfo getBasicByIdentifier(String businessIdentifier, String dataStreamIdentifier);
+    SourceDbBasicInfo getBasicByIdentifier(String groupId, String streamId);
 
     /**
      * Modify the basic information of the data source
@@ -85,11 +85,11 @@ public interface SourceDbService {
     /**
      * Query a detailed list of DB data sources based on business and data stream identifiers
      *
-     * @param businessIdentifier Business identifier
-     * @param dataStreamIdentifier Data stream identifier, can be null
+     * @param groupId Business group id
+     * @param streamId Data stream id, can be null
      * @return Data source details
      */
-    List<SourceDbDetailInfo> listDetailByIdentifier(String businessIdentifier, String dataStreamIdentifier);
+    List<SourceDbDetailInfo> listDetailByIdentifier(String groupId, String streamId);
 
     /**
      * Query the detailed list of data sources based on conditions
@@ -120,20 +120,20 @@ public interface SourceDbService {
     /**
      * Physically delete the basic and detailed information of the data source
      *
-     * @param businessIdentifier The business identifier to which the data source belongs
-     * @param dataStreamIdentifier The data stream identifier to which the data source belongs
+     * @param groupId The business group id to which the data source belongs
+     * @param streamId The data stream identifier to which the data source belongs
      * @return whether succeed
      */
-    boolean deleteAllByIdentifier(String businessIdentifier, String dataStreamIdentifier);
+    boolean deleteAllByIdentifier(String groupId, String streamId);
 
     /**
      * Tombstone data source basic information and detailed information
      *
-     * @param businessIdentifier The business identifier to which the data source belongs
-     * @param dataStreamIdentifier The data stream identifier to which the data source belongs
+     * @param groupId The business group id to which the data source belongs
+     * @param streamId The data stream identifier to which the data source belongs
      * @param operator perator name
      * @return whether succeed
      */
-    boolean logicDeleteAllByIdentifier(String businessIdentifier, String dataStreamIdentifier, String operator);
+    boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator);
 
 }

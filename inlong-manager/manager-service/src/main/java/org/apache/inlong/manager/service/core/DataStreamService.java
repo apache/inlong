@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConf
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullDataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 
@@ -41,18 +40,18 @@ public interface DataStreamService {
      *
      * @param dataStreamInfo Basic data stream information
      * @param operator Edit person's name
-     * @return Data stream identifier after successful save
+     * @return Data stream id after successful save
      */
     Integer save(DataStreamInfo dataStreamInfo, String operator);
 
     /**
      * Query the details of the specified data stream
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return data stream details
      */
-    DataStreamInfo get(String bid, String dsid);
+    DataStreamInfo get(String groupId, String streamId);
 
     /**
      * Query data stream list based on conditions
@@ -63,21 +62,21 @@ public interface DataStreamService {
     PageInfo<DataStreamListVO> listByCondition(DataStreamPageRequest request);
 
     /**
-     * Query all hive config for business identifier
+     * Query all hive config for business group id
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return Hive config list
      */
-    List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String bid);
+    List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String groupId);
 
     /**
      * Query hive config for one data stream
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return Hive config
      */
-    DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String bid, String dsid);
+    DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String groupId, String streamId);
 
     /**
      * Business information that needs to be modified
@@ -91,29 +90,29 @@ public interface DataStreamService {
     /**
      * Delete the specified data stream
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean delete(String bid, String dsid, String operator);
+    boolean delete(String groupId, String streamId, String operator);
 
     /**
-     * Logically delete all data streams under the specified bid
+     * Logically delete all data streams under the specified groupId
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean logicDeleteAllByBid(String bid, String operator);
+    boolean logicDeleteAllByBid(String groupId, String operator);
 
     /**
-     * Obtain the flow of data stream according to businessIdentifier
+     * Obtain the flow of data stream according to groupId
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return Summary list of data stream
      */
-    List<DataStreamSummaryInfo> getSummaryList(String bid);
+    List<DataStreamSummaryInfo> getSummaryList(String groupId);
 
     /**
      * Save all information related to the data stream, its data source, and data storage
@@ -136,20 +135,20 @@ public interface DataStreamService {
     boolean batchSaveAll(List<FullPageInfo> fullPageInfoList, String operator);
 
     /**
-     * Paging query all data of the data stream page under the specified bid
+     * Paging query all data of the data stream page under the specified groupId
      *
      * @param request Query
      * @return Paging list of all data on the data stream page
      */
-    PageInfo<FullPageInfo> listAllWithBid(FullDataStreamPageRequest request);
+    PageInfo<FullPageInfo> listAllWithGroupId(DataStreamPageRequest request);
 
     /**
-     * According to the business identifier, query all data stream information
+     * According to the business group id, query all data stream information
      *
-     * @param bid Business identifier
+     * @param groupId Business group id
      * @return Data stream list
      */
-    List<DataStreamInfo> listAllByBid(String bid);
+    List<DataStreamInfo> listAllByBid(String groupId);
 
     /**
      * Modify all data streams (including basic information about data sources)
@@ -165,10 +164,10 @@ public interface DataStreamService {
     /**
      * According to the service identifier, query the number of valid data streams belonging to this service
      *
-     * @param businessIdentifier Business identifier
+     * @param groupId Business group id
      * @return Number of data streams
      */
-    int selectCountByBid(String businessIdentifier);
+    int selectCountByBid(String groupId);
 
     /**
      * Save the information modified when the approval is passed
@@ -182,13 +181,13 @@ public interface DataStreamService {
     /**
      * Update stream status
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @param status Modified status
      * @param operator Edit person's name
      * @return whether succeed
-     * @apiNote If dsid is null, update all data stream associated with bid
+     * @apiNote If streamId is null, update all data stream associated with groupId
      */
-    boolean updateStatus(String bid, String dsid, Integer status, String operator);
+    boolean updateStatus(String groupId, String streamId, Integer status, String operator);
 
 }

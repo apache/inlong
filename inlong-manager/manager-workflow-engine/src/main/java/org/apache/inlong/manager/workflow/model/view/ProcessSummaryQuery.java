@@ -33,31 +33,31 @@ import org.springframework.format.annotation.DateTimeFormat;
 @ApiModel("Statistical query conditions from a process perspective")
 public class ProcessSummaryQuery {
 
-    @ApiModelProperty("process name ")
+    @ApiModelProperty("Process name ")
     private String name;
 
-    @ApiModelProperty("rocess display name")
+    @ApiModelProperty("Process display name")
     private String displayName;
 
-    @ApiModelProperty("applicant")
+    @ApiModelProperty("Applicant")
     private String applicant;
 
-    @ApiModelProperty("business ID")
-    private String businessId;
+    @ApiModelProperty("Business group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty("start time-lower limit")
+    @ApiModelProperty("Start time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTimeBegin;
 
-    @ApiModelProperty("start time-upper limit")
+    @ApiModelProperty("Start time-upper limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTimeEnd;
 
-    @ApiModelProperty("nd time-upper limit")
+    @ApiModelProperty("End time-upper limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeBegin;
 
-    @ApiModelProperty("nd time-lower limit")
+    @ApiModelProperty("End time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeEnd;
 

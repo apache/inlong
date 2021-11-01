@@ -32,11 +32,11 @@ public class DataStreamInfoToHiveConfig {
 
     private int status;
 
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
 
     private String description;
 
-    private String businessIdentifier;
+    private String inlongGroupId;
 
     private String defaultSelectors;
 

@@ -75,18 +75,18 @@ public class StorageHiveOperation extends StorageBaseOperation {
      * @return Id after saving
      */
     public int saveHiveStorage(BaseStorageInfo storageInfo, String operator) {
-        String bid = storageInfo.getBusinessIdentifier();
-        // Make sure that there is no HIVE storage information under the current bid and dsid
+        String groupId = storageInfo.getInlongGroupId();
+        // Make sure that there is no HIVE storage information under the current groupId and streamId
         // (the two are mutually exclusive, only one can exist)
         List<StorageHiveEntity> storageExist = hiveStorageMapper
-                .selectByIdentifier(bid, storageInfo.getDataStreamIdentifier());
-        Preconditions.checkEmpty(storageExist, "HIVE storage already exist under the bid and dsid");
+                .selectByIdentifier(groupId, storageInfo.getInlongStreamId());
+        Preconditions.checkEmpty(storageExist, "HIVE storage already exist under the groupId and streamId");
 
         StorageHiveInfo hiveInfo = (StorageHiveInfo) storageInfo;
         StorageHiveEntity entity = CommonBeanUtils.copyProperties(hiveInfo, StorageHiveEntity::new);
 
         // Set the encoding type and field splitter
-        DataStreamEntity streamEntity = dataStreamMapper.selectByIdentifier(bid, entity.getDataStreamIdentifier());
+        DataStreamEntity streamEntity = dataStreamMapper.selectByIdentifier(groupId, entity.getInlongStreamId());
         String encodingType = streamEntity.getDataEncoding() == null
                 ? StandardCharsets.UTF_8.displayName() : streamEntity.getDataEncoding();
         entity.setEncodingType(encodingType);
@@ -111,10 +111,10 @@ public class StorageHiveOperation extends StorageBaseOperation {
     }
 
     /**
-     * According to bid and dsid, query the HIVE storage information to which it belongs
+     * According to groupId and streamId, query the HIVE storage information to which it belongs
      */
-    public void setHiveStorageInfo(String bid, String dsid, List<BaseStorageInfo> storageInfoList) {
-        List<StorageHiveEntity> hiveEntities = hiveStorageMapper.selectByIdentifier(bid, dsid);
+    public void setHiveStorageInfo(String groupId, String streamId, List<BaseStorageInfo> storageInfoList) {
+        List<StorageHiveEntity> hiveEntities = hiveStorageMapper.selectByIdentifier(groupId, streamId);
 
         if (CollectionUtils.isEmpty(hiveEntities)) {
             return;
@@ -145,13 +145,13 @@ public class StorageHiveOperation extends StorageBaseOperation {
     /**
      * Logically delete HIVE storage information based on service identifiers and data stream identifiers
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @param operator Operator
      * @return Whether succeed
      */
-    public boolean logicDeleteHiveByIdentifier(String bid, String dsid, String operator) {
-        List<StorageHiveEntity> hiveEntityList = hiveStorageMapper.selectByIdentifier(bid, dsid);
+    public boolean logicDeleteHiveByIdentifier(String groupId, String streamId, String operator) {
+        List<StorageHiveEntity> hiveEntityList = hiveStorageMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(hiveEntityList)) {
             hiveEntityList.forEach(entity -> {
                 entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
@@ -185,7 +185,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
             throw new BusinessException(BizErrorCodeEnum.STORAGE_INFO_NOT_FOUND);
         }
 
-        super.checkBizIsTempStatus(entity.getBusinessIdentifier());
+        super.checkBizIsTempStatus(entity.getInlongGroupId());
 
         entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
         entity.setPreviousStatus(entity.getStatus());
@@ -203,12 +203,12 @@ public class StorageHiveOperation extends StorageBaseOperation {
     /**
      * Physically delete HIVE storage information of the specified identifier
      *
-     * @param bid Business identifier
-     * @param dsid Data stream identifier
+     * @param groupId Business group id
+     * @param streamId Data stream id
      * @return Whether succeed
      */
-    public boolean deleteHiveByIdentifier(String bid, String dsid) {
-        List<StorageHiveEntity> storageHiveEntities = hiveStorageMapper.selectByIdentifier(bid, dsid);
+    public boolean deleteHiveByIdentifier(String groupId, String streamId) {
+        List<StorageHiveEntity> storageHiveEntities = hiveStorageMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(storageHiveEntities)) {
             storageHiveEntities.forEach(entity -> {
                 hiveStorageMapper.deleteByPrimaryKey(entity.getId());

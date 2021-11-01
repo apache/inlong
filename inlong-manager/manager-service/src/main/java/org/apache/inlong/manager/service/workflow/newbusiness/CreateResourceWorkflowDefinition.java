@@ -107,8 +107,8 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
             if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
                 return false;
             }
-            log.warn("not need to create tube resource for bid={}, as the middleware type is {}",
-                    businessInfo.getMiddlewareType(), form.getBusinessId());
+            log.warn("not need to create tube resource for groupId={}, as the middleware type is {}",
+                    businessInfo.getMiddlewareType(), form.getInlongGroupId());
             return true;
         });
         createTubeTopicTask.setName("createTubeTopic");
@@ -123,8 +123,8 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
             if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
                 return false;
             }
-            log.warn("no need to create tube resource for bid={}, as the middleware type is {}",
-                    form.getBusinessId(), businessInfo.getMiddlewareType());
+            log.warn("no need to create tube resource for groupId={}, as the middleware type is {}",
+                    form.getInlongGroupId(), businessInfo.getMiddlewareType());
             return true;
         });
         createConsumerGroupForSortTask.setName("createConsumerGroupForSort");
@@ -136,15 +136,15 @@ public class CreateResourceWorkflowDefinition implements WorkflowDefinition {
         createHiveTablesTask.setSkipResolver(c -> {
             CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
             List<String> dsForHive = storageService
-                    .filterStreamIdByStorageType(form.getBusinessId(), BizConstant.STORAGE_TYPE_HIVE,
+                    .filterStreamIdByStorageType(form.getInlongGroupId(), BizConstant.STORAGE_TYPE_HIVE,
                             streamMapper
-                                    .selectByBid(form.getBusinessId())
+                                    .selectByGroupId(form.getInlongGroupId())
                                     .stream()
-                                    .map(DataStreamEntity::getDataStreamIdentifier)
+                                    .map(DataStreamEntity::getInlongStreamId)
                                     .collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(dsForHive)) {
                 log.warn("business {} dataStream {} does not have storage, skip to create hive table ",
-                        form.getBusinessId(), form.getDataStreamIdentifier());
+                        form.getInlongGroupId(), form.getInlongStreamId());
                 return true;
             }
             return false;
