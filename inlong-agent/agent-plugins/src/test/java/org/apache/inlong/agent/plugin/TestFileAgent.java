@@ -162,7 +162,7 @@ public class TestFileAgent {
     }
 
     @Test
-    public void testTidFilter() throws Exception {
+    public void testGroupIdFilter() throws Exception {
 
         String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
 

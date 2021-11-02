@@ -66,8 +66,8 @@ public class JobProfileDto {
     
     @Data
     public static class Proxy {
-        private String bid;
-        private String tid;
+        private String inlongGroupId;
+        private String inlongStreamId;
         private Manager manager;
     }
 }

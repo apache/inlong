@@ -24,10 +24,10 @@ public class CommonConstants {
     public static final String PROXY_NET_TAG = "proxy.net.tag";
     public static final String DEFAULT_PROXY_NET_TAG = "";
 
-    public static final String PROXY_BID = "proxy.bid";
+    public static final String PROXY_INLONG_GROUP_ID = "proxy.inlongGroupId";
     public static final String POSITION_SUFFIX = ".position";
 
-    public static final String PROXY_TID = "proxy.tid";
+    public static final String PROXY_INLONG_STREAM_ID = "proxy.inlongStreamId";
 
     public static final String PROXY_LOCAL_HOST = "proxy.localHost";
     public static final String DEFAULT_PROXY_LOCALHOST = AgentUtils.getLocalIp();
@@ -47,16 +47,16 @@ public class CommonConstants {
     public static final String PROXY_IS_COMPRESS = "proxy.is.compress";
     public static final boolean DEFAULT_PROXY_IS_COMPRESS = true;
 
-    public static final String PROXY_MAX_SENDER_PER_BID = "proxy.max.sender.per.pid";
-    public static final int DEFAULT_PROXY_MAX_SENDER_PER_PID = 10;
+    public static final String PROXY_MAX_SENDER_PER_GROUP = "proxy.max.sender.per.group";
+    public static final int DEFAULT_PROXY_MAX_SENDER_PER_GROUP = 10;
 
     // max size of message list
     public static final String PROXY_PACKAGE_MAX_SIZE = "proxy.package.maxSize";
     // max size of single batch in bytes, default is 200KB.
     public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 200000;
 
-    public static final String PROXY_TID_QUEUE_MAX_NUMBER = "proxy.tid.queue.maxNumber";
-    public static final int DEFAULT_PROXY_TID_QUEUE_MAX_NUMBER = 10000;
+    public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = "proxy.group.queue.maxNumber";
+    public static final int DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = 10000;
 
     public static final String PROXY_PACKAGE_MAX_TIMEOUT_MS = "proxy.package.maxTimeout.ms";
     public static final int DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS = 4 * 1000;
@@ -80,8 +80,8 @@ public class CommonConstants {
     public static final String FIELD_SPLITTER = "proxy.field.splitter";
     public static final String DEFAULT_FIELD_SPLITTER = "|";
 
-    public static final String PROXY_KEY_BID = "bid";
-    public static final String PROXY_KEY_TID = "tid";
+    public static final String PROXY_KEY_GROUP_ID = "groupId";
+    public static final String PROXY_KEY_STREAM_ID = "streamId";
     public static final String PROXY_KEY_ID = "id";
     public static final String PROXY_KEY_AGENT_IP = "agentip";
     public static final String PROXY_OCEANUS_F = "f";

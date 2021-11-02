@@ -18,20 +18,20 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_FIELD_SPLITTER;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_BID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_AGENT_IP;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_ID;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_OCEANUS_BL;
 import static org.apache.inlong.agent.constants.CommonConstants.PROXY_OCEANUS_F;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_TID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constants.JobConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
-import static org.apache.inlong.agent.constants.JobConstants.PROXY_TID_QUEUE_MAX_NUMBER;
+import static org.apache.inlong.agent.constants.JobConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS;
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_PROXY_TID_QUEUE_MAX_NUMBER;
+import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_ADDITION_STR;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DATA_TIME;
@@ -68,8 +68,8 @@ public class ProxySink extends AbstractSink {
     private MessageFilter messageFilter;
     private SenderManager senderManager;
     private byte[] fieldSplitter;
-    private String bid;
-    private String tid;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private String sourceFile;
     private String jobInstanceId;
     private int maxBatchSize;
@@ -81,24 +81,24 @@ public class ProxySink extends AbstractSink {
             new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private volatile boolean shutdown = false;
 
-    // key is tid, value is a batch of messages belong to the same tid
+    // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
 
     @Override
     public void write(Message message) {
         if (message != null) {
-            message.getHeader().put(CommonConstants.PROXY_KEY_BID, bid);
-            extractTidFromMessage(message, fieldSplitter);
+            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongStreamId);
+            extractStreamFromMessage(message, fieldSplitter);
             if (!(message instanceof EndMessage)) {
                 ProxyMessage proxyMessage = ProxyMessage.parse(message);
                     // add proxy message to cache.
-                cache.compute(proxyMessage.getTid(),
+                cache.compute(proxyMessage.getInlongStreamId(),
                     (s, packProxyMessage) -> {
                         if (packProxyMessage == null) {
                             packProxyMessage = new PackProxyMessage(
                             maxBatchSize, maxQueueNumber,
-                            maxBatchTimeoutMs, proxyMessage.getTid());
+                            maxBatchTimeoutMs, proxyMessage.getInlongStreamId());
                         }
                         // add message to package proxy
                         packProxyMessage.addProxyMessage(proxyMessage);
@@ -110,16 +110,16 @@ public class ProxySink extends AbstractSink {
     }
 
     /**
-     * extract tid from message if message filter is presented
-     * or use the default tid
+     * extract stream id from message if message filter is presented
+     * or use the default stream id
      * @param message
      */
-    private void extractTidFromMessage(Message message, byte[] fieldSplitter) {
+    private void extractStreamFromMessage(Message message, byte[] fieldSplitter) {
         if (messageFilter != null) {
-            message.getHeader().put(CommonConstants.PROXY_KEY_TID,
-                messageFilter.filterTid(message, fieldSplitter));
+            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID,
+                messageFilter.filterStreamId(message, fieldSplitter));
         } else {
-            message.getHeader().put(CommonConstants.PROXY_KEY_TID, tid);
+            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
         }
     }
 
@@ -135,16 +135,16 @@ public class ProxySink extends AbstractSink {
      */
     private Runnable flushCache() {
         return () -> {
-            LOGGER.info("start flush cache thread for {} TDBusSink", bid);
+            LOGGER.info("start flush cache thread for {} ProxySink", inlongStreamId);
             while (!shutdown) {
                 try {
                     cache.forEach((s, packProxyMessage) -> {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
-                            senderManager.sendBatch(jobInstanceId, bid, result.getKey(),
+                            senderManager.sendBatch(jobInstanceId, inlongStreamId, result.getKey(),
                                     result.getValue(), 0, dataTime);
-                            LOGGER.info("send bid {} with message size {}, the job id is {}, read file is {}"
-                                    + "dataTime is {}", bid, result.getRight().size(),
+                            LOGGER.info("send group id {} with message size {}, the job id is {}, read file is {}"
+                                    + "dataTime is {}", inlongStreamId, result.getRight().size(),
                                 jobInstanceId, sourceFile, dataTime);
                         }
 
@@ -160,28 +160,28 @@ public class ProxySink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         maxBatchSize = jobConf.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
-        maxQueueNumber = jobConf.getInt(PROXY_TID_QUEUE_MAX_NUMBER,
-            DEFAULT_PROXY_TID_QUEUE_MAX_NUMBER);
+        maxQueueNumber = jobConf.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,
+            DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);
         maxBatchTimeoutMs = jobConf.getInt(
             PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
         jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
         batchFlushInterval = jobConf.getInt(PROXY_BATCH_FLUSH_INTERVAL,
             DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
         cache = new ConcurrentHashMap<>(10);
-        bid = jobConf.get(PROXY_BID);
+        inlongStreamId = jobConf.get(PROXY_INLONG_GROUP_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
             jobConf.get(JOB_CYCLE_UNIT, ""));
-        bid = jobConf.get(PROXY_BID);
-        tid = jobConf.get(PROXY_TID, "");
+        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
+        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
         messageFilter = initMessageFilter(jobConf);
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
             StandardCharsets.UTF_8);
         executorService.execute(flushCache());
-        senderManager = new SenderManager(jobConf, bid, sourceFile);
+        senderManager = new SenderManager(jobConf, inlongStreamId, sourceFile);
         try {
             senderManager.addMessageSender();
         } catch (Exception ex) {
-            LOGGER.error("error while init sender for bid {}", bid);
+            LOGGER.error("error while init sender for group id {}", inlongStreamId);
             throw new IllegalStateException(ex);
         }
     }
@@ -214,7 +214,7 @@ public class ProxySink extends AbstractSink {
     }
 
     /**
-     * check whether all tid messages finished
+     * check whether all stream id messages finished
      * @return
      */
     private boolean sinkFinish() {
