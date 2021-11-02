@@ -38,7 +38,7 @@ public interface Sink extends Stage {
     void setSourceFile(String sourceFileName);
 
     /**
-     * every sink should include a message filter to filter out tid
+     * every sink should include a message filter to filter out stream id
      */
     MessageFilter initMessageFilter(JobProfile jobConf);
 }

@@ -51,7 +51,7 @@ public class SenderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     private static final AtomicInteger SENDER_INDEX = new AtomicInteger(0);
-    // cache for bid and sender list, share the map cross agent lifecycle.
+    // cache for group and sender list, share the map cross agent lifecycle.
     private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
             new ConcurrentHashMap<>();
 
@@ -79,13 +79,13 @@ public class SenderManager {
     private final long maxSenderTimeout;
     private final int maxSenderRetry;
     private final long retrySleepTime;
-    private final String bid;
+    private final String inlongGroupId;
     private TaskPositionManager taskPositionManager;
-    private final int maxSenderPerBid;
+    private final int maxSenderPerGroup;
     private final String sourceFilePath;
     private final PluginMetric metric = new PluginMetric();
 
-    public SenderManager(JobProfile jobConf, String bid, String sourceFilePath) {
+    public SenderManager(JobProfile jobConf, String inlongGroupId, String sourceFilePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         managerHost = conf.get(AGENT_MANAGER_VIP_HTTP_HOST);
         managerPort = conf.getInt(AGENT_MANAGER_VIP_HTTP_PORT);
@@ -101,8 +101,8 @@ public class SenderManager {
                     CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
         isCompress = jobConf.getBoolean(
             CommonConstants.PROXY_IS_COMPRESS, CommonConstants.DEFAULT_PROXY_IS_COMPRESS);
-        maxSenderPerBid = jobConf.getInt(
-            CommonConstants.PROXY_MAX_SENDER_PER_BID, CommonConstants.DEFAULT_PROXY_MAX_SENDER_PER_PID);
+        maxSenderPerGroup = jobConf.getInt(
+            CommonConstants.PROXY_MAX_SENDER_PER_GROUP, CommonConstants.DEFAULT_PROXY_MAX_SENDER_PER_GROUP);
         msgType = jobConf.getInt(CommonConstants.PROXY_MSG_TYPE, CommonConstants.DEFAULT_PROXY_MSG_TYPE);
         maxSenderTimeout = jobConf.getInt(
             CommonConstants.PROXY_SENDER_MAX_TIMEOUT, CommonConstants.DEFAULT_PROXY_SENDER_MAX_TIMEOUT);
@@ -113,30 +113,30 @@ public class SenderManager {
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
         this.sourceFilePath = sourceFilePath;
-        this.bid = bid;
+        this.inlongGroupId = inlongGroupId;
     }
 
     /**
-     * Select by bid.
+     * Select by group.
      *
-     * @param bid - business id
+     * @param group - inlong group id
      * @return default message sender
      */
-    private DefaultMessageSender selectSender(String bid) {
-        List<DefaultMessageSender> senderList = SENDER_MAP.get(bid);
+    private DefaultMessageSender selectSender(String group) {
+        List<DefaultMessageSender> senderList = SENDER_MAP.get(group);
         return senderList.get((SENDER_INDEX.getAndIncrement() & 0x7FFFFFFF) % senderList.size());
     }
 
     /**
      * sender
      *
-     * @param bid - business id
+     * @param groupId - group id
      * @return DefaultMessageSender
      */
-    private DefaultMessageSender createMessageSender(String bid) throws Exception {
+    private DefaultMessageSender createMessageSender(String groupId) throws Exception {
 
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, bid, netTag);
+                localhost, isLocalVisit, managerHost, managerPort, groupId, netTag);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
@@ -148,19 +148,19 @@ public class SenderManager {
     }
 
     /**
-     * Add new sender for bid if max size is not satisfied.
+     * Add new sender for group id if max size is not satisfied.
      *
      */
     public void addMessageSender() throws Exception {
         List<DefaultMessageSender> tmpList = new ArrayList<>();
-        List<DefaultMessageSender> senderList = SENDER_MAP.putIfAbsent(bid, tmpList);
+        List<DefaultMessageSender> senderList = SENDER_MAP.putIfAbsent(inlongGroupId, tmpList);
         if (senderList == null) {
             senderList = tmpList;
         }
-        if (senderList.size() > maxSenderPerBid) {
+        if (senderList.size() > maxSenderPerGroup) {
             return;
         }
-        DefaultMessageSender sender = createMessageSender(bid);
+        DefaultMessageSender sender = createMessageSender(inlongGroupId);
         senderList.add(sender);
     }
 
@@ -169,17 +169,17 @@ public class SenderManager {
      */
     private class AgentSenderCallback implements SendMessageCallback {
         private final int retry;
-        private final String bid;
+        private final String groupId;
         private final List<byte[]> bodyList;
-        private final String tid;
+        private final String streamId;
         private final long dataTime;
         private final String jobId;
 
-        AgentSenderCallback(String jobId, String bid, String tid, List<byte[]> bodyList, int retry,
+        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
             long dataTime) {
             this.retry = retry;
-            this.bid = bid;
-            this.tid = tid;
+            this.groupId = groupId;
+            this.streamId = streamId;
             this.bodyList = bodyList;
             this.jobId = jobId;
             this.dataTime = dataTime;
@@ -189,9 +189,9 @@ public class SenderManager {
         public void onMessageAck(SendResult result) {
             // if send result is not ok, retry again.
             if (result == null || !result.equals(SendResult.OK)) {
-                LOGGER.warn("send bid {}, tid {}, jobId {}, dataTime {} fail with times {}",
-                    bid, tid, jobId, dataTime, retry);
-                sendBatch(jobId, bid, tid, bodyList, retry + 1, dataTime);
+                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}",
+                    groupId, streamId, jobId, dataTime, retry);
+                sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
             metric.sendSuccessNum.incr(bodyList.size());
@@ -207,21 +207,21 @@ public class SenderManager {
     /**
      * Send message to proxy by batch, use message cache.
      *
-     * @param bid - bid
-     * @param tid - tid
+     * @param groupId - groupId
+     * @param streamId - streamId
      * @param bodyList - body list
      * @param retry - retry time
      */
-    public void sendBatch(String jobId, String bid, String tid,
+    public void sendBatch(String jobId, String groupId, String streamId,
         List<byte[]> bodyList, int retry, long dataTime) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         try {
-            selectSender(bid).asyncSendMessage(
-                    new AgentSenderCallback(jobId, bid, tid, bodyList, retry, dataTime),
-                    bodyList, bid, tid,
+            selectSender(groupId).asyncSendMessage(
+                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime),
+                    bodyList, groupId, streamId,
                     dataTime,
                     SEQUENTIAL_ID.getNextUuid(),
                     maxSenderTimeout,
@@ -232,7 +232,7 @@ public class SenderManager {
             // retry time
             try {
                 TimeUnit.SECONDS.sleep(1);
-                sendBatch(jobId, bid, tid, bodyList, retry + 1, dataTime);
+                sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
             } catch (Exception ignored) {
                 // ignore it.
             }

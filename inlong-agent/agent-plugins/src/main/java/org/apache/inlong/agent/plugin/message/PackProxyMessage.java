@@ -27,13 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handle List of BusMessage, which belong to the same tid.
+ * Handle List of BusMessage, which belong to the same stream id.
  */
 public class PackProxyMessage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackProxyMessage.class);
 
-    private final String tid;
+    private final String streamId;
 
     private int currentSize;
 
@@ -43,7 +43,7 @@ public class PackProxyMessage {
     // ms
     private final int cacheTimeout;
 
-    // tid -> list of proxyMessage
+    // streamId -> list of proxyMessage
     private final LinkedBlockingQueue<ProxyMessage> messageQueue;
 
     private volatile long currentCacheTime = System.currentTimeMillis();
@@ -52,17 +52,17 @@ public class PackProxyMessage {
     /**
      * Init PackBusMessage
      *
-     * @param maxPackSize - max pack size for one bid
+     * @param maxPackSize - max pack size for one inlongGroupId
      * @param cacheTimeout - cache timeout for one proxy message
-     * @param tid - tid
+     * @param streamId - streamId
      */
-    public PackProxyMessage(int maxPackSize, int maxQueueNumber, int cacheTimeout, String tid) {
+    public PackProxyMessage(int maxPackSize, int maxQueueNumber, int cacheTimeout, String streamId) {
         this.maxPackSize = maxPackSize;
         this.maxQueueNumber = maxPackSize * 10;
         this.cacheTimeout = cacheTimeout;
         // double size of package
         this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
-        this.tid = tid;
+        this.streamId = streamId;
     }
 
     /**
@@ -75,10 +75,10 @@ public class PackProxyMessage {
     }
 
     /**
-     * Add proxy message to cache, proxy message should belong to the same tid.
+     * Add proxy message to cache, proxy message should belong to the same stream id.
      */
     public void addProxyMessage(ProxyMessage message) {
-        assert tid.equals(message.getTid());
+        assert streamId.equals(message.getInlongStreamId());
         try {
             if (queueIsFull()) {
                 LOGGER.warn("message queue is greater than {}, stop adding message, "
@@ -103,7 +103,7 @@ public class PackProxyMessage {
     /**
      * Fetch batch of proxy message, timeout message or max number of list satisfied.
      *
-     * @return map of message list, key is tid for the batch.
+     * @return map of message list, key is stream id for the batch.
      * return null if there are no valid messages.
      */
     public Pair<String, List<byte[]>> fetchBatch() {
@@ -133,7 +133,7 @@ public class PackProxyMessage {
             }
             // make sure result is not empty.
             if (!result.isEmpty()) {
-                return Pair.of(tid, result);
+                return Pair.of(streamId, result);
             }
         }
         return null;

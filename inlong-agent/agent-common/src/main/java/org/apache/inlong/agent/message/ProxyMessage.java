@@ -21,22 +21,22 @@ import java.util.Map;
 import org.apache.inlong.agent.plugin.Message;
 
 /**
- * Bus message with body, header, bid and tid.
+ * Bus message with body, header, inlongGroupId and inlongStreamId.
  */
 public class ProxyMessage implements Message {
 
-    private static final String DEFAULT_TID = "__";
+    private static final String DEFAULT_INLONG_STREAM_ID = "__";
 
     private final byte[] body;
     private final Map<String, String> header;
-    private final String bid;
-    private final String tid;
+    private final String inlongGroupId;
+    private final String inlongStreamId;
 
     public ProxyMessage(byte[] body, Map<String, String> header) {
         this.body = body;
         this.header = header;
-        this.bid = header.get("bid");
-        this.tid = header.getOrDefault("tid", DEFAULT_TID);
+        this.inlongGroupId = header.get("inlongGroupId");
+        this.inlongStreamId = header.getOrDefault("inlongStreamId", DEFAULT_INLONG_STREAM_ID);
     }
 
     /**
@@ -59,12 +59,12 @@ public class ProxyMessage implements Message {
         return header;
     }
 
-    public String getBid() {
-        return bid;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
-    public String getTid() {
-        return tid;
+    public String getInlongStreamId() {
+        return inlongStreamId;
     }
 
     public static ProxyMessage parse(Message message) {

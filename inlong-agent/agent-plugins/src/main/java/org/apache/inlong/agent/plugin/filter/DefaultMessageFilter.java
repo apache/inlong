@@ -22,17 +22,17 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.ByteUtil;
 
 /**
- * filter message to get tid
- * use the first word to set tid string
+ * filter message to get stream id
+ * use the first word to set stream id string
  */
 public class DefaultMessageFilter implements MessageFilter {
 
-    public static final int TID_INDEX = 0;
+    public static final int STREAM_INDEX = 0;
     public static final int FIELDS_LIMIT = 2;
 
     @Override
-    public String filterTid(Message message, byte[] fieldSplitter) {
+    public String filterStreamId(Message message, byte[] fieldSplitter) {
         byte[] body = message.getBody();
-        return new String(ByteUtil.split(body, fieldSplitter, FIELDS_LIMIT)[TID_INDEX]);
+        return new String(ByteUtil.split(body, fieldSplitter, FIELDS_LIMIT)[STREAM_INDEX]);
     }
 }

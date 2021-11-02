@@ -128,8 +128,8 @@ public class ManagerResultFormatter {
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
         manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
         manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
-        proxy.setBid(dataConfigs.getBusinessIdentifier());
-        proxy.setTid(dataConfigs.getDataStreamIdentifier());
+        proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
+        proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
         return proxy;
     }

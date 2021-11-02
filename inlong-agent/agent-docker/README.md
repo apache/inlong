@@ -35,8 +35,8 @@ curl --location --request POST 'http://localhost:8008/config/job' \
 "channel": "org.apache.inlong.agent.plugin.channel.MemoryChannel"
 },
 "proxy": {
-"bid": "bid10",
-"tid": "bid10"
+"inlongGroupId": "group10",
+"inlongStreamId": "group10"
 },
 "op": "add"
 }'
@@ -48,5 +48,5 @@ The meaning of each parameter is ：
 - job.trigger: Trigger name, the default is DirectoryTrigger, the function is to monitor the files under the folder to generate events
 - job.source: The type of data source used, the default is TextFileSource, which reads text files
 - job.sink：The type of writer used, the default is ProxySink, which sends messages to the proxy
-- proxy.bid: The bid type used when writing proxy
-- proxy.tid: The tid type used when writing proxy
+- proxy.inlongGroupId: The inlongGroupId used when writing proxy
+- proxy.inlongStreamId: The inlongStreamId used when writing proxy

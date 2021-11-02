@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestTidFilter {
+public class TestStreamIdFilter {
 
     private static AgentBaseTestsHelper helper;
     private static Path testPath;
@@ -50,12 +50,12 @@ public class TestTidFilter {
     }
 
     @Test
-    public void testFilterTid() {
+    public void testStreamId() {
         DefaultMessageFilter messageFilter = new DefaultMessageFilter();
-        ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
+        ProxyMessage proxyMessage = new ProxyMessage("streamId|this is a line of file".getBytes(
             StandardCharsets.UTF_8), new HashMap<>());
-        String s = messageFilter.filterTid(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
-        Assert.assertEquals(s, "tid");
+        String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
+        Assert.assertEquals(s, "streamId");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestTidFilter {
         MessageFilter messageFilter = sinkTest.initMessageFilter(jobProfile);
         ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
             StandardCharsets.UTF_8), new HashMap<>());
-        String s = messageFilter.filterTid(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
+        String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "tid");
     }
 

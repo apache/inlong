@@ -20,11 +20,11 @@ package org.apache.inlong.agent.plugin;
 public interface MessageFilter {
 
     /**
-     * split a message to get tid string
-     * used when the file is separated with different tid
+     * split a message to get stream id string
+     * used when the file is separated with different steam id
      * @param message the input message
      * @param fieldSplitter fieldSplitter used when split a line
      * @return
      */
-    String filterTid(Message message, byte[] fieldSplitter);
+    String filterStreamId(Message message, byte[] fieldSplitter);
 }

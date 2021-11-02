@@ -22,9 +22,9 @@ import lombok.Data;
 @Data
 public class DataConfig {
     private String additionalAttr;
-    private String businessIdentifier;
+    private String inlongGroupId;
     private String dataName;
-    private String dataStreamIdentifier;
+    private String inlongStreamId;
     private String deliveryTime;
     private String fieldSplitter;
     private String cycleUnit;
