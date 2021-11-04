@@ -34,7 +34,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.dataproxy.config.RemoteConfigJson.DataItem;
-import org.apache.inlong.dataproxy.config.holder.BidPropertiesHolder;
+import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
@@ -57,8 +57,8 @@ public class ConfigManager {
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
-    private final BidPropertiesHolder bidConfig =
-            new BidPropertiesHolder("bid_mapping.properties");
+    private final GroupIdPropertiesHolder groupIdConfig =
+            new GroupIdPropertiesHolder("groupid_mapping.properties");
     private final PropertiesConfigHolder dcConfig =
             new PropertiesConfigHolder("dc_mapping.properties");
     private final PropertiesConfigHolder transferConfig =
@@ -168,16 +168,16 @@ public class ConfigManager {
         return mxConfig.getMxPropertiesMaps();
     }
 
-    public Map<String, String> getBidMappingProperties() {
-        return bidConfig.getBidMappingProperties();
+    public Map<String, String> getGroupIdMappingProperties() {
+        return groupIdConfig.getGroupIdMappingProperties();
     }
 
-    public Map<String, Map<String, String>> getTidMappingProperties() {
-        return bidConfig.getTidMappingProperties();
+    public Map<String, Map<String, String>> getStreamIdMappingProperties() {
+        return groupIdConfig.getStreamIdMappingProperties();
     }
 
-    public Map<String, String> getBidEnableMappingProperties() {
-        return bidConfig.getBidEnableMappingProperties();
+    public Map<String, String> getGroupIdEnableMappingProperties() {
+        return groupIdConfig.getGroupIdEnableMappingProperties();
     }
 
     public Map<String, String> getCommonProperties() {
@@ -258,19 +258,19 @@ public class ConfigManager {
                 // request with post
                 CloseableHttpResponse response = httpClient.execute(httpGet);
                 String returnStr = EntityUtils.toString(response.getEntity());
-                // get bid <-> topic and m value.
+                // get groupId <-> topic and m value.
 
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
-                Map<String, String> bidToTopic = new HashMap<String, String>();
-                Map<String, String> bidToMValue = new HashMap<String, String>();
+                Map<String, String> groupIdToTopic = new HashMap<String, String>();
+                Map<String, String> groupIdToMValue = new HashMap<String, String>();
 
                 if (configJson.getErrCode() == 0) {
                     for (DataItem item : configJson.getData()) {
-                        bidToMValue.put(item.getBid(), item.getM());
-                        bidToTopic.put(item.getBid(), item.getTopic());
+                        groupIdToMValue.put(item.getGroupId(), item.getM());
+                        groupIdToTopic.put(item.getGroupId(), item.getTopic());
                     }
-                    configManager.addMxProperties(bidToMValue);
-                    configManager.addTopicProperties(bidToTopic);
+                    configManager.addMxProperties(groupIdToMValue);
+                    configManager.addTopicProperties(groupIdToTopic);
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);

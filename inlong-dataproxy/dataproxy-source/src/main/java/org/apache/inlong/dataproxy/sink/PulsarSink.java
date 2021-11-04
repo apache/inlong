@@ -413,16 +413,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     private void editStatistic(final Event event, String keyPostfix, String msgId) {
         String topic = "";
-        String tid = "";
+        String streamId = "";
         String nodeIp = null;
         if (event != null) {
             if (event.getHeaders().containsKey(TOPIC)) {
                 topic = event.getHeaders().get(TOPIC);
             }
             if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                tid = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+                streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
             } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                tid = event.getHeaders().get(AttributeConstants.INAME);
+                streamId = event.getHeaders().get(AttributeConstants.INAME);
             }
 
             /*
@@ -459,12 +459,12 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     }
 
                     /*
-                     * SINK_INTF#metasink1#topic#tid#clientIp#busIP#pkgTime#successCnt#packcnt
+                     * SINK_INTF#metasink1#topic#streamId#clientIp#busIP#pkgTime#successCnt#packcnt
                      * #packsize#failCnt
                      */
                     StringBuilder newbase = new StringBuilder();
                     newbase.append(this.getName()).append(SEPARATOR).append(topic).append(SEPARATOR)
-                            .append(tid).append(SEPARATOR).append(nodeIp)
+                            .append(streamId).append(SEPARATOR).append(nodeIp)
                             .append(SEPARATOR).append(NetworkUtils.getLocalIp())
                             .append(SEPARATOR).append(msgId).append(SEPARATOR)
                             .append(event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));

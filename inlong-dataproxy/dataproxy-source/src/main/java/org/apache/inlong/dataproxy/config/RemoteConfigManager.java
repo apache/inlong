@@ -187,7 +187,7 @@ public class RemoteConfigManager implements IRepository {
             // request with get
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String returnStr = EntityUtils.toString(response.getEntity());
-            // get bid <-> topic and m value.
+            // get groupId <-> topic and m value.
 
             DataProxyConfigResponse proxyResponse = gson.fromJson(returnStr, DataProxyConfigResponse.class);
             if (!proxyResponse.isResult()) {

@@ -138,7 +138,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
     }
 
     public String toString() {
-        return "{\"version\":\"" + version + "\",\"public_key\":\"" + pubKey + "\",\"bid\":\"" + userName + "\"}";
+        return "{\"version\":\"" + version + "\",\"public_key\":\"" + pubKey + "\",\"groupId\":\"" + userName + "\"}";
     }
 
 }

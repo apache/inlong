@@ -22,26 +22,26 @@ import java.util.ArrayList;
 
 public class Event {
     private byte[] body;
-    private String bid;
-    private String tid;
+    private String groupId;
+    private String streamId;
     private long dt;
     private int tryTimes = 0;
     ArrayList<byte[]> bodylist = new ArrayList<byte[]>();
 
-    public Event(byte[] body, String bid, String tid, long dt) {
+    public Event(byte[] body, String groupId, String streamId, long dt) {
         super();
         this.body = body;
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.dt = dt;
         this.setTryTimes(0);
     }
 
-    public Event(ArrayList<byte[]> bodylist, String bid, String tid, long dt) {
+    public Event(ArrayList<byte[]> bodylist, String groupId, String streamId, long dt) {
         super();
         this.bodylist = bodylist;
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.dt = dt;
         this.setTryTimes(0);
     }
@@ -62,20 +62,20 @@ public class Event {
         this.body = body;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     public long getDt() {

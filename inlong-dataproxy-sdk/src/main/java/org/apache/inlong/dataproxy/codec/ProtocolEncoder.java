@@ -136,11 +136,11 @@ public class ProtocolEncoder extends OneToOneEncoder {
                     body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
                 }
             }
-            if (!object.isBidTransfer()) {
+            if (!object.isGroupIdTransfer()) {
                 if (Utils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
-                endAttr = (endAttr + "bid=" + object.getBid() + "&tid=" + object.getTid());
+                endAttr = (endAttr + "groupId=" + object.getGroupId() + "&streamId=" + object.getStreamId());
             }
             if (Utils.isNotBlank(object.getMsgUUID())) {
                 if (Utils.isNotBlank(endAttr)) {
@@ -159,12 +159,12 @@ public class ProtocolEncoder extends OneToOneEncoder {
             totalLength = totalLength + body.length + endAttr.getBytes("utf8").length;
             buf.writeInt(totalLength);
             buf.writeByte(msgType);
-            buf.writeShort(object.getBidNum());
-            buf.writeShort(object.getTidNum());
+            buf.writeShort(object.getGroupIdNum());
+            buf.writeShort(object.getStreamIdNum());
             String bitStr = object.isSupportLF() ? "1" : "0";
             bitStr += (object.getMessageKey().equals("minute")) ? "1" : "0";
             bitStr += (object.getMessageKey().equals("file")) ? "1" : "0";
-            bitStr += !object.isBidTransfer() ? "1" : "0";
+            bitStr += !object.isGroupIdTransfer() ? "1" : "0";
             bitStr += object.isReport() ? "1" : "0";
             bitStr += "0";
             buf.writeShort(Integer.parseInt(bitStr, 2));

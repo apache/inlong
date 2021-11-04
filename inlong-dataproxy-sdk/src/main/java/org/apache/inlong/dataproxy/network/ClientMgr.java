@@ -75,9 +75,9 @@ public class ClientMgr {
     private SendHBThread sendHBThread;
     private ProxyConfigManager ipManager;
 
-    private int bidNum = 0;
-    private String bid = "";
-    private Map<String, Integer> tidMap = new HashMap<String, Integer>();
+    private int groupIdNum = 0;
+    private String groupId = "";
+    private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
     private int loadThreshold;
     private int loadCycle = 0;
     private static final int[] weight = {
@@ -101,28 +101,28 @@ public class ClientMgr {
         this.loadThreshold = loadThreshold;
     }
 
-    public int getBidNum() {
-        return bidNum;
+    public int getGroupIdNum() {
+        return groupIdNum;
     }
 
-    public void setBidNum(int bidNum) {
-        this.bidNum = bidNum;
+    public void setGroupIdNum(int groupIdNum) {
+        this.groupIdNum = groupIdNum;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public Map<String, Integer> getTidMap() {
-        return tidMap;
+    public Map<String, Integer> getStreamIdMap() {
+        return streamIdMap;
     }
 
-    public void setTidMap(Map<String, Integer> tidMap) {
-        this.tidMap = tidMap;
+    public void setStreamIdMap(Map<String, Integer> streamIdMap) {
+        this.streamIdMap = streamIdMap;
     }
 
     public EncryptConfigEntry getEncryptConfigEntry() {
@@ -195,9 +195,9 @@ public class ClientMgr {
         /* ready to Start the thread which refreshes the proxy list. */
         ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
         ipManager.setName("proxyConfigManager");
-        if (configure.getBid() != null) {
-            ipManager.setBusinessId(configure.getBid());
-            bid = configure.getBid();
+        if (configure.getGroupId() != null) {
+            ipManager.setGroupId(configure.getGroupId());
+            groupId = configure.getGroupId();
         }
 
         /*
@@ -222,8 +222,8 @@ public class ClientMgr {
         this.sendHBThread.start();
     }
 
-    public ProxyConfigEntry getBidConfigureInfo() throws Exception {
-        return ipManager.getBidConfigure();
+    public ProxyConfigEntry getGroupIdConfigureInfo() throws Exception {
+        return ipManager.getGroupIdConfigure();
     }
 
     private boolean initConnection(HostInfo host) {

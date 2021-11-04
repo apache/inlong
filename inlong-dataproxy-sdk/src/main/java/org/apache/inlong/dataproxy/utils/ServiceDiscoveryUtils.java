@@ -224,7 +224,7 @@ public class ServiceDiscoveryUtils {
         try {
             File managerIpListFile = new File(managerIpLocalPath);
             if (!managerIpListFile.exists()) {
-                log.info("ServiceDiscovery no found local bidInfo file, "
+                log.info("ServiceDiscovery no found local groupIdInfo file, "
                         + "doesn't matter, path is [" + managerIpLocalPath + "].");
                 return null;
             }

@@ -255,8 +255,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                             + ";Connection info:" + channel.toString()));
         }
 
-        int bidNum = cb.readUnsignedShort();
-        int tidNum = cb.readUnsignedShort();
+        int groupIdNum = cb.readUnsignedShort();
+        int streamIdNum = cb.readUnsignedShort();
         final int extendField = cb.readUnsignedShort();
         long dataTime = cb.readUnsignedInt();
         int msgCount = cb.readUnsignedShort();
@@ -299,35 +299,35 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             ByteBuffer dataBuf = handleTrace(channel, cb, extendField, msgHeadPos,
                 totalDataLen, attrLen, strAttr, bodyLen);
 
-            String bid = null;
-            String tid = null;
+            String groupId = null;
+            String streamId = null;
 
-            if (commonAttrMap.containsKey(AttributeConstants.BUSINESS_ID)) {
-                bid = commonAttrMap.get(AttributeConstants.BUSINESS_ID);
+            if (commonAttrMap.containsKey(AttributeConstants.GROUP_ID)) {
+                groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
             }
             if (commonAttrMap.containsKey(AttributeConstants.INTERFACE_ID)) {
-                tid = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
+                streamId = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
             }
 
-            if ((bid != null) && (tid != null)) {
+            if ((groupId != null) && (streamId != null)) {
                 commonAttrMap.put(AttributeConstants.NUM2NAME, "FALSE");
                 dataBuf.putShort(BIN_MSG_EXTEND_OFFSET, (short) (extendField | 0x4));
             } else {
-                boolean hasNumBid = (((extendField & 0x4) >> 2) == 0x0);
-                if (hasNumBid && (0 != bidNum) && (0 != tidNum)) {
+                boolean hasNumGroupId = (((extendField & 0x4) >> 2) == 0x0);
+                if (hasNumGroupId && (0 != groupIdNum) && (0 != streamIdNum)) {
                     commonAttrMap.put(AttributeConstants.NUM2NAME, "TRUE");
-                    commonAttrMap.put(AttributeConstants.BID_NUM, String.valueOf(bidNum));
-                    commonAttrMap.put(AttributeConstants.TID_NUM, String.valueOf(tidNum));
+                    commonAttrMap.put(AttributeConstants.GROUPID_NUM, String.valueOf(groupIdNum));
+                    commonAttrMap.put(AttributeConstants.STREAMID_NUM, String.valueOf(streamIdNum));
                 }
             }
 
             if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType) && !index) {
                 List<ProxyMessage> msgList = new ArrayList<>(1);
-                msgList.add(new ProxyMessage(bid, tid, commonAttrMap, dataBuf.array()));
+                msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap, dataBuf.array()));
                 resultMap.put(ConfigConstants.MSG_LIST, msgList);
             } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
                 List<ProxyMessage> msgList = new ArrayList<>(1);
-                msgList.add(new ProxyMessage(bid, tid, commonAttrMap,
+                msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap,
                         (byte[]) resultMap.get(ConfigConstants.FILE_BODY)));
                 resultMap.put(ConfigConstants.MSG_LIST, msgList);
             }
@@ -411,8 +411,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
         // fill up attr map with some keys.
         commonAttrMap.put(AttributeConstants.RCV_TIME, String.valueOf(System.currentTimeMillis()));
-        String bid = commonAttrMap.get(AttributeConstants.BUSINESS_ID);
-        String tid = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
+        String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
+        String streamId = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
 
         // add message count attr
         String cntStr = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);
@@ -433,12 +433,12 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 byte[] record = new byte[singleMsgLen];
                 bodyBuffer.get(record);
 
-                ProxyMessage message = new ProxyMessage(bid, tid, commonAttrMap, record);
+                ProxyMessage message = new ProxyMessage(groupId, streamId, commonAttrMap, record);
                 msgList.add(message);
             }
         } else {
             msgList = new ArrayList<>(1);
-            msgList.add(new ProxyMessage(bid, tid, commonAttrMap, bodyData));
+            msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap, bodyData));
         }
         resultMap.put(ConfigConstants.MSG_LIST, msgList);
 

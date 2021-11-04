@@ -22,11 +22,11 @@ import java.util.Map;
 
 public class ProxyConfigEntry implements java.io.Serializable {
     private String clusterId;
-    private String bid;
+    private String groupId;
     private int size;
     private Map<String, HostInfo> hostMap;
-    private int bidNum;
-    private Map<String, Integer> tidNumMap;
+    private int groupIdNum;
+    private Map<String, Integer> streamIdNumMap;
     private int load;
     private int switchStat;
     private boolean isInterVisit;
@@ -39,17 +39,17 @@ public class ProxyConfigEntry implements java.io.Serializable {
         this.load = load;
     }
 
-    public int getBidNum() {
-        return bidNum;
+    public int getGroupIdNum() {
+        return groupIdNum;
     }
 
-    public Map<String, Integer> getTidNumMap() {
-        return tidNumMap;
+    public Map<String, Integer> getStreamIdNumMap() {
+        return streamIdNumMap;
     }
 
-    public void setBidNumAndTidNumMap(int bidNum, Map<String, Integer> tidNumMap) {
-        this.bidNum = bidNum;
-        this.tidNumMap = tidNumMap;
+    public void setGroupIdNumAndStreamIdNumMap(int groupIdNum, Map<String, Integer> streamIdNumMap) {
+        this.groupIdNum = groupIdNum;
+        this.streamIdNumMap = streamIdNumMap;
     }
 
     public int getSwitchStat() {
@@ -73,12 +73,12 @@ public class ProxyConfigEntry implements java.io.Serializable {
         return size;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public boolean isInterVisit() {
@@ -91,8 +91,9 @@ public class ProxyConfigEntry implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", bsn=" + bidNum + ", tsnMap=" + tidNumMap
-                + ", size=" + size + ", isInterVisit=" + isInterVisit + ", bid=" + bid
+        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", bsn="
+                + groupIdNum + ", tsnMap=" + streamIdNumMap
+                + ", size=" + size + ", isInterVisit=" + isInterVisit + ", groupId=" + groupId
                 + ", switch=" + switchStat + "]";
     }
 

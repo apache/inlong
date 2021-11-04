@@ -54,27 +54,27 @@ public class ConfigMessageServlet extends HttpServlet {
     }
 
     private boolean handleTopicConfig(RequestContent requestContent) {
-        Map<String, String> bidToTopic = new HashMap<String, String>();
+        Map<String, String> groupIdToTopic = new HashMap<String, String>();
         for (Map<String, String> item : requestContent.getContent()) {
-            bidToTopic.put(item.get("bid"), item.get("topic"));
+            groupIdToTopic.put(item.get("groupId"), item.get("topic"));
         }
         if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addTopicProperties(bidToTopic);
+            return configManager.addTopicProperties(groupIdToTopic);
         } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteTopicProperties(bidToTopic);
+            return configManager.deleteTopicProperties(groupIdToTopic);
         }
         return false;
     }
 
     private boolean handleMxConfig(RequestContent requestContent) {
-        Map<String, String> bidToMValue = new HashMap<String, String>();
+        Map<String, String> groupIdToMValue = new HashMap<String, String>();
         for (Map<String, String> item : requestContent.getContent()) {
-            bidToMValue.put(item.get("bid"), item.get("m"));
+            groupIdToMValue.put(item.get("groupId"), item.get("m"));
         }
         if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addMxProperties(bidToMValue);
+            return configManager.addMxProperties(groupIdToMValue);
         } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteMxProperties(bidToMValue);
+            return configManager.deleteMxProperties(groupIdToMValue);
         }
         return false;
     }

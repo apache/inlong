@@ -27,14 +27,15 @@ public class MessageRecord {
     private final long startTime;
     private final long dt;
 
-    private final String bid;
-    private final String tid;
+    private final String groupId;
+    private final String streamId;
     private final String localIp;
     private final long packTime;
 
-    public MessageRecord(String bid, String tid, String localIp, String msgId, long dt, long packTime, int msgCount) {
-        this.bid = bid;
-        this.tid = tid;
+    public MessageRecord(String groupId, String streamId, String localIp,
+                         String msgId, long dt, long packTime, int msgCount) {
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.localIp = localIp;
         this.msgUUID = msgId;
         this.msgCount = msgCount;
@@ -63,12 +64,12 @@ public class MessageRecord {
         return dt;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
     public String getLocalIp() {
