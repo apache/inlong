@@ -165,6 +165,15 @@ public final class MessagePullConsumerExample {
         Thread statisticThread =
                 new Thread(msgRecvStats, "Sent Statistic Thread");
         statisticThread.start();
+
+        // 7. Resource cleanup when exiting the service
+        //
+        // 7.1 shutdown consumers
+        // pullConsumer.shutdown();
+        // 7.2 shutdown session factory
+        // sessionFactory.shutdown();
+        // 7.3 shutdown statistic thread
+        // msgRecvStats.stopStats();
     }
 
 }

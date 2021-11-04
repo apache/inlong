@@ -29,9 +29,9 @@ public class MasterInfo {
 
     private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover =
             new HashMap<>();
-    private List<String> nodeHostPortList;
+    private final List<String> nodeHostPortList;
     private NodeAddrInfo firstNodeAddr = null;
-    private String masterClusterStr;
+    private final String masterClusterStr;
 
     /**
      * masterAddrInfo: "ip1:port,ip2:port"
@@ -70,9 +70,7 @@ public class MasterInfo {
             }
             int port = Integer.parseInt(hostPortItem[1].trim());
             NodeAddrInfo tmpNodeAddrInfo = new NodeAddrInfo(hostName, port);
-            if (addrMap4Failover.get(tmpNodeAddrInfo.getHostPortStr()) == null) {
-                addrMap4Failover.put(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
-            }
+            addrMap4Failover.putIfAbsent(tmpNodeAddrInfo.getHostPortStr(), tmpNodeAddrInfo);
             if (this.firstNodeAddr == null) {
                 this.firstNodeAddr = tmpNodeAddrInfo;
             }
