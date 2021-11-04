@@ -89,8 +89,8 @@ public class MetaSink extends AbstractSink implements Configurable {
     private static String MAX_TOPICS_EACH_PRODUCER_HOLD_NAME = "max-topic-each-producer-hold";
 
     private static final String LOG_TOPIC = "proxy-log-topic";
-    private static final String TID = "proxy-log-tid";
-    private static final String BID = "proxy-log-bid";
+    private static final String STREAMID = "proxy-log-streamid";
+    private static final String GROUPID = "proxy-log-groupid";
     private static final String SEND_REMOTE = "send-remote";
     private static final String topicsFilePath = "topics.properties";
     private static final String slaTopicFilePath = "slaTopics.properties";
@@ -104,8 +104,8 @@ public class MetaSink extends AbstractSink implements Configurable {
     private int maxSurvivedSize = 100000;
 
     private String proxyLogTopic = "teg_manager";
-    private String proxyLogBid = "b_teg_manager";
-    private String proxyLogTid = "proxy_measure_log";
+    private String proxyLogGroupId = "b_teg_manager";
+    private String proxyLogStreamId = "proxy_measure_log";
     private boolean sendRemote = false;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
@@ -371,13 +371,13 @@ public class MetaSink extends AbstractSink implements Configurable {
                 } else {
                     Message message = new Message(topic, event.getBody());
                     message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String tid = "";
+                    String streamId = "";
                     if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        tid = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
                     } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        tid = event.getHeaders().get(AttributeConstants.INAME);
+                        streamId = event.getHeaders().get(AttributeConstants.INAME);
                     }
-                    message.putSystemHeader(tid, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
 
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
@@ -399,13 +399,13 @@ public class MetaSink extends AbstractSink implements Configurable {
 
                     Message message = new Message(topic, event.getBody());
                     message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String tid = "";
+                    String streamId = "";
                     if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        tid = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
                     } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        tid = event.getHeaders().get(AttributeConstants.INAME);
+                        streamId = event.getHeaders().get(AttributeConstants.INAME);
                     }
-                    message.putSystemHeader(tid, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
 
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
@@ -700,8 +700,8 @@ public class MetaSink extends AbstractSink implements Configurable {
         }
         if (sendRemote) {
             proxyLogTopic = context.getString(LOG_TOPIC, proxyLogTopic);
-            proxyLogBid = context.getString(BID, proxyLogTid);
-            proxyLogTid = context.getString(TID, proxyLogTid);
+            proxyLogGroupId = context.getString(GROUPID, proxyLogStreamId);
+            proxyLogStreamId = context.getString(STREAMID, proxyLogStreamId);
         }
 
         resendQueue = new LinkedBlockingQueue<>(BAD_EVENT_QUEUE_SIZE);

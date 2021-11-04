@@ -155,13 +155,13 @@ public class PulsarClientService {
 
         Map<String, String> proMap = new HashMap<>();
         proMap.put("tdbusip", localIp);
-        String tid = "";
+        String streamId = "";
         if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-            tid = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+            streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
         } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-            tid = event.getHeaders().get(AttributeConstants.INAME);
+            streamId = event.getHeaders().get(AttributeConstants.INAME);
         }
-        proMap.put(tid, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+        proMap.put(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
         logger.debug("producer send msg!");
         TopicProducerInfo forCallBackP = producer;
         forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())

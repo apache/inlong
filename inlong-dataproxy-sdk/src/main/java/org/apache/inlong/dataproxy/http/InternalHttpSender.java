@@ -87,16 +87,16 @@ public class InternalHttpSender {
      * construct header
      *
      * @param bodies
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @return
      */
     private ArrayList<BasicNameValuePair> getHeaders(List<String> bodies,
-                                                     String bid, String tid, long dt) {
+                                                     String groupId, String streamId, long dt) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("bid", bid));
-        params.add(new BasicNameValuePair("tid", tid));
+        params.add(new BasicNameValuePair("groupId", groupId));
+        params.add(new BasicNameValuePair("streamId", streamId));
         params.add(new BasicNameValuePair("dt", String.valueOf(dt)));
         params.add(new BasicNameValuePair("body", StringUtils.join(bodies, "\n")));
         params.add(new BasicNameValuePair("cnt", String.valueOf(bodies.size())));
@@ -137,8 +137,8 @@ public class InternalHttpSender {
                         HttpMessage httpMessage = messageCache.poll();
                         if (httpMessage != null) {
                             SendResult result = sendMessageWithHostInfo(
-                                    httpMessage.getBodies(), httpMessage.getBid(),
-                                    httpMessage.getTid(), httpMessage.getDt(),
+                                    httpMessage.getBodies(), httpMessage.getGroupId(),
+                                    httpMessage.getStreamId(), httpMessage.getDt(),
                                     httpMessage.getTimeout(), httpMessage.getTimeUnit());
                             httpMessage.getCallback().onMessageAck(result);
                         }
@@ -168,8 +168,8 @@ public class InternalHttpSender {
      * send request by http
      *
      * @param bodies
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
@@ -177,7 +177,7 @@ public class InternalHttpSender {
      * @return
      * @throws Exception
      */
-    private SendResult sendByHttp(List<String> bodies, String bid, String tid, long dt,
+    private SendResult sendByHttp(List<String> bodies, String groupId, String streamId, long dt,
                                   long timeout, TimeUnit timeUnit, HostInfo hostInfo) throws Exception {
         HttpPost httpPost = null;
         CloseableHttpResponse response = null;
@@ -191,7 +191,7 @@ public class InternalHttpSender {
             httpPost = new HttpPost(url);
             httpPost.setHeader(HttpHeaders.CONNECTION, "close");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-            ArrayList<BasicNameValuePair> contents = getHeaders(bodies, bid, tid, dt);
+            ArrayList<BasicNameValuePair> contents = getHeaders(bodies, groupId, streamId, dt);
             String s = URLEncodedUtils.format(contents, StandardCharsets.UTF_8);
             logger.info("encode string is {}", s);
             httpPost.setEntity(new StringEntity(s));
@@ -233,21 +233,21 @@ public class InternalHttpSender {
      * send message with host info
      *
      * @param bodies
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
      * @return
      */
-    public SendResult sendMessageWithHostInfo(List<String> bodies, String bid, String tid, long dt,
+    public SendResult sendMessageWithHostInfo(List<String> bodies, String groupId, String streamId, long dt,
                                               long timeout, TimeUnit timeUnit) {
 
         List<HostInfo> randomHostList = getRandomHostInfo();
         Exception tmpException = null;
         for (HostInfo hostInfo : randomHostList) {
             try {
-                return sendByHttp(bodies, bid, tid, dt, timeout, timeUnit, hostInfo);
+                return sendByHttp(bodies, groupId, streamId, dt, timeout, timeUnit, hostInfo);
             } catch (Exception exception) {
                 tmpException = exception;
                 logger.debug("error while sending data, resending it", exception);

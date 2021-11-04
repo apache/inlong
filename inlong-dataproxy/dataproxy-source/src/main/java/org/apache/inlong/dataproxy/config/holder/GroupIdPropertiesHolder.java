@@ -25,21 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * bid to m value
+ * groupId to m value
  */
-public class BidPropertiesHolder extends PropertiesConfigHolder {
+public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BidPropertiesHolder.class);
-    private static final String BID_VALUE_SPLITTER = "#";
+    private static final Logger LOG = LoggerFactory.getLogger(GroupIdPropertiesHolder.class);
+    private static final String GROUPID_VALUE_SPLITTER = "#";
 
-    private Map<String, String> bidMappingProperties =
+    private Map<String, String> groupIdMappingProperties =
             new HashMap<String, String>();
-    private Map<String, Map<String, String>> tidMappingProperties =
+    private Map<String, Map<String, String>> streamIdMappingProperties =
             new HashMap<String, Map<String, String>>();
-    private Map<String, String> bidEnableMappingProperties =
+    private Map<String, String> groupIdEnableMappingProperties =
             new HashMap<String, String>();
 
-    public BidPropertiesHolder(String fileName) {
+    public GroupIdPropertiesHolder(String fileName) {
         super(fileName);
     }
 
@@ -47,41 +47,41 @@ public class BidPropertiesHolder extends PropertiesConfigHolder {
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();
         try {
-            Map<String, String> tmpBidMappingProperties =
+            Map<String, String> tmpGroupIdMappingProperties =
                     new HashMap<String, String>();
-            Map<String, Map<String, String>> tmpTidMappingProperties =
+            Map<String, Map<String, String>> tmpStreamIdMappingProperties =
                     new HashMap<String, Map<String, String>>();
-            Map<String, String> tmpBidEnableMappingProperties = new HashMap<String, String>();
+            Map<String, String> tmpGroupIdEnableMappingProperties = new HashMap<String, String>();
             for (Map.Entry<String, String> entry : super.getHolder().entrySet()) {
-                String[] sArray = StringUtils.split(entry.getKey(), BID_VALUE_SPLITTER);
+                String[] sArray = StringUtils.split(entry.getKey(), GROUPID_VALUE_SPLITTER);
                 if (sArray.length != 3) {
-                    LOG.warn("invalid bid key {}", entry.getKey());
+                    LOG.warn("invalid groupId key {}", entry.getKey());
                     continue;
                 }
-                tmpBidMappingProperties.put(sArray[0].trim(), sArray[1].trim());
-                tmpBidEnableMappingProperties.put(sArray[0].trim(), sArray[2].trim());
+                tmpGroupIdMappingProperties.put(sArray[0].trim(), sArray[1].trim());
+                tmpGroupIdEnableMappingProperties.put(sArray[0].trim(), sArray[2].trim());
                 if (StringUtils.isNotBlank(entry.getValue())) {
-                    tmpTidMappingProperties.put(sArray[0].trim(),
+                    tmpStreamIdMappingProperties.put(sArray[0].trim(),
                             MAP_SPLITTER.split(entry.getValue()));
                 }
             }
-            bidMappingProperties = tmpBidMappingProperties;
-            tidMappingProperties = tmpTidMappingProperties;
-            bidEnableMappingProperties = tmpBidEnableMappingProperties;
+            groupIdMappingProperties = tmpGroupIdMappingProperties;
+            streamIdMappingProperties = tmpStreamIdMappingProperties;
+            groupIdEnableMappingProperties = tmpGroupIdEnableMappingProperties;
         } catch (Exception e) {
             LOG.error("loadConfig error :", e);
         }
     }
 
-    public Map<String, String> getBidMappingProperties() {
-        return bidMappingProperties;
+    public Map<String, String> getGroupIdMappingProperties() {
+        return groupIdMappingProperties;
     }
 
-    public Map<String, Map<String, String>> getTidMappingProperties() {
-        return tidMappingProperties;
+    public Map<String, Map<String, String>> getStreamIdMappingProperties() {
+        return streamIdMappingProperties;
     }
 
-    public Map<String, String> getBidEnableMappingProperties() {
-        return bidEnableMappingProperties;
+    public Map<String, String> getGroupIdEnableMappingProperties() {
+        return groupIdEnableMappingProperties;
     }
 }

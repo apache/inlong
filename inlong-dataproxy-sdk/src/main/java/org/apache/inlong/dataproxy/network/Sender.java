@@ -77,7 +77,7 @@ public class Sender {
         this.clientMgr = new ClientMgr(configure, this, selfDefineFactory);
         ProxyConfigEntry proxyConfigEntry = null;
         try {
-            proxyConfigEntry = this.clientMgr.getBidConfigureInfo();
+            proxyConfigEntry = this.clientMgr.getGroupIdConfigureInfo();
             setClusterId(proxyConfigEntry.getClusterId());
         } catch (Throwable e) {
             if (configure.isReadProxyIPFromLocal()) {
@@ -186,17 +186,17 @@ public class Sender {
             return SendResult.INVALID_ATTRIBUTES;
         }
         if (encodeObject.getMsgtype() == 7) {
-            int bidnum = 0;
-            int tidnum = 0;
-            if (encodeObject.getBid().equals(clientMgr.getBid())) {
-                bidnum = clientMgr.getBidNum();
-                tidnum = clientMgr.getTidMap().get(encodeObject.getTid()) != null
-                    ? clientMgr.getTidMap().get(encodeObject.getTid()) : 0;
+            int groupIdnum = 0;
+            int streamIdnum = 0;
+            if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
+                groupIdnum = clientMgr.getGroupIdNum();
+                streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
+                    ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
             }
-            encodeObject.setBidNum(bidnum);
-            encodeObject.setTidNum(tidnum);
-            if (bidnum == 0 || tidnum == 0) {
-                encodeObject.setBidTransfer(false);
+            encodeObject.setGroupIdNum(groupIdnum);
+            encodeObject.setStreamIdNum(streamIdnum);
+            if (groupIdnum == 0 || streamIdnum == 0) {
+                encodeObject.setGroupIdTransfer(false);
             }
         }
         if (this.configure.isNeedDataEncry()) {
@@ -216,7 +216,7 @@ public class Sender {
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
                                       long timeout, TimeUnit timeUnit) {
         metricWorker.recordNumByKey(encodeObject.getMessageId(),
-                encodeObject.getBid(), encodeObject.getTid(),
+                encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
         NettyClient client = null;
         SendResult message = null;
@@ -277,17 +277,17 @@ public class Sender {
         }
 
         if (encodeObject.getMsgtype() == 7) {
-            int bidnum = 0;
-            int tidnum = 0;
-            if (encodeObject.getBid().equals(clientMgr.getBid())) {
-                bidnum = clientMgr.getBidNum();
-                tidnum = clientMgr.getTidMap().get(encodeObject.getTid()) != null
-                    ? clientMgr.getTidMap().get(encodeObject.getTid()) : 0;
+            int groupIdnum = 0;
+            int streamIdnum = 0;
+            if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
+                groupIdnum = clientMgr.getGroupIdNum();
+                streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
+                    ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
             }
-            encodeObject.setBidNum(bidnum);
-            encodeObject.setTidNum(tidnum);
-            if (bidnum == 0 || tidnum == 0) {
-                encodeObject.setBidTransfer(false);
+            encodeObject.setGroupIdNum(groupIdnum);
+            encodeObject.setStreamIdNum(streamIdnum);
+            if (groupIdnum == 0 || streamIdnum == 0) {
+                encodeObject.setGroupIdTransfer(false);
             }
         }
         if (this.configure.isNeedDataEncry()) {
@@ -425,17 +425,17 @@ public class Sender {
         msgQueueMap.put(encodeObject.getMessageId(), new QueueObject(System.currentTimeMillis(),
                 callback, size, timeout, timeUnit));
         if (encodeObject.getMsgtype() == 7) {
-            int bidnum = 0;
-            int tidnum = 0;
-            if ((clientMgr.getBid().length() != 0) && (encodeObject.getBid().equals(clientMgr.getBid()))) {
-                bidnum = clientMgr.getBidNum();
-                tidnum = (clientMgr.getTidMap().get(encodeObject.getTid()) != null)
-                        ? clientMgr.getTidMap().get(encodeObject.getTid()) : 0;
+            int groupIdnum = 0;
+            int streamIdnum = 0;
+            if ((clientMgr.getGroupId().length() != 0) && (encodeObject.getGroupId().equals(clientMgr.getGroupId()))) {
+                groupIdnum = clientMgr.getGroupIdNum();
+                streamIdnum = (clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null)
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
             }
-            encodeObject.setBidNum(bidnum);
-            encodeObject.setTidNum(tidnum);
-            if (bidnum == 0 || tidnum == 0) {
-                encodeObject.setBidTransfer(false);
+            encodeObject.setGroupIdNum(groupIdnum);
+            encodeObject.setStreamIdNum(streamIdnum);
+            if (groupIdnum == 0 || streamIdnum == 0) {
+                encodeObject.setGroupIdTransfer(false);
             }
         }
         if (this.configure.isNeedDataEncry()) {
@@ -495,8 +495,8 @@ public class Sender {
     public void asyncSendMessage(EncodeObject encodeObject,
                                  SendMessageCallback callback, String msgUUID,
                                  long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getBid(),
-                encodeObject.getTid(), Utils.getLocalIp(), encodeObject.getPackageTime(),
+        metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
+                encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
 
         // send message package time
@@ -546,17 +546,17 @@ public class Sender {
             logger.warn("message id {} has existed.", encodeObject.getMessageId());
         }
         if (encodeObject.getMsgtype() == 7) {
-            int bidnum = 0;
-            int tidnum = 0;
-            if ((clientMgr.getBid().length() != 0) && (encodeObject.getBid().equals(clientMgr.getBid()))) {
-                bidnum = clientMgr.getBidNum();
-                tidnum = (clientMgr.getTidMap().get(encodeObject.getTid()) != null) ? clientMgr
-                        .getTidMap().get(encodeObject.getTid()) : 0;
+            int groupIdnum = 0;
+            int streamIdnum = 0;
+            if ((clientMgr.getGroupId().length() != 0) && (encodeObject.getGroupId().equals(clientMgr.getGroupId()))) {
+                groupIdnum = clientMgr.getGroupIdNum();
+                streamIdnum = (clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null) ? clientMgr
+                        .getStreamIdMap().get(encodeObject.getStreamId()) : 0;
             }
-            encodeObject.setBidNum(bidnum);
-            encodeObject.setTidNum(tidnum);
-            if (bidnum == 0 || tidnum == 0) {
-                encodeObject.setBidTransfer(false);
+            encodeObject.setGroupIdNum(groupIdnum);
+            encodeObject.setStreamIdNum(streamIdnum);
+            if (groupIdnum == 0 || streamIdnum == 0) {
+                encodeObject.setGroupIdTransfer(false);
             }
         }
         if (this.configure.isNeedDataEncry()) {

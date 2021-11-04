@@ -23,28 +23,28 @@ import org.apache.inlong.dataproxy.consts.AttributeConstants;
 
 public class ProxyMessage {
 
-    private String bid;
+    private String groupId;
     private String topic;
-    private String tid;
+    private String streamId;
 
     private Map<String, String> attributeMap;
 
     private byte[] data;
 
-    public ProxyMessage(String bid, String tid, Map<String, String> attributeMap, byte[] data) {
-        this.bid = bid;
-        this.tid = tid;
+    public ProxyMessage(String groupId, String streamId, Map<String, String> attributeMap, byte[] data) {
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.attributeMap = attributeMap;
         this.data = data;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
-        this.attributeMap.put(AttributeConstants.BUSINESS_ID, bid);
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+        this.attributeMap.put(AttributeConstants.GROUP_ID, groupId);
     }
 
     public String getTopic() {
@@ -55,13 +55,13 @@ public class ProxyMessage {
         this.topic = topic;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
-        this.attributeMap.put(AttributeConstants.INTERFACE_ID, tid);
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
+        this.attributeMap.put(AttributeConstants.INTERFACE_ID, streamId);
     }
 
     public Map<String, String> getAttributeMap() {

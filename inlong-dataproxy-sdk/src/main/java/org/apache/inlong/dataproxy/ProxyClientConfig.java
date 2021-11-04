@@ -37,7 +37,7 @@ public class ProxyClientConfig {
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String netTag;
-    private String bid;
+    private String groupId;
     private boolean isFile = false;
     private boolean isLocalVisit = true;
     private boolean isNeedDataEncry = false;
@@ -77,10 +77,10 @@ public class ProxyClientConfig {
     private boolean cleanHttpCacheWhenClosing = false;
 
     // config for metric collector
-    // whether use bid as key for metric, default is true
-    private boolean useBidAsKey = true;
-    // whether use tid as key for metric, default is true
-    private boolean useTidAsKey = true;
+    // whether use groupId as key for metric, default is true
+    private boolean useGroupIdAsKey = true;
+    // whether use StreamId as key for metric, default is true
+    private boolean useStreamIdAsKey = true;
     // whether use localIp as key for metric, default is true
     private boolean useLocalIpAsKey = true;
     // metric collection interval, default is 1 mins in milliseconds.
@@ -88,12 +88,12 @@ public class ProxyClientConfig {
     // max cache time for proxy config.
     private long maxProxyCacheTimeInMs = 30 * 60 * 1000;
 
-    // metric bid
-    private String metricBid = "inlong_sla_metric";
+    // metric groupId
+    private String metricGroupId = "inlong_sla_metric";
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-                           int managerPort, String bid, String netTag) throws ProxysdkException {
+                           int managerPort, String groupId, String netTag) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -101,7 +101,7 @@ public class ProxyClientConfig {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
         this.proxyIPServiceURL = "http://" + managerIp + ":" + managerPort + "/api/inlong/manager/openapi/dataproxy/getIpList";
-        this.bid = bid;
+        this.groupId = groupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
         this.managerPort = managerPort;
@@ -137,12 +137,12 @@ public class ProxyClientConfig {
         isFile = file;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public int getManagerPort() {
@@ -369,20 +369,20 @@ public class ProxyClientConfig {
         this.cleanHttpCacheWhenClosing = cleanHttpCacheWhenClosing;
     }
 
-    public boolean isUseBidAsKey() {
-        return useBidAsKey;
+    public boolean isUseGroupIdAsKey() {
+        return useGroupIdAsKey;
     }
 
-    public void setUseBidAsKey(boolean useBidAsKey) {
-        this.useBidAsKey = useBidAsKey;
+    public void setUseGroupIdAsKey(boolean useGroupIdAsKey) {
+        this.useGroupIdAsKey = useGroupIdAsKey;
     }
 
-    public boolean isUseTidAsKey() {
-        return useTidAsKey;
+    public boolean isUseStreamIdAsKey() {
+        return useStreamIdAsKey;
     }
 
-    public void setUseTidAsKey(boolean useTidAsKey) {
-        this.useTidAsKey = useTidAsKey;
+    public void setUseStreamIdAsKey(boolean useStreamIdAsKey) {
+        this.useStreamIdAsKey = useStreamIdAsKey;
     }
 
     public boolean isUseLocalIpAsKey() {
@@ -401,12 +401,12 @@ public class ProxyClientConfig {
         this.metricIntervalInMs = metricIntervalInMs;
     }
 
-    public String getMetricBid() {
-        return metricBid;
+    public String getMetricGroupId() {
+        return metricGroupId;
     }
 
-    public void setMetricBid(String metricBid) {
-        this.metricBid = metricBid;
+    public void setMetricGroupId(String metricGroupId) {
+        this.metricGroupId = metricGroupId;
     }
 
     public long getMaxProxyCacheTimeInMs() {

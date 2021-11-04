@@ -70,7 +70,7 @@ public class HttpProxySender extends Thread {
         try {
             proxyConfigManager = new ProxyConfigManager(configure,
                     Utils.getLocalIp(), null);
-            proxyConfigManager.setBusinessId(configure.getBid());
+            proxyConfigManager.setGroupId(configure.getGroupId());
             ProxyConfigEntry proxyConfigEntry = retryGettingProxyConfig();
             hostList.addAll(proxyConfigEntry.getHostMap().values());
 
@@ -92,7 +92,7 @@ public class HttpProxySender extends Thread {
      * @return proxy config entry.
      */
     private ProxyConfigEntry retryGettingProxyConfig() throws Exception {
-        return proxyConfigManager.getBidConfigure();
+        return proxyConfigManager.getGroupIdConfigure();
     }
 
     /**
@@ -106,7 +106,7 @@ public class HttpProxySender extends Thread {
                 int randSleepTime = proxyClientConfig.getProxyHttpUpdateIntervalMinutes() * 60 + rand;
                 TimeUnit.MILLISECONDS.sleep(randSleepTime * 1000);
                 if (proxyConfigManager != null) {
-                    ProxyConfigEntry proxyConfigEntry = proxyConfigManager.getBidConfigure();
+                    ProxyConfigEntry proxyConfigEntry = proxyConfigManager.getGroupIdConfigure();
                     hostList.addAll(proxyConfigEntry.getHostMap().values());
                     hostList.retainAll(proxyConfigEntry.getHostMap().values());
                 } else {
@@ -125,38 +125,38 @@ public class HttpProxySender extends Thread {
      * send by http
      *
      * @param body
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
      * @return
      */
-    public SendResult sendMessage(String body, String bid, String tid, long dt,
+    public SendResult sendMessage(String body, String groupId, String streamId, long dt,
                                   long timeout, TimeUnit timeUnit) {
-        return sendMessage(Collections.singletonList(body), bid, tid, dt, timeout, timeUnit);
+        return sendMessage(Collections.singletonList(body), groupId, streamId, dt, timeout, timeUnit);
     }
 
     /**
      * send multiple messages.
      *
      * @param bodies   list of bodies
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
      * @return
      */
-    public SendResult sendMessage(List<String> bodies, String bid, String tid, long dt,
+    public SendResult sendMessage(List<String> bodies, String groupId, String streamId, long dt,
                                   long timeout, TimeUnit timeUnit) {
         if (hostList.isEmpty()) {
             logger.error("proxy list is empty, maybe client has been "
-                    + "closed or bid is not assigned with proxy list");
+                    + "closed or groupId is not assigned with proxy list");
             return SendResult.NO_CONNECTION;
         }
         return internalHttpSender.sendMessageWithHostInfo(
-                bodies, bid, tid, dt, timeout, timeUnit);
+                bodies, groupId, streamId, dt, timeout, timeUnit);
 
     }
 
@@ -164,17 +164,17 @@ public class HttpProxySender extends Thread {
      * async sender
      *
      * @param bodies
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
      * @param callback
      */
-    public void asyncSendMessage(List<String> bodies, String bid, String tid, long dt,
+    public void asyncSendMessage(List<String> bodies, String groupId, String streamId, long dt,
                                  long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
         List<String> bodyList = new ArrayList<>(bodies);
-        HttpMessage httpMessage = new HttpMessage(bodyList, bid, tid, dt,
+        HttpMessage httpMessage = new HttpMessage(bodyList, groupId, streamId, dt,
                 timeout, timeUnit, callback);
         try {
             if (!messageCache.offer(httpMessage)) {
@@ -200,16 +200,16 @@ public class HttpProxySender extends Thread {
      * async send single message.
      *
      * @param body
-     * @param bid
-     * @param tid
+     * @param groupId
+     * @param streamId
      * @param dt
      * @param timeout
      * @param timeUnit
      * @param callback
      */
-    public void asyncSendMessage(String body, String bid, String tid, long dt,
+    public void asyncSendMessage(String body, String groupId, String streamId, long dt,
                                  long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
-        asyncSendMessage(Collections.singletonList(body), bid, tid,
+        asyncSendMessage(Collections.singletonList(body), groupId, streamId,
                 dt, timeout, timeUnit, callback);
     }
 

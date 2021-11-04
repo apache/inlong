@@ -27,18 +27,18 @@ import org.apache.inlong.dataproxy.SendMessageCallback;
  * http message for cache.
  */
 public class HttpMessage {
-    private final String bid;
-    private final String tid;
+    private final String groupId;
+    private final String streamId;
     private final List<String> bodies;
     private final SendMessageCallback callback;
     private final long dt;
     private final long timeout;
     private final TimeUnit timeUnit;
 
-    public HttpMessage(List<String> bodies, String bid, String tid, long dt,
+    public HttpMessage(List<String> bodies, String groupId, String streamId, long dt,
                        long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.bodies = bodies;
         this.callback = callback;
         this.dt = dt;
@@ -46,12 +46,12 @@ public class HttpMessage {
         this.timeUnit = timeUnit;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
     public List<String> getBodies() {

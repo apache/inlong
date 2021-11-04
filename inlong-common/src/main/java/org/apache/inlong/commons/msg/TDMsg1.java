@@ -38,8 +38,8 @@ public class TDMsg1 {
     private static final int BIN_MSG_SNAPPY_TYPE = 1;
 
     private static final int BIN_MSG_TOTALLEN_OFFSET = 0;
-    private static final int BIN_MSG_BID_OFFSET = 5;
-    private static final int BIN_MSG_TID_OFFSET = 7;
+    private static final int BIN_MSG_GROUPID_OFFSET = 5;
+    private static final int BIN_MSG_STREAMID_OFFSET = 7;
     private static final int BIN_MSG_EXTFIELD_OFFSET = 9;
     private static final int BIN_MSG_COUNT_OFFSET = 15;
     private static final int BIN_MSG_DATATIME_OFFSET = 11;
@@ -96,7 +96,7 @@ public class TDMsg1 {
     private int datalen = 0;
     private int msgcnt = 0;
     private boolean compress;
-    private boolean isNumBid = false;
+    private boolean isNumGroupId = false;
     private boolean ischeck = true;
 
     private final Version version;
@@ -634,7 +634,7 @@ public class TDMsg1 {
             parsedBinInput = ByteBuffer.wrap(binMsg);
             this.createtime = getBinCreatetime(parsedBinInput);
             this.msgcnt = getBinMsgCnt(parsedBinInput);
-            this.isNumBid = getBinNumFlag(parsedBinInput);
+            this.isNumGroupId = getBinNumFlag(parsedBinInput);
         }
     }
 
@@ -736,8 +736,8 @@ public class TDMsg1 {
 
         int totalLen = parsedBinInput.getInt(BIN_MSG_TOTALLEN_OFFSET);
         final int msgtype = parsedBinInput.get(BIN_MSG_MSGTYPE_OFFSET);
-        int bidNum = parsedBinInput.getShort(BIN_MSG_BID_OFFSET);
-        int tidNum = parsedBinInput.getShort(BIN_MSG_TID_OFFSET);
+        int groupIdNum = parsedBinInput.getShort(BIN_MSG_GROUPID_OFFSET);
+        int streamIdNum = parsedBinInput.getShort(BIN_MSG_STREAMID_OFFSET);
         int bodyLen = parsedBinInput.getInt(BIN_MSG_BODYLEN_OFFSET);
         long dataTime = parsedBinInput.getInt(BIN_MSG_DATATIME_OFFSET);
         final int extField = parsedBinInput.getShort(BIN_MSG_EXTFIELD_OFFSET);
@@ -783,11 +783,11 @@ public class TDMsg1 {
                 break;
         }
 
-        //number bid/tid
-        boolean isUseNumBid = ((extField & 0x4) == 0x0);
-        if (isUseNumBid) {
-            commonAttrMap.put(AttributeConstants.BUSINESS_ID, String.valueOf(bidNum));
-            commonAttrMap.put(AttributeConstants.INTERFACE_ID, String.valueOf(tidNum));
+        //number groupId/streamId
+        boolean isUseNumGroupId = ((extField & 0x4) == 0x0);
+        if (isUseNumGroupId) {
+            commonAttrMap.put(AttributeConstants.GROUP_ID, String.valueOf(groupIdNum));
+            commonAttrMap.put(AttributeConstants.INTERFACE_ID, String.valueOf(streamIdNum));
         }
 
         boolean hasOtherAttr = ((extField & 0x1) == 0x1);
@@ -1099,8 +1099,8 @@ public class TDMsg1 {
         return attrcnt;
     }
 
-    public boolean isNumBid() {
+    public boolean isNumGroupId() {
         checkMode(false);
-        return isNumBid;
+        return isNumGroupId;
     }
 }

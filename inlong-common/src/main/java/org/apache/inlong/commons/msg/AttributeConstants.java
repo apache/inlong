@@ -23,20 +23,20 @@ public interface AttributeConstants {
     String KEY_VALUE_SEPARATOR = "=";
 
     /**
-     * business id
+     * group id
      * unique string id for each business or product
      */
-    String BUSINESS_ID = "bid";
+    String GROUP_ID = "groupId";
 
     /**
      * interface id
      * unique string id for each interface of business
      * An interface stand for a kind of data
      */
-    String INTERFACE_ID = "tid";
+    String INTERFACE_ID = "streamId";
 
     /**
-     * iname is like a tid but used in file protocol(m=xxx)
+     * iname is like a streamId but used in file protocol(m=xxx)
      */
     String INAME = "iname";
 

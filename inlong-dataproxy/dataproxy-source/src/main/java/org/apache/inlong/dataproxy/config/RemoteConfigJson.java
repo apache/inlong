@@ -35,12 +35,12 @@ public class RemoteConfigJson {
 
     public static class DataItem {
 
-        private String bid;
+        private String groupId;
         private String topic;
         private String m;
 
-        public String getBid() {
-            return bid;
+        public String getGroupId() {
+            return groupId;
         }
 
         public String getTopic() {

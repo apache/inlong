@@ -42,10 +42,10 @@ public class DefaultMessageSender implements MessageSender {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
     private final Sender sender;
     private final SequentialID idGenerator;
-    private String bid;
+    private String groupId;
     private int msgtype = ConfigConstants.MSG_TYPE;
     private boolean isCompress = true;
-    private boolean isBidTransfer = false;
+    private boolean isGroupIdTransfer = false;
     private boolean isReport = false;
     private boolean isSupportLF = false;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
@@ -54,7 +54,7 @@ public class DefaultMessageSender implements MessageSender {
             new ConcurrentHashMap<>();
 
     private final IndexCollectThread indexCol;
-    /* Store index <bid_tid,cnt>*/
+    /* Store index <groupId_streamId,cnt>*/
     private final Map<String, Long> storeIndex = new ConcurrentHashMap<String, Long>();
 
     private static final AtomicBoolean ManagerFetcherThreadStarted = new AtomicBoolean(false);
@@ -69,12 +69,12 @@ public class DefaultMessageSender implements MessageSender {
         isSupportLF = supportLF;
     }
 
-    public boolean isBidTransfer() {
-        return isBidTransfer;
+    public boolean isGroupIdTransfer() {
+        return isGroupIdTransfer;
     }
 
-    public void setBidTransfer(boolean isBidTransfer) {
-        this.isBidTransfer = isBidTransfer;
+    public void setGroupIdTransfer(boolean isGroupIdTransfer) {
+        this.isGroupIdTransfer = isGroupIdTransfer;
     }
 
     public boolean isReport() {
@@ -109,12 +109,12 @@ public class DefaultMessageSender implements MessageSender {
         this.isCompress = isCompress;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public DefaultMessageSender(ProxyClientConfig configure) throws Exception {
@@ -125,7 +125,7 @@ public class DefaultMessageSender implements MessageSender {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
         idGenerator = new SequentialID(Utils.getLocalIp());
-        bid = configure.getBid();
+        groupId = configure.getGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         indexCol.start();
 
@@ -161,8 +161,8 @@ public class DefaultMessageSender implements MessageSender {
                                                                  ChannelFactory selfDefineFactory) throws Exception {
         ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
                 Utils.getLocalIp(), null);
-        proxyConfigManager.setBusinessId(configure.getBid());
-        ProxyConfigEntry entry = proxyConfigManager.getBidConfigure();
+        proxyConfigManager.setGroupId(configure.getGroupId());
+        ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
         DefaultMessageSender sender = cacheSender.get(entry.getClusterId());
         if (sender != null) {
             return sender;
@@ -195,43 +195,44 @@ public class DefaultMessageSender implements MessageSender {
                 idGenerator.getNextId()), msgUUID, timeout, timeUnit);
     }
 
-    public SendResult sendMessage(byte[] body, String bid, String tid, long dt, String msgUUID,
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        addIndexCnt(bid, tid, 1);
+        addIndexCnt(groupId, streamId, 1);
 
         boolean isCompressEnd = (isCompress && (body.length > cpsSize));
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(body, msgtype, isCompressEnd, isReport,
-                    isBidTransfer, dt / 1000, idGenerator.getNextInt(), bid, tid, "");
+                    isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(), groupId, streamId, "");
             encodeObject.setSupportLF(isSupportLF);
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompressEnd) {
-                return sender.syncSendMessage(new EncodeObject(body, "bid=" + bid
-                        + "&tid=" + tid + "&dt=" + dt + "&cp=snappy",
-                        idGenerator.getNextId(), this.getMsgtype(), true, bid), msgUUID, timeout, timeUnit);
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
+                        + "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(body, "bid=" + bid + "&tid=" + tid + "&dt=" + dt,
-                        idGenerator.getNextId(), this.getMsgtype(), false, bid), msgUUID, timeout, timeUnit);
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
+                        + "&streamId=" + streamId + "&dt=" + dt,
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
             }
         }
 
         return null;
     }
 
-    public SendResult sendMessage(byte[] body, String bid, String tid, long dt, String msgUUID,
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
 
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        addIndexCnt(bid, tid, 1);
+        addIndexCnt(groupId, streamId, 1);
 
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
@@ -239,79 +240,79 @@ public class DefaultMessageSender implements MessageSender {
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(body, msgtype, isCompressEnd, isReport,
-                    isBidTransfer, dt / 1000,
-                    idGenerator.getNextInt(), bid, tid, attrs.toString());
+                    isGroupIdTransfer, dt / 1000,
+                    idGenerator.getNextInt(), groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
-            attrs.append("&bid=").append(bid).append("&tid=").append(tid).append("&dt=").append(dt);
+            attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId).append("&dt=").append(dt);
             if (isCompressEnd) {
                 attrs.append("&cp=snappy");
                 return sender.syncSendMessage(new EncodeObject(body, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
             } else {
                 return sender.syncSendMessage(new EncodeObject(body, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
             }
         }
         return null;
 
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress, isReport,
-                    isBidTransfer, dt / 1000,
-                    idGenerator.getNextInt(), bid, tid, "");
+                    isGroupIdTransfer, dt / 1000,
+                    idGenerator.getNextInt(), groupId, streamId, "");
             encodeObject.setSupportLF(isSupportLF);
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompress) {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "bid=" + bid + "&tid=" + tid
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId + "&streamId=" + streamId
                         + "&dt=" + dt + "&cp=snappy" + "&cnt=" + bodyList.size(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "bid=" + bid + "&tid=" + tid
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId + "&streamId=" + streamId
                         + "&dt=" + dt + "&cnt=" + bodyList.size(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
             }
         }
         return null;
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
             || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress, isReport,
-                    isBidTransfer, dt / 1000,
-                    idGenerator.getNextInt(), bid, tid, attrs.toString());
+                    isGroupIdTransfer, dt / 1000,
+                    idGenerator.getNextInt(), groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
-            attrs.append("&bid=").append(bid).append("&tid=").append(tid)
+            attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
                     .append("&dt=").append(dt).append("&cnt=").append(bodyList.size());
             if (isCompress) {
                 attrs.append("&cp=snappy");
                 return sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
             } else {
                 return sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, bid), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
             }
         }
         return null;
@@ -325,101 +326,104 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public void asyncSendMessage(SendMessageCallback callback, byte[] body,
-                                 String bid, String tid, long dt, String msgUUID,
+                                 String groupId, String streamId, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        addIndexCnt(bid, tid, 1);
+        addIndexCnt(groupId, streamId, 1);
 
         boolean isCompressEnd = (isCompress && (body.length > cpsSize));
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(body, this.getMsgtype(), isCompressEnd, isReport,
-                    isBidTransfer, dt / 1000, idGenerator.getNextInt(),
-                    bid, tid, "");
+                    isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
+                    groupId, streamId, "");
             encodeObject.setSupportLF(isSupportLF);
             sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompressEnd) {
-                sender.asyncSendMessage(new EncodeObject(body, "bid="
-                        + bid + "&tid=" + tid + "&dt=" + dt + "&cp=snappy",
-                        idGenerator.getNextId(), this.getMsgtype(), true, bid), callback, msgUUID, timeout, timeUnit);
+                sender.asyncSendMessage(new EncodeObject(body, "groupId="
+                        + groupId + "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId),
+                        callback, msgUUID, timeout, timeUnit);
             } else {
                 sender.asyncSendMessage(
-                        new EncodeObject(body, "bid=" + bid + "&tid=" + tid + "&dt=" + dt, idGenerator.getNextId(),
-                                this.getMsgtype(), false, bid), callback, msgUUID, timeout, timeUnit);
+                        new EncodeObject(body, "groupId=" + groupId + "&streamId="
+                                + streamId + "&dt=" + dt, idGenerator.getNextId(),
+                                this.getMsgtype(), false, groupId), callback,
+                        msgUUID, timeout, timeUnit);
             }
         }
 
     }
 
     public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String bid, String tid, long dt, String msgUUID,
+                                 byte[] body, String groupId, String streamId, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit,
                                  Map<String, String> extraAttrMap) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        addIndexCnt(bid, tid, 1);
+        addIndexCnt(groupId, streamId, 1);
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
         boolean isCompressEnd = (isCompress && (body.length > cpsSize));
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(body, this.getMsgtype(), isCompressEnd,
-                    isReport, isBidTransfer, dt / 1000, idGenerator.getNextInt(),
-                    bid, tid, attrs.toString());
+                    isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
+                    groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
             sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
-            attrs.append("&bid=").append(bid).append("&tid=").append(tid).append("&dt=").append(dt);
+            attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId).append("&dt=").append(dt);
             if (isCompressEnd) {
                 attrs.append("&cp=snappy");
                 sender.asyncSendMessage(new EncodeObject(body, attrs.toString(),
-                                idGenerator.getNextId(), this.getMsgtype(), true, bid),
+                                idGenerator.getNextId(), this.getMsgtype(), true, groupId),
                         callback, msgUUID, timeout, timeUnit);
             } else {
                 sender.asyncSendMessage(new EncodeObject(body, attrs.toString(), idGenerator.getNextId(),
-                                this.getMsgtype(), false, bid),
+                                this.getMsgtype(), false, groupId),
                         callback, msgUUID, timeout, timeUnit);
             }
         }
     }
 
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList,
-                                 String bid, String tid, long dt, String msgUUID,
+                                 String groupId, String streamId, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, this.getMsgtype(), isCompress,
-                    isReport, isBidTransfer, dt / 1000, idGenerator.getNextInt(),
-                    bid, tid, "");
+                    isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
+                    groupId, streamId, "");
             encodeObject.setSupportLF(isSupportLF);
             sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompress) {
                 sender.asyncSendMessage(
-                        new EncodeObject(bodyList, "bid=" + bid + "&tid=" + tid
+                        new EncodeObject(bodyList, "groupId=" + groupId + "&streamId=" + streamId
                                 + "&dt=" + dt + "&cp=snappy" + "&cnt=" + bodyList.size(),
                                 idGenerator.getNextId(), this.getMsgtype(),
-                                true, bid), callback, msgUUID, timeout, timeUnit);
+                                true, groupId), callback, msgUUID, timeout, timeUnit);
             } else {
                 sender.asyncSendMessage(
-                        new EncodeObject(bodyList, "bid=" + bid + "&tid="
-                                + tid + "&dt=" + dt + "&cnt=" + bodyList.size(),
+                        new EncodeObject(bodyList, "groupId=" + groupId + "&streamId="
+                                + streamId + "&dt=" + dt + "&cnt=" + bodyList.size(),
                                 idGenerator.getNextId(), this.getMsgtype(),
-                                false, bid), callback, msgUUID, timeout, timeUnit);
+                                false, groupId), callback, msgUUID, timeout, timeUnit);
             }
         }
     }
 
     public void asyncSendMessage(SendMessageCallback callback,
-                                 List<byte[]> bodyList, String bid, String tid, long dt, String msgUUID,
+                                 List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit,
                                  Map<String, String> extraAttrMap) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
@@ -427,34 +431,34 @@ public class DefaultMessageSender implements MessageSender {
             || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
-//            if (!isBidTransfer)
+//            if (!isGroupIdTransfer)
             EncodeObject encodeObject = new EncodeObject(bodyList, this.getMsgtype(),
-                    isCompress, isReport, isBidTransfer, dt / 1000, idGenerator.getNextInt(),
-                    bid, tid, attrs.toString());
+                    isCompress, isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
+                    groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
             sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
-            attrs.append("&bid=").append(bid).append("&tid=").append(tid)
+            attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
                     .append("&dt=").append(dt).append("&cnt=").append(bodyList.size());
             if (isCompress) {
                 attrs.append("&cp=snappy");
                 sender.asyncSendMessage(new EncodeObject(bodyList, attrs.toString(), idGenerator.getNextId(),
-                        this.getMsgtype(), true, bid), callback, msgUUID, timeout, timeUnit);
+                        this.getMsgtype(), true, groupId), callback, msgUUID, timeout, timeUnit);
             } else {
                 sender.asyncSendMessage(new EncodeObject(bodyList, attrs.toString(), idGenerator.getNextId(),
-                        this.getMsgtype(), false, bid), callback, msgUUID, timeout, timeUnit);
+                        this.getMsgtype(), false, groupId), callback, msgUUID, timeout, timeUnit);
             }
         }
 
     }
 
-    private void addIndexCnt(String bid, String tid, long cnt) {
+    private void addIndexCnt(String groupId, String streamId, long cnt) {
         try {
-            String key = bid + "|" + tid;
+            String key = groupId + "|" + streamId;
             if (storeIndex.containsKey(key)) {
                 long sum = storeIndex.get(key);
                 storeIndex.put(key, sum + cnt);
@@ -466,8 +470,8 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-    public void asyncsendMessageData(FileCallback callback, List<byte[]> bodyList, String bid,
-                                     String tid, long dt, int sid, boolean isSupportLF, String msgUUID,
+    public void asyncsendMessageData(FileCallback callback, List<byte[]> bodyList, String groupId,
+                                     String streamId, long dt, int sid, boolean isSupportLF, String msgUUID,
                                      long timeout, TimeUnit timeUnit,
                                      Map<String, String> extraAttrMap) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
@@ -475,21 +479,21 @@ public class DefaultMessageSender implements MessageSender {
             || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
 
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype,
-                    isCompress, isReport, isBidTransfer,
-                    dt / 1000, sid, bid, tid, attrs.toString(), "data", "");
+                    isCompress, isReport, isGroupIdTransfer,
+                    dt / 1000, sid, groupId, streamId, attrs.toString(), "data", "");
             encodeObject.setSupportLF(isSupportLF);
             sender.asyncSendMessageIndex(encodeObject, callback, msgUUID, timeout, timeUnit);
         }
     }
 
-    private void asyncSendMetric(FileCallback callback, byte[] body, String bid,
-                                 String tid, long dt, int sid, String ip, String msgUUID,
+    private void asyncSendMetric(FileCallback callback, byte[] body, String groupId,
+                                 String streamId, long dt, int sid, String ip, String msgUUID,
                                  long timeout, TimeUnit timeUnit, String messageKey) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
@@ -498,46 +502,46 @@ public class DefaultMessageSender implements MessageSender {
         boolean isCompressEnd = false;
         if (msgtype == 7 || msgtype == 8) {
             sender.asyncSendMessageIndex(new EncodeObject(body, msgtype, isCompressEnd,
-                    isReport, isBidTransfer, dt / 1000,
-                    sid, bid, tid, "", messageKey, ip), callback, msgUUID, timeout, timeUnit);
+                    isReport, isGroupIdTransfer, dt / 1000,
+                    sid, groupId, streamId, "", messageKey, ip), callback, msgUUID, timeout, timeUnit);
         }
     }
 
-    public void asyncsendMessageProxy(FileCallback callback, byte[] body, String bid, String tid,
+    public void asyncsendMessageProxy(FileCallback callback, byte[] body, String groupId, String streamId,
                                     long dt, int sid, String ip, String msgUUID,
                                     long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, bid, tid, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
+        asyncSendMetric(callback, body, groupId, streamId, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
     }
 
-    public void asyncsendMessageFile(FileCallback callback, byte[] body, String bid,
-                                     String tid, long dt, int sid, String msgUUID,
+    public void asyncsendMessageFile(FileCallback callback, byte[] body, String groupId,
+                                     String streamId, long dt, int sid, String msgUUID,
                                      long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, bid, tid, dt, sid, "", msgUUID, timeout, timeUnit, "file");
+        asyncSendMetric(callback, body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit, "file");
     }
 
-    public String sendMessageData(List<byte[]> bodyList, String bid,
-                                  String tid, long dt, int sid, boolean isSupportLF, String msgUUID,
+    public String sendMessageData(List<byte[]> bodyList, String groupId,
+                                  String streamId, long dt, int sid, boolean isSupportLF, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
             || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES.toString();
         }
-        addIndexCnt(bid, tid, bodyList.size());
+        addIndexCnt(groupId, streamId, bodyList.size());
 
         StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress,
-                    isReport, isBidTransfer, dt / 1000,
-                    sid, bid, tid, attrs.toString(), "data", "");
+                    isReport, isGroupIdTransfer, dt / 1000,
+                    sid, groupId, streamId, attrs.toString(), "data", "");
             encodeObject.setSupportLF(isSupportLF);
             return sender.syncSendMessageIndex(encodeObject, msgUUID, timeout, timeUnit);
         }
         return null;
     }
 
-    private String sendMetric(byte[] body, String bid, String tid, long dt, int sid, String ip, String msgUUID,
+    private String sendMetric(byte[] body, String groupId, String streamId, long dt, int sid, String ip, String msgUUID,
                               long timeout, TimeUnit timeUnit, String messageKey) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
@@ -545,20 +549,21 @@ public class DefaultMessageSender implements MessageSender {
         }
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(body, msgtype, false, isReport,
-                    isBidTransfer, dt / 1000, sid, bid, tid, "", messageKey, ip);
+                    isGroupIdTransfer, dt / 1000, sid, groupId, streamId, "", messageKey, ip);
             return sender.syncSendMessageIndex(encodeObject, msgUUID, timeout, timeUnit);
         }
         return null;
     }
 
-    public String sendMessageProxy(byte[] body, String bid, String tid, long dt, int sid, String ip, String msgUUID,
+    public String sendMessageProxy(byte[] body, String groupId, String streamId,
+                                   long dt, int sid, String ip, String msgUUID,
                                  long timeout, TimeUnit timeUnit) {
-        return sendMetric(body, bid, tid, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
+        return sendMetric(body, groupId, streamId, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
     }
 
-    public String sendMessageFile(byte[] body, String bid, String tid, long dt, int sid, String msgUUID,
+    public String sendMessageFile(byte[] body, String groupId, String streamId, long dt, int sid, String msgUUID,
                                   long timeout, TimeUnit timeUnit) {
-        return sendMetric(body, bid, tid, dt, sid, "", msgUUID, timeout, timeUnit, "file");
+        return sendMetric(body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit, "file");
     }
 
     private void shutdownInternalThreads() {

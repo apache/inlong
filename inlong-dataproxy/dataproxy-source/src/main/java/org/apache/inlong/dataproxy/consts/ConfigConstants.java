@@ -99,7 +99,7 @@ public class ConfigConstants {
     public static final String FILE_CHECK_DATA = "file-check-data";
     public static final String MINUTE_CHECK_DATA = "minute-check-data";
     public static final String SLA_METRIC_DATA = "sla-metric-data";
-    public static final String SLA_METRIC_BID = "manager_sla_metric";
+    public static final String SLA_METRIC_GROUPID = "manager_sla_metric";
 
     public static final String FILE_BODY = "file-body";
     public static final int MSG_MAX_LENGTH_BYTES = 20 * 1024 * 1024;

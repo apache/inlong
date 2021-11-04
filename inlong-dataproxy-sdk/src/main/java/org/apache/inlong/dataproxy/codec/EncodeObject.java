@@ -39,15 +39,15 @@ public class EncodeObject {
     private long packageTime = System.currentTimeMillis();
     private int cnt = -1;
     private boolean isReport = false;
-    private boolean isBidTransfer = false;
+    private boolean isGroupIdTransfer = false;
     private boolean isSupportLF = false;
     private boolean isAuth = false;
     private boolean isEncrypt = false;
     private boolean isCompress = true;
-    private int bidNum;
-    private int tidNum;
-    private String bid;
-    private String tid;
+    private int groupIdNum;
+    private int streamIdNum;
+    private String groupId;
+    private String streamId;
     private short load;
     private String userName = "";
     private String secretKey = "";
@@ -85,89 +85,92 @@ public class EncodeObject {
 
     // used for bytes initializtion,msgtype=3/5
     public EncodeObject(byte[] bodyBytes, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String bid) {
+                        int msgtype, boolean isCompress, final String groupId) {
         this.bodyBytes = bodyBytes;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
         this.msgtype = msgtype;
-        this.bid = bid;
+        this.groupId = groupId;
         this.isCompress = isCompress;
     }
 
     // used for bodylist initializtion,msgtype=3/5
     public EncodeObject(List<byte[]> bodyList, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String bid) {
+                        int msgtype, boolean isCompress, final String groupId) {
         this.bodylist = bodyList;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
         this.msgtype = msgtype;
-        this.bid = bid;
+        this.groupId = groupId;
         this.isCompress = isCompress;
     }
 
     // used for bytes initializtion,msgtype=7/8
     public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress, boolean isReport,
-                        boolean isBidTransfer, long dt, long seqId, String bid, String tid, String commonattr) {
+                        boolean isGroupIdTransfer, long dt, long seqId, String groupId,
+                        String streamId, String commonattr) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
         this.isReport = isReport;
         this.dt = dt;
-        this.isBidTransfer = isBidTransfer;
+        this.isGroupIdTransfer = isGroupIdTransfer;
         this.commonattr = commonattr;
         this.messageId = String.valueOf(seqId);
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
     }
 
     // used for bodylist initializtion,msgtype=7/8
     public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isBidTransfer, long dt,
-                        long seqId, String bid, String tid, String commonattr) {
+                        boolean isReport, boolean isGroupIdTransfer, long dt,
+                        long seqId, String groupId, String streamId, String commonattr) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
         this.isReport = isReport;
         this.dt = dt;
-        this.isBidTransfer = isBidTransfer;
+        this.isGroupIdTransfer = isGroupIdTransfer;
         this.commonattr = commonattr;
         this.messageId = String.valueOf(seqId);
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
     }
 
     // file agent, used for bytes initializtion,msgtype=7/8
     public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isBidTransfer, long dt,
-                        long seqId, String bid, String tid, String commonattr, String messageKey, String proxyIp) {
+                        boolean isReport, boolean isGroupIdTransfer, long dt,
+                        long seqId, String groupId, String streamId, String commonattr,
+                        String messageKey, String proxyIp) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
         this.isReport = isReport;
         this.dt = dt;
-        this.isBidTransfer = isBidTransfer;
+        this.isGroupIdTransfer = isGroupIdTransfer;
         this.commonattr = commonattr;
         this.messageId = String.valueOf(seqId);
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.messageKey = messageKey;
         this.proxyIp = proxyIp;
     }
 
     // file agent, used for bodylist initializtion,msgtype=7/8
     public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isBidTransfer, long dt,
-                        long seqId, String bid, String tid, String commonattr, String messageKey, String proxyIp) {
+                        boolean isReport, boolean isGroupIdTransfer, long dt,
+                        long seqId, String groupId, String streamId, String commonattr,
+                        String messageKey, String proxyIp) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
         this.isReport = isReport;
         this.dt = dt;
-        this.isBidTransfer = isBidTransfer;
+        this.isGroupIdTransfer = isGroupIdTransfer;
         this.commonattr = commonattr;
         this.messageId = String.valueOf(seqId);
-        this.bid = bid;
-        this.tid = tid;
+        this.groupId = groupId;
+        this.streamId = streamId;
         this.messageKey = messageKey;
         this.proxyIp = proxyIp;
     }
@@ -180,12 +183,12 @@ public class EncodeObject {
         this.msgUUID = msgUUID;
     }
 
-    public boolean isBidTransfer() {
-        return isBidTransfer;
+    public boolean isGroupIdTransfer() {
+        return isGroupIdTransfer;
     }
 
-    public void setBidTransfer(boolean isBidTransfer) {
-        this.isBidTransfer = isBidTransfer;
+    public void setGroupIdTransfer(boolean isGroupIdTransfer) {
+        this.isGroupIdTransfer = isGroupIdTransfer;
     }
 
     public short getLoad() {
@@ -196,20 +199,20 @@ public class EncodeObject {
         this.load = load;
     }
 
-    public String getBid() {
-        return bid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBid(String bid) {
-        this.bid = bid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     public void setMsgtype(int msgtype) {
@@ -262,20 +265,20 @@ public class EncodeObject {
         this.encryptEntry = encryptEntry;
     }
 
-    public int getBidNum() {
-        return bidNum;
+    public int getGroupIdNum() {
+        return groupIdNum;
     }
 
-    public void setBidNum(int bidNum) {
-        this.bidNum = bidNum;
+    public void setGroupIdNum(int groupIdNum) {
+        this.groupIdNum = groupIdNum;
     }
 
-    public int getTidNum() {
-        return tidNum;
+    public int getStreamIdNum() {
+        return streamIdNum;
     }
 
-    public void setTidNum(int tidNum) {
-        this.tidNum = tidNum;
+    public void setStreamIdNum(int streamIdNum) {
+        this.streamIdNum = streamIdNum;
     }
 
     public long getDt() {

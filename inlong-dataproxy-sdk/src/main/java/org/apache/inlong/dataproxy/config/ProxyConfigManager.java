@@ -82,7 +82,7 @@ public class ProxyConfigManager extends Thread {
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
     /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
     private int oldStat = 0;
-    private String businessId;
+    private String groupId;
     private final ProxyClientConfig clientConfig;
     private final String localIP;
     private String localMd5;
@@ -101,12 +101,12 @@ public class ProxyConfigManager extends Thread {
         this.clientManager = clientManager;
     }
 
-    public String getBusinessId() {
-        return businessId;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setBusinessId(String businessId) {
-        this.businessId = businessId;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public void shutDown() {
@@ -158,7 +158,7 @@ public class ProxyConfigManager extends Thread {
             if (diffTime < clientConfig.getMaxProxyCacheTimeInMs()) {
                 JsonReader reader = new JsonReader(new FileReader(configCachePath));
                 ProxyConfigEntry proxyConfigEntry = gson.fromJson(reader, ProxyConfigEntry.class);
-                logger.info("{} has a backup! {}", businessId, proxyConfigEntry);
+                logger.info("{} has a backup! {}", groupId, proxyConfigEntry);
                 return proxyConfigEntry;
             }
         } catch (Exception ex) {
@@ -199,14 +199,14 @@ public class ProxyConfigManager extends Thread {
     }
 
     /**
-     *  get bid config
+     *  get groupId config
      *
      * @return proxyConfigEntry
      * @throws Exception
      */
-    public ProxyConfigEntry getBidConfigure() throws Exception {
+    public ProxyConfigEntry getGroupIdConfigure() throws Exception {
         ProxyConfigEntry proxyEntry;
-        String configAddr = clientConfig.getConfStoreBasePath() + businessId;
+        String configAddr = clientConfig.getConfStoreBasePath() + groupId;
         if (this.clientConfig.isReadProxyIPFromLocal()) {
             configAddr = configAddr + ".local";
             proxyEntry = getLocalProxyListFromFile(configAddr);
@@ -242,7 +242,7 @@ public class ProxyConfigManager extends Thread {
             localMd5 = calcHostInfoMd5(proxyInfoList);
         }
         ProxyConfigEntry proxyEntry = null;
-        String configAddr = clientConfig.getConfStoreBasePath() + businessId;
+        String configAddr = clientConfig.getConfStoreBasePath() + groupId;
         if (clientConfig.isReadProxyIPFromLocal()) {
             configAddr = configAddr + ".local";
             proxyEntry = getLocalProxyListFromFile(configAddr);
@@ -298,8 +298,8 @@ public class ProxyConfigManager extends Thread {
             if (proxyEntry.getSize() != 0) {
                 /* Initialize the current proxy information list first. */
                 clientManager.setLoadThreshold(proxyEntry.getLoad());
-                clientManager.setBidNum(proxyEntry.getBidNum());
-                clientManager.setTidMap(proxyEntry.getTidNumMap());
+                clientManager.setGroupIdNum(proxyEntry.getGroupIdNum());
+                clientManager.setStreamIdMap(proxyEntry.getStreamIdNumMap());
 
                 List<HostInfo> newProxyInfoList = new ArrayList<HostInfo>();
                 for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
@@ -559,9 +559,9 @@ public class ProxyConfigManager extends Thread {
             throw new Exception("Read local proxyList File failure by " + filePath + ", reason is " + e.getCause());
         }
 
-        int bidNum = 0;
+        int groupIdNum = 0;
         if (localProxyAddrJson.has("bsn")) {
-            bidNum = localProxyAddrJson.get("bsn").getAsInt();
+            groupIdNum = localProxyAddrJson.get("bsn").getAsInt();
         }
 
         int load = ConfigConstants.LOAD_THRESHOLD;
@@ -570,15 +570,15 @@ public class ProxyConfigManager extends Thread {
             load = inLoad > 200 ? 200 : (Math.max(inLoad, 0));
         }
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
-        proxyEntry.setBid(clientConfig.getBid());
+        proxyEntry.setGroupId(clientConfig.getGroupId());
         boolean isInterVisit = checkValidProxy(filePath, localProxyAddrJson);
         proxyEntry.setInterVisit(isInterVisit);
         Map<String, HostInfo> hostMap = getHostInfoMap(
             localProxyAddrJson);
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(0);
-        Map<String, Integer> tidMap = getTidMap(localProxyAddrJson);
-        proxyEntry.setBidNumAndTidNumMap(bidNum, tidMap);
+        Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
+        proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
         if (localProxyAddrJson.has("cluster_id")) {
             proxyEntry.setClusterId(localProxyAddrJson.get("cluster_id").getAsString());
@@ -624,18 +624,18 @@ public class ProxyConfigManager extends Thread {
         return hostMap;
     }
 
-    private Map<String, Integer> getTidMap(JsonObject localProxyAddrJson) {
-        Map<String, Integer> tidMap = new HashMap<String, Integer>();
+    private Map<String, Integer> getStreamIdMap(JsonObject localProxyAddrJson) {
+        Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
         if (localProxyAddrJson.has("tsn")) {
-            JsonArray jsontid = localProxyAddrJson.getAsJsonArray("tsn");
-            for (int i = 0; i < jsontid.size(); i++) {
-                JsonObject jsonItem = jsontid.get(i).getAsJsonObject();
-                if (jsonItem != null && jsonItem.has("tid") && jsonItem.has("sn")) {
-                    tidMap.put(jsonItem.get("tid").getAsString(), jsonItem.get("sn").getAsInt());
+            JsonArray jsonStreamId = localProxyAddrJson.getAsJsonArray("tsn");
+            for (int i = 0; i < jsonStreamId.size(); i++) {
+                JsonObject jsonItem = jsonStreamId.get(i).getAsJsonObject();
+                if (jsonItem != null && jsonItem.has("streamId") && jsonItem.has("sn")) {
+                    streamIdMap.put(jsonItem.get("streamId").getAsString(), jsonItem.get("sn").getAsInt());
                 }
             }
         }
-        return tidMap;
+        return streamIdMap;
     }
 
     private boolean checkValidProxy(String filePath, JsonObject localProxyAddrJson) throws Exception {
@@ -673,9 +673,9 @@ public class ProxyConfigManager extends Thread {
         if (hostMap == null) {
             return null;
         }
-        int bidNum = 0;
+        int groupIdNum = 0;
         if (jsonRes.has("bsn")) {
-            bidNum = jsonRes.get("bsn").getAsInt();
+            groupIdNum = jsonRes.get("bsn").getAsInt();
         }
         int load = ConfigConstants.LOAD_THRESHOLD;
         if (jsonRes.has("load")) {
@@ -683,12 +683,12 @@ public class ProxyConfigManager extends Thread {
             load = inLoad > 200 ? 200 : (Math.max(inLoad, 0));
         }
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
-        proxyEntry.setBid(clientConfig.getBid());
+        proxyEntry.setGroupId(clientConfig.getGroupId());
         proxyEntry.setInterVisit(true);
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(0);
-        Map<String, Integer> tidMap = getTidMap(jsonRes);
-        proxyEntry.setBidNumAndTidNumMap(bidNum, tidMap);
+        Map<String, Integer> streamIdMap = getStreamIdMap(jsonRes);
+        proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
         if (jsonRes.has("cluster_id")) {
             proxyEntry.setClusterId(jsonRes.get("cluster_id").getAsString());

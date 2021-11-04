@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.source;
 
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_BID;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
@@ -214,29 +214,29 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         }
     }
 
-    private void checkBidInfo(ProxyMessage message, Map<String, String> commonAttrMap,
+    private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
         Map<String, String> attrMap, AtomicReference<String> topicInfo) {
-        String bid = message.getBid();
-        String tid;
-        if (null != bid) {
+        String groupId = message.getGroupId();
+        String streamId;
+        if (null != groupId) {
             String from = commonAttrMap.get(AttributeConstants.FROM);
             if ("dc".equals(from)) {
-                String dcInterfaceId = message.getTid();
+                String dcInterfaceId = message.getStreamId();
                 if (StringUtils.isNotEmpty(dcInterfaceId)
                     && configManager.getDcMappingProperties()
                     .containsKey(dcInterfaceId.trim())) {
-                    bid = configManager.getDcMappingProperties()
+                    groupId = configManager.getDcMappingProperties()
                         .get(dcInterfaceId.trim()).trim();
-                    message.setBid(bid);
+                    message.setGroupId(groupId);
                 }
             }
 
-            String value = configManager.getTopicProperties().get(bid);
+            String value = configManager.getTopicProperties().get(groupId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
 
-            Map<String, String> mxValue = configManager.getMxPropertiesMaps().get(bid);
+            Map<String, String> mxValue = configManager.getMxPropertiesMaps().get(groupId);
             if (mxValue != null && mxValue.size() != 0) {
                 message.getAttributeMap().putAll(mxValue);
             } else {
@@ -244,30 +244,30 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             }
         } else {
             String num2name = commonAttrMap.get(AttributeConstants.NUM2NAME);
-            String bidNum = commonAttrMap.get(AttributeConstants.BID_NUM);
-            String tidNum = commonAttrMap.get(AttributeConstants.TID_NUM);
+            String groupIdNum = commonAttrMap.get(AttributeConstants.GROUPID_NUM);
+            String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
 
-            if (configManager.getBidMappingProperties() != null
-                && configManager.getTidMappingProperties() != null) {
-                bid = configManager.getBidMappingProperties().get(bidNum);
-                tid = (configManager.getTidMappingProperties().get(bidNum) == null)
-                    ? null : configManager.getTidMappingProperties().get(bidNum).get(tidNum);
-                if (bid != null && tid != null) {
+            if (configManager.getGroupIdMappingProperties() != null
+                && configManager.getStreamIdMappingProperties() != null) {
+                groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
+                streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
+                    ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+                if (groupId != null && streamId != null) {
                     String enableTrans =
-                        (configManager.getBidEnableMappingProperties() == null)
-                            ? null : configManager.getBidEnableMappingProperties().get(bidNum);
+                        (configManager.getGroupIdEnableMappingProperties() == null)
+                            ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
                     if (("TRUE".equalsIgnoreCase(enableTrans) && "TRUE"
                         .equalsIgnoreCase(num2name))) {
-                        String extraAttr = "bid=" + bid + "&" + "tid=" + tid;
+                        String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
                         message.setData(newBinMsg(message.getData(), extraAttr));
                     }
 
-                    attrMap.put(AttributeConstants.BUSINESS_ID, bid);
-                    attrMap.put(AttributeConstants.INTERFACE_ID, tid);
-                    message.setBid(bid);
-                    message.setTid(tid);
+                    attrMap.put(AttributeConstants.GROUP_ID, groupId);
+                    attrMap.put(AttributeConstants.INTERFACE_ID, streamId);
+                    message.setGroupId(groupId);
+                    message.setStreamId(streamId);
 
-                    String value = configManager.getTopicProperties().get(bid);
+                    String value = configManager.getTopicProperties().get(groupId);
                     if (StringUtils.isNotEmpty(value)) {
                         topicInfo.set(value.trim());
                     }
@@ -285,25 +285,25 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             String topic = this.defaultTopic;
 
             AtomicReference<String> topicInfo = new AtomicReference<>(topic);
-            checkBidInfo(message, commonAttrMap, attrMap, topicInfo);
+            checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
             topic = topicInfo.get();
 
-//                if(bid==null)bid="b_test";//default bid
+//                if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
 
-            String bid = message.getBid();
-            String tid = message.getTid();
+            String groupId = message.getGroupId();
+            String streamId = message.getStreamId();
 
             // whether sla
-            if (SLA_METRIC_BID.equals(bid)) {
+            if (SLA_METRIC_GROUPID.equals(groupId)) {
                 commonAttrMap.put(SLA_METRIC_DATA, "true");
                 message.setTopic(SLA_METRIC_DATA);
             }
 
-            if (bid != null && tid != null) {
-                String tubeSwtichKey = bid + SEPARATOR + tid;
+            if (groupId != null && streamId != null) {
+                String tubeSwtichKey = groupId + SEPARATOR + streamId;
                 if (configManager.getTubeSwitchProperties().get(tubeSwtichKey) != null
                     && "false".equals(configManager.getTubeSwitchProperties()
                     .get(tubeSwtichKey).trim())) {
@@ -326,14 +326,14 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
             }
 
-            if (tid == null) {
-                tid = "";
+            if (streamId == null) {
+                streamId = "";
             }
-            HashMap<String, List<ProxyMessage>> tidMsgMap = messageMap
+            HashMap<String, List<ProxyMessage>> streamIdMsgMap = messageMap
                 .computeIfAbsent(topic, k -> new HashMap<>());
-            List<ProxyMessage> tidMsgList = tidMsgMap
-                .computeIfAbsent(tid, k -> new ArrayList<>());
-            tidMsgList.add(message);
+            List<ProxyMessage> streamIdMsgList = streamIdMsgMap
+                .computeIfAbsent(streamId, k -> new ArrayList<>());
+            streamIdMsgList.add(message);
         }
     }
 
@@ -349,11 +349,11 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         }
 
         for (Map.Entry<String, HashMap<String, List<ProxyMessage>>> topicEntry : messageMap.entrySet()) {
-            for (Map.Entry<String, List<ProxyMessage>> tidEntry : topicEntry.getValue().entrySet()) {
+            for (Map.Entry<String, List<ProxyMessage>> streamIdEntry : topicEntry.getValue().entrySet()) {
 
                 TDMsg1 tdMsg = TDMsg1.newTDMsg(this.isCompressed, tdMsgVer);
                 Map<String, String> headers = new HashMap<String, String>();
-                for (ProxyMessage message : tidEntry.getValue()) {
+                for (ProxyMessage message : streamIdEntry.getValue()) {
                     if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType) || MsgType.MSG_MULTI_BODY.equals(msgType)) {
                         message.getAttributeMap().put(AttributeConstants.MESSAGE_COUNT, String.valueOf(1));
                         tdMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
@@ -382,7 +382,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
 
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
-                headers.put(AttributeConstants.INTERFACE_ID, tidEntry.getKey());
+                headers.put(AttributeConstants.INTERFACE_ID, streamIdEntry.getKey());
                 headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
                 headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
                 // every message share the same msg cnt? what if msgType = 5
@@ -396,7 +396,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 if (StringUtils.isNotEmpty(sequenceId)) {
 
                     StringBuilder sidBuilder = new StringBuilder();
-                    sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(tidEntry.getKey())
+                    sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(streamIdEntry.getKey())
                         .append(SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
@@ -412,8 +412,8 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     throw new MessageIDException(uniqVal,
                         ErrorCode.DT_ERROR,
                         new Throwable("attribute dt=" + headers.get(AttributeConstants.DATA_TIME
-                            + " has error, detail is: topic=" + topicEntry.getKey() + "&tid="
-                            + tidEntry.getKey() + "&NodeIP=" + strRemoteIP), e1));
+                            + " has error, detail is: topic=" + topicEntry.getKey() + "&streamId="
+                            + streamIdEntry.getKey() + "&NodeIP=" + strRemoteIP), e1));
                 }
 
                 dtten = dtten / 1000 / 60 / 10;
