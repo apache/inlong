@@ -29,10 +29,13 @@ import org.slf4j.LoggerFactory;
  * This demo shows how to collect and report message received statistics.
  */
 public class MsgRecvStats implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(MsgRecvStats.class);
-    private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, AtomicLong> befCountMap = new ConcurrentHashMap<>();
-    private AtomicBoolean isStarted = new AtomicBoolean(false);
+    private static final Logger logger =
+            LoggerFactory.getLogger(MsgRecvStats.class);
+    private static final ConcurrentHashMap<String, AtomicLong> counterMap =
+            new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> befCountMap =
+            new ConcurrentHashMap<>();
+    private AtomicBoolean isStarted = new AtomicBoolean(true);
 
     @Override
     public void run() {
@@ -40,7 +43,6 @@ public class MsgRecvStats implements Runnable {
             try {
                 for (Map.Entry<String, AtomicLong> entry : counterMap.entrySet()) {
                     long currCount = entry.getValue().get();
-
                     AtomicLong befCount = befCountMap.get(entry.getKey());
                     if (befCount == null) {
                         AtomicLong tmpCount = new AtomicLong(0);
@@ -49,10 +51,11 @@ public class MsgRecvStats implements Runnable {
                             befCount = tmpCount;
                         }
                     }
-
+                    // output received statistic information
                     logger.info("********* Current {} Message receive count is {}, dlt is {}",
                         new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
-
+                    // archive historical statistic data
+                    befCountMap.get(entry.getKey()).set(currCount);
                 }
             } catch (Throwable t) {
                 // ignore
@@ -70,10 +73,6 @@ public class MsgRecvStats implements Runnable {
                 if (currCount == null) {
                     currCount = tmpCount;
                 }
-            }
-
-            if (currCount.addAndGet(msgCnt) % 500 == 0) {
-                logger.info("Receive messages:" + currCount.get());
             }
         }
     }
