@@ -91,17 +91,17 @@ public final class MessagePushConsumerExample {
 
         // 3. build and start consumer object
         for (int i = 0; i < clientCount; i++) {
-            // 2. build and start consumer object
+            // 3.1. build and start consumer object
             PushMessageConsumer consumer =
                     sessionFactory.createPushConsumer(consumerConfig);
-            // 2.1 set subscribed topic and Listener
+            // 3.2. set subscribed topic and Listener
             for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                 MessageListener messageListener = new DefaultMessageListener(entry.getKey());
                 consumer.subscribe(entry.getKey(), entry.getValue(), messageListener);
             }
-            // 2.2 start consumer
+            // 3.3. start consumer
             consumer.completeSubscribe();
-            // 2.3 store consumer object
+            // 3.4. store consumer object
             consumerMap.put(consumer.getConsumerId(), consumer);
         }
 

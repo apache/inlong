@@ -35,6 +35,11 @@ public interface MessageConsumer extends Shutdownable {
 
     boolean isFilterConsume(String topic);
 
+    /**
+     * Get consume offset information of the current registered partitions
+     *
+     * @return  consume offset information
+     */
     Map<String, ConsumeOffsetInfo> getCurConsumedPartitions() throws TubeClientException;
 
     /**
@@ -73,8 +78,35 @@ public interface MessageConsumer extends Shutdownable {
      */
     Map<String, Long> getFrozenPartInfo();
 
+    /**
+     * Start consume messages with default setting
+     */
     void completeSubscribe() throws TubeClientException;
 
+    /**
+     * Start consumption with the precise Offset settings
+     *
+     * The parameter sessionKey is specified by the caller, similar to the JobID in Flink,
+     * which is used to identify the unrelated offset reset consumption activities before and after.
+     * Each reset operation needs to ensure that it is different from the last reset carried sessionKey;
+     *
+     * The parameter sourceCount is used to inform the server how many consumers will consume
+     * in this round of consumer group activation, and the client will not consume data until
+     * the consumer group has not reached the specified number of consumers.
+     *
+     * The parameter isSelectBig is used to inform the server that if multiple clients reset
+     * the offset to the same partition, the server will use the largest offset
+     * or the smallest offset as the standard;
+     *
+     * The parameter partOffsetMap is used to inform the server that this consumption expects
+     * the partitions in the Map to be consumed according to the specified offset value.
+     * The offset in the Map comes from the consumer's query from the server, or the content
+     * returned when the consumer successfully consumes the data before, including push
+     * the PearInfo object returned by the callback function during consumption and
+     * the PearInfo object in the ConsumerResult class during Pull consumption.
+     * The Key in the Map is the partitionKey carried in PearInfo, and the value is
+     * the currOffset value carried in PearInfo.
+     */
     void completeSubscribe(String sessionKey,
                            int sourceCount,
                            boolean isSelectBig,
