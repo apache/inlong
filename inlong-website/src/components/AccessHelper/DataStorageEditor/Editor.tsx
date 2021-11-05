@@ -23,7 +23,7 @@ import request from '@/utils/request';
 import isEqual from 'lodash/isEqual';
 import { useTranslation } from 'react-i18next';
 import DetailModal from './DetailModal';
-import { hiveTableColumns } from './hiveConfig';
+import { hiveTableColumns } from '@/components/MetaData/StorageHive';
 
 export interface Props {
   value?: Record<string, any>[];

@@ -22,11 +22,8 @@ import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import {
-  dataSourcesDbColumns,
-  dataSourcesFileColumns,
-  DataSourcesCreateModal,
-} from '@/components/AccessHelper';
+import { DataSourcesCreateModal } from '@/components/AccessHelper';
+import { tableColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -151,7 +148,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       width: 100,
     } as any,
   ]
-    .concat(options.type === 'file' ? dataSourcesFileColumns : dataSourcesDbColumns)
+    .concat(fileColumns)
     .concat([
       {
         title: i18n.t('basic.Status'),

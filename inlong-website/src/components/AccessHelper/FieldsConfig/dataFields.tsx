@@ -25,7 +25,7 @@ import DataSourcesEditor from '../DataSourcesEditor';
 import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
-import { fieldTypes as sourceFieldsTypes } from './sourceFields';
+import { fieldTypes as sourceFieldsTypes } from '@/components/MetaData/SourceDataFields';
 
 type RestParams = {
   inlongGroupId?: string;

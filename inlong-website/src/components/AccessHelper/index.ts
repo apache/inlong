@@ -24,22 +24,8 @@ export { default as genDataFields } from './FieldsConfig/dataFields';
 // Data source creation/selector
 export { default as DataSourcesCreateModal } from './DataSourcesEditor/CreateModal';
 
-// Columns configuration related to all data sources
-export {
-  tableColumns as dataSourcesDbColumns,
-  getCreateFormContent as getDataSourcesDbCreateFormContent,
-} from './DataSourcesEditor/DbConfig';
-
-export {
-  tableColumns as dataSourcesFileColumns,
-  getCreateFormContent as getDataSourcesFileCreateFormContent,
-} from './DataSourcesEditor/FileConfig';
-
 // Data source configuration editor
 export { default as DataSourcesEditor } from './DataSourcesEditor';
-
-// All flow-related columns configuration
-export { hiveTableColumns as dataStorageHiveColumns } from './DataStorageEditor/hiveConfig';
 
 // Flow editor
 export { default as DataStorageEditor } from './DataStorageEditor/Editor';
