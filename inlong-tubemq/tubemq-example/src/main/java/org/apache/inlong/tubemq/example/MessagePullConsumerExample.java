@@ -105,6 +105,14 @@ public final class MessagePullConsumerExample {
                 public void run() {
                     ConsumerResult csmResult;
                     int getCount = consumeCount;
+                    // wait partition status ready
+                    do {
+                        if (pullConsumer.isPartitionsReady(5000)
+                                || pullConsumer.isShutdown()) {
+                            break;
+                        }
+                    } while (true);
+                    // consume messages
                     do {
                         try {
                             // 4.1 judge consumer is shutdown
