@@ -23,8 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { getCreateFormContent as getFileCreateFormContent } from './FileConfig';
-import { getCreateFormContent as getDbCreateFormContent } from './DbConfig';
+import { getCreateFormContent as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
 
 export interface Props extends ModalProps {
   type: 'DB' | 'FILE';
@@ -68,7 +67,6 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const getCreateFormContent = useMemo(() => {
     return {
-      DB: getDbCreateFormContent,
       FILE: getFileCreateFormContent,
     }[type];
   }, [type]);

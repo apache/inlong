@@ -26,7 +26,7 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import { getHiveForm, getHiveColumns } from './hiveConfig';
+import { getHiveForm, getHiveColumns } from '@/components/MetaData/StorageHive';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -148,14 +148,13 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const formContent = useMemo(() => {
     const map = {
-      HIVE: {
-        content: getHiveForm(dataType, !!id, form),
-      },
+      HIVE: getHiveForm,
+      // CLICK_HOUSE: getClickhouseForm,
     };
     const item = map[storageType];
 
-    return item.content;
-  }, [storageType, dataType, id, form]);
+    return item(dataType, !!id, inlongGroupId, currentValues, form);
+  }, [storageType, dataType, inlongGroupId, id, currentValues, form]);
 
   const onOk = async () => {
     const values = await form.validateFields();

@@ -22,7 +22,7 @@ import { Button, message } from 'antd';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import request from '@/utils/request';
 import i18n from '@/i18n';
-import { fieldTypes } from '../FieldsConfig/sourceFields';
+import { sourceDataFields } from './SourceDataFields';
 
 // hiveFieldTypes
 const hiveFieldTypes = [
@@ -69,38 +69,14 @@ export const hiveTableColumns = [
   },
 ];
 
-export const getHiveColumns = (dataType: string, storageType: string): ColumnsItemProps[] => [
+export const getHiveColumns = (
+  dataType: string,
+  currentValues: Record<string, unknown>,
+): ColumnsItemProps[] => [
   ...([
+    ...sourceDataFields,
     {
-      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldName'),
-      dataIndex: 'sourceFieldName',
-      initialValue: '',
-      rules: [
-        { required: true },
-        {
-          pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.fieldNameRule'),
-        },
-      ],
-      props: (text, record, idx, isNew) => ({
-        disabled: text && !isNew,
-      }),
-    },
-    {
-      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldType'),
-      dataIndex: 'sourceFieldType',
-      initialValue: fieldTypes[0].value,
-      type: 'select',
-      rules: [{ required: true }],
-      props: (text, record, idx, isNew) => ({
-        disabled: text && !isNew,
-        options: fieldTypes,
-      }),
-    },
-    {
-      title: `${storageType}${i18n.t(
-        'components.AccessHelper.DataStorageEditor.hiveConfig.FieldName',
-      )}`,
+      title: `HIVE${i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -112,17 +88,17 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
       ],
       props: (text, record, idx, isNew) => ({
         disabled: text && !isNew,
+        // disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
     },
     {
-      title: `${storageType}${i18n.t(
-        'components.AccessHelper.DataStorageEditor.hiveConfig.FieldType',
-      )}`,
+      title: `HIVE${i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
-      props: () => ({
+      props: (text, record, idx, isNew) => ({
         options: hiveFieldTypes,
+        disabled: text && !isNew,
       }),
       rules: [{ required: true }],
     },
@@ -134,7 +110,13 @@ export const getHiveColumns = (dataType: string, storageType: string): ColumnsIt
   ] as ColumnsItemProps[]),
 ];
 
-export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
+export const getHiveForm = (
+  dataType: string,
+  isEdit: boolean,
+  inlongGroupId: string,
+  currentValues: Record<string, unknown>,
+  form,
+) => [
   {
     type: 'input',
     label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Db'),
@@ -239,7 +221,7 @@ export const getHiveForm = (dataType: string, isEdit: boolean, form) => [
     type: (
       <EditableTable
         size="small"
-        columns={getHiveColumns(dataType, 'HIVE')}
+        columns={getHiveColumns(dataType, currentValues)}
         canDelete={(record, idx, isNew) => !isEdit || isNew}
       />
     ),

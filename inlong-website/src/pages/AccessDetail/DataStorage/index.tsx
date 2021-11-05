@@ -23,7 +23,8 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { DataStorageDetailModal, dataStorageHiveColumns } from '@/components/AccessHelper';
+import { DataStorageDetailModal } from '@/components/AccessHelper';
+import { hiveTableColumns } from '@/components/MetaData/StorageHive';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { genStatusTag } from './status';
@@ -158,7 +159,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   };
 
   const columnsMap = {
-    HIVE: dataStorageHiveColumns,
+    HIVE: hiveTableColumns,
   };
 
   const createContent = useMemo(
