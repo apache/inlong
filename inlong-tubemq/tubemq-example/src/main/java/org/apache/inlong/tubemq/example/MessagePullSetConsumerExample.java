@@ -51,7 +51,8 @@ public final class MessagePullSetConsumerExample {
     private static final Logger logger =
             LoggerFactory.getLogger(MessagePullSetConsumerExample.class);
     // Statistic object
-    private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
+    private static final MsgSendReceiveStats msgRcvStats =
+            new MsgSendReceiveStats(false);
     // The map of the master cluster and Multiple session factory
     //    There may be multiple consumers in the same process and the topic sets subscribed
     //    by different consumers are in different clusters. In this case,
@@ -82,7 +83,7 @@ public final class MessagePullSetConsumerExample {
 
         // 2. initial and statistic thread
         Thread statisticThread =
-                new Thread(msgRecvStats, "Sent Statistic Thread");
+                new Thread(msgRcvStats, "Receive Statistic Thread");
         statisticThread.start();
 
         // 3. Start the consumer group for the first consumption
@@ -129,9 +130,9 @@ public final class MessagePullSetConsumerExample {
             thread.join();
         }
 
-        logger.info("The second consumption begin!");
         // 4. Start the consumer group for the second consumption
         // 4.1 set the boostrap Offset, here we set consumption from 0
+        logger.info("The second consumption begin!");
         String sessionKeySec = "test_consume_Second";
         int sourceCountSec = 1;
         ConcurrentHashMap<String, Long> partOffsetMapSec =
@@ -229,7 +230,7 @@ public final class MessagePullSetConsumerExample {
                         // 2.1 process message if getMessage() return success
                         List<Message> messageList = csmResult.getMessageList();
                         if (messageList != null && !messageList.isEmpty()) {
-                            msgRecvStats.addMsgCount(csmResult.getTopicName(), messageList.size());
+                            msgRcvStats.addMsgCount(csmResult.getTopicName(), messageList.size());
                         }
                         // 2.1.2 store the offset of processing message
                         //       the offset returned by GetMessage() represents the initial offset of this request

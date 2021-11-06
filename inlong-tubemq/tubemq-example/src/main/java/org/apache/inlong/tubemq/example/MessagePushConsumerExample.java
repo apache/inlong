@@ -49,7 +49,8 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
  */
 public final class MessagePushConsumerExample {
 
-    private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
+    private static final MsgSendReceiveStats msgRcvStats =
+            new MsgSendReceiveStats(false);
     private static MessageSessionFactory sessionFactory;
     private static final Map<String, PushMessageConsumer> consumerMap = new HashMap<>();
 
@@ -99,15 +100,15 @@ public final class MessagePushConsumerExample {
                 MessageListener messageListener = new DefaultMessageListener(entry.getKey());
                 consumer.subscribe(entry.getKey(), entry.getValue(), messageListener);
             }
-            // 3.3. start consumer
+            // 3.3 start consumer
             consumer.completeSubscribe();
-            // 3.4. store consumer object
+            // 3.4 store consumer object
             consumerMap.put(consumer.getConsumerId(), consumer);
         }
 
         // 4. initial and statistic thread
         Thread statisticThread =
-                new Thread(msgRecvStats, "Sent Statistic Thread");
+                new Thread(msgRcvStats, "Receive Statistic Thread");
         statisticThread.start();
 
         // 5. Resource cleanup when exiting the service
@@ -136,7 +137,7 @@ public final class MessagePushConsumerExample {
         @Override
         public void receiveMessages(PeerInfo peerInfo, List<Message> messages) {
             if (messages != null && !messages.isEmpty()) {
-                msgRecvStats.addMsgCount(this.topic, messages.size());
+                msgRcvStats.addMsgCount(this.topic, messages.size());
             }
         }
 

@@ -46,7 +46,8 @@ public final class MessagePullConsumerExample {
     private static final Logger logger =
             LoggerFactory.getLogger(MessagePullConsumerExample.class);
 
-    private static final MsgRecvStats msgRecvStats = new MsgRecvStats();
+    private static final MsgSendReceiveStats msgRcvStats =
+            new MsgSendReceiveStats(false);
     private static PullMessageConsumer pullConsumer;
     private static MessageSessionFactory sessionFactory;
 
@@ -126,7 +127,7 @@ public final class MessagePullConsumerExample {
                                 // 4.2.1 process message if getMessage() return success
                                 List<Message> messageList = csmResult.getMessageList();
                                 if (messageList != null && !messageList.isEmpty()) {
-                                    msgRecvStats.addMsgCount(csmResult.getTopicName(), messageList.size());
+                                    msgRcvStats.addMsgCount(csmResult.getTopicName(), messageList.size());
                                 }
                                 // 4.2.1.1 confirm consume result
                                 // Notice:
@@ -171,7 +172,7 @@ public final class MessagePullConsumerExample {
 
         // 6. initial and statistic thread
         Thread statisticThread =
-                new Thread(msgRecvStats, "Sent Statistic Thread");
+                new Thread(msgRcvStats, "Receive Statistic Thread");
         statisticThread.start();
 
         // 7. Resource cleanup when exiting the service
@@ -183,6 +184,5 @@ public final class MessagePullConsumerExample {
         // 7.3 shutdown statistic thread
         // msgRecvStats.stopStats();
     }
-
 }
 

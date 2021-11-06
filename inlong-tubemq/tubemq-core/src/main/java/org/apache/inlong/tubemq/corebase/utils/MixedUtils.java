@@ -18,7 +18,9 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -78,6 +80,24 @@ public class MixedUtils {
         return topicAndFiltersMap;
     }
 
+    // build the topic and filter item pair carried in the message
+    public static List<Tuple2<String, String>> buildTopicFilterTupleList(
+            Map<String, TreeSet<String>> topicAndFiltersMap) {
+        // initial send target
+        List<Tuple2<String, String>> topicFilterTuples = new ArrayList<>();
+        // initial topic send round
+        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+            if (entry.getValue().isEmpty()) {
+                topicFilterTuples.add(new Tuple2<>(entry.getKey()));
+            } else {
+                for (String filter : entry.getValue()) {
+                    topicFilterTuples.add(new Tuple2<>(entry.getKey(), filter));
+                }
+            }
+        }
+        return topicFilterTuples;
+    }
+
     public static byte[] buildTestData(int bodySize) {
         final byte[] transmitData =
                 StringUtils.getBytesUtf8("This is a test data!");
@@ -89,6 +109,18 @@ public class MixedUtils {
         }
         dataBuffer.flip();
         return dataBuffer.array();
+    }
+
+    public static void coolSending(long msgSentCount) {
+        if (msgSentCount % 5000 == 0) {
+            ThreadUtils.sleep(3000);
+        } else if (msgSentCount % 4000 == 0) {
+            ThreadUtils.sleep(2000);
+        } else if (msgSentCount % 2000 == 0) {
+            ThreadUtils.sleep(800);
+        } else if (msgSentCount % 1000 == 0) {
+            ThreadUtils.sleep(400);
+        }
     }
 
     // get the middle data between min, max, and data
