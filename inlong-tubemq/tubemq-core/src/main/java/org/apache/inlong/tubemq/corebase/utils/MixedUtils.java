@@ -18,13 +18,16 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class MixedUtils {
@@ -98,6 +101,7 @@ public class MixedUtils {
         return topicFilterTuples;
     }
 
+    // only for demo
     public static byte[] buildTestData(int bodySize) {
         final byte[] transmitData =
                 StringUtils.getBytesUtf8("This is a test data!");
@@ -111,6 +115,25 @@ public class MixedUtils {
         return dataBuffer.array();
     }
 
+    // build message to be sent
+    // only for demo
+    public static Message buildMessage(String topicName, String filterItem,
+                                       byte[] bodyData, long serialId,
+                                       SimpleDateFormat sdf) {
+        // build message to be sent
+        Message message = new Message(topicName, bodyData);
+        long currTimeMillis = System.currentTimeMillis();
+        // added a serial number and data generation time to each message
+        message.setAttrKeyVal("serialId", String.valueOf(serialId));
+        message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
+        if (filterItem != null) {
+            // add filter attribute information
+            message.putSystemHeader(filterItem, sdf.format(new Date(currTimeMillis)));
+        }
+        return message;
+    }
+
+    // only for demo
     public static void coolSending(long msgSentCount) {
         if (msgSentCount % 5000 == 0) {
             ThreadUtils.sleep(3000);

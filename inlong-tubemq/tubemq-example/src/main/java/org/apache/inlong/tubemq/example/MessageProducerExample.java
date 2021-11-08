@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.example;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,6 @@ import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.slf4j.Logger;
@@ -84,7 +82,7 @@ public final class MessageProducerExample {
 
         // 4. build the content of the message to be sent
         //    include message body, attributes, and time information template
-        final byte[] dataBuffer =
+        final byte[] bodyData =
                 MixedUtils.buildTestData(pkgSize);
         List<Tuple2<String, String>> buildTopicFilterTuples =
                 MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
@@ -99,31 +97,22 @@ public final class MessageProducerExample {
             roundIndex = (int) (sentCount++ % targetCnt);
             Tuple2<String, String> target = buildTopicFilterTuples.get(roundIndex);
 
-            // 5.2 build message to be sent
-            Message message = new Message(target.getF0(), dataBuffer);
-            long currTimeMillis = System.currentTimeMillis();
-            message.setAttrKeyVal("index", String.valueOf(sentCount));
-            message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
-            if (target.getF1() != null) {
-                // 5.2.1 add filter attribute information
-                message.putSystemHeader(target.getF1(), sdf.format(new Date(currTimeMillis)));
-            }
-
-            // 5.3 send message
+            // 5.2 send message
             try {
-                // 5.3.1 Send data asynchronously, recommended
-                messageProducer.sendMessage(message, new DefaultSendCallback());
-
-                // 5.3.2 Send message synchronous, not recommended
+                // 5.2.1 Send data asynchronously, recommended
+                messageProducer.sendMessage(MixedUtils.buildMessage(target.getF0(),
+                        target.getF1(), bodyData, sentCount, sdf), new DefaultSendCallback());
+                // Or
+                // 5.2.2 Send message synchronous, not recommended
                 // MessageSentResult result = messageProducer.sendMessage(message);
                 // if (!result.isSuccess()) {
                 //    logger.error("Sync-send message failed!" + result.getErrMsg());
                 // }
             } catch (TubeClientException | InterruptedException e) {
-                logger.error("Async-send message failed!", e);
+                logger.error("Send message failed!", e);
             }
 
-            // 5.4 Cool sending
+            // 5.3 Cool sending
             //     Attention: only used in the test link, to solve the problem of
             //                frequent sending failures caused by insufficient test resources.
             MixedUtils.coolSending(sentCount);
