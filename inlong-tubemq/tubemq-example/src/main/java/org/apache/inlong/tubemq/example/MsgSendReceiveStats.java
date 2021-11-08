@@ -28,19 +28,24 @@ import org.slf4j.LoggerFactory;
 /**
  * This demo shows how to collect and report message received statistics.
  */
-public class MsgRecvStats implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(MsgRecvStats.class);
+public class MsgSendReceiveStats implements Runnable {
+    private final boolean isProducer;
+    private static final Logger logger = LoggerFactory.getLogger(MsgSendReceiveStats.class);
     private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, AtomicLong> befCountMap = new ConcurrentHashMap<>();
-    private AtomicBoolean isStarted = new AtomicBoolean(false);
+    private final AtomicBoolean isStarted = new AtomicBoolean(true);
+
+    public MsgSendReceiveStats(boolean isProducer) {
+        this.isProducer = isProducer;
+    }
 
     @Override
     public void run() {
+        // Indicator output every 30 seconds
         while (isStarted.get()) {
             try {
                 for (Map.Entry<String, AtomicLong> entry : counterMap.entrySet()) {
                     long currCount = entry.getValue().get();
-
                     AtomicLong befCount = befCountMap.get(entry.getKey());
                     if (befCount == null) {
                         AtomicLong tmpCount = new AtomicLong(0);
@@ -49,10 +54,14 @@ public class MsgRecvStats implements Runnable {
                             befCount = tmpCount;
                         }
                     }
-
-                    logger.info("********* Current {} Message receive count is {}, dlt is {}",
-                        new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
-
+                    if (isProducer) {
+                        logger.info("********* Current {} Message sent count is {}, dlt is {}",
+                                new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
+                    } else {
+                        logger.info("********* Current {} Message received count is {}, dlt is {}",
+                                new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
+                    }
+                    befCountMap.get(entry.getKey()).set(currCount);
                 }
             } catch (Throwable t) {
                 // ignore
@@ -71,9 +80,13 @@ public class MsgRecvStats implements Runnable {
                     currCount = tmpCount;
                 }
             }
-
-            if (currCount.addAndGet(msgCnt) % 500 == 0) {
-                logger.info("Receive messages:" + currCount.get());
+            // Indicator output every 1000
+            if (currCount.addAndGet(msgCnt) % 1000 == 0) {
+                if (isProducer) {
+                    logger.info("Sent " + topicName + " messages:" + currCount.get());
+                } else {
+                    logger.info("Received " + topicName + " messages:" + currCount.get());
+                }
             }
         }
     }

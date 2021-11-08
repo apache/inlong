@@ -29,7 +29,7 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
  */
 public class TubeClientConfig {
     // Master information.
-    private MasterInfo masterInfo;
+    private final MasterInfo masterInfo;
     // Rpc read time out.
     private long rpcReadTimeoutMs = RpcConstants.CFG_RPC_READ_TIMEOUT_DEFAULT_MS;
     // Rpc connection processor number.
