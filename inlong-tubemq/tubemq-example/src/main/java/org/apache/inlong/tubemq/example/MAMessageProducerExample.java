@@ -55,7 +55,6 @@ public class MAMessageProducerExample {
     private static final AtomicLong totalSentCnt = new AtomicLong(0);
     private static ExecutorService sendExecutorService;
 
-
     // The 1st parameter masterServers format is master1_ip:port[,master2_ip:port],
     //     the master address(es) to connect to;
     // The 2nd parameter pubTopicAndFilterItems format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]]
