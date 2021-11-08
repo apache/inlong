@@ -94,39 +94,20 @@ func ParseConfirmContext(confirmContext string) (string, int64, error) {
 }
 
 // SplitToMap split the given string by the two step strings to map.
+// Source format $msgType$=metadata_journal_log,$msgTime$=202111081911,tdbusip=10.56.15.232
 func SplitToMap(source string, step1 string, step2 string) map[string]string {
-	pos1 := 0
-	pos2 := strings.Index(source, step1)
-	pos3 := 0
 	m := make(map[string]string)
-	for pos2 != -1 {
-		itemStr := strings.TrimSpace(source[pos1 : pos2-pos1])
-		if len(itemStr) == 0 {
-			continue
-		}
-		pos1 = pos2 + len(step1)
-		pos2 = strings.Index(source[pos1:], step1)
-		pos3 = strings.Index(itemStr, step2)
-		if pos3 == -1 {
-			continue
-		}
-		key := strings.TrimSpace(itemStr[:pos3])
-		val := strings.TrimSpace(itemStr[pos3+len(step2):])
-		if len(key) == 0 {
-			continue
-		}
-		m[key] = val
+	if len(source) == 0 {
+		return m
 	}
-	if pos1 != len(source) {
-		itemStr := strings.TrimSpace(source[pos1:])
-		pos3 = strings.Index(itemStr, step2)
-		if pos3 != -1 {
-			key := strings.TrimSpace(itemStr[:pos3])
-			val := strings.TrimSpace(itemStr[pos3+len(step2):])
-			if len(key) > 0 {
-				m[key] = val
-			}
+
+	str := strings.Split(source, ",")
+	for _, ss := range str {
+		s := strings.Split(ss, "=")
+		if len(s) == 1 {
+			continue
 		}
+		m[strings.TrimSpace(s[0])] = strings.TrimSpace(s[1])
 	}
 	return m
 }
