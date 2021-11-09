@@ -101,13 +101,17 @@ func SplitToMap(source string, step1 string, step2 string) map[string]string {
 		return m
 	}
 
-	str := strings.Split(source, ",")
+	str := strings.Split(source, step1)
 	for _, ss := range str {
-		s := strings.Split(ss, "=")
+		s := strings.Split(ss, step2)
 		if len(s) == 1 {
 			continue
 		}
-		m[strings.TrimSpace(s[0])] = strings.TrimSpace(s[1])
+		key := strings.TrimSpace(s[0])
+		if len(key) == 0 {
+			continue
+		}
+		m[key] = strings.TrimSpace(s[1])
 	}
 	return m
 }
