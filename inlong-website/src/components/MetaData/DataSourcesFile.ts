@@ -25,19 +25,19 @@ export const getCreateFormContent = () => {
   const array = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.DataSourceIP'),
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
       name: 'ip',
       rules: [
         { required: true },
         {
           pattern: rulesPattern.ip,
-          message: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.IpRule'),
+          message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
         },
       ],
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.Port'),
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.Port'),
       name: 'port',
       props: {
         min: 1,
@@ -47,10 +47,10 @@ export const getCreateFormContent = () => {
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FilePath'),
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
       name: 'filePath',
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FillInTheAbsolutePath'),
+      suffix: i18n.t('components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath'),
     },
   ];
 
@@ -59,17 +59,17 @@ export const getCreateFormContent = () => {
 
 export const tableColumns: ColumnsType = [
   {
-    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.DataSourceIP'),
+    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
     dataIndex: 'ip',
     width: 150,
   },
   {
-    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.Port'),
+    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.Port'),
     dataIndex: 'port',
     width: 120,
   },
   {
-    title: i18n.t('components.AccessHelper.DataSourcesEditor.FileConfig.FilePath'),
+    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
     dataIndex: 'filePath',
   },
 ];

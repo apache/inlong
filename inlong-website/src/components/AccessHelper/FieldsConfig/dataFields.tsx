@@ -275,13 +275,17 @@ export default (
             value: 'HIVE',
           },
           {
+            label: 'CLICK_HOUSE',
+            value: 'CLICK_HOUSE',
+          },
+          {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
             value: 'AUTO_PUSH',
           },
         ],
       },
     },
-    ...['HIVE'].reduce(
+    ...['HIVE', 'CLICK_HOUSE'].reduce(
       (acc, item) =>
         acc.concat({
           type: (
