@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import React from 'react';
-import { Modal, message, Button, Collapse, Popover, Timeline } from 'antd';
+import React, { useCallback, useState } from 'react';
+import { Modal, message, Button, Collapse, Popover, Timeline, Pagination, Empty } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import HighTable from '@/components/HighTable';
 import request from '@/utils/request';
@@ -36,10 +36,16 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   const { t } = useTranslation();
 
+  const [options, setOptions] = useState({
+    pageNum: 1,
+    pageSize: 5,
+  });
+
   const { run: getData, data } = useRequest(
     {
       url: '/workflow/listTaskExecuteLogs',
       params: {
+        ...options,
         inlongGroupId: inlongGroupId,
         processNames: 'CREATE_BUSINESS_RESOURCE,CREATE_DATASTREAM_RESOURCE',
         taskType: 'ServiceTask',
@@ -50,28 +56,44 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     },
   );
 
-  const goResult = ({ taskInstId }) => {
-    Modal.confirm({
-      title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
-      onOk: async () => {
-        await request({
-          url: `/workflow/complete/` + taskInstId,
-          method: 'POST',
-          data: {
-            remark: '',
-          },
-        });
-        await getData(inlongGroupId);
-        message.success(t('pages.AccessDashboard.ExecutionLogModal.Re-executingSuccess'));
-      },
-    });
-  };
+  const onChange = useCallback((pageNum, pageSize) => {
+    setOptions(prev => ({
+      ...prev,
+      pageNum,
+      pageSize,
+    }));
+  }, []);
+
+  const reRun = useCallback(
+    ({ taskInstId }) => {
+      Modal.confirm({
+        title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
+        onOk: async () => {
+          await request({
+            url: `/workflow/complete/` + taskInstId,
+            method: 'POST',
+            data: {
+              remark: '',
+            },
+          });
+          await getData(inlongGroupId);
+          message.success(t('pages.AccessDashboard.ExecutionLogModal.Re-executingSuccess'));
+        },
+      });
+    },
+    [getData, inlongGroupId],
+  );
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
-      getData(inlongGroupId);
+      getData();
+    } else {
+      setOptions(prev => ({
+        ...prev,
+        pageNum: 1,
+      }));
     }
-  }, [modalProps.visible, inlongGroupId]);
+  }, [modalProps.visible, options]);
 
   const columns = [
     {
@@ -129,11 +151,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     {
       title: t('pages.AccessDashboard.ExecutionLogModal.EndTime'),
       dataIndex: 'endTime',
-      render: (text, record) => (
-        <>
-          <div>{record.endTime && timestampFormat(record.endTime)}</div>
-        </>
-      ),
+      render: (text, record) => record.endTime && timestampFormat(record.endTime),
     },
     {
       title: t('basic.Operating'),
@@ -141,7 +159,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       render: (text, record) => (
         <>
           {record?.state && record.state === 'FAILED' && (
-            <Button type="link" onClick={() => goResult(record)}>
+            <Button type="link" onClick={() => reRun(record)}>
               {t('pages.AccessDashboard.ExecutionLogModal.CarriedOut')}
             </Button>
           )}
@@ -156,33 +174,33 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       width={1024}
       footer={null}
     >
-      {data && (
-        <Collapse accordion defaultActiveKey={[data[0]?.processInstId]}>
-          {data.map(item => (
-            <Panel header={item.processDisplayName} key={item.processInstId}>
-              <HighTable
-                table={{
-                  columns,
-                  rowKey: 'taskInstId',
-                  size: 'small',
-                  dataSource: item.taskExecutorLogs,
-                }}
-              />
-            </Panel>
-          ))}
-        </Collapse>
-      )}
-      {data && !data.length && (
-        <Collapse accordion defaultActiveKey={[data[0]?.processInstId]}>
-          <HighTable
-            table={{
-              columns,
-              rowKey: 'taskInstId',
-              size: 'small',
-              dataSource: data,
-            }}
+      {data?.list?.length ? (
+        <>
+          <Collapse accordion defaultActiveKey={[data.list[0]?.processInstId]}>
+            {data.list.map(item => (
+              <Panel header={item.processDisplayName} key={item.processInstId}>
+                <HighTable
+                  table={{
+                    columns,
+                    rowKey: 'taskInstId',
+                    size: 'small',
+                    dataSource: item.taskExecutorLogs,
+                  }}
+                />
+              </Panel>
+            ))}
+          </Collapse>
+          <Pagination
+            size="small"
+            pageSize={options.pageSize}
+            current={options.pageNum}
+            total={data.total}
+            onChange={onChange}
+            style={{ textAlign: 'right', marginTop: 10 }}
           />
-        </Collapse>
+        </>
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
       )}
     </Modal>
   );
