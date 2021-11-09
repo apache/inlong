@@ -102,6 +102,10 @@ public final class RpcConstants {
     public static final int RPC_MSG_BROKER_CONSUMER_CLOSE = 19;
     //public static final int RPC_MSG_BROKER_METHOD_END = 19;
 
+    public static final int RPC_MSG_MASTER_CONSUMER_REGISTER_V2 = 20;
+    public static final int RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2 = 21;
+    public static final int RPC_MSG_MASTER_CONSUMER_GET_PART_META = 22;
+
     public static final int MSG_OPTYPE_REGISTER = 31;
     public static final int MSG_OPTYPE_UNREGISTER = 32;
 

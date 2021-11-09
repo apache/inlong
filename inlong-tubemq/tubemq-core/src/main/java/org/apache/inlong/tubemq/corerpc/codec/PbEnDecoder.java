@@ -51,6 +51,12 @@ public class PbEnDecoder {
         rpcMethodMap.put("getMessagesC2B", RpcConstants.RPC_MSG_BROKER_CONSUMER_GETMESSAGE);
         rpcMethodMap.put("consumerCommitC2B", RpcConstants.RPC_MSG_BROKER_CONSUMER_COMMIT);
         rpcMethodMap.put("sendMessageP2B", RpcConstants.RPC_MSG_BROKER_PRODUCER_SENDMESSAGE);
+        rpcMethodMap.put("consumerRegisterC2MV2",
+                RpcConstants.RPC_MSG_MASTER_CONSUMER_REGISTER_V2);
+        rpcMethodMap.put("consumerHeartbeatC2MV2",
+                RpcConstants.RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2);
+        rpcMethodMap.put("consumerGetPartMetaInfoC2M",
+                RpcConstants.RPC_MSG_MASTER_CONSUMER_GET_PART_META);
 
         rpcServiceMap.put("org.apache.inlong.tubemq.corerpc.service.MasterService",
                 RpcConstants.RPC_SERVICE_TYPE_MASTER_SERVICE);
@@ -105,6 +111,15 @@ public class PbEnDecoder {
                 }
                 case RpcConstants.RPC_MSG_MASTER_BROKER_HEARTBEAT: {
                     return ClientMaster.HeartRequestB2M.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_REGISTER_V2: {
+                    return ClientMaster.RegisterRequestC2MV2.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2: {
+                    return ClientMaster.HeartRequestC2MV2.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_GET_PART_META: {
+                    return ClientMaster.GetPartMetaRequestC2M.parseFrom(bytes);
                 }
                 case RpcConstants.RPC_MSG_MASTER_BROKER_CLOSECLIENT: {
                     return ClientMaster.CloseRequestB2M.parseFrom(bytes);
@@ -162,6 +177,15 @@ public class PbEnDecoder {
                 }
                 case RpcConstants.RPC_MSG_MASTER_BROKER_CLOSECLIENT: {
                     return ClientMaster.CloseResponseM2B.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_REGISTER_V2: {
+                    return ClientMaster.RegisterResponseM2CV2.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2: {
+                    return ClientMaster.HeartResponseM2CV2.parseFrom(bytes);
+                }
+                case RpcConstants.RPC_MSG_MASTER_CONSUMER_GET_PART_META: {
+                    return ClientMaster.GetPartMetaResponseM2C.parseFrom(bytes);
                 }
                 case RpcConstants.RPC_MSG_BROKER_PRODUCER_SENDMESSAGE: {
                     return ClientBroker.SendMessageResponseB2P.parseFrom(bytes);
@@ -234,6 +258,9 @@ public class PbEnDecoder {
                     case RpcConstants.RPC_MSG_MASTER_CONSUMER_REGISTER:
                     case RpcConstants.RPC_MSG_MASTER_CONSUMER_HEARTBEAT:
                     case RpcConstants.RPC_MSG_MASTER_CONSUMER_CLOSECLIENT:
+                    case RpcConstants.RPC_MSG_MASTER_CONSUMER_REGISTER_V2:
+                    case RpcConstants.RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2:
+                    case RpcConstants.RPC_MSG_MASTER_CONSUMER_GET_PART_META:
                     case RpcConstants.RPC_MSG_MASTER_BROKER_REGISTER:
                     case RpcConstants.RPC_MSG_MASTER_BROKER_HEARTBEAT:
                     case RpcConstants.RPC_MSG_MASTER_BROKER_CLOSECLIENT: {

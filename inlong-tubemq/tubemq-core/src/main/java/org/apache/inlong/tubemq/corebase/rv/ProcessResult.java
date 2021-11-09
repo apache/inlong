@@ -63,10 +63,6 @@ public class ProcessResult extends RetValue {
         return retData1;
     }
 
-    public void setRetData(Object retData) {
-        this.retData1 = retData;
-    }
-
     public void clear() {
         super.clear();
         this.retData1 = null;

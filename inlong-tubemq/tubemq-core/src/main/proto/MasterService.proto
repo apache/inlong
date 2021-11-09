@@ -430,3 +430,80 @@ message CloseResponse_V2_M2B {
     required int32 errCode = 1;
     optional string errMsg = 2;
 }
+
+message ClientSubRepInfo {
+    required int64 brokerConfigId = 1;
+    required int64 topicMetaInfoId = 2;
+    optional int64 lstAssignedTime = 3;
+    optional bool reportSubInfo = 4;
+    repeated string partSubInfo = 5;
+}
+
+message OpsTaskInfo {
+    optional int64 groupFlowCheckId = 1;
+    optional int64 defFlowCheckId = 2;
+    optional int32 qryPriorityId = 3;
+    optional int64 csmFrmMaxOffsetCtrlId = 4;
+    optional bool requireAuth = 5;
+    optional string defFlowControlInfo = 6;
+    optional string groupFlowControlInfo = 7;
+}
+
+message RegisterRequestC2MV2 {
+    required string clientId = 1;
+    required string groupName = 2;
+    required string hostName = 3;
+    required int32 sourceCount = 4;
+    required int32 nodeId = 5;
+    repeated string topicList = 6;
+    repeated string topicCondition = 7;
+    optional ClientSubRepInfo subRepInfo = 8;
+    optional OpsTaskInfo opsTaskInfo = 9;
+    optional MasterCertificateInfo authInfo = 10;
+    optional string jdkVersion = 11;
+}
+
+message RegisterResponseM2CV2 {
+    required int32 errCode = 1;
+    required string errMsg = 2;
+    optional int64 brokerConfigId = 3;
+    repeated string brokerConfigList = 4;
+    optional OpsTaskInfo opsTaskInfo = 5;
+    optional MasterAuthorizedInfo authorizedInfo = 6;
+}
+
+message HeartRequestC2MV2 {
+    required string clientId = 1;
+    required string groupName = 2;
+    optional ClientSubRepInfo subRepInfo = 3;
+    optional OpsTaskInfo opsTaskInfo = 4;
+    optional MasterCertificateInfo authInfo = 5;
+}
+
+message HeartResponseM2CV2 {
+    required int32 errCode = 1;
+    required string errMsg = 2;
+    optional int64 brokerConfigId = 3;
+    repeated string brokerConfigList = 4;
+    optional int64  topicMetaInfoId = 5;
+    repeated string topicMetaInfoList = 6;
+    optional OpsTaskInfo opsTaskInfo = 7;
+    optional MasterAuthorizedInfo authorizedInfo = 8;
+}
+
+message GetPartMetaRequestC2M {
+    required string clientId = 1;
+    required string groupName = 2;
+    required int64  brokerConfigId = 3;
+    required int64  topicMetaInfoId = 4;
+    optional MasterCertificateInfo authInfo = 5;
+}
+
+message GetPartMetaResponseM2C {
+    required int32 errCode = 1;
+    required string errMsg = 2;
+    optional int64 brokerConfigId = 3;
+    optional int64  topicMetaInfoId = 4;
+    repeated string topicMetaInfoList = 5;
+    repeated string brokerConfigList = 6;
+}

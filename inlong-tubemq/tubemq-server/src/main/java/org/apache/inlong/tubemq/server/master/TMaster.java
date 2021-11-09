@@ -56,19 +56,25 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.CloseRe
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.CloseResponseM2P;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.EnableBrokerFunInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.EventProto;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.GetPartMetaRequestC2M;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.GetPartMetaResponseM2C;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartRequestB2M;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartRequestC2M;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartRequestC2MV2;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartRequestP2M;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2B;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2C;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2CV2;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2P;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.MasterAuthorizedInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.MasterBrokerAuthorizedInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterRequestB2M;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterRequestC2M;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterRequestC2MV2;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterRequestP2M;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2C;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2CV2;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2P;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
@@ -1183,6 +1189,27 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
         return builder.build();
+    }
+
+    @Override
+    public RegisterResponseM2CV2 consumerRegisterC2MV2(RegisterRequestC2MV2 request,
+                                                       String rmtAddress,
+                                                       boolean overtls) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public HeartResponseM2CV2 consumerHeartbeatC2MV2(HeartRequestC2MV2 request,
+                                                     String rmtAddress,
+                                                     boolean overtls) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public GetPartMetaResponseM2C consumerGetPartMetaInfoC2M(GetPartMetaRequestC2M request,
+                                                             String rmtAddress,
+                                                             boolean overtls) throws Throwable {
+        return null;
     }
 
     /**

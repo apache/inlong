@@ -147,7 +147,7 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
         }
         if (putTopicConfig2Bdb(memEntity, result)) {
             addOrUpdCacheRecord(memEntity);
-            result.setRetData(curEntity);
+            result.setSuccResult(curEntity);
         }
         return result.isSuccess();
     }

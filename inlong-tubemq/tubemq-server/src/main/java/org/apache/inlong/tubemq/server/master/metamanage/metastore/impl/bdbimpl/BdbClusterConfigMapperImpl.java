@@ -136,7 +136,7 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
         }
         if (putClusterConfig2Bdb(memEntity, result)) {
             metaDataCache.put(memEntity.getRecordKey(), memEntity);
-            result.setRetData(curEntity);
+            result.setSuccResult(curEntity);
         }
         return result.isSuccess();
     }

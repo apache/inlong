@@ -48,4 +48,16 @@ public interface MasterService {
     ClientMaster.CloseResponseM2B brokerCloseClientB2M(ClientMaster.CloseRequestB2M request,
                                                        String rmtAddress, boolean overtls) throws Throwable;
 
+    ClientMaster.RegisterResponseM2CV2 consumerRegisterC2MV2(
+            ClientMaster.RegisterRequestC2MV2 request,
+            String rmtAddress, boolean overtls) throws Throwable;
+
+    ClientMaster.HeartResponseM2CV2 consumerHeartbeatC2MV2(
+            ClientMaster.HeartRequestC2MV2 request,
+            String rmtAddress, boolean overtls) throws Throwable;
+
+    ClientMaster.GetPartMetaResponseM2C consumerGetPartMetaInfoC2M(
+            ClientMaster.GetPartMetaRequestC2M request,
+            String rmtAddress, boolean overtls) throws Throwable;
+
 }
