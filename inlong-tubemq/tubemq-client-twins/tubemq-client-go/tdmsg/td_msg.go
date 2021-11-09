@@ -133,7 +133,7 @@ func (m *TubeMQTDMsg) parseBinMsg(data []byte) error {
 	body := bm.body
 	if (bm.msgType&0xE0)>>5 == 1 {
 		var err error
-		body, err = getDecodedData(data[1:], int32(v4))
+		body, err = getDecodedData(body, int32(v4))
 		if err != nil {
 			return err
 		}
@@ -367,7 +367,7 @@ func getDecodedData(data []byte, ver int32) ([]byte, error) {
 	decodedData := make([]byte, 0, decodedLen)
 	decodedData, err = snappy.Decode(decodedData, data)
 	if err != nil {
-		return nil, errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's length failure", ver))
+		return nil, errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's data failure", ver))
 	}
 	return decodedData, nil
 }
