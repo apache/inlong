@@ -29,9 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
@@ -73,21 +73,21 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> inGroupNameSet = (Set<String>) result.getRetData();
         if (inGroupNameSet.isEmpty()) {
             if (!WebParameterUtils.getStringParamValue(req,
                     WebFieldDef.COMPSCONSUMEGROUP, false, null, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
             inGroupNameSet = (Set<String>) result.getRetData();
         }
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
@@ -137,7 +137,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
             if (!WebParameterUtils.getStringParamValue(req,
                     WebFieldDef.CONSUMEGROUP, true, null, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
         }

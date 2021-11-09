@@ -35,6 +35,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlItem;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -414,35 +415,35 @@ public class WebParameterUtils {
                 TServerConstants.TOPIC_STOREBLOCK_NUM_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setNumTopicStores((int) result.retData1);
+        newConf.setNumTopicStores((int) result.getRetData());
         // get numPartitions parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMPARTITIONS, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getNumPartitions()),
                 TServerConstants.TOPIC_PARTITION_NUM_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setNumPartitions((int) result.retData1);
+        newConf.setNumPartitions((int) result.getRetData());
         // get unflushThreshold parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHTHRESHOLD, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushThreshold()),
                 TServerConstants.TOPIC_DSK_UNFLUSHTHRESHOLD_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setUnflushThreshold((int) result.retData1);
+        newConf.setUnflushThreshold((int) result.getRetData());
         // get unflushInterval parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHINTERVAL, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushInterval()),
                 TServerConstants.TOPIC_DSK_UNFLUSHINTERVAL_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setUnflushInterval((int) result.retData1);
+        newConf.setUnflushInterval((int) result.getRetData());
         // get unflushDataHold parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFLUSHDATAHOLD, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getUnflushDataHold()),
                 TServerConstants.TOPIC_DSK_UNFLUSHDATAHOLD_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setUnflushDataHold((int) result.retData1);
+        newConf.setUnflushDataHold((int) result.getRetData());
         // get memCacheMsgSizeInMB parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.MCACHESIZEINMB, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheMsgSizeInMB()),
@@ -450,39 +451,39 @@ public class WebParameterUtils {
                 TServerConstants.TOPIC_CACHESIZE_MB_MAX, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setMemCacheMsgSizeInMB((int) result.retData1);
+        newConf.setMemCacheMsgSizeInMB((int) result.getRetData());
         // get memCacheFlushIntvl parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFMCACHEINTERVAL, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheFlushIntvl()),
                 TServerConstants.TOPIC_CACHEINTVL_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setMemCacheFlushIntvl((int) result.retData1);
+        newConf.setMemCacheFlushIntvl((int) result.getRetData());
         // get memCacheMsgCntInK parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.UNFMCACHECNTINK, false,
                 (defVal == null ? TBaseConstants.META_VALUE_UNDEFINED : defVal.getMemCacheMsgCntInK()),
                 TServerConstants.TOPIC_CACHECNT_INK_MIN, sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setMemCacheMsgCntInK((int) result.retData1);
+        newConf.setMemCacheMsgCntInK((int) result.getRetData());
         // get deletePolicy parameter value
         if (!WebParameterUtils.getDeletePolicyParameter(paramCntr, false,
                 (defVal == null ? null : defVal.getDeletePolicy()), sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setDeletePolicy((String) result.retData1);
+        newConf.setDeletePolicy((String) result.getRetData());
         // get acceptPublish parameter value
         if (!WebParameterUtils.getBooleanParamValue(paramCntr, WebFieldDef.ACCEPTPUBLISH, false,
                 (defVal == null ? null : defVal.getAcceptPublish()), sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setAcceptPublish((Boolean) result.retData1);
+        newConf.setAcceptPublish((Boolean) result.getRetData());
         // get acceptSubscribe parameter value
         if (!WebParameterUtils.getBooleanParamValue(paramCntr, WebFieldDef.ACCEPTSUBSCRIBE, false,
                 (defVal == null ? null : defVal.getAcceptSubscribe()), sBuffer, result)) {
             return result.isSuccess();
         }
-        newConf.setAcceptSubscribe((Boolean) result.retData1);
+        newConf.setAcceptSubscribe((Boolean) result.getRetData());
         result.setSuccResult(newConf);
         return result.isSuccess();
     }
@@ -641,7 +642,7 @@ public class WebParameterUtils {
                         hasMinVal, minValue, hasMaxVal, maxValue, sBuffer, result)) {
                     return result.isSuccess();
                 }
-                tgtValueSet.add((Integer) result.retData1);
+                tgtValueSet.add((Integer) result.getRetData());
             }
             result.setSuccResult(tgtValueSet);
         } else {
@@ -772,7 +773,7 @@ public class WebParameterUtils {
                 if (!checkStrValueNorms(fieldDef, strParamValueItem, sBuffer, result)) {
                     return result.isSuccess();
                 }
-                valItemSet.add((String) result.retData1);
+                valItemSet.add((String) result.getRetData());
             }
             // check if is empty result
             if (valItemSet.isEmpty()) {

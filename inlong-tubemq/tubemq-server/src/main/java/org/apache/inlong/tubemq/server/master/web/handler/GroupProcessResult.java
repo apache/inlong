@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 
 public class GroupProcessResult extends ProcessResult {
     private String groupName = "";

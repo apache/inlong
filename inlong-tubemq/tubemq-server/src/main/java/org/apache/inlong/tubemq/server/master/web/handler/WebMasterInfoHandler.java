@@ -23,10 +23,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -246,14 +246,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
@@ -341,7 +341,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                                                     ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
@@ -351,7 +351,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_VALUE_UNDEFINED, Boolean.FALSE, 0,
                 TServerConstants.BLANK_FLOWCTRL_RULES, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         return buildRetInfo(sBuffer, false);
@@ -374,7 +374,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                                                         boolean isNewVer) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final BaseEntity opEntity = (BaseEntity) result.getRetData();
@@ -384,28 +384,28 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
                 TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int maxMsgSizeMB = (int) result.getRetData();
         // get broker port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int inBrokerPort = (int) result.getRetData();
         // get broker tls port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int inBrokerTlsPort = (int) result.getRetData();
         // get broker web port info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int inBrokerWebPort = (int) result.getRetData();
@@ -416,7 +416,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             defProps.fillDefaultValue();
         }
         if (!WebParameterUtils.getTopicPropInfo(req, defProps, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final TopicPropGroup inTopicProps = (TopicPropGroup) result.getRetData();
@@ -424,7 +424,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int inQryPriorityId = (int) result.getRetData();
@@ -432,13 +432,13 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         if (isNewVer) {
             if (!WebParameterUtils.getBooleanParamValue(req,
                     WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
         } else {
             if (!WebParameterUtils.getFlowCtrlStatusParamValue(req,
                     false, null, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
         }
@@ -446,8 +446,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+        if (!result.isSuccess()) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String flowCtrlInfo = (String) result.getRetData();
@@ -455,7 +455,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         if (!metaDataManager.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
                 inBrokerTlsPort, inBrokerWebPort, maxMsgSizeMB, inQryPriorityId,
                 flowCtrlEnable, flowRuleCnt, flowCtrlInfo, inTopicProps, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         return buildRetInfo(sBuffer, isNewVer);

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.server.tools;
 
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.slf4j.Logger;
@@ -32,10 +32,10 @@ public class MasterStartup {
         // get configure file path
         ProcessResult result = new ProcessResult();
         if (!CliUtils.getConfigFilePath(args, result)) {
-            System.err.println(result.errInfo);
+            System.err.println(result.getErrMsg());
             System.exit(1);
         }
-        String configFilePath = (String) result.retData1;
+        String configFilePath = (String) result.getRetData();
         // read configure file
         final MasterConfig masterConfig = new MasterConfig();
         masterConfig.loadFromFile(configFilePath);

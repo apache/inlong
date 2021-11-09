@@ -15,69 +15,48 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.utils;
+package org.apache.inlong.tubemq.corebase.rv;
 
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+public class ProcessResult extends RetValue {
 
-public class ProcessResult {
-    public boolean success = true;
-    public int errCode = TErrCodeConstants.SUCCESS;
-    public String errInfo = "";
-    public Object retData1 = null;
+    private Object retData1 = null;
 
     public ProcessResult() {
-
+        super();
     }
 
     public ProcessResult(ProcessResult other) {
-        this.success = other.success;
-        this.errCode = other.errCode;
-        this.errInfo = other.errInfo;
+        super(other);
         this.retData1 = other.retData1;
     }
 
     public ProcessResult(Object retData) {
-        this.success = true;
+        super();
         this.retData1 = retData;
     }
 
     public ProcessResult(int errCode, String errInfo) {
-        this.success = false;
-        this.errCode = errCode;
-        this.errInfo = errInfo;
+        super(errCode, errInfo);
     }
 
     public void setFailResult(int errCode, final String errMsg) {
-        this.success = false;
-        this.errCode = errCode;
-        this.errInfo = errMsg;
+        super.setFailResult(errCode, errMsg);
         this.retData1 = null;
     }
 
     public void setFailResult(final String errMsg) {
-        this.success = false;
-        this.errCode = TErrCodeConstants.BAD_REQUEST;
-        this.errInfo = errMsg;
+        super.setFailResult(errMsg);
+        this.retData1 = null;
+    }
+
+    public void setSuccResult() {
+        super.setSuccResult();
         this.retData1 = null;
     }
 
     public void setSuccResult(Object retData) {
-        this.success = true;
-        this.errInfo = "Ok!";
-        this.errCode = TErrCodeConstants.SUCCESS;
+        super.setSuccResult();
         this.retData1 = retData;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public int getErrCode() {
-        return errCode;
-    }
-
-    public String getErrInfo() {
-        return errInfo;
     }
 
     public Object getRetData() {
@@ -89,9 +68,7 @@ public class ProcessResult {
     }
 
     public void clear() {
-        this.success = true;
-        this.errCode = TErrCodeConstants.SUCCESS;
-        this.errInfo = "";
+        super.clear();
         this.retData1 = null;
     }
 }

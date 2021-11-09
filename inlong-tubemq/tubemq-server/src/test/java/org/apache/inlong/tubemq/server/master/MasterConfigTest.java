@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.server.master;
 
 import com.sleepycat.je.Durability;
-
 import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.junit.Assert;

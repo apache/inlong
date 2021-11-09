@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.web;
 
 import static javax.servlet.DispatcherType.ASYNC;
 import static javax.servlet.DispatcherType.REQUEST;
-
 import java.util.EnumSet;
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.master.MasterConfig;

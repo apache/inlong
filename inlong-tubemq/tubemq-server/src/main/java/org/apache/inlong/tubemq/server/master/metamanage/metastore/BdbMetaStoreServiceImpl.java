@@ -54,10 +54,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
@@ -232,7 +232,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[addClusterConfig], ")
                     .append("failure to add cluster setting record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -260,7 +260,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[updClusterConfig], ")
                     .append("failure to update record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -290,7 +290,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delClusterConfig], ")
                     .append("failure to delete cluster setting record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -315,7 +315,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[addBrokerConf], ")
                     .append("failure to add broker configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -344,7 +344,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[updBrokerConf], ")
                     .append("failure to update broker configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -368,7 +368,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delBrokerConf], ")
                     .append("failure to delete broker configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -415,7 +415,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[addTopicConf], ")
                     .append("failure to add topic configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -444,7 +444,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[updTopicConf], ")
                     .append("failure to update topic configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -472,7 +472,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delTopicConf], ")
                     .append("failure to delete topic configure record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -497,7 +497,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delTopicConfByBrokerId], ")
                     .append("failure to delete topic deploy record : ")
-                    .append(brokerId).append(result.getErrInfo());
+                    .append(brokerId).append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -585,7 +585,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             sBuffer.append("[addTopicCtrlConf], ")
                     .append("failure to add topic control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(sBuffer.toString());
         }
         sBuffer.delete(0, sBuffer.length());
@@ -613,7 +613,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             sBuffer.append("[updTopicCtrlConf], ")
                     .append("failure to update topic control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(sBuffer.toString());
         }
         sBuffer.delete(0, sBuffer.length());
@@ -640,7 +640,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             sBuffer.append("[delTopicCtrlConf], ")
                     .append("failure to delete topic control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(sBuffer.toString());
         }
         sBuffer.delete(0, sBuffer.length());
@@ -681,7 +681,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[addGroupResCtrlConf], ")
                     .append("failure to add group resource control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -710,7 +710,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[updGroupResCtrlConf], ")
                     .append("failure to update group resource control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -738,7 +738,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delGroupResCtrlConf], ")
                     .append("failure to delete group resource control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -773,7 +773,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[addGroupConsumeCtrlConf], ")
                     .append("failure to add group consume control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -801,7 +801,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[updGroupConsumeCtrlConf], ")
                     .append("failure to update group consume control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -831,7 +831,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             sBuffer.append("[delGroupConsumeCtrlConf], ")
                     .append("failure to delete group consume control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(sBuffer.toString());
         }
         sBuffer.delete(0, sBuffer.length());
@@ -859,7 +859,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         } else {
             strBuffer.append("[delGroupConsumeCtrlConf], ")
                     .append("failure to delete group consume control record : ")
-                    .append(result.getErrInfo());
+                    .append(result.getErrMsg());
             logger.warn(strBuffer.toString());
         }
         strBuffer.delete(0, strBuffer.length());

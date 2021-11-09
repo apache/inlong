@@ -18,12 +18,11 @@
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
-
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.inlong.tubemq.server.master.TMaster;
@@ -102,7 +101,7 @@ public class Webapi implements Action {
             // valid operation authorize info
             if (!WebParameterUtils.validReqAuthorizeInfo(req,
                     webApiRegInfo.needAuthToken, master, sBuffer, result)) {
-                throw new Exception(result.errInfo);
+                throw new Exception(result.getErrMsg());
             }
             sBuffer = (StringBuilder) webApiRegInfo.method.invoke(
                     webApiRegInfo.webHandler, req, sBuffer, result);

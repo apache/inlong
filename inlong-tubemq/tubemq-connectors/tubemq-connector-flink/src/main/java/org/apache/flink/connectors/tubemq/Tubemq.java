@@ -25,13 +25,10 @@ import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TIDS;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TOPIC;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TYPE_VALUE_TUBEMQ;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.apache.flink.table.descriptors.ConnectorDescriptor;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 

@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
@@ -34,7 +35,6 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.StepStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
@@ -119,41 +119,41 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         BrokerConfEntity qryEntity = new BrokerConfEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // get brokerIp info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPBROKERIP, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> brokerIpSet = (Set<String>) result.getRetData();
         // get brokerPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int brokerPort = (int) result.getRetData();
         // get brokerTlsPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int brokerTlsPort = (int) result.getRetData();
         // get brokerWebPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int brokerWebPort = (int) result.getRetData();
@@ -161,7 +161,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.REGIONID,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.BROKER_REGION_ID_MIN, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int regionId = (int) result.getRetData();
@@ -169,48 +169,48 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.GROUPID,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.BROKER_GROUP_ID_MIN, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int groupId = (int) result.getRetData();
         // get and valid TopicPropGroup info
         if (!WebParameterUtils.getTopicPropInfo(req,
                 null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final TopicPropGroup brokerProps = (TopicPropGroup) result.getRetData();
         // get and valid TopicStatusId info
         if (!WebParameterUtils.getTopicStatusParamValue(req,
                 false, TopicStatus.STATUS_TOPIC_UNDEFINED, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         TopicStatus topicStatus = (TopicStatus) result.getRetData();
         // get and valid broker manage status info
         if (!getManageStatusParamValue(req, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final ManageStatus mngStatus = (ManageStatus) result.getRetData();
         // get topic info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get isInclude info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ISINCLUDE, false, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean isInclude = (Boolean) result.getRetData();
         // get withTopic info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHTOPIC, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean withTopic = (Boolean) result.getRetData();
@@ -321,21 +321,21 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                          ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get isReservedData info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ISRESERVEDDATA, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean isReservedData = (Boolean) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
@@ -358,14 +358,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
@@ -388,14 +388,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                 ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
@@ -420,20 +420,20 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                        ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // get and valid broker read or write status info
         if (!getAcceptReadAndWriteParamValue(req, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Tuple2<Boolean, Boolean> rdWtTpl =
@@ -458,14 +458,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
@@ -488,21 +488,21 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // check and get relReason field
         if (!WebParameterUtils.getStringParamValue(req, WebFieldDef.RELREASON,
                 false, "Web API call", sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String relReason = (String) result.getRetData();
@@ -526,48 +526,48 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         BrokerConfEntity qryEntity = new BrokerConfEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         // get brokerIp info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPBROKERIP, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> brokerIpSet = (Set<String>) result.getRetData();
         // get withDetail info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHDETAIL, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         boolean withDetail = (Boolean) result.getRetData();
         // get onlyAbnormal info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ONLYABNORMAL, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         boolean onlyAbnormal = (Boolean) result.getRetData();
         // get onlyAutoForbidden info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ONLYAUTOFBD, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         boolean onlyAutoForbidden = (Boolean) result.getRetData();
         // get onlyEnableTLS info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.ONLYENABLETLS, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         boolean onlyEnableTLS = (Boolean) result.getRetData();
@@ -680,7 +680,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                     boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
@@ -691,7 +691,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerPort()
                         : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int brokerPort = (int) result.getRetData();
@@ -699,7 +699,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerTLSPort()
                         : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int brokerTlsPort = (int) result.getRetData();
@@ -707,7 +707,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerWebPort()
                         : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int brokerWebPort = (int) result.getRetData();
@@ -716,7 +716,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 false, (isAddOp ? TServerConstants.BROKER_REGION_ID_DEF
                         : TBaseConstants.META_VALUE_UNDEFINED),
                 TServerConstants.BROKER_REGION_ID_MIN, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int regionId = (int) result.getRetData();
@@ -725,14 +725,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 false, (isAddOp ? TServerConstants.BROKER_GROUP_ID_DEF
                         : TBaseConstants.META_VALUE_UNDEFINED),
                 TServerConstants.BROKER_GROUP_ID_MIN, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int groupId = (int) result.getRetData();
         // get and valid TopicPropGroup info
         if (!WebParameterUtils.getTopicPropInfo(req,
                 (isAddOp ? defClusterSetting.getClsDefTopicProps() : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         TopicPropGroup brokerProps = (TopicPropGroup) result.getRetData();
@@ -741,7 +741,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         if (isAddOp) {
             // get brokerIp and brokerId field
             if (!getBrokerIpAndIdParamValue(req, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
             Tuple2<Integer, String> brokerIdAndIpTuple =
@@ -753,14 +753,14 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         } else {
             // get and valid broker manage status info
             if (!getManageStatusParamValue(req, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
             ManageStatus mngStatus = (ManageStatus) result.getRetData();
             // check and get brokerId field
             if (!WebParameterUtils.getIntParamValue(req,
                     WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
             Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
@@ -785,13 +785,13 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                                          boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get brokerJsonSet info
         if (!getBrokerJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Map<Integer, BrokerConfEntity> addedRecordMap =
@@ -888,7 +888,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                          ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.BROKERJSONSET, true, null, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         List<Map<String, String>> brokerJsonArray =
                 (List<Map<String, String>>) result.getRetData();
@@ -1005,7 +1005,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                     .append(",\"brokerIp\":\"").append(entry.getBrokerIp())
                     .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
-                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
+                    .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
@@ -1017,13 +1017,13 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // get brokerIp
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.BROKERIP, true, null, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         String brokerIp = (String) result.getRetData();
         // get brokerId
         if (!WebParameterUtils.getIntParamValue(paramCntr,
                 WebFieldDef.BROKERID, false, 0, 0, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         int brokerId = (int) result.getRetData();
         // valid brokerIp and brokerId

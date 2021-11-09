@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.HeartResponseM2B;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.corebase.utils.Tuple4;
@@ -38,7 +39,6 @@ import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
@@ -285,7 +285,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                     removedTopics, sBuffer, result);
             logger.info(sBuffer.append("[Broker Report] receive broker removed topics = ")
                     .append(removedTopics.toString()).append(", removed result is ")
-                    .append(result.getErrInfo()).toString());
+                    .append(result.getErrMsg()).toString());
             sBuffer.delete(0, sBuffer.length());
         }
         brokerAbnHolder.updateBrokerReportStatus(brokerId, rptReadStatus, rptWriteStatus);

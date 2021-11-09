@@ -19,14 +19,11 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeSet;
-
 import javax.annotation.Nullable;
-
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
