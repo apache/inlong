@@ -21,32 +21,31 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.tubemq.client.common.PeerInfo;
 import org.apache.inlong.tubemq.corebase.Message;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+import org.apache.inlong.tubemq.corebase.rv.RetValue;
 
-public class ConsumerResult {
-    private boolean success = false;
-    private int errCode = TBaseConstants.META_VALUE_UNDEFINED;
-    private String errMsg = "";
+public class ConsumerResult extends RetValue {
     private String topicName = "";
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
     private List<Message> messageList = new ArrayList<>();
 
+    public ConsumerResult() {
+        super();
+    }
+
     public ConsumerResult(int errCode, String errMsg) {
-        this.success = false;
-        this.errCode = errCode;
-        this.errMsg = errMsg;
+        super(errCode, errMsg);
     }
 
     public ConsumerResult(FetchContext taskContext) {
-        this.success = taskContext.isSuccess();
-        this.errCode = taskContext.getErrCode();
-        this.errMsg = taskContext.getErrMsg();
+        super(taskContext.isSuccess(),
+                taskContext.getErrCode(),
+                taskContext.getErrMsg());
         this.topicName = taskContext.getPartition().getTopic();
         peerInfo.setMsgSourceInfo(taskContext.getPartition(),
                 taskContext.getCurrOffset(), taskContext.getMaxOffset());
-        if (this.success) {
+        if (this.isSuccess()) {
             this.messageList = taskContext.getMessageList();
             this.confirmContext = taskContext.getConfirmContext();
         }
@@ -55,19 +54,24 @@ public class ConsumerResult {
     public ConsumerResult(boolean isSuccess, int errCode, String errMsg,
                           String topicName, Partition partition,
                           long currOffset, long maxOffset) {
-        this.success = isSuccess;
-        this.errCode = errCode;
-        this.errMsg = errMsg;
+        super(isSuccess, errCode, errMsg);
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
-    public boolean isSuccess() {
-        return success;
+    public void setSuccResult(String topicName, Partition partition,
+                              long currOffset, long maxOffset) {
+        super.setSuccResult();
+        this.topicName = topicName;
+        this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
-    public int getErrCode() {
-        return errCode;
+    public void setProcessResult(boolean isSuccess, int errCode, String errMsg,
+                                 String topicName, Partition partition,
+                                 long currOffset, long maxOffset) {
+        super.setFullInfo(isSuccess, errCode, errMsg);
+        this.topicName = topicName;
+        this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
     public String getTopicName() {
@@ -80,10 +84,6 @@ public class ConsumerResult {
 
     public String getPartitionKey() {
         return peerInfo.getPartitionKey();
-    }
-
-    public String getErrMsg() {
-        return errMsg;
     }
 
     public final String getConfirmContext() {

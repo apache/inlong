@@ -136,7 +136,7 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         }
         if (putGroupConfigConfig2Bdb(memEntity, result)) {
             groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
-            result.setRetData(curEntity);
+            result.setSuccResult(curEntity);
         }
         return result.isSuccess();
     }

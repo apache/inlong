@@ -152,7 +152,7 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
         }
         if (putBrokerConfig2Bdb(memEntity, result)) {
             addOrUpdCacheRecord(memEntity);
-            result.setRetData(curEntity);
+            result.setSuccResult(curEntity);
         }
         return result.isSuccess();
     }

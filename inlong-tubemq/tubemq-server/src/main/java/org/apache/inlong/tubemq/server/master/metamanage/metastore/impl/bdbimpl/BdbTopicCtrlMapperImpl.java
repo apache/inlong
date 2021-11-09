@@ -140,7 +140,7 @@ public class BdbTopicCtrlMapperImpl implements TopicCtrlMapper {
         }
         if (putTopicCtrlConfig2Bdb(memEntity, result)) {
             topicCtrlCache.put(memEntity.getTopicName(), memEntity);
-            result.setRetData(curEntity);
+            result.setSuccResult(curEntity);
         }
         return result.isSuccess();
     }
