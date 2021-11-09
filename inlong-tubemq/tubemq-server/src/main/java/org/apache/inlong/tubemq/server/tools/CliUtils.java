@@ -18,14 +18,13 @@
 package org.apache.inlong.tubemq.server.tools;
 
 import static org.apache.inlong.tubemq.server.common.fielddef.CliArgDef.FILEPATH;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 
 public class CliUtils {
 
@@ -44,20 +43,20 @@ public class CliUtils {
             CommandLine cli = parser.parse(options, args);
             if (cli == null) {
                 result.setFailResult("Parse args failure");
-                return result.success;
+                return result.isSuccess();
             }
             if (!cli.hasOption(FILEPATH.longOpt)) {
                 result.setFailResult(new StringBuilder(512)
                         .append("Please input the configuration file path by ")
                         .append("-").append(FILEPATH.opt).append(" or ")
                         .append("-").append(FILEPATH.longOpt).append(" option").toString());
-                return result.success;
+                return result.isSuccess();
             }
             String configFilePath = cli.getOptionValue(FILEPATH.longOpt);
             if (TStringUtils.isBlank(configFilePath)) {
                 result.setFailResult(new StringBuilder(512)
                         .append(FILEPATH.longOpt).append(" is required!").toString());
-                return result.success;
+                return result.isSuccess();
             }
             result.setSuccResult(configFilePath);
         } catch (Throwable e) {
@@ -65,6 +64,6 @@ public class CliUtils {
                     .append("Parse configuration file path failure: ")
                     .append(e.toString()).toString());
         }
-        return result.success;
+        return result.isSuccess();
     }
 }

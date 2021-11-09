@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.example;
 
 import static org.apache.inlong.tubemq.corebase.TErrCodeConstants.IGNORE_ERROR_SET;
-
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;

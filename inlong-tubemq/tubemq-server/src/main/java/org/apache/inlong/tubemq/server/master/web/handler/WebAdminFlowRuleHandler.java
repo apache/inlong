@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -74,13 +74,13 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> groupNameSet = (Set<String>) result.getRetData();
@@ -88,13 +88,13 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable's statusId info
         if (!WebParameterUtils.getFlowCtrlStatusParamValue(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
@@ -160,14 +160,14 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                                                    ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> groupNameSet = (Set<String>) result.getRetData();
@@ -195,14 +195,14 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                                                        boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> groupNameSet = (Set<String>) result.getRetData();
@@ -210,22 +210,22 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int qryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable's statusId info
         if (!WebParameterUtils.getFlowCtrlStatusParamValue(req,
                 false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+        if (!result.isSuccess()) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String flowCtrlInfo = (String) result.getRetData();
@@ -249,7 +249,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
-                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
+                    .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;

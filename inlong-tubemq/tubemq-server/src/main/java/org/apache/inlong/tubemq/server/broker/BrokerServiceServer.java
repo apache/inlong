@@ -45,6 +45,7 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.Registe
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.SendMessageRequestP2B;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.SendMessageResponseB2P;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.CheckSum;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
@@ -76,7 +77,6 @@ import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -289,28 +289,28 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get and check clientId field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
                 request.getClientId(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) result.retData1;
+        final String clientId = (String) result.getRetData();
         // get and check groupName field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
                 request.getGroupName(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) result.retData1;
+        final String groupName = (String) result.getRetData();
         // get and check topicName field
         if (!PBParameterUtils.getTopicNameParameter(request.getTopicName(),
                 this.metadataManager, strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // get consumer info
-        final String topicName = (String) result.retData1;
+        final String topicName = (String) result.getRetData();
         final int partitionId = request.getPartitionId();
         boolean isEscFlowCtrl = request.hasEscFlowCtrl() && request.getEscFlowCtrl();
         String partStr = getPartStr(groupName, topicName, partitionId);
@@ -388,7 +388,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 return builder.build();
             } else {
                 builder.setErrCode(msgResult.getRetCode());
-                builder.setErrMsg(msgResult.errInfo);
+                builder.setErrMsg(msgResult.getErrInfo());
                 builder.setMinLimitTime((int) msgResult.waitTime);
                 return builder.build();
             }
@@ -607,20 +607,20 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get and check clientId field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
                 request.getClientId(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) result.retData1;
+        final String producerId = (String) result.getRetData();
         // get and check topicName and partitionId field
         final int partitionId = request.getPartitionId();
         if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final TopicMetadata topicMetadata = (TopicMetadata) result.retData1;
+        final TopicMetadata topicMetadata = (TopicMetadata) result.getRetData();
         final String topicName = topicMetadata.getTopic();
         String msgType = null;
         int msgTypeCode = -1;
@@ -732,28 +732,28 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get and check clientId field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
                 request.getClientId(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) result.retData1;
+        final String clientId = (String) result.getRetData();
         // get and check topicName field
         if (!PBParameterUtils.getTopicNameParameter(request.getTopicName(),
                 this.metadataManager, strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // get consumer info
-        final String topicName = (String) result.retData1;
+        final String topicName = (String) result.getRetData();
         // get and check groupName field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
                 request.getGroupName(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) result.retData1;
+        final String groupName = (String) result.getRetData();
         boolean isRegister = (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER);
         Set<String> filterCondSet = new HashSet<>();
         if (request.getFilterCondStrList() != null && !request.getFilterCondStrList().isEmpty()) {
@@ -1001,19 +1001,19 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get and check clientId field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
                 request.getClientId(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) result.retData1;
+        final String clientId = (String) result.getRetData();
         // get and check groupName field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
                 request.getGroupName(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) result.retData1;
+        final String groupName = (String) result.getRetData();
         int reqQryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
         List<Partition> partitions =
@@ -1116,28 +1116,28 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get and check clientId field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
                 request.getClientId(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) result.retData1;
+        final String clientId = (String) result.getRetData();
         // get and check groupName field
         if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
                 request.getGroupName(), strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) result.retData1;
+        final String groupName = (String) result.getRetData();
         int partitionId = request.getPartitionId();
         // get and check topicName and partitionId field
         if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
-            builder.setErrCode(result.errCode);
-            builder.setErrMsg(result.errInfo);
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final TopicMetadata topicMetadata = (TopicMetadata) result.retData1;
+        final TopicMetadata topicMetadata = (TopicMetadata) result.getRetData();
         final String topicName = topicMetadata.getTopic();
         String partStr = getPartStr(groupName, topicName, partitionId);
         ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);

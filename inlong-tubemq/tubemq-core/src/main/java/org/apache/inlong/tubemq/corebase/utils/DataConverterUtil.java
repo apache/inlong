@@ -38,7 +38,6 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 /**
  * Tube meta info converter tools
  */
-
 public class DataConverterUtil {
 
     /**

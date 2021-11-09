@@ -25,9 +25,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

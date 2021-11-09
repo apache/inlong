@@ -20,9 +20,8 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.Server;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.KeepAlive;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;

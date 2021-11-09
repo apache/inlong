@@ -19,12 +19,10 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.connectors.tubemq.TubemqOptions.MAX_RETRIES;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;

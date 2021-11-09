@@ -26,12 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
@@ -246,14 +246,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                             ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
@@ -345,7 +345,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                    ProcessResult result) {
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
@@ -386,13 +386,13 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                   ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.WITHIP, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         boolean withIp = (Boolean) result.getRetData();
@@ -445,47 +445,47 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         TopicDeployEntity qryEntity = new TopicDeployEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         // get brokerPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final int brokerPort = (int) result.getRetData();
         // get and valid topicProps info
         if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
         // get withGroupAuthInfo field
         if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.WITHGROUPAUTHINFO,
                 false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean withGroupAuthInfo = (Boolean) result.getRetData();
         // get and valid TopicStatusId info
         if (!WebParameterUtils.getTopicStatusParamValue(req,
                 false, TopicStatus.STATUS_TOPIC_UNDEFINED, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         TopicStatus topicStatus = (TopicStatus) result.getRetData();
@@ -757,27 +757,27 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                      boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId info
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         // get and valid TopicPropGroup info
         if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         TopicPropGroup topicPropInfo = (TopicPropGroup) result.getRetData();
@@ -804,13 +804,13 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                           boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get add record map
         if (!getTopicDeployJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Map<String, TopicDeployEntity> addRecordMap =
@@ -828,7 +828,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                               ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICJSONSET, true, null, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         List<Map<String, String>> deployJsonArray =
                 (List<Map<String, String>>) result.getRetData();
@@ -845,7 +845,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             // get topicName configure info
             if (!WebParameterUtils.getStringParamValue(confMap,
                     WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
-                return result.success;
+                return result.isSuccess();
             }
             String topicName = (String) result.getRetData();
             // get broker configure info
@@ -897,7 +897,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         // get brokerId
         if (!WebParameterUtils.getIntParamValue(keyValueMap,
                 WebFieldDef.BROKERID, true, 0, 0, sBuffer, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         int brokerId = (int) result.getRetData();
         BrokerConfEntity curEntity =
@@ -925,7 +925,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     .append(",\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
-                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
+                    .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
@@ -944,21 +944,21 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                                          TopicStsChgType chgType) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // check and get brokerId info
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();

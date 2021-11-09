@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -72,20 +72,20 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> inGroupSet = (Set<String>) result.getRetData();
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean resCheckEnable = (Boolean) result.getRetData();
@@ -93,14 +93,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
@@ -194,14 +194,14 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                                                   ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> batchGroupNames = (Set<String>) result.getRetData();
@@ -218,21 +218,21 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                                                       boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // get resCheckStatus info
         if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.RESCHECKENABLE,
                 false, (isAddOp ? false : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean resCheckEnable = (Boolean) result.getRetData();
@@ -241,7 +241,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                 false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
                         : TBaseConstants.META_VALUE_UNDEFINED),
                 TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int allowedBClientRate = (int) result.getRetData();
@@ -253,22 +253,22 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                 false, (isAddOp ? defClusterSetting.getQryPriorityId()
                         : TBaseConstants.META_VALUE_UNDEFINED),
                 TServerConstants.QRY_PRIORITY_MIN_VALUE, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         int qryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
         if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.FLOWCTRLENABLE,
                 false, (isAddOp ? false : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean flowCtrlEnable = (Boolean) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
-        if (!result.success) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+        if (!result.isSuccess()) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String flowCtrlInfo = (String) result.getRetData();
@@ -288,13 +288,13 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                                                            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // get group resource control json record
         if (!getGroupResCtrlJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Map<String, GroupResCtrlEntity> addRecordMap =
@@ -313,7 +313,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                                                ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPRESCTRLSET, true, null, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         List<Map<String, String>> ctrlJsonArray =
                 (List<Map<String, String>>) result.getRetData();
@@ -334,7 +334,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             // get group configure info
             if (!WebParameterUtils.getStringParamValue(itemValueMap,
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
-                return result.success;
+                return result.isSuccess();
             }
             final String groupName = (String) result.getRetData();
             // get resCheckStatus info
@@ -405,7 +405,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
-                    .append(",\"errInfo\":\"").append(entry.getErrInfo()).append("\"}");
+                    .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;

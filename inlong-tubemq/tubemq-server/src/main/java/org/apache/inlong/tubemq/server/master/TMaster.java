@@ -70,6 +70,7 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.Registe
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2B;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2C;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2P;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -93,7 +94,6 @@ import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.HasThread;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.common.utils.Sleeper;
 import org.apache.inlong.tubemq.server.master.balance.DefaultLoadBalancer;
@@ -595,7 +595,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 logger.warn(strBuffer.toString());
             }
             builder.setErrCode(result.getErrCode());
-            builder.setErrMsg(result.getErrInfo());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // need removed for authorize center end
@@ -978,7 +978,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 request.getBrokerTopicSetConfInfoList(), request.getBrokerOnline(),
                 overtls, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
-            builder.setErrMsg(result.getErrInfo());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // print broker register log
@@ -1087,7 +1087,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 request.getWriteStatusRpt(), request.getBrokerOnline(),
                 strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
-            builder.setErrMsg(result.getErrInfo());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         if (request.getTakeConfInfo()) {
@@ -1176,7 +1176,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         checkNodeStatus(String.valueOf(brokerId), strBuffer);
         if (!brokerRunManager.brokerClose2M(brokerId, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
-            builder.setErrMsg(result.getErrInfo());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         builder.setSuccess(true);

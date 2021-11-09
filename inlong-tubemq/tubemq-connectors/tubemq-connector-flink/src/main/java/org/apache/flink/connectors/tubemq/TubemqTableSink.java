@@ -19,9 +19,7 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-
 import java.util.Arrays;
-
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.tubemq.server.tools;
 
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +32,10 @@ public class BrokerStartup {
         // get configure file path
         ProcessResult result = new ProcessResult();
         if (!CliUtils.getConfigFilePath(args, result)) {
-            System.err.println(result.errInfo);
+            System.err.println(result.getErrMsg());
             System.exit(1);
         }
-        String configFilePath = (String) result.retData1;
+        String configFilePath = (String) result.getRetData();
         // read configure file
         BrokerConfig brokerConfig = new BrokerConfig();
         brokerConfig.loadFromFile(configFilePath);

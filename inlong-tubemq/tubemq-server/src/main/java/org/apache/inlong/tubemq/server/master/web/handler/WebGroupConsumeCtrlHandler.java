@@ -23,9 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.utils.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -70,40 +69,40 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> groupSet = (Set<String>) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get consumeEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.CONSUMEENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean consumeEnable = (Boolean) result.getRetData();
         // get filterEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.FILTERENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean filterEnable = (Boolean) result.getRetData();
         // get filterConds info
         if (!WebParameterUtils.getFilterCondSet(req, false, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> filterCondSet = (Set<String>) result.getRetData();
@@ -203,21 +202,21 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                                                       ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // get groupName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> groupNameSet = (Set<String>) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
@@ -235,21 +234,21 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                                                           boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getAndValidTopicNameInfo(req,
                 metaDataManager, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get groupName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         final Set<String> groupNameSet = (Set<String>) result.getRetData();
@@ -257,7 +256,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.CONSUMEENABLE, false,
                 (isAddOp ? true : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean consumeEnable = (Boolean) result.getRetData();
@@ -265,7 +264,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.DSBCSMREASON, false,
                 (isAddOp ? "" : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String disableRsn = (String) result.getRetData();
@@ -273,13 +272,13 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.FILTERENABLE, false,
                 (isAddOp ? false : null), sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Boolean filterEnable = (Boolean) result.getRetData();
         // get filterConds info
         if (!WebParameterUtils.getFilterCondString(req, false, isAddOp, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         String filterCondStr = (String) result.getRetData();
@@ -301,13 +300,13 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                                                                boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         BaseEntity defOpEntity = (BaseEntity) result.getRetData();
         // check and get groupCsmJsonSet data
         if (!getGroupConsumeJsonSetInfo(req, isAddOp, defOpEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.errInfo);
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Map<String, GroupConsumeCtrlEntity> batchAddInfoMap =
@@ -335,7 +334,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                     .append(",\"topicName\":\"").append(result.getTopicName()).append("\"")
                     .append(",\"success\":").append(result.isSuccess())
                     .append(",\"errCode\":").append(result.getErrCode())
-                    .append(",\"errInfo\":\"").append(result.getErrInfo()).append("\"}");
+                    .append(",\"errInfo\":\"").append(result.getErrMsg()).append("\"}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
@@ -347,7 +346,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         // get groupCsmJsonSet field info
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPCSMJSONSET, true, null, result)) {
-            return result.success;
+            return result.isSuccess();
         }
         List<Map<String, String>> filterJsonArray =
                 (List<Map<String, String>>) result.getRetData();
@@ -359,12 +358,12 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         for (Map<String, String> itemsMap : filterJsonArray) {
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
-                return result.success;
+                return result.isSuccess();
             }
             final String groupName = (String) result.getRetData();
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.TOPICNAME, true, "", sBuffer, result)) {
-                return result.success;
+                return result.isSuccess();
             }
             String topicName = (String) result.getRetData();
             if (!configuredTopicSet.contains(topicName)) {
@@ -373,7 +372,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                         .append(" ").append(topicName)
                         .append(" is not configure, please configure first!").toString());
                 sBuffer.delete(0, sBuffer.length());
-                return result.success;
+                return result.isSuccess();
             }
             // get consumeEnable info
             if (!WebParameterUtils.getBooleanParamValue(itemsMap,
