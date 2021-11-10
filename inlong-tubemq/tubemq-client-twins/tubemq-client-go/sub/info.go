@@ -61,9 +61,13 @@ func NewSubInfo(config *config.Config) *SubInfo {
 		topicFilters:    config.Consumer.TopicFilters,
 	}
 	s.topicConds = make([]string, 0, len(config.Consumer.TopicFilters))
+	s.topicFilter = make(map[string]bool)
 	for topic, filters := range config.Consumer.TopicFilters {
 		cond := topic + "#"
 		count := 0
+		if len(filters) > 0 {
+			s.topicFilter[topic] = true
+		}
 		for _, filter := range filters {
 			if count > 0 {
 				cond += ","
