@@ -121,7 +121,7 @@ func (m *TubeMQTDMsg) parseBinMsg(data []byte) error {
 
 	var commonAttrMap map[string]string
 	if bm.attrLen > 0 {
-		attrLenPos := binMsgBodyOffset + bm.bodyLen
+		attrLenPos := binMsgBodyOffset + bm.bodyLen + binMsgAttrLenSize
 		commonAttr := data[attrLenPos : attrLenPos+uint32(bm.attrLen)]
 		commonAttrMap = util.SplitToMap(string(commonAttr), "&", "=")
 		if len(commonAttrMap) == 0 {
