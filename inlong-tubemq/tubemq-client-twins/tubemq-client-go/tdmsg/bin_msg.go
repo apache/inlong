@@ -90,7 +90,7 @@ func newBinMsg(data []byte) (*binMsg, error) {
 	}
 	dateTime := binary.BigEndian.Uint32(data[binMsgDateTimeOffset : binMsgDateTimeOffset+4])
 	rem -= 4
-	bm.dateTime = uint64(dateTime * 1000)
+	bm.dateTime = uint64(dateTime) * 1000
 
 	if rem < 2 {
 		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 cnt parameter")
