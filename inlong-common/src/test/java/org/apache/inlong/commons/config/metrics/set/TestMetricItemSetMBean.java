@@ -40,16 +40,16 @@ import org.junit.Test;
  */
 public class TestMetricItemSetMBean {
 
-    public static final String setId = "atta5th_sz";
-    public static final String containerName = "2222.atta.DataProxy.sz100001";
-    public static final String containerIp = "127.0.0.1";
-    private static final String sourceId = "agent-source";
-    private static final String sourceDataId = "12069";
-    private static final String inlongGroupId1 = "03a00000026";
-    private static final String inlongGroupId2 = "03a00000126";
-    private static final String inlongStreamId = "";
-    private static final String sinkId = "atta5th-pulsar-sz";
-    private static final String sinkDataId = "PULSAR_TOPIC_1";
+    public static final String SET_ID = "atta5th_sz";
+    public static final String CONTAINER_NAME = "2222.atta.DataProxy.sz100001";
+    public static final String CONTAINER_IP = "127.0.0.1";
+    private static final String SOURCE_ID = "agent-source";
+    private static final String SOURCE_DATA_ID = "12069";
+    private static final String INLONG_GROUP_ID1 = "03a00000026";
+    private static final String INLONG_GROUP_ID2 = "03a00000126";
+    private static final String INLONG_STREAM_ID = "";
+    private static final String SINK_ID = "atta5th-pulsar-sz";
+    private static final String SINK_DATA_ID = "PULSAR_TOPIC_1";
     private static DataProxyMetricItemSet itemSet;
     private static Map<String, String> dimSource;
     private static Map<String, String> dimSink;
@@ -63,23 +63,23 @@ public class TestMetricItemSetMBean {
         MetricRegister.register(itemSet);
         // prepare
         DataProxyMetricItem itemSource = new DataProxyMetricItem();
-        itemSource.setId = setId;
-        itemSource.containerName = containerName;
-        itemSource.containerIp = containerIp;
-        itemSource.sourceId = sourceId;
-        itemSource.sourceDataId = sourceDataId;
-        itemSource.inlongGroupId = inlongGroupId1;
-        itemSource.inlongStreamId = inlongStreamId;
+        itemSource.setId = SET_ID;
+        itemSource.containerName = CONTAINER_NAME;
+        itemSource.containerIp = CONTAINER_IP;
+        itemSource.sourceId = SOURCE_ID;
+        itemSource.sourceDataId = SOURCE_DATA_ID;
+        itemSource.inlongGroupId = INLONG_GROUP_ID1;
+        itemSource.inlongStreamId = INLONG_STREAM_ID;
         dimSource = itemSource.getDimensions();
         //
         DataProxyMetricItem itemSink = new DataProxyMetricItem();
-        itemSink.setId = setId;
-        itemSink.containerName = containerName;
-        itemSink.containerIp = containerIp;
-        itemSink.sinkId = sinkId;
-        itemSink.sinkDataId = sinkDataId;
-        itemSink.inlongGroupId = inlongGroupId1;
-        itemSink.inlongStreamId = inlongStreamId;
+        itemSink.setId = SET_ID;
+        itemSink.containerName = CONTAINER_NAME;
+        itemSink.containerIp = CONTAINER_IP;
+        itemSink.sinkId = SINK_ID;
+        itemSink.sinkDataId = SINK_DATA_ID;
+        itemSink.inlongGroupId = INLONG_GROUP_ID1;
+        itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
     }
 
@@ -98,7 +98,7 @@ public class TestMetricItemSetMBean {
         item.readSuccessSize.addAndGet(100);
         String keySource1 = MetricUtils.getDimensionsKey(dimSource);
         //
-        dimSource.put("inlongGroupId", inlongGroupId2);
+        dimSource.put("inlongGroupId", INLONG_GROUP_ID2);
         item = itemSet.findMetricItem(dimSource);
         item.readFailCount.addAndGet(20);
         item.readFailSize.addAndGet(2000);
@@ -111,7 +111,7 @@ public class TestMetricItemSetMBean {
         item.sendSuccessSize.addAndGet(100);
         String keySink1 = MetricUtils.getDimensionsKey(dimSink);
         //
-        dimSink.put("inlongGroupId", inlongGroupId2);
+        dimSink.put("inlongGroupId", INLONG_GROUP_ID2);
         item = itemSet.findMetricItem(dimSink);
         item.sendCount.addAndGet(20);
         item.sendSize.addAndGet(2000);
