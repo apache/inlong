@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 
  * MetricItem
  */
-public class MetricItem implements MetricItemMBean {
+public abstract class MetricItem implements MetricItemMBean {
 
     private String key;
     private Map<String, String> dimensions;

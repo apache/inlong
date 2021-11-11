@@ -1,0 +1,158 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.inlong.commons.config.metrics.set;
+
+import static org.junit.Assert.assertEquals;
+
+import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.Map;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.commons.config.metrics.MetricItemMBean;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.config.metrics.MetricUtils;
+import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+/**
+ * 
+ * TestMetricItemSetMBean
+ */
+public class TestMetricItemSetMBean {
+
+    public static final String setId = "atta5th_sz";
+    public static final String containerName = "2222.atta.DataProxy.sz100001";
+    public static final String containerIp = "127.0.0.1";
+    private static final String sourceId = "agent-source";
+    private static final String sourceDataId = "12069";
+    private static final String inlongGroupId1 = "03a00000026";
+    private static final String inlongGroupId2 = "03a00000126";
+    private static final String inlongStreamId = "";
+    private static final String sinkId = "atta5th-pulsar-sz";
+    private static final String sinkDataId = "PULSAR_TOPIC_1";
+    private static DataProxyMetricItemSet itemSet;
+    private static Map<String, String> dimSource;
+    private static Map<String, String> dimSink;
+
+    /**
+     * setup
+     */
+    @BeforeClass
+    public static void setup() {
+        itemSet = DataProxyMetricItemSet.getInstance();
+        MetricRegister.register(itemSet);
+        // prepare
+        DataProxyMetricItem itemSource = new DataProxyMetricItem();
+        itemSource.setId = setId;
+        itemSource.containerName = containerName;
+        itemSource.containerIp = containerIp;
+        itemSource.sourceId = sourceId;
+        itemSource.sourceDataId = sourceDataId;
+        itemSource.inlongGroupId = inlongGroupId1;
+        itemSource.inlongStreamId = inlongStreamId;
+        dimSource = itemSource.getDimensions();
+        //
+        DataProxyMetricItem itemSink = new DataProxyMetricItem();
+        itemSink.setId = setId;
+        itemSink.containerName = containerName;
+        itemSink.containerIp = containerIp;
+        itemSink.sinkId = sinkId;
+        itemSink.sinkDataId = sinkDataId;
+        itemSink.inlongGroupId = inlongGroupId1;
+        itemSink.inlongStreamId = inlongStreamId;
+        dimSink = itemSink.getDimensions();
+    }
+
+    /**
+     * testResult
+     * 
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testResult() throws Exception {
+        // increase source
+        DataProxyMetricItem item = null;
+        item = itemSet.findMetricItem(dimSource);
+        item.readSuccessCount.incrementAndGet();
+        item.readSuccessSize.addAndGet(100);
+        String keySource1 = MetricUtils.getDimensionsKey(dimSource);
+        //
+        dimSource.put("inlongGroupId", inlongGroupId2);
+        item = itemSet.findMetricItem(dimSource);
+        item.readFailCount.addAndGet(20);
+        item.readFailSize.addAndGet(2000);
+        String keySource2 = MetricUtils.getDimensionsKey(dimSource);
+        // increase sink
+        item = itemSet.findMetricItem(dimSink);
+        item.sendCount.incrementAndGet();
+        item.sendSize.addAndGet(100);
+        item.sendSuccessCount.incrementAndGet();
+        item.sendSuccessSize.addAndGet(100);
+        String keySink1 = MetricUtils.getDimensionsKey(dimSink);
+        //
+        dimSink.put("inlongGroupId", inlongGroupId2);
+        item = itemSet.findMetricItem(dimSink);
+        item.sendCount.addAndGet(20);
+        item.sendSize.addAndGet(2000);
+        item.sendFailCount.addAndGet(20);
+        item.sendFailSize.addAndGet(2000);
+        String keySink2 = MetricUtils.getDimensionsKey(dimSink);
+        // report
+        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        StringBuilder beanName = new StringBuilder();
+        beanName.append(MetricUtils.getDomain(DataProxyMetricItemSet.class)).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                .append("type=")
+                .append(DataProxyMetricItemSet.class.toString());
+        String strBeanName = beanName.toString();
+        ObjectName objName = new ObjectName(strBeanName);
+        {
+            List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, "snapshot", null, null);
+            for (MetricItem itemObj : items) {
+                if (keySource1.equals(itemObj.getDimensionsKey())) {
+                    Map<String, MetricValue> metricMap = itemObj.snapshot();
+                    assertEquals(1, metricMap.get("readSuccessCount").value);
+                    assertEquals(100, metricMap.get("readSuccessSize").value);
+                } else if (keySource2.equals(itemObj.getDimensionsKey())) {
+                    Map<String, MetricValue> metricMap = itemObj.snapshot();
+                    assertEquals(20, metricMap.get("readFailCount").value);
+                    assertEquals(2000, metricMap.get("readFailSize").value);
+                } else if (keySink1.equals(itemObj.getDimensionsKey())) {
+                    Map<String, MetricValue> metricMap = itemObj.snapshot();
+                    assertEquals(1, metricMap.get("sendCount").value);
+                    assertEquals(100, metricMap.get("sendSize").value);
+                    assertEquals(1, metricMap.get("sendSuccessCount").value);
+                    assertEquals(100, metricMap.get("sendSuccessSize").value);
+                } else if (keySink2.equals(itemObj.getDimensionsKey())) {
+                    Map<String, MetricValue> metricMap = itemObj.snapshot();
+                    assertEquals(20, metricMap.get("sendCount").value);
+                    assertEquals(2000, metricMap.get("sendSize").value);
+                    assertEquals(20, metricMap.get("sendFailCount").value);
+                    assertEquals(2000, metricMap.get("sendFailSize").value);
+                } else {
+                    System.out.println("bad MetricItem:" + itemObj.getDimensionsKey());
+                }
+            }
+        }
+    }
+}
