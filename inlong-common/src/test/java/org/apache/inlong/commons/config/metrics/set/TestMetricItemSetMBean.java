@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 
 import org.apache.inlong.commons.config.metrics.MetricItem;
 import org.apache.inlong.commons.config.metrics.MetricItemMBean;
+import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
 import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.commons.config.metrics.MetricUtils;
 import org.apache.inlong.commons.config.metrics.MetricValue;
@@ -127,7 +128,8 @@ public class TestMetricItemSetMBean {
         String strBeanName = beanName.toString();
         ObjectName objName = new ObjectName(strBeanName);
         {
-            List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, "snapshot", null, null);
+            List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, MetricItemSetMBean.METHOD_SNAPSHOT, null,
+                    null);
             for (MetricItem itemObj : items) {
                 if (keySource1.equals(itemObj.getDimensionsKey())) {
                     Map<String, MetricValue> metricMap = itemObj.snapshot();

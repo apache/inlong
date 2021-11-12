@@ -51,11 +51,8 @@ public abstract class MetricItemSet<T extends MetricItem> implements MetricItemS
         currentItem = createItem();
         currentItem.setDimensions(dimensions);
         T oldItem = this.itemMap.putIfAbsent(key, currentItem);
-        if (oldItem == null) {
-            return currentItem;
-        } else {
-            return oldItem;
-        }
+        T returnItem = (oldItem == null) ? currentItem : oldItem;
+        return returnItem;
     }
 
     /**

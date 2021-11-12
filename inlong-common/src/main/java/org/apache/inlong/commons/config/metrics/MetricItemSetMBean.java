@@ -21,14 +21,20 @@ import java.util.List;
 
 /**
  * 
- * MetricItemSetMBean
+ * MetricItemSetMBean<br>
+ * Provide access interface of metric items with JMX.<br>
+ * Decouple between metric item and monitor system, in particular scene, <br>
+ * inlong can depend on user-defined monitor system.
  */
 public interface MetricItemSetMBean {
+
+    String METHOD_SNAPSHOT = "snapshot";
 
     /**
      * snapshot
      * 
-     * @return
+     * @return get snapshot all metric of item, CountMetric will get metric value and set 0 to value, <br>
+     *         GaugeMetric will only get metric value.
      */
     List<MetricItem> snapshot();
 

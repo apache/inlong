@@ -20,14 +20,16 @@ package org.apache.inlong.commons.config.metrics;
 import java.util.Map;
 
 /**
- * 
- * MetricMBean
+ * MetricItemMBean<br>
+ * Provide access interface of a metric item with JMX.<br>
+ * Decouple between metric item and monitor system, in particular scene, <br>
+ * inlong can depend on user-defined monitor system.
  */
 public interface MetricItemMBean {
 
-    String METHOD_KEY = "getDimensionsKey";
-    String METHOD_DIMENSIONS = "getDimensions";
-    String METHOD_METRICS = "getMetrics";
+    String ATTRIBUTE_KEY = "DimensionsKey";
+    String ATTRIBUTE_DIMENSIONS = "Dimensions";
+    String METHOD_SNAPSHOT = "snapshot";
     char DOMAIN_SEPARATOR = ':';
     char PROPERTY_SEPARATOR = ',';
     char PROPERTY_EQUAL = '=';
@@ -35,21 +37,22 @@ public interface MetricItemMBean {
     /**
      * getDimensionsKey
      * 
-     * @return
+     * @return key string composed of key/value pair of dimensions.
      */
     String getDimensionsKey();
 
     /**
      * getDimensions
      * 
-     * @return
+     * @return key/value pair of all dimensions.
      */
     Map<String, String> getDimensions();
 
     /**
      * snapshot
      * 
-     * @return
+     * @return get snapshot all metric of item, CountMetric will get metric value and set 0 to value, <br>
+     *         GaugeMetric will only get metric value.
      */
     Map<String, MetricValue> snapshot();
 }

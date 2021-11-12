@@ -77,11 +77,13 @@ public class TestMetricItemMBean {
         String strBeanName = beanName.toString();
         ObjectName objName = new ObjectName(strBeanName);
         {
-            Map<String, String> dimensions = (Map<String, String>) mbs.getAttribute(objName, "Dimensions");
+            Map<String, String> dimensions = (Map<String, String>) mbs.getAttribute(objName,
+                    MetricItemMBean.ATTRIBUTE_DIMENSIONS);
             assertEquals(MODULE, dimensions.get("module"));
             assertEquals(ASPECT, dimensions.get("aspect"));
             assertEquals(TAG, dimensions.get("tag"));
-            Map<String, MetricValue> metricMap = (Map<String, MetricValue>) mbs.invoke(objName, "snapshot", null, null);
+            Map<String, MetricValue> metricMap = (Map<String, MetricValue>) mbs.invoke(objName,
+                    MetricItemMBean.METHOD_SNAPSHOT, null, null);
             assertEquals(1, metricMap.get("readNum").value);
             assertEquals(100, metricMap.get("sendNum").value);
             assertEquals(2, metricMap.get("runningTasks").value);
@@ -91,11 +93,13 @@ public class TestMetricItemMBean {
         item.sendNum.addAndGet(100);
         item.runningTasks.addAndGet(2);
         {
-            Map<String, String> dimensions = (Map<String, String>) mbs.getAttribute(objName, "Dimensions");
+            Map<String, String> dimensions = (Map<String, String>) mbs.getAttribute(objName,
+                    MetricItemMBean.ATTRIBUTE_DIMENSIONS);
             assertEquals(MODULE, dimensions.get("module"));
             assertEquals(ASPECT, dimensions.get("aspect"));
             assertEquals(TAG, dimensions.get("tag"));
-            Map<String, MetricValue> metricMap = (Map<String, MetricValue>) mbs.invoke(objName, "snapshot", null, null);
+            Map<String, MetricValue> metricMap = (Map<String, MetricValue>) mbs.invoke(objName,
+                    MetricItemMBean.METHOD_SNAPSHOT, null, null);
             assertEquals(1, metricMap.get("readNum").value);
             assertEquals(100, metricMap.get("sendNum").value);
             assertEquals(4, metricMap.get("runningTasks").value);
