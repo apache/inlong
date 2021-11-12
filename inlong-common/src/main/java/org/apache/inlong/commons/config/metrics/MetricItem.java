@@ -26,11 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * MetricItem
  */
 public abstract class MetricItem implements MetricItemMBean {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(MetricItem.class);
 
     private String key;
     private Map<String, String> dimensions;
@@ -81,7 +86,7 @@ public abstract class MetricItem implements MetricItemMBean {
                         String value = (fieldValue == null) ? "" : fieldValue.toString();
                         dimensions.put(name, value);
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        LOGGER.error(t.getMessage(), t);
                     }
                     break;
                 }
@@ -145,7 +150,7 @@ public abstract class MetricItem implements MetricItemMBean {
                             this.countMetrics.put(name, (AtomicLong) fieldValue);
                         }
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        LOGGER.error(t.getMessage(), t);
                     }
                     break;
                 } else if (fieldAnnotation instanceof GaugeMetric) {
@@ -158,7 +163,7 @@ public abstract class MetricItem implements MetricItemMBean {
                             this.gaugeMetrics.put(name, (AtomicLong) fieldValue);
                         }
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        LOGGER.error(t.getMessage(), t);
                     }
                     break;
                 }

@@ -40,15 +40,15 @@ import org.junit.Test;
  */
 public class TestMetricItemSetMBean {
 
-    public static final String SET_ID = "atta5th_sz";
-    public static final String CONTAINER_NAME = "2222.atta.DataProxy.sz100001";
+    public static final String SET_ID = "inlong5th_sz";
+    public static final String CONTAINER_NAME = "2222.inlong.DataProxy.sz100001";
     public static final String CONTAINER_IP = "127.0.0.1";
     private static final String SOURCE_ID = "agent-source";
     private static final String SOURCE_DATA_ID = "12069";
     private static final String INLONG_GROUP_ID1 = "03a00000026";
     private static final String INLONG_GROUP_ID2 = "03a00000126";
     private static final String INLONG_STREAM_ID = "";
-    private static final String SINK_ID = "atta5th-pulsar-sz";
+    private static final String SINK_ID = "inlong5th-pulsar-sz";
     private static final String SINK_DATA_ID = "PULSAR_TOPIC_1";
     private static DataProxyMetricItemSet itemSet;
     private static Map<String, String> dimSource;
