@@ -41,7 +41,6 @@ import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
 import org.apache.inlong.tubemq.corebase.balance.EventStatus;
 import org.apache.inlong.tubemq.corebase.balance.EventType;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.ProducerInfo;
@@ -77,7 +76,6 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.Registe
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2CV2;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster.RegisterResponseM2P;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
@@ -112,8 +110,10 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHol
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.DefBrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeType;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerEventManager;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeproducer.ProducerInfoHolder;
 import org.apache.inlong.tubemq.server.master.utils.Chore;
@@ -178,7 +178,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
                 false, TBaseConstants.META_VALUE_UNDEFINED);
         this.producerHolder = new ProducerInfoHolder();
-        this.consumerHolder = new ConsumerInfoHolder();
+        this.consumerHolder = new ConsumerInfoHolder(this.masterConfig);
         this.consumerEventManager = new ConsumerEventManager(consumerHolder);
         this.topicPSInfoManager = new TopicPSInfoManager(this);
         this.loadBalancer = new DefaultLoadBalancer();
@@ -551,9 +551,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
-        boolean isReqConsumeBand = (request.hasRequireBound() && request.getRequireBound());
+        ConsumeType csmType = (request.hasRequireBound() && request.getRequireBound())
+                ? ConsumeType.CONSUME_BAND : ConsumeType.CONSUME_NORMAL;
         final String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
-        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(isReqConsumeBand,
+        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(csmType,
                 reqTopicSet, requiredParts, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
@@ -568,13 +569,21 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ? request.getSessionTime() : System.currentTimeMillis();
         int sourceCount = request.hasTotalCount()
                 ? request.getTotalCount() : -1;
-        int reqQryPriorityId = request.hasQryPriorityId()
+        int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
+        List<SubscribeInfo> subscribeList =
+                DataConverterUtil.convertSubInfo(request.getSubscribeInfoList());
+        boolean isNotAllocated = true;
+        if (CollectionUtils.isNotEmpty(subscribeList)
+                || ((request.hasNotAllocated() && !request.getNotAllocated()))) {
+            isNotAllocated = false;
+        }
         boolean isSelectBig = (!request.hasSelectBig() || request.getSelectBig());
+        // build consumer object
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
-                        reqTopicSet, reqTopicConditions, isReqConsumeBand,
-                        sessionKey, sessionTime, sourceCount, requiredPartMap);
+                        reqTopicSet, reqTopicConditions, csmType,
+                        sessionKey, sessionTime, sourceCount, isSelectBig, requiredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defMetaDataManager, brokerRunManager, strBuffer);
@@ -606,38 +615,17 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         // need removed for authorize center end
         Integer lid = null;
+        ConsumeGroupInfo consumeGroupInfo = null;
         try {
             lid = masterRowLock.getLock(null, StringUtils.getBytesUtf8(consumerId), true);
-            ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(groupName);
-            paramCheckResult =
-                    PBParameterUtils.validConsumerExistInfo(inConsumerInfo2, isSelectBig, consumerBandInfo, strBuffer);
-            if (!paramCheckResult.result) {
+            if (!consumerHolder.addConsumer(inConsumerInfo2,
+                    isNotAllocated, strBuffer, paramCheckResult)) {
                 builder.setErrCode(paramCheckResult.errCode);
                 builder.setErrMsg(paramCheckResult.errMsg);
                 return builder.build();
             }
-            boolean registered = (consumerBandInfo != null) && (boolean) paramCheckResult.checkData;
-            List<SubscribeInfo> subscribeList =
-                    DataConverterUtil.convertSubInfo(request.getSubscribeInfoList());
-            boolean isNotAllocated = true;
-            if (CollectionUtils.isNotEmpty(subscribeList)
-                    || ((request.hasNotAllocated() && !request.getNotAllocated()))) {
-                isNotAllocated = false;
-            }
-            if ((consumerBandInfo != null && consumerBandInfo.getConsumerInfoList() == null) || !registered) {
-                consumerHolder.addConsumer(inConsumerInfo2, isNotAllocated, isSelectBig);
-            }
-            for (String topic : reqTopicSet) {
-                ConcurrentHashSet<String> groupSet =
-                        topicPSInfoManager.getTopicSubInfo(topic);
-                if (groupSet == null) {
-                    groupSet = new ConcurrentHashSet<>();
-                    topicPSInfoManager.setTopicSubInfo(topic, groupSet);
-                }
-                if (!groupSet.contains(groupName)) {
-                    groupSet.add(groupName);
-                }
-            }
+            consumeGroupInfo = (ConsumeGroupInfo) paramCheckResult.checkData;
+            topicPSInfoManager.addGroupSubTopicInfo(groupName, reqTopicSet);
             if (CollectionUtils.isNotEmpty(subscribeList)) {
                 Map<String, Map<String, Partition>> topicPartSubMap =
                         new HashMap<>();
@@ -663,8 +651,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         logger.info(strBuffer.append("[Consumer Register] ")
-            .append(consumerId).append(", isOverTLS=").append(overtls)
-            .append(", clientJDKVer=").append(clientJdkVer).toString());
+                .append(consumerId).append(", isOverTLS=").append(overtls)
+                .append(", clientJDKVer=").append(clientJdkVer).toString());
         strBuffer.delete(0, strBuffer.length());
         if (request.hasDefFlowCheckId() || request.hasGroupFlowCheckId()) {
             builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
@@ -693,7 +681,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
-        builder.setNotAllocated(consumerHolder.isNotAllocated(groupName));
+        builder.setNotAllocated(consumeGroupInfo.isNotAllocate());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -742,8 +730,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         final String groupName = (String) paramCheckResult.checkData;
         checkNodeStatus(clientId, strBuffer);
-        ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(groupName);
-        if (consumerBandInfo == null) {
+        ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(groupName);
+        if (consumeGroupInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
             builder.setErrMsg(strBuffer.append("Not found groupName ")
                     .append(groupName).append(" in holder!").toString());
@@ -752,7 +740,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // authorize check
         CertifiedResult authorizeResult =
                 serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
-                        groupName, consumerBandInfo.getTopicSet(), consumerBandInfo.getTopicConditions(), rmtAddress);
+                        groupName, consumeGroupInfo.getTopicSet(), consumeGroupInfo.getTopicConditions(), rmtAddress);
         if (!authorizeResult.result) {
             builder.setErrCode(authorizeResult.errCode);
             builder.setErrMsg(authorizeResult.errInfo);
@@ -816,7 +804,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             logger.info(processedEvent.toStrBuilder(strBuffer).toString());
             strBuffer.delete(0, strBuffer.length());
             try {
-                consumerHolder.setAllocated(groupName);
+                consumeGroupInfo.settAllocated();
                 consumerEventManager.removeFirst(clientId);
             } catch (Throwable e) {
                 logger.warn("Unknown exception for remove first event:", e);
@@ -868,7 +856,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
-        builder.setNotAllocated(consumerHolder.isNotAllocated(groupName));
+        builder.setNotAllocated(consumeGroupInfo.isNotAllocate());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
@@ -1289,8 +1277,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return;
         }
         final boolean isStartBalance = startupBalance;
-        List<String> groupsNeedToBalance =
-                isStartBalance ? consumerHolder.getAllGroup() : getNeedToBalanceGroupList(strBuffer);
+        List<String> groupsNeedToBalance = isStartBalance
+                ? consumerHolder.getAllServerBalanceGroups() : getNeedToBalanceGroups(strBuffer);
         strBuffer.delete(0, strBuffer.length());
         if (!groupsNeedToBalance.isEmpty()) {
             // set parallel rebalance signal
@@ -1360,12 +1348,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap = this.loadBalancer.bukAssign(consumerHolder,
-                    brokerRunManager, groups, defMetaDataManager,
-                    masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
+                    brokerRunManager, groups, defMetaDataManager, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.balanceCluster(currentSubInfo,
-                    consumerHolder, brokerRunManager, groups, defMetaDataManager,
-                    masterConfig.getMaxGroupBrokerConsumeRate(), strBuffer);
+                    consumerHolder, brokerRunManager, groups, defMetaDataManager, strBuffer);
         }
         // allocate partitions to consumers
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
@@ -1376,15 +1362,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             if (consumerId == null) {
                 continue;
             }
-            Tuple2<String, ConsumerInfo> tupleInfo =
-                    consumerHolder.getConsumeTupleInfo(consumerId);
-            if (tupleInfo == null
-                    || tupleInfo.getF0() == null
-                    || tupleInfo.getF1() == null) {
+            ConsumerInfo consumerInfo =
+                    consumerHolder.getConsumerInfo(consumerId);
+            if (consumerInfo == null) {
                 continue;
             }
             Set<String> blackTopicSet =
-                    defMetaDataManager.getDisableConsumeTopicByGroupName(tupleInfo.getF0());
+                    defMetaDataManager.getDisableTopicByGroupName(consumerInfo.getGroupName());
             Map<String, List<Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -1405,7 +1389,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         currentPartMap = new HashMap<>();
                     }
                 }
-                if (tupleInfo.getF1().isOverTLS()) {
+                if (consumerInfo.isOverTLS()) {
                     for (Partition currentPart : currentPartMap.values()) {
                         if (!blackTopicSet.contains(currentPart.getTopic())) {
                             boolean found = false;
@@ -1421,8 +1405,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                             }
                         }
                         deletedSubInfoList
-                                .add(new SubscribeInfo(consumerId, tupleInfo.getF0(),
-                                        tupleInfo.getF1().isOverTLS(), currentPart));
+                                .add(new SubscribeInfo(consumerId, consumerInfo.getGroupName(),
+                                        consumerInfo.isOverTLS(), currentPart));
                     }
                     for (Partition finalPart : finalPartList) {
                         if (!blackTopicSet.contains(finalPart.getTopic())) {
@@ -1438,7 +1422,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 continue;
                             }
                             addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    tupleInfo.getF0(), true, finalPart));
+                                    consumerInfo.getGroupName(), true, finalPart));
                         }
                     }
                 } else {
@@ -1446,14 +1430,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         if ((blackTopicSet.contains(currentPart.getTopic()))
                                 || (!finalPartList.contains(currentPart))) {
                             deletedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    tupleInfo.getF0(), false, currentPart));
+                                    consumerInfo.getGroupName(), false, currentPart));
                         }
                     }
                     for (Partition finalPart : finalPartList) {
                         if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
                                 && (!blackTopicSet.contains(finalPart.getTopic()))) {
                             addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    tupleInfo.getF0(), false, finalPart));
+                                    consumerInfo.getGroupName(), false, finalPart));
                         }
                     }
                 }
@@ -1516,16 +1500,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             if (consumerId == null) {
                 continue;
             }
-            Tuple2<String, ConsumerInfo> tupleInfo =
-                    consumerHolder.getConsumeTupleInfo(consumerId);
-            if (tupleInfo == null
-                    || tupleInfo.getF0() == null
-                    || tupleInfo.getF1() == null) {
+            ConsumerInfo consumerInfo =
+                    consumerHolder.getConsumerInfo(consumerId);
+            if (consumerInfo == null) {
                 continue;
             }
             // allocate partitions to consumers
             Set<String> blackTopicSet =
-                    defMetaDataManager.getDisableConsumeTopicByGroupName(tupleInfo.getF0());
+                    defMetaDataManager.getDisableTopicByGroupName(consumerInfo.getGroupName());
             Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -1552,15 +1534,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     if ((blackTopicSet.contains(currentPart.getTopic()))
                             || (finalPartMap.get(currentPart.getPartitionKey()) == null)) {
                         deletedSubInfoList
-                                .add(new SubscribeInfo(consumerId, tupleInfo.getF0(),
-                                        tupleInfo.getF1().isOverTLS(), currentPart));
+                                .add(new SubscribeInfo(consumerId, consumerInfo.getGroupName(),
+                                        consumerInfo.isOverTLS(), currentPart));
                     }
                 }
                 for (Partition finalPart : finalPartMap.values()) {
                     if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
                             && (!blackTopicSet.contains(finalPart.getTopic()))) {
-                        addedSubInfoList.add(new SubscribeInfo(consumerId, tupleInfo.getF0(),
-                                tupleInfo.getF1().isOverTLS(), finalPart));
+                        addedSubInfoList.add(new SubscribeInfo(consumerId,
+                                consumerInfo.getGroupName(), consumerInfo.isOverTLS(), finalPart));
                     }
                 }
             }
@@ -1665,7 +1647,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @param strBuffer
      * @return
      */
-    private List<String> getNeedToBalanceGroupList(final StringBuilder strBuffer) {
+    private List<String> getNeedToBalanceGroups(final StringBuilder strBuffer) {
         List<String> groupsNeedToBalance = new ArrayList<>();
         Set<String> groupHasUnfinishedEvent = new HashSet<>();
         if (consumerEventManager.hasEvent()) {
@@ -1677,7 +1659,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 if (consumerId == null) {
                     continue;
                 }
-                String group = consumerHolder.getGroup(consumerId);
+                String group = consumerHolder.getGroupName(consumerId);
                 if (group == null) {
                     continue;
                 }
@@ -1698,7 +1680,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         consumerEventManager.updateUnfinishedCountMap(groupHasUnfinishedEvent);
-        List<String> allGroups = consumerHolder.getAllGroup();
+        List<String> allGroups = consumerHolder.getAllServerBalanceGroups();
         if (groupHasUnfinishedEvent.isEmpty()) {
             for (String group : allGroups) {
                 if (group != null) {
@@ -1899,18 +1881,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             String group = nodeStrs[1];
             Integer lid = null;
             try {
-                lid = masterRowLock.getLock(null, StringUtils.getBytesUtf8(consumerId), true);
+                lid = masterRowLock.getLock(null,
+                        StringUtils.getBytesUtf8(consumerId), true);
                 ConsumerInfo info = consumerHolder.removeConsumer(group, consumerId);
                 currentSubInfo.remove(consumerId);
                 consumerEventManager.removeAll(consumerId);
-                List<ConsumerInfo> consumerList =
-                        consumerHolder.getConsumerList(group);
-                if (consumerList == null || consumerList.isEmpty()) {
-                    if (info != null) {
-                        for (String topic : info.getTopicSet()) {
-                            topicPSInfoManager.removeTopicSubInfo(topic, group);
-                        }
-                    }
+                if (info != null && consumerHolder.isConsumeGroupEmpty(group)) {
+                    topicPSInfoManager.rmvGroupSubTopicInfo(group, info.getTopicSet());
                 }
             } catch (IOException e) {
                 logger.warn("Failed to lock.", e);

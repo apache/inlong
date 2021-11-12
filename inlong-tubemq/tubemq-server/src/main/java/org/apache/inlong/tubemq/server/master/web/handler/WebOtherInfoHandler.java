@@ -27,15 +27,16 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
+
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeType;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
 
@@ -96,25 +97,23 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
         int totalCnt = 0;
         int topicCnt = 0;
-        Tuple2<Set<String>, Integer> queryInfo = new Tuple2<>();
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (String group : queryGroupSet) {
-            if (!consumerHolder.getGroupTopicSetAndClientCnt(group, queryInfo)) {
-                continue;
-            }
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
             sBuffer.append("{\"consumeGroup\":\"").append(group).append("\",\"topicSet\":[");
             topicCnt = 0;
-            for (String tmpTopic : queryInfo.getF0()) {
+            Set<String> topicSet = consumerHolder.getGroupTopicSet(group);
+            int consumerCnt = consumerHolder.getConsumerCnt(group);
+            for (String tmpTopic : topicSet) {
                 if (topicCnt++ > 0) {
                     sBuffer.append(",");
                 }
                 sBuffer.append("\"").append(tmpTopic).append("\"");
             }
-            sBuffer.append("],\"consumerNum\":").append(queryInfo.getF1()).append("}");
+            sBuffer.append("],\"consumerNum\":").append(consumerCnt).append("}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
@@ -143,7 +142,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         }
         String strConsumeGroup = (String) result.getRetData();
         try {
-            boolean isBandConsume = false;
+            ConsumeType consumeType = ConsumeType.CONSUME_NORMAL;
             boolean isNotAllocate = false;
             boolean isSelectBig = true;
             String sessionKey = "";
@@ -154,37 +153,37 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             int confBClientRate = -2;
             int curBClientRate = -2;
             int minRequireClientCnt = -2;
-            int rebalanceStatus = -2;
+            int balanceStatus = -2;
             Set<String> topicSet = new HashSet<>();
             List<ConsumerInfo> consumerList = new ArrayList<>();
             Map<String, NodeRebInfo> nodeRebInfoMap = new ConcurrentHashMap<>();
             Map<String, TreeSet<String>> existedTopicConditions = new HashMap<>();
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
-            ConsumerBandInfo consumerBandInfo = consumerHolder.getConsumerBandInfo(strConsumeGroup);
-            if (consumerBandInfo != null) {
-                if (consumerBandInfo.getTopicSet() != null) {
-                    topicSet = consumerBandInfo.getTopicSet();
+            ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(strConsumeGroup);
+            if (consumeGroupInfo != null) {
+                if (consumeGroupInfo.getTopicSet() != null) {
+                    topicSet = consumeGroupInfo.getTopicSet();
                 }
-                if (consumerBandInfo.getConsumerInfoList() != null) {
-                    consumerList = consumerBandInfo.getConsumerInfoList();
+                if (consumeGroupInfo.getConsumerInfoList() != null) {
+                    consumerList = consumeGroupInfo.getConsumerInfoList();
                 }
-                if (consumerBandInfo.getTopicConditions() != null) {
-                    existedTopicConditions = consumerBandInfo.getTopicConditions();
+                if (consumeGroupInfo.getTopicConditions() != null) {
+                    existedTopicConditions = consumeGroupInfo.getTopicConditions();
                 }
-                nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
-                isBandConsume = consumerBandInfo.isBandConsume();
-                rebalanceStatus = consumerBandInfo.getRebalanceCheckStatus();
-                defBClientRate = consumerBandInfo.getDefBClientRate();
-                confBClientRate = consumerBandInfo.getConfBClientRate();
-                curBClientRate = consumerBandInfo.getCurBClientRate();
-                minRequireClientCnt = consumerBandInfo.getMinRequireClientCnt();
-                if (isBandConsume) {
-                    isNotAllocate = consumerBandInfo.isNotAllocate();
-                    isSelectBig = consumerBandInfo.isSelectedBig();
-                    sessionKey = consumerBandInfo.getSessionKey();
-                    reqSourceCount = consumerBandInfo.getSourceCount();
-                    curSourceCount = consumerBandInfo.getGroupCnt();
-                    rebalanceCheckTime = consumerBandInfo.getCurCheckCycle();
+                nodeRebInfoMap = consumeGroupInfo.getBalanceMap();
+                consumeType = consumeGroupInfo.getConsumeType();
+                balanceStatus = consumeGroupInfo.getBalanceChkStatus();
+                defBClientRate = consumerHolder.getDefResourceRate();
+                confBClientRate = consumeGroupInfo.getConfResourceRate();
+                curBClientRate = consumeGroupInfo.getCurResourceRate();
+                minRequireClientCnt = consumeGroupInfo.getMinReqClientCnt();
+                if (consumeType == ConsumeType.CONSUME_BAND) {
+                    isNotAllocate = consumeGroupInfo.isNotAllocate();
+                    isSelectBig = consumeGroupInfo.isSelectedBig();
+                    sessionKey = consumeGroupInfo.getSessionKey();
+                    reqSourceCount = consumeGroupInfo.getSourceCount();
+                    curSourceCount = consumeGroupInfo.getGroupCnt();
+                    rebalanceCheckTime = consumeGroupInfo.getCurCheckCycle();
                 }
             }
             sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
@@ -205,9 +204,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 sBuffer.append("\"").append(entry.getKey()).append("\":");
                 sBuffer = entry.getValue().toJsonString(sBuffer);
             }
-            sBuffer.append("},\"isBandConsume\":").append(isBandConsume);
+            sBuffer.append("},\"isBandConsume\":\"").append(consumeType.getName()).append("\"");
             // Append band consume info
-            if (isBandConsume) {
+            if (consumeType == ConsumeType.CONSUME_BAND) {
                 sBuffer.append(",\"isNotAllocate\":").append(isNotAllocate)
                         .append(",\"sessionKey\":\"").append(sessionKey)
                         .append("\",\"isSelectBig\":").append(isSelectBig)
@@ -216,9 +215,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                         .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
             }
             sBuffer.append(",\"rebInfo\":{");
-            if (rebalanceStatus == -2) {
+            if (balanceStatus == -2) {
                 sBuffer.append("\"isRebalanced\":false");
-            } else if (rebalanceStatus == 0) {
+            } else if (balanceStatus == 0) {
                 sBuffer.append("\"isRebalanced\":true,\"checkPasted\":false")
                         .append(",\"defBClientRate\":").append(defBClientRate)
                         .append(",\"confBClientRate\":").append(confBClientRate)
@@ -252,7 +251,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             }
             sBuffer.append("}");
             // Append consumer info of the group
-            getConsumerInfoList(consumerList, isBandConsume, sBuffer);
+            getConsumerInfoList(consumerList, consumeType, sBuffer);
             sBuffer.append("}");
         } catch (Exception e) {
             sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
@@ -265,11 +264,11 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
      * Private method to append consumer info of the give list to a string builder
      *
      * @param consumerList  consumer list
-     * @param isBandConsume whether bound consume
+     * @param consumeType   consume type
      * @param strBuffer     string buffer
      */
     private void getConsumerInfoList(final List<ConsumerInfo> consumerList,
-                                     boolean isBandConsume, final StringBuilder strBuffer) {
+                                     ConsumeType consumeType, final StringBuilder strBuffer) {
         strBuffer.append(",\"data\":[");
         if (!consumerList.isEmpty()) {
             Collections.sort(consumerList);
@@ -285,7 +284,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 }
                 strBuffer.append("{\"consumerId\":\"").append(consumer.getConsumerId())
                         .append("\"").append(",\"isOverTLS\":").append(consumer.isOverTLS());
-                if (isBandConsume) {
+                if (consumeType == ConsumeType.CONSUME_BAND) {
                     Map<String, Long> requiredPartition = consumer.getRequiredPartition();
                     if (requiredPartition == null || requiredPartition.isEmpty()) {
                         strBuffer.append(",\"initReSetPartCount\":0,\"initReSetPartInfo\":[]");

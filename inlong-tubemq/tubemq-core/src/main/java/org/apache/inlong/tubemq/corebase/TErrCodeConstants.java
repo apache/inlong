@@ -27,6 +27,7 @@ public class TErrCodeConstants {
 
     public static final int BAD_REQUEST = 400;
     public static final int UNAUTHORIZED = 401;
+    public static final int CONNECT_RETURN_NULL = 402;
     public static final int FORBIDDEN = 403;
     public static final int NOT_FOUND = 404;
     public static final int ALL_PARTITION_FROZEN = 405;
@@ -38,6 +39,18 @@ public class TErrCodeConstants {
     public static final int DUPLICATE_PARTITION = 412;
     public static final int CERTIFICATE_FAILURE = 415;
     public static final int SERVER_RECEIVE_OVERFLOW = 419;
+    public static final int CLIENT_SHUTDOWN = 420;
+    public static final int CLIENT_HIGH_FREQUENCY_REQUEST = 421;
+    public static final int PARTITION_UNSUBSCRIBABLE = 422;
+    public static final int PARTITION_UNPUBLISHABLE = 423;
+    public static final int CLIENT_INCONSISTENT_CONSUMETYPE = 424;
+    public static final int CLIENT_INCONSISTENT_TOPICSET = 425;
+    public static final int CLIENT_INCONSISTENT_FILTERSET = 426;
+    public static final int CLIENT_INCONSISTENT_SESSIONKEY = 427;
+    public static final int CLIENT_INCONSISTENT_SELECTBIG = 428;
+    public static final int CLIENT_INCONSISTENT_SOURCECOUNT = 429;
+    public static final int CLIENT_DUPLICATE_INDEXID = 430;
+
     public static final int CONSUME_GROUP_FORBIDDEN = 450;
     public static final int SERVER_CONSUME_SPEED_LIMIT = 452;
     public static final int CONSUME_CONTENT_FORBIDDEN = 455;
@@ -45,6 +58,7 @@ public class TErrCodeConstants {
     public static final int INTERNAL_SERVER_ERROR = 500;
     public static final int SERVICE_UNAVAILABLE = 503;
     public static final int INTERNAL_SERVER_ERROR_MSGSET_NULL = 510;
+    public static final int UNSPECIFIED_ABNORMAL = 599;
 
     public static final List<Integer> IGNORE_ERROR_SET =
             Arrays.asList(BAD_REQUEST, NOT_FOUND, ALL_PARTITION_FROZEN,
