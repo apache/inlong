@@ -49,7 +49,7 @@ public interface BusinessExtEntityMapper {
     int insertAll(@Param("extList") List<BusinessExtEntity> extEntityList);
 
     /**
-     * Physically delete all extension fields based on the service identifier
+     * Physically delete all extension fields based on the business group id
      *
      * @return rows deleted
      */

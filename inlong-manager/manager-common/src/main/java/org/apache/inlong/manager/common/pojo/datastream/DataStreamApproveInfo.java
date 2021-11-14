@@ -33,7 +33,7 @@ public class DataStreamApproveInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business Identifier")
+    @ApiModelProperty(value = "Business group id")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Data stream id")

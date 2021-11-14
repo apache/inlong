@@ -143,7 +143,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
     }
 
     /**
-     * Logically delete HIVE storage information based on service identifiers and data stream identifiers
+     * Logically delete HIVE storage information based on business group id and data stream id
      *
      * @param groupId Business group id
      * @param streamId Data stream id
@@ -201,7 +201,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
     }
 
     /**
-     * Physically delete HIVE storage information of the specified identifier
+     * Physically delete HIVE storage information of the specified id
      *
      * @param groupId Business group id
      * @param streamId Data stream id

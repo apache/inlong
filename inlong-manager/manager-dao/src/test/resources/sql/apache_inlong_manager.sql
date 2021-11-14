@@ -445,7 +445,7 @@ CREATE TABLE `source_file_basic`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'id',
     `inlong_group_id`    varchar(128) NOT NULL COMMENT 'business group id',
-    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'data stream identifier',
+    `inlong_stream_id` varchar(128) NOT NULL COMMENT 'data stream id',
     `is_hybrid_source`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to mix data sources',
     `is_table_mapping`       tinyint(1)            DEFAULT '0' COMMENT 'Is there a table name mapping',
     `date_offset`            int(4)                DEFAULT '0' COMMENT 'Time offset\n',

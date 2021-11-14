@@ -765,7 +765,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
         String newDsid = streamInfo.getInlongStreamId();
         if (newDsid != null && !newDsid.equals(streamEntity.getInlongStreamId())) {
-            LOGGER.error("current status was not allowed to update data stream identifier");
+            LOGGER.error("current status was not allowed to update data stream id");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_UPDATE_NOT_ALLOWED);
         }
 

@@ -72,7 +72,7 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "whether to filter consumption, 0: not filter, 1: filter")
     private Integer filterEnabled = 0;
 
-    @ApiModelProperty(value = "consumption target data stream identifier")
+    @ApiModelProperty(value = "consumption target data stream id")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "

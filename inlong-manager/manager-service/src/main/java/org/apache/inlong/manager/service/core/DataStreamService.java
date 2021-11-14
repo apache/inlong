@@ -162,7 +162,7 @@ public interface DataStreamService {
     boolean updateAll(FullPageUpdateInfo updateInfo, String operator);
 
     /**
-     * According to the service identifier, query the number of valid data streams belonging to this service
+     * According to the group id, query the number of valid data streams belonging to this service
      *
      * @param groupId Business group id
      * @return Number of data streams

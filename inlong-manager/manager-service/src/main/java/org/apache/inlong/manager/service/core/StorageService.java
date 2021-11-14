@@ -49,7 +49,7 @@ public interface StorageService {
     BaseStorageInfo getById(String storageType, Integer id);
 
     /**
-     * Query storage information based on business and data stream identifiers
+     * Query storage information based on business group id and data stream id
      *
      * @param groupId Business group id
      * @param streamId Data stream id, can be null
@@ -59,7 +59,7 @@ public interface StorageService {
     List<BaseStorageInfo> listByIdentifier(String groupId, String streamId);
 
     /**
-     * Query stored summary information based on business and data stream identifiers, including storage cluster
+     * Query stored summary information based on business group id and data stream id, including storage cluster
      *
      * @param groupId Business group id
      * @param streamId Data stream id
@@ -69,7 +69,7 @@ public interface StorageService {
     List<StorageSummaryInfo> listSummaryByIdentifier(String groupId, String streamId);
 
     /**
-     * Query the number of undeleted stored information based on business and data stream identifiers
+     * Query the number of undeleted stored information based on business and data stream id
      *
      * @param groupId Business group id
      * @param streamId Data stream id
@@ -126,7 +126,7 @@ public interface StorageService {
      * Tombstone data storage information
      *
      * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream identifier to which the data source belongs
+     * @param streamId The data stream id to which the data source belongs
      * @param operator Operator name
      * @return whether succeed
      */
@@ -144,7 +144,7 @@ public interface StorageService {
     List<String> filterStreamIdByStorageType(String groupId, String storageType, List<String> streamIdList);
 
     /**
-     * According to the data stream identifier, query the list of storage types owned by it
+     * According to the data stream id, query the list of storage types owned by it
      *
      * @param groupId Business group id
      * @param streamId Data stream id

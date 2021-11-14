@@ -41,7 +41,7 @@ public class BaseStorageInfo {
 
     private Integer id;
 
-    @ApiModelProperty("Business Identifier")
+    @ApiModelProperty("Business group id")
     private String inlongGroupId;
 
     @ApiModelProperty("Data stream id")

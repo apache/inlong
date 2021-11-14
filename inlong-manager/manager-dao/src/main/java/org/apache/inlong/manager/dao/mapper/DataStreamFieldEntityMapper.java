@@ -46,12 +46,12 @@ public interface DataStreamFieldEntityMapper {
             @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, physically delete all fields
+     * According to the business group id and data stream id, physically delete all fields
      */
     int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, logically delete all fields
+     * According to the business group id and data stream id, logically delete all fields
      */
     int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 

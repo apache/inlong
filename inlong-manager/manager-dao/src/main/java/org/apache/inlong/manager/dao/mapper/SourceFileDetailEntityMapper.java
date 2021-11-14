@@ -45,9 +45,9 @@ public interface SourceFileDetailEntityMapper {
      * Query whether the same file data source details exist
      *
      * @param groupId business group id
-     * @param streamId data stream identifier
+     * @param streamId data stream id
      * @param ip IP of file source
-     * @param username user name corresponding to the data source IP
+     * @param username username corresponding to the data source IP
      * @return number of eligible file sources
      */
     Integer selectDetailExist(@Param("groupId") String groupId, @Param("streamId") String streamId,
@@ -58,24 +58,24 @@ public interface SourceFileDetailEntityMapper {
     List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
 
     /**
-     * According to business group id and data source identifier, query file source details
+     * According to business group id and data stream id, query file source details
      *
      * @param groupId business group id
-     * @param streamId data stream identifier
+     * @param streamId data stream id
      * @return file source list
      */
     List<SourceFileDetailEntity> selectByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
     /**
-     * According to business group id and data stream identifier, physically delete file data source details
+     * According to business group id and data stream id, physically delete file data source details
      *
      * @return rows deleted
      */
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to business group id and data stream identifier, logically delete file data source details
+     * According to business group id and data stream id, logically delete file data source details
      *
      * @return rows updated
      */

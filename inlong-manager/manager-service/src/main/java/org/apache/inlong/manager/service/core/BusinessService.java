@@ -40,7 +40,7 @@ public interface BusinessService {
     String save(BusinessInfo businessInfo, String operator);
 
     /**
-     * Query business information based on identifier
+     * Query business information based on group id
      *
      * @param groupId Business group id
      * @return Business details
@@ -75,7 +75,7 @@ public interface BusinessService {
     boolean updateStatus(String groupId, Integer status, String operator);
 
     /**
-     * Delete the business information of the specified identifier
+     * Delete the business information of the specified group id
      *
      * @param groupId The business group id that needs to be deleted
      * @param operator Current operator
@@ -84,7 +84,7 @@ public interface BusinessService {
     boolean delete(String groupId, String operator);
 
     /**
-     * Query whether the specified identifier exists
+     * Query whether the specified group id exists
      *
      * @param groupId The business group id to be queried
      * @return does it exist

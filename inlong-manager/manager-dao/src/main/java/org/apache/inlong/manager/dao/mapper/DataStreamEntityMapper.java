@@ -73,7 +73,7 @@ public interface DataStreamEntityMapper {
     int selectCountByGroupId(@Param("groupId") String groupId);
 
     /**
-     * Physically delete all data streams of the specified service identifier
+     * Physically delete all data streams of the specified business group id
      *
      * @return rows deleted
      */

@@ -109,17 +109,17 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public BusinessInfo get(String identifier) {
-        LOGGER.debug("begin to get business info by groupId={}", identifier);
-        Preconditions.checkNotNull(identifier, BizConstant.GROUP_ID_IS_EMPTY);
-        BusinessEntity entity = businessMapper.selectByIdentifier(identifier);
+    public BusinessInfo get(String groupId) {
+        LOGGER.debug("begin to get business info by groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        BusinessEntity entity = businessMapper.selectByIdentifier(groupId);
         if (entity == null) {
-            LOGGER.error("business not found by groupId={}", identifier);
+            LOGGER.error("business not found by groupId={}", groupId);
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
 
         BusinessInfo businessInfo = CommonBeanUtils.copyProperties(entity, BusinessInfo::new);
-        List<BusinessExtEntity> extEntityList = businessExtMapper.selectByGroupId(identifier);
+        List<BusinessExtEntity> extEntityList = businessExtMapper.selectByGroupId(groupId);
         List<BusinessExtInfo> extInfoList = CommonBeanUtils
                 .copyListProperties(extEntityList, BusinessExtInfo::new);
         businessInfo.setExtList(extInfoList);
