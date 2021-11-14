@@ -33,6 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.slf4j.Logger;
@@ -264,6 +265,44 @@ public class ConsumeGroupInfo {
         }
     }
 
+    public void updCsmFromMaxCtrlId() {
+        csmCtrlId.set(System.currentTimeMillis());
+    }
+
+    public void updCsmTopicMetaInfo(Map<String, String> result) {
+        lastMetaInfoFreshTime.set(System.currentTimeMillis());
+        if (result == null || result.isEmpty()) {
+            return;
+        }
+        String newConfig;
+        String curCOnfig;
+        boolean isChanged = false;
+        Set<String> newTopics = result.keySet();
+        Set<String> curTopics = topicMetaInfoMap.keySet();
+        if (newTopics.size() != curTopics.size()
+                || !newTopics.containsAll(curTopics)) {
+            isChanged = true;
+        } else {
+            for (String topicKey : newTopics) {
+                newConfig = result.get(topicKey);
+                curCOnfig = topicMetaInfoMap.get(topicKey);
+                if (newConfig == null) {
+                    continue;
+                }
+                if (!newConfig.equals(curCOnfig)) {
+                    isChanged = true;
+                    break;
+                }
+            }
+        }
+        if (isChanged) {
+            for (String newTopic : newTopics) {
+                topicMetaInfoMap.put(newTopic, result.get(newTopic));
+            }
+            topicMetaInfoId.set(System.currentTimeMillis());
+        }
+    }
+
     public boolean isUnReadyServerBalance() {
         return (consumeType == ConsumeType.CONSUME_BAND
                 && notAllocate.get()
@@ -409,6 +448,25 @@ public class ConsumeGroupInfo {
 
     public Map<String, TreeSet<String>> getTopicConditions() {
         return this.topicConditions;
+    }
+
+    public long getCsmFromMaxCtrlId() {
+        return csmCtrlId.get();
+    }
+
+    public Tuple2<Long, List<String>> getTopicMetaInfo() {
+        List<String> topicMetaInfoList = new ArrayList<>();
+        for (String metaInfo : topicMetaInfoMap.values()) {
+            if (TStringUtils.isBlank(metaInfo)) {
+                continue;
+            }
+            topicMetaInfoList.add(metaInfo);
+        }
+        return new Tuple2<>(topicMetaInfoId.get(), topicMetaInfoList);
+    }
+
+    public AtomicLong getLastMetaInfoFreshTime() {
+        return lastMetaInfoFreshTime;
     }
 
     public List<ConsumerInfo> getConsumerInfoList() {
