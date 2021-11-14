@@ -40,7 +40,7 @@ public interface DataStreamExtEntityMapper {
     List<DataStreamExtEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query the undeleted extended attributes based on the business group id, data stream identifier, and keyName
+     * Query the undeleted extended attributes based on the business group id, data stream id, and keyName
      *
      * @param keyName attribute name
      * @return extended attribute
@@ -54,12 +54,12 @@ public interface DataStreamExtEntityMapper {
     int insertAll(@Param("extList") List<DataStreamExtEntity> extEntityList);
 
     /**
-     * According to the business group id and data stream identifier, physically delete all extended fields
+     * According to the business group id and data stream id, physically delete all extended fields
      */
     int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, logically delete all extended fields
+     * According to the business group id and data stream id, logically delete all extended fields
      */
     int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 

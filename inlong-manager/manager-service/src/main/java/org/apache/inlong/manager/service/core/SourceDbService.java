@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageReques
 
 /**
  * DB data source service layer interface
- *
  */
 public interface SourceDbService {
 
@@ -34,13 +33,13 @@ public interface SourceDbService {
      * Save the basic information of the DB data source
      *
      * @param basicInfo DB data source basic information
-     * @param operator perator name
+     * @param operator operator name
      * @return Primary key after saving
      */
     Integer saveBasic(SourceDbBasicInfo basicInfo, String operator);
 
     /**
-     * Query the basic information of the data source based on the business group id and the data stream identifier
+     * Query the basic information of the data source based on the business group id and the data stream id
      *
      * @param groupId Business group id
      * @param streamId Data stream id
@@ -83,7 +82,7 @@ public interface SourceDbService {
     SourceDbDetailInfo getDetailById(Integer id);
 
     /**
-     * Query a detailed list of DB data sources based on business and data stream identifiers
+     * Query a detailed list of DB data sources based on business group id and data stream id
      *
      * @param groupId Business group id
      * @param streamId Data stream id, can be null
@@ -121,7 +120,7 @@ public interface SourceDbService {
      * Physically delete the basic and detailed information of the data source
      *
      * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream identifier to which the data source belongs
+     * @param streamId The data stream id to which the data source belongs
      * @return whether succeed
      */
     boolean deleteAllByIdentifier(String groupId, String streamId);
@@ -130,7 +129,7 @@ public interface SourceDbService {
      * Tombstone data source basic information and detailed information
      *
      * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream identifier to which the data source belongs
+     * @param streamId The data stream id to which the data source belongs
      * @param operator perator name
      * @return whether succeed
      */

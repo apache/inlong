@@ -18,17 +18,14 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-
+import java.util.List;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailListVO;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest;
 
-import java.util.List;
-
 /**
  * File data source service layer interface
- *
  */
 public interface SourceFileService {
 
@@ -36,15 +33,15 @@ public interface SourceFileService {
      * Save the basic information of the file data source
      *
      * @param basicInfo Basic information of file data source
-     * @param operator  Operator name
+     * @param operator Operator name
      * @return Primary key after saving
      */
     Integer saveBasic(SourceFileBasicInfo basicInfo, String operator);
 
     /**
-     * Query the basic information of the data source based on the data stream identifier
+     * Query the basic information of the data source based on the data stream id
      *
-     * @param groupId   Business group id
+     * @param groupId Business group id
      * @param streamId Data stream id
      * @return Basic data source information
      */
@@ -54,7 +51,7 @@ public interface SourceFileService {
      * Modify the basic information of the data source
      *
      * @param basicInfo Data source information that needs to be modified
-     * @param operator  Operator name
+     * @param operator Operator name
      * @return Whether succeed
      */
     boolean updateBasic(SourceFileBasicInfo basicInfo, String operator);
@@ -62,7 +59,7 @@ public interface SourceFileService {
     /**
      * Tombstone data source basic information
      *
-     * @param id       Data source basic information id
+     * @param id Data source basic information id
      * @param operator Operator name
      * @return Whether succeed
      */
@@ -72,7 +69,7 @@ public interface SourceFileService {
      * Save file data source details
      *
      * @param detailInfo File data source details
-     * @param operator   Operator name
+     * @param operator Operator name
      * @return Primary key after saving
      */
     Integer saveDetail(SourceFileDetailInfo detailInfo, String operator);
@@ -86,9 +83,9 @@ public interface SourceFileService {
     SourceFileDetailInfo getDetailById(Integer id);
 
     /**
-     * Query a detailed list of file data sources based on business and data stream identifiers
+     * Query a detailed list of file data sources based on business group id and data stream id
      *
-     * @param groupId   Business group id
+     * @param groupId Business group id
      * @param streamId Data stream id, can be null
      * @return Data source details
      */
@@ -106,7 +103,7 @@ public interface SourceFileService {
      * Modify data source details
      *
      * @param detailInfo Data source information that needs to be modified
-     * @param operator   Operator name
+     * @param operator Operator name
      * @return Whether succeed
      */
     boolean updateDetail(SourceFileDetailInfo detailInfo, String operator);
@@ -114,7 +111,7 @@ public interface SourceFileService {
     /**
      * Tombstone data source details
      *
-     * @param id       Data source id
+     * @param id Data source id
      * @param operator Operator name
      * @return Whether succeed
      */
@@ -123,8 +120,8 @@ public interface SourceFileService {
     /**
      * Physically delete the basic and detailed information of the data source
      *
-     * @param groupId   The business group id to which the data source belongs
-     * @param streamId The data stream identifier to which the data source belongs
+     * @param groupId The business group id to which the data source belongs
+     * @param streamId The data stream id to which the data source belongs
      * @return Whether succeed
      */
     boolean deleteAllByIdentifier(String groupId, String streamId);
@@ -132,9 +129,9 @@ public interface SourceFileService {
     /**
      * Tombstone data source basic information and detailed information
      *
-     * @param groupId   The business group id to which the data source belongs
-     * @param streamId The data stream identifier to which the data source belongs
-     * @param operator             Operator name
+     * @param groupId The business group id to which the data source belongs
+     * @param streamId The data stream id to which the data source belongs
+     * @param operator Operator name
      * @return Whether succeed
      */
     boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator);

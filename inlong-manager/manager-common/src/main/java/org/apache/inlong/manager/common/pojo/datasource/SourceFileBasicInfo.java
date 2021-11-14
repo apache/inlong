@@ -32,10 +32,10 @@ public class SourceFileBasicInfo {
 
     private Integer id;
 
-    @ApiModelProperty(value = "Business Identifier")
+    @ApiModelProperty(value = "Business group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "data flow identifier")
+    @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "Is a hybrid data source, 0: no, 1: yes")

@@ -48,19 +48,19 @@ public interface StorageHiveEntityMapper {
     List<StorageHiveEntity> selectByCondition(StoragePageRequest request);
 
     /**
-     * According to the business group id and data stream identifier, query valid storage information
+     * According to the business group id and data stream id, query valid storage information
      *
      * @param groupId business group id
-     * @param streamId data stream identifier
+     * @param streamId data stream id
      * @return Hive storage entity list
      */
     List<StorageHiveEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, query the number of valid Hive storage
+     * According to the business group id and data stream id, query the number of valid Hive storage
      *
      * @param groupId business group id
-     * @param streamId data stream identifier
+     * @param streamId data stream id
      * @return Hive storage entity size
      */
     int selectCountByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -71,14 +71,14 @@ public interface StorageHiveEntityMapper {
      * Given a list of data stream ids, filter out data stream id list with Hive storage
      *
      * @param groupId business group id
-     * @param streamIdList data stream identifier list
+     * @param streamIdList data stream id list
      * @return a list of data stream ids with Hive storage
      */
     List<String> selectDataStreamExists(@Param("groupId") String groupId,
             @Param("streamIdList") List<String> streamIdList);
 
     /**
-     * According to the business group id and data stream identifier, query Hive storage summary information
+     * According to the business group id and data stream id, query Hive storage summary information
      */
     List<StorageSummaryInfo> selectSummaryByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);

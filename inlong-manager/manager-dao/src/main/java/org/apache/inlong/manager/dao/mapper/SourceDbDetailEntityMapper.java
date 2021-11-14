@@ -43,17 +43,17 @@ public interface SourceDbDetailEntityMapper {
     Integer selectDetailExist(String groupId, String streamId, String dbName, String connectionName);
 
     /**
-     * According to the business group id and data stream identifier, query data source details
+     * According to the business group id and data stream id, query data source details
      */
     List<SourceDbDetailEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, physically delete DB data source details
+     * According to the business group id and data stream id, physically delete DB data source details
      */
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier, logically delete DB data source details
+     * According to the business group id and data stream id, logically delete DB data source details
      */
     int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);

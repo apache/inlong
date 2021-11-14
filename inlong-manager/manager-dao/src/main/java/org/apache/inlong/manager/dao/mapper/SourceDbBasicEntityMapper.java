@@ -39,7 +39,7 @@ public interface SourceDbBasicEntityMapper {
     SourceDbBasicEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier,
+     * According to the business group id and data stream id,
      * physically delete the basic information of the DB data source
      *
      * @return rows deleted
@@ -47,7 +47,7 @@ public interface SourceDbBasicEntityMapper {
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream identifier,
+     * According to the business group id and data stream id,
      * logically delete the basic information of the DB data source
      *
      * @return rows deleted
