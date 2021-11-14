@@ -22,11 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
@@ -36,7 +34,8 @@ import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeType;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,13 +121,13 @@ public class PBParameterUtils {
         return retResult;
     }
 
-    public static ParamCheckResult checkConsumerOffsetSetInfo(boolean isReqConsumeBand,
+    public static ParamCheckResult checkConsumerOffsetSetInfo(ConsumeType csmType,
                                                               final Set<String> reqTopicSet,
                                                               final String requiredParts,
                                                               final StringBuilder strBuffer) {
         Map<String, Long> requiredPartMap = new HashMap<>();
         ParamCheckResult retResult = new ParamCheckResult();
-        if (!isReqConsumeBand) {
+        if (csmType != ConsumeType.CONSUME_BAND) {
             retResult.setCheckData(requiredPartMap);
             return retResult;
         }
@@ -200,13 +199,15 @@ public class PBParameterUtils {
             return retResult;
         }
         GroupResCtrlEntity offsetResetGroupEntity =
-                defMetaDataManager.confGetGroupResCtrlConf(inConsumerInfo.getGroup());
+                defMetaDataManager.confGetGroupResCtrlConf(inConsumerInfo.getGroupName());
         if (masterConfig.isStartOffsetResetCheck()) {
             if (offsetResetGroupEntity == null) {
                 retResult.setCheckResult(false,
                         TErrCodeConstants.BAD_REQUEST,
-                        "[unauthorized subscribe] ConsumeGroup must be authorized by administrator before"
-                                + " using bound subscribe, please contact to administrator!");
+                        strBuffer.append("[unauthorized subscribe] ConsumeGroup must be ")
+                                .append("authorized by administrator before using bound subscribe")
+                                .append(", please contact to administrator!").toString());
+                strBuffer.delete(0, strBuffer.length());
                 return retResult;
             }
         }
@@ -229,167 +230,6 @@ public class PBParameterUtils {
             return retResult;
         }
         retResult.setCheckData(inConsumerInfo);
-        return retResult;
-    }
-
-    // #lizard forgives
-    public static ParamCheckResult validConsumerExistInfo(ConsumerInfo inConsumerInfo,
-                                                          boolean isSelectBig,
-                                                          ConsumerBandInfo consumerBandInfo,
-                                                          final StringBuilder strBuffer) throws Exception {
-        // This part is mainly to check whether the newly accessed client is consistent with the existing
-        // consumer consumption target
-        ParamCheckResult retResult = new ParamCheckResult();
-        if (consumerBandInfo == null) {
-            retResult.setCheckData(inConsumerInfo);
-            return retResult;
-        }
-        // check whether the consumer behavior is consistent
-        if (inConsumerInfo.isRequireBound() != consumerBandInfo.isBandConsume()) {
-            if (inConsumerInfo.isRequireBound()) {
-                strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                        .append(" using bound subscribe is inconsistency ")
-                        .append("with other consumers using unbound subscribe in the group");
-            } else {
-                strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                        .append(" using unbound subscribe is inconsistency with other consumers")
-                        .append(" using bound subscribe in the group");
-            }
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.toString());
-            logger.warn(strBuffer.toString());
-            return retResult;
-        }
-        // check the topics of consumption
-        List<ConsumerInfo> infoList = consumerBandInfo.getConsumerInfoList();
-        Set<String> existedTopics = consumerBandInfo.getTopicSet();
-        Map<String, TreeSet<String>> existedTopicConditions = consumerBandInfo.getTopicConditions();
-        if (existedTopics != null && !existedTopics.isEmpty()) {
-            if (existedTopics.size() != inConsumerInfo.getTopicSet().size()
-                    || !existedTopics.containsAll(inConsumerInfo.getTopicSet())) {
-
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                                .append(" subscribed topics ").append(inConsumerInfo.getTopicSet())
-                                .append(" is inconsistency with other consumers in the group, existedTopics: ")
-                                .append(existedTopics).toString());
-                logger.warn(strBuffer.toString());
-                return retResult;
-            }
-        }
-        if (infoList != null && !infoList.isEmpty()) {
-            boolean isCondEqual = true;
-            if (existedTopicConditions == null || existedTopicConditions.isEmpty()) {
-                if (inConsumerInfo.getTopicConditions().isEmpty()) {
-                    isCondEqual = true;
-                } else {
-                    isCondEqual = false;
-                    strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                            .append(" subscribe with filter condition ")
-                            .append(inConsumerInfo.getTopicConditions())
-                            .append(" is inconsistency with other consumers in the group: topic without conditions");
-                }
-            } else {
-                // check the filter conditions of the topic
-                if (inConsumerInfo.getTopicConditions().isEmpty()) {
-                    isCondEqual = false;
-                    strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                            .append(" subscribe without filter condition ")
-                            .append(" is inconsistency with other consumers in the group, existed topic conditions is ")
-                            .append(existedTopicConditions);
-                } else {
-                    Set<String> existedCondTopics = existedTopicConditions.keySet();
-                    Set<String> reqCondTopics = inConsumerInfo.getTopicConditions().keySet();
-                    if (existedCondTopics.size() != reqCondTopics.size()
-                            || !existedCondTopics.containsAll(reqCondTopics)) {
-                        isCondEqual = false;
-                        strBuffer.append("[Inconsistency subscribe] ")
-                                .append(inConsumerInfo.getConsumerId())
-                                .append(" subscribe with filter condition ")
-                                .append(inConsumerInfo.getTopicConditions())
-                                .append(" is inconsistency with other consumers in the group, ")
-                                .append("existed topic conditions is ")
-                                .append(existedTopicConditions);
-                    } else {
-                        isCondEqual = true;
-                        for (String topicKey : existedCondTopics) {
-                            if ((existedTopicConditions.get(topicKey).size()
-                                    != inConsumerInfo.getTopicConditions().get(topicKey).size())
-                                    || (!existedTopicConditions.get(topicKey).containsAll(inConsumerInfo
-                                    .getTopicConditions().get(topicKey)))) {
-                                isCondEqual = false;
-                                strBuffer.append("[Inconsistency subscribe] ")
-                                        .append(inConsumerInfo.getConsumerId())
-                                        .append(" subscribe with filter condition ")
-                                        .append(inConsumerInfo.getTopicConditions())
-                                        .append(" is inconsistency with other consumers ")
-                                        .append("in the group, existed topic conditions is ")
-                                        .append(existedTopicConditions);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            if (!isCondEqual) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.toString());
-                logger.warn(strBuffer.toString());
-                return retResult;
-            }
-        }
-        if (inConsumerInfo.isRequireBound()) {
-            // If the sessionKey is inconsistent, it means that the previous round of consumption has not completely
-            // exited. In order to avoid the incomplete offset setting, it is necessary to completely clear the above
-            // data before resetting and consuming this round of consumption
-            if (!inConsumerInfo.getSessionKey().equals(consumerBandInfo.getSessionKey())) {
-                strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                        .append("'s sessionKey is inconsistency with other consumers in the group, required is ")
-                        .append(consumerBandInfo.getSessionKey()).append(", request is ")
-                        .append(inConsumerInfo.getSessionKey());
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.toString());
-                logger.warn(strBuffer.toString());
-                return retResult;
-            }
-            // check the offset config
-            if (isSelectBig != consumerBandInfo.isSelectedBig()) {
-                strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                        .append("'s isSelectBig is inconsistency with other consumers in the group, required is ")
-                        .append(consumerBandInfo.isSelectedBig())
-                        .append(", request is ").append(isSelectBig);
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.toString());
-                logger.warn(strBuffer.toString());
-                return retResult;
-            }
-            // check the consumers count
-            if (inConsumerInfo.getSourceCount() != consumerBandInfo.getSourceCount()) {
-                strBuffer.append("[Inconsistency subscribe] ").append(inConsumerInfo.getConsumerId())
-                        .append("'s sourceCount is inconsistency with other consumers in the group, required is ")
-                        .append(consumerBandInfo.getSourceCount())
-                        .append(", request is ").append(inConsumerInfo.getSourceCount());
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.toString());
-                logger.warn(strBuffer.toString());
-                return retResult;
-            }
-        }
-        boolean registered = false;
-        if (infoList != null) {
-            for (ConsumerInfo info : infoList) {
-                if (info.getConsumerId().equals(inConsumerInfo.getConsumerId())) {
-                    registered = true;
-                }
-            }
-        }
-        retResult.setCheckData(registered);
         return retResult;
     }
 

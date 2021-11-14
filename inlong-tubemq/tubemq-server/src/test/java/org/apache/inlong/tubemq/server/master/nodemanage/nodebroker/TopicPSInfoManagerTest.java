@@ -19,7 +19,7 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,17 +40,21 @@ public class TopicPSInfoManagerTest {
 
     @Test
     public void topicSubInfo() {
-        ConcurrentHashSet<String> groupSet = new ConcurrentHashSet<>();
+        Set<String> groupSet = new HashSet<>();
         groupSet.add("group_001");
         groupSet.add("group_002");
         groupSet.add("group_003");
+        Set<String> topicSet = new HashSet<>();
+        topicSet.add("topic001");
+        for (String groupName : groupSet) {
+            topicPSInfoManager.addGroupSubTopicInfo(groupName, topicSet);
+        }
 
-        topicPSInfoManager.setTopicSubInfo("topic001", groupSet);
-        ConcurrentHashSet<String> gs1 = topicPSInfoManager.getTopicSubInfo("topic001");
+        Set<String> gs1 = topicPSInfoManager.getTopicSubInfo("topic001");
         Assert.assertEquals(3, gs1.size());
 
-        topicPSInfoManager.removeTopicSubInfo("topic001", "group_001");
-        topicPSInfoManager.removeTopicSubInfo("topic001", "group_002");
+        topicPSInfoManager.rmvGroupSubTopicInfo("group_001", topicSet);
+        topicPSInfoManager.rmvGroupSubTopicInfo("group_002", topicSet);
         gs1 = topicPSInfoManager.getTopicSubInfo("topic001");
         Assert.assertEquals(1, gs1.size());
     }
@@ -63,14 +67,14 @@ public class TopicPSInfoManagerTest {
         topicList.add("topic003");
 
         topicPSInfoManager.addProducerTopicPubInfo("producer_001", topicList);
-        ConcurrentHashSet<String> ti1 = topicPSInfoManager.getTopicPubInfo("topic001");
+        Set<String> ti1 = topicPSInfoManager.getTopicPubInfo("topic001");
         Assert.assertEquals(1, ti1.size());
         Assert.assertTrue(ti1.contains("producer_001"));
 
         topicPSInfoManager.rmvProducerTopicPubInfo("producer_001",
                 new HashSet<>(Arrays.asList("topic001", "topic002")));
 
-        ConcurrentHashSet<String> ti2 = topicPSInfoManager.getTopicPubInfo("topic003");
+        Set<String> ti2 = topicPSInfoManager.getTopicPubInfo("topic003");
         Assert.assertEquals(1, ti2.size());
         Assert.assertTrue(ti2.contains("producer_001"));
     }

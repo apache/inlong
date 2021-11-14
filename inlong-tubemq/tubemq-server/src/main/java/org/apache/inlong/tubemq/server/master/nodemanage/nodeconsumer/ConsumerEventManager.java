@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +89,7 @@ public class ConsumerEventManager {
      */
     public ConsumerEvent peek(String consumerId) {
         String group =
-                consumerHolder.getGroup(consumerId);
+                consumerHolder.getGroupName(consumerId);
         if (group != null) {
             ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
                     hasDisconnectEvent(group)
@@ -119,7 +118,7 @@ public class ConsumerEventManager {
      */
     public ConsumerEvent removeFirst(String consumerId) {
         ConsumerEvent event = null;
-        String group = consumerHolder.getGroup(consumerId);
+        String group = consumerHolder.getGroupName(consumerId);
         ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
                 hasDisconnectEvent(group) ? disconnectEventMap : connectEventMap;
         LinkedList<ConsumerEvent> eventList = currentEventMap.get(consumerId);
@@ -211,16 +210,19 @@ public class ConsumerEventManager {
     /**
      * Check if disconnect event map have event
      *
-     * @param group
+     * @param group    the group name needs a query
      * @return true if disconnect event map not empty otherwise false
      */
     public boolean hasDisconnectEvent(String group) {
-        List<ConsumerInfo> consumerList =
-                consumerHolder.getConsumerList(group);
-        if (CollectionUtils.isNotEmpty(consumerList)) {
-            for (ConsumerInfo consumer : consumerList) {
+        List<String> consumerIdList =
+                consumerHolder.getConsumerIdList(group);
+        if (CollectionUtils.isNotEmpty(consumerIdList)) {
+            for (String consumerId : consumerIdList) {
+                if (consumerId == null) {
+                    continue;
+                }
                 List<ConsumerEvent> eventList =
-                        disconnectEventMap.get(consumer.getConsumerId());
+                        disconnectEventMap.get(consumerId);
                 if (eventList != null) {
                     synchronized (eventList) {
                         if (CollectionUtils.isNotEmpty(eventList)) {

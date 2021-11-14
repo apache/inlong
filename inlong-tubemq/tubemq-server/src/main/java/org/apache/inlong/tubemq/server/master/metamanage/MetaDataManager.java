@@ -1968,7 +1968,7 @@ public class MetaDataManager implements Server {
         return metaStoreService.getConsumeCtrlByTopicName(topicName);
     }
 
-    public Set<String> getDisableConsumeTopicByGroupName(String groupName) {
+    public Set<String> getDisableTopicByGroupName(String groupName) {
         Set<String> disTopicSet = new HashSet<>();
         List<GroupConsumeCtrlEntity> qryResult =
                 metaStoreService.getConsumeCtrlByGroupName(groupName);

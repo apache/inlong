@@ -17,464 +17,401 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
+import org.apache.commons.codec.binary.StringUtils;
+import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
+import org.apache.inlong.tubemq.server.common.utils.RowLock;
+import org.apache.inlong.tubemq.server.master.MasterConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsumerInfoHolder {
 
-    private final ConcurrentHashMap<String/* group */, ConsumerBandInfo> groupInfoMap =
+    private static final Logger logger =
+            LoggerFactory.getLogger(ConsumerInfoHolder.class);
+    private final MasterConfig masterConfig;     // master configure
+    private final RowLock groupRowLock;    //lock
+    private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* consumerId */, String/* group */> consumerIndexMap =
             new ConcurrentHashMap<>();
-    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final ConcurrentHashSet<String/* group */> serverBalanceGroupSet =
+            new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet =
+            new ConcurrentHashSet<>();
 
-    /**
-     * Get consumer info list in a group
-     *
-     * @param group the consumer group name
-     * @return a consumer list
-     */
-    public List<ConsumerInfo> getConsumerList(String group) {
-        if (group == null) {
-            return Collections.emptyList();
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                List<ConsumerInfo> oldConsumerList =
-                        oldConsumeBandInfo.getConsumerInfoList();
-                if (oldConsumerList != null) {
-                    List<ConsumerInfo> consumerList =
-                            new ArrayList<>(oldConsumerList.size());
-                    for (ConsumerInfo consumer : oldConsumerList) {
-                        if (consumer != null) {
-                            consumerList.add(consumer.clone());
-                        }
-                    }
-                    return consumerList;
-                }
-            }
-        } finally {
-            rwLock.readLock().unlock();
-        }
-        return Collections.emptyList();
+    public ConsumerInfoHolder(MasterConfig masterConfig) {
+        this.masterConfig = masterConfig;
+        this.groupRowLock = new RowLock("Group-RowLock",
+                this.masterConfig.getRowLockWaitDurMs());
+    }
+
+    public int getDefResourceRate() {
+        return masterConfig.getMaxGroupBrokerConsumeRate();
     }
 
     /**
-     * Get consumer band info
+     * Judge whether the consumer group is empty
+     *
+     * @param groupName group name
+     * @return true: empty, false: not empty
+     */
+    public boolean isConsumeGroupEmpty(String groupName) {
+        if (groupName == null) {
+            return true;
+        }
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(groupName);
+        return (consumeGroupInfo == null || consumeGroupInfo.isGroupEmpty());
+    }
+
+    /**
+     * Get consumer id list in a group
+     *
+     * @param group the consumer group name
+     * @return the consumer id list of the group
+     */
+    public List<String> getConsumerIdList(String group) {
+        if (group == null) {
+            return Collections.emptyList();
+        }
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo == null) {
+            return Collections.emptyList();
+        }
+        return consumeGroupInfo.getConsumerIdList();
+    }
+
+    /**
+     * Get the client information of the consumer group
+     *
+     * The query content of this API is the content presented when
+     *  the Web API queries the client information.
+     *
+     * @param group the consumer group name
+     * @return the consumer id with subscribed topic and link type of the group
+     */
+    public List<String> getConsumerViewList(String group) {
+        if (group == null) {
+            return Collections.emptyList();
+        }
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo == null) {
+            return Collections.emptyList();
+        }
+        return consumeGroupInfo.getConsumerViewInfos();
+    }
+
+    /**
+     * Get the consumerId and tls information of the consumer group
+     *
+     * include consumerId and isOverTLS information.
+     *
+     * @param group the consumer group name
+     * @return the consumer info of the group
+     */
+    public List<Tuple2<String, Boolean>> getConsumerIdAndTlsInfos(String group) {
+        if (group == null) {
+            return Collections.emptyList();
+        }
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo == null) {
+            return Collections.emptyList();
+        }
+        return consumeGroupInfo.getConsumerIdAndTlsInfos();
+    }
+
+    /**
+     * Get consume group information
      *
      * @param group group name
-     * @return a ConsumerBandInfo
+     * @return consume group information
      */
-    public ConsumerBandInfo getConsumerBandInfo(String group) {
+    public ConsumeGroupInfo getConsumeGroupInfo(String group) {
         if (group == null) {
             return null;
         }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                return oldConsumeBandInfo.clone();
-            }
-        } finally {
-            rwLock.readLock().unlock();
-        }
-        return null;
+        return groupInfoMap.get(group);
     }
 
     /**
      * Add current check cycle
      *
      * @param group group name
-     * @return
+     * @return updated check cycle value
      */
     public Long addCurCheckCycle(String group) {
         if (group == null) {
             return null;
         }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                return oldConsumeBandInfo.addCurCheckCycle();
-            }
-        } finally {
-            rwLock.readLock().unlock();
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            return consumeGroupInfo.addCurCheckCycle();
         }
         return null;
     }
 
     /**
-     * Set current broker/client ratio
+     * get subscribed topic set of group
      *
-     * @param group               group name
-     * @param defBClientRate      default broker/client ratio
-     * @param confBClientRate     config broker/client ratio
-     * @param curBClientRate      current broker/client ratio
-     * @param minRequireClientCnt minimal client count
-     * @param isRebalanced        if need re-balance
+     * @param group group name
+     * @return subscribed topic set
      */
-    public void setCurConsumeBClientInfo(String group, int defBClientRate,
-                                         int confBClientRate, int curBClientRate,
-                                         int minRequireClientCnt, boolean isRebalanced) {
+    public Set<String> getGroupTopicSet(String group) {
         if (group == null) {
-            return;
+            return Collections.emptySet();
         }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                oldConsumeBandInfo
-                        .setCurrConsumeBClientInfo(defBClientRate,
-                                confBClientRate, curBClientRate,
-                                minRequireClientCnt, isRebalanced);
-            }
-        } finally {
-            rwLock.readLock().unlock();
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            return consumeGroupInfo.getTopicSet();
         }
-        return;
+        return Collections.emptySet();
     }
 
     /**
-     * Add allocate time
+     * get current consumer count of group
      *
      * @param group group name
+     * @return consumer count
      */
-    public void addAllocatedTimes(String group) {
-        if (group == null) {
-            return;
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                oldConsumeBandInfo.addAllocatedTimes();
+    public int getConsumerCnt(String group) {
+        int count = 0;
+        if (group != null) {
+            ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+            if (consumeGroupInfo != null) {
+                count = consumeGroupInfo.getGroupCnt();
             }
-        } finally {
-            rwLock.readLock().unlock();
         }
-        return;
+        return count;
     }
 
     /**
-     * Set allocated value
+     * get need rebalanced consumer of group
      *
      * @param group group name
+     * @return need rebalanced consumer
      */
-    public void setAllocated(String group) {
+    public RebProcessInfo getNeedRebNodeList(String group) {
+        RebProcessInfo rebProcessInfo = new RebProcessInfo();
+        if (group == null) {
+            return rebProcessInfo;
+        }
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            rebProcessInfo = consumeGroupInfo.getNeedBalanceNodes();
+        }
+        return rebProcessInfo;
+    }
+
+    /**
+     * set rebalanced consumer id of group
+     *
+     * @param group group name
+     * @param processList rebalanced consumer id
+     */
+    public void setRebNodeProcessed(String group,
+                                    List<String> processList) {
         if (group == null) {
             return;
         }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                oldConsumeBandInfo.settAllocated();
-            }
-        } finally {
-            rwLock.readLock().unlock();
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            consumeGroupInfo.setBalanceNodeProcessed(processList);
         }
-        return;
+    }
+
+    /**
+     * booked need rebalance consumer of group
+     *
+     * @param group group name
+     * @param consumerIdSet need rebalance consumerId
+     * @param waitDuration wait duration
+     */
+    public void addRebConsumerInfo(String group, Set<String> consumerIdSet, int waitDuration) {
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            for (String consumerId : consumerIdSet) {
+                String oldGroup = consumerIndexMap.get(consumerId);
+                if (group.equals(oldGroup)) {
+                    consumeGroupInfo.addNodeRelInfo(consumerId, waitDuration);
+                }
+            }
+        }
     }
 
     /**
      * Check if allocated
      *
      * @param group group name
-     * @return if not allocated
+     * @return allocate status
      */
     public boolean isNotAllocated(String group) {
         if (group == null) {
             return false;
         }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                return oldConsumeBandInfo.isNotAllocate();
-            }
-        } finally {
-            rwLock.readLock().unlock();
+        ConsumeGroupInfo consumeGroupInfo =
+                groupInfoMap.get(group);
+        if (consumeGroupInfo != null) {
+            return consumeGroupInfo.isNotAllocate();
         }
         return false;
     }
 
-    public Set<String> getGroupTopicSet(String group) {
-        if (group != null) {
-            try {
-                rwLock.readLock().lock();
-                ConsumerBandInfo oldConsumeBandInfo =
-                        groupInfoMap.get(group);
-                if (oldConsumeBandInfo != null) {
-                    return oldConsumeBandInfo.getTopicSet();
-                }
-            } finally {
-                rwLock.readLock().unlock();
-            }
-        }
-        return Collections.emptySet();
+    /**
+     * get group name of consumer
+     *
+     * @param consumerId consumer id
+     * @return the group name of consumer
+     */
+    public String getGroupName(String consumerId) {
+        return consumerIndexMap.get(consumerId);
     }
 
     /**
-     * Get the group's subscribed topics and ConsumerInfos.
+     * get all registered group name
      *
-     * @param group   group to be queried
-     * @param result  query result, only read
-     * @return Has the data been found
+     * @return the group name registered
      */
-    public boolean getGroupTopicSetAndConsumerInfos(
-            String group, Tuple2<Set<String>, List<ConsumerInfo>> result) {
-        if (group != null) {
-            try {
-                rwLock.readLock().lock();
-                ConsumerBandInfo curGroupInfo =
-                        groupInfoMap.get(group);
-                if (curGroupInfo != null) {
-                    result.setF0AndF1(curGroupInfo.getTopicSet(),
-                            curGroupInfo.cloneConsumerInfoList());
-                    return true;
-                }
-            } finally {
-                rwLock.readLock().unlock();
-            }
+    public List<String> getAllGroupName() {
+        if (groupInfoMap.isEmpty()) {
+            return Collections.emptyList();
         }
-        result.setF0AndF1(Collections.emptySet(), Collections.emptyList());
-        return false;
+        return new ArrayList<>(groupInfoMap.keySet());
     }
 
     /**
-     * Get the group's subscribed topics and client count.
+     * get all server-balance group name
      *
-     * @param group   group to be queried
-     * @param result  query result, only read
-     * @return Has the data been found
+     * @return the group name registered
      */
-    public boolean getGroupTopicSetAndClientCnt(String group,
-                                                Tuple2<Set<String>, Integer> result) {
-        if (group != null) {
-            try {
-                rwLock.readLock().lock();
-                ConsumerBandInfo curGroupInfo =
-                        groupInfoMap.get(group);
-                if (curGroupInfo != null) {
-                    result.setF0AndF1(curGroupInfo.getTopicSet(),
-                            curGroupInfo.getGroupCnt());
-                    return true;
-                }
-            } finally {
-                rwLock.readLock().unlock();
-            }
+    public List<String> getAllServerBalanceGroups() {
+        if (serverBalanceGroupSet.isEmpty()) {
+            return Collections.emptyList();
         }
-        result.setF0AndF1(Collections.emptySet(), 0);
-        return false;
+        return new ArrayList<>(serverBalanceGroupSet);
     }
 
     /**
-     * Add a consumer into consumer band info, if consumer band info not exist, will create a new one
+     * get all client-balance group name
      *
-     * @param consumer       consumer info
-     * @param isNotAllocated if not allocated
-     * @param isSelectedBig  select big data
-     * @return a ConsumerBandInfo
+     * @return the group name registered
      */
-    public ConsumerBandInfo addConsumer(ConsumerInfo consumer,
-                                        boolean isNotAllocated,
-                                        boolean isSelectedBig) {
-        ConsumerBandInfo consumeBandInfo = null;
-        String group = consumer.getGroup();
+    public List<String> getAllClientBalanceGroups() {
+        if (clientBalanceGroupSet.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(clientBalanceGroupSet);
+    }
+
+    /**
+     * get all registerd group name
+     *
+     * @param consumerId  the consumer id
+     * @return the consumer info
+     */
+    public ConsumerInfo getConsumerInfo(String consumerId) {
+        ConsumerInfo consumerInfo = null;
+        String groupName = consumerIndexMap.get(consumerId);
+        if (groupName != null) {
+            ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(groupName);
+            if (consumeGroupInfo != null) {
+                consumerInfo = consumeGroupInfo.getConsumerInfo(consumerId);
+            }
+        }
+        return consumerInfo;
+    }
+
+    /**
+     * Add consumer and return group object,
+     * if the consumer is the first one, then create the group object
+     *
+     * @param consumer consumer info
+     * @param isNotAllocated whether balanced
+     * @param sBuffer  string buffer
+     * @param result   check result
+     * @return process result
+     */
+    public boolean addConsumer(ConsumerInfo consumer, boolean isNotAllocated,
+                               StringBuilder sBuffer, ParamCheckResult result) {
+        ConsumeGroupInfo consumeGroupInfo = null;
+        String group = consumer.getGroupName();
+        Integer lid = null;
         try {
-            rwLock.writeLock().lock();
-            consumeBandInfo = groupInfoMap.get(group);
-            if (consumeBandInfo == null) {
-                ConsumerBandInfo tmpBandInfo =
-                        new ConsumerBandInfo(isSelectedBig);
-                consumeBandInfo =
-                        groupInfoMap.putIfAbsent(group, tmpBandInfo);
-                if (consumeBandInfo == null) {
-                    consumeBandInfo = tmpBandInfo;
-                }
-            }
-            consumeBandInfo.addConsumer(consumer);
-            if (!isNotAllocated) {
-                consumeBandInfo.settAllocated();
-            }
-            consumerIndexMap.put(consumer.getConsumerId(), group);
-        } finally {
-            rwLock.writeLock().unlock();
-        }
-        return consumeBandInfo;
-    }
-
-    public void addRebConsumerInfo(String group,
-                                   Set<String> consumerIdSet,
-                                   int waitDuration) {
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo consumeBandInfo =
-                    groupInfoMap.get(group);
-            if (consumeBandInfo != null) {
-                for (String consumerId : consumerIdSet) {
-                    String oldGroup = consumerIndexMap.get(consumerId);
-                    if (group.equals(oldGroup)) {
-                        consumeBandInfo.addNodeRelInfo(consumerId, waitDuration);
+            lid = groupRowLock.getLock(null,
+                    StringUtils.getBytesUtf8(group), true);
+            consumeGroupInfo = groupInfoMap.get(group);
+            if (consumeGroupInfo == null) {
+                ConsumeGroupInfo tmpGroupInfo = new ConsumeGroupInfo(consumer);
+                consumeGroupInfo = groupInfoMap.putIfAbsent(group, tmpGroupInfo);
+                if (consumeGroupInfo == null) {
+                    consumeGroupInfo = tmpGroupInfo;
+                    if (tmpGroupInfo.isClientBalance()) {
+                        clientBalanceGroupSet.add(group);
+                    } else {
+                        serverBalanceGroupSet.add(group);
                     }
                 }
             }
-        } finally {
-            rwLock.readLock().unlock();
-        }
-    }
-
-    public RebProcessInfo getNeedRebNodeList(String group) {
-        RebProcessInfo rebProcessInfo = new RebProcessInfo();
-        if (group == null) {
-            return rebProcessInfo;
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo consumeBandInfo =
-                    groupInfoMap.get(group);
-            if (consumeBandInfo != null) {
-                rebProcessInfo = consumeBandInfo.getNeedRebNodeList();
+            if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
+                if (!isNotAllocated) {
+                    consumeGroupInfo.settAllocated();
+                }
+                consumerIndexMap.put(consumer.getConsumerId(), group);
+                result.setCheckData(consumeGroupInfo);
             }
+        } catch (IOException e) {
+            logger.warn("Failed to lock.", e);
         } finally {
-            rwLock.readLock().unlock();
-        }
-        return rebProcessInfo;
-    }
-
-    public void setRebNodeProcessed(String group,
-                                    List<String> processList) {
-        if (group == null) {
-            return;
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo consumeBandInfo =
-                    groupInfoMap.get(group);
-            if (consumeBandInfo != null) {
-                consumeBandInfo.setRebNodeProcessed(processList);
+            if (lid != null) {
+                groupRowLock.releaseRowLock(lid);
             }
-        } finally {
-            rwLock.readLock().unlock();
         }
+        return result.result;
     }
 
-    public boolean exist(String consumerId) {
-        boolean isExist = false;
-        try {
-            rwLock.readLock().lock();
-            isExist = consumerIndexMap.containsKey(consumerId);
-        } finally {
-            rwLock.readLock().unlock();
-        }
-        return isExist;
-    }
-
-    public String getGroup(String consumerId) {
-        String groupName = null;
-        try {
-            rwLock.readLock().lock();
-            groupName = consumerIndexMap.get(consumerId);
-        } finally {
-            rwLock.readLock().unlock();
-        }
-        return groupName;
-    }
-
-    public ConsumerInfo removeConsumer(String group,
-                                       String consumerId) {
-        if (group == null
-                || consumerId == null) {
+    /**
+     * remove the consumer and return consumer object,
+     * if the consumer is the latest one, then removed the group object
+     *
+     * @param group group name of consumer
+     * @param consumerId consumer id
+     * @return ConsumerInfo
+     */
+    public ConsumerInfo removeConsumer(String group, String consumerId) {
+        if (group == null || consumerId == null) {
             return null;
         }
         ConsumerInfo consumer = null;
+        Integer lid = null;
         try {
-            rwLock.writeLock().lock();
-            ConsumerBandInfo consumeBandInfo =
-                    groupInfoMap.get(group);
-            if (consumeBandInfo != null) {
-                consumer = consumeBandInfo.removeConsumer(consumerId);
-                if (consumeBandInfo.getGroupCnt() == 0) {
+            lid = groupRowLock.getLock(null,
+                    StringUtils.getBytesUtf8(group), true);
+            ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
+            if (consumeGroupInfo != null) {
+                consumer = consumeGroupInfo.removeConsumer(consumerId);
+                if (consumeGroupInfo.isGroupEmpty()) {
                     groupInfoMap.remove(group);
+                    if (consumeGroupInfo.isClientBalance()) {
+                        clientBalanceGroupSet.add(group);
+                    } else {
+                        serverBalanceGroupSet.add(group);
+                    }
                 }
             }
             consumerIndexMap.remove(consumerId);
+        } catch (IOException e) {
+            logger.warn("Failed to lock.", e);
         } finally {
-            rwLock.writeLock().unlock();
+            if (lid != null) {
+                groupRowLock.releaseRowLock(lid);
+            }
         }
         return consumer;
     }
-
-    public Tuple2<String, ConsumerInfo> getConsumeTupleInfo(String consumerId) {
-        try {
-            rwLock.readLock().lock();
-            ConsumerInfo consumerInfo = null;
-            String groupName = consumerIndexMap.get(consumerId);
-            if (groupName != null) {
-                ConsumerBandInfo consumeBandInfo = groupInfoMap.get(groupName);
-                if (consumeBandInfo != null) {
-                    consumerInfo = consumeBandInfo.getConsumerInfo(consumerId);
-                }
-            }
-            return new Tuple2<>(groupName, consumerInfo);
-        } finally {
-            rwLock.readLock().unlock();
-        }
-    }
-
-    public List<String> getAllGroup() {
-        try {
-            rwLock.readLock().lock();
-            if (groupInfoMap.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                List<String> groupList =
-                        new ArrayList<>(groupInfoMap.size());
-                groupList.addAll(groupInfoMap.keySet());
-                return groupList;
-            }
-        } finally {
-            rwLock.readLock().unlock();
-        }
-    }
-
-    public int getConsumerCnt(String group) {
-        int count = 0;
-        if (group == null) {
-            return 0;
-        }
-        try {
-            rwLock.readLock().lock();
-            ConsumerBandInfo oldConsumeBandInfo =
-                    groupInfoMap.get(group);
-            if (oldConsumeBandInfo != null) {
-                count = oldConsumeBandInfo.getGroupCnt();
-            }
-        } finally {
-            rwLock.readLock().unlock();
-        }
-        return count;
-    }
-
-    public void clear() {
-        consumerIndexMap.clear();
-        groupInfoMap.clear();
-    }
-
 }

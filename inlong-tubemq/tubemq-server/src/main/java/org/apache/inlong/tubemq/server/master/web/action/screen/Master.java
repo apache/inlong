@@ -23,13 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
-import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
@@ -98,20 +97,25 @@ public class Master implements Action {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         String group = req.getParameter("group");
         if (group != null) {
-            List<ConsumerInfo> consumerList = consumerHolder.getConsumerList(group);
             int index = 1;
-            if (consumerList != null && !consumerList.isEmpty()) {
-                Collections.sort(consumerList);
-                for (ConsumerInfo consumer : consumerList) {
-                    sBuilder.append(index).append(". ").append(consumer.toString()).append("\n");
-                    index++;
-                }
-            } else {
-                sBuilder.append("No such group.\n\nCurrent all groups");
-                List<String> groupList = consumerHolder.getAllGroup();
-                sBuilder.append("(").append(groupList.size()).append("):\n");
+            List<String> consumerViewInfos =
+                    consumerHolder.getConsumerViewList(group);
+            if (CollectionUtils.isEmpty(consumerViewInfos)) {
+                List<String> groupList = consumerHolder.getAllGroupName();
+                sBuilder.append("No such group.\n\nCurrent all groups(")
+                        .append(groupList.size()).append("):\n");
                 for (String currGroup : groupList) {
                     sBuilder.append(currGroup).append("\n");
+                }
+            } else {
+                Collections.sort(consumerViewInfos);
+                for (String consumerViewInfo : consumerViewInfos) {
+                    if (consumerViewInfo == null) {
+                        continue;
+                    }
+                    sBuilder.append(index).append(". ")
+                            .append(consumerViewInfo).append("\n");
+                    index++;
                 }
             }
         }
@@ -128,20 +132,27 @@ public class Master implements Action {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         String group = req.getParameter("group");
         if (group != null) {
-            List<ConsumerInfo> consumerList = consumerHolder.getConsumerList(group);
-            if (consumerList != null && !consumerList.isEmpty()) {
-                Collections.sort(consumerList);
+            List<Tuple2<String, Boolean>> consumerList =
+                    consumerHolder.getConsumerIdAndTlsInfos(group);
+            if (CollectionUtils.isEmpty(consumerList)) {
+                List<String> groupList = consumerHolder.getAllGroupName();
+                sBuilder.append("No such group.\n\nCurrent all group(")
+                        .append(groupList.size()).append("):\n");
+                for (String currGroup : groupList) {
+                    sBuilder.append(currGroup).append("\n");
+                }
+            } else {
                 sBuilder.append("\n########################## Subscribe Relationship ############################\n\n");
                 Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
                         master.getCurrentSubInfoMap();
                 for (int i = 0; i < consumerList.size(); i++) {
-                    ConsumerInfo consumer = consumerList.get(i);
+                    Tuple2<String, Boolean> consumer = consumerList.get(i);
                     sBuilder.append("*************** ").append(i + 1)
-                            .append(". ").append(consumer.getConsumerId())
-                            .append("#isOverTLS=").append(consumer.isOverTLS())
+                            .append(". ").append(consumer.getF0())
+                            .append("#isOverTLS=").append(consumer.getF1())
                             .append(" ***************");
                     Map<String, Map<String, Partition>> topicSubMap =
-                            currentSubInfoMap.get(consumer.getConsumerId());
+                            currentSubInfoMap.get(consumer.getF0());
                     if (topicSubMap != null) {
                         int totalSize = 0;
                         for (Map.Entry<String, Map<String, Partition>> entry : topicSubMap.entrySet()) {
@@ -152,20 +163,13 @@ public class Master implements Action {
                             Map<String, Partition> partMap = entry.getValue();
                             if (partMap != null) {
                                 for (Partition part : partMap.values()) {
-                                    sBuilder.append(consumer.getConsumerId())
+                                    sBuilder.append(consumer.getF0())
                                             .append("#").append(part.toString()).append("\n");
                                 }
                             }
                         }
                     }
                     sBuilder.append("\n\n");
-                }
-            } else {
-                sBuilder.append("No such group.\n\nCurrent all group");
-                List<String> groupList = consumerHolder.getAllGroup();
-                sBuilder.append("(").append(groupList.size()).append("):\n");
-                for (String currGroup : groupList) {
-                    sBuilder.append(currGroup).append("\n");
                 }
             }
         }
@@ -192,7 +196,7 @@ public class Master implements Action {
             if (topic != null) {
                 TopicPSInfoManager topicPSInfoManager =
                         master.getTopicPSInfoManager();
-                ConcurrentHashSet<String> producerSet =
+                Set<String> producerSet =
                         topicPSInfoManager.getTopicPubInfo(topic);
                 if (producerSet != null && !producerSet.isEmpty()) {
                     int index = 1;
@@ -279,7 +283,8 @@ public class Master implements Action {
      */
     private void getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String topic = req.getParameter("topic");
-        Set<String> producerIds = master.getTopicPSInfoManager().getTopicPubInfo(topic);
+        Set<String> producerIds =
+                master.getTopicPSInfoManager().getTopicPubInfo(topic);
         if (producerIds != null && !producerIds.isEmpty()) {
             for (String producerId : producerIds) {
                 sBuilder.append(producerId).append("\n");
@@ -301,27 +306,38 @@ public class Master implements Action {
         Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
                 master.getCurrentSubInfoMap();
         int currPartSize = 0;
-        List<String> groupList = consumerHolder.getAllGroup();
-        Tuple2<Set<String>, List<ConsumerInfo>> queryInfo = new Tuple2<>();
+        Set<String> topicSet;
+        List<Partition> partList;
+        List<String> consumerIdList;
+        Map<String, Partition> topicSubInfoMap;
+        Map<String, Map<String, Partition>> consumerSubInfoMap;
+        List<String> groupList = consumerHolder.getAllServerBalanceGroups();
         for (String group : groupList) {
-            if (!consumerHolder.getGroupTopicSetAndConsumerInfos(group, queryInfo)) {
+            if (group == null) {
                 continue;
             }
-            for (String topic : queryInfo.getF0()) {
+            topicSet = consumerHolder.getGroupTopicSet(group);
+            for (String topic : topicSet) {
+                if (topic == null) {
+                    continue;
+                }
                 currPartSize = 0;
-                for (ConsumerInfo consumer : queryInfo.getF1()) {
-                    Map<String, Map<String, Partition>> consumerSubInfoMap =
-                            currentSubInfoMap.get(consumer.getConsumerId());
-                    if (consumerSubInfoMap != null) {
-                        Map<String, Partition> topicSubInfoMap =
-                                consumerSubInfoMap.get(topic);
-                        if (topicSubInfoMap != null) {
-                            currPartSize += topicSubInfoMap.size();
+                consumerIdList = consumerHolder.getConsumerIdList(group);
+                if (CollectionUtils.isNotEmpty(consumerIdList)) {
+                    for (String consumerId : consumerIdList) {
+                        if (consumerId == null) {
+                            continue;
+                        }
+                        consumerSubInfoMap = currentSubInfoMap.get(consumerId);
+                        if (consumerSubInfoMap != null) {
+                            topicSubInfoMap = consumerSubInfoMap.get(topic);
+                            if (topicSubInfoMap != null) {
+                                currPartSize += topicSubInfoMap.size();
+                            }
                         }
                     }
                 }
-                List<Partition> partList =
-                        brokerRunManager.getSubBrokerAcceptSubParts(topic);
+                partList = brokerRunManager.getSubBrokerAcceptSubParts(topic);
                 if (currPartSize != partList.size()) {
                     sBuilder.append(group).append(":").append(topic).append("\n");
                 }

@@ -19,11 +19,12 @@ package org.apache.inlong.tubemq.server.master.balance;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.tubemq.corebase.cluster.ConsumerInfo;
+
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 
 public interface LoadBalancer {
@@ -34,7 +35,6 @@ public interface LoadBalancer {
             BrokerRunManager brokerRunManager,
             List<String> groups,
             MetaDataManager metaDataManager,
-            int defAllowBClientRate,
             StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
@@ -50,7 +50,6 @@ public interface LoadBalancer {
                                                         BrokerRunManager brokerRunManager,
                                                         List<String> groups,
                                                         MetaDataManager metaDataManager,
-                                                        int defAllowBClientRate,
                                                         StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,

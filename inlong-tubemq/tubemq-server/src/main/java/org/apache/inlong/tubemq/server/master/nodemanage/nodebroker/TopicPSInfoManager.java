@@ -48,35 +48,52 @@ public class TopicPSInfoManager {
      * @param topic  query topic
      * @return  query result
      */
-    public ConcurrentHashSet<String> getTopicSubInfo(String topic) {
+    public Set<String> getTopicSubInfo(String topic) {
         return topicSubInfoMap.get(topic);
     }
 
     /**
-     * Set groups for a topic
+     * Add group subscribe topic info
      *
-     * @param topic     topic target
-     * @param groupSet  group subscribed
+     * @param groupName    the group name
+     * @param topicSet     the topic set which the group subscribed
      */
-    public void setTopicSubInfo(String topic,
-                                ConcurrentHashSet<String> groupSet) {
-        topicSubInfoMap.put(topic, groupSet);
+    public void addGroupSubTopicInfo(String groupName, Set<String> topicSet) {
+        for (String topic : topicSet) {
+            ConcurrentHashSet<String> groupSet = topicSubInfoMap.get(topic);
+            if (groupSet == null) {
+                ConcurrentHashSet<String> tmpGroupSet =
+                        new ConcurrentHashSet<>();
+                groupSet = topicSubInfoMap.putIfAbsent(topic, tmpGroupSet);
+                if (groupSet == null) {
+                    groupSet = tmpGroupSet;
+                }
+            }
+            groupSet.add(groupName);
+        }
     }
 
     /**
-     * Remove a group from the group set for a specific topic
+     * Remove the group's topic set
      *
-     * @param topic topic condition
-     * @param group group condition
-     * @return true if removed, false if not record
+     * @param group    the group name which needs removed topic
+     * @param topicSet the topic set which the group name subscribed
      */
-    public boolean removeTopicSubInfo(String topic,
-                                      String group) {
-        ConcurrentHashSet<String> groupSet = getTopicSubInfo(topic);
-        if (groupSet != null) {
-            return groupSet.remove(group);
+    public void rmvGroupSubTopicInfo(String group, Set<String> topicSet) {
+        if (topicSet == null || group == null) {
+            return;
         }
-        return true;
+        ConcurrentHashSet<String> groupSet;
+        for (String topic : topicSet) {
+            if (topic == null) {
+                continue;
+            }
+            groupSet = topicSubInfoMap.get(topic);
+            if (groupSet == null) {
+                continue;
+            }
+            groupSet.remove(group);
+        }
     }
 
     /**
@@ -85,20 +102,8 @@ public class TopicPSInfoManager {
      * @param topic  query topic
      * @return   target published producerId set
      */
-    public ConcurrentHashSet<String> getTopicPubInfo(String topic) {
+    public Set<String> getTopicPubInfo(String topic) {
         return topicPubInfoMap.get(topic);
-    }
-
-    /**
-     * Set producer IDs for a topic
-     *
-     * @param topic           topic target
-     * @param producerIdSet   topic produce source
-     * @return
-     */
-    public ConcurrentHashSet<String> setTopicPubInfo(String topic,
-                                                     ConcurrentHashSet<String> producerIdSet) {
-        return topicPubInfoMap.putIfAbsent(topic, producerIdSet);
     }
 
     /**
@@ -107,8 +112,7 @@ public class TopicPSInfoManager {
      * @param producerId  need add producer id
      * @param topicList   need add topic set
      */
-    public void addProducerTopicPubInfo(final String producerId,
-                                        final Set<String> topicList) {
+    public void addProducerTopicPubInfo(String producerId, Set<String> topicList) {
         for (String topic : topicList) {
             ConcurrentHashSet<String> producerIdSet =
                     topicPubInfoMap.get(topic);
@@ -121,9 +125,7 @@ public class TopicPSInfoManager {
                     producerIdSet = tmpProducerIdSet;
                 }
             }
-            if (!producerIdSet.contains(producerId)) {
-                producerIdSet.add(producerId);
-            }
+            producerIdSet.add(producerId);
         }
     }
 
@@ -133,8 +135,7 @@ public class TopicPSInfoManager {
      * @param producerId  need removed producer id
      * @param topicList   need removed topic set
      */
-    public void rmvProducerTopicPubInfo(final String producerId,
-                                        final Set<String> topicList) {
+    public void rmvProducerTopicPubInfo(String producerId, Set<String> topicList) {
         if (topicList != null) {
             for (String topic : topicList) {
                 if (topic != null) {
@@ -169,7 +170,7 @@ public class TopicPSInfoManager {
         if (subTopicSet.isEmpty()) {
             // get all online group
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
-            List<String> onlineGroups = consumerHolder.getAllGroup();
+            List<String> onlineGroups = consumerHolder.getAllGroupName();
             if (!onlineGroups.isEmpty()) {
                 if (qryGroupSet.isEmpty()) {
                     resultSet.addAll(onlineGroups);

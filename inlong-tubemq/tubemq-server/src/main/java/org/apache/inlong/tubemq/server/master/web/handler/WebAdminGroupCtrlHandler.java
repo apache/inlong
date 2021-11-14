@@ -32,7 +32,7 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerBandInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
 import org.slf4j.Logger;
@@ -724,16 +724,16 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         Set<String> consumerIdSet = (Set<String>) result.getRetData();
         ConsumerInfoHolder consumerInfoHolder =
                 master.getConsumerHolder();
-        ConsumerBandInfo consumerBandInfo =
-                consumerInfoHolder.getConsumerBandInfo(groupName);
-        if (consumerBandInfo == null) {
+        ConsumeGroupInfo consumeGroupInfo =
+                consumerInfoHolder.getConsumeGroupInfo(groupName);
+        if (consumeGroupInfo == null) {
             String errInfo = sBuffer.append("The group(")
                     .append(groupName).append(") not online!").toString();
             sBuffer.delete(0, sBuffer.length());
             WebParameterUtils.buildFailResult(sBuffer, errInfo);
             return sBuffer;
         }
-        Map<String, NodeRebInfo> nodeRebInfoMap = consumerBandInfo.getRebalanceMap();
+        Map<String, NodeRebInfo> nodeRebInfoMap = consumeGroupInfo.getBalanceMap();
         for (String consumerId : consumerIdSet) {
             if (nodeRebInfoMap.containsKey(consumerId)) {
                 String errInfo = sBuffer.append("Duplicated set for consumerId(")
