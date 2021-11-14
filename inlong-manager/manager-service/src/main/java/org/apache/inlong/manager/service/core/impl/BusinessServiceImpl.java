@@ -192,18 +192,18 @@ public class BusinessServiceImpl implements BusinessService {
         }
 
         // Non-[DRAFT] status, no groupId modification allowed
-        boolean updateBid = !EntityStatus.DRAFT.getCode().equals(oldStatus)
+        boolean updateGroupId = !EntityStatus.DRAFT.getCode().equals(oldStatus)
                 && !Objects.equals(entity.getInlongGroupId(), businessInfo.getInlongGroupId());
-        if (updateBid) {
+        if (updateGroupId) {
             LOGGER.error("current status was not allowed to update business group id");
-            throw new BusinessException(BizErrorCodeEnum.BUSINESS_BID_UPDATE_NOT_ALLOWED);
+            throw new BusinessException(BizErrorCodeEnum.BUSINESS_GROUP_ID_UPDATE_NOT_ALLOWED);
         }
 
         // [Configuration successful] Status, groupId and middleware type are not allowed to be modified
         if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(oldStatus)) {
             if (!Objects.equals(entity.getInlongGroupId(), businessInfo.getInlongGroupId())) {
                 LOGGER.error("current status was not allowed to update business group id");
-                throw new BusinessException(BizErrorCodeEnum.BUSINESS_BID_UPDATE_NOT_ALLOWED);
+                throw new BusinessException(BizErrorCodeEnum.BUSINESS_GROUP_ID_UPDATE_NOT_ALLOWED);
             }
             if (!Objects.equals(entity.getMiddlewareType(), businessInfo.getMiddlewareType())) {
                 LOGGER.error("current status was not allowed to update middleware type");
@@ -244,12 +244,12 @@ public class BusinessServiceImpl implements BusinessService {
         // [DRAFT] [BIZ_WAIT_SUBMIT] status, all associated data can be logically deleted directly
         if (EntityStatus.ALLOW_DELETE_BIZ_CASCADE_STATUS.contains(entity.getStatus())) {
             // Logically delete data streams, data sources and data storage information
-            streamService.logicDeleteAllByBid(entity.getInlongGroupId(), operator);
+            streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
             // In other states, you need to delete the associated "data stream" first.
             // When deleting a data stream, you also need to check whether there are
             // some associated "data source" and "data storage"
-            int count = streamService.selectCountByBid(groupId);
+            int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
                 LOGGER.error("groupId={} have [{}] data streams, deleted failed", groupId, count);
                 throw new BusinessException(BizErrorCodeEnum.BUSINESS_HAS_DATA_STREAM);
