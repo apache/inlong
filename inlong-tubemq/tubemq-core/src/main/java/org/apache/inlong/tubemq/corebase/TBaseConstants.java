@@ -80,4 +80,7 @@ public class TBaseConstants {
     public static final int META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT =
             META_MAX_ALLOWED_MESSAGE_SIZE_MB * META_MB_UNIT_SIZE;
 
+    public static final long CFG_DEF_META_FORCE_UPDATE_PERIOD = 3 * 60 * 1000;
+    public static final long CFG_MIN_META_FORCE_UPDATE_PERIOD = 1 * 60 * 1000;
+
 }

@@ -80,6 +80,7 @@ public class MasterConfig extends AbstractFileConfig {
     private String visitPassword = "";
     private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
     private int rebalanceParallel = 4;
+    private long maxMetaForceUpdatePeriodMs = TBaseConstants.CFG_DEF_META_FORCE_UPDATE_PERIOD;
 
     /**
      * getters
@@ -256,6 +257,10 @@ public class MasterConfig extends AbstractFileConfig {
 
     public int getRebalanceParallel() {
         return rebalanceParallel;
+    }
+
+    public long getMaxMetaForceUpdatePeriodMs() {
+        return maxMetaForceUpdatePeriodMs;
     }
 
     /**
@@ -489,6 +494,13 @@ public class MasterConfig extends AbstractFileConfig {
             int tmpParallel = this.getInt(masterConf, "rebalanceParallel");
             this.rebalanceParallel = MixedUtils.mid(tmpParallel, 1, 20);
         }
+        if (TStringUtils.isNotBlank(masterConf.get("maxMetaForceUpdatePeriodMs"))) {
+            long tmpPeriodMs = this.getLong(masterConf, "maxMetaForceUpdatePeriodMs");
+            if (tmpPeriodMs < TBaseConstants.CFG_MIN_META_FORCE_UPDATE_PERIOD) {
+                tmpPeriodMs = TBaseConstants.CFG_MIN_META_FORCE_UPDATE_PERIOD;
+            }
+            this.maxMetaForceUpdatePeriodMs = tmpPeriodMs;
+        }
     }
 
     /**
@@ -636,6 +648,7 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("visitName", visitName)
                 .append("visitPassword", visitPassword)
                 .append("rebalanceParallel", rebalanceParallel)
+                .append("maxMetaForceUpdatePeriodMs", maxMetaForceUpdatePeriodMs)
                 .append(",").append(replicationConfig.toString())
                 .append(",").append(tlsConfig.toString())
                 .append(",").append(zkConfig.toString())
