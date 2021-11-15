@@ -174,12 +174,15 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Override
     public PageInfo<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query) {
         Preconditions.checkNotNull(query, "workflow task execute log query params cannot be null");
-        Preconditions.checkNotEmpty(query.getGroupId(), "business id cannot be null");
-        Preconditions.checkNotEmpty(query.getProcessNames(), "process name list cannot be null");
+
+        String groupId = query.getInlongGroupId();
+        List<String> processNameList = query.getProcessNames();
+        Preconditions.checkNotEmpty(groupId, "inlong group id cannot be null");
+        Preconditions.checkNotEmpty(processNameList, "process name list cannot be null");
 
         ProcessQuery processQuery = new ProcessQuery();
-        processQuery.setInlongGroupId(query.getGroupId());
-        processQuery.setNameList(query.getProcessNames());
+        processQuery.setInlongGroupId(groupId);
+        processQuery.setNameList(processNameList);
         processQuery.setHidden(true);
 
         // Paging query process instance, construct process execution log
