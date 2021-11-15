@@ -795,7 +795,6 @@ public class MetaSink extends AbstractSink implements Configurable {
                 Runtime.getRuntime().availableProcessors() + 1);
     }
 
-    
     /**
      * get metricItemSet
      * @return the metricItemSet

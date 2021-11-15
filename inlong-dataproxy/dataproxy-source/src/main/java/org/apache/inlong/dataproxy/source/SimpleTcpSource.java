@@ -372,7 +372,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         isCompressed = context.getBoolean(ConfigConstants.MSG_COMPRESSED, true);
     }
 
-    
     /**
      * get metricItemSet
      * @return the metricItemSet
