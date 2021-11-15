@@ -23,7 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="jdbc_url" jdbcType="VARCHAR" property="jdbcUrl"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
@@ -71,7 +71,7 @@
         <where>
             is_deleted = 0
             <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
             </if>
             <if test="inlongStreamId != null and inlongStreamId != ''">
                 and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
@@ -111,7 +111,7 @@
         select inlong_stream_id
         from storage_hive
         <where>
-            <if test="inlongGroupId != null and inlongGroupId != ''">
+            <if test="groupId != null and groupId != ''">
                 and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             </if>
             and inlong_stream_id in
@@ -161,7 +161,6 @@
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{optLog,jdbcType=VARCHAR}, #{tempView,jdbcType=LONGVARCHAR})
     </insert>
-
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         insert into storage_hive
@@ -332,6 +331,7 @@
             </if>
         </trim>
     </insert>
+
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         update storage_hive
         <set>
@@ -446,7 +446,6 @@
             temp_view           = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
-
     <update id="updateStorageStatusById" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         update storage_hive
         set status          = #{status,jdbcType=INTEGER},

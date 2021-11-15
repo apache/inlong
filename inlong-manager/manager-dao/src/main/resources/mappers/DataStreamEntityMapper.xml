@@ -23,7 +23,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
@@ -48,7 +48,7 @@
     <resultMap id="dataStreamFullInfo"
             type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
         <result column="id" jdbcType="VARCHAR" property="id"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="name" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
         <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
@@ -124,7 +124,7 @@
             and (creator = #{currentUser,jdbcType=VARCHAR} or
             find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
             <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
             </if>
             <if test="dataSourceType != null and dataSourceType != ''">
                 and data_source_type = #{dataSourceType, jdbcType=VARCHAR}
@@ -337,8 +337,8 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         <set>
             <if test="inlongStreamId != null">
@@ -404,9 +404,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-
-    <update id="updateByPrimaryKey"
-            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         set inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
             inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
@@ -430,8 +428,7 @@
             temp_view              = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByIdentifierSelective"
-            parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         <set>
             <if test="inlongStreamId != null">

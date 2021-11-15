@@ -79,7 +79,7 @@
         <where>
             is_deleted = 0
             <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
             </if>
             <if test="keyWord != null and keyWord != ''">
                 and ip like CONCAT('%', #{keyWord}, '%')

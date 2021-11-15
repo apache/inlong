@@ -294,7 +294,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean logicDeleteAllByBid(String groupId, String operator) {
+    public boolean logicDeleteAll(String groupId, String operator) {
         LOGGER.debug("begin to delete all data stream by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
@@ -535,26 +535,6 @@ public class DataStreamServiceImpl implements DataStreamService {
         return pageInfo;
     }
 
-    @Override
-    public List<DataStreamInfo> listAllByBid(String groupId) {
-        LOGGER.debug("begin to list all data stream page by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-
-        // Query all valid data sources under groupId
-        List<DataStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
-        List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(entityList, DataStreamInfo::new);
-
-        // Set the extended information and field information of the data stream
-        for (DataStreamInfo streamInfo : streamInfoList) {
-            String streamId = streamInfo.getInlongStreamId();
-            setStreamExtAndField(groupId, streamId, streamInfo);
-        }
-
-        LOGGER.info("success to list all data stream page by groupId={}", groupId);
-
-        return streamInfoList;
-    }
-
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public boolean updateAll(FullPageUpdateInfo updateInfo, String operator) {
@@ -585,7 +565,7 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public int selectCountByBid(String groupId) {
+    public int selectCountByGroupId(String groupId) {
         LOGGER.debug("begin bo get count by groupId={}", groupId);
         if (StringUtils.isEmpty(groupId)) {
             return 0;
@@ -757,10 +737,10 @@ public class DataStreamServiceImpl implements DataStreamService {
      * Check that groupId, streamId, and dataSourceType are not allowed to be modified
      */
     private void checkUpdatedFields(DataStreamEntity streamEntity, DataStreamInfo streamInfo) {
-        String newBid = streamInfo.getInlongGroupId();
-        if (newBid != null && !newBid.equals(streamEntity.getInlongGroupId())) {
+        String newGroupId = streamInfo.getInlongGroupId();
+        if (newGroupId != null && !newGroupId.equals(streamEntity.getInlongGroupId())) {
             LOGGER.error("current status was not allowed to update business group id");
-            throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_BID_UPDATE_NOT_ALLOWED);
+            throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_UPDATE_NOT_ALLOWED);
         }
 
         String newDsid = streamInfo.getInlongStreamId();

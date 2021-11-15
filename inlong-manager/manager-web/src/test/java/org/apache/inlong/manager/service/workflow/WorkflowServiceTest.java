@@ -56,7 +56,7 @@ public class WorkflowServiceTest extends ServiceBaseTest {
         workflowDataAccessor.taskInstanceStorage().insert(task);
         // query execute logs
         WorkflowTaskExecuteLogQuery query = new WorkflowTaskExecuteLogQuery();
-        query.setGroupId(groupId);
+        query.setInlongGroupId(groupId);
         query.setProcessNames(Collections.singletonList("CREATE_BUSINESS_RESOURCE"));
         PageInfo<WorkflowTaskExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
 

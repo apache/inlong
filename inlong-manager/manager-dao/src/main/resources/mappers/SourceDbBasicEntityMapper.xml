@@ -23,7 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceDbBasicEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="sync_type" jdbcType="INTEGER" property="syncType"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>

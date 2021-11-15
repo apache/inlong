@@ -104,7 +104,7 @@ public interface DataStreamService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean logicDeleteAllByBid(String groupId, String operator);
+    boolean logicDeleteAll(String groupId, String operator);
 
     /**
      * Obtain the flow of data stream according to groupId
@@ -143,14 +143,6 @@ public interface DataStreamService {
     PageInfo<FullPageInfo> listAllWithGroupId(DataStreamPageRequest request);
 
     /**
-     * According to the business group id, query all data stream information
-     *
-     * @param groupId Business group id
-     * @return Data stream list
-     */
-    List<DataStreamInfo> listAllByBid(String groupId);
-
-    /**
      * Modify all data streams (including basic information about data sources)
      *
      * @param updateInfo data stream page information
@@ -167,7 +159,7 @@ public interface DataStreamService {
      * @param groupId Business group id
      * @return Number of data streams
      */
-    int selectCountByBid(String groupId);
+    int selectCountByGroupId(String groupId);
 
     /**
      * Save the information modified when the approval is passed

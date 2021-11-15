@@ -119,7 +119,7 @@ CREATE TABLE `business_ext`
     `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`),
-    KEY `index_bid` (`inlong_group_id`)
+    KEY `index_group_id` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
 
@@ -351,7 +351,7 @@ CREATE TABLE `data_stream_ext`
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`),
-    KEY `index_bid` (`inlong_stream_id`)
+    KEY `index_stream_id` (`inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream extension table';
 
@@ -549,7 +549,7 @@ CREATE TABLE `storage_ext`
     `is_deleted`   tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`),
-    KEY `index_bid` (`storage_id`)
+    KEY `index_storage_id` (`storage_id`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 11
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data storage extension table';

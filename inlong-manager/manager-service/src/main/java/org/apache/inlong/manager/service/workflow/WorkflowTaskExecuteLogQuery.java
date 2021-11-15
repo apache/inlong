@@ -32,8 +32,8 @@ import org.apache.inlong.manager.workflow.model.view.PageQuery;
 @ApiModel("Task execution log query conditions")
 public class WorkflowTaskExecuteLogQuery extends PageQuery {
 
-    @ApiModelProperty("Business ID")
-    private String groupId;
+    @ApiModelProperty("Business group id")
+    private String inlongGroupId;
 
     @ApiModelProperty("Process name")
     private List<String> processNames;
