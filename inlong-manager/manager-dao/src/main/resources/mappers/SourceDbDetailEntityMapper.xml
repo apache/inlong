@@ -23,7 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="access_type" jdbcType="VARCHAR" property="accessType"/>
         <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
         <result column="transfer_ip" jdbcType="VARCHAR" property="transferIp"/>
@@ -60,7 +60,7 @@
         <where>
             is_deleted = 0
             <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
             </if>
             <if test="keyWord != null and keyWord != ''">
                 and (transfer_ip like CONCAT('%', #{keyWord}, '%') or connection_name like CONCAT('%', #{keyWord}, '%'))
@@ -250,8 +250,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SourceDbDetailEntity">
         update source_db_detail
         <set>
             <if test="inlongGroupId != null">

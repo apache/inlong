@@ -23,7 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamExtEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="key_name" jdbcType="VARCHAR" property="keyName"/>
         <result column="key_value" jdbcType="VARCHAR" property="keyValue"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>

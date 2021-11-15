@@ -23,7 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SourceFileBasicEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="streamId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="is_hybrid_source" jdbcType="INTEGER" property="isHybridSource"/>
         <result column="is_table_mapping" jdbcType="INTEGER" property="isTableMapping"/>
         <result column="date_offset" jdbcType="INTEGER" property="dateOffset"/>
