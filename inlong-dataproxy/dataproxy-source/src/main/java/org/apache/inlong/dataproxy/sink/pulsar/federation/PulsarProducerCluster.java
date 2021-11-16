@@ -64,7 +64,8 @@ public class PulsarProducerCluster implements LifecycleAware {
     public static final String KEY_SENDTIMEOUT = "sendTimeout";
     public static final String KEY_COMPRESSIONTYPE = "compressionType";
     public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
-    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouterBatchingPartitionSwitchFrequency";
+    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
+            + "BatchingPartitionSwitchFrequency";
 
     private final String workerName;
     private final CacheClusterConfig config;
