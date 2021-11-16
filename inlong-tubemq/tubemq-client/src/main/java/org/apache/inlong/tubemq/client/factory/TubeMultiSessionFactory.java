@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfigUtils;
+import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -84,4 +85,9 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
         return this.baseSessionFactory.createPullConsumer(consumerConfig);
     }
 
+    @Override
+    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
+            throws TubeClientException {
+        return null;
+    }
 }

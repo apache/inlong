@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.SimplePullMessageConsumer;
@@ -164,9 +165,9 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
             throw new TubeClientException(new StringBuilder(512)
                     .append("consumerConfig's masterInfo not equal!")
                     .append(" SessionFactory's masterInfo is ")
-                    .append(tubeClientConfig.getMasterInfo())
+                    .append(tubeClientConfig.getMasterInfo().getMasterClusterStr())
                     .append(", consumerConfig's masterInfo is ")
-                    .append(consumerConfig.getMasterInfo()).toString());
+                    .append(consumerConfig.getMasterInfo().getMasterClusterStr()).toString());
         }
         return this.addClient(new SimplePullMessageConsumer(this, consumerConfig));
     }
@@ -178,11 +179,17 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
             throw new TubeClientException(new StringBuilder(512)
                     .append("consumerConfig's masterInfo not equal!")
                     .append(" SessionFactory's masterInfo is ")
-                    .append(tubeClientConfig.getMasterInfo())
+                    .append(tubeClientConfig.getMasterInfo().getMasterClusterStr())
                     .append(", consumerConfig's masterInfo is ")
-                    .append(consumerConfig.getMasterInfo()).toString());
+                    .append(consumerConfig.getMasterInfo().getMasterClusterStr()).toString());
         }
         return this.addClient(new SimplePushMessageConsumer(this, consumerConfig));
+    }
+
+    @Override
+    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
+            throws TubeClientException {
+        return null;
     }
 
     public boolean isShutdown() {

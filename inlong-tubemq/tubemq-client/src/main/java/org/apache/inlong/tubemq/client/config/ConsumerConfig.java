@@ -28,7 +28,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  */
 public class ConsumerConfig extends TubeClientConfig {
 
-    private String consumerGroup;
+    private final String consumerGroup;
 
     /* consumeModel
      *    Set the start position of the consumer group. The value can be [-1, 0, 1]. Default value is 0.
@@ -47,6 +47,8 @@ public class ConsumerConfig extends TubeClientConfig {
             TClientConstants.CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS;
     private long shutDownRebalanceWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
+    private long partMetaInfoCheckPeriodMs =
+            TClientConstants.CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS;
     private int pushFetchThreadCnt =
             TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
     private boolean pushListenerWaitTimeoutRollBack = true;
@@ -157,6 +159,17 @@ public class ConsumerConfig extends TubeClientConfig {
 
     public void setShutDownRebalanceWaitPeriodMs(long shutDownRebalanceWaitPeriodMs) {
         this.shutDownRebalanceWaitPeriodMs = shutDownRebalanceWaitPeriodMs;
+    }
+
+    public long getPartMetaInfoCheckPeriodMs() {
+        return partMetaInfoCheckPeriodMs;
+    }
+
+    public void setPartMetaInfoCheckPeriodMs(long partMetaInfoCheckPeriodMs) {
+        if (partMetaInfoCheckPeriodMs < TClientConstants.CFG_MIN_META_QUERY_WAIT_PERIOD_MS) {
+            this.partMetaInfoCheckPeriodMs = TClientConstants.CFG_MIN_META_QUERY_WAIT_PERIOD_MS;
+        }
+        this.partMetaInfoCheckPeriodMs = partMetaInfoCheckPeriodMs;
     }
 
     public int getPushFetchThreadCnt() {
@@ -270,6 +283,8 @@ public class ConsumerConfig extends TubeClientConfig {
                 .append(",\"pullConfirmWaitPeriodMs\":").append(this.pullRebConfirmWaitPeriodMs)
                 .append(",\"pullProtectConfirmTimeoutPeriodMs\":").append(this.pullProtectConfirmTimeoutMs)
                 .append(",\"pullConfirmInLocal\":").append(this.pullConfirmInLocal)
+                .append(",\"maxSubInfoReportIntvlTimes\":").append(this.maxSubInfoReportIntvlTimes)
+                .append(",\"partMetaInfoCheckPeriodMs\":").append(this.partMetaInfoCheckPeriodMs)
                 .append(",\"ClientConfig\":").append(toJsonString())
                 .append("}").toString();
     }

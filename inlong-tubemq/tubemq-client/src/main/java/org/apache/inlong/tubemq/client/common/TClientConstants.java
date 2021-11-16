@@ -37,4 +37,7 @@ public class TClientConstants {
     public static final int MAX_CONNECTION_FAILURE_LOG_TIMES = 10;
     public static final int MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES = 6;
 
+    public static final long CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS = 10000L;
+    public static final long CFG_MIN_META_QUERY_WAIT_PERIOD_MS = 5000L;
+
 }

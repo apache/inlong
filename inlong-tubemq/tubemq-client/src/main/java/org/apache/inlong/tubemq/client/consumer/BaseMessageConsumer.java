@@ -1058,7 +1058,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 && consumeSubInfo.isRequireBound()
                 && consumeSubInfo.getIsNotAllocated()) {
             Long currOffset = consumeSubInfo.getAssignedPartOffset(partition.getPartitionKey());
-            if (currOffset != null && currOffset != -1) {
+            if (currOffset != null && currOffset >= 0) {
                 builder.setCurrOffset(currOffset);
             }
         }
@@ -1720,7 +1720,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                                 logger.warn(strBuffer
                                                         .append("[heart2broker error] partition:")
                                                         .append(failPartition.toString())
-                                                        .append(" errorCode")
+                                                        .append(", errorCode=")
                                                         .append(errorCode).toString());
                                                 strBuffer.delete(0, strBuffer.length());
                                             }
