@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -30,13 +31,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
@@ -51,8 +60,43 @@ public class RmtDataCache implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(RmtDataCache.class);
     private static final AtomicLong refCont = new AtomicLong(0);
     private static Timer timer;
-    private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler;
-    private final FlowCtrlRuleHandler defFlowCtrlRuleHandler;
+    private final ConsumerConfig consumerConfig;
+    // store flow control rules
+    private final AtomicLong lstRegMasterTime = new AtomicLong(0);
+    private final AtomicBoolean isCurGroupCtrl = new AtomicBoolean(false);
+    private final AtomicLong lastCheckTime = new AtomicLong(0);
+    private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler =
+            new FlowCtrlRuleHandler(false);
+    private final FlowCtrlRuleHandler defFlowCtrlRuleHandler =
+            new FlowCtrlRuleHandler(true);
+    // store broker configure info
+    private long lastEmptyBrokerPrintTime = 0;
+    private long lastEmptyTopicPrintTime = 0;
+    private long lastBrokerUpdatedTime = System.currentTimeMillis();
+    private AtomicLong lstBrokerConfigId =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private Map<Integer, BrokerInfo> brokersMap =
+            new ConcurrentHashMap<>();
+    // require Auth info
+    private final AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
+    private final ConcurrentHashMap<Integer, AtomicBoolean> nextWithAuthInfo2BMap
+            = new ConcurrentHashMap<Integer, AtomicBoolean>();
+    // consume control info
+    private final AtomicLong reqMaxOffsetCsmId =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicBoolean csmFromMaxOffset =
+            new AtomicBoolean(false);
+    // meta query result
+    private final AtomicLong topicMetaInfoId =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final Set<String> metaInfoSet = new TreeSet<>();
+    private ConcurrentHashMap<String, Tuple2<Partition, Integer>> configuredPartInfoMap =
+            new ConcurrentHashMap<>();
+    private final AtomicLong topicMetaUpdatedTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private boolean isFirstReport = true;
+    private long reportIntCount = 0;
+    // partition cache
     private final AtomicInteger waitCont = new AtomicInteger(0);
     private final ConcurrentHashMap<String, Timeout> timeouts =
             new ConcurrentHashMap<>();
@@ -78,18 +122,14 @@ public class RmtDataCache implements Closeable {
     /**
      * Construct a remote data cache object.
      *
-     * @param defFlowCtrlRuleHandler   default flow control rule
-     * @param groupFlowCtrlRuleHandler group flow control rule
-     * @param partitionList            partition list
+     * @param consumerConfig    consumer configure
+     * @param partitionList     partition list
      */
-    public RmtDataCache(final FlowCtrlRuleHandler defFlowCtrlRuleHandler,
-                        final FlowCtrlRuleHandler groupFlowCtrlRuleHandler,
-                        List<Partition> partitionList) {
+    public RmtDataCache(ConsumerConfig consumerConfig, List<Partition> partitionList) {
+        this.consumerConfig = consumerConfig;
         if (refCont.incrementAndGet() == 1) {
             timer = new HashedWheelTimer();
         }
-        this.defFlowCtrlRuleHandler = defFlowCtrlRuleHandler;
-        this.groupFlowCtrlRuleHandler = groupFlowCtrlRuleHandler;
         Map<Partition, ConsumeOffsetInfo> tmpPartOffsetMap = new HashMap<>();
         if (partitionList != null) {
             for (Partition partition : partitionList) {
@@ -100,6 +140,432 @@ public class RmtDataCache implements Closeable {
             }
         }
         addPartitionsInfo(tmpPartOffsetMap);
+    }
+
+    public void bookBrokerRequireAuthInfo(int brokerId,
+                                          ClientBroker.HeartBeatResponseB2C heartBeatResponseV2) {
+        if (!heartBeatResponseV2.hasRequireAuth()) {
+            return;
+        }
+        AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
+        if (authStatus == null) {
+            AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
+            authStatus =
+                    nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
+            if (authStatus == null) {
+                authStatus = tmpAuthStatus;
+            }
+        }
+        authStatus.set(heartBeatResponseV2.getRequireAuth());
+    }
+
+    /**
+     * update ops task in cache
+     *
+     * @param opsTaskInfo ops task info
+     *
+     */
+    public void updOpsTaskInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
+        if (opsTaskInfo == null) {
+            return;
+        }
+        // update flowctrl info
+        if (opsTaskInfo.hasGroupFlowCheckId()) {
+            if (opsTaskInfo.getGroupFlowCheckId() >= 0
+                    && opsTaskInfo.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            opsTaskInfo.getGroupFlowCheckId(), opsTaskInfo.getGroupFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
+                }
+            }
+        }
+        if (opsTaskInfo.hasDefFlowCheckId()) {
+            if (opsTaskInfo.getDefFlowCheckId() >= 0
+                    && opsTaskInfo.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            opsTaskInfo.getDefFlowCheckId(), opsTaskInfo.getDefFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
+                }
+            }
+        }
+        // update priority id
+        int qryPriorityId = opsTaskInfo.hasQryPriorityId()
+                ? opsTaskInfo.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
+        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
+            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
+        }
+        // update consume control info
+        if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId()
+                && opsTaskInfo.getCsmFrmMaxOffsetCtrlId() >= 0) {
+            if (reqMaxOffsetCsmId.get() != opsTaskInfo.getCsmFrmMaxOffsetCtrlId()) {
+                reqMaxOffsetCsmId.set(opsTaskInfo.getCsmFrmMaxOffsetCtrlId());
+                if (opsTaskInfo.getCsmFrmMaxOffsetCtrlId() > lstRegMasterTime.get()) {
+                    csmFromMaxOffset.set(true);
+                }
+            }
+        }
+        // update master require auth
+        if (opsTaskInfo.hasRequireAuth()) {
+            storeMasterAuthRequire(opsTaskInfo.getRequireAuth());
+        }
+    }
+
+    /**
+     * update ops task in cache
+     *
+     * @param response master register response
+     *
+     */
+    public void updFlowCtrlInfoInfo(ClientMaster.RegisterResponseM2C response) {
+        if (response == null) {
+            return;
+        }
+        // update flowctrl info
+        if (response.hasGroupFlowCheckId()) {
+            if (response.getGroupFlowCheckId() >= 0
+                    && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
+                }
+            }
+        }
+        if (response.hasDefFlowCheckId()) {
+            if (response.getDefFlowCheckId() >= 0
+                    && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
+                }
+            }
+        }
+        // update priority id
+        int qryPriorityId = response.hasQryPriorityId()
+                ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
+        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
+            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
+        }
+    }
+
+    /**
+     * update ops task in cache
+     *
+     * @param response master register response
+     *
+     */
+    public void updFlowCtrlInfoInfo(ClientMaster.HeartResponseM2C response) {
+        if (response == null) {
+            return;
+        }
+        // update flowctrl info
+        if (response.hasGroupFlowCheckId()) {
+            if (response.getGroupFlowCheckId() >= 0
+                    && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
+                }
+            }
+        }
+        if (response.hasDefFlowCheckId()) {
+            if (response.getDefFlowCheckId() >= 0
+                    && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+                try {
+                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
+                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
+                } catch (Exception e1) {
+                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
+                }
+            }
+        }
+        // update priority id
+        int qryPriorityId = response.hasQryPriorityId()
+                ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
+        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
+            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
+        }
+    }
+
+    public boolean isCsmFromMaxOffset() {
+        if (csmFromMaxOffset.get()) {
+            return csmFromMaxOffset.compareAndSet(true, false);
+        }
+        return false;
+    }
+
+    public int getQryPriorityId() {
+        return this.groupFlowCtrlRuleHandler.getQryPriorityId();
+    }
+
+    public long getDefFlowCtrlId() {
+        return this.defFlowCtrlRuleHandler.getFlowCtrlId();
+    }
+
+    public long getGroupFlowCtrlId() {
+        return this.groupFlowCtrlRuleHandler.getFlowCtrlId();
+    }
+
+    public void storeTopicMetaInfo(long curTopicMetaInfoId, List<String> curMetaInfoSet) {
+        if (curTopicMetaInfoId < 0
+                || curTopicMetaInfoId == this.topicMetaInfoId.get()) {
+            return;
+        }
+        if (curMetaInfoSet == null || curMetaInfoSet.isEmpty()) {
+            return;
+        }
+        ConcurrentHashMap<String, Tuple2<Partition, Integer>> curConfMetaInfoMap =
+                new ConcurrentHashMap<>();
+        for (String metaInfo : curMetaInfoSet) {
+            if (TStringUtils.isBlank(metaInfo)) {
+                continue;
+            }
+            String[] strInfo = metaInfo.split(TokenConstants.SEGMENT_SEP);
+            String[] strPartInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
+            for (String partStr : strPartInfoSet) {
+                String[] strPartInfo = partStr.split(TokenConstants.ATTR_SEP);
+                BrokerInfo brokerInfo = brokersMap.get(Integer.parseInt(strPartInfo[0]));
+                if (brokerInfo == null) {
+                    continue;
+                }
+                int storeId = Integer.parseInt(strPartInfo[1]);
+                int partCnt = Integer.parseInt(strPartInfo[2]);
+                int statusId = Integer.parseInt(strPartInfo[3]);
+                for (int j = 0; j < storeId; j++) {
+                    int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
+                    for (int i = 0; i < partCnt; i++) {
+                        Partition partition =
+                                new Partition(brokerInfo, strInfo[0], baseValue + i);
+                        curConfMetaInfoMap.put(partition.getPartitionKey(),
+                                new Tuple2<>(partition, statusId));
+                    }
+                }
+            }
+        }
+        if (curConfMetaInfoMap.isEmpty()) {
+            return;
+        }
+        this.metaInfoSet.clear();
+        this.metaInfoSet.addAll(curMetaInfoSet);
+        this.configuredPartInfoMap = curConfMetaInfoMap;
+        this.topicMetaUpdatedTime.set(System.currentTimeMillis());
+        this.topicMetaInfoId.set(curTopicMetaInfoId);
+    }
+
+    public Map<String, Boolean> getConfPartMetaInfo() {
+        Map<String, Boolean> configMap = new HashMap<>();
+        for (Map.Entry<String, Tuple2<Partition, Integer>> entry
+                : configuredPartInfoMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            configMap.put(entry.getKey(), (entry.getValue().getF1() == 1));
+        }
+        return configMap;
+    }
+
+    public boolean isPartSubscribable(String partitionKey) {
+        Tuple2<Partition, Integer> partConfig =
+                configuredPartInfoMap.get(partitionKey);
+        if (partConfig == null
+                || partConfig.getF0() == null
+                || partConfig.getF1() == null) {
+            return false;
+        }
+        return (partConfig.getF1() == 1);
+    }
+
+    public boolean getSubscribablePartition(String partitionKey,
+                                            ProcessResult result,
+                                            StringBuilder sBuffer) {
+        Tuple2<Partition, Integer> partStatusInfo =
+                configuredPartInfoMap.get(partitionKey);
+        if (partStatusInfo == null) {
+            result.setFailResult(TErrCodeConstants.NOT_FOUND,
+                    sBuffer.append("PartitionKey ").append(partitionKey)
+                            .append(" not found in partition-meta Information set!")
+                            .toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        if (partStatusInfo.getF1() != 1) {
+            result.setFailResult(TErrCodeConstants.PARTITION_UNSUBSCRIBABLE,
+                    sBuffer.append("PartitionKey ").append(partitionKey)
+                            .append(" not available for subscription now!")
+                            .toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(partStatusInfo.getF0());
+        return true;
+    }
+
+    public void updateReg2MasterTime() {
+        this.lstRegMasterTime.set(System.currentTimeMillis());
+    }
+
+    public long getRegMasterTime() {
+        return this.lstRegMasterTime.get();
+    }
+
+    /**
+     * Update broker configure info
+     *
+     * @param pkgCheckSum     checkSum Id of packaged information
+     * @param pkgBrokerInfos  packaged broker info string list
+     * @param sBuilder        string process buffer
+     */
+    public void updateBrokerInfoList(long pkgCheckSum,
+                                     List<String> pkgBrokerInfos,
+                                     StringBuilder sBuilder) {
+        if (pkgCheckSum != lstBrokerConfigId.get()) {
+            if (pkgBrokerInfos != null) {
+                brokersMap =
+                        DataConverterUtil.convertBrokerInfo(pkgBrokerInfos);
+                lstBrokerConfigId.set(pkgCheckSum);
+                lastBrokerUpdatedTime = System.currentTimeMillis();
+                if (pkgBrokerInfos.isEmpty()) {
+                    if (System.currentTimeMillis() - lastEmptyBrokerPrintTime > 60000) {
+                        logger.warn(sBuilder
+                                .append("[Meta Info] Found empty brokerList, changed checksum is ")
+                                .append(lstBrokerConfigId).toString());
+                        sBuilder.delete(0, sBuilder.length());
+                        lastEmptyBrokerPrintTime = System.currentTimeMillis();
+                    }
+                } else {
+                    logger.info(sBuilder
+                            .append("[Meta Info] Changed brokerList checksum is ")
+                            .append(lstBrokerConfigId).toString());
+                    sBuilder.delete(0, sBuilder.length());
+                }
+            }
+        }
+    }
+
+    public void storeMasterAuthRequire(boolean requireAuth) {
+        nextWithAuthInfo2M.set(requireAuth);
+    }
+
+    public boolean markAndGetAuthStatus(boolean isForce) {
+        boolean needAuth = false;
+        if (isForce) {
+            nextWithAuthInfo2M.set(false);
+        } else if (nextWithAuthInfo2M.get()) {
+            if (nextWithAuthInfo2M.compareAndSet(true, false)) {
+                needAuth = true;
+            }
+        }
+        return needAuth;
+    }
+
+    public boolean markAndGetBrokerAuthStatus(int brokerId, boolean isForce) {
+        boolean needAuth = false;
+        AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
+        if (authStatus == null) {
+            AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
+            authStatus =
+                    nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
+            if (authStatus == null) {
+                authStatus = tmpAuthStatus;
+            }
+        }
+        if (isForce) {
+            needAuth = true;
+            authStatus.set(false);
+        } else if (authStatus.get()) {
+            if (authStatus.compareAndSet(true, false)) {
+                needAuth = true;
+            }
+        }
+        return needAuth;
+    }
+
+    /**
+     * get client report ops task info id set
+     *
+     * @return ops task info id set
+     */
+    public ClientMaster.OpsTaskInfo buildOpsTaskInfo() {
+        boolean hasData = false;
+        ClientMaster.OpsTaskInfo.Builder builder =
+                ClientMaster.OpsTaskInfo.newBuilder();
+        if (defFlowCtrlRuleHandler.getFlowCtrlId() >= 0) {
+            builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
+            hasData = true;
+        }
+        if (groupFlowCtrlRuleHandler.getFlowCtrlId() >= 0) {
+            builder.setGroupFlowCheckId(groupFlowCtrlRuleHandler.getFlowCtrlId());
+            hasData = true;
+        }
+        if (groupFlowCtrlRuleHandler.getQryPriorityId() >= 0) {
+            builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
+            hasData = true;
+        }
+        if (reqMaxOffsetCsmId.get() >= 0) {
+            builder.setCsmFrmMaxOffsetCtrlId(reqMaxOffsetCsmId.get());
+            hasData = true;
+        }
+        if (hasData) {
+            return builder.build();
+        } else {
+            return null;
+        }
+    }
+
+    public ClientMaster.ClientSubRepInfo buildClientSubRepInfo() {
+        ClientMaster.ClientSubRepInfo.Builder builder =
+                ClientMaster.ClientSubRepInfo.newBuilder();
+        builder.setBrokerConfigId(this.lstBrokerConfigId.get());
+        builder.setTopicMetaInfoId(this.topicMetaInfoId.get());
+        if (this.topicMetaUpdatedTime.get() >= 0) {
+            builder.setLstAssignedTime(this.topicMetaUpdatedTime.get());
+        }
+        builder.setReportSubInfo(false);
+        if (isFirstReport) {
+            if (!this.partitionMap.isEmpty()) {
+                isFirstReport = false;
+                builder.setReportSubInfo(true);
+                builder.addAllPartSubInfo(getSubscribedPartitionInfo());
+            }
+        } else if ((++this.reportIntCount)
+                % consumerConfig.getMaxSubInfoReportIntvlTimes() == 0) {
+            builder.setReportSubInfo(true);
+            builder.addAllPartSubInfo(getSubscribedPartitionInfo());
+        }
+        return builder.build();
+    }
+
+    public long getLastBrokerConfigId() {
+        return this.lstBrokerConfigId.get();
+    }
+
+    public long getlastTopicMetaInfoId() {
+        return this.topicMetaInfoId.get();
+    }
+
+    /**
+     * Judge whether the consumer group is in flow control management
+     *
+     * @return true in control, false not
+     */
+    public boolean isCurGroupInFlowCtrl() {
+        long curCheckTime = this.lastCheckTime.get();
+        if (System.currentTimeMillis() - curCheckTime >= 10000) {
+            if (this.lastCheckTime.compareAndSet(curCheckTime, System.currentTimeMillis())) {
+                this.isCurGroupCtrl.set(
+                        groupFlowCtrlRuleHandler.getCurDataLimit(Long.MAX_VALUE) != null);
+            }
+        }
+        return this.isCurGroupCtrl.get();
     }
 
     /**
@@ -318,6 +784,10 @@ public class RmtDataCache implements Closeable {
         return false;
     }
 
+    public boolean isPartitionInUse(String partitionKey) {
+        return (partitionMap.get(partitionKey) != null);
+    }
+
     public Partition getPartitionByKey(String partitionKey) {
         return partitionMap.get(partitionKey);
     }
@@ -417,6 +887,13 @@ public class RmtDataCache implements Closeable {
         }
     }
 
+    public void updPartOffsetInfo(String partitionKey, long currOffset, long maxOffset) {
+        PartitionExt partitionExt = this.partitionMap.get(partitionKey);
+        if (partitionExt != null) {
+            updateOffsetCache(partitionKey, currOffset, maxOffset);
+        }
+    }
+
     private void releaseIdlePartition(long waitDlt, String partitionKey) {
         Long frozenTime = partitionFrozenMap.get(partitionKey);
         if (frozenTime == null) {
@@ -490,6 +967,35 @@ public class RmtDataCache implements Closeable {
         return subscribeInfoList;
     }
 
+    /**
+     * Get the subscribe partitionKey set.
+     *
+     * @return subscribe information list
+     */
+    private List<String> getSubscribedPartitionInfo() {
+        List<String> strSubInfoList = new ArrayList<>();
+        Map<String, StringBuilder> tmpSubInfoMap = new HashMap<>();
+        for (Partition partition : partitionMap.values()) {
+            if (partition == null) {
+                continue;
+            }
+            StringBuilder sBuffer = tmpSubInfoMap.get(partition.getTopic());
+            if (sBuffer == null) {
+                sBuffer = new StringBuilder(512);
+                tmpSubInfoMap.put(partition.getTopic(), sBuffer);
+                sBuffer.append(partition.getTopic()).append(TokenConstants.SEGMENT_SEP);
+            } else {
+                sBuffer.append(TokenConstants.ARRAY_SEP);
+            }
+            sBuffer.append(partition.getBrokerId())
+                    .append(TokenConstants.ATTR_SEP).append(partition.getPartitionId());
+        }
+        for (Map.Entry<String, StringBuilder> entry : tmpSubInfoMap.entrySet()) {
+            strSubInfoList.add(entry.getValue().toString());
+        }
+        return strSubInfoList;
+    }
+
     public Map<BrokerInfo, List<PartitionSelectResult>> removeAndGetPartition(
             Map<BrokerInfo, List<Partition>> unRegisterInfoMap,
             List<String> partitionKeys, long inUseWaitPeriodMs,
@@ -541,11 +1047,8 @@ public class RmtDataCache implements Closeable {
                                 new PartitionSelectResult(true, TErrCodeConstants.SUCCESS,
                                         "Ok!", partition, 0, lastPackConsumed);
                         List<PartitionSelectResult> targetPartitionList =
-                                unNewRegisterInfoMap.get(entry.getKey());
-                        if (targetPartitionList == null) {
-                            targetPartitionList = new ArrayList<>();
-                            unNewRegisterInfoMap.put(entry.getKey(), targetPartitionList);
-                        }
+                                unNewRegisterInfoMap.computeIfAbsent(
+                                        entry.getKey(), k -> new ArrayList<>());
                         targetPartitionList.add(partitionRet);
                     }
                 }
@@ -554,6 +1057,60 @@ public class RmtDataCache implements Closeable {
             resumeProcess();
         }
         return unNewRegisterInfoMap;
+    }
+
+    public boolean removeAndGetPartition(String partitionKey, long inUseWaitPeriodMs,
+                                         boolean isWaitTimeoutRollBack, ProcessResult result,
+                                         StringBuilder sBuffer) {
+        boolean lastPackConsumed = false;
+        List<String> partitionKeys = new ArrayList<>();
+        partitionKeys.add(partitionKey);
+        pauseProcess();
+        try {
+            waitPartitions(partitionKeys, inUseWaitPeriodMs);
+            PartitionExt partitionExt =
+                    partitionMap.remove(partitionKey);
+            if (partitionExt == null) {
+                result.setSuccResult(null);
+                return result.isSuccess();
+            }
+            lastPackConsumed = partitionExt.isLastPackConsumed();
+            if (!cancelTimeTask(partitionKey)
+                    && !indexPartition.remove(partitionKey)) {
+                logger.info(sBuffer.append("[Process Interrupt] Partition : ")
+                        .append(partitionExt.toString())
+                        .append(", data in processing, canceled").toString());
+                sBuffer.delete(0, sBuffer.length());
+                if (lastPackConsumed) {
+                    if (isWaitTimeoutRollBack) {
+                        lastPackConsumed = false;
+                    }
+                }
+            }
+            ConcurrentLinkedQueue<Partition> oldPartitionList =
+                    topicPartitionConMap.get(partitionExt.getTopic());
+            if (oldPartitionList != null) {
+                oldPartitionList.remove(partitionExt);
+                if (oldPartitionList.isEmpty()) {
+                    topicPartitionConMap.remove(partitionExt.getTopic());
+                }
+            }
+            ConcurrentLinkedQueue<Partition> regMapPartitionList =
+                    brokerPartitionConMap.get(partitionExt.getBroker());
+            if (regMapPartitionList != null) {
+                regMapPartitionList.remove(partitionExt);
+                if (regMapPartitionList.isEmpty()) {
+                    brokerPartitionConMap.remove(partitionExt.getBroker());
+                }
+            }
+            partitionOffsetMap.remove(partitionKey);
+            partitionUsedMap.remove(partitionKey);
+            partitionExt.setLastPackConsumed(lastPackConsumed);
+            result.setSuccResult(partitionExt);
+            return result.isSuccess();
+        } finally {
+            resumeProcess();
+        }
     }
 
     /**
@@ -585,6 +1142,17 @@ public class RmtDataCache implements Closeable {
         }
     }
 
+    public Set<String> getCurRegisteredPartSet() {
+        Set<String> partKeySet = new TreeSet<>();
+        for (String partKey : partitionMap.keySet()) {
+            if (partKey == null) {
+                continue;
+            }
+            partKeySet.add(partKey);
+        }
+        return partKeySet;
+    }
+
     /**
      * Get current partition information.
      *
@@ -605,16 +1173,21 @@ public class RmtDataCache implements Closeable {
         return tmpPartitionMap;
     }
 
+    public long getMaxOffsetOfPartition(String partitionKey) {
+        ConsumeOffsetInfo offsetInfo = partitionOffsetMap.get(partitionKey);
+        if (offsetInfo == null) {
+            return -1L;
+        }
+        return offsetInfo.getMaxOffset();
+    }
+
     public Map<BrokerInfo, List<PartitionSelectResult>> getAllPartitionListWithStatus() {
         Map<BrokerInfo, List<PartitionSelectResult>> registeredInfoMap =
                 new HashMap<>();
         for (PartitionExt partitionExt : partitionMap.values()) {
             List<PartitionSelectResult> registerPartitionList =
-                    registeredInfoMap.get(partitionExt.getBroker());
-            if (registerPartitionList == null) {
-                registerPartitionList = new ArrayList<>();
-                registeredInfoMap.put(partitionExt.getBroker(), registerPartitionList);
-            }
+                    registeredInfoMap.computeIfAbsent(
+                            partitionExt.getBroker(), k -> new ArrayList<>());
             registerPartitionList.add(new PartitionSelectResult(true,
                     TErrCodeConstants.SUCCESS, "Ok!",
                     partitionExt, 0, partitionExt.isLastPackConsumed()));

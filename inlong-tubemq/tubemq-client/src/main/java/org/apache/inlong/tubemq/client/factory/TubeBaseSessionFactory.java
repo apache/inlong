@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
+import org.apache.inlong.tubemq.client.consumer.SimpleClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.SimplePullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.SimplePushMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -50,7 +51,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     private final CopyOnWriteArrayList<Shutdownable> clientLst =
             new CopyOnWriteArrayList<>();
     private final DefaultBrokerRcvQltyStats brokerRcvQltyStats;
-    private AtomicBoolean shutdown = new AtomicBoolean(false);
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public TubeBaseSessionFactory(final ClientFactory clientFactory,
                                   final TubeClientConfig tubeClientConfig) throws TubeClientException {
@@ -189,7 +190,15 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     @Override
     public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
-        return null;
+        if (!tubeClientConfig.getMasterInfo().equals(consumerConfig.getMasterInfo())) {
+            throw new TubeClientException(new StringBuilder(512)
+                    .append("consumerConfig's masterInfo not equal!")
+                    .append(" SessionFactory's masterInfo is ")
+                    .append(tubeClientConfig.getMasterInfo().getMasterClusterStr())
+                    .append(", consumerConfig's masterInfo is ")
+                    .append(consumerConfig.getMasterInfo().getMasterClusterStr()).toString());
+        }
+        return this.addClient(new SimpleClientBalanceConsumer(this, consumerConfig));
     }
 
     public boolean isShutdown() {

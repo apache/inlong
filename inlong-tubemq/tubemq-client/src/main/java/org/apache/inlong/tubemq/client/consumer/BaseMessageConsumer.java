@@ -53,7 +53,6 @@ import org.apache.inlong.tubemq.corebase.balance.EventType;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
-import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
@@ -92,12 +91,6 @@ public class BaseMessageConsumer implements MessageConsumer {
     private final BlockingQueue<ConsumerEvent> rebalanceResults =
             new ArrayBlockingQueue<>(REBALANCE_QUEUE_SIZE);
     // flowctrl
-    private boolean isCurGroupCtrl = false;
-    private AtomicLong lastCheckTime = new AtomicLong(0);
-    private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler =
-            new FlowCtrlRuleHandler(false);
-    private final FlowCtrlRuleHandler defFlowCtrlRuleHandler =
-            new FlowCtrlRuleHandler(true);
     private final ConsumerSamplePrint samplePrintCtrl =
             new ConsumerSamplePrint();
     private final RpcConfig rpcConfig = new RpcConfig();
@@ -121,9 +114,6 @@ public class BaseMessageConsumer implements MessageConsumer {
     private int rebalanceRetryTimes = 0;
     private long lastHeartbeatTime2Master = 0;
     private long lastHeartbeatTime2Broker = 0;
-    private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
-    private ConcurrentHashMap<Integer, AtomicBoolean> nextWithAuthInfo2BMap
-        = new ConcurrentHashMap<Integer, AtomicBoolean>();
 
     /**
      * Construct a BaseMessageConsumer object.
@@ -151,8 +141,7 @@ public class BaseMessageConsumer implements MessageConsumer {
             throw new TubeClientException("Get consumer id failed!", e);
         }
         this.rmtDataCache =
-                new RmtDataCache(this.defFlowCtrlRuleHandler,
-                        this.groupFlowCtrlRuleHandler, null);
+                new RmtDataCache(this.consumerConfig, null);
         this.rpcServiceFactory =
                 this.sessionFactory.getRpcServiceFactory();
         this.rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
@@ -714,11 +703,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         for (SubscribeInfo info : subscribeInfoList) {
             BrokerInfo broker = new BrokerInfo(info.getBrokerId(), info.getHost(), info.getPort());
             Partition partition = new Partition(broker, info.getTopic(), info.getPartitionId());
-            List<Partition> curPartList = registerInfoMap.get(broker);
-            if (curPartList == null) {
-                curPartList = new ArrayList<>();
-                registerInfoMap.put(broker, curPartList);
-            }
+            List<Partition> curPartList =
+                    registerInfoMap.computeIfAbsent(
+                            broker, k -> new ArrayList<>());
             if (!curPartList.contains(partition)) {
                 curPartList.add(partition);
             }
@@ -779,7 +766,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setClientId(this.consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setTopicName(partition.getTopic());
-        builder.setEscFlowCtrl(isCurGroupCtrl());
+        builder.setEscFlowCtrl(rmtDataCache.isCurGroupInFlowCtrl());
         builder.setPartitionId(partition.getPartitionId());
         builder.setLastPackConsumed(isLastConsumed);
         builder.setManualCommitOffset(false);
@@ -945,9 +932,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setSessionTime(this.consumeSubInfo.getSubscribedTime());
         builder.addAllTopicList(this.consumeSubInfo.getSubscribedTopics());
-        builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
-        builder.setGroupFlowCheckId(groupFlowCtrlRuleHandler.getFlowCtrlId());
-        builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
+        builder.setDefFlowCheckId(rmtDataCache.getDefFlowCtrlId());
+        builder.setQryPriorityId(rmtDataCache.getQryPriorityId());
+        builder.setGroupFlowCheckId(rmtDataCache.getGroupFlowCtrlId());
         List<SubscribeInfo> subInfoList =
                 this.rmtDataCache.getSubscribeInfoList(consumerId,
                         this.consumerConfig.getConsumerGroup());
@@ -962,9 +949,9 @@ public class BaseMessageConsumer implements MessageConsumer {
             builder.setRequiredPartition(this.consumeSubInfo.getRequiredPartition());
             builder.setNotAllocated(this.consumeSubInfo.getIsNotAllocated());
         }
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(true);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder.build());
+        ClientMaster.MasterCertificateInfo authInfo = genMasterCertificateInfo(true);
+        if (authInfo != null) {
+            builder.setAuthInfo(authInfo);
         }
         return builder.build();
     }
@@ -1003,9 +990,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setClientId(this.consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setReportSubscribeInfo(reportSubscribeInfo);
-        builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
-        builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
-        builder.setGroupFlowCheckId(groupFlowCtrlRuleHandler.getFlowCtrlId());
+        builder.setDefFlowCheckId(rmtDataCache.getDefFlowCtrlId());
+        builder.setQryPriorityId(rmtDataCache.getQryPriorityId());
+        builder.setGroupFlowCheckId(rmtDataCache.getGroupFlowCtrlId());
         if (event != null) {
             ClientMaster.EventProto.Builder eventProtoBuilder =
                     ClientMaster.EventProto.newBuilder();
@@ -1020,9 +1007,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         if (subInfoList != null) {
             builder.addAllSubscribeInfo(DataConverterUtil.formatSubInfo(subInfoList));
         }
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(false);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder);
+        ClientMaster.MasterCertificateInfo authInfo = genMasterCertificateInfo(false);
+        if (authInfo != null) {
+            builder.setAuthInfo(authInfo);
         }
         return builder.build();
     }
@@ -1032,9 +1019,9 @@ public class BaseMessageConsumer implements MessageConsumer {
                 ClientMaster.CloseRequestC2M.newBuilder();
         builder.setClientId(this.consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(true);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder);
+        ClientMaster.MasterCertificateInfo authInfo = genMasterCertificateInfo(true);
+        if (authInfo != null) {
+            builder.setAuthInfo(authInfo);
         }
         return builder.build();
     }
@@ -1047,7 +1034,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setOpType(RpcConstants.MSG_OPTYPE_REGISTER);
         builder.setTopicName(partition.getTopic());
         builder.setPartitionId(partition.getPartitionId());
-        builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
+        builder.setQryPriorityId(rmtDataCache.getQryPriorityId());
         builder.setReadStatus(getGroupInitReadStatus(rmtDataCache.bookPartition(partition.getPartitionKey())));
         TopicProcessor topicProcessor =
                 this.consumeSubInfo.getTopicProcessor(partition.getTopic());
@@ -1062,11 +1049,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 builder.setCurrOffset(currOffset);
             }
         }
-        ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
-                genBrokerAuthenticInfo(partition.getBrokerId(), false);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder);
-        }
+        builder.setAuthInfo(genBrokerAuthenticInfo(partition.getBrokerId(), false));
         return builder.build();
     }
 
@@ -1084,11 +1067,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         } else {
             builder.setReadStatus(1);
         }
-        ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
-                genBrokerAuthenticInfo(partition.getBrokerId(), true);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder);
-        }
+        builder.setAuthInfo(genBrokerAuthenticInfo(partition.getBrokerId(), true));
         return builder.build();
     }
 
@@ -1099,13 +1078,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         builder.setClientId(consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
         builder.setReadStatus(getGroupInitReadStatus(false));
-        builder.setQryPriorityId(groupFlowCtrlRuleHandler.getQryPriorityId());
+        builder.setQryPriorityId(rmtDataCache.getQryPriorityId());
         builder.addAllPartitionInfo(partitionList);
-        ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
-                genBrokerAuthenticInfo(brokerId, false);
-        if (authInfoBuilder != null) {
-            builder.setAuthInfo(authInfoBuilder);
-        }
+        builder.setAuthInfo(genBrokerAuthenticInfo(brokerId, false));
         return builder.build();
     }
 
@@ -1113,29 +1088,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
-        if (response.hasGroupFlowCheckId()) {
-            final int qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
-            if (response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Register response] found parse default flowCtrl rules failure", e1);
-                }
-            }
-            if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Register response] found parse group flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
-                groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
-            }
-        }
+        rmtDataCache.updFlowCtrlInfoInfo(response);
     }
 
     private void processRegAuthorizedToken(ClientMaster.RegisterResponseM2C response) {
@@ -1148,87 +1101,39 @@ public class BaseMessageConsumer implements MessageConsumer {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
-        if (response.hasGroupFlowCheckId()) {
-            final int qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
-            if (response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn(
-                            "[Heartbeat response] found parse default flowCtrl rules failure", e1);
-                }
-            }
-            if (response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn(
-                            "[Heartbeat response] found parse group flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
-                groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
-            }
-        }
+        rmtDataCache.updFlowCtrlInfoInfo(response);
     }
 
-    private ClientMaster.MasterCertificateInfo.Builder genMasterCertificateInfo(boolean force) {
-        boolean needAdd = false;
+    private ClientMaster.MasterCertificateInfo genMasterCertificateInfo(boolean force) {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
         if (this.consumerConfig.isEnableUserAuthentic()) {
             authInfoBuilder = ClientMaster.MasterCertificateInfo.newBuilder();
-            if (force) {
-                needAdd = true;
-                nextWithAuthInfo2M.set(false);
-            } else if (nextWithAuthInfo2M.get()) {
-                if (nextWithAuthInfo2M.compareAndSet(true, false)) {
-                    needAdd = true;
-                }
-            }
-            if (needAdd) {
+            if (rmtDataCache.markAndGetAuthStatus(force)) {
                 authInfoBuilder.setAuthInfo(authenticateHandler
-                    .genMasterAuthenticateToken(consumerConfig.getUsrName(),
-                        consumerConfig.getUsrPassWord()));
+                        .genMasterAuthenticateToken(consumerConfig.getUsrName(),
+                                consumerConfig.getUsrPassWord()));
             } else {
                 authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
             }
         }
-        return authInfoBuilder;
+        if (authInfoBuilder != null) {
+            return authInfoBuilder.build();
+        }
+        return null;
     }
 
-    private ClientBroker.AuthorizedInfo.Builder genBrokerAuthenticInfo(int brokerId, boolean force) {
+    private ClientBroker.AuthorizedInfo genBrokerAuthenticInfo(int brokerId, boolean force) {
         ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
                 ClientBroker.AuthorizedInfo.newBuilder();
         authInfoBuilder.setVisitAuthorizedToken(visitToken.get());
         if (this.consumerConfig.isEnableUserAuthentic()) {
-            boolean needAdd = false;
-            AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
-            if (authStatus == null) {
-                AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
-                authStatus =
-                    nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
-                if (authStatus == null) {
-                    authStatus = tmpAuthStatus;
-                }
-            }
-            if (force) {
-                needAdd = true;
-                authStatus.set(false);
-            } else if (authStatus.get()) {
-                if (authStatus.compareAndSet(true, false)) {
-                    needAdd = true;
-                }
-            }
-            if (needAdd) {
+            if (rmtDataCache.markAndGetBrokerAuthStatus(brokerId, force)) {
                 authInfoBuilder.setAuthAuthorizedToken(authenticateHandler
                         .genBrokerAuthenticateToken(consumerConfig.getUsrName(),
                                 consumerConfig.getUsrPassWord()));
             }
         }
-        return authInfoBuilder;
+        return authInfoBuilder.build();
     }
 
     private void processHeartBeatAuthorizedToken(ClientMaster.HeartResponseM2C response) {
@@ -1437,17 +1342,6 @@ public class BaseMessageConsumer implements MessageConsumer {
         }
     }
 
-    private boolean isCurGroupCtrl() {
-        long curCheckTime = this.lastCheckTime.get();
-        if (System.currentTimeMillis() - curCheckTime >= 10000) {
-            if (this.lastCheckTime.compareAndSet(curCheckTime, System.currentTimeMillis())) {
-                this.isCurGroupCtrl =
-                    this.groupFlowCtrlRuleHandler.getCurDataLimit(Long.MAX_VALUE) != null;
-            }
-        }
-        return this.isCurGroupCtrl;
-    }
-
     /**
      * Stopped the message listeners.
      */
@@ -1590,7 +1484,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 // Check if master requires to check authorization next time. If so, set the flag
                 // and exchange the authorize information next time.
                 if (response.hasRequireAuth()) {
-                    nextWithAuthInfo2M.set(response.getRequireAuth());
+                    rmtDataCache.storeMasterAuthRequire(response.getRequireAuth());
                 }
                 // Get the latest rebalance task
                 ClientMaster.EventProto eventProto = response.getEvent();
@@ -1681,20 +1575,8 @@ public class BaseMessageConsumer implements MessageConsumer {
                                     && heartBeatResponseV2.getSuccess()) {
                                     // If the peer require authentication, set a flag.
                                     // The following request will attach the auth information.
-                                    if (heartBeatResponseV2.hasRequireAuth()) {
-                                        AtomicBoolean authStatus =
-                                            nextWithAuthInfo2BMap.get(brokerInfo.getBrokerId());
-                                        if (authStatus == null) {
-                                            AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
-                                            authStatus =
-                                                nextWithAuthInfo2BMap.putIfAbsent(
-                                                    brokerInfo.getBrokerId(), tmpAuthStatus);
-                                            if (authStatus == null) {
-                                                authStatus = tmpAuthStatus;
-                                            }
-                                        }
-                                        authStatus.set(heartBeatResponseV2.getRequireAuth());
-                                    }
+                                    rmtDataCache.bookBrokerRequireAuthInfo(
+                                            brokerInfo.getBrokerId(), heartBeatResponseV2);
                                     // If the heartbeat response report failed partitions, release the
                                     // corresponding local partition and log the operation
                                     if (heartBeatResponseV2.getHasPartFailure()) {
