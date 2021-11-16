@@ -25,4 +25,6 @@ import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
  * IdTopicConfigLoader
  */
 public interface IdTopicConfigLoader extends ConfigLoader<IdTopicConfig>, Configurable {
+
+    String IDTOPIC_CONFIG_TYPE = "idTopicConfig.type";
 }

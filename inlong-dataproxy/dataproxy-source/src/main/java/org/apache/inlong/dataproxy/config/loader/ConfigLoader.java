@@ -25,5 +25,7 @@ import java.util.List;
  */
 public interface ConfigLoader<T> {
 
+    String RELOAD_INTERVAL = "reloadInterval";
+
     List<T> load();
 }

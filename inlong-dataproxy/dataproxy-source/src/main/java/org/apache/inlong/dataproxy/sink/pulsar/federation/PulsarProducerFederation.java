@@ -140,7 +140,6 @@ public class PulsarProducerFederation {
             }
             this.clusterList = newClusterList;
         } catch (Throwable e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         }
     }

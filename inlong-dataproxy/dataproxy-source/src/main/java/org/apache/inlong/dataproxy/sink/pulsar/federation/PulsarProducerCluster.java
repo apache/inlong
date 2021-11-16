@@ -55,6 +55,17 @@ public class PulsarProducerCluster implements LifecycleAware {
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
 
+    public static final String KEY_ENABLEBATCHING = "enableBatching";
+    public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
+    public static final String KEY_BATCHINGMAXMESSAGES = "batchingMaxMessages";
+    public static final String KEY_BATCHINGMAXPUBLISHDELAY = "batchingMaxPublishDelay";
+    public static final String KEY_MAXPENDINGMESSAGES = "maxPendingMessages";
+    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS = "maxPendingMessagesAcrossPartitions";
+    public static final String KEY_SENDTIMEOUT = "sendTimeout";
+    public static final String KEY_COMPRESSIONTYPE = "compressionType";
+    public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
+    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouterBatchingPartitionSwitchFrequency";
+
     private final String workerName;
     private final CacheClusterConfig config;
     private final PulsarFederationSinkContext sinkContext;
@@ -105,19 +116,19 @@ public class PulsarProducerCluster implements LifecycleAware {
 //            builderConf.putAll(context.getParameters());
             this.baseBuilder
                     .hashingScheme(HashingScheme.Murmur3_32Hash)
-                    .enableBatching(context.getBoolean("enableBatching", true))
-                    .batchingMaxBytes(context.getInteger("batchingMaxBytes", 5242880))
-                    .batchingMaxMessages(context.getInteger("batchingMaxMessages", 3000))
-                    .batchingMaxPublishDelay(context.getInteger("batchingMaxPublishDelay", 1),
+                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
+                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 5242880))
+                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 3000))
+                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 1),
                             TimeUnit.MILLISECONDS)
-                    .maxPendingMessages(context.getInteger("maxPendingMessages", 1000))
+                    .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 1000))
                     .maxPendingMessagesAcrossPartitions(
-                            context.getInteger("maxPendingMessagesAcrossPartitions", 50000))
-                    .sendTimeout(context.getInteger("sendTimeout", 0), TimeUnit.MILLISECONDS)
+                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 50000))
+                    .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
                     .compressionType(this.getPulsarCompressionType())
-                    .blockIfQueueFull(context.getBoolean("blockIfQueueFull", true))
+                    .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true))
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
-                            context.getInteger("roundRobinRouterBatchingPartitionSwitchFrequency", 10))
+                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 10))
                     .batcherBuilder(BatcherBuilder.DEFAULT);
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
@@ -130,7 +141,7 @@ public class PulsarProducerCluster implements LifecycleAware {
      * @return CompressionType
      */
     private CompressionType getPulsarCompressionType() {
-        String type = this.context.getString("compressionType");
+        String type = this.context.getString(KEY_COMPRESSIONTYPE);
         switch (type) {
             case "LZ4" :
                 return CompressionType.LZ4;

@@ -25,4 +25,7 @@ import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
  * CacheClusterConfigLoader
  */
 public interface CacheClusterConfigLoader extends ConfigLoader<CacheClusterConfig>, Configurable {
+
+    String CACHE_CLUSTER_CONFIG = "cacheClusterConfig";
+    String CACHE_CLUSTER_CONFIG_TYPE = "cacheClusterConfig.type";
 }

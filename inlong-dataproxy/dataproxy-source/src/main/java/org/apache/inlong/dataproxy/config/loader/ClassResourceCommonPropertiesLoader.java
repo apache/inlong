@@ -17,10 +17,8 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,14 +52,7 @@ public class ClassResourceCommonPropertiesLoader implements CommonPropertiesLoad
      */
     protected Map<String, String> loadProperties(String fileName) {
         Map<String, String> result = new ConcurrentHashMap<>();
-        InputStream inStream = null;
-        try {
-            URL url = getClass().getClassLoader().getResource(fileName);
-            inStream = url != null ? url.openStream() : null;
-
-            if (inStream == null) {
-                LOG.error("InputStream {} is null!", fileName);
-            }
+        try (InputStream inStream = getClass().getClassLoader().getResource(fileName).openStream()) {
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
@@ -71,14 +62,6 @@ public class ClassResourceCommonPropertiesLoader implements CommonPropertiesLoad
             LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
-        } finally {
-            if (null != inStream) {
-                try {
-                    inStream.close();
-                } catch (IOException e) {
-                    LOG.error("fail to loadTopics, inStream.close ,and e= {}", fileName, e);
-                }
-            }
         }
         return result;
     }

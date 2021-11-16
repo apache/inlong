@@ -43,7 +43,7 @@ public class ContextCacheClusterConfigLoader implements CacheClusterConfigLoader
      */
     @Override
     public List<CacheClusterConfig> load() {
-        String clusterNames = context.getString("cacheClusterConfig");
+        String clusterNames = context.getString(CACHE_CLUSTER_CONFIG);
         if (StringUtils.isBlank(clusterNames)) {
             return new ArrayList<>();
         }

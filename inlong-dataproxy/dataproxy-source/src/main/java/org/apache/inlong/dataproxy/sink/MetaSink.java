@@ -71,6 +71,7 @@ public class MetaSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(MetaSink.class);
     private static int MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
     private static final String TUBE_REQUEST_TIMEOUT = "tube-request-timeout";
+    private static final String KEY_DISK_IO_RATE_PER_SEC = "disk-io-rate-per-sec";
 
     private static int BAD_EVENT_QUEUE_SIZE = 10000;
 
@@ -779,7 +780,7 @@ public class MetaSink extends AbstractSink implements Configurable {
         sinkThreadPool = new Thread[threadNum];
         eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
 
-        diskIORatePerSec = context.getLong("disk-io-rate-per-sec", 0L);
+        diskIORatePerSec = context.getLong(KEY_DISK_IO_RATE_PER_SEC, 0L);
         if (diskIORatePerSec != 0) {
             diskRateLimiter = RateLimiter.create(diskIORatePerSec);
         }

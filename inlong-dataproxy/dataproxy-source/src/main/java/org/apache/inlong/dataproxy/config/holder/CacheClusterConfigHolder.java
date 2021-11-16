@@ -17,6 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import static org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader.CACHE_CLUSTER_CONFIG_TYPE;
+import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -54,8 +57,8 @@ public class CacheClusterConfigHolder implements Configurable {
     @Override
     public void configure(Context context) {
         this.context = context;
-        this.reloadInterval = context.getLong("reloadInterval", 60000L);
-        String loaderType = context.getString("cacheClusterConfig.type",
+        this.reloadInterval = context.getLong(RELOAD_INTERVAL, 60000L);
+        String loaderType = context.getString(CACHE_CLUSTER_CONFIG_TYPE,
                 ContextCacheClusterConfigLoader.class.getName());
         try {
             Class<?> loaderClass = ClassUtils.getClass(loaderType);
@@ -81,7 +84,6 @@ public class CacheClusterConfigHolder implements Configurable {
             this.reload();
             this.setReloadTimer();
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         }
     }
@@ -121,7 +123,6 @@ public class CacheClusterConfigHolder implements Configurable {
         try {
             this.configList = this.loader.load();
         } catch (Throwable e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         }
     }

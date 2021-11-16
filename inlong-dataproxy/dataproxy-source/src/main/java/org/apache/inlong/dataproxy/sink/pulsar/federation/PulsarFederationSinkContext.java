@@ -35,6 +35,13 @@ import org.apache.inlong.dataproxy.utils.BufferQueue;
  */
 public class PulsarFederationSinkContext {
 
+    public static final String KEY_MAX_THREADS = "max-threads";
+    public static final String KEY_MAXTRANSACTION = "maxTransaction";
+    public static final String KEY_PROCESSINTERVAL = "processInterval";
+    public static final String KEY_RELOADINTERVAL = "reloadInterval";
+    public static final String KEY_MAXBUFFERQUEUESIZE = "maxBufferQueueSize";
+    public static final String PREFIX_PRODUCER = "producer.";
+
     private final String proxyClusterId;
     private final Context sinkContext;
     private final Context producerContext;
@@ -56,12 +63,12 @@ public class PulsarFederationSinkContext {
      * @param context
      */
     public PulsarFederationSinkContext(String sinkName, Context context) {
-        this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME, "unknown");
+        this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         this.sinkContext = context;
-        this.maxThreads = context.getInteger("max-threads", 10);
-        this.maxTransaction = context.getInteger("maxTransaction", 1);
-        this.processInterval = context.getInteger("processInterval", 100);
-        this.reloadInterval = context.getLong("reloadInterval", 60000L);
+        this.maxThreads = context.getInteger(KEY_MAX_THREADS, 10);
+        this.maxTransaction = context.getInteger(KEY_MAXTRANSACTION, 1);
+        this.processInterval = context.getInteger(KEY_PROCESSINTERVAL, 100);
+        this.reloadInterval = context.getLong(KEY_RELOADINTERVAL, 60000L);
         //
         this.idTopicHolder = new IdTopicConfigHolder();
         this.idTopicHolder.configure(context);
@@ -71,10 +78,10 @@ public class PulsarFederationSinkContext {
         this.cacheHolder.configure(context);
         this.cacheHolder.start();
         //
-        int maxBufferQueueSize = context.getInteger("maxBufferQueueSize", 128 * 1024);
+        int maxBufferQueueSize = context.getInteger(KEY_MAXBUFFERQUEUESIZE, 128 * 1024);
         this.bufferQueue = new BufferQueue<Event>(maxBufferQueueSize);
         //
-        Map<String, String> producerParams = context.getSubProperties("producer.");
+        Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
         //
         this.metricItemSet = new DataProxyMetricItemSet(sinkName);
