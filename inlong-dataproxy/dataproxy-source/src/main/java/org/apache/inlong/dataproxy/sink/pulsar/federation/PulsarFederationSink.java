@@ -136,42 +136,5 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
         } finally {
             tx.close();
         }
-//        Channel channel = getChannel();
-//        int eventCount = 0;
-//        Transaction tx = channel.getTransaction();
-//        tx.begin();
-//        try {
-//            Event event = channel.take();
-//            while (event != null) {
-//                int eventSize = event.getBody().length;
-//                if (this.context.getBufferQueue().tryAcquire(eventSize)) {
-//                    this.context.getBufferQueue().offer(event);
-//                    eventCount++;
-//                    if (eventCount >= this.context.getMaxTransaction()) {
-//                        break;
-//                    }
-//                    event = channel.take();
-//                    continue;
-//                }
-//                // record the failure of queue full for monitor
-//                LOG.error("[{}] Channel --> Queue(has no enough space,current code point) "
-//                        + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
-//                        + "it will cause memoryChannel full and fileChannel write.)", getName());
-//                this.context.getBufferQueue().acquire(eventSize);
-//                this.context.getBufferQueue().offer(event);
-//                break;
-//            }
-//            tx.commit();
-//        } catch (Throwable t) {
-//            LOG.error("Process event failed!" + this.getName(), t);
-//            try {
-//                tx.rollback();
-//            } catch (Throwable e) {
-//                LOG.error("Channel take transaction rollback exception:" + getName(), e);
-//            }
-//        } finally {
-//            tx.close();
-//        }
-//        return Status.BACKOFF;
     }
 }

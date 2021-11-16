@@ -71,8 +71,6 @@ public class MetricListenerRunnable implements Runnable {
         try {
             List<MetricItemValue> itemValues = this.getItemValues();
             LOG.info("snapshot metric:{},size:{}", domain, itemValues.size());
-//            LOG.info("snapshot metric:{},size:{},contents:{}", 
-//            domain, itemValues.size(), new Gson().toJson(itemValues));
             this.listenerList.forEach((item) -> {
                 item.snapshot(domain, itemValues);
             });
