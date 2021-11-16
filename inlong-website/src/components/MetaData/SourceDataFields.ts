@@ -18,6 +18,7 @@
  */
 
 import i18n from '@/i18n';
+import { ColumnsItemProps } from '@/components/EditableTable';
 
 export const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', 'timestamp'].map(
   item => ({
@@ -26,16 +27,16 @@ export const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', '
   }),
 );
 
-export const sourceDataFields = [
+export const sourceDataFields: ColumnsItemProps[] = [
   {
-    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldName'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldName'),
     dataIndex: 'sourceFieldName',
     initialValue: '',
     rules: [
       { required: true },
       {
         pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        message: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.fieldNameRule'),
+        message: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldNameRule'),
       },
     ],
     props: (text, record, idx, isNew) => ({
@@ -43,7 +44,7 @@ export const sourceDataFields = [
     }),
   },
   {
-    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.SourceFieldType'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldType'),
     dataIndex: 'sourceFieldType',
     initialValue: fieldTypes[0].value,
     type: 'select',

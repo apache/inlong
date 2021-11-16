@@ -161,6 +161,19 @@ export function pickObject(keys = [], sourceObj) {
   }, {});
 }
 
+export function excludeObject(keys = [], sourceObj: Record<string, unknown>) {
+  const set = new Set(keys);
+  return Object.entries(sourceObj).reduce((acc, [key, value]) => {
+    if (!set.has(key)) {
+      return {
+        ...acc,
+        [key]: value,
+      };
+    }
+    return acc;
+  }, {});
+}
+
 /**
  * Exclude parts from the object array to form a new array
  * @param keys

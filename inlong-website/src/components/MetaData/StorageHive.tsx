@@ -19,9 +19,15 @@
 
 import React from 'react';
 import { Button, message } from 'antd';
+import {
+  getColsFromFields,
+  GetStorageColumnsType,
+  GetStorageFormFieldsType,
+} from '@/utils/metaData';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import request from '@/utils/request';
 import i18n from '@/i18n';
+import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
 
 // hiveFieldTypes
@@ -48,15 +54,15 @@ const hiveFieldTypes = [
 
 export const hiveTableColumns = [
   {
-    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Db'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.Db'),
     dataIndex: 'dbName',
   },
   {
-    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.TargetTable'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetTable'),
     dataIndex: 'tableName',
   },
   {
-    title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Username'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
     dataIndex: 'username',
   },
   {
@@ -69,21 +75,18 @@ export const hiveTableColumns = [
   },
 ];
 
-export const getHiveColumns = (
-  dataType: string,
-  currentValues: Record<string, unknown>,
-): ColumnsItemProps[] => [
+export const getHiveColumns: GetStorageColumnsType = (dataType, currentValues) => [
   ...([
     ...sourceDataFields,
     {
-      title: `HIVE${i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldName')}`,
+      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.fieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -92,7 +95,7 @@ export const getHiveColumns = (
       }),
     },
     {
-      title: `HIVE${i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldType')}`,
+      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
@@ -103,128 +106,131 @@ export const getHiveColumns = (
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
   ] as ColumnsItemProps[]),
 ];
 
-export const getHiveForm = (
-  dataType: string,
-  isEdit: boolean,
-  inlongGroupId: string,
-  currentValues: Record<string, unknown>,
-  form,
-) => [
-  {
-    type: 'input',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Db'),
-    name: 'dbName',
-    rules: [{ required: true }],
-    props: {
-      disabled: isEdit,
-    },
-  },
-  {
-    type: 'input',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.TargetTable'),
-    name: 'tableName',
-    rules: [{ required: true }],
-    props: {
-      disabled: isEdit,
-    },
-  },
-  {
-    type: 'input',
-    name: 'primaryPartition',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.First-levelPartition'),
-    initialValue: 'dt',
-    rules: [{ required: true }],
-    props: {
-      disabled: isEdit,
-    },
-  },
-  {
-    type: 'input',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Username'),
-    name: 'username',
-    rules: [{ required: true }],
-    props: {
-      disabled: isEdit,
-    },
-  },
-  {
-    type: 'password',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.Password'),
-    name: 'password',
-    rules: [{ required: true }],
-    props: {
-      disabled: isEdit,
-      style: {
-        maxWidth: 500,
+export const getHiveForm: GetStorageFormFieldsType = (
+  type,
+  { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
+) => {
+  const fileds = [
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Db'),
+      name: 'dbName',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit,
       },
     },
-  },
-  {
-    type: 'input',
-    label: 'JDBC URL',
-    name: 'jdbcUrl',
-    rules: [{ required: true }],
-    props: {
-      placeholder: 'jdbc:hive2://127.0.0.1:10000',
-      disabled: isEdit,
-      style: { width: 500 },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetTable'),
+      name: 'tableName',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit,
+      },
     },
-    suffix: (
-      <Button
-        onClick={async () => {
-          const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
-          const res = await request({
-            url: '/storage/query/testConnection',
-            method: 'POST',
-            data: values,
-          });
-          res
-            ? message.success(
-                i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionSucceeded'),
-              )
-            : message.error(
-                i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionFailed'),
-              );
-        }}
-      >
-        {i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.ConnectionTest')}
-      </Button>
-    ),
-  },
-  {
-    type: 'input',
-    label: 'HDFS DefaultFS',
-    name: 'hdfsDefaultFs',
-    rules: [{ required: true }],
-    props: {
-      placeholder: 'hdfs://127.0.0.1:9000',
-      disabled: isEdit,
+    {
+      type: 'input',
+      name: 'primaryPartition',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.First-levelPartition'),
+      initialValue: 'dt',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit,
+      },
     },
-  },
-  {
-    type: 'input',
-    label: i18n.t('components.AccessHelper.DataStorageEditor.hiveConfig.WarehousePath'),
-    name: 'warehouseDir',
-    initialValue: '/user/hive/warehouse',
-    props: {
-      disabled: isEdit,
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
+      name: 'username',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit,
+      },
     },
-  },
-  {
-    type: (
-      <EditableTable
-        size="small"
-        columns={getHiveColumns(dataType, currentValues)}
-        canDelete={(record, idx, isNew) => !isEdit || isNew}
-      />
-    ),
-    name: 'hiveFieldList',
-  },
-];
+    {
+      type: 'password',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Password'),
+      name: 'password',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit,
+        style: {
+          maxWidth: 500,
+        },
+      },
+    },
+    {
+      type: 'input',
+      label: 'JDBC URL',
+      name: 'jdbcUrl',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'jdbc:hive2://127.0.0.1:10000',
+        disabled: isEdit,
+        style: { width: 500 },
+      },
+      suffix: (
+        <Button
+          onClick={async () => {
+            const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
+            const res = await request({
+              url: '/storage/query/testConnection',
+              method: 'POST',
+              data: values,
+            });
+            res
+              ? message.success(
+                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded'),
+                )
+              : message.error(
+                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionFailed'),
+                );
+          }}
+        >
+          {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
+        </Button>
+      ),
+    },
+    {
+      type: 'input',
+      label: 'HDFS DefaultFS',
+      name: 'hdfsDefaultFs',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'hdfs://127.0.0.1:9000',
+        disabled: isEdit,
+      },
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.WarehousePath'),
+      name: 'warehouseDir',
+      initialValue: '/user/hive/warehouse',
+      props: {
+        disabled: isEdit,
+      },
+    },
+    {
+      type: (
+        <EditableTable
+          size="small"
+          columns={getHiveColumns(dataType, currentValues)}
+          canDelete={(record, idx, isNew) => !isEdit || isNew}
+        />
+      ),
+      name: 'hiveFieldList',
+    },
+  ];
+
+  return type === 'col'
+    ? getColsFromFields(fileds)
+    : fileds.map(item => excludeObject(['_col'], item));
+};

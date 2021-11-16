@@ -26,7 +26,9 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
+import { GetStorageFormFieldsType } from '@/utils/metaData';
 import { getHiveForm, getHiveColumns } from '@/components/MetaData/StorageHive';
+import { getClickhouseForm, getClickhouseColumns } from '@/components/MetaData/StorageClickhouse';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -73,6 +75,13 @@ const Comp: React.FC<DetailModalProps> = ({
         getColumns: getHiveColumns,
         // In addition to the defaultRowTypeFields field that is populated by default, additional fields that need to be populated
         // The left is the defaultRowTypeFields field, and the right is the newly filled field
+        restMapping: {
+          fieldName: 'fieldName',
+        },
+      },
+      CLICK_HOUSE: {
+        columnsKey: 'clickHouseFieldList',
+        getColumns: getClickhouseColumns,
         restMapping: {
           fieldName: 'fieldName',
         },
@@ -147,13 +156,19 @@ const Comp: React.FC<DetailModalProps> = ({
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const map = {
+    const map: Record<string, GetStorageFormFieldsType> = {
       HIVE: getHiveForm,
-      // CLICK_HOUSE: getClickhouseForm,
+      CLICK_HOUSE: getClickhouseForm,
     };
     const item = map[storageType];
 
-    return item(dataType, !!id, inlongGroupId, currentValues, form);
+    return item('form', {
+      dataType,
+      isEdit: !!id,
+      inlongGroupId,
+      currentValues,
+      form,
+    }) as FormItemProps[];
   }, [storageType, dataType, inlongGroupId, id, currentValues, form]);
 
   const onOk = async () => {

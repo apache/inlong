@@ -25,6 +25,7 @@ import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import { DataStorageDetailModal } from '@/components/AccessHelper';
 import { hiveTableColumns } from '@/components/MetaData/StorageHive';
+import { clickhouseTableColumns } from '@/components/MetaData/StorageClickhouse';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { genStatusTag } from './status';
@@ -47,6 +48,10 @@ const getFilterFormContent = defaultValues => [
         {
           label: 'HIVE',
           value: 'HIVE',
+        },
+        {
+          label: 'CLICK_HOUSE',
+          value: 'CLICK_HOUSE',
         },
       ],
     },
@@ -160,6 +165,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const columnsMap = {
     HIVE: hiveTableColumns,
+    CLICK_HOUSE: clickhouseTableColumns,
   };
 
   const createContent = useMemo(
