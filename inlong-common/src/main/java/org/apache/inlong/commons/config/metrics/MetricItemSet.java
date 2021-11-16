@@ -28,7 +28,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class MetricItemSet<T extends MetricItem> implements MetricItemSetMBean {
 
+    protected String name;
+
     protected Map<String, T> itemMap = new ConcurrentHashMap<>();
+
+    /**
+     * Constructor
+     * 
+     * @param name
+     */
+    public MetricItemSet(String name) {
+        this.name = name;
+    }
+
+    /**
+     * getName
+     * 
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
 
     /**
      * createItem

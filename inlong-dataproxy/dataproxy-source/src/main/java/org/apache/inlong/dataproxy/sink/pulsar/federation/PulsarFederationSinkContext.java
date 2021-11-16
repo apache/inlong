@@ -26,6 +26,7 @@ import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 
 /**
@@ -47,14 +48,14 @@ public class PulsarFederationSinkContext {
     private final long processInterval;
     private final long reloadInterval;
     //
-    private final PulsarFederationSinkMetricItemSet metricItemSet;
+    private final DataProxyMetricItemSet metricItemSet;
 
     /**
      * Constructor
      * 
      * @param context
      */
-    public PulsarFederationSinkContext(Context context) {
+    public PulsarFederationSinkContext(String sinkName, Context context) {
         this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME, "unknown");
         this.sinkContext = context;
         this.maxThreads = context.getInteger("max-threads", 10);
@@ -76,7 +77,7 @@ public class PulsarFederationSinkContext {
         Map<String, String> producerParams = context.getSubProperties("producer.");
         this.producerContext = new Context(producerParams);
         //
-        this.metricItemSet = new PulsarFederationSinkMetricItemSet();
+        this.metricItemSet = new DataProxyMetricItemSet(sinkName);
         MetricRegister.register(this.metricItemSet);
     }
 
@@ -183,7 +184,7 @@ public class PulsarFederationSinkContext {
      * 
      * @return the metricItemSet
      */
-    public PulsarFederationSinkMetricItemSet getMetricItemSet() {
+    public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
 

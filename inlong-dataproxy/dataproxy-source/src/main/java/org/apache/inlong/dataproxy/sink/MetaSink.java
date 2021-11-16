@@ -45,6 +45,7 @@ import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -141,7 +142,7 @@ public class MetaSink extends AbstractSink implements Configurable {
     private int recoverthreadcount;
     //
     private Map<String, String> dimensions;
-    private MetaSinkMetricItemSet metricItemSet;
+    private DataProxyMetricItemSet metricItemSet;
 
     private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
             .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000).expireAfterAccess(30, TimeUnit.SECONDS)
@@ -332,7 +333,7 @@ public class MetaSink extends AbstractSink implements Configurable {
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
         //register metrics
-        this.metricItemSet = new MetaSinkMetricItemSet();
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
         
         //create tube connection
@@ -799,7 +800,7 @@ public class MetaSink extends AbstractSink implements Configurable {
      * get metricItemSet
      * @return the metricItemSet
      */
-    public MetaSinkMetricItemSet getMetricItemSet() {
+    public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
     

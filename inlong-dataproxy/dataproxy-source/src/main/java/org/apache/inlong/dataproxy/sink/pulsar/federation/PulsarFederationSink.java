@@ -84,7 +84,7 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
     @Override
     public void configure(Context context) {
         LOG.info("start to configure:{}, context:{}.", this.getClass().getSimpleName(), context.toString());
-        this.context = new PulsarFederationSinkContext(context);
+        this.context = new PulsarFederationSinkContext(this.getName(), context);
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.context.getProxyClusterId());
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());

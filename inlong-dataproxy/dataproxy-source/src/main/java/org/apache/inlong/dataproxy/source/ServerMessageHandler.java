@@ -47,6 +47,7 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -105,7 +106,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     private final ChannelBuffer heartbeatBuffer;
     private final String protocolType;
     //
-    private final TdMsgSourceMetricItemSet metricItemSet;
+    private final DataProxyMetricItemSet metricItemSet;
 
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
                                 ChannelGroup allChannels,
@@ -129,7 +130,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         if (source instanceof SimpleTcpSource) {
             this.metricItemSet = ((SimpleTcpSource) source).getMetricItemSet();
         } else {
-            this.metricItemSet = new TdMsgSourceMetricItemSet();
+            this.metricItemSet = new DataProxyMetricItemSet(this.toString());
         }
     }
 

@@ -31,6 +31,7 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
      * Constructor
      */
     private DataProxyMetricItemSet() {
+        super("DataProxy");
     }
 
     /**

@@ -41,6 +41,7 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.dataproxy.base.NamedThreadFactory;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -93,13 +94,11 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
     private Channel nettyChannel = null;
     //
-    private final TdMsgSourceMetricItemSet metricItemSet;
+    private DataProxyMetricItemSet metricItemSet;
 
     public SimpleTcpSource() {
         super();
         allChannels = new DefaultChannelGroup();
-        this.metricItemSet = new TdMsgSourceMetricItemSet();
-        MetricRegister.register(metricItemSet);
     }
 
     /**
@@ -194,6 +193,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     @Override
     public synchronized void start() {
         logger.info("start " + this.getName());
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
         super.start();
@@ -376,7 +377,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
      * get metricItemSet
      * @return the metricItemSet
      */
-    public TdMsgSourceMetricItemSet getMetricItemSet() {
+    public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
 }

@@ -123,8 +123,8 @@ public class TestMetricItemSetMBean {
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
         beanName.append(MetricUtils.getDomain(DataProxyMetricItemSet.class)).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append("type=")
-                .append(DataProxyMetricItemSet.class.toString());
+                .append("name=")
+                .append(itemSet.getName());
         String strBeanName = beanName.toString();
         ObjectName objName = new ObjectName(strBeanName);
         {
