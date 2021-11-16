@@ -49,7 +49,17 @@ public interface ClientBalanceConsumer extends Shutdownable {
      *
      * @param topicAndFilterCondMap    subscribed topic and need filtered condition items of topic
      *                                 if not need filter consume messages, set condition's set is empty or null
-     * @param result    call result, the parameter is not allowed to be null
+     * @param sourceCount  the total count of clients that the consumer group will start this time
+     *                       If this value is set, the system will check that this parameter value
+     *                       carried by each client must be consistent,
+     *                       and the corresponding nodeId value must be unique in the consumer group;
+     *                       if this value is not set, Please set a negative number
+     * @param nodeId         the unique ID of the node in the consumer group
+     *                    Attention:The sourceCount and nodeId parameters are used when the client
+     *                              performs modular allocation of partitions to avoid
+     *                              allocation conflicts in advance and avoid
+     *                              repeated allocations to the same partition by the client
+     * @param result       call result, the parameter is not allowed to be null
      * @throws TubeClientException    parameter abnormal
      *
      * @return  true if call success, false if failure
