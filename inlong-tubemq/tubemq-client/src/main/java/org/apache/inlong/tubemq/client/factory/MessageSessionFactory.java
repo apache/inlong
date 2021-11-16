@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.client.factory;
 
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
+import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -39,4 +40,6 @@ public interface MessageSessionFactory extends Shutdownable {
     PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException;
 
+    ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
+            throws TubeClientException;
 }

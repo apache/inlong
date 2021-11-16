@@ -26,6 +26,7 @@ public class PeerInfo {
     private String partitionKey = "";
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
     private long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private long msgLagCount = TBaseConstants.META_VALUE_UNDEFINED;
 
     public PeerInfo() {
 
@@ -59,9 +60,17 @@ public class PeerInfo {
         }
         this.currOffset = newOffset;
         this.maxOffset = maxOffset;
+        if (this.currOffset >= 0 && this.maxOffset >= 0) {
+            this.msgLagCount =
+                    (this.maxOffset - this.currOffset) / TBaseConstants.INDEX_MSG_UNIT_SIZE;
+        }
     }
 
     public long getMaxOffset() {
         return maxOffset;
+    }
+
+    public long getMsgLagCount() {
+        return msgLagCount;
     }
 }

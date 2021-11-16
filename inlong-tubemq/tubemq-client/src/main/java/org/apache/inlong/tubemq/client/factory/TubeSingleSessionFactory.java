@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfigUtils;
+import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -98,6 +99,12 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
             throw new TubeClientException("Please initialize the object first!");
         }
         return baseSessionFactory.createPullConsumer(consumerConfig);
+    }
+
+    @Override
+    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
+            throws TubeClientException {
+        return null;
     }
 
     public NettyClientFactory getRpcServiceFactory() {
