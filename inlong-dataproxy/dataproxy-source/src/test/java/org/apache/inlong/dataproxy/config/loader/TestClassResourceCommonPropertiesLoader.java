@@ -41,7 +41,7 @@ public class TestClassResourceCommonPropertiesLoader {
         // increase source
         ClassResourceCommonPropertiesLoader loader = new ClassResourceCommonPropertiesLoader();
         Map<String, String> props = loader.load();
-        assertEquals("inlong5th_sz", props.get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME));
+        assertEquals("proxy_inlong5th_sz", props.get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME));
         assertEquals("DataProxy", props.get(MetricListener.KEY_METRIC_DOMAINS));
     }
 }
