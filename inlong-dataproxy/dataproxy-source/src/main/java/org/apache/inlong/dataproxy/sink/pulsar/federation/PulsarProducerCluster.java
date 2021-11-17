@@ -121,8 +121,8 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 5242880))
                     .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 3000))
                     .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 1),
-                            TimeUnit.MILLISECONDS)
-                    .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 1000))
+                            TimeUnit.MILLISECONDS);
+            this.baseBuilder.maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 1000))
                     .maxPendingMessagesAcrossPartitions(
                             context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 50000))
                     .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
