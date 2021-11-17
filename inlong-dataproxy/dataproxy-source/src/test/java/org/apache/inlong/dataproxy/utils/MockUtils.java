@@ -101,13 +101,13 @@ public class MockUtils {
      */
     @SuppressWarnings("unchecked")
     public static PulsarClient mockPulsarClient() throws Exception {
-        PulsarClient client = PowerMockito.mock(PulsarClient.class);
         ClientBuilder clientBuilder = PowerMockito.mock(ClientBuilder.class);
         PowerMockito.mockStatic(PulsarClient.class);
         //
         PowerMockito.when(PulsarClient.builder()).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.serviceUrl(anyString())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.authentication(any())).thenReturn(clientBuilder);
+        PulsarClient client = PowerMockito.mock(PulsarClient.class);
         PowerMockito.when(clientBuilder.build()).thenReturn(client);
         //
         ProducerBuilder<byte[]> producerBuilder = PowerMockito.mock(ProducerBuilder.class);

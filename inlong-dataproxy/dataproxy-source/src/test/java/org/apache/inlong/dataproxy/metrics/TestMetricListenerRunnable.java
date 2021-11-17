@@ -48,6 +48,10 @@ public class TestMetricListenerRunnable {
     private static DataProxyMetricItemSet itemSet;
     private static Map<String, String> dimSource;
     private static Map<String, String> dimSink;
+    private static String keySource1;
+    private static String keySource2;
+    private static String keySink1;
+    private static String keySink2;
 
     /**
      * setup
@@ -86,20 +90,20 @@ public class TestMetricListenerRunnable {
         item = itemSet.findMetricItem(dimSource);
         item.readSuccessCount.incrementAndGet();
         item.readSuccessSize.addAndGet(100);
-        String keySource1 = MetricUtils.getDimensionsKey(dimSource);
+        keySource1 = MetricUtils.getDimensionsKey(dimSource);
         //
         dimSource.put("inlongGroupId", INLONG_GROUP_ID2);
         item = itemSet.findMetricItem(dimSource);
         item.readFailCount.addAndGet(20);
         item.readFailSize.addAndGet(2000);
-        String keySource2 = MetricUtils.getDimensionsKey(dimSource);
+        keySource2 = MetricUtils.getDimensionsKey(dimSource);
         // increase sink
         item = itemSet.findMetricItem(dimSink);
         item.sendCount.incrementAndGet();
         item.sendSize.addAndGet(100);
         item.sendSuccessCount.incrementAndGet();
         item.sendSuccessSize.addAndGet(100);
-        String keySink1 = MetricUtils.getDimensionsKey(dimSink);
+        keySink1 = MetricUtils.getDimensionsKey(dimSink);
         //
         dimSink.put("inlongGroupId", INLONG_GROUP_ID2);
         item = itemSet.findMetricItem(dimSink);
@@ -107,7 +111,7 @@ public class TestMetricListenerRunnable {
         item.sendSize.addAndGet(2000);
         item.sendFailCount.addAndGet(20);
         item.sendFailSize.addAndGet(2000);
-        String keySink2 = MetricUtils.getDimensionsKey(dimSink);
+        keySink2 = MetricUtils.getDimensionsKey(dimSink);
         // report
         MetricListener listener = new MetricListener() {
 
