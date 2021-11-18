@@ -15,50 +15,56 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.commons.config.metrics.set;
-
-import org.apache.inlong.commons.config.metrics.MetricItemSet;
+package org.apache.inlong.dataproxy.config.pojo;
 
 /**
- * 
- * DataProxyMetricItemSet
+ * cache cluster type
  */
-public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
+public enum CacheType {
 
-    private static DataProxyMetricItemSet instance;
+    TUBE("tube"), KAFKA("kafka"), PULSAR("pulsar"), N("n");
+
+    private final String value;
 
     /**
+     * 
      * Constructor
+     * 
+     * @param value
      */
-    private DataProxyMetricItemSet() {
-        super("DataProxy");
+    private CacheType(String value) {
+        this.value = value;
     }
 
     /**
-     * getInstance
-     * 
+     * value
+     *
      * @return
      */
-    public static DataProxyMetricItemSet getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        synchronized (DataProxyMetricItemSet.class) {
-            if (instance == null) {
-                instance = new DataProxyMetricItemSet();
-            }
-        }
-        return instance;
+    public String value() {
+        return this.value;
     }
 
     /**
-     * createItem
-     * 
-     * @return
+     * toString
      */
     @Override
-    protected DataProxyMetricItem createItem() {
-        return new DataProxyMetricItem();
+    public String toString() {
+        return this.name() + ":" + this.value;
     }
 
+    /**
+     * convert
+     *
+     * @param  value
+     * @return
+     */
+    public static CacheType convert(String value) {
+        for (CacheType v : values()) {
+            if (v.value().equals(value)) {
+                return v;
+            }
+        }
+        return N;
+    }
 }

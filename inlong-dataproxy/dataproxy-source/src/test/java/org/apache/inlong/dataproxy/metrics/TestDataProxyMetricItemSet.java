@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.commons.config.metrics.set;
+package org.apache.inlong.dataproxy.metrics;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,9 +39,9 @@ import org.junit.Test;
  * 
  * TestMetricItemSetMBean
  */
-public class TestMetricItemSetMBean {
+public class TestDataProxyMetricItemSet {
 
-    public static final String SET_ID = "inlong5th_sz";
+    public static final String CLUSTER_ID = "inlong5th_sz";
     public static final String CONTAINER_NAME = "2222.inlong.DataProxy.sz100001";
     public static final String CONTAINER_IP = "127.0.0.1";
     private static final String SOURCE_ID = "agent-source";
@@ -60,13 +60,11 @@ public class TestMetricItemSetMBean {
      */
     @BeforeClass
     public static void setup() {
-        itemSet = DataProxyMetricItemSet.getInstance();
+        itemSet = new DataProxyMetricItemSet(CLUSTER_ID);
         MetricRegister.register(itemSet);
         // prepare
         DataProxyMetricItem itemSource = new DataProxyMetricItem();
-        itemSource.setId = SET_ID;
-        itemSource.containerName = CONTAINER_NAME;
-        itemSource.containerIp = CONTAINER_IP;
+        itemSource.clusterId = CLUSTER_ID;
         itemSource.sourceId = SOURCE_ID;
         itemSource.sourceDataId = SOURCE_DATA_ID;
         itemSource.inlongGroupId = INLONG_GROUP_ID1;
@@ -74,9 +72,7 @@ public class TestMetricItemSetMBean {
         dimSource = itemSource.getDimensions();
         //
         DataProxyMetricItem itemSink = new DataProxyMetricItem();
-        itemSink.setId = SET_ID;
-        itemSink.containerName = CONTAINER_NAME;
-        itemSink.containerIp = CONTAINER_IP;
+        itemSink.clusterId = CLUSTER_ID;
         itemSink.sinkId = SINK_ID;
         itemSink.sinkDataId = SINK_DATA_ID;
         itemSink.inlongGroupId = INLONG_GROUP_ID1;

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,10 +39,14 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.flume.source.shaded.guava.RateLimiter;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -58,14 +57,21 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 public class MetaSink extends AbstractSink implements Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(MetaSink.class);
     private static int MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
     private static final String TUBE_REQUEST_TIMEOUT = "tube-request-timeout";
+    private static final String KEY_DISK_IO_RATE_PER_SEC = "disk-io-rate-per-sec";
 
     private static int BAD_EVENT_QUEUE_SIZE = 10000;
 
@@ -135,6 +141,9 @@ public class MetaSink extends AbstractSink implements Configurable {
     private long sessionMaxAllowedDelayedMsgCount;
     private long nettyWriteBufferHighWaterMark;
     private int recoverthreadcount;
+    //
+    private Map<String, String> dimensions;
+    private DataProxyMetricItemSet metricItemSet;
 
     private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
             .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000).expireAfterAccess(30, TimeUnit.SECONDS)
@@ -321,6 +330,14 @@ public class MetaSink extends AbstractSink implements Configurable {
 
     @Override
     public void start() {
+        this.dimensions = new HashMap<>();
+        this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
+        //register metrics
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
+        
+        //create tube connection
         try {
             createConnection();
         } catch (FlumeException e) {
@@ -521,16 +538,20 @@ public class MetaSink extends AbstractSink implements Configurable {
 
     public class MyCallback implements MessageSentCallback {
         private EventStat myEventStat;
+        private long sendTime;
 
         public MyCallback(EventStat eventStat) {
             this.myEventStat = eventStat;
+            this.sendTime = System.currentTimeMillis();
         }
 
         @Override
         public void onMessageSent(final MessageSentResult result) {
             if (result.isSuccess()) {
                 // TODO: add stats
+                this.addMetric(myEventStat.getEvent(), true, sendTime);
             } else {
+                this.addMetric(myEventStat.getEvent(), false, 0);
                 if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             result.getErrMsg(), resendQueue.size(),
@@ -544,6 +565,44 @@ public class MetaSink extends AbstractSink implements Configurable {
                             myEventStat.getEvent().hashCode());
                 }
                 resendEvent(myEventStat, true);
+            }
+        }
+
+        /**
+         * addMetric
+         * 
+         * @param currentRecord
+         * @param topic
+         * @param result
+         * @param size
+         */
+        private void addMetric(Event currentRecord, boolean result, long sendTime) {
+            Map<String, String> dimensions = new HashMap<>();
+            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSink.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSink.this.getName());
+            if (currentRecord.getHeaders().containsKey(TOPIC)) {
+                dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, currentRecord.getHeaders().get(TOPIC));
+            } else {
+                dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
+            }
+            DataProxyMetricItem metricItem = MetaSink.this.metricItemSet.findMetricItem(dimensions);
+            if (result) {
+                metricItem.sendSuccessCount.incrementAndGet();
+                metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
+                if (sendTime > 0) {
+                    long currentTime = System.currentTimeMillis();
+                    long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                            sendTime);
+                    long sinkDuration = currentTime - sendTime;
+                    long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                    long wholeDuration = currentTime - msgTime;
+                    metricItem.sinkDuration.addAndGet(sinkDuration);
+                    metricItem.nodeDuration.addAndGet(nodeDuration);
+                    metricItem.wholeDuration.addAndGet(wholeDuration);
+                }
+            } else {
+                metricItem.sendFailCount.incrementAndGet();
+                metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
             }
         }
 
@@ -613,6 +672,15 @@ public class MetaSink extends AbstractSink implements Configurable {
                     tx.rollback();
                 } else {
                     tx.commit();
+                    // metric
+                    if (event.getHeaders().containsKey(TOPIC)) {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(TOPIC));
+                    } else {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
+                    }
+                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+                    metricItem.readFailCount.incrementAndGet();
+                    metricItem.readFailSize.addAndGet(event.getBody().length);
                 }
             } else {
 
@@ -712,7 +780,7 @@ public class MetaSink extends AbstractSink implements Configurable {
         sinkThreadPool = new Thread[threadNum];
         eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
 
-        diskIORatePerSec = context.getLong("disk-io-rate-per-sec", 0L);
+        diskIORatePerSec = context.getLong(KEY_DISK_IO_RATE_PER_SEC, 0L);
         if (diskIORatePerSec != 0) {
             diskRateLimiter = RateLimiter.create(diskIORatePerSec);
         }
@@ -728,4 +796,13 @@ public class MetaSink extends AbstractSink implements Configurable {
         recoverthreadcount = context.getInteger(ConfigConstants.RECOVER_THREAD_COUNT,
                 Runtime.getRuntime().availableProcessors() + 1);
     }
+
+    /**
+     * get metricItemSet
+     * @return the metricItemSet
+     */
+    public DataProxyMetricItemSet getMetricItemSet() {
+        return metricItemSet;
+    }
+    
 }

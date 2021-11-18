@@ -54,6 +54,7 @@ import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.commons.config.IDataProxyConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+import org.apache.inlong.dataproxy.metrics.MetricObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -385,6 +386,10 @@ public class Application {
                     application.handleConfigurationEvent(configurationProvider.getConfiguration());
                 }
             }
+            //metrics
+            MetricObserver.init(ConfigManager.getInstance().getCommonProperties());
+            
+            //start application
             application.start();
 
             final Application appReference = application;

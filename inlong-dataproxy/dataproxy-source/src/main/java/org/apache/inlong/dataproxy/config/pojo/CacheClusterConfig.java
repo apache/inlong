@@ -15,50 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.commons.config.metrics.set;
+package org.apache.inlong.dataproxy.config.pojo;
 
-import org.apache.inlong.commons.config.metrics.MetricItemSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
- * DataProxyMetricItemSet
+ * CacheClusterConfig
  */
-public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
+public class CacheClusterConfig {
 
-    private static DataProxyMetricItemSet instance;
+    private String clusterName;
+    private Map<String, String> params = new HashMap<>();
 
     /**
-     * Constructor
+     * get clusterName
+     * 
+     * @return the clusterName
      */
-    private DataProxyMetricItemSet() {
-        super("DataProxy");
+    public String getClusterName() {
+        return clusterName;
     }
 
     /**
-     * getInstance
+     * set clusterName
      * 
-     * @return
+     * @param clusterName the clusterName to set
      */
-    public static DataProxyMetricItemSet getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        synchronized (DataProxyMetricItemSet.class) {
-            if (instance == null) {
-                instance = new DataProxyMetricItemSet();
-            }
-        }
-        return instance;
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
     /**
-     * createItem
+     * get params
      * 
-     * @return
+     * @return the params
      */
-    @Override
-    protected DataProxyMetricItem createItem() {
-        return new DataProxyMetricItem();
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    /**
+     * set params
+     * 
+     * @param params the params to set
+     */
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
 }

@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -40,6 +41,7 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
     private static final int DEFAULT_READ_IDLE_TIME = 70 * 60 * 1000;
+    private AbstractSource source;
     private ChannelProcessor processor;
     private ChannelGroup allChannels;
     private ExecutionHandler executionHandler;
@@ -71,12 +73,13 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
      * @param isCompressed
      * @param name
      */
-    public ServerMessageFactory(ChannelProcessor processor,
+    public ServerMessageFactory(AbstractSource source,
                                 ChannelGroup allChannels, String protocol, ServiceDecoder serProcessor,
                                 String messageHandlerName, Integer maxMsgLength,
                                 String topic, String attr, Boolean filterEmptyMsg, Integer maxCons,
                                 Boolean isCompressed, String name) {
-        this.processor = processor;
+        this.source = source;
+        this.processor = source.getChannelProcessor();
         this.allChannels = allChannels;
         this.topic = topic;
         this.attr = attr;
@@ -124,12 +127,12 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
                         .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(
-                        ChannelProcessor.class, ServiceDecoder.class, ChannelGroup.class,
+                        AbstractSource.class, ServiceDecoder.class, ChannelGroup.class,
                         String.class, String.class, Boolean.class, Integer.class,
                         Integer.class, Boolean.class, String.class);
 
                 SimpleChannelHandler messageHandler = (SimpleChannelHandler) ctor
-                        .newInstance(processor, serviceProcessor, allChannels, topic, attr,
+                        .newInstance(source, serviceProcessor, allChannels, topic, attr,
                                 filterEmptyMsg, maxMsgLength, maxConnections, isCompressed, protocolType
                         );
 

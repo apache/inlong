@@ -61,8 +61,8 @@ public class MetricRegister {
     public static void register(MetricItemSet<? extends MetricItem> obj) {
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricUtils.getDomain(obj.getClass())).append(MetricItemMBean.DOMAIN_SEPARATOR).append("type=")
-                .append(obj.getClass().toString());
+        beanName.append(MetricUtils.getDomain(obj.getClass())).append(MetricItemMBean.DOMAIN_SEPARATOR).append("name=")
+                .append(obj.getName());
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);

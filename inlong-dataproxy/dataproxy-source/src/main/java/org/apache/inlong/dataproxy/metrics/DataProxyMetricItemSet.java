@@ -15,40 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.commons.config.metrics.set;
+package org.apache.inlong.dataproxy.metrics;
 
+import org.apache.inlong.commons.config.metrics.MetricDomain;
 import org.apache.inlong.commons.config.metrics.MetricItemSet;
 
 /**
  * 
- * DataProxyMetricItemSet
+ * MetaSinkMetricItemSet
  */
+@MetricDomain(name = "DataProxy")
 public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
-
-    private static DataProxyMetricItemSet instance;
 
     /**
      * Constructor
-     */
-    private DataProxyMetricItemSet() {
-        super("DataProxy");
-    }
-
-    /**
-     * getInstance
      * 
-     * @return
+     * @param name
      */
-    public static DataProxyMetricItemSet getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        synchronized (DataProxyMetricItemSet.class) {
-            if (instance == null) {
-                instance = new DataProxyMetricItemSet();
-            }
-        }
-        return instance;
+    public DataProxyMetricItemSet(String name) {
+        super(name);
     }
 
     /**

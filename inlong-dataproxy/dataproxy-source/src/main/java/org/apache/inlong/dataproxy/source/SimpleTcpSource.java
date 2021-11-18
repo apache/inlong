@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import com.google.common.base.Preconditions;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -37,12 +35,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
-import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.dataproxy.base.NamedThreadFactory;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -54,6 +53,8 @@ import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Simple tcp source
@@ -92,6 +93,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     protected boolean filterEmptyMsg;
 
     private Channel nettyChannel = null;
+    //
+    private DataProxyMetricItemSet metricItemSet;
 
     public SimpleTcpSource() {
         super();
@@ -190,6 +193,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     @Override
     public synchronized void start() {
         logger.info("start " + this.getName());
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
         super.start();
@@ -222,13 +227,13 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
                     (Class<? extends ChannelPipelineFactory>) Class.forName(msgFactoryName);
 
             Constructor ctor =
-                    clazz.getConstructor(ChannelProcessor.class, ChannelGroup.class,
+                    clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
                             String.class, ServiceDecoder.class, String.class,
                             Integer.class, String.class, String.class, Boolean.class,
                             Integer.class, Boolean.class, String.class);
 
-            logger.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
-            fac = (ChannelPipelineFactory) ctor.newInstance(getChannelProcessor(), allChannels,
+            logger.info("Using channel processor:{}", this.getClass().getName());
+            fac = (ChannelPipelineFactory) ctor.newInstance(this, allChannels,
                     "tcp", serviceDecoder, messageHandlerName,
                     maxMsgLength, topic, attr, filterEmptyMsg, maxConnections, isCompressed, this.getName());
 
@@ -366,5 +371,13 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
                 (maxMsgLength >= 4 && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
                 "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
         isCompressed = context.getBoolean(ConfigConstants.MSG_COMPRESSED, true);
+    }
+
+    /**
+     * get metricItemSet
+     * @return the metricItemSet
+     */
+    public DataProxyMetricItemSet getMetricItemSet() {
+        return metricItemSet;
     }
 }
