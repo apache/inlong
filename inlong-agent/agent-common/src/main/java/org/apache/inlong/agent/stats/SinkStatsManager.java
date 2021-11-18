@@ -21,20 +21,17 @@ package org.apache.inlong.agent.stats;
 
 import io.prometheus.client.Counter;
 
-/**
- * @author: Yuanhao Ji
- */
 public class SinkStatsManager {
 
     private static final Counter SINK_SUCCESS_COUNT = Counter.build()
-            .name("inlong_agent_sink_success_count").
-            help("The sink success message count in agent source since agent started.").
-            register();
+            .name("inlong_agent_sink_success_count")
+            .help("The sink success message count in agent source since agent started.")
+            .register();
 
     private static final Counter SINK_FAIL_COUNT = Counter.build()
-            .name("inlong_agent_sink_fail_count").
-            help("The sink failed message count in agent source since agent started.").
-            register();
+            .name("inlong_agent_sink_fail_count")
+            .help("The sink failed message count in agent source since agent started.")
+            .register();
 
     /**
      * Count the sink success message count in agent source since agent started.

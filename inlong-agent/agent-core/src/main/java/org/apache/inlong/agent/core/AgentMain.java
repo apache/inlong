@@ -126,7 +126,8 @@ public class AgentMain {
             stopManagerIfKilled(manager);
 
             // starting metrics server
-            int metricsServerPort = AgentConfiguration.getAgentConf().getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
+            int metricsServerPort = AgentConfiguration.getAgentConf()
+                    .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
             LOGGER.info("Starting prometheus metrics server on port {}", metricsServerPort);
             metricsServer = new HTTPServer(metricsServerPort);
 

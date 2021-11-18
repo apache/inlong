@@ -21,20 +21,17 @@ package org.apache.inlong.agent.stats;
 
 import io.prometheus.client.Counter;
 
-/**
- * @author: Yuanhao Ji
- */
 public class SourceStatsManager {
 
     private static final Counter SOURCE_SUCCESS_COUNT = Counter.build()
-            .name("inlong_agent_source_success_count").
-            help("The success message count in agent source since agent started.").
-            register();
+            .name("inlong_agent_source_success_count")
+            .help("The success message count in agent source since agent started.")
+            .register();
 
     private static final Counter SOURCE_FAIL_COUNT = Counter.build()
-            .name("inlong_agent_source_fail_count").
-            help("The failed message count in agent source since agent started.").
-            register();
+            .name("inlong_agent_source_fail_count")
+            .help("The failed message count in agent source since agent started.")
+            .register();
 
     /**
      * Count the source success message count in agent source since agent started.
