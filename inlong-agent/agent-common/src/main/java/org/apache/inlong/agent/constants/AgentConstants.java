@@ -160,4 +160,7 @@ public class AgentConstants {
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
+    public static final String PROMETHEUS_EXPORTER_PORT = "agent.prometheus.exporter.port";
+    public static final int DEFAULT_PROMETHEUS_EXPORTER_PORT = 8080;
+
 }
