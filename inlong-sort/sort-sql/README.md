@@ -2,7 +2,7 @@
 # Description
 
 ## overview
-Inlong-sort is used to extract data from different source systems, then transforms the data and finally loads the data into different storage systems.
+Inlong-sort-sql is used to extract data from different source systems, then transforms the data and finally loads the data into different storage systems.
 
 ## features
 ### isolation
