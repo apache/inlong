@@ -25,23 +25,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.junit.Test;
 
 public class RmtDataCacheTest {
 
     @Test
     public void testRmtDataCache() {
-        FlowCtrlRuleHandler groupFlowCtrlRuleHandler = new FlowCtrlRuleHandler(false);
-        FlowCtrlRuleHandler defFlowCtrlRuleHandler = new FlowCtrlRuleHandler(true);
         List<Partition> partitions = new ArrayList<>();
         BrokerInfo brokerInfo = new BrokerInfo(1, "127.0.0.1", 18080);
         Partition expectPartition = new Partition(brokerInfo, "test", 1);
         partitions.add(expectPartition);
+        String masterAddrInfo = "127.0.0.1:8069";
+        String consumerGroup = "testGroup";
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterAddrInfo, consumerGroup);
 
-        RmtDataCache cache = new RmtDataCache(defFlowCtrlRuleHandler, groupFlowCtrlRuleHandler, partitions);
+        RmtDataCache cache = new RmtDataCache(consumerConfig, partitions);
         List<Partition> brokerPartitions = cache.getBrokerPartitionList(brokerInfo);
         assertEquals(1, brokerPartitions.size());
         assertEquals(expectPartition.getPartitionId(), brokerPartitions.get(0).getPartitionId());

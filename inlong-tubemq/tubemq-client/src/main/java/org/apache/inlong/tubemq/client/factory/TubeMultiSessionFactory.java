@@ -88,6 +88,9 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
     @Override
     public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
-        return null;
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
+        return this.baseSessionFactory.createBalanceConsumer(consumerConfig);
     }
 }

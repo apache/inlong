@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
@@ -62,6 +63,19 @@ public class ClientSubInfo {
 
     public TopicProcessor getTopicProcessor(String topic) {
         return this.topicCondRegistry.get(topic);
+    }
+
+    public void storeConsumeTarget(Map<String, TreeSet<String>> consumeTarget) {
+        TopicProcessor topicProcessor;
+        for (Map.Entry<String, TreeSet<String>> entry : consumeTarget.entrySet()) {
+            topicProcessor = new TopicProcessor(null, entry.getValue());
+            this.topicCondRegistry.put(entry.getKey(), topicProcessor);
+            this.subscribedTopics.add(entry.getKey());
+            this.topicFilterMap.put(entry.getKey(),
+                    (!(entry.getValue() == null || entry.getValue().isEmpty())));
+        }
+        this.requireBound = false;
+        this.subscribedTime = System.currentTimeMillis();
     }
 
     public TopicProcessor putIfAbsentTopicProcessor(String topic,

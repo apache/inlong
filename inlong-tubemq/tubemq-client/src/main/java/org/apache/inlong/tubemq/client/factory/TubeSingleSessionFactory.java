@@ -104,7 +104,10 @@ public class TubeSingleSessionFactory implements MessageSessionFactory {
     @Override
     public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
             throws TubeClientException {
-        return null;
+        if (isShutDown.get()) {
+            throw new TubeClientException("Please initialize the object first!");
+        }
+        return baseSessionFactory.createBalanceConsumer(consumerConfig);
     }
 
     public NettyClientFactory getRpcServiceFactory() {
