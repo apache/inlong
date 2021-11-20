@@ -107,6 +107,28 @@ CREATE TABLE `business`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Business table';
 
 -- ----------------------------
+-- Table structure for business_pulsar
+-- ----------------------------
+DROP TABLE IF EXISTS `business_pulsar`;
+CREATE TABLE `business_pulsar`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`     varchar(128) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
+    `ensemble`            int(3)      DEFAULT NULL COMMENT 'The writable nodes number of leader',
+    `write_quorum`        int(3)      DEFAULT NULL COMMENT 'The copies number of leader',
+    `ack_quorum`          int(3)      DEFAULT NULL COMMENT 'The number of requested acks',
+    `retention_time`      int(11)     DEFAULT NULL COMMENT 'Message storage time',
+    `retention_time_unit` char(20)    DEFAULT NULL COMMENT 'The unit of the message storage time',
+    `ttl`                 int(11)     DEFAULT NULL COMMENT 'Message time-to-live duration',
+    `ttl_unit`            varchar(20) DEFAULT NULL COMMENT 'The unit of time-to-live duration',
+    `retention_size`      int(11)     DEFAULT NULL COMMENT 'Message size',
+    `retention_size_unit` varchar(20) DEFAULT NULL COMMENT 'The unit of message size',
+    `is_deleted`          tinyint(1)  DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar info table';
+
+-- ----------------------------
 -- Table structure for business_ext
 -- ----------------------------
 DROP TABLE IF EXISTS `business_ext`;

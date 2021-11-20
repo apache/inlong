@@ -37,13 +37,16 @@ import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessListVO;
 import org.apache.inlong.manager.common.pojo.business.BusinessPageRequest;
+import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessTopicVO;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.BusinessExtEntity;
+import org.apache.inlong.manager.dao.entity.BusinessPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.BusinessExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.BusinessPulsarEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.slf4j.Logger;
@@ -59,7 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class BusinessServiceImpl implements BusinessService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessServiceImpl.class);
-
+    @Autowired
+    BusinessPulsarEntityMapper businessPulsarMapper;
     @Autowired
     private BusinessEntityMapper businessMapper;
     @Autowired
@@ -96,13 +100,46 @@ public class BusinessServiceImpl implements BusinessService {
 
         // After saving, the status is set to [BIZ_WAIT_SUBMIT]
         entity.setStatus(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
-
+        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
         entity.setCreateTime(new Date());
         businessMapper.insertSelective(entity);
-
         this.saveExt(groupId, businessInfo.getExtList());
+
+        if (BizConstant.MIDDLEWARE_PULSAR.equals(businessInfo.getMiddlewareType())) {
+            BusinessPulsarInfo pulsarInfo = (BusinessPulsarInfo) businessInfo.getMqExtInfo();
+            Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
+
+            // Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble
+            Integer ackQuorum = pulsarInfo.getAckQuorum();
+            Integer writeQuorum = pulsarInfo.getWriteQuorum();
+
+            Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
+            Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
+
+            if (!(ackQuorum <= writeQuorum)) {
+                throw new BusinessException(BizErrorCodeEnum.BUSINESS_SAVE_FAILED,
+                        "Pulsar params must meet: ackQuorum <= writeQuorum");
+            }
+            // The default value of ensemble is writeQuorum
+            pulsarInfo.setEnsemble(writeQuorum);
+
+            // Pulsar entity may already exist, such as unsuccessfully deleted, or modify the business MQ type to Tube,
+            // need to delete and add the Pulsar entity with the same group id
+            BusinessPulsarEntity pulsarEntity = businessPulsarMapper.selectByGroupId(groupId);
+            if (pulsarEntity == null) {
+                pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, BusinessPulsarEntity::new);
+                pulsarEntity.setIsDeleted(0);
+                pulsarEntity.setInlongGroupId(groupId);
+                businessPulsarMapper.insertSelective(pulsarEntity);
+            } else {
+                Integer id = pulsarEntity.getId();
+                pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, BusinessPulsarEntity::new);
+                pulsarEntity.setId(id);
+                businessPulsarMapper.updateByPrimaryKeySelective(pulsarEntity);
+            }
+        }
 
         LOGGER.info("success to save business info");
         return groupId;
@@ -123,6 +160,25 @@ public class BusinessServiceImpl implements BusinessService {
         List<BusinessExtInfo> extInfoList = CommonBeanUtils
                 .copyListProperties(extEntityList, BusinessExtInfo::new);
         businessInfo.setExtList(extInfoList);
+
+        // If the middleware is Pulsar, we need to encapsulate Pulsar related data
+        String middlewareType = entity.getMiddlewareType();
+        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+            BusinessPulsarEntity pulsarEntity = businessPulsarMapper.selectByGroupId(groupId);
+            Preconditions.checkNotNull(pulsarEntity, "Pulsar info not found for the Pulsar business");
+            BusinessPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, BusinessPulsarInfo::new);
+            businessInfo.setMqExtInfo(pulsarInfo);
+        }
+
+        // For approved business, encapsulate the cluster address of the middleware
+        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(businessInfo.getStatus())) {
+            if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
+                businessInfo.setTubeMaster(clusterBean.getTubeMaster());
+            } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+                businessInfo.setPulsarAdmin(clusterBean.getPulsarAdmin());
+                businessInfo.setPulsarService(clusterBean.getPulsarService());
+            }
+        }
 
         LOGGER.info("success to get business info");
         return businessInfo;
@@ -169,6 +225,20 @@ public class BusinessServiceImpl implements BusinessService {
 
         // Save extended information
         this.updateExt(groupId, businessInfo.getExtList());
+
+        // Update the Pulsar info
+        if (BizConstant.MIDDLEWARE_PULSAR.equals(businessInfo.getMiddlewareType())) {
+            BusinessPulsarInfo pulsarInfo = (BusinessPulsarInfo) businessInfo.getMqExtInfo();
+            Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
+            Integer writeQuorum = pulsarInfo.getWriteQuorum();
+            Integer ackQuorum = pulsarInfo.getAckQuorum();
+            if (!(ackQuorum <= writeQuorum)) {
+                throw new BusinessException(BizErrorCodeEnum.BUSINESS_SAVE_FAILED,
+                        "Pulsar params must meet: ackQuorum <= writeQuorum");
+            }
+            BusinessPulsarEntity pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, BusinessPulsarEntity::new);
+            businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
+        }
 
         LOGGER.info("success to update business info");
         return groupId;
@@ -262,8 +332,10 @@ public class BusinessServiceImpl implements BusinessService {
         businessMapper.updateByIdentifierSelective(entity);
 
         // To logically delete the associated extension table
-        LOGGER.debug("begin to delete business ext property, groupId={}", groupId);
         businessExtMapper.logicDeleteAllByGroupId(groupId);
+
+        // To logically delete the associated pulsar table
+        businessPulsarMapper.logicDeleteByGroupId(groupId);
 
         LOGGER.info("success to delete business and business ext property");
         return true;
@@ -309,12 +381,17 @@ public class BusinessServiceImpl implements BusinessService {
         String middlewareType = businessInfo.getMiddlewareType();
         BusinessTopicVO topicVO = new BusinessTopicVO();
 
-        if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(middlewareType)) {
+        if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
             // Tube Topic corresponds to business one-to-one
             topicVO.setTopicName(businessInfo.getMqResourceObj());
-            topicVO.setMasterUrl(clusterBean.getTubeMaster());
+            topicVO.setTubeMasterUrl(clusterBean.getTubeMaster());
+        } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+            // Pulsar's topic corresponds to the data stream one-to-one
+            topicVO.setDsTopicList(streamService.getTopicList(groupId));
+            topicVO.setPulsarAdminUrl(clusterBean.getPulsarAdmin());
+            topicVO.setPulsarServiceUrl(clusterBean.getPulsarService());
         } else {
-            LOGGER.error("middlewareType={} not supported", middlewareType);
+            LOGGER.error("middleware type={} not supported", middlewareType);
             throw new BusinessException(BizErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
         }
 
@@ -332,13 +409,51 @@ public class BusinessServiceImpl implements BusinessService {
         Preconditions.checkNotNull(approveInfo, "BusinessApproveInfo is empty");
         String groupId = approveInfo.getInlongGroupId();
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        String middlewareType = approveInfo.getMiddlewareType();
+        Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 
         // Update status to [BIZ_CONFIG_ING]
         // If you need to change business info after approve, just do in here
         this.updateStatus(groupId, EntityStatus.BIZ_CONFIG_ING.getCode(), operator);
 
+        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+            BusinessPulsarEntity pulsarEntity = checkAndGetEntity(approveInfo);
+            businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
+        }
+
         LOGGER.info("success to update business status after approve");
         return true;
+    }
+
+    /**
+     * Check whether the Pulsar parameters filled in during approval are valid,
+     * if valid, return to the encapsulated entity
+     */
+    private BusinessPulsarEntity checkAndGetEntity(BusinessApproveInfo approveInfo) {
+        // Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble
+        Integer ackQuorum = approveInfo.getAckQuorum();
+        Integer writeQuorum = approveInfo.getWriteQuorum();
+        Integer ensemble = approveInfo.getEnsemble();
+        Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
+        Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
+        Preconditions.checkNotNull(ensemble, "Pulsar ensemble cannot be empty");
+        if (!(ackQuorum <= writeQuorum && writeQuorum <= ensemble)) {
+            throw new BusinessException(BizErrorCodeEnum.BUSINESS_SAVE_FAILED,
+                    "Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble");
+        }
+
+        Preconditions.checkTrue(approveInfo.getTopicPartitionNum() != null
+                        && approveInfo.getTopicPartitionNum() >= 1 && approveInfo.getTopicPartitionNum() <= 20,
+                "topic partition num must meet >= 1 and <= 20");
+
+        Preconditions.checkTrue(approveInfo.getTtl() != null && approveInfo.getTtlUnit() != null,
+                "retention size and unit cannot be empty");
+        Preconditions.checkTrue(approveInfo.getRetentionSize() != null && approveInfo.getRetentionSizeUnit() != null,
+                "retention size and unit cannot be empty");
+        Preconditions.checkTrue(approveInfo.getRetentionTime() != null && approveInfo.getRetentionTimeUnit() != null,
+                "retention size and unit cannot be empty");
+
+        return CommonBeanUtils.copyProperties(approveInfo, BusinessPulsarEntity::new);
     }
 
     /**

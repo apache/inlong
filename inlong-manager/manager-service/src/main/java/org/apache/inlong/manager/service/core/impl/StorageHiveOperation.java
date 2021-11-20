@@ -104,7 +104,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
         // Save field information
         this.saveHiveFieldOpt(id, hiveInfo.getHiveFieldList());
         // Save extended information
-        String storageType = BizConstant.STORAGE_TYPE_HIVE;
+        String storageType = BizConstant.STORAGE_HIVE;
         this.saveExtOpt(storageType, id, hiveInfo.getExtList());
 
         return id;
@@ -127,8 +127,8 @@ public class StorageHiveOperation extends StorageBaseOperation {
             String storageType;
             List<StorageExtEntity> extEntities;
 
-            storageType = BizConstant.STORAGE_TYPE_HIVE;
-            extEntities = storageExtMapper.selectByStorageTypeAndId(BizConstant.STORAGE_TYPE_HIVE, storageId);
+            storageType = BizConstant.STORAGE_HIVE;
+            extEntities = storageExtMapper.selectByStorageTypeAndId(BizConstant.STORAGE_HIVE, storageId);
 
             List<StorageHiveFieldEntity> fieldEntityList = hiveFieldMapper.selectByStorageId(storageId);
             List<StorageHiveFieldInfo> fieldInfoList = CommonBeanUtils
@@ -232,7 +232,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
         }
 
         StorageHiveInfo hiveInfo = CommonBeanUtils.copyProperties(entity, StorageHiveInfo::new);
-        String storageType = BizConstant.STORAGE_TYPE_HIVE;
+        String storageType = BizConstant.STORAGE_HIVE;
         List<StorageExtEntity> extEntityList = storageExtMapper.selectByStorageTypeAndId(storageType, id);
         List<StorageExtInfo> extInfoList = CommonBeanUtils.copyListProperties(extEntityList, StorageExtInfo::new);
         hiveInfo.setExtList(extInfoList);

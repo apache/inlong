@@ -171,6 +171,14 @@
             and is_deleted = 0
         </where>
     </select>
+    <select id="selectTopicList" resultType="org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO">
+        select inlong_stream_id, mq_resource_obj
+        from data_stream
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete

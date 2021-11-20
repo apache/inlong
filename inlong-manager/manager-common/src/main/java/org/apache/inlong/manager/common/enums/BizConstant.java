@@ -22,19 +22,21 @@ package org.apache.inlong.manager.common.enums;
  */
 public class BizConstant {
 
-    public static final String STORAGE_TYPE_HIVE = "HIVE";
+    public static final String STORAGE_HIVE = "HIVE";
 
-    public static final String DATA_SOURCE_TYPE_DB = "DB";
+    public static final String DATA_SOURCE_DB = "DB";
 
-    public static final String DATA_SOURCE_TYPE_FILE = "FILE";
+    public static final String DATA_SOURCE_FILE = "FILE";
 
-    public static final String DATA_SOURCE_TYPE_AUTO_PUSH = "AUTO_PUSH";
+    public static final String DATA_SOURCE_AUTO_PUSH = "AUTO_PUSH";
 
     public static final String DATA_TYPE_TEXT = "TEXT";
 
     public static final String DATA_TYPE_KEY_VALUE = "KEY-VALUE";
 
-    public static final String MIDDLEWARE_TYPE_TUBE = "TUBE";
+    public static final String MIDDLEWARE_TUBE = "TUBE";
+
+    public static final String MIDDLEWARE_PULSAR = "PULSAR";
 
     public static final String SCHEMA_M0_DAY = "m0_day";
 

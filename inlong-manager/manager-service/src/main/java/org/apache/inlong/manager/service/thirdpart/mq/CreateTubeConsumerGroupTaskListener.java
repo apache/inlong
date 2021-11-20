@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.thirdpart.mq;
 
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.TryBean;
+import org.apache.inlong.manager.common.beans.ReTryConfigBean;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListener {
+public class CreateTubeConsumerGroupTaskListener implements TaskEventListener {
 
     @Autowired
     BusinessService businessService;
@@ -53,7 +53,7 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
     Integer clusterId;
 
     @Autowired
-    TryBean tryBean;
+    ReTryConfigBean reTryConfigBean;
 
     @Override
     public TaskEvent event() {
@@ -77,13 +77,13 @@ public class CreateTubeConsumeGroupTaskEventListener implements TaskEventListene
         // Query whether the tube topic exists
         boolean topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
 
-        Integer tryNumber = tryBean.getMaxAttempts();
-        Long delay = tryBean.getDelay();
+        Integer tryNumber = reTryConfigBean.getMaxAttempts();
+        Long delay = reTryConfigBean.getDelay();
         while (!topicExist && --tryNumber > 0) {
             log.info("check whether the tube topic exists, try count={}", tryNumber);
             try {
                 Thread.sleep(delay);
-                delay *= tryBean.getMultiplier();
+                delay *= reTryConfigBean.getMultiplier();
                 topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
             } catch (InterruptedException e) {
                 log.error("check the tube topic exists error", e);

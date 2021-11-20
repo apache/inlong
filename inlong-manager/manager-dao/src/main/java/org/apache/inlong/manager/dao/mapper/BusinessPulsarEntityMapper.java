@@ -15,38 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.beans;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.apache.inlong.manager.dao.entity.BusinessPulsarEntity;
+import org.springframework.stereotype.Repository;
 
-@Data
-@Component
-public class ClusterBean {
+@Repository
+public interface BusinessPulsarEntityMapper {
 
-    @Value("${cluster.tube.master}")
-    private String tubeMaster;
+    int deleteByPrimaryKey(Integer id);
 
-    @Value("${cluster.tube.manager}")
-    private String tubeManager;
+    int logicDeleteByGroupId(String groupId);
 
-    @Value("${cluster.tube.clusterId}")
-    private Integer clusterId;
+    int insert(BusinessPulsarEntity record);
 
-    @Value("${cluster.zk.url}")
-    private String zkUrl;
+    int insertSelective(BusinessPulsarEntity record);
 
-    @Value("${cluster.zk.root}")
-    private String zkRoot;
+    BusinessPulsarEntity selectByPrimaryKey(Integer id);
 
-    @Value("${sort.appName}")
-    private String appName;
+    BusinessPulsarEntity selectByGroupId(String groupId);
 
-    @Value("${pulsar.admin}")
-    private String pulsarAdmin;
+    int updateByPrimaryKeySelective(BusinessPulsarEntity record);
 
-    @Value("${pulsar.service}")
-    private String pulsarService;
+    int updateByPrimaryKey(BusinessPulsarEntity record);
+
+    int updateByIdentifierSelective(BusinessPulsarEntity record);
 
 }

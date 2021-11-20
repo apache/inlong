@@ -46,6 +46,7 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConf
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -341,10 +342,10 @@ public class DataStreamServiceImpl implements DataStreamService {
      */
     private boolean hasDataSource(String groupId, String streamId, String dataSourceType) {
         boolean exist;
-        if (BizConstant.DATA_SOURCE_TYPE_FILE.equalsIgnoreCase(dataSourceType)) {
+        if (BizConstant.DATA_SOURCE_FILE.equalsIgnoreCase(dataSourceType)) {
             List<SourceFileDetailInfo> fileDetailList = sourceFileService.listDetailByIdentifier(groupId, streamId);
             exist = CollectionUtils.isNotEmpty(fileDetailList);
-        } else if (BizConstant.DATA_SOURCE_TYPE_DB.equalsIgnoreCase(dataSourceType)) {
+        } else if (BizConstant.DATA_SOURCE_DB.equalsIgnoreCase(dataSourceType)) {
             List<SourceDbDetailInfo> dbDetailList = sourceDbService.listDetailByIdentifier(groupId, streamId);
             exist = CollectionUtils.isNotEmpty(dbDetailList);
         } else {
@@ -500,21 +501,21 @@ public class DataStreamServiceImpl implements DataStreamService {
                 continue;
             }
             switch (dataSourceType.toUpperCase(Locale.ROOT)) {
-                case BizConstant.DATA_SOURCE_TYPE_FILE:
+                case BizConstant.DATA_SOURCE_FILE:
                     SourceFileBasicInfo fileBasicInfo = sourceFileService.getBasicByIdentifier(groupId, streamId);
                     pageInfo.setFileBasicInfo(fileBasicInfo);
                     List<SourceFileDetailInfo> fileDetailInfoList = sourceFileService.listDetailByIdentifier(groupId,
                             streamId);
                     pageInfo.setFileDetailInfoList(fileDetailInfoList);
                     break;
-                case BizConstant.DATA_SOURCE_TYPE_DB:
+                case BizConstant.DATA_SOURCE_DB:
                     SourceDbBasicInfo dbBasicInfo = sourceDbService.getBasicByIdentifier(groupId, streamId);
                     pageInfo.setDbBasicInfo(dbBasicInfo);
                     List<SourceDbDetailInfo> dbDetailInfoList = sourceDbService.listDetailByIdentifier(groupId,
                             streamId);
                     pageInfo.setDbDetailInfoList(dbDetailInfoList);
                     break;
-                case BizConstant.DATA_SOURCE_TYPE_AUTO_PUSH:
+                case BizConstant.DATA_SOURCE_AUTO_PUSH:
                     break;
                 default:
                     throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_TYPE_NOT_SUPPORTED);
@@ -573,6 +574,16 @@ public class DataStreamServiceImpl implements DataStreamService {
         int count = streamMapper.selectCountByGroupId(groupId);
         LOGGER.info("success to get count");
         return count;
+    }
+
+    @Override
+    public List<DataStreamTopicVO> getTopicList(String groupId) {
+        LOGGER.debug("begin bo get topic list by group id={}", groupId);
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+
+        List<DataStreamTopicVO> topicList = streamMapper.selectTopicList(groupId);
+        LOGGER.debug("success to get topic list");
+        return topicList;
     }
 
     @Override

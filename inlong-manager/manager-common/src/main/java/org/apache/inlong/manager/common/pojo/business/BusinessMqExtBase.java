@@ -17,39 +17,35 @@
 
 package org.apache.inlong.manager.common.pojo.business;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
+import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
- * Topic View Object of the Business
+ * Extended business information of different MQs
  */
 @Data
-@ApiModel("Topic View Object of the Business")
-public class BusinessTopicVO {
+@ApiModel("Extended business information of different MQs")
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = BusinessMqExtBase.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = BusinessPulsarInfo.class, name = BizConstant.MIDDLEWARE_PULSAR)
+})
+public class BusinessMqExtBase {
+
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
     @ApiModelProperty(value = "Business group id", required = true)
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
+    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
+    private Integer isDeleted = 0;
+
+    @ApiModelProperty(value = "Middleware type of data storage, high throughput: TUBE")
     private String middlewareType;
-
-    @ApiModelProperty(value = "Tube topic name")
-    private String topicName;
-
-    @ApiModelProperty(value = "Topic list, Tube corresponds to business group, there is only 1 topic, "
-            + "Pulsar corresponds to data stream, there are multiple topics")
-    private List<DataStreamTopicVO> dsTopicList;
-
-    @ApiModelProperty(value = "Tube master URL")
-    private String tubeMasterUrl;
-
-    @ApiModelProperty(value = "Pulsar service URL")
-    private String pulsarServiceUrl;
-
-    @ApiModelProperty(value = "Pulsar admin URL")
-    private String pulsarAdminUrl;
 
 }

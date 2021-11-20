@@ -78,7 +78,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
         int id;
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             id = hiveOperation.saveHiveStorage(storageInfo, operator);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -102,7 +102,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
         BaseStorageInfo storageInfo;
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             storageInfo = hiveOperation.getHiveStorage(id);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -165,7 +165,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
         PageInfo<? extends BaseStorageListVO> page;
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             page = hiveOperation.getHiveStorageList(request);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -195,7 +195,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         String storageType = storageInfo.getStorageType();
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             hiveOperation.updateHiveStorage(businessEntity.getStatus(), storageInfo, operator);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -219,7 +219,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
         boolean result;
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             result = hiveOperation.logicDeleteHiveStorage(id, operator);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -280,7 +280,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
             return resultList;
         }
 
-        if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+        if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             resultList = hiveStorageMapper.selectDataStreamExists(groupId, streamIdList);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
@@ -301,7 +301,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         }
 
         if (hiveStorageMapper.selectCountByIdentifier(groupId, streamId) > 0) {
-            resultList.add(BizConstant.STORAGE_TYPE_HIVE);
+            resultList.add(BizConstant.STORAGE_HIVE);
         }
 
         LOGGER.info("success to get storage type list");
@@ -322,7 +322,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
             String storageType = info.getStorageType();
             Preconditions.checkNotNull(storageType, "storageType is empty");
 
-            if (BizConstant.STORAGE_TYPE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
+            if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
                 StorageHiveEntity hiveEntity = new StorageHiveEntity();
                 hiveEntity.setId(info.getId());
                 hiveEntity.setModifier(operator);

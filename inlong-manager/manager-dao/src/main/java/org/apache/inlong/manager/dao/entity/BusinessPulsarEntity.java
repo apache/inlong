@@ -15,30 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.beans;
+package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 @Data
-@Component
-public class TryBean {
+public class BusinessPulsarEntity implements Serializable {
 
-    /**
-     * Maximum number of attempts
-     */
-    private Integer maxAttempts = 3;
-    /**
-     * The first delay time, in milliseconds
-     */
-    private Long delay = 30000L;
-    /**
-     * The max delay time, in milliseconds
-     */
-    private Long maxDelay = 300000L;
-    /**
-     * Delay time increase factor
-     */
-    private Integer multiplier = 2;
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String inlongGroupId;
+    private Integer ensemble;
+    private Integer writeQuorum;
+    private Integer ackQuorum;
+    private Integer retentionTime;
+    private String retentionTimeUnit;
+    private Integer ttl;
+    private String ttlUnit;
+    private Integer retentionSize;
+    private String retentionSizeUnit;
+    private Integer isDeleted;
 
 }

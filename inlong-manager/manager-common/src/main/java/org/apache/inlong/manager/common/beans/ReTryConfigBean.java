@@ -18,35 +18,27 @@
 package org.apache.inlong.manager.common.beans;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class ClusterBean {
+public class ReTryConfigBean {
 
-    @Value("${cluster.tube.master}")
-    private String tubeMaster;
-
-    @Value("${cluster.tube.manager}")
-    private String tubeManager;
-
-    @Value("${cluster.tube.clusterId}")
-    private Integer clusterId;
-
-    @Value("${cluster.zk.url}")
-    private String zkUrl;
-
-    @Value("${cluster.zk.root}")
-    private String zkRoot;
-
-    @Value("${sort.appName}")
-    private String appName;
-
-    @Value("${pulsar.admin}")
-    private String pulsarAdmin;
-
-    @Value("${pulsar.service}")
-    private String pulsarService;
+    /**
+     * Maximum number of attempts
+     */
+    private Integer maxAttempts = 3;
+    /**
+     * The first delay time, in milliseconds
+     */
+    private Long delay = 30000L;
+    /**
+     * The max delay time, in milliseconds
+     */
+    private Long maxDelay = 300000L;
+    /**
+     * Delay time increase factor
+     */
+    private Integer multiplier = 2;
 
 }

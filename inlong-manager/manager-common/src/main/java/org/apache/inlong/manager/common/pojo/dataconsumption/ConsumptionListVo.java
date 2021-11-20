@@ -50,7 +50,7 @@ public class ConsumptionListVo {
     @ApiModelProperty(value = "Consumption target business group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "The middleware type of data storage, high throughput: TUBE")
+    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     private String middlewareType;
 
     @ApiModelProperty(value = "Consumption target TOPIC")

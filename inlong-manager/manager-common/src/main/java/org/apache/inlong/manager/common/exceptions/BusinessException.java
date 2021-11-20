@@ -31,6 +31,10 @@ public class BusinessException extends BaseException {
         super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
     }
 
+    public BusinessException(String message) {
+        super(message);
+    }
+
     public BusinessException(BizErrorCodeEnum errorCodeEnum, String message) {
         super(errorCodeEnum.getCode(), message);
     }
