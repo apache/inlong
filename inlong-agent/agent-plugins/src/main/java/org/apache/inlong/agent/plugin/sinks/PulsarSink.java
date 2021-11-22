@@ -72,7 +72,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     private LinkedBlockingQueue<byte[]> cache;
     private final List<Producer<byte[]>> producerList = new ArrayList<>();
 
-    private final PluginMetric metric = new PluginMetric();
+    private final PluginMetric pluginMetricNew = new PluginMetric("AgentPulsarMetric");
     private PulsarClient client;
 
     @Override
@@ -81,7 +81,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
             // if message is not null
             try {
                 // put message to cache, wait until cache is not full.
-                metric.sendNum.incr();
+                pluginMetricNew.sendNum.incrementAndGet();
                 cache.put(message.getBody());
             } catch (Exception ignored) {
                 // ignore it
@@ -116,7 +116,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
         try {
             stop();
             LOGGER.info("send success num is {}, failed num is {}",
-                metric.sendSuccessNum.snapshot(), metric.sendFailedNum.snapshot());
+                pluginMetricNew.sendSuccessNum.get(), pluginMetricNew.sendFailedNum.get());
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         }
@@ -136,12 +136,12 @@ public class PulsarSink extends AbstractDaemon implements Sink {
                 // exception is not null, that means not success.
                 // TODO: add metric or retry sending message.
                 if (t != null) {
-                    metric.sendFailedNum.incr();
+                    pluginMetricNew.sendFailedNum.incrementAndGet();
                     if (!cache.offer(item)) {
                         LOGGER.warn("message {} not add back to retry", m);
                     }
                 } else {
-                    metric.sendSuccessNum.incr();
+                    pluginMetricNew.sendSuccessNum.incrementAndGet();
                 }
             });
         } else {

@@ -120,7 +120,7 @@ public class TaskManager extends AbstractDaemon {
                     LOGGER.warn("reject task {}", wrapper.getTask().getTaskId(), ex);
                 }
             }
-            taskMetrics.runningTasks.incr();
+            taskMetrics.runningTasks.incrementAndGet();
         }
     }
 
@@ -137,7 +137,7 @@ public class TaskManager extends AbstractDaemon {
                 LOGGER.error("cannot submit to retry queue, max {}, current {}", taskMaxCapacity,
                         retryTasks.size());
             } else {
-                taskMetrics.retryingTasks.incr();
+                taskMetrics.retryingTasks.incrementAndGet();
             }
             return success;
         } catch (Exception ex) {
@@ -180,7 +180,7 @@ public class TaskManager extends AbstractDaemon {
      * @param taskId - task id
      */
     public void removeTask(String taskId) {
-        taskMetrics.runningTasks.decr();
+        taskMetrics.runningTasks.decrementAndGet();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
             taskWrapper.waitForFinish();
@@ -224,7 +224,7 @@ public class TaskManager extends AbstractDaemon {
                     while (!retryTasks.isEmpty()) {
                         TaskWrapper taskWrapper = retryTasks.poll();
                         if (taskWrapper != null) {
-                            taskMetrics.retryingTasks.decr();
+                            taskMetrics.retryingTasks.decrementAndGet();
                             submitTask(taskWrapper);
                         }
                     }

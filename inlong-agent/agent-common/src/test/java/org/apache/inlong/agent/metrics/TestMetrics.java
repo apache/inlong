@@ -42,7 +42,7 @@ public class TestMetrics {
     }
 
     @Test
-    public void testMetric() throws Exception {
+    public void testMetric() {
         MetricTest metricTest = MetricTest.getMetrics();
         Assert.assertNotNull(metricTest.counterInt);
         Assert.assertNotNull(metricTest.counterLong);

@@ -18,38 +18,41 @@
 package org.apache.inlong.agent.core.task;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.inlong.agent.metrics.Metric;
-import org.apache.inlong.agent.metrics.Metrics;
-import org.apache.inlong.agent.metrics.MetricsRegister;
-import org.apache.inlong.agent.metrics.counter.CounterLong;
-import org.apache.inlong.agent.metrics.gauge.GaugeInt;
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.commons.config.metrics.CountMetric;
+import org.apache.inlong.commons.config.metrics.Dimension;
+import org.apache.inlong.commons.config.metrics.MetricDomain;
+import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 
 /**
- * Metric collector for task level.
+ * metrics for agent task
  */
-@Metrics
-public class TaskMetrics {
+@MetricDomain(name = "AgentTask")
+public class TaskMetrics extends MetricItem {
 
-    private static final TaskMetrics TASK_METRICS = new TaskMetrics();
+    private static final TaskMetrics JOB_METRICS = new TaskMetrics();
     private static final AtomicBoolean REGISTER_ONCE = new AtomicBoolean(false);
+    public static final String AGENT_TASK = "AgentTaskMetric";
 
-    @Metric
-    GaugeInt runningTasks;
+    @Dimension
+    public String module;
 
-    @Metric
-    GaugeInt retryingTasks;
+    @CountMetric
+    public AtomicLong runningTasks = new AtomicLong(0);
 
-    @Metric
-    CounterLong fatalTasks;
+    @CountMetric
+    public AtomicLong retryingTasks = new AtomicLong(0);
 
-    private TaskMetrics() {
-    }
+    @CountMetric
+    public AtomicLong fatalTasks = new AtomicLong(0);
 
     public static TaskMetrics create() {
         // register one time.
         if (REGISTER_ONCE.compareAndSet(false, true)) {
-            MetricsRegister.register("Task", "StateSummary", null, TASK_METRICS);
+            JOB_METRICS.module = AGENT_TASK;
+            MetricRegister.register(JOB_METRICS);
         }
-        return TASK_METRICS;
+        return JOB_METRICS;
     }
 }

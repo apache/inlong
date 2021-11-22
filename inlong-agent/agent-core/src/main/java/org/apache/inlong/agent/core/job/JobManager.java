@@ -106,7 +106,7 @@ public class JobManager extends AbstractDaemon {
                 LOGGER.warn("{} has been added to running pool, "
                     + "cannot be added repeatedly", job.getJobInstanceId());
             } else {
-                jobMetrics.runningJobs.incr();
+                jobMetrics.runningJobs.incrementAndGet();
             }
         } catch (Exception rje) {
             LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
@@ -199,7 +199,7 @@ public class JobManager extends AbstractDaemon {
     public void markJobAsSuccess(String jobId) {
         JobWrapper wrapper = jobs.remove(jobId);
         if (wrapper != null) {
-            jobMetrics.runningJobs.decr();
+            jobMetrics.runningJobs.decrementAndGet();
             LOGGER.info("job instance {} is success", jobId);
             // mark job as success.
             jobConfDB.updateJobState(jobId, StateSearchKey.SUCCESS);
@@ -210,8 +210,8 @@ public class JobManager extends AbstractDaemon {
         JobWrapper wrapper = jobs.remove(jobId);
         if (wrapper != null) {
             LOGGER.info("job instance {} is failed", jobId);
-            jobMetrics.runningJobs.decr();
-            jobMetrics.fatalJobs.incr();
+            jobMetrics.runningJobs.decrementAndGet();
+            jobMetrics.fatalJobs.incrementAndGet();
             // mark job as success.
             jobConfDB.updateJobState(jobId, StateSearchKey.FAILED);
         }

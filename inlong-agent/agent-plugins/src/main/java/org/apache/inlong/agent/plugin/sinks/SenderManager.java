@@ -83,7 +83,7 @@ public class SenderManager {
     private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
     private final String sourceFilePath;
-    private final PluginMetric metric = new PluginMetric();
+    private final PluginMetric metric = new PluginMetric("AgentSenderManager");
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourceFilePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -194,7 +194,7 @@ public class SenderManager {
                 sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
-            metric.sendSuccessNum.incr(bodyList.size());
+            metric.sendSuccessNum.addAndGet(bodyList.size());
             taskPositionManager.updateFileSinkPosition(jobId, sourceFilePath, bodyList.size());
         }
 

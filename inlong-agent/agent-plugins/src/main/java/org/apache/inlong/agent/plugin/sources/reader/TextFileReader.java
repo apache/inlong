@@ -65,8 +65,7 @@ public class TextFileReader implements Reader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
-        textFileMetric = new PluginMetric();
-        textFileMetric.tagName.setName(file.getAbsolutePath());
+        textFileMetric = new PluginMetric("AgentTextMetric");
     }
 
     public TextFileReader(File file) {
@@ -78,7 +77,7 @@ public class TextFileReader implements Reader {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
             if (validateMessage(message)) {
-                textFileMetric.readNum.incr();
+                textFileMetric.readNum.incrementAndGet();
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -164,6 +163,6 @@ public class TextFileReader implements Reader {
     public void destroy() {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                textFileMetric.tagName.getName(), textFileMetric.readNum.snapshot());
+            textFileMetric.tagName, textFileMetric.readNum.get());
     }
 }

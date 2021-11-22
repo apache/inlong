@@ -17,41 +17,43 @@
 
 package org.apache.inlong.agent.plugin.metrics;
 
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.metrics.Metric;
-import org.apache.inlong.agent.metrics.Metrics;
-import org.apache.inlong.agent.metrics.MetricsRegister;
-import org.apache.inlong.agent.metrics.Tag;
-import org.apache.inlong.agent.metrics.counter.CounterLong;
+import org.apache.inlong.commons.config.metrics.Dimension;
+import org.apache.inlong.commons.config.metrics.MetricDomain;
+import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 
 /**
- * Common plugin metrics
+ * metrics for agent plugin
  */
-@Metrics
-public class PluginMetric {
+@MetricDomain(name = "PluginMetric")
+public class PluginMetric extends MetricItem {
+
+    @Dimension
+    public String tagName;
 
     @Metric
-    public Tag tagName;
+    public AtomicLong readNum = new AtomicLong(0);
 
     @Metric
-    public CounterLong readNum;
+    public AtomicLong sendNum = new AtomicLong(0);
 
     @Metric
-    public CounterLong sendNum;
+    public AtomicLong sendFailedNum = new AtomicLong(0);
 
     @Metric
-    public CounterLong sendFailedNum;
+    public AtomicLong readFailedNum = new AtomicLong(0);
 
     @Metric
-    public CounterLong readFailedNum;
+    public AtomicLong readSuccessNum = new AtomicLong(0);
 
     @Metric
-    public CounterLong readSuccessNum;
+    public AtomicLong sendSuccessNum = new AtomicLong(0);
 
-    @Metric
-    public CounterLong sendSuccessNum;
-
-    public PluginMetric() {
-        // every metric should register, otherwise not working.
-        MetricsRegister.register("Plugin", "PluginSummary", null, this);
+    public PluginMetric(String tagName) {
+        this.tagName = tagName;
+        MetricRegister.register(this);
     }
+
 }
