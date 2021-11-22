@@ -33,7 +33,7 @@ public class MemoryChannel implements Channel {
 
     private LinkedBlockingQueue<Message> queue;
 
-    private final PluginMetric metric = new PluginMetric();
+    private final PluginMetric pluginMetricNew = new PluginMetric("AgentMemoryPlugin");
 
     /**
      * {@inheritDoc}
@@ -42,12 +42,12 @@ public class MemoryChannel implements Channel {
     public void push(Message message) {
         try {
             if (message != null) {
-                metric.readNum.incr();
+                pluginMetricNew.readNum.incrementAndGet();
                 queue.put(message);
-                metric.readSuccessNum.incr();
+                pluginMetricNew.readSuccessNum.incrementAndGet();
             }
         } catch (InterruptedException ex) {
-            metric.readFailedNum.incr();
+            pluginMetricNew.readFailedNum.incrementAndGet();
             Thread.currentThread().interrupt();
         }
     }
@@ -56,17 +56,17 @@ public class MemoryChannel implements Channel {
     public boolean push(Message message, long timeout, TimeUnit unit) {
         try {
             if (message != null) {
-                metric.readNum.incr();
+                pluginMetricNew.readNum.incrementAndGet();
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
-                    metric.readSuccessNum.incr();
+                    pluginMetricNew.readSuccessNum.incrementAndGet();
                 } else {
-                    metric.readFailedNum.incr();
+                    pluginMetricNew.readFailedNum.incrementAndGet();
                 }
                 return result;
             }
         } catch (InterruptedException ex) {
-            metric.readFailedNum.incr();
+            pluginMetricNew.readFailedNum.incrementAndGet();
             Thread.currentThread().interrupt();
         }
         return false;
@@ -80,11 +80,11 @@ public class MemoryChannel implements Channel {
         try {
             Message message = queue.poll(timeout, unit);
             if (message != null) {
-                metric.sendSuccessNum.incr();
+                pluginMetricNew.sendSuccessNum.incrementAndGet();
             }
             return message;
         } catch (InterruptedException ex) {
-            metric.sendFailedNum.incr();
+            pluginMetricNew.sendFailedNum.incrementAndGet();
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ex);
         }
@@ -104,7 +104,8 @@ public class MemoryChannel implements Channel {
         }
         LOGGER.info("destroy channel, memory channel metric, readNum: {}, readSuccessNum: {}, "
             + "readFailedNum: {}, sendSuccessNum: {}, sendFailedNum: {}",
-            metric.readNum.snapshot(), metric.readSuccessNum.snapshot(), metric.readFailedNum.snapshot(),
-            metric.sendSuccessNum.snapshot(), metric.sendFailedNum.snapshot());
+            pluginMetricNew.readNum.get(), pluginMetricNew.readSuccessNum.get(),
+            pluginMetricNew.readFailedNum.get(), pluginMetricNew.sendSuccessNum.get(),
+            pluginMetricNew.sendFailedNum.get());
     }
 }

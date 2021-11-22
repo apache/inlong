@@ -18,29 +18,36 @@
 package org.apache.inlong.agent.core.job;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.inlong.agent.metrics.Metric;
-import org.apache.inlong.agent.metrics.Metrics;
-import org.apache.inlong.agent.metrics.MetricsRegister;
-import org.apache.inlong.agent.metrics.gauge.GaugeInt;
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.commons.config.metrics.CountMetric;
+import org.apache.inlong.commons.config.metrics.Dimension;
+import org.apache.inlong.commons.config.metrics.MetricDomain;
+import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 
-@Metrics
-public class JobMetrics {
+@MetricDomain(name = "AgentJob")
+public class JobMetrics extends MetricItem {
+
     private static final JobMetrics JOB_METRICS = new JobMetrics();
+
     private static final AtomicBoolean REGISTER_ONCE = new AtomicBoolean(false);
+    private static final String AGENT_JOB_METRIC = "AgentJobMetric";
 
-    @Metric
-    GaugeInt runningJobs;
+    @Dimension
+    public String tagName;
 
-    @Metric
-    GaugeInt fatalJobs;
+    @CountMetric
+    public AtomicLong runningJobs = new AtomicLong(0);
 
-    private JobMetrics() {
-    }
+    @CountMetric
+    public AtomicLong fatalJobs = new AtomicLong(0);
 
-    static JobMetrics create() {
+    public static JobMetrics create() {
         if (REGISTER_ONCE.compareAndSet(false, true)) {
-            MetricsRegister.register("Job", "STateSummary", null, JOB_METRICS);
+            JOB_METRICS.tagName = AGENT_JOB_METRIC;
+            MetricRegister.register(JOB_METRICS);
         }
         return JOB_METRICS;
     }
 }
+
