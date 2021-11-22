@@ -91,7 +91,7 @@ CREATE TABLE `business`
     `modifier`        varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`       json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`       text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );
@@ -149,7 +149,7 @@ CREATE TABLE `cluster_info`
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `url`         varchar(256)          DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)            DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `ext_props`   json                  DEFAULT NULL COMMENT 'extended properties',
+    `ext_props`   text                  DEFAULT NULL COMMENT 'extended properties',
     `status`      int(11)               DEFAULT '1' COMMENT 'cluster status',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -258,7 +258,7 @@ CREATE TABLE `data_proxy_cluster`
     `is_inner_ip` tinyint(1)            DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
     `net_type`    varchar(20)           DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
     `in_charges`  varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `ext_props`   json                  DEFAULT NULL COMMENT 'Extended properties',
+    `ext_props`   text                  DEFAULT NULL COMMENT 'Extended properties',
     `status`      int(11)               DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -331,7 +331,7 @@ CREATE TABLE `data_stream`
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`              json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`              text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -431,7 +431,7 @@ CREATE TABLE `source_db_basic`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -459,7 +459,7 @@ CREATE TABLE `source_db_detail`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -484,7 +484,7 @@ CREATE TABLE `source_file_basic`
     `modifier`          varchar(64)           DEFAULT NULL COMMENT 'Modifier',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`         json                  DEFAULT NULL COMMENT 'temp view',
+    `temp_view`         text                  DEFAULT NULL COMMENT 'temp view',
     PRIMARY KEY (`id`)
 );
 
@@ -513,7 +513,7 @@ CREATE TABLE `source_file_detail`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -565,7 +565,7 @@ CREATE TABLE `storage_hive`
     `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           json                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     `opt_log`             varchar(5000)         DEFAULT NULL COMMENT 'Background operation log',
     PRIMARY KEY (`id`)
 );
@@ -778,7 +778,7 @@ CREATE TABLE `wf_process_instance`
     `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext`             text COMMENT 'Extended information-json',
+    `ext`             text COMMENT 'Extended information-text',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
     PRIMARY KEY (`id`)
 );
@@ -804,7 +804,7 @@ CREATE TABLE `wf_task_instance`
     `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
-    `ext`                  text COMMENT 'Extended information-json',
+    `ext`                  text COMMENT 'Extended information-text',
     PRIMARY KEY (`id`)
 );
 
