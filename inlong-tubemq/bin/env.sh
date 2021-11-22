@@ -31,14 +31,14 @@ export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
 
 #Master jvm args
 if [ -z "$MASTER_JVM_SIZE" ]; then
-  MASTER_JVM_SIZE="-Xmx10g -Xms6g"
+  MASTER_JVM_SIZE="-Xms15g -Xmx15g -Xmn5g"
 fi
-MASTER_JVM_ARGS="$MASTER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
+MASTER_JVM_ARGS="$MASTER_JVM_SIZE -XX:SurvivorRatio=6 -XX:+UseMembar -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ParallelCMSThreads=12 -XX:+UseCMSCompactAtFullCollection -verbose:gc -Xloggc:$BASE_DIR/logs/gc.log.`date +%Y-%m-%d-%H-%M-%S` -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+CMSClassUnloadingEnabled -XX:CMSInitiatingOccupancyFraction=70 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=3 -XX:GCLogFileSize=512M -Dsun.net.inetaddr.ttl=3 -Dsun.net.inetaddr.negative.ttl=1 -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Broker jvm args
 if [ -z "$BROKER_JVM_SIZE" ]; then
-  BROKER_JVM_SIZE="-Xmx16g -Xms8g"
+  BROKER_JVM_SIZE="-Xms15g -Xmx15g -Xmn5g"
 fi
-BROKER_JVM_ARGS="$BROKER_JVM_SIZE -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
+BROKER_JVM_ARGS="$BROKER_JVM_SIZE -XX:SurvivorRatio=6 -XX:MaxDirectMemorySize=10g -XX:+UseMembar -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ParallelCMSThreads=12 -XX:+UseCMSCompactAtFullCollection -verbose:gc -Xloggc:$BASE_DIR/logs/gc.log.`date +%Y-%m-%d-%H-%M-%S` -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+CMSClassUnloadingEnabled -XX:CMSInitiatingOccupancyFraction=70 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=3 -XX:GCLogFileSize=512M -Dsun.net.inetaddr.ttl=3 -Dsun.net.inetaddr.negative.ttl=1 -Dtube.fast_boot=false -server -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Tools jvm args,you don't have to modify this at all.
 TOOLS_JVM_ARGS="-Xmx512m -Xms512m -Dtubemq.home=$tubemq_home -cp $CLASSPATH "
 #Tool repair jvm args
