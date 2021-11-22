@@ -141,7 +141,7 @@ public class BusinessServiceImpl implements BusinessService {
             }
         }
 
-        LOGGER.info("success to save business info");
+        LOGGER.info("success to save business info for groupId={}", groupId);
         return groupId;
     }
 
@@ -175,12 +175,12 @@ public class BusinessServiceImpl implements BusinessService {
             if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
                 businessInfo.setTubeMaster(clusterBean.getTubeMaster());
             } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-                businessInfo.setPulsarAdmin(clusterBean.getPulsarAdmin());
-                businessInfo.setPulsarService(clusterBean.getPulsarService());
+                businessInfo.setPulsarAdminUrl(clusterBean.getPulsarAdminUrl());
+                businessInfo.setPulsarServiceUrl(clusterBean.getPulsarServiceUrl());
             }
         }
 
-        LOGGER.info("success to get business info");
+        LOGGER.info("success to get business info for groupId={}", groupId);
         return businessInfo;
     }
 
@@ -240,7 +240,7 @@ public class BusinessServiceImpl implements BusinessService {
             businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
         }
 
-        LOGGER.info("success to update business info");
+        LOGGER.info("success to update business info for groupId={}", groupId);
         return groupId;
     }
 
@@ -289,7 +289,7 @@ public class BusinessServiceImpl implements BusinessService {
 
         businessMapper.updateStatusByIdentifier(groupId, status, operator);
 
-        LOGGER.info("success to update business status");
+        LOGGER.info("success to update business status for groupId={}", groupId);
         return true;
     }
 
@@ -337,7 +337,7 @@ public class BusinessServiceImpl implements BusinessService {
         // To logically delete the associated pulsar table
         businessPulsarMapper.logicDeleteByGroupId(groupId);
 
-        LOGGER.info("success to delete business and business ext property");
+        LOGGER.info("success to delete business and business ext property for groupId={}", groupId);
         return true;
     }
 
@@ -369,7 +369,7 @@ public class BusinessServiceImpl implements BusinessService {
                 countVO.setRejectCount(countVO.getRejectCount() + count);
             }
         }
-        LOGGER.info("success to count business");
+        LOGGER.info("success to count business for operator={}", operator);
         return countVO;
     }
 
@@ -388,8 +388,8 @@ public class BusinessServiceImpl implements BusinessService {
         } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
             // Pulsar's topic corresponds to the data stream one-to-one
             topicVO.setDsTopicList(streamService.getTopicList(groupId));
-            topicVO.setPulsarAdminUrl(clusterBean.getPulsarAdmin());
-            topicVO.setPulsarServiceUrl(clusterBean.getPulsarService());
+            topicVO.setPulsarAdminUrl(clusterBean.getPulsarAdminUrl());
+            topicVO.setPulsarServiceUrl(clusterBean.getPulsarServiceUrl());
         } else {
             LOGGER.error("middleware type={} not supported", middlewareType);
             throw new BusinessException(BizErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
@@ -421,7 +421,7 @@ public class BusinessServiceImpl implements BusinessService {
             businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
         }
 
-        LOGGER.info("success to update business status after approve");
+        LOGGER.info("success to update business status after approve for groupId={}", groupId);
         return true;
     }
 

@@ -62,10 +62,10 @@ public class BusinessInfo {
     private String tubeMaster;
 
     @ApiModelProperty(value = "Pulsar admin URL")
-    private String pulsarAdmin;
+    private String pulsarAdminUrl;
 
     @ApiModelProperty(value = "Pulsar service URL")
-    private String pulsarService;
+    private String pulsarServiceUrl;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;

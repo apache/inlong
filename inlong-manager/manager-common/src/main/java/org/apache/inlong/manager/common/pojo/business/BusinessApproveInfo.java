@@ -46,10 +46,10 @@ public class BusinessApproveInfo {
     @ApiModelProperty(value = "The partition num of Pulsar topic, between 1-20")
     private Integer topicPartitionNum;
 
-    @ApiModelProperty(value = "Leader's number of writable nodes")
+    @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble;
 
-    @ApiModelProperty(value = "Leader's number of copies")
+    @ApiModelProperty(value = "Ledger's number of copies")
     private Integer writeQuorum;
 
     @ApiModelProperty(value = "Number of responses requested")

@@ -36,10 +36,10 @@ public class BusinessPulsarInfo extends BusinessMqExtBase {
     @ApiModelProperty(value = "Type of middleware")
     private String middlewareType = BizConstant.MIDDLEWARE_PULSAR;
 
-    @ApiModelProperty(value = "Leader's number of writable nodes")
+    @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;
 
-    @ApiModelProperty(value = "Leader's number of copies")
+    @ApiModelProperty(value = "Ledger's number of copies")
     private Integer writeQuorum = 3;
 
     @ApiModelProperty(value = "Number of responses requested")

@@ -43,10 +43,10 @@ public class ClusterBean {
     @Value("${sort.appName}")
     private String appName;
 
-    @Value("${pulsar.admin}")
-    private String pulsarAdmin;
+    @Value("${pulsar.adminUrl}")
+    private String pulsarAdminUrl;
 
-    @Value("${pulsar.service}")
-    private String pulsarService;
+    @Value("${pulsar.serviceUrl}")
+    private String pulsarServiceUrl;
 
 }

@@ -126,7 +126,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         // Process data source fields
         this.saveField(groupId, streamId, dataStreamInfo.getFieldList());
 
-        LOGGER.info("success to save data stream info");
+        LOGGER.info("success to save data stream info for groupId={}", groupId);
         return streamEntity.getId();
     }
 
@@ -145,7 +145,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         DataStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, DataStreamInfo::new);
         this.setStreamExtAndField(groupId, streamId, streamInfo);
 
-        LOGGER.info("success to get data stream");
+        LOGGER.info("success to get data stream for groupId={}", groupId);
         return streamInfo;
     }
 
@@ -208,7 +208,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         PageInfo<DataStreamListVO> page = new PageInfo<>(dataStreamList);
         page.setTotal(dataStreamList.size());
 
-        LOGGER.debug("success to list data stream info");
+        LOGGER.debug("success to list data stream info for groupId={}", groupId);
         return page;
     }
 
@@ -243,7 +243,7 @@ public class DataStreamServiceImpl implements DataStreamService {
             this.updateField(groupId, streamId, streamInfo.getFieldList());
         }
 
-        LOGGER.info("success to update business info");
+        LOGGER.info("success to update business info for groupId={}", groupId);
         return true;
     }
 
@@ -289,7 +289,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         LOGGER.debug("begin to delete data stream field, streamId={}", streamId);
         streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
 
-        LOGGER.info("success to delete data stream, ext property and fields");
+        LOGGER.info("success to delete data stream, ext property and fields for groupId={}", groupId);
         return true;
     }
 
@@ -370,7 +370,7 @@ public class DataStreamServiceImpl implements DataStreamService {
             summaryInfo.setStorageList(storageList);
         }
 
-        LOGGER.info("success to get data stream summary list");
+        LOGGER.info("success to get data stream summary list for groupId={}", groupId);
         return summaryInfoList;
     }
 
@@ -582,7 +582,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         List<DataStreamTopicVO> topicList = streamMapper.selectTopicList(groupId);
-        LOGGER.debug("success to get topic list");
+        LOGGER.debug("success to get topic list by groupId={}", groupId);
         return topicList;
     }
 
@@ -595,21 +595,23 @@ public class DataStreamServiceImpl implements DataStreamService {
             return true;
         }
 
+        String groupId = null;
         for (DataStreamApproveInfo info : streamApproveList) {
             // Modify mqResourceObj
             DataStreamEntity streamEntity = new DataStreamEntity();
-            streamEntity.setInlongGroupId(info.getInlongGroupId());
+            groupId = info.getInlongGroupId(); // these groupIds are all the same
+            streamEntity.setInlongGroupId(groupId);
             streamEntity.setInlongStreamId(info.getInlongStreamId());
+            // Update status to [DATA_STREAM_CONFIG_ING]
             streamEntity.setStatus(EntityStatus.DATA_STREAM_CONFIG_ING.getCode());
             streamMapper.updateByIdentifierSelective(streamEntity);
-            // Update status to [DATA_STREAM_CONFIG_ING]
             // If you need to change data stream info after approve, just do in here
 
             // Modify the storage information
             storageService.updateAfterApprove(info.getStorageList(), operator);
         }
 
-        LOGGER.info("success to update stream after approve");
+        LOGGER.info("success to update stream after approve for groupId={}", groupId);
         return true;
     }
 
@@ -620,7 +622,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         // businessMapper.updateStatusByIdentifier(groupId, status, operator);
         streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);
 
-        LOGGER.info("success to update stream after approve");
+        LOGGER.info("success to update stream after approve for groupId={}", groupId);
         return true;
     }
 
@@ -638,7 +640,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         try {
             streamExtMapper.deleteAllByIdentifier(groupId, streamId);
             saveExt(groupId, streamId, extInfoList, new Date());
-            LOGGER.info("success to update data stream ext");
+            LOGGER.info("success to update data stream ext for groupId={}", groupId);
         } catch (Exception e) {
             LOGGER.error("failed to update data stream ext: ", e);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_EXT_SAVE_FAILED);
@@ -670,7 +672,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         try {
             streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
             saveField(groupId, streamId, fieldInfoList);
-            LOGGER.info("success to update data stream field");
+            LOGGER.info("success to update data stream field for groupId={}", groupId);
         } catch (Exception e) {
             LOGGER.error("failed to update data stream field: ", e);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_FIELD_SAVE_FAILED);
