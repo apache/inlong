@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @ApiModel(value = "Interaction objects for Hive storage")
 public class StorageHiveInfo extends BaseStorageInfo {
 
-    private String storageType = BizConstant.STORAGE_TYPE_HIVE;
+    private String storageType = BizConstant.STORAGE_HIVE;
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;

@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class CreateTubeTopicTaskEventListener implements TaskEventListener {
+public class CreateTubeTopicTaskListener implements TaskEventListener {
 
     @Autowired
     private TubeMqOptService tubeMqOptService;

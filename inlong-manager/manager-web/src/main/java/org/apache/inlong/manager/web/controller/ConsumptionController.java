@@ -54,28 +54,28 @@ public class ConsumptionController {
     @Autowired
     private ConsumptionService consumptionService;
 
-    @GetMapping("summary")
+    @GetMapping("/summary")
     @ApiOperation(value = "Get data consumption summary")
     public Response<ConsumptionSummary> getSummary(ConsumptionQuery query) {
         query.setUserName(LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(consumptionService.getSummary(query));
     }
 
-    @GetMapping("list")
+    @GetMapping("/list")
     @ApiOperation(value = "List data consumptions")
     public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
         query.setUserName(LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(consumptionService.list(query));
     }
 
-    @GetMapping("get/{id}")
+    @GetMapping("/get/{id}")
     @ApiOperation(value = "Get consumption details")
     public Response<ConsumptionInfo> getDetail(
             @ApiParam(value = "Consumption ID", required = true) @PathVariable(name = "id") Integer id) {
         return Response.success(consumptionService.getInfo(id));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data consumption")
     public Response<Object> delete(
@@ -84,7 +84,7 @@ public class ConsumptionController {
         return Response.success();
     }
 
-    @PostMapping("save")
+    @PostMapping("/save")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Save data consumption", notes = "Full coverage")
     public Response<Integer> saveConsumptionInfo(
@@ -93,7 +93,7 @@ public class ConsumptionController {
         return Response.success(consumptionService.save(consumptionInfo, currentUser));
     }
 
-    @PostMapping("update/{id}")
+    @PostMapping("/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data consumption")
     public Response<Integer> updateConsumptionInfo(
@@ -104,7 +104,7 @@ public class ConsumptionController {
         return Response.success(consumptionService.update(consumptionUpdateInfo, currentUser));
     }
 
-    @PostMapping("startProcess/{id}")
+    @PostMapping("/startProcess/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Start approval process")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)

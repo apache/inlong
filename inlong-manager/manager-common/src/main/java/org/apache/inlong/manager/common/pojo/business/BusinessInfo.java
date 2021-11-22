@@ -52,11 +52,20 @@ public class BusinessInfo {
     @ApiModelProperty(value = "Business description")
     private String description;
 
-    @ApiModelProperty(value = "Middleware type of data storage, high throughput: TUBE")
+    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     private String middlewareType;
 
     @ApiModelProperty(value = "MQ resource object, in business, Tube corresponds to Topic")
     private String mqResourceObj;
+
+    @ApiModelProperty(value = "Tube master URL")
+    private String tubeMaster;
+
+    @ApiModelProperty(value = "Pulsar admin URL")
+    private String pulsarAdminUrl;
+
+    @ApiModelProperty(value = "Pulsar service URL")
+    private String pulsarServiceUrl;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;
@@ -99,4 +108,8 @@ public class BusinessInfo {
 
     @ApiModelProperty(value = "Business Extension Properties")
     private List<BusinessExtInfo> extList;
+
+    @ApiModelProperty(value = "The extension info for MQ")
+    private BusinessMqExtBase mqExtInfo;
+
 }

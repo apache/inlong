@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.springframework.stereotype.Repository;
 
@@ -68,9 +69,9 @@ public interface DataStreamEntityMapper {
     DataStreamInfoToHiveConfig selectStreamToHiveInfoByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
-    int updateByIdentifierSelective(DataStreamEntity streamEntity);
-
     int selectCountByGroupId(@Param("groupId") String groupId);
+
+    List<DataStreamTopicVO> selectTopicList(@Param("groupId") String groupId);
 
     /**
      * Physically delete all data streams of the specified business group id
@@ -78,6 +79,8 @@ public interface DataStreamEntityMapper {
      * @return rows deleted
      */
     int deleteAllByGroupId(@Param("groupId") String groupId);
+
+    int updateByIdentifierSelective(DataStreamEntity streamEntity);
 
     int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status, @Param("modifier") String modifier);

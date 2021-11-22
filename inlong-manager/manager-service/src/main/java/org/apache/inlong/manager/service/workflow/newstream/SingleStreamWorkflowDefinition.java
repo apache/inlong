@@ -24,7 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForOneStreamListener;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigToSortEventListener;
+import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
@@ -54,7 +54,7 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private CreateHiveTableForOneStreamListener createHiveTableForOneStreamListener;
     @Autowired
-    private PushHiveConfigToSortEventListener pushHiveConfigToSortEventListener;
+    private PushHiveConfigTaskListener pushHiveConfigTaskListener;
 
     @Override
     public Process defineProcess() {
@@ -84,7 +84,7 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
             CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) c.getProcessForm();
             String groupId = form.getInlongGroupId();
             String streamId = form.getInlongStreamId();
-            List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_TYPE_HIVE,
+            List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_HIVE,
                     Collections.singletonList(streamId));
             if (CollectionUtils.isEmpty(dsForHive)) {
                 log.warn("business [{}] adn data stream [{}] does not have storage, skip create hive table", groupId,
@@ -102,7 +102,7 @@ public class SingleStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask pushSortConfig = new ServiceTask();
         pushSortConfig.setName("pushSortConfig");
         pushSortConfig.setDisplayName("Push Sort Configuration");
-        pushSortConfig.addListener(pushHiveConfigToSortEventListener);
+        pushSortConfig.addListener(pushHiveConfigTaskListener);
         process.addTask(pushSortConfig);
 
         startEvent.addNext(createHiveTableTask);

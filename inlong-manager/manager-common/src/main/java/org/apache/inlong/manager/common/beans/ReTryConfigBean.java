@@ -15,27 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.exceptions;
+package org.apache.inlong.manager.common.beans;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.springframework.stereotype.Component;
 
 @Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class BusinessException extends BaseException {
+@Component
+public class ReTryConfigBean {
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
-    }
+    /**
+     * Maximum number of attempts
+     */
+    private Integer maxAttempts = 3;
+    /**
+     * The first delay time, in milliseconds
+     */
+    private Long delay = 30000L;
+    /**
+     * The max delay time, in milliseconds
+     */
+    private Long maxDelay = 300000L;
+    /**
+     * Delay time increase factor
+     */
+    private Integer multiplier = 2;
 
-    public BusinessException(String message) {
-        super(message);
-    }
-
-    public BusinessException(BizErrorCodeEnum errorCodeEnum, String message) {
-        super(errorCodeEnum.getCode(), message);
-    }
 }

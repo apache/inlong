@@ -59,7 +59,7 @@ public class ConsumptionInfo {
     @NotBlank(message = "business group id cannot be null")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "middleware type for data storage, support Tube, which has high throughput")
+    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     @NotBlank(message = "middlewareType can't be null")
     private String middlewareType;
 

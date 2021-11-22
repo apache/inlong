@@ -15,30 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.beans;
+package org.apache.inlong.manager.common.pojo.datastream;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
+/**
+ * Topic View Object of the Data stream
+ */
 @Data
-@Component
-public class TryBean {
+@ApiModel("Data stream ID and topic interaction object")
+public class DataStreamTopicVO {
 
-    /**
-     * Maximum number of attempts
-     */
-    private Integer maxAttempts = 3;
-    /**
-     * The first delay time, in milliseconds
-     */
-    private Long delay = 30000L;
-    /**
-     * The max delay time, in milliseconds
-     */
-    private Long maxDelay = 300000L;
-    /**
-     * Delay time increase factor
-     */
-    private Integer multiplier = 2;
+    @ApiModelProperty(value = "InLong stream ID")
+    private String inlongStreamId;
+
+    @ApiModelProperty(value = "Message queue type, the data stream id corresponds to the topic of Pulsar one-to-one")
+    private String mqResourceObj;
 
 }

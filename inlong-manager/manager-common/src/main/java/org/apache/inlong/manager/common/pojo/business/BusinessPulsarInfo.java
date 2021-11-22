@@ -20,55 +20,45 @@ package org.apache.inlong.manager.common.pojo.business;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
- * Business access approval information
+ * Business access information for Pulsar
  */
 @Data
-@ApiModel("Business Access Approval Information")
-public class BusinessApproveInfo {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Business access information for Pulsar")
+public class BusinessPulsarInfo extends BusinessMqExtBase {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
-
-    @ApiModelProperty(value = "Business group id", required = true)
-    private String inlongGroupId;
-
-    @ApiModelProperty(value = "Middleware Type")
-    private String middlewareType;
-
-    @ApiModelProperty(value = "MQ resource object, for Tube, it's Topic")
-    private String mqResourceObj;
-
-    @ApiModelProperty(value = "Data type name")
-    private String schemaName;
-
-    @ApiModelProperty(value = "The partition num of Pulsar topic, between 1-20")
-    private Integer topicPartitionNum;
+    @ApiModelProperty(value = "Type of middleware")
+    private String middlewareType = BizConstant.MIDDLEWARE_PULSAR;
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
-    private Integer ensemble;
+    private Integer ensemble = 3;
 
     @ApiModelProperty(value = "Ledger's number of copies")
-    private Integer writeQuorum;
+    private Integer writeQuorum = 3;
 
     @ApiModelProperty(value = "Number of responses requested")
-    private Integer ackQuorum;
+    private Integer ackQuorum = 2;
 
     @ApiModelProperty(value = "Message storage time")
-    private Integer retentionTime;
+    private Integer retentionTime = 72;
 
     @ApiModelProperty(value = "The unit of the message storage time")
     private String retentionTimeUnit;
 
     @ApiModelProperty(value = "Message time-to-live duration")
-    private Integer ttl;
+    private Integer ttl = 24;
 
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
     private String ttlUnit;
 
     @ApiModelProperty(value = "Message size")
-    private Integer retentionSize;
+    private Integer retentionSize = -1;
 
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit;

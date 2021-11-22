@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @ApiModel("Basic data storage information")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "storageType")
 @JsonSubTypes({
-        @Type(value = StorageHiveInfo.class, name = BizConstant.STORAGE_TYPE_HIVE)
+        @Type(value = StorageHiveInfo.class, name = BizConstant.STORAGE_HIVE)
 })
 public class BaseStorageInfo {
 

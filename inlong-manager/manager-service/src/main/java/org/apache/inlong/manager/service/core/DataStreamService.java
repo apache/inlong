@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConf
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 
@@ -160,6 +161,11 @@ public interface DataStreamService {
      * @return Number of data streams
      */
     int selectCountByGroupId(String groupId);
+
+    /**
+     * According to the business group id, query the Topic list
+     */
+    List<DataStreamTopicVO> getTopicList(String groupId);
 
     /**
      * Save the information modified when the approval is passed

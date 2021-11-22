@@ -51,7 +51,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PushHiveConfigToSortEventListener implements TaskEventListener {
+public class PushHiveConfigTaskListener implements TaskEventListener {
 
     @Autowired
     private StorageService storageService;
@@ -83,7 +83,7 @@ public class PushHiveConfigToSortEventListener implements TaskEventListener {
         for (StorageHiveEntity hiveEntity : storageHiveEntities) {
             Integer storageId = hiveEntity.getId();
             StorageHiveInfo hiveStorage = (StorageHiveInfo) storageService
-                    .getById(BizConstant.STORAGE_TYPE_HIVE, storageId);
+                    .getById(BizConstant.STORAGE_HIVE, storageId);
             if (log.isDebugEnabled()) {
                 log.debug("hive storage info: {}", hiveStorage);
             }

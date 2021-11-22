@@ -15,27 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.exceptions;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.dao.entity.BusinessPulsarEntity;
+import org.springframework.stereotype.Repository;
 
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class BusinessException extends BaseException {
+@Repository
+public interface BusinessPulsarEntityMapper {
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
-    }
+    int deleteByPrimaryKey(Integer id);
 
-    public BusinessException(String message) {
-        super(message);
-    }
+    int logicDeleteByGroupId(String groupId);
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum, String message) {
-        super(errorCodeEnum.getCode(), message);
-    }
+    int insert(BusinessPulsarEntity record);
+
+    int insertSelective(BusinessPulsarEntity record);
+
+    BusinessPulsarEntity selectByPrimaryKey(Integer id);
+
+    BusinessPulsarEntity selectByGroupId(String groupId);
+
+    int updateByPrimaryKeySelective(BusinessPulsarEntity record);
+
+    int updateByPrimaryKey(BusinessPulsarEntity record);
+
+    int updateByIdentifierSelective(BusinessPulsarEntity record);
+
 }

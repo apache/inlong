@@ -82,7 +82,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
         String middlewareType = workflowForm.getConsumptionInfo().getMiddlewareType();
 
-        if (BizConstant.MIDDLEWARE_TYPE_TUBE.equalsIgnoreCase(middlewareType)) {
+        if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
             createTubeConsumerGroup(workflowForm.getConsumptionInfo());
             return ListenerResult.success("Create Tube Consumer Group");
         }

@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.exceptions;
+package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 
 @Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class BusinessException extends BaseException {
+public class BusinessPulsarEntity implements Serializable {
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
-    }
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String inlongGroupId;
+    private Integer ensemble;
+    private Integer writeQuorum;
+    private Integer ackQuorum;
+    private Integer retentionTime;
+    private String retentionTimeUnit;
+    private Integer ttl;
+    private String ttlUnit;
+    private Integer retentionSize;
+    private String retentionSizeUnit;
+    private Integer isDeleted;
 
-    public BusinessException(String message) {
-        super(message);
-    }
-
-    public BusinessException(BizErrorCodeEnum errorCodeEnum, String message) {
-        super(errorCodeEnum.getCode(), message);
-    }
 }
