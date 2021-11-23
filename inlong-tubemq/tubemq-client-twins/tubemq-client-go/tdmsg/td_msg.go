@@ -281,7 +281,7 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 			if itemRem < 4 {
 				return errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error: no enough data length for v%d item's msgLength parameter", ver))
 			}
-			di, err := parseDataItem(data[itemPos : itemPos+itemRem])
+			di, err := parseDataItem(body[itemPos : itemPos+itemRem])
 			if err != nil {
 				return err
 			}
