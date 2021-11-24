@@ -53,7 +53,6 @@ public class DorisHttpUtils {
 		for (int i = 0; i < attemptTimes; i++) {
 			try (CloseableHttpClient client = httpClientBuilder.build()) {
 
-				System.out.println("start...");
 				CloseableHttpResponse response = client.execute(httpGet);
 				if (response.getEntity() != null) {
 					String responseData = EntityUtils.toString(response.getEntity());

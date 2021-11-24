@@ -33,7 +33,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,6 +55,10 @@ public class DorisStreamLoad implements Serializable {
 
 
 	public void load(String value) {
+		// use dorisConnectParam default stream load url
+		load(value,this.dorisConnectParam.getStreamLoadUrl());
+	}
+	public void load(String value,String streamLoadUrl) {
 
 		DorisRespond dorisRespond = null;
 
@@ -76,7 +79,7 @@ public class DorisStreamLoad implements Serializable {
 				});
 
 		try (CloseableHttpClient client = httpClientBuilder.build()) {
-			HttpPut put = new HttpPut(dorisConnectParam.getLoadUrlStr());
+			HttpPut put = new HttpPut(streamLoadUrl);
 			put.setHeader(HttpHeaders.EXPECT, "100-continue");
 			put.setHeader(HttpHeaders.AUTHORIZATION, dorisConnectParam.getBasicAuthStr());
 			put.setHeader("label", label);
@@ -102,7 +105,7 @@ public class DorisStreamLoad implements Serializable {
 			LOG.warn(err, e);
 		}
 
-		LOG.info("Streamload Response:{}", dorisRespond);
+		LOG.info("Stream load Response: {} ", dorisRespond);
 		final String responseBody = dorisRespond.getResponseBody();
 		// assert responseCode
 		if (dorisRespond.getResponseCode() != HttpStatus.SC_OK) {
@@ -121,7 +124,7 @@ public class DorisStreamLoad implements Serializable {
 	}
 
 
-	public String getErrorMsgDetail(String errorUrl) {
+	private String getErrorMsgDetail(String errorUrl) {
 		String errorMsgDetail = "";
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
 

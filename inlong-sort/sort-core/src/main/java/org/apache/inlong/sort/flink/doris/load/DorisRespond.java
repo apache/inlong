@@ -1,5 +1,8 @@
 package org.apache.inlong.sort.flink.doris.load;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * @program: incubator-inlong
  * @author: huzekang
@@ -38,5 +41,11 @@ public class DorisRespond {
 
 	public void setResponseBody(String responseBody) {
 		this.responseBody = responseBody;
+	}
+
+	@Override
+	public String toString() {
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		return gson.toJson(this);
 	}
 }

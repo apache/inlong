@@ -1,11 +1,12 @@
 package org.apache.inlong.sort.flink.doris;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 /**
  * doris sink options
  **/
-public class DorisSinkOptions {
+public class DorisSinkOptions implements Serializable {
 
 
 	private final Integer batchSize;

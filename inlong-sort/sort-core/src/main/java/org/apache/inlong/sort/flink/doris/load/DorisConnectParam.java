@@ -1,8 +1,8 @@
 package org.apache.inlong.sort.flink.doris.load;
 
 import org.apache.commons.codec.binary.Base64;
-import org.stringtemplate.v4.ST;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -11,11 +11,10 @@ import java.util.Properties;
  * @author: huzekang
  * @create: 2021-11-23 16:08
  **/
-public class DorisConnectParam {
+public class DorisConnectParam implements Serializable {
 	private String username;
 	private String password;
-	private String loadUrlStr;
-	private String hostPort;
+	private String streamLoadUrl;
 	private String database;
 	private String tableName;
 	private String basicAuthStr;
@@ -23,20 +22,13 @@ public class DorisConnectParam {
 
 
 
-	public DorisConnectParam(String username, String password, String hostPort, String database, String tableName, Properties streamLoadProp) {
+	public DorisConnectParam(String streamLoadUrl,String username, String password, String database, String tableName, Properties streamLoadProp) {
 		this.username = username;
 		this.password = password;
-		this.hostPort = hostPort;
 		this.database = database;
 		this.tableName = tableName;
 		this.streamLoadProp = streamLoadProp;
-		// convert hostPort to loadUrlStr
-		String loadUrlPattern = "http://<hostPort>/api/<database>/<tableName>/_stream_load?";
-		final ST st = new ST(loadUrlPattern);
-		st.add("hostPort", hostPort);
-		st.add("database", database);
-		st.add("tableName", tableName);
-		this.loadUrlStr = st.render();
+		this.streamLoadUrl = streamLoadUrl;
 		// build auth basic
 		this.basicAuthStr = basicAuthHeader(username,password);
 	}
@@ -64,21 +56,15 @@ public class DorisConnectParam {
 		this.password = password;
 	}
 
-	public String getLoadUrlStr() {
-		return loadUrlStr;
+	public String getStreamLoadUrl() {
+		return streamLoadUrl;
 	}
 
-	public void setLoadUrlStr(String loadUrlStr) {
-		this.loadUrlStr = loadUrlStr;
+	public void setStreamLoadUrl(String streamLoadUrl) {
+		this.streamLoadUrl = streamLoadUrl;
 	}
 
-	public String getHostPort() {
-		return hostPort;
-	}
 
-	public void setHostPort(String hostPort) {
-		this.hostPort = hostPort;
-	}
 
 	public String getDatabase() {
 		return database;

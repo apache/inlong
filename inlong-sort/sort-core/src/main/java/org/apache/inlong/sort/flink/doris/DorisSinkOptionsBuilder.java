@@ -24,8 +24,8 @@ public class DorisSinkOptionsBuilder {
 	 * required, tableIdentifier. example => db1.tb1
 	 */
 	public DorisSinkOptionsBuilder setTableIdentifier(String tableIdentifier) {
-		this.database = tableIdentifier.split(".")[0];
-		this.table = tableIdentifier.split(".")[1];
+		this.database = tableIdentifier.split("\\.")[0];
+		this.table = tableIdentifier.split("\\.")[1];
 		return this;
 	}
 
