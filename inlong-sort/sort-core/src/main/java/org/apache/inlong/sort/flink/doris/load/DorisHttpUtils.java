@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class DorisHttpUtils {
 					String responseData = EntityUtils.toString(response.getEntity());
 					final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 					// parse response to get random be node
-					final BeInfoResponse beInfoResponse = gson.fromJson(responseData, BeInfoResponse.class);
+					final DorisBeInfoResponse beInfoResponse = gson.fromJson(responseData, DorisBeInfoResponse.class);
 					final String msg = beInfoResponse.getMsg();
 					if (msg.equals("success")) {
 						List<Map<String, Object>> rowList = (List<Map<String, Object>>) beInfoResponse.getData().get("rows");

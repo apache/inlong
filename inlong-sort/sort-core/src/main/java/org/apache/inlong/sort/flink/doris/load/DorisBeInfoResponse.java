@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class BeInfoResponse {
+public class DorisBeInfoResponse {
 	private String msg;
 	private String code;
 	private Map data;
 
-	public BeInfoResponse(String msg, String code, Map data) {
+	public DorisBeInfoResponse(String msg, String code, Map data) {
 		this.msg = msg;
 		this.code = code;
 		this.data = data;
