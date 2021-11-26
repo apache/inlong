@@ -22,16 +22,31 @@ import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genBasicFields } from '@/components/ConsumeHelper';
 
-export const getFormContent = ({
-  businessData,
-  changedValues,
-}): ReturnType<typeof genBasicFields> => [
-  {
-    type: <Divider orientation="left">{i18n.t('pages.ConsumeCreate.ConsumerInformation')}</Divider>,
-  },
-  ...genBasicFields(
-    ['consumerGroupName', 'inCharges', 'inlongGroupId', 'topic', 'filterEnabled', 'inlongGroupId'],
-    businessData,
+export const getFormContent = ({ changedValues }): ReturnType<typeof genBasicFields> =>
+  genBasicFields(
+    [
+      {
+        type: (
+          <Divider orientation="left">{i18n.t('pages.ConsumeCreate.ConsumerInformation')}</Divider>
+        ),
+      },
+      'consumerGroupName',
+      'inCharges',
+      'inlongGroupId',
+      'topic',
+      'filterEnabled',
+      {
+        type: <Divider orientation="left">DLQ</Divider>,
+        visible: values => values.middlewareType === 'PULSAR',
+      },
+      'mqExtInfo.isDlq',
+      'mqExtInfo.deadLetterTopic',
+      {
+        type: <Divider orientation="left">RLQ</Divider>,
+        visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+      },
+      'mqExtInfo.isRlq',
+      'mqExtInfo.retryLetterTopic',
+    ],
     changedValues,
-  ),
-];
+  );

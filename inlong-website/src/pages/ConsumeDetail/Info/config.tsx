@@ -21,26 +21,42 @@ import React from 'react';
 import { genBasicFields } from '@/components/ConsumeHelper';
 import i18n from '@/i18n';
 
-export const getFormContent = ({ editing, initialValues, businessData }) =>
-  [
-    {
-      type: 'text',
-      label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
-      name: 'consumerGroupId',
-      rules: [{ required: true }],
-    },
-    ...genBasicFields(
-      ['consumerGroupName', 'inCharges', 'masterUrl', 'inlongGroupId'],
-      businessData,
-      initialValues,
-    ),
-    ...genBasicFields(['topic', 'filterEnabled', 'inlongStreamId'], businessData, initialValues),
-  ].map(item => {
+export const getFormContent = ({ editing, initialValues }) =>
+  genBasicFields(
+    [
+      {
+        type: 'text',
+        label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
+        name: 'consumerGroupId',
+        rules: [{ required: true }],
+      },
+      'consumerGroupName',
+      'inCharges',
+      'masterUrl',
+      'inlongGroupId',
+      'topic',
+      'filterEnabled',
+      'inlongStreamId',
+      'mqExtInfo.isDlq',
+      'mqExtInfo.deadLetterTopic',
+      'mqExtInfo.isRlq',
+      'mqExtInfo.retryLetterTopic',
+    ],
+    initialValues,
+  ).map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;
     }
     delete obj.extra;
+    if (!editing) {
+      if (typeof obj.type === 'string') {
+        obj.type = 'text';
+      }
+      if (obj.name === 'inCharges') {
+        obj.type = <span>{initialValues?.inCharges?.join(', ')}</span>;
+      }
+    }
 
     if (
       [
@@ -53,10 +69,6 @@ export const getFormContent = ({ editing, initialValues, businessData }) =>
       ].includes(obj.name as string)
     ) {
       obj.type = 'text';
-    }
-
-    if (!editing && obj.name === 'inCharges') {
-      obj.type = <span>{initialValues?.inCharges?.join(', ')}</span>;
     }
 
     return obj;

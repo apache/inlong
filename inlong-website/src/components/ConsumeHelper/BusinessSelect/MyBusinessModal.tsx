@@ -22,11 +22,9 @@ import { Button, Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useTranslation } from 'react-i18next';
 import HighTable from '@/components/HighTable';
-import { defaultSize } from '@/configs/pagination';
 import { useRequest, useUpdateEffect } from '@/hooks';
 
 export interface MyAccessModalProps extends Omit<ModalProps, 'onOk'> {
-  id?: string;
   onOk?: (value: string, record: Record<string, unknown>) => void;
 }
 
@@ -34,25 +32,25 @@ const getFilterFormContent = () => [
   {
     type: 'inputsearch',
     name: 'keyWord',
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
 ];
 
-const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
+const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
   const { t } = useTranslation();
 
   const [options, setOptions] = useState({
     keyWord: '',
-    pageSize: defaultSize,
-    pageIndex: 1,
+    pageSize: 10,
+    pageNum: 1,
   });
 
   const { run: getData, data, loading } = useRequest(
     {
       url: '/business/list',
-      params: options,
+      params: {
+        ...options,
+        status: 130,
+      },
     },
     {
       manual: true,
@@ -61,23 +59,31 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
-      getData(id);
+      getData();
     }
-  }, [modalProps.visible, id]);
+  }, [modalProps.visible, options]);
 
-  const onChange = ({ current: pageIndex, pageSize }) => {
+  const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
       ...prev,
-      pageIndex,
+      pageNum,
       pageSize,
     }));
+  };
+
+  const closeAll = () => {
+    setOptions({
+      keyWord: '',
+      pageSize: 10,
+      pageNum: 1,
+    });
   };
 
   const onFilter = allValues => {
     setOptions(prev => ({
       ...prev,
       ...allValues,
-      pageIndex: 1,
+      pageNum: 1,
     }));
   };
 
@@ -115,8 +121,8 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
   ];
 
   const pagination = {
-    pageSize: options.pageSize,
-    current: options.pageIndex,
+    pageSize: 10,
+    current: options.pageNum,
     total: data?.totalSize,
   };
 
@@ -127,6 +133,8 @@ const Comp: React.FC<MyAccessModalProps> = ({ id, ...modalProps }) => {
       width={1024}
       footer={null}
       onOk={onOk}
+      afterClose={closeAll}
+      destroyOnClose
     >
       <HighTable
         filterForm={{

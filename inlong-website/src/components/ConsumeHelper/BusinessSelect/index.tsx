@@ -20,12 +20,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Space } from 'antd';
 import type { InputProps } from 'antd/es/input';
+import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import MyBusinessModal from './MyBusinessModal';
 
 export interface Props extends Omit<InputProps, 'onChange'> {
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: string, record: Record<string, unknown>) => void;
   onSelect?: (value: Record<string, any>) => void;
 }
 
@@ -45,20 +46,24 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
     // eslint-disable-next-line
   }, [value]);
 
-  const triggerChange = newData => {
+  const triggerChange = (newData, record) => {
     if (onChange) {
-      onChange(newData);
+      onChange(newData, record);
     }
   };
 
-  const onSelectRow = rowValues => {
-    setData(rowValues);
-    triggerChange(rowValues);
+  const onSelectRow = (rowValue, record) => {
+    setData(rowValue);
+    triggerChange(rowValue, record);
   };
 
-  const onTextChange = value => {
+  const onTextChange = async value => {
     setData(value);
-    triggerChange(value);
+
+    const bussinessData = await request(`/business/get/${value}`);
+    if (bussinessData) {
+      triggerChange(value, bussinessData);
+    }
   };
 
   return (
@@ -74,7 +79,7 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
         {...myBusinessModal}
         visible={myBusinessModal.visible}
         onOk={(value, record) => {
-          onSelectRow(value);
+          onSelectRow(value, record);
           if (onSelect) {
             onSelect(record);
           }

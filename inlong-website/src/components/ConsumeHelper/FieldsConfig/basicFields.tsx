@@ -25,8 +25,7 @@ import i18n from '@/i18n';
 import BusinessSelect from '../BusinessSelect';
 
 export default (
-  names: string[],
-  businessDetail: Record<'middlewareType', string> = { middlewareType: '' },
+  names: (string | FormItemProps)[],
   currentValues: Record<string, any> = {},
 ): FormItemProps[] => {
   const fields: FormItemProps[] = [
@@ -62,12 +61,14 @@ export default (
       type: BusinessSelect,
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
       name: 'inlongGroupId',
+      extraNames: ['middlewareType'],
       initialValue: currentValues.inlongGroupId,
       rules: [{ required: true }],
       props: {
         style: { width: 500 },
-        onChange: () => ({
-          topic: '',
+        onChange: (inlongGroupId, record) => ({
+          topic: undefined,
+          middlewareType: record.middlewareType,
         }),
       },
     },
@@ -78,15 +79,23 @@ export default (
       initialValue: currentValues.topic,
       rules: [{ required: true }],
       props: {
+        mode: currentValues.middlewareType === 'PULSAR' ? 'multiple' : '',
         options: {
           requestService: `/business/getTopic/${currentValues.inlongGroupId}`,
           requestParams: {
-            formatResult: result => [
-              {
-                label: result.topicName,
-                value: result.topicName,
-              },
-            ],
+            formatResult: result =>
+              result.middlewareType === 'TUBE'
+                ? [
+                    {
+                      label: result.mqResourceObj,
+                      value: result.mqResourceObj,
+                    },
+                  ]
+                : result.dsTopicList?.map(item => ({
+                    ...item,
+                    label: item.mqResourceObj,
+                    value: item.mqResourceObj,
+                  })) || [],
           },
         },
       },
@@ -110,7 +119,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: !!businessDetail.middlewareType,
+      visible: values => !!values.middlewareType && values.middlewareType !== 'PULSAR',
     },
     {
       type: 'input',
@@ -119,13 +128,76 @@ export default (
       initialValue: currentValues.inlongStreamId,
       extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.DataStreamIDsHelp'),
       rules: [{ required: true }],
-      visible: values => businessDetail.middlewareType && values.filterEnabled,
+      style:
+        currentValues.middlewareType === 'PULSAR'
+          ? {
+              display: 'none',
+            }
+          : {},
+      visible: values => values.middlewareType === 'PULSAR' || values.filterEnabled,
     },
     {
       type: 'text',
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.MasterAddress'),
       name: 'masterUrl',
       initialValue: currentValues.masterUrl,
+    },
+    {
+      type: 'radio',
+      label: 'isDlq',
+      name: 'mqExtInfo.isDlq',
+      initialValue: currentValues.mqExtInfo?.isDlq ?? 0,
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
+            value: 0,
+          },
+        ],
+      },
+      visible: values => values.middlewareType === 'PULSAR',
+    },
+    {
+      type: 'input',
+      label: 'deadLetterTopic',
+      name: 'mqExtInfo.deadLetterTopic',
+      initialValue: currentValues.mqExtInfo?.deadLetterTopic,
+      rules: [{ required: true }],
+      visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+    },
+    {
+      type: 'radio',
+      label: 'isRlq',
+      name: 'mqExtInfo.isRlq',
+      initialValue: currentValues.mqExtInfo?.isRlq ?? 0,
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
+            value: 0,
+          },
+        ],
+      },
+      visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+    },
+    {
+      type: 'input',
+      label: 'retryLetterTopic',
+      name: 'mqExtInfo.retryLetterTopic',
+      initialValue: currentValues.mqExtInfo?.retryLetterTopic,
+      rules: [{ required: true }],
+      visible: values =>
+        values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.middlewareType === 'PULSAR',
     },
   ] as FormItemProps[];
 
