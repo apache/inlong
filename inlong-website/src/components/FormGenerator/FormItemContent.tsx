@@ -30,7 +30,7 @@ type SuffixDefineType = Omit<FormItemProps, 'col' | 'suffix'>;
 // Single formItem
 export interface FormItemProps extends AntdFormItemProps {
   type: PluginsTypes | React.ReactNode;
-  visible?: boolean | ((values: Record<string, unknown>) => boolean);
+  visible?: boolean | ((values: Record<string, any>) => boolean);
   props?: Record<string, any>;
   col?: number;
   // As ID

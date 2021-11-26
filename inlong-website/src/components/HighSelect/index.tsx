@@ -20,8 +20,8 @@
 /**
  * A select that can automatically initiate asynchronous (cooperating with useRequest) to obtain drop-down list data
  */
-import React, { useMemo } from 'react';
-import { Select } from 'antd';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Select, Space, Input } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
 
@@ -45,9 +45,20 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
         requestAuto?: boolean;
       };
   asyncValueLabel?: string;
+  useInput?: boolean;
+  useInputProps?: Record<string, unknown>;
 }
 
-const HighSelect: React.FC<HighSelectProps> = ({ options, asyncValueLabel, ...rest }) => {
+const HighSelect: React.FC<HighSelectProps> = ({
+  options,
+  asyncValueLabel,
+  useInput = false,
+  useInputProps,
+  ...rest
+}) => {
+  const [diyWatcher, setDiyWatcher] = useState(true);
+  const [diyState, setDiyState] = useState(false);
+
   const { data: list = [], run: getList } = useRequest(options?.requestService, {
     manual: !options?.requestAuto,
     ready: !!options?.requestService && (options?.requestParams?.ready ?? true),
@@ -55,12 +66,25 @@ const HighSelect: React.FC<HighSelectProps> = ({ options, asyncValueLabel, ...re
   });
 
   const optionList = useMemo(() => {
-    if (Array.isArray(options)) {
-      return options;
-    }
+    const output = Array.isArray(options) ? options : list;
 
-    return list;
-  }, [list, options]);
+    return useInput
+      ? output.concat({
+          label: 'DIY',
+          value: '__DIYState',
+        })
+      : output;
+  }, [list, options, useInput]);
+
+  useEffect(() => {
+    if (diyWatcher && optionList.every(item => item.value !== rest.value) && !diyState) {
+      setDiyState(true);
+    }
+  }, [diyWatcher, rest.value, optionList, diyState]);
+
+  if (rest.mode === 'tags') {
+    return <Select {...rest} />;
+  }
 
   const onDropdownVisibleChange = (open: boolean) => {
     if (open) {
@@ -71,20 +95,41 @@ const HighSelect: React.FC<HighSelectProps> = ({ options, asyncValueLabel, ...re
     }
   };
 
-  const onChange = value => {
-    const optionItem = optionList.find(item => item.value === value);
+  const onValueChange = value => {
+    const optionItem = Array.isArray(value)
+      ? optionList.filter(item => value.includes(item.value))
+      : optionList.find(item => item.value === value);
     if (typeof rest.onChange === 'function') {
       rest.onChange(value, optionItem);
     }
   };
 
-  return (
+  const onSelectChange = value => {
+    const newDiyState = value === '__DIYState';
+    if (diyState !== newDiyState) setDiyState(newDiyState);
+    if (newDiyState) {
+      setDiyWatcher(false);
+      return;
+    }
+
+    onValueChange(value);
+  };
+
+  const onInputChange = e => {
+    onValueChange(e.target.value);
+  };
+
+  const SelectComponent = (
     <Select
       showSearch={optionList.length > 5}
       {...rest}
       onDropdownVisibleChange={onDropdownVisibleChange}
-      onChange={onChange}
-      value={(!optionList.length && asyncValueLabel) || rest.value}
+      onChange={onSelectChange}
+      value={
+        useInput && diyState
+          ? '__DIYState'
+          : (!optionList.length && rest.value && asyncValueLabel) || rest.value
+      }
       options={optionList.map(item => ({
         label: item.label,
         value: item.value,
@@ -92,6 +137,17 @@ const HighSelect: React.FC<HighSelectProps> = ({ options, asyncValueLabel, ...re
         disabled: item.disabled,
       }))}
     />
+  );
+
+  return useInput ? (
+    <Space>
+      {SelectComponent}
+      {useInput && diyState && (
+        <Input {...useInputProps} value={rest.value} onChange={onInputChange} />
+      )}
+    </Space>
+  ) : (
+    SelectComponent
   );
 };
 
