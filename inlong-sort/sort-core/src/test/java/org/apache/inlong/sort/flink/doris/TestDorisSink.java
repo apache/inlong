@@ -43,9 +43,9 @@ public class TestDorisSink {
 
 
 		DorisSinkOptions dorisSinkOptions = new DorisSinkOptionsBuilder()
-				.setFeNodes("10.93.6.6:8030")
+				.setFeNodes("127.0.0.1:8030")
 				.setUsername("admin")
-				.setPassword("Admin123!")
+				.setPassword("")
 				.setTableIdentifier("example_db.test_stream_load")
 				.build();
 
