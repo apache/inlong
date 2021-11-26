@@ -34,7 +34,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
 
   const { userName } = useSelector<State, State>(state => state);
 
-  const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
+  const [changedValues, setChangedValues] = useState<Record<string, any>>({});
 
   const isUpdate = useMemo(() => {
     return !!inlongGroupId;
@@ -61,10 +61,15 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
       ...values,
       inCharges: values.inCharges?.join(','),
       followers: values.followers?.join(','),
+      mqExtInfo: {
+        ...values.mqExtInfo,
+        middlewareType: values.middlewareType,
+      },
     };
 
     if (isUpdate) {
       data.inlongGroupId = inlongGroupId;
+      if (changedValues.mqExtInfo?.id) data.mqExtInfo.id = changedValues.mqExtInfo.id;
     }
 
     const result = await request({
@@ -72,7 +77,10 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
       method: 'POST',
       data,
     });
-    return result;
+    return {
+      ...values,
+      inlongGroupId: result,
+    };
   };
 
   useEffect(() => {

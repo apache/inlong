@@ -36,7 +36,7 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ inlongGroupId, readonly }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
@@ -173,7 +173,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly }) => {
   };
 
   const genExtra = (record, index) => {
-    const list = genExtraContent({ editingId, record, onSave, onEdit, onCancel, onDelete });
+    const list = genExtraContent({
+      editingId,
+      record,
+      middlewareType,
+      onSave,
+      onEdit,
+      onCancel,
+      onDelete,
+    });
     return (
       <>
         {list.map((item, k) => (
@@ -279,6 +287,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly }) => {
                             { ...realTimeValues.list?.[index], inCharges: [userName] },
                             inlongGroupId,
                             readonly,
+                            middlewareType,
                           ).map(item => {
                             const obj = { ...item } as any;
                             if (obj.name) {
@@ -307,6 +316,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly }) => {
 
       <StreamItemModal
         {...streamItemModal}
+        middlewareType={middlewareType}
         onOk={async () => {
           await getList();
           setEditingId(false);

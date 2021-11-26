@@ -20,7 +20,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { genDataFields } from '@/components/AccessHelper';
+import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
@@ -30,7 +30,15 @@ export const getFilterFormContent = (defaultValues = {} as any) => [
   },
 ];
 
-export const genExtraContent = ({ editingId, record, onSave, onCancel, onEdit, onDelete }) => {
+export const genExtraContent = ({
+  editingId,
+  record,
+  middlewareType,
+  onSave,
+  onCancel,
+  onEdit,
+  onDelete,
+}) => {
   return editingId === record.id || (editingId === true && !record.id)
     ? [
         {
@@ -58,7 +66,13 @@ export const genExtraContent = ({ editingId, record, onSave, onCancel, onEdit, o
       ];
 };
 
-export const genFormContent = (editingId, currentValues, inlongGroupId, readonly) => {
+export const genFormContent = (
+  editingId,
+  currentValues,
+  inlongGroupId,
+  readonly,
+  middlewareType,
+) => {
   const extraParams = {
     inlongGroupId,
     useDataSourcesActionRequest: !!currentValues?.id,
@@ -68,44 +82,79 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
   };
 
   return [
-    {
-      type: (
-        <Divider orientation="left">{i18n.t('pages.AccessCreate.DataStream.config.Basic')}</Divider>
-      ),
-    },
     ...genDataFields(
-      ['inlongStreamId', 'name', 'inCharges', 'description'],
+      [
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
+            </Divider>
+          ),
+        },
+        'inlongStreamId',
+        {
+          label: 'Topic Name',
+          type: 'text',
+          name: 'mqResourceObj',
+          visible: middlewareType === 'PULSAR' && editingId !== true,
+        },
+        'name',
+        'inCharges',
+        'description',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+            </Divider>
+          ),
+        },
+        'dataSourceType',
+        'dataSourcesConfig',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+            </Divider>
+          ),
+        },
+        'dataType',
+        'dataEncoding',
+        'dataSeparator',
+        'rowTypeFields',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+            </Divider>
+          ),
+          visible: middlewareType === 'PULSAR',
+        },
+      ],
       currentValues,
       extraParams,
     ),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-        </Divider>
-      ),
-    },
-    ...genDataFields(['dataSourceType', 'dataSourcesConfig'], currentValues, extraParams),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-        </Divider>
-      ),
-    },
+    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
+      item => ({
+        ...item,
+        visible: middlewareType === 'PULSAR',
+      }),
+    ),
     ...genDataFields(
-      ['dataType', 'dataEncoding', 'fileDelimiter', 'rowTypeFields'],
+      [
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
+            </Divider>
+          ),
+        },
+        'dataStorage',
+        'dataStorageHIVE',
+        'dataStorageCLICK_HOUSE',
+      ],
       currentValues,
       extraParams,
     ),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
-        </Divider>
-      ),
-    },
-    ...genDataFields(['dataStorage', 'dataStorageHIVE'], currentValues, extraParams),
   ].map(item => {
     if (
       (editingId === true && currentValues?.id === undefined) ||

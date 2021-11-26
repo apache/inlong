@@ -38,6 +38,7 @@ const Comp: React.FC = () => {
   const extraRef = useRef<HTMLDivElement>();
 
   const isReadonly = useMemo(() => [0, 101, 102].includes(data?.status), [data]);
+  const middlewareType = data?.middlewareType;
 
   const list = useMemo(
     () =>
@@ -48,7 +49,7 @@ const Comp: React.FC = () => {
           content: Info,
         },
         {
-          label: t('pages.AccessDetail.DataStreams'),
+          label: middlewareType === 'PULSAR' ? 'TOPIC' : t('pages.AccessDetail.DataStreams'),
           value: 'dataStream',
           content: DataStream,
         },
@@ -65,7 +66,7 @@ const Comp: React.FC = () => {
           hidden: isReadonly,
         },
       ].filter(item => !item.hidden),
-    [isReadonly, t],
+    [isReadonly, middlewareType, t],
   );
 
   const [actived, setActived] = useState(list[0].value);
@@ -84,6 +85,7 @@ const Comp: React.FC = () => {
               isActive={actived === item.value}
               readonly={isReadonly}
               extraRef={extraRef}
+              middlewareType={middlewareType}
             />
           </Tabs.TabPane>
         ))}

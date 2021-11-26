@@ -81,7 +81,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         },
       });
     },
-    [getData, inlongGroupId],
+    [getData, inlongGroupId, t],
   );
 
   useUpdateEffect(() => {

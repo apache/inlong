@@ -29,9 +29,10 @@ import { valuesToData, dataToValues } from './helper';
 
 export interface Props {
   inlongGroupId: string;
+  middlewareType: string;
 }
 
-const Comp = ({ inlongGroupId }: Props, ref) => {
+const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
   const [form] = Form.useForm();
 
   const { t } = useTranslation();
@@ -151,6 +152,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
                           inCharges: [userName],
                         },
                         inlongGroupId,
+                        middlewareType,
                       ).map(item => {
                         const obj = { ...item } as any;
                         if (obj.name) {

@@ -23,32 +23,69 @@ import i18n from '@/i18n';
 import { genBusinessFields } from '@/components/AccessHelper';
 
 export const getFormContent = ({ changedValues, isUpdate }) =>
-  [
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Business.config.BusinessInformation')}
-        </Divider>
-      ),
-    },
-    ...genBusinessFields(['name', 'cnName', 'inCharges', 'description'], changedValues),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Business.config.AccessRequirements')}
-        </Divider>
-      ),
-    },
-    ...genBusinessFields(['middlewareType']),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-        </Divider>
-      ),
-    },
-    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']),
-  ].map(item => {
+  genBusinessFields(
+    [
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.Business.config.AccessRequirements')}
+          </Divider>
+        ),
+      },
+      'middlewareType',
+      'queueModule',
+      'topicPartitionNum',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.Business.config.BusinessInformation')}
+          </Divider>
+        ),
+      },
+      'bgName',
+      'productId',
+      'name',
+      'cnName',
+      'inCharges',
+      'followers',
+      'description',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+          </Divider>
+        ),
+        visible: values => values.middlewareType === 'TUBE',
+      },
+      'dailyRecords',
+      'dailyStorage',
+      'peakRecords',
+      'maxLength',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('components.AccessHelper.FieldsConfig.businessFields.DataCopyTitle')}
+          </Divider>
+        ),
+        visible: values => values.middlewareType === 'PULSAR',
+      },
+      // 'mqExtInfo.ensemble',
+      'mqExtInfo.writeQuorum',
+      'mqExtInfo.ackQuorum',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('components.AccessHelper.FieldsConfig.businessFields.DataStoragePeriodTitle')}
+          </Divider>
+        ),
+        visible: values => values.middlewareType === 'PULSAR',
+      },
+      'mqExtInfo.retentionTime',
+      'mqExtInfo.ttl',
+      'mqExtInfo.retentionSize',
+    ],
+    changedValues,
+  ).map(item => {
     const obj = { ...item };
     if (isUpdate && obj.name === 'name') {
       obj.props = {

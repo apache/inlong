@@ -39,7 +39,7 @@ type RestParams = {
 };
 
 export default (
-  names: string[],
+  names: (string | FormItemProps)[],
   currentValues: Record<string, any> = {},
   {
     inlongGroupId,
@@ -174,15 +174,11 @@ export default (
     {
       type: 'select',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.fileDelimiter'),
-      name: 'fileDelimiter',
-      initialValue: '9',
+      name: 'dataSeparator',
+      initialValue: '124',
       props: {
         dropdownMatchSelectWidth: false,
         options: [
-          {
-            label: 'TAB',
-            value: '9',
-          },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
             value: '124',
@@ -208,18 +204,21 @@ export default (
             value: '59',
           },
         ],
+        useInput: true,
+        useInputProps: {
+          placeholder: 'ASCII',
+        },
+        style: { width: 100 },
       },
-      rules: [{ required: true }],
-      suffix: {
-        type: 'input',
-        name: 'fileDelimiterDetail',
-        rules: [
-          {
-            required: true,
-          },
-        ],
-        visible: values => values.fileDelimiter === 'ASCII',
-      },
+      rules: [
+        {
+          required: true,
+          type: 'number',
+          transform: val => +val,
+          min: 0,
+          max: 127,
+        },
+      ],
       visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
     },
     {

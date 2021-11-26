@@ -51,6 +51,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) 
       ...values,
       inCharges: values.inCharges.join(','),
       followers: values.inCharges.join(','),
+      mqExtInfo: {
+        ...data.mqExtInfo,
+        ...values.mqExtInfo,
+      },
     };
     await request({
       url: '/business/update',

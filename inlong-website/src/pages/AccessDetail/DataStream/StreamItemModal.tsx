@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect } from '@/hooks';
 import i18n from '@/i18n';
-import { genDataFields } from '@/components/AccessHelper';
+import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
 import { valuesToData } from '@/pages/AccessCreate/DataStream/helper';
 import { pickObject } from '@/utils';
@@ -31,40 +31,63 @@ import { pickObject } from '@/utils';
 export interface Props extends ModalProps {
   inlongGroupId: string;
   record?: Record<string, any>;
+  middlewareType: string;
 }
 
-export const genFormContent = (currentValues, inlongGroupId) => {
+export const genFormContent = (currentValues, inlongGroupId, middlewareType) => {
   const extraParams = {
     inlongGroupId,
   };
 
   return [
-    {
-      type: (
-        <Divider orientation="left">{i18n.t('pages.AccessCreate.DataStream.config.Basic')}</Divider>
-      ),
-    },
     ...genDataFields(
-      ['inlongStreamId', 'name', 'inCharges', 'description'],
+      [
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
+            </Divider>
+          ),
+        },
+        'inlongStreamId',
+        'name',
+        'inCharges',
+        'description',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+            </Divider>
+          ),
+        },
+        'dataSourceType',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+            </Divider>
+          ),
+        },
+        'dataType',
+        'rowTypeFields',
+        {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+            </Divider>
+          ),
+          visible: middlewareType === 'PULSAR',
+        },
+      ],
       currentValues,
       extraParams,
     ),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-        </Divider>
-      ),
-    },
-    ...genDataFields(['dataSourceType'], currentValues, extraParams),
-    {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-        </Divider>
-      ),
-    },
-    ...genDataFields(['dataType', 'rowTypeFields'], currentValues, extraParams),
+    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
+      item => ({
+        ...item,
+        visible: middlewareType === 'PULSAR',
+      }),
+    ),
   ].map(item => {
     const obj = { ...item };
 
@@ -76,7 +99,7 @@ export const genFormContent = (currentValues, inlongGroupId) => {
   });
 };
 
-const Comp: React.FC<Props> = ({ inlongGroupId, record, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, record, middlewareType, ...modalProps }) => {
   const [form] = useForm();
   const onOk = async () => {
     const values = {
@@ -117,7 +140,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, ...modalProps }) => {
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(record, inlongGroupId)}
+        content={genFormContent(record, inlongGroupId, middlewareType)}
         form={form}
         useMaxWidth
       />

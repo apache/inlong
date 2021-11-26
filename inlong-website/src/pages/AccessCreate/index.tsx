@@ -21,7 +21,7 @@ import React, { useState, useRef } from 'react';
 import { Button, Card, message, Steps, Space } from 'antd';
 import { parse } from 'qs';
 import { PageContainer, Container, FooterToolbar } from '@/components/PageContainer';
-import { useHistory, useLocation, useSet } from '@/hooks';
+import { useHistory, useLocation, useSet, useRequest } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import Business from './Business';
 import DataStream from './DataStream';
@@ -45,6 +45,13 @@ const Create: React.FC = () => {
   const businessRef = useRef(null);
   const dataStreamRef = useRef(null);
 
+  const [middlewareType, setMiddlewareType] = useState();
+
+  useRequest(`/business/get/${inlongGroupId}`, {
+    ready: !!inlongGroupId && !middlewareType,
+    onSuccess: result => setMiddlewareType(result.middlewareType),
+  });
+
   const steps = [
     {
       title: t('pages.AccessCreate.BusinessInfo'),
@@ -53,8 +60,14 @@ const Create: React.FC = () => {
       ref: businessRef,
     },
     {
-      title: t('pages.AccessCreate.DataStreams'),
-      content: <DataStream ref={dataStreamRef} inlongGroupId={inlongGroupId} />,
+      title: middlewareType === 'PULSAR' ? 'TOPIC' : t('pages.AccessCreate.DataStreams'),
+      content: (
+        <DataStream
+          ref={dataStreamRef}
+          inlongGroupId={inlongGroupId}
+          middlewareType={middlewareType}
+        />
+      ),
       useCache: true,
       ref: dataStreamRef,
     },
@@ -67,7 +80,8 @@ const Create: React.FC = () => {
     try {
       const result = onOk && (await onOk());
       if (current === 0) {
-        setGroupId(result);
+        setMiddlewareType(result.middlewareType);
+        setGroupId(result.inlongGroupId);
         history.push({
           search: `?inlongGroupId=${result}&step=1`,
         });
