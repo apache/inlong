@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDom from 'react-dom';
 import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
@@ -32,8 +32,6 @@ type Props = CommonInterface;
 const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
   const { t } = useTranslation();
   const [editing, { setTrue, setFalse }] = useBoolean(false);
-
-  const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
 
   const [form] = useForm();
 
@@ -52,26 +50,17 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
     },
   );
 
-  const { data: newBusinessData } = useRequest(`/business/get/${changedValues.inlongGroupId}`, {
-    refreshDeps: [changedValues.inlongGroupId],
-    ready: !!changedValues.inlongGroupId,
-    debounceInterval: 500,
-  });
-
-  const businessData =
-    editing && newBusinessData
-      ? newBusinessData
-      : {
-          middlewareType: data?.middlewareType,
-        };
-
   const onSave = async () => {
     const values = await form.validateFields();
     const submitData = {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroupId: values.consumerGroupName,
-      middlewareType: businessData?.middlewareType || data?.middlewareType,
+      middlewareType: values?.middlewareType || data?.middlewareType,
+      mqExtInfo: {
+        ...values.mqExtInfo,
+        middlewareType: values.middlewareType,
+      },
     };
     await request({
       url: `/consumption/update/${id}`,
@@ -110,10 +99,8 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
         content={getFormContent({
           editing,
           initialValues: data,
-          businessData,
         })}
         allValues={data}
-        onValuesChange={(c, v) => setChangedValues(v)}
         useMaxWidth={800}
       />
 

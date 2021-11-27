@@ -46,6 +46,10 @@ const Comp = ({ id }: Props, ref) => {
     {
       ready: !!id && !Object.keys(changedValues).length,
       refreshDeps: [id],
+      formatResult: data => ({
+        ...data,
+        topic: data.topic.split(','),
+      }),
       onSuccess: data => {
         form.setFieldsValue(data);
         setChangedValues(data);
@@ -53,18 +57,17 @@ const Comp = ({ id }: Props, ref) => {
     },
   );
 
-  const { data: businessData } = useRequest(`/business/get/${changedValues.inlongGroupId}`, {
-    refreshDeps: [changedValues.inlongGroupId],
-    ready: !!changedValues.inlongGroupId,
-  });
-
   const onOk = async () => {
     const values = await form.validateFields();
     const data = {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroupId: values.consumerGroupName || savedData.consumerGroupId,
-      middlewareType: businessData.middlewareType,
+      topic: Array.isArray(values.topic) ? values.topic.join(',') : values.topic,
+      mqExtInfo: {
+        ...values.mqExtInfo,
+        middlewareType: values.middlewareType,
+      },
     };
 
     if (id) data.id = id;
@@ -99,9 +102,9 @@ const Comp = ({ id }: Props, ref) => {
     <>
       <FormGenerator
         form={form}
-        content={getFormContent({ businessData, changedValues })}
+        content={getFormContent({ changedValues })}
         useMaxWidth={800}
-        onValuesChange={(c, v) => setChangedValues(v)}
+        onValuesChange={(c, v) => setChangedValues(prev => ({ ...prev, ...v }))}
         allValues={savedData}
       />
     </>
