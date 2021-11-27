@@ -23,25 +23,30 @@ import i18n from '@/i18n';
 import { genBasicFields } from '@/components/ConsumeHelper';
 
 const getConsumerContent = initialValues => {
-  return [
-    {
-      type: 'text',
-      label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
-      name: 'consumerGroupId',
-      initialValue: initialValues.consumerGroupId,
-    },
-    ...genBasicFields(
-      ['inCharges', 'masterUrl', 'inlongGroupId'],
-      { middlewareType: initialValues.middlewareType },
-      initialValues,
-    ),
-    {
-      type: 'text',
-      label: 'Topic',
-      name: 'topic',
-      initialValue: initialValues.topic,
-    },
-  ].map(item => {
+  return genBasicFields(
+    [
+      {
+        type: 'text',
+        label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
+        name: 'consumerGroupId',
+        initialValue: initialValues.consumerGroupId,
+      },
+      'inCharges',
+      'masterUrl',
+      'inlongGroupId',
+      'mqExtInfo.isDlq',
+      'mqExtInfo.deadLetterTopic',
+      'mqExtInfo.isRlq',
+      'mqExtInfo.retryLetterTopic',
+      {
+        type: 'text',
+        label: 'Topic',
+        name: 'topic',
+        initialValue: initialValues.topic,
+      },
+    ],
+    initialValues,
+  ).map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;
@@ -68,7 +73,11 @@ export const getFormContent = (
 ) => {
   const array = [
     {
-      type: <Divider orientation="left">基础信息</Divider>,
+      type: (
+        <Divider orientation="left">
+          {i18n.t('pages.ApprovalDetail.ConsumeConfig.BasicInfo')}
+        </Divider>
+      ),
     },
     ...(getConsumerContent(formData.consumptionInfo) || []),
   ];
@@ -78,7 +87,7 @@ export const getFormContent = (
       ? [
           {
             type: 'input',
-            label: '消费组',
+            label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
             name: ['form', 'consumerGroupId'],
             initialValue: formData.consumptionInfo?.consumerGroupId,
             rules: [{ required: true }],
@@ -93,7 +102,11 @@ export const getFormContent = (
     ? array
     : array.concat([
         {
-          type: <Divider orientation="left">审批信息</Divider>,
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.ApprovalDetail.ConsumeConfig.ApprovalInfo')}
+            </Divider>
+          ),
         },
         ...extraForm,
         ...suffixContent,
