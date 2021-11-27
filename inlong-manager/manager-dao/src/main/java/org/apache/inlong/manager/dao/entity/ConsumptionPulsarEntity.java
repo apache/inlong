@@ -18,39 +18,20 @@
 package org.apache.inlong.manager.dao.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 @Data
-public class DataStreamEntity implements Serializable {
+public class ConsumptionPulsarEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String inlongStreamId;
+    private Integer consumptionId;
+    private String consumerGroupId;
     private String inlongGroupId;
-    private String name;
-    private String description;
-    private String mqResourceObj;
-    private String dataSourceType;
-    private Integer storagePeriod;
-    private String dataType;
-    private String dataEncoding;
-    private String fileDelimiter;
-    private Integer havePredefinedFields;
-    private String inCharges;
-
-    private Integer dailyRecords;
-    private Integer dailyStorage;
-    private Integer peakRecords;
-    private Integer maxLength;
-
-    private Integer status;
-    private Integer previousStatus;
+    private Integer isDlq;
+    private String deadLetterTopic;
+    private Integer isRlq;
+    private String retryLetterTopic;
     private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private String tempView;
 
 }

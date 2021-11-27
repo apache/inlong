@@ -259,6 +259,26 @@ CREATE TABLE `consumption`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
 
 -- ----------------------------
+-- Table structure for consumption_pulsar
+-- ----------------------------
+DROP TABLE IF EXISTS `consumption_pulsar`;
+CREATE TABLE `consumption_pulsar`
+(
+    `id`                  int          NOT NULL AUTO_INCREMENT,
+    `consumption_id`      int          DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
+    `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
+    `consumer_group_name` varchar(255) NOT NULL COMMENT 'Consumer group name',
+    `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group ID',
+    `is_rlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
+    `retry_letter_topic`  varchar(255) DEFAULT NULL COMMENT 'The name of the retry queue topic',
+    `is_dlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
+    `dead_letter_topic`   varchar(255) DEFAULT NULL COMMENT 'dead letter topic name',
+    `is_deleted`          int          DEFAULT '0' COMMENT 'Whether to delete',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar consumption table';
+
+-- ----------------------------
 -- Table structure for data_proxy_cluster
 -- ----------------------------
 DROP TABLE IF EXISTS `data_proxy_cluster`;

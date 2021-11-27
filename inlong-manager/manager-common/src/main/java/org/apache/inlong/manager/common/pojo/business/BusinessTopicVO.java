@@ -36,8 +36,8 @@ public class BusinessTopicVO {
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     private String middlewareType;
 
-    @ApiModelProperty(value = "Tube topic name")
-    private String topicName;
+    @ApiModelProperty(value = "Tube topic name, or Pulsar namespace name")
+    private String mqResourceObj;
 
     @ApiModelProperty(value = "Topic list, Tube corresponds to business group, there is only 1 topic, "
             + "Pulsar corresponds to data stream, there are multiple topics")

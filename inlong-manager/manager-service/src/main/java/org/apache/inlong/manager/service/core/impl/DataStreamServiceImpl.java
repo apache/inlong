@@ -149,6 +149,13 @@ public class DataStreamServiceImpl implements DataStreamService {
         return streamInfo;
     }
 
+    @Override
+    public Boolean exist(String groupId, String streamId) {
+        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        DataStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        return streamEntity != null;
+    }
+
     /**
      * Query and set the extended information and data source fields of the data stream
      *
@@ -624,6 +631,41 @@ public class DataStreamServiceImpl implements DataStreamService {
 
         LOGGER.info("success to update stream after approve for groupId={}", groupId);
         return true;
+    }
+
+    @Override
+    public void insertDlqOrRlq(String groupId, String topicName, String operator) {
+        Integer count = streamMapper.selectExistByIdentifier(groupId, topicName);
+        if (count >= 1) {
+            LOGGER.error("DLQ/RLQ topic already exists with name={}", topicName);
+            throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_DUPLICATE, "DLQ/RLQ topic already exists");
+        }
+
+        DataStreamEntity streamEntity = new DataStreamEntity();
+        streamEntity.setInlongGroupId(groupId);
+        streamEntity.setInlongStreamId(topicName);
+        streamEntity.setMqResourceObj(topicName);
+        streamEntity.setDescription("This is DLQ / RLQ topic created by SYSTEM");
+        streamEntity.setDailyRecords(1000);
+        streamEntity.setDailyStorage(1000);
+        streamEntity.setPeakRecords(1000);
+        streamEntity.setMaxLength(1000);
+
+        streamEntity.setStatus(EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode());
+        streamEntity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        streamEntity.setCreator(operator);
+        streamEntity.setModifier(operator);
+        Date now = new Date();
+        streamEntity.setCreateTime(now);
+        streamEntity.setModifyTime(now);
+
+        streamMapper.insert(streamEntity);
+    }
+
+    @Override
+    public void logicDeleteDlqOrRlq(String groupId, String topicName, String operator) {
+        streamMapper.logicDeleteDlqOrRlq(groupId, topicName, operator);
+        LOGGER.info("success to logic delete dlq or rlq by groupId={}, topicName={}", groupId, topicName);
     }
 
     /**

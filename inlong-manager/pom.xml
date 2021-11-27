@@ -52,6 +52,7 @@
         <druid.version>1.2.5</druid.version>
         <shiro.version>1.4.1</shiro.version>
         <hive.version>3.1.2</hive.version>
+        <pulsar.version>2.8.1</pulsar.version>
         <servlet-api.version>2.5</servlet-api.version>
         <servlet.jsp-api.version>2.3.3</servlet.jsp-api.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -194,6 +195,16 @@
                 <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper.springboot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pulsar</groupId>
+                <artifactId>pulsar-client</artifactId>
+                <version>${pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pulsar</groupId>
+                <artifactId>pulsar-client-admin</artifactId>
+                <version>${pulsar.version}</version>
             </dependency>
 
             <dependency>

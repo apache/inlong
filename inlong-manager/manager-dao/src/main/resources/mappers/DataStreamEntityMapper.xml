@@ -509,6 +509,14 @@
             and is_deleted = 0
         </where>
     </update>
+    <update id="logicDeleteDlqOrRlq">
+        update data_stream
+        set is_deleted = 1,
+            modifier   = #{operator, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </update>
 
     <select id="selectStreamToHiveInfo" resultMap="dataStreamFullInfo">
         SELECT h.id,

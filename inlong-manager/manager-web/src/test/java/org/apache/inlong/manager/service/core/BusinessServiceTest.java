@@ -24,17 +24,18 @@ import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestComponent;
 
 /**
  * Business Service Test
  */
+@TestComponent
 public class BusinessServiceTest extends ServiceBaseTest {
 
     @Autowired
     private BusinessService businessService;
 
-    public String saveBusiness(String operator) {
-        String groupName = "test_group";
+    public String saveBusiness(String groupName, String operator) {
         BusinessInfo businessInfo = new BusinessInfo();
         businessInfo.setName(groupName);
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
@@ -53,15 +54,17 @@ public class BusinessServiceTest extends ServiceBaseTest {
 
     @Test
     public void testSave() {
+        String groupName = "test_group1";
         String operator = "test_user";
-        String groupId = this.saveBusiness(operator);
+        String groupId = this.saveBusiness(groupName, operator);
         Assert.assertNotNull(groupId);
     }
 
     @Test
     public void testDelete() {
+        String groupName = "test_group2";
         String operator = "test_user";
-        String groupId = this.saveBusiness(operator);
+        String groupId = this.saveBusiness(groupName, operator);
         boolean result = businessService.delete(groupId, operator);
         Assert.assertTrue(result);
     }

@@ -383,7 +383,7 @@ public class BusinessServiceImpl implements BusinessService {
 
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
             // Tube Topic corresponds to business one-to-one
-            topicVO.setTopicName(businessInfo.getMqResourceObj());
+            topicVO.setMqResourceObj(businessInfo.getMqResourceObj());
             topicVO.setTubeMasterUrl(clusterBean.getTubeMaster());
         } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
             // Pulsar's topic corresponds to the data stream one-to-one

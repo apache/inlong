@@ -55,6 +55,15 @@ public interface DataStreamService {
     DataStreamInfo get(String groupId, String streamId);
 
     /**
+     * Query whether the data stream ID exists
+     *
+     * @param groupId business group id
+     * @param streamId data stream id
+     * @return true: exists, false: does not exist
+     */
+    Boolean exist(String groupId, String streamId);
+
+    /**
      * Query data stream list based on conditions
      *
      * @param request Data stream paging query request
@@ -187,5 +196,17 @@ public interface DataStreamService {
      * @apiNote If streamId is null, update all data stream associated with groupId
      */
     boolean updateStatus(String groupId, String streamId, Integer status, String operator);
+
+    /**
+     * According to the specified DLQ / RLQ name, create the corresponding Pulsar's Topic stream
+     *
+     * @param topicName Pulsar's Topic name, which is the data stream ID
+     */
+    void insertDlqOrRlq(String bid, String topicName, String operator);
+
+    /**
+     * Logic delete dlq or rlq topic by bid
+     */
+    void logicDeleteDlqOrRlq(String bid, String topicName, String operator);
 
 }

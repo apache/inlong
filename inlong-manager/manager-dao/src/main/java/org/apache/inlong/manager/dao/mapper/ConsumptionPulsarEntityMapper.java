@@ -17,31 +17,27 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.workflow.model.view.CountByKey;
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConsumptionEntityMapper {
+public interface ConsumptionPulsarEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByConsumptionId(@Param("consumptionId") Integer consumptionId);
 
-    int insert(ConsumptionEntity record);
+    int insert(ConsumptionPulsarEntity record);
 
-    int insertSelective(ConsumptionEntity record);
+    int insertSelective(ConsumptionPulsarEntity record);
 
-    ConsumptionEntity selectByPrimaryKey(Integer id);
+    ConsumptionPulsarEntity selectByPrimaryKey(@Param("id") Integer id);
 
-    ConsumptionEntity selectConsumptionExists(String groupId, String topic, String consumerGroup);
+    ConsumptionPulsarEntity selectByConsumptionId(@Param("consumptionId") Integer consumptionId);
 
-    int updateByPrimaryKeySelective(ConsumptionEntity record);
+    int updateByPrimaryKeySelective(ConsumptionPulsarEntity record);
 
-    int updateByPrimaryKey(ConsumptionEntity record);
+    int updateByConsumptionId(ConsumptionPulsarEntity record);
 
-    List<ConsumptionEntity> listByQuery(ConsumptionQuery consumptionQuery);
-
-    List<CountByKey> countByStatus(ConsumptionQuery consumptionQuery);
+    int updateByPrimaryKey(ConsumptionPulsarEntity record);
 
 }

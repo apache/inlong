@@ -50,6 +50,16 @@
         from consumption
         where id = #{id,jdbcType=INTEGER} and is_deleted = 0
     </select>
+    <select id="selectConsumptionExists" resultType="org.apache.inlong.manager.dao.entity.ConsumptionEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from consumption
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and topic = #{topic, jdbcType=VARCHAR}
+        and consumer_group_id = #{consumerGroup, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         update consumption
         set is_deleted=id
@@ -237,7 +247,7 @@
     </update>
 
     <select id="listByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery"
+            parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
             resultMap="BaseResultMap">
         select
         c.*
@@ -309,7 +319,7 @@
     </select>
 
     <select id="countByStatus"
-            parameterType="org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery"
+            parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
             resultType="org.apache.inlong.manager.workflow.model.view.CountByKey">
         select
         status as `key`,count(1) as value

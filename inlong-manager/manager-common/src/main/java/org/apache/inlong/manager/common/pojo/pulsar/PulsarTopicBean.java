@@ -15,22 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataconsumption;
+package org.apache.inlong.manager.common.pojo.pulsar;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Data consumption update info
- */
 @Data
-@ApiModel("Data consumption update info")
-public class ConsumptionUpdateInfo {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PulsarTopicBean {
 
-    private Integer id;
+    private String tenant;
 
-    @ApiModelProperty(value = "consumption in charges")
-    private String inCharges;
+    private String namespace;
+
+    private String topicName;
+
+    private String queueModule;
+
+    private Integer numPartitions = 0;
 
 }

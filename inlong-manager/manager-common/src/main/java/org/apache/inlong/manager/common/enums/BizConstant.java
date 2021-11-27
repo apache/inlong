@@ -40,8 +40,20 @@ public class BizConstant {
 
     public static final String SCHEMA_M0_DAY = "m0_day";
 
+    public static final String CLUSTER_HIVE_TOPO = "HIVE_TOPO";
+
     public static final String GROUP_ID_IS_EMPTY = "business group id is empty";
 
     public static final String STREAM_ID_IS_EMPTY = "data stream id is empty";
+
+    public static final String PULSAR_TOPIC_TYPE_SERIAL = "SERIAL";
+
+    public static final String PULSAR_TOPIC_TYPE_PARALLEL = "PARALLEL";
+
+    public static final String SYSTEM_USER = "SYSTEM"; // system user
+
+    public static final String PREFIX_DLQ = "dlq"; // prefix of the Topic of the dead letter queue
+
+    public static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
 }

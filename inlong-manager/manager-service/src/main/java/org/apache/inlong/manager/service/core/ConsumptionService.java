@@ -18,11 +18,11 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionInfo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionListVo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionSummary;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionUpdateInfo;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.service.workflow.WorkflowResult;
 
 /**
@@ -52,15 +52,7 @@ public interface ConsumptionService {
      * @param id Consumer ID
      * @return Details
      */
-    ConsumptionInfo getInfo(Integer id);
-
-    /**
-     * According to data consumption details
-     *
-     * @param consumerGroupId Consumer group ID
-     * @return Consumption info
-     */
-    ConsumptionInfo getInfo(String consumerGroupId);
+    ConsumptionInfo get(Integer id);
 
     /**
      * Determine whether the Consumer group ID already exists
@@ -69,7 +61,7 @@ public interface ConsumptionService {
      * @param excludeSelfId Exclude the ID of this record
      * @return does it exist
      */
-    boolean isConsumerGroupIdExist(String consumerGroupId, Integer excludeSelfId);
+    boolean isConsumerGroupIdExists(String consumerGroupId, Integer excludeSelfId);
 
     /**
      * Save basic data consumption information
@@ -83,11 +75,10 @@ public interface ConsumptionService {
     /**
      * Update the person in charge of data consumption, etc
      *
-     * @param consumptionUpdateInfo Update information
+     * @param consumptionInfo consumption information
      * @param operator Operator
-     * @return Updated id
      */
-    Integer update(ConsumptionUpdateInfo consumptionUpdateInfo, String operator);
+    Boolean update(ConsumptionInfo consumptionInfo, String operator);
 
     /**
      * Delete data consumption
@@ -95,7 +86,7 @@ public interface ConsumptionService {
      * @param id Consumer ID
      * @param operator Operator
      */
-    void delete(Integer id, String operator);
+    Boolean delete(Integer id, String operator);
 
     /**
      * Start the application process
@@ -105,5 +96,10 @@ public interface ConsumptionService {
      * @return Process information
      */
     WorkflowResult startProcess(Integer id, String operator);
+
+    /**
+     * Save the consumer group info for Sort to the database
+     */
+    void saveSortConsumption(BusinessInfo bizInfo, String topic, String consumerGroup);
 
 }

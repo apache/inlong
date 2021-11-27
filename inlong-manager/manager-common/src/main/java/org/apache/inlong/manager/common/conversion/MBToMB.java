@@ -15,34 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataconsumption;
+package org.apache.inlong.manager.common.conversion;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class MBToMB implements ConversionStrategy {
 
-/**
- * Data consumption statistics
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Data consumption statistics")
-public class ConsumptionSummary {
-
-    @ApiModelProperty(value = "Total consumption")
-    private Integer totalCount;
-
-    @ApiModelProperty(value = "Amount to be allocated")
-    private Integer waitingAssignCount;
-
-    @ApiModelProperty(value = "Amount to be approved")
-    private Integer waitingApproveCount;
-
-    @ApiModelProperty(value = "Quantity rejected")
-    private Integer rejectedCount;
+    @Override
+    public Integer unitConversion(Integer value) {
+        return value;
+    }
 }
