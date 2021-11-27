@@ -19,6 +19,7 @@
 
 export interface CommonInterface {
   inlongGroupId: string;
+  middlewareType: 'TUBE' | 'PULSAR';
   readonly?: boolean;
   isActive?: boolean;
   // extraRef of Tab

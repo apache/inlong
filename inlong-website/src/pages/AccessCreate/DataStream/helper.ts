@@ -133,6 +133,7 @@ export const dataToValues = data => {
     );
 
     output = {
+      hasHigher: false,
       ...output,
       ...fieldList,
       ...streamInfo,
