@@ -49,4 +49,7 @@ public class ClusterBean {
     @Value("${pulsar.serviceUrl}")
     private String pulsarServiceUrl;
 
+    @Value("${pulsar.defaultTenant}")
+    private String defaultTenant;
+
 }
