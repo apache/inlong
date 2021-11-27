@@ -134,14 +134,16 @@ export function pickObjectArray(keys = [], sourceArr = [], key = 'name') {
   if (isDevelopEnv()) {
     // Increase the log in the development environment to facilitate debugging
     return keys.reduce((acc, k) => {
-      if (map.has(k)) {
+      if (typeof k !== 'string') {
+        return acc.concat(k);
+      } else if (map.has(k)) {
         return acc.concat(map.get(k));
       }
       console.warn(`[Utils] pickObjectArray lost: ${k}`);
       return acc;
     }, []);
   } else {
-    return keys.map(k => map.get(k));
+    return keys.map(k => (typeof k !== 'string' ? k : map.get(k)));
   }
 }
 
