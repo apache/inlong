@@ -24,11 +24,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionInfo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionListVo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionQuery;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionSummary;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionUpdateInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -72,7 +71,7 @@ public class ConsumptionController {
     @ApiOperation(value = "Get consumption details")
     public Response<ConsumptionInfo> getDetail(
             @ApiParam(value = "Consumption ID", required = true) @PathVariable(name = "id") Integer id) {
-        return Response.success(consumptionService.getInfo(id));
+        return Response.success(consumptionService.get(id));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -96,12 +95,11 @@ public class ConsumptionController {
     @PostMapping("/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data consumption")
-    public Response<Integer> updateConsumptionInfo(
-            @ApiParam(value = "Consumption ID", required = true) @PathVariable(name = "id") Integer id,
-            @Validated @RequestBody ConsumptionUpdateInfo consumptionUpdateInfo) {
-        consumptionUpdateInfo.setId(id);
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(consumptionService.update(consumptionUpdateInfo, currentUser));
+    public Response<String> update(@PathVariable(name = "id") Integer id,
+            @Validated @RequestBody ConsumptionInfo consumptionInfo) {
+        consumptionInfo.setId(id);
+        consumptionService.update(consumptionInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        return Response.success();
     }
 
     @PostMapping("/startProcess/{id}")

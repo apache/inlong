@@ -85,4 +85,9 @@ public interface DataStreamEntityMapper {
     int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status, @Param("modifier") String modifier);
 
+    /**
+     * Logic delete dlq or rlq topic by bid
+     */
+    void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
+
 }

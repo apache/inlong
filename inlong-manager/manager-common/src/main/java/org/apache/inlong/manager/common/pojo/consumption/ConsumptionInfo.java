@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataconsumption;
+package org.apache.inlong.manager.common.pojo.consumption;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -86,6 +86,9 @@ public class ConsumptionInfo {
     private Date createTime;
 
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Extended information for MQ")
+    private ConsumptionMqExtBase mqExtInfo;
 
     @JsonIgnore
     @AssertTrue(message = "when filter enabled, data stream id cannot be null")

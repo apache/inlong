@@ -15,41 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.beans;
+package org.apache.inlong.manager.common.conversion;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Data
 @Component
-public class ClusterBean {
+public class HoursToMinute implements ConversionStrategy {
 
-    @Value("${cluster.tube.master}")
-    private String tubeMaster;
-
-    @Value("${cluster.tube.manager}")
-    private String tubeManager;
-
-    @Value("${cluster.tube.clusterId}")
-    private Integer clusterId;
-
-    @Value("${cluster.zk.url}")
-    private String zkUrl;
-
-    @Value("${cluster.zk.root}")
-    private String zkRoot;
-
-    @Value("${sort.appName}")
-    private String appName;
-
-    @Value("${pulsar.adminUrl}")
-    private String pulsarAdminUrl;
-
-    @Value("${pulsar.serviceUrl}")
-    private String pulsarServiceUrl;
-
-    @Value("${pulsar.defaultTenant}")
-    private String defaultTenant;
-
+    @Override
+    public Integer unitConversion(Integer value) {
+        return value * 60;
+    }
 }
+

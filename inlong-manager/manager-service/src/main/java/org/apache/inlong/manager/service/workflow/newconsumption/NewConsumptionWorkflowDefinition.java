@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.dataconsumption.ConsumptionInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;

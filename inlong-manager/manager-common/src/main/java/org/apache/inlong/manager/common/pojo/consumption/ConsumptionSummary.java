@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataconsumption;
+package org.apache.inlong.manager.common.pojo.consumption;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,16 +25,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Response after data consumption information is successfully saved
+ * Data consumption statistics
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Response after data consumption information is successfully saved")
-public class ConsumptionSaveResponse {
+@ApiModel("Data consumption statistics")
+public class ConsumptionSummary {
 
-    @ApiModelProperty(value = "Data consumption ID")
-    private Integer id;
+    @ApiModelProperty(value = "Total consumption")
+    private Integer totalCount;
 
+    @ApiModelProperty(value = "Amount to be allocated")
+    private Integer waitingAssignCount;
+
+    @ApiModelProperty(value = "Amount to be approved")
+    private Integer waitingApproveCount;
+
+    @ApiModelProperty(value = "Quantity rejected")
+    private Integer rejectedCount;
 }

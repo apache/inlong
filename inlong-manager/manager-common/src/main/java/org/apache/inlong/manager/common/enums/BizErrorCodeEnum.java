@@ -80,7 +80,14 @@ public enum BizErrorCodeEnum {
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
     CONSUMER_GROUP_NAME_DUPLICATED(2600, "The consumer group already exists in the cluster"),
-    CONSUMER_GROUP_CREATE_FAILED(5001, "Failed to create tube consumer group"),
+    CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
+    TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
+    PULSAR_GROUP_CREATE_FAILED(2603, "Create Pulsar consumer group failed"),
+    TUBE_TOPIC_CREATE_FAILED(2604, "CreateTube Topic failed"),
+    PULSAR_TOPIC_CREATE_FAILED(2605, "Create Pulsar Topic failed"),
+    PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
+    PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the business"),
+    PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the business"),
 
     COMMON_FILE_DOWNLOAD_FAIL(6001, "File download failed"),
     COMMON_FILE_UPLOAD_FAIL(6002, "File upload failed"),

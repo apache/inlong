@@ -56,7 +56,7 @@ public class ConsumptionApproveTaskListener implements TaskEventListener {
             return ListenerResult.success("The consumer group name has not been modified");
         }
         boolean exitDuplicate = this.consumptionService
-                .isConsumerGroupIdExist(approveForm.getConsumerGroupId(), form.getConsumptionInfo().getId());
+                .isConsumerGroupIdExists(approveForm.getConsumerGroupId(), form.getConsumptionInfo().getId());
         if (exitDuplicate) {
             log.error("consumerGroupId already exist! duplicate :{}", approveForm.getConsumerGroupId());
             throw new BusinessException(BizErrorCodeEnum.CONSUMER_GROUP_NAME_DUPLICATED);
