@@ -19,7 +19,6 @@ package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
@@ -36,8 +35,6 @@ public interface DataStreamEntityMapper {
 
     DataStreamEntity selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(DataStreamEntity record);
-
     int updateByPrimaryKey(DataStreamEntity record);
 
     DataStreamEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -50,24 +47,9 @@ public interface DataStreamEntityMapper {
      * @param request query request
      * @return data stream list
      */
-    List<DataStreamEntity> selectByCondition(DataStreamPageRequest request);
+    List<DataStreamEntity> selectByCondition(@Param("request") DataStreamPageRequest request);
 
     List<DataStreamEntity> selectByGroupId(@Param("groupId") String groupId);
-
-    /**
-     * According to the conditions and business in charges, query all data stream
-     *
-     * @param request paging query conditions
-     * @param inCharges business in charges
-     * @return data stream list
-     */
-    List<DataStreamEntity> selectByConditionAndInCharges(@Param("request") DataStreamPageRequest request,
-            @Param("inCharges") String inCharges);
-
-    List<DataStreamInfoToHiveConfig> selectStreamToHiveInfo(@Param("groupId") String groupId);
-
-    DataStreamInfoToHiveConfig selectStreamToHiveInfoByIdentifier(@Param("groupId") String groupId,
-            @Param("streamId") String streamId);
 
     int selectCountByGroupId(@Param("groupId") String groupId);
 

@@ -416,44 +416,8 @@ public class BusinessServiceImpl implements BusinessService {
         // If you need to change business info after approve, just do in here
         this.updateStatus(groupId, EntityStatus.BIZ_CONFIG_ING.getCode(), operator);
 
-        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-            BusinessPulsarEntity pulsarEntity = checkAndGetEntity(approveInfo);
-            businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
-        }
-
         LOGGER.info("success to update business status after approve for groupId={}", groupId);
         return true;
-    }
-
-    /**
-     * Check whether the Pulsar parameters filled in during approval are valid,
-     * if valid, return to the encapsulated entity
-     */
-    private BusinessPulsarEntity checkAndGetEntity(BusinessApproveInfo approveInfo) {
-        // Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble
-        Integer ackQuorum = approveInfo.getAckQuorum();
-        Integer writeQuorum = approveInfo.getWriteQuorum();
-        Integer ensemble = approveInfo.getEnsemble();
-        Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
-        Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
-        Preconditions.checkNotNull(ensemble, "Pulsar ensemble cannot be empty");
-        if (!(ackQuorum <= writeQuorum && writeQuorum <= ensemble)) {
-            throw new BusinessException(BizErrorCodeEnum.BUSINESS_SAVE_FAILED,
-                    "Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble");
-        }
-
-        Preconditions.checkTrue(approveInfo.getTopicPartitionNum() != null
-                        && approveInfo.getTopicPartitionNum() >= 1 && approveInfo.getTopicPartitionNum() <= 20,
-                "topic partition num must meet >= 1 and <= 20");
-
-        Preconditions.checkTrue(approveInfo.getTtl() != null && approveInfo.getTtlUnit() != null,
-                "retention size and unit cannot be empty");
-        Preconditions.checkTrue(approveInfo.getRetentionSize() != null && approveInfo.getRetentionSizeUnit() != null,
-                "retention size and unit cannot be empty");
-        Preconditions.checkTrue(approveInfo.getRetentionTime() != null && approveInfo.getRetentionTimeUnit() != null,
-                "retention size and unit cannot be empty");
-
-        return CommonBeanUtils.copyProperties(approveInfo, BusinessPulsarEntity::new);
     }
 
     /**

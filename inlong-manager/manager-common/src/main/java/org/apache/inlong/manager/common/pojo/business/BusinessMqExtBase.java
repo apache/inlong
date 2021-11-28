@@ -45,7 +45,7 @@ public class BusinessMqExtBase {
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
-    @ApiModelProperty(value = "Middleware type of data storage, high throughput: TUBE")
+    @ApiModelProperty(value = "Middleware type of data storage, high throughput: TUBE, high consistency : PULSAR")
     private String middlewareType;
 
 }

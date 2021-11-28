@@ -40,6 +40,9 @@ public class StoragePageRequest extends PageRequest {
     @ApiModelProperty(value = "Storage type, such as HIVE", required = true)
     private String storageType;
 
+    @ApiModelProperty(value = "Key word")
+    private String keyWord;
+
     @ApiModelProperty(value = "Status")
     private Integer status;
 

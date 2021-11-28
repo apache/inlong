@@ -69,7 +69,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     @Override
     public void create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
-        Preconditions.checkNotEmpty(approvers, "can't assign approvers for task: " + userTask.getDisplayName()
+        Preconditions.checkNotEmpty(approvers, "cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers in table `wf_approver` was empty");
 
         if (!userTask.isNeedAllApprove()) {
@@ -166,7 +166,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
         UserTask userTask = (UserTask) actionContext.getTask();
         if (needForm(userTask, actionContext.getAction())) {
-            Preconditions.checkNotNull(actionContext.getForm(), "form can't be null");
+            Preconditions.checkNotNull(actionContext.getForm(), "form cannot be null");
             Preconditions.checkTrue(actionContext.getForm().getClass().isAssignableFrom(userTask.getFormClass()),
                     () -> "form type not match, should be class " + userTask.getFormClass());
             actionContext.getForm().validate();

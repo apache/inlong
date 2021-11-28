@@ -34,6 +34,14 @@ public class BizConstant {
 
     public static final String DATA_TYPE_KEY_VALUE = "KEY-VALUE";
 
+    public static final String FILE_FORMAT_TEXT = "TextFile";
+
+    public static final String FILE_FORMAT_ORC = "OrcFile";
+
+    public static final String FILE_FORMAT_SEQUENCE = "SequenceFile";
+
+    public static final String FILE_FORMAT_PARQUET = "Parquet";
+
     public static final String MIDDLEWARE_TUBE = "TUBE";
 
     public static final String MIDDLEWARE_PULSAR = "PULSAR";

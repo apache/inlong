@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.thirdpart.hive;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
-import org.apache.inlong.manager.service.core.DataStreamService;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
+import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
@@ -37,8 +37,7 @@ import org.springframework.stereotype.Service;
 public class CreateHiveTableForAllStreamListener implements TaskEventListener {
 
     @Autowired
-    private DataStreamService dataStreamService;
-
+    private StorageHiveEntityMapper hiveEntityMapper;
     @Autowired
     private HiveTableOperator hiveTableOperator;
 
@@ -53,12 +52,12 @@ public class CreateHiveTableForAllStreamListener implements TaskEventListener {
         String groupId = form.getInlongGroupId();
         log.info("begin to create hive table for groupId={}", groupId);
 
-        List<DataStreamInfoToHiveConfig> configList = dataStreamService.queryHiveConfigForAllDataStream(groupId);
+        List<StorageHiveSortInfo> configList = hiveEntityMapper.selectHiveSortInfoByIdentifier(groupId, null);
         if (configList == null || configList.size() == 0) {
             return ListenerResult.success();
         }
 
-        for (DataStreamInfoToHiveConfig hiveConfig : configList) {
+        for (StorageHiveSortInfo hiveConfig : configList) {
             hiveTableOperator.createHiveTable(groupId, hiveConfig);
             log.info("finish to create hive table for business {}", groupId);
         }

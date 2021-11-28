@@ -18,8 +18,7 @@
     under the License.
 -->
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -32,8 +31,13 @@
         <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
         <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
         <result column="data_encoding" jdbcType="VARCHAR" property="dataEncoding"/>
-        <result column="file_delimiter" jdbcType="VARCHAR" property="fileDelimiter"/>
+        <result column="data_separator" jdbcType="VARCHAR" property="dataSeparator"/>
+        <result column="data_escape_char" jdbcType="VARCHAR" property="dataEscapeChar"/>
         <result column="have_predefined_fields" jdbcType="INTEGER" property="havePredefinedFields"/>
+        <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
+        <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
+        <result column="peak_records" jdbcType="INTEGER" property="peakRecords"/>
+        <result column="max_length" jdbcType="INTEGER" property="maxLength"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
@@ -44,47 +48,11 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
     </resultMap>
-
-    <resultMap id="dataStreamFullInfo"
-            type="org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig">
-        <result column="id" jdbcType="VARCHAR" property="id"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
-        <result column="name" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="status" jdbcType="VARCHAR" property="status"/>
-        <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
-        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="field_splitter" jdbcType="VARCHAR" property="fieldSplitter"/>
-        <result column="creator" jdbcType="VARCHAR" property="creator"/>
-        <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
-        <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
-        <result column="partition_type" jdbcType="VARCHAR" property="partitionType"/>
-        <result column="partition_field_position" jdbcType="VARCHAR"
-                property="partitionFieldPosition"/>
-        <result column="primary_partition" jdbcType="BIT" property="primaryPartition"/>
-        <result column="secondary_partition" jdbcType="BIT" property="secondaryPartition"/>
-        <result column="file_format" jdbcType="BIT" property="fileFormat"/>
-        <result column="clusterid" jdbcType="BIT" property="clusterId"/>
-        <result column="storage_period" jdbcType="VARCHAR" property="storagePeriod"/>
-        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
-        <result column="username" jdbcType="TIMESTAMP" property="userName"/>
-        <result column="PASSWORD" jdbcType="TIMESTAMP" property="password"/>
-        <result column="warehouse_dir" jdbcType="TIMESTAMP" property="warehouseDir"/>
-        <result column="hdfs_defaultfs" jdbcType="TIMESTAMP" property="fsDefaultName"/>
-        <result column="hdfs_ugi" jdbcType="TIMESTAMP" property="hadoopUgi"/>
-        <result column="encoding_type" jdbcType="VARCHAR" property="encodingType"/>
-        <result column="us_task_id" jdbcType="VARCHAR" property="usTaskId"/>
-        <result column="usage_interval" jdbcType="VARCHAR" property="usageInterval"/>
-    </resultMap>
-
-    <resultMap id="streamSummaryMap" type="java.util.Map">
-        <result column="dataSourceType" property="dataSourceType" jdbcType="VARCHAR"/>
-        <result column="dataStorageType" property="dataStorageType" jdbcType="VARCHAR"/>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id, inlong_stream_id, inlong_group_id, name, description, mq_resource_obj, data_source_type,
-        storage_period, data_type, data_encoding, file_delimiter, have_predefined_fields, in_charges,
-        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, temp_view
+        storage_period, data_type, data_encoding, data_separator, data_escape_char, have_predefined_fields,
+        daily_records, daily_storage, peak_records, max_length, in_charges, status, previous_status,
+        is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -117,27 +85,38 @@
     <select id="selectByCondition" resultMap="BaseResultMap"
             parameterType="org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest">
         select
-        <include refid="Base_Column_List"/>
-        from data_stream
+            distinct ds.id, ds.inlong_group_id, ds.inlong_stream_id, ds.name,
+            ds.description, ds.mq_resource_obj, ds.data_source_type, ds.storage_period, ds.data_type,
+            ds.data_encoding, ds.data_separator, ds.data_escape_char, ds.have_predefined_fields,
+            ds.daily_records, ds.daily_storage, ds.peak_records, ds.max_length, ds.in_charges,
+            ds.status, ds.creator, ds.modifier, ds.create_time, ds.modify_time
+        from data_stream ds, business biz, wf_approver approver
         <where>
-            is_deleted = 0
-            and (creator = #{currentUser,jdbcType=VARCHAR} or
-            find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
-            <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+            ds.is_deleted = 0
+            and approver.process_name = "NEW_BUSINESS_WORKFLOW" and approver.is_deleted = 0
+            and ds.inlong_group_id = biz.inlong_group_id and biz.is_deleted = 0
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and ds.inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             </if>
-            <if test="dataSourceType != null and dataSourceType != ''">
-                and data_source_type = #{dataSourceType, jdbcType=VARCHAR}
+            and (
+            find_in_set(#{request.currentUser, jdbcType=VARCHAR}, biz.in_charges)
+            or find_in_set(#{request.currentUser, jdbcType=VARCHAR}, biz.followers)
+            or find_in_set(#{request.currentUser, jdbcType=VARCHAR}, approver.approvers)
+            )
+            <if test="request.dataSourceType != null and request.dataSourceType != ''">
+                and ds.data_source_type = #{request.dataSourceType, jdbcType=VARCHAR}
             </if>
-            <if test="keyWord != null and keyWord != ''">
-                and (name like CONCAT('%', #{keyWord}, '%') or description like CONCAT('%',
-                #{keyWord}, '%'))
+            <if test="request.keyWord != null and request.keyWord != ''">
+                and (ds.inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
+                or ds.name like CONCAT('%', #{request.keyWord}, '%')
+                or ds.description like CONCAT('%', #{request.keyWord}, '%')
+                )
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status, jdbcType=INTEGER}
+            <if test="request.status != null and request.status != ''">
+                and ds.status = #{request.status, jdbcType=INTEGER}
             </if>
         </where>
-        order by modify_time desc
+        order by ds.modify_time desc
     </select>
     <select id="selectByGroupId" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         select
@@ -145,23 +124,6 @@
         from data_stream
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0
-    </select>
-    <select id="selectByConditionAndInCharges" resultType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from data_stream
-        <where>
-            inlong_group_id = #{request.inlongGroupId,jdbcType=VARCHAR}
-            and is_deleted = 0
-            and (creator = #{request.currentUser,jdbcType=VARCHAR}
-            or find_in_set(#{request.currentUser,jdbcType=VARCHAR}, #{inCharges,jdbcType=VARCHAR}))
-            <if test="request.keyWord != null and request.keyWord != ''">
-                and (name like CONCAT('%', #{request.keyWord}, '%') or description like CONCAT('%',
-                #{request.keyWord},
-                '%'))
-            </if>
-        </where>
-        order by create_time desc
     </select>
     <select id="selectCountByGroupId" resultType="java.lang.Integer">
         select count(1)
@@ -197,16 +159,20 @@
         insert into data_stream (id, inlong_stream_id, inlong_group_id,
                                  name, description, mq_resource_obj,
                                  data_source_type, storage_period, data_type,
-                                 data_encoding, file_delimiter,
-                                 have_predefined_fields,
+                                 data_encoding, data_separator,
+                                 data_escape_char, have_predefined_fields,
+                                 daily_records, daily_storage,
+                                 peak_records, max_length,
                                  in_charges, status, previous_status,
                                  is_deleted, creator, modifier,
                                  create_time, modify_time, temp_view)
         values (#{id,jdbcType=INTEGER}, #{inlongStreamId,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResourceObj,jdbcType=VARCHAR},
                 #{dataSourceType,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER}, #{dataType,jdbcType=VARCHAR},
-                #{dataEncoding,jdbcType=VARCHAR}, #{fileDelimiter,jdbcType=VARCHAR},
-                #{havePredefinedFields,jdbcType=INTEGER},
+                #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
+                #{dataEscapeChar,jdbcType=VARCHAR}, #{havePredefinedFields,jdbcType=INTEGER},
+                #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
+                #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
@@ -245,11 +211,26 @@
             <if test="dataEncoding != null">
                 data_encoding,
             </if>
-            <if test="fileDelimiter != null">
-                file_delimiter,
+            <if test="dataSeparator != null">
+                data_separator,
+            </if>
+            <if test="dataEscapeChar != null">
+                data_escape_char,
             </if>
             <if test="havePredefinedFields != null">
                 have_predefined_fields,
+            </if>
+            <if test="dailyRecords != null">
+                daily_records,
+            </if>
+            <if test="dailyStorage != null">
+                daily_storage,
+            </if>
+            <if test="peakRecords != null">
+                peak_records,
+            </if>
+            <if test="maxLength != null">
+                max_length,
             </if>
             <if test="inCharges != null">
                 in_charges,
@@ -310,11 +291,26 @@
             <if test="dataEncoding != null">
                 #{dataEncoding,jdbcType=VARCHAR},
             </if>
-            <if test="fileDelimiter != null">
-                #{fileDelimiter,jdbcType=VARCHAR},
+            <if test="dataSeparator != null">
+                #{dataSeparator,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEscapeChar != null">
+                #{dataEscapeChar,jdbcType=VARCHAR},
             </if>
             <if test="havePredefinedFields != null">
                 #{havePredefinedFields,jdbcType=INTEGER},
+            </if>
+            <if test="dailyRecords != null">
+                #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage != null">
+                #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                #{maxLength,jdbcType=INTEGER},
             </if>
             <if test="inCharges != null">
                 #{inCharges,jdbcType=VARCHAR},
@@ -346,7 +342,36 @@
         </trim>
     </insert>
 
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
+        update data_stream
+        set inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
+            inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
+            name                   = #{name,jdbcType=VARCHAR},
+            description            = #{description,jdbcType=VARCHAR},
+            mq_resource_obj        = #{mqResourceObj,jdbcType=VARCHAR},
+            data_source_type       = #{dataSourceType,jdbcType=VARCHAR},
+            storage_period         = #{storagePeriod,jdbcType=INTEGER},
+            data_type              = #{dataType,jdbcType=VARCHAR},
+            data_encoding          = #{dataEncoding,jdbcType=VARCHAR},
+            data_separator         = #{dataSeparator,jdbcType=VARCHAR},
+            data_escape_char       = #{dataEscapeChar,jdbcType=VARCHAR},
+            have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            daily_records          = #{dailyRecords,jdbcType=INTEGER},
+            daily_storage          = #{dailyStorage,jdbcType=INTEGER},
+            peak_records           = #{peakRecords,jdbcType=INTEGER},
+            max_length             = #{maxLength,jdbcType=INTEGER},
+            in_charges             = #{inCharges,jdbcType=VARCHAR},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
         update data_stream
         <set>
             <if test="inlongStreamId != null">
@@ -376,11 +401,26 @@
             <if test="dataEncoding != null">
                 data_encoding = #{dataEncoding,jdbcType=VARCHAR},
             </if>
-            <if test="fileDelimiter != null">
-                file_delimiter = #{fileDelimiter,jdbcType=VARCHAR},
+            <if test="dataSeparator != null">
+                data_separator = #{dataSeparator,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEscapeChar != null">
+                data_escape_char = #{dataEscapeChar,jdbcType=VARCHAR},
             </if>
             <if test="havePredefinedFields != null">
                 have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            </if>
+            <if test="dailyRecords!= null">
+                daily_records= #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage!= null">
+                daily_storage= #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                peak_records= #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                max_length= #{maxLength,jdbcType=INTEGER}
             </if>
             <if test="inCharges != null">
                 in_charges = #{inCharges,jdbcType=VARCHAR},
@@ -410,90 +450,6 @@
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
         </set>
-        where id = #{id,jdbcType=INTEGER}
-    </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
-        update data_stream
-        set inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
-            inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
-            name                   = #{name,jdbcType=VARCHAR},
-            description            = #{description,jdbcType=VARCHAR},
-            mq_resource_obj        = #{mqResourceObj,jdbcType=VARCHAR},
-            data_source_type       = #{dataSourceType,jdbcType=VARCHAR},
-            storage_period         = #{storagePeriod,jdbcType=INTEGER},
-            data_type              = #{dataType,jdbcType=VARCHAR},
-            data_encoding          = #{dataEncoding,jdbcType=VARCHAR},
-            file_delimiter         = #{fileDelimiter,jdbcType=VARCHAR},
-            have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
-            in_charges             = #{inCharges,jdbcType=VARCHAR},
-            status                 = #{status,jdbcType=INTEGER},
-            previous_status        = #{previousStatus,jdbcType=INTEGER},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
-            modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view              = #{tempView,jdbcType=LONGVARCHAR}
-        where id = #{id,jdbcType=INTEGER}
-    </update>
-    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.DataStreamEntity">
-        update data_stream
-        <set>
-            <if test="inlongStreamId != null">
-                inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR},
-            </if>
-            <if test="inlongGroupId != null">
-                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
-            </if>
-            <if test="name != null">
-                name = #{name, jdbcType=VARCHAR},
-            </if>
-            <if test="description != null">
-                description = #{description, jdbcType=VARCHAR},
-            </if>
-            <if test="mqResourceObj != null">
-                mq_resource_obj = #{mqResourceObj, jdbcType=VARCHAR},
-            </if>
-            <if test="dataSourceType != null">
-                data_source_type = #{dataSourceType, jdbcType=VARCHAR},
-            </if>
-            <if test="storagePeriod != null">
-                storage_period = #{storagePeriod, jdbcType=INTEGER},
-            </if>
-            <if test="dataType != null">
-                data_type = #{dataType, jdbcType=VARCHAR},
-            </if>
-            <if test="dataEncoding != null">
-                data_encoding = #{dataEncoding, jdbcType=VARCHAR},
-            </if>
-            <if test="fileDelimiter != null">
-                file_delimiter = #{fileDelimiter, jdbcType=VARCHAR},
-            </if>
-            <if test="havePredefinedFields != null">
-                have_predefined_fields = #{havePredefinedFields, jdbcType=INTEGER},
-            </if>
-            <if test="inCharges != null">
-                in_charges = #{inCharges, jdbcType=VARCHAR},
-            </if>
-            <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
-            </if>
-            <if test="previousStatus != null">
-                status = #{previousStatus, jdbcType=INTEGER},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted, jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                creator = #{creator, jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                modifier = #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="tempView != null">
-                temp_view = #{tempView,jdbcType=LONGVARCHAR},
-            </if>
-        </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
         and is_deleted = 0
@@ -517,66 +473,5 @@
           and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
-
-    <select id="selectStreamToHiveInfo" resultMap="dataStreamFullInfo">
-        SELECT h.id,
-               h.jdbc_url,
-               h.password,
-               h.username,
-               h.status,
-               data_type,
-               usage_interval,
-               description,
-               s.inlong_stream_id,
-               s.inlong_group_id,
-               db_name,
-               field_splitter,
-               h.creator,
-               table_name,
-               partition_type,
-               primary_partition,
-               secondary_partition,
-               file_format,
-               h.storage_period,
-               h.encoding_type
-        FROM data_stream s,
-             storage_hive h
-        WHERE s.is_deleted = 0
-          and h.is_deleted = 0
-          and s.inlong_stream_id = h.inlong_stream_id
-          AND s.inlong_group_id = h.inlong_group_id
-          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
-    </select>
-
-    <select id="selectStreamToHiveInfoByIdentifier" resultMap="dataStreamFullInfo">
-        SELECT h.id,
-               h.jdbc_url,
-               h.password,
-               h.username,
-               h.status,
-               data_type,
-               usage_interval,
-               description,
-               s.inlong_stream_id,
-               s.inlong_group_id,
-               db_name,
-               field_splitter,
-               h.creator,
-               table_name,
-               partition_type,
-               primary_partition,
-               secondary_partition,
-               file_format,
-               h.storage_period,
-               h.encoding_type
-        FROM data_stream s,
-             storage_hive h
-        WHERE s.is_deleted = 0
-          and h.is_deleted = 0
-          and s.inlong_stream_id = h.inlong_stream_id
-          AND s.inlong_group_id = h.inlong_group_id
-          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-    </select>
 
 </mapper>

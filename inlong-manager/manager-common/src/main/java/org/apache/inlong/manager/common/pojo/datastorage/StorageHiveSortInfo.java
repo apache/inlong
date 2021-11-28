@@ -15,22 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.datastorage;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+/**
+ * Hive info for Sort config
+ */
 @Data
-public class StorageHiveEntity implements Serializable {
+public class StorageHiveSortInfo {
 
-    private static final long serialVersionUID = 1L;
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;
+
+    // Hive server info
     private String jdbcUrl;
     private String username;
     private String password;
+
+    // Hive db and table info
     private String dbName;
     private String tableName;
     private String hdfsDefaultFs;
@@ -44,17 +48,16 @@ public class StorageHiveEntity implements Serializable {
 
     private String fileFormat;
     private String dataEncoding;
-    private String dataSeparator;
-    private Integer storagePeriod;
-    private String optLog;
-
+    private String targetSeparator; // Target separator configured in the storage info
     private Integer status;
-    private Integer previousStatus;
-    private Integer isDeleted;
     private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private String tempView;
+
+    // Data stream info
+    private String mqResourceObj;
+    private String dataSourceType;
+    private String dataType;
+    private String description;
+    private String sourceSeparator; // Target separator configured in the stream info
+    private String dataEscapeChar;
 
 }

@@ -42,7 +42,6 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
@@ -94,11 +93,11 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Integer save(DataStreamInfo dataStreamInfo, String operator) {
-        LOGGER.debug("begin to save data stream info={}", dataStreamInfo);
-        Preconditions.checkNotNull(dataStreamInfo, "data stream info is empty");
-        String groupId = dataStreamInfo.getInlongGroupId();
-        String streamId = dataStreamInfo.getInlongStreamId();
+    public Integer save(DataStreamInfo streamInfo, String operator) {
+        LOGGER.debug("begin to save data stream info={}", streamInfo);
+        Preconditions.checkNotNull(streamInfo, "data stream info is empty");
+        String groupId = streamInfo.getInlongGroupId();
+        String streamId = streamInfo.getInlongStreamId();
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
@@ -112,8 +111,9 @@ public class DataStreamServiceImpl implements DataStreamService {
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_DUPLICATE);
         }
 
+        streamInfo.setMqResourceObj(streamId);
         // Processing dataStream
-        DataStreamEntity streamEntity = CommonBeanUtils.copyProperties(dataStreamInfo, DataStreamEntity::new);
+        DataStreamEntity streamEntity = CommonBeanUtils.copyProperties(streamInfo, DataStreamEntity::new);
         Date date = new Date();
         streamEntity.setStatus(EntityStatus.DATA_STREAM_NEW.getCode());
         streamEntity.setModifier(operator);
@@ -122,9 +122,9 @@ public class DataStreamServiceImpl implements DataStreamService {
         streamMapper.insertSelective(streamEntity);
 
         // Processing extended information
-        this.saveExt(groupId, streamId, dataStreamInfo.getExtList(), date);
+        this.saveExt(groupId, streamId, streamInfo.getExtList(), date);
         // Process data source fields
-        this.saveField(groupId, streamId, dataStreamInfo.getFieldList());
+        this.saveField(groupId, streamId, streamInfo.getFieldList());
 
         LOGGER.info("success to save data stream info for groupId={}", groupId);
         return streamEntity.getId();
@@ -172,16 +172,6 @@ public class DataStreamServiceImpl implements DataStreamService {
         if (CollectionUtils.isNotEmpty(fieldEntityList)) {
             streamInfo.setFieldList(CommonBeanUtils.copyListProperties(fieldEntityList, DataStreamFieldInfo::new));
         }
-    }
-
-    @Override
-    public List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String groupId) {
-        return streamMapper.selectStreamToHiveInfo(groupId);
-    }
-
-    @Override
-    public DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String groupId, String streamId) {
-        return streamMapper.selectStreamToHiveInfoByIdentifier(groupId, streamId);
     }
 
     @Override
@@ -484,11 +474,12 @@ public class DataStreamServiceImpl implements DataStreamService {
         // The person in charge of the business has the authority of all data streams
         BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
         Preconditions.checkNotNull(businessEntity, "business not found by groupId=" + groupId);
+
         String inCharges = businessEntity.getInCharges();
+        request.setInCharges(inCharges);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<DataStreamEntity> page = (Page<DataStreamEntity>) streamMapper.selectByConditionAndInCharges(request,
-                inCharges);
+        Page<DataStreamEntity> page = (Page<DataStreamEntity>) streamMapper.selectByCondition(request);
         List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, DataStreamInfo::new);
 
         // Convert and encapsulate the paged results

@@ -42,6 +42,10 @@ public class DataStreamInfo extends DataStreamBaseInfo {
     @ApiModelProperty(value = "Data stream description")
     private String description;
 
+    @ApiModelProperty(value = "MQ resource object, in business",
+            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
+    private String mqResourceObj;
+
     @ApiModelProperty(value = "Data source type, including: FILE, DB, AUTO_PUSH (DATA_PROXY_SDK, HTTP)")
     private String dataSourceType;
 
@@ -54,11 +58,26 @@ public class DataStreamInfo extends DataStreamBaseInfo {
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK (required when dataSourceType=FILE, AUTO_PUSH)")
     private String dataEncoding;
 
-    @ApiModelProperty(value = "Field delimiter, stored as ASCII code (required when dataSourceType=FILE, AUTO_PUSH)")
-    private String fileDelimiter;
+    @ApiModelProperty(value = "Data separator, stored as ASCII code (required when dataSourceType=FILE, AUTO_PUSH)")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    private String dataEscapeChar;
 
     @ApiModelProperty(value = "(File and DB access) Whether there are predefined fields, 0: no, 1: yes")
     private Integer havePredefinedFields;
+
+    @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
+    private Integer dailyRecords;
+
+    @ApiModelProperty(value = "Access size per day, unit: GB per day")
+    private Integer dailyStorage;
+
+    @ApiModelProperty(value = "peak access per second, unit: bars per second")
+    private Integer peakRecords;
+
+    @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
+    private Integer maxLength;
 
     @ApiModelProperty(value = "Names of responsible persons, separated by commas")
     private String inCharges;

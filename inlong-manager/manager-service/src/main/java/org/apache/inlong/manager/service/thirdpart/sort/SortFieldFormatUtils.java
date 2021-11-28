@@ -17,8 +17,11 @@
 
 package org.apache.inlong.manager.service.thirdpart.sort;
 
+import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
+import org.apache.inlong.sort.formats.common.ByteTypeInfo;
+import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
@@ -27,6 +30,8 @@ import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimeFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 
 /**
  * Sort field formatting tool
@@ -42,21 +47,21 @@ public class SortFieldFormatUtils {
     public static FormatInfo convertFieldFormat(String type) {
         FormatInfo formatInfo;
         switch (type) {
-            case "string":
-                formatInfo = new StringFormatInfo();
-                break;
             case "boolean":
                 formatInfo = new BooleanFormatInfo();
                 break;
+            case "tinyint":
             case "byte":
                 formatInfo = new ByteFormatInfo();
                 break;
+            case "smallint":
             case "short":
                 formatInfo = new ShortFormatInfo();
                 break;
             case "int":
                 formatInfo = new IntFormatInfo();
                 break;
+            case "bigint":
             case "long":
                 formatInfo = new LongFormatInfo();
                 break;
@@ -69,7 +74,20 @@ public class SortFieldFormatUtils {
             case "decimal":
                 formatInfo = new DecimalFormatInfo();
                 break;
-            default:
+            case "date":
+                formatInfo = new DateFormatInfo();
+                break;
+            case "time":
+                formatInfo = new TimeFormatInfo();
+                break;
+            case "timestamp":
+                formatInfo = new TimestampFormatInfo();
+                break;
+            case "binary":
+            case "fixed":
+                formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
+                break;
+            default: // default is string
                 formatInfo = new StringFormatInfo();
         }
 

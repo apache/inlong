@@ -44,15 +44,15 @@ public class ConsumptionInfo {
     private Integer id;
 
     @ApiModelProperty(value = "consumer group id")
-    @NotBlank(message = "consumerGroupId can't be null")
+    @NotBlank(message = "consumerGroupId cannot be null")
     private String consumerGroupId;
 
     @ApiModelProperty(value = "consumer group name: only support [a-zA-Z0-9_]")
-    @NotBlank(message = "consumerGroupName can't be null")
+    @NotBlank(message = "consumerGroupName cannot be null")
     private String consumerGroupName;
 
     @ApiModelProperty(value = "consumption in charge")
-    @NotNull(message = "inCharges can't be null")
+    @NotNull(message = "inCharges cannot be null")
     private String inCharges;
 
     @ApiModelProperty(value = "consumption target business group id")
@@ -60,7 +60,7 @@ public class ConsumptionInfo {
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    @NotBlank(message = "middlewareType can't be null")
+    // @NotBlank(message = "middlewareType cannot be null")
     private String middlewareType;
 
     @ApiModelProperty(value = "consumption target topic")

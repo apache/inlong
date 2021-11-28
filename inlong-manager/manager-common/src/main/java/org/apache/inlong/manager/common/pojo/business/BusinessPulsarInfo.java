@@ -49,18 +49,18 @@ public class BusinessPulsarInfo extends BusinessMqExtBase {
     private Integer retentionTime = 72;
 
     @ApiModelProperty(value = "The unit of the message storage time")
-    private String retentionTimeUnit;
+    private String retentionTimeUnit = "hours";
 
     @ApiModelProperty(value = "Message time-to-live duration")
     private Integer ttl = 24;
 
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
-    private String ttlUnit;
+    private String ttlUnit = "hours";
 
     @ApiModelProperty(value = "Message size")
     private Integer retentionSize = -1;
 
     @ApiModelProperty(value = "The unit of message size")
-    private String retentionSizeUnit;
+    private String retentionSizeUnit = "MB";
 
 }

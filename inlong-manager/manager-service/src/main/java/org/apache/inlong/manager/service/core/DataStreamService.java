@@ -21,7 +21,6 @@ import com.github.pagehelper.PageInfo;
 import java.util.List;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
@@ -70,23 +69,6 @@ public interface DataStreamService {
      * @return Data stream paging list
      */
     PageInfo<DataStreamListVO> listByCondition(DataStreamPageRequest request);
-
-    /**
-     * Query all hive config for business group id
-     *
-     * @param groupId Business group id
-     * @return Hive config list
-     */
-    List<DataStreamInfoToHiveConfig> queryHiveConfigForAllDataStream(String groupId);
-
-    /**
-     * Query hive config for one data stream
-     *
-     * @param groupId Business group id
-     * @param streamId Data stream id
-     * @return Hive config
-     */
-    DataStreamInfoToHiveConfig queryHiveConfigForOneDataStream(String groupId, String streamId);
 
     /**
      * Business information that needs to be modified
