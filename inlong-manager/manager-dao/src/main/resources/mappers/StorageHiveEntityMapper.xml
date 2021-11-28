@@ -29,16 +29,21 @@
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="db_name" jdbcType="VARCHAR" property="dbName"/>
         <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
-        <result column="primary_partition" jdbcType="VARCHAR" property="primaryPartition"/>
-        <result column="secondary_partition" jdbcType="VARCHAR" property="secondaryPartition"/>
-        <result column="partition_type" jdbcType="VARCHAR" property="partitionType"/>
-        <result column="file_format" jdbcType="VARCHAR" property="fileFormat"/>
-        <result column="field_splitter" jdbcType="VARCHAR" property="fieldSplitter"/>
-        <result column="encoding_type" jdbcType="VARCHAR" property="encodingType"/>
         <result column="hdfs_default_fs" jdbcType="VARCHAR" property="hdfsDefaultFs"/>
         <result column="warehouse_dir" jdbcType="VARCHAR" property="warehouseDir"/>
-        <result column="usage_interval" jdbcType="VARCHAR" property="usageInterval"/>
+
+        <result column="partition_interval" jdbcType="INTEGER" property="partitionInterval"/>
+        <result column="partition_unit" jdbcType="VARCHAR" property="partitionUnit"/>
+        <result column="primary_partition" jdbcType="VARCHAR" property="primaryPartition"/>
+        <result column="secondary_partition" jdbcType="VARCHAR" property="secondaryPartition"/>
+        <result column="partition_creation_strategy" jdbcType="VARCHAR" property="partitionCreationStrategy"/>
+
+        <result column="file_format" jdbcType="VARCHAR" property="fileFormat"/>
+        <result column="data_encoding" jdbcType="VARCHAR" property="dataEncoding"/>
+        <result column="data_separator" jdbcType="VARCHAR" property="dataSeparator"/>
         <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
+        <result column="opt_log" jdbcType="VARCHAR" property="optLog"/>
+
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -46,15 +51,14 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
-        <result column="opt_log" jdbcType="VARCHAR" property="optLog"/>
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, jdbc_url, username, password, db_name, table_name,
-        primary_partition, secondary_partition, partition_type, file_format, field_splitter, encoding_type,
-        hdfs_default_fs, warehouse_dir, usage_interval, storage_period, status, previous_status,
-        is_deleted, creator, modifier, create_time, modify_time, opt_log, temp_view
+        hdfs_default_fs, warehouse_dir, partition_interval, partition_unit, primary_partition, secondary_partition,
+        partition_creation_strategy, file_format, data_encoding, data_separator, storage_period, opt_log,
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -70,14 +74,20 @@
         from storage_hive
         <where>
             is_deleted = 0
-            <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             </if>
-            <if test="inlongStreamId != null and inlongStreamId != ''">
-                and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status, jdbcType=INTEGER}
+            <if test="request.keyWord != null and request.keyWord != ''">
+                and (
+                inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
+                )
+            </if>
+            <if test="request.status != null and request.status != ''">
+                and status = #{request.status, jdbcType=INTEGER}
             </if>
             order by modify_time desc
         </where>
@@ -121,8 +131,7 @@
             and is_deleted = 0
         </where>
     </select>
-    <select id="selectSummaryByIdentifier"
-            resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo">
+    <select id="selectSummary" resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo">
         select s.id,
                s.inlong_group_id,
                s.inlong_stream_id,
@@ -131,6 +140,51 @@
         where s.is_deleted = 0
           and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+    </select>
+    <select id="selectHiveSortInfoByIdentifier"
+            resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo">
+        SELECT hive.id,
+               hive.inlong_group_id,
+               hive.inlong_stream_id,
+
+               hive.jdbc_url,
+               hive.username,
+               hive.password,
+               hive.db_name,
+               hive.table_name,
+               hive.hdfs_default_fs,
+               hive.warehouse_dir,
+
+               hive.partition_interval,
+               hive.partition_unit,
+               hive.primary_partition,
+               hive.secondary_partition,
+               hive.partition_creation_strategy,
+
+               hive.file_format,
+               hive.data_encoding,
+               hive.data_separator   as targetSeparator,
+               hive.status,
+               hive.creator,
+
+               stream.mq_resource_obj,
+               stream.data_source_type,
+               stream.data_type,
+               stream.description,
+               stream.data_separator as sourceSeparator,
+               stream.data_escape_char
+        FROM data_stream stream,
+             storage_hive hive
+        <where>
+            stream.is_deleted = 0
+            and hive.is_deleted = 0
+            and stream.inlong_group_id = hive.inlong_group_id
+            and stream.inlong_stream_id = hive.inlong_stream_id
+            and stream.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and stream.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -143,23 +197,26 @@
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         insert into storage_hive (id, inlong_group_id, inlong_stream_id,
                                   jdbc_url, username, password,
-                                  db_name, table_name, primary_partition,
-                                  secondary_partition, partition_type, file_format,
-                                  field_splitter, encoding_type, hdfs_default_fs,
-                                  warehouse_dir, usage_interval, storage_period,
+                                  db_name, table_name, hdfs_default_fs,
+                                  warehouse_dir, partition_interval,
+                                  partition_unit, primary_partition,
+                                  secondary_partition, partition_creation_strategy,
+                                  file_format, data_encoding, data_separator,
+                                  storage_period, opt_log,
                                   status, previous_status, is_deleted,
                                   creator, modifier, create_time,
-                                  modify_time, opt_log, temp_view)
+                                  modify_time, temp_view)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{jdbcUrl,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
-                #{dbName,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR}, #{primaryPartition,jdbcType=VARCHAR},
-                #{secondaryPartition,jdbcType=VARCHAR}, #{partitionType,jdbcType=VARCHAR},
-                #{fileFormat,jdbcType=VARCHAR},
-                #{fieldSplitter,jdbcType=VARCHAR}, #{encodingType,jdbcType=VARCHAR}, #{hdfsDefaultFs,jdbcType=VARCHAR},
-                #{warehouseDir,jdbcType=VARCHAR}, #{usageInterval,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER},
+                #{dbName,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR}, #{hdfsDefaultFs,jdbcType=VARCHAR},
+                #{warehouseDir,jdbcType=VARCHAR}, #{partitionInterval,jdbcType=INTEGER},
+                #{partitionUnit,jdbcType=VARCHAR}, #{primaryPartition,jdbcType=VARCHAR},
+                #{secondaryPartition,jdbcType=VARCHAR}, #{partitionCreationStrategy,jdbcType=VARCHAR},
+                #{fileFormat,jdbcType=VARCHAR}, #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
+                #{storagePeriod,jdbcType=INTEGER}, #{optLog,jdbcType=VARCHAR},
                 #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{optLog,jdbcType=VARCHAR}, #{tempView,jdbcType=LONGVARCHAR})
+                #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
@@ -189,35 +246,41 @@
             <if test="tableName != null">
                 table_name,
             </if>
-            <if test="primaryPartition != null">
-                primary_partition,
-            </if>
-            <if test="secondaryPartition != null">
-                secondary_partition,
-            </if>
-            <if test="partitionType != null">
-                partition_type,
-            </if>
-            <if test="fileFormat != null">
-                file_format,
-            </if>
-            <if test="fieldSplitter != null">
-                field_splitter,
-            </if>
-            <if test="encodingType != null">
-                encoding_type,
-            </if>
             <if test="hdfsDefaultFs != null">
                 hdfs_default_fs,
             </if>
             <if test="warehouseDir != null">
                 warehouse_dir,
             </if>
-            <if test="usageInterval != null">
-                usage_interval,
+            <if test="partitionInterval != null">
+                partition_interval,
+            </if>
+            <if test="partitionUnit != null">
+                partition_unit,
+            </if>
+            <if test="primaryPartition != null">
+                primary_partition,
+            </if>
+            <if test="secondaryPartition != null">
+                secondary_partition,
+            </if>
+            <if test="partitionCreationStrategy != null">
+                partition_creation_strategy,
+            </if>
+            <if test="fileFormat != null">
+                file_format,
+            </if>
+            <if test="dataEncoding != null">
+                data_encoding,
+            </if>
+            <if test="dataSeparator != null">
+                data_separator,
             </if>
             <if test="storagePeriod != null">
                 storage_period,
+            </if>
+            <if test="optLog != null">
+                opt_log,
             </if>
             <if test="status != null">
                 status,
@@ -239,9 +302,6 @@
             </if>
             <if test="modifyTime != null">
                 modify_time,
-            </if>
-            <if test="optLog != null">
-                opt_log,
             </if>
             <if test="tempView != null">
                 temp_view,
@@ -272,35 +332,41 @@
             <if test="tableName != null">
                 #{tableName,jdbcType=VARCHAR},
             </if>
-            <if test="primaryPartition != null">
-                #{primaryPartition,jdbcType=VARCHAR},
-            </if>
-            <if test="secondaryPartition != null">
-                #{secondaryPartition,jdbcType=VARCHAR},
-            </if>
-            <if test="partitionType != null">
-                #{partitionType,jdbcType=VARCHAR},
-            </if>
-            <if test="fileFormat != null">
-                #{fileFormat,jdbcType=VARCHAR},
-            </if>
-            <if test="fieldSplitter != null">
-                #{fieldSplitter,jdbcType=VARCHAR},
-            </if>
-            <if test="encodingType != null">
-                #{encodingType,jdbcType=VARCHAR},
-            </if>
             <if test="hdfsDefaultFs != null">
                 #{hdfsDefaultFs,jdbcType=VARCHAR},
             </if>
             <if test="warehouseDir != null">
                 #{warehouseDir,jdbcType=VARCHAR},
             </if>
-            <if test="usageInterval != null">
-                #{usageInterval,jdbcType=VARCHAR},
+            <if test="partitionInterval != null">
+                #{partitionInterval,jdbcType=INTEGER},
+            </if>
+            <if test="partitionUnit != null">
+                #{partitionUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="primaryPartition != null">
+                #{primaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="secondaryPartition != null">
+                #{secondaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="partitionCreationStrategy != null">
+                #{partitionCreationStrategy,jdbcType=VARCHAR},
+            </if>
+            <if test="fileFormat != null">
+                #{fileFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEncoding != null">
+                #{dataEncoding,jdbcType=VARCHAR},
+            </if>
+            <if test="dataSeparator != null">
+                #{dataSeparator,jdbcType=VARCHAR},
             </if>
             <if test="storagePeriod != null">
                 #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="optLog != null">
+                #{optLog,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
                 #{status,jdbcType=INTEGER},
@@ -322,9 +388,6 @@
             </if>
             <if test="modifyTime != null">
                 #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="optLog != null">
-                #{optLog,jdbcType=VARCHAR},
             </if>
             <if test="tempView != null">
                 #{tempView,jdbcType=LONGVARCHAR},
@@ -356,35 +419,41 @@
             <if test="tableName != null">
                 table_name = #{tableName,jdbcType=VARCHAR},
             </if>
-            <if test="primaryPartition != null">
-                primary_partition = #{primaryPartition,jdbcType=VARCHAR},
-            </if>
-            <if test="secondaryPartition != null">
-                secondary_partition = #{secondaryPartition,jdbcType=VARCHAR},
-            </if>
-            <if test="partitionType != null">
-                partition_type = #{partitionType,jdbcType=VARCHAR},
-            </if>
-            <if test="fileFormat != null">
-                file_format = #{fileFormat,jdbcType=VARCHAR},
-            </if>
-            <if test="fieldSplitter != null">
-                field_splitter = #{fieldSplitter,jdbcType=VARCHAR},
-            </if>
-            <if test="encodingType != null">
-                encoding_type = #{encodingType,jdbcType=VARCHAR},
-            </if>
             <if test="hdfsDefaultFs != null">
                 hdfs_default_fs = #{hdfsDefaultFs,jdbcType=VARCHAR},
             </if>
             <if test="warehouseDir != null">
                 warehouse_dir = #{warehouseDir,jdbcType=VARCHAR},
             </if>
-            <if test="usageInterval != null">
-                usage_interval = #{usageInterval,jdbcType=VARCHAR},
+            <if test="partitionInterval != null">
+                partition_interval = #{partitionInterval,jdbcType=INTEGER},
+            </if>
+            <if test="partitionUnit != null">
+                partition_unit = #{partitionUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="primaryPartition != null">
+                primary_partition = #{primaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="secondaryPartition != null">
+                secondary_partition = #{secondaryPartition,jdbcType=VARCHAR},
+            </if>
+            <if test="partitionCreationStrategy != null">
+                partition_creation_strategy = #{partitionCreationStrategy,jdbcType=VARCHAR},
+            </if>
+            <if test="fileFormat != null">
+                file_format = #{fileFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="dataEncoding != null">
+                data_encoding = #{dataEncoding,jdbcType=VARCHAR},
+            </if>
+            <if test="dataSeparator != null">
+                data_separator = #{dataSeparator,jdbcType=VARCHAR},
             </if>
             <if test="storagePeriod != null">
                 storage_period = #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="optLog != null">
+                opt_log = #{optLog,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
                 status = #{status,jdbcType=INTEGER},
@@ -407,9 +476,6 @@
             <if test="modifyTime != null">
                 modify_time = #{modifyTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="optLog != null">
-                opt_log = #{optLog,jdbcType=VARCHAR},
-            </if>
             <if test="tempView != null">
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
@@ -418,32 +484,33 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
         update storage_hive
-        set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
-            inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
-            jdbc_url            = #{jdbcUrl,jdbcType=VARCHAR},
-            username            = #{username,jdbcType=VARCHAR},
-            password            = #{password,jdbcType=VARCHAR},
-            db_name             = #{dbName,jdbcType=VARCHAR},
-            table_name          = #{tableName,jdbcType=VARCHAR},
-            primary_partition   = #{primaryPartition,jdbcType=VARCHAR},
-            secondary_partition = #{secondaryPartition,jdbcType=VARCHAR},
-            partition_type      = #{partitionType,jdbcType=VARCHAR},
-            file_format         = #{fileFormat,jdbcType=VARCHAR},
-            field_splitter      = #{fieldSplitter,jdbcType=VARCHAR},
-            encoding_type       = #{encodingType,jdbcType=VARCHAR},
-            hdfs_default_fs     = #{hdfsDefaultFs,jdbcType=VARCHAR},
-            warehouse_dir       = #{warehouseDir,jdbcType=VARCHAR},
-            usage_interval      = #{usageInterval,jdbcType=VARCHAR},
-            storage_period      = #{storagePeriod,jdbcType=INTEGER},
-            status              = #{status,jdbcType=INTEGER},
-            previous_status     = #{previousStatus,jdbcType=INTEGER},
-            is_deleted          = #{isDeleted,jdbcType=INTEGER},
-            creator             = #{creator,jdbcType=VARCHAR},
-            modifier            = #{modifier,jdbcType=VARCHAR},
-            create_time         = #{createTime,jdbcType=TIMESTAMP},
-            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
-            opt_log             = #{optLog,jdbcType=VARCHAR},
-            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
+        set inlong_group_id             = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id            = #{inlongStreamId,jdbcType=VARCHAR},
+            jdbc_url                    = #{jdbcUrl,jdbcType=VARCHAR},
+            username                    = #{username,jdbcType=VARCHAR},
+            password                    = #{password,jdbcType=VARCHAR},
+            db_name                     = #{dbName,jdbcType=VARCHAR},
+            table_name                  = #{tableName,jdbcType=VARCHAR},
+            hdfs_default_fs             = #{hdfsDefaultFs,jdbcType=VARCHAR},
+            warehouse_dir               = #{warehouseDir,jdbcType=VARCHAR},
+            partition_interval          = #{partitionInterval,jdbcType=INTEGER},
+            partition_unit              = #{partitionUnit,jdbcType=VARCHAR},
+            primary_partition           = #{primaryPartition,jdbcType=VARCHAR},
+            secondary_partition         = #{secondaryPartition,jdbcType=VARCHAR},
+            partition_creation_strategy = #{partitionCreationStrategy,jdbcType=VARCHAR},
+            file_format                 = #{fileFormat,jdbcType=VARCHAR},
+            data_encoding               = #{dataEncoding,jdbcType=VARCHAR},
+            data_separator              = #{dataSeparator,jdbcType=VARCHAR},
+            storage_period              = #{storagePeriod,jdbcType=INTEGER},
+            opt_log                     = #{optLog,jdbcType=VARCHAR},
+            status                      = #{status,jdbcType=INTEGER},
+            previous_status             = #{previousStatus,jdbcType=INTEGER},
+            is_deleted                  = #{isDeleted,jdbcType=INTEGER},
+            creator                     = #{creator,jdbcType=VARCHAR},
+            modifier                    = #{modifier,jdbcType=VARCHAR},
+            create_time                 = #{createTime,jdbcType=TIMESTAMP},
+            modify_time                 = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view                   = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateStorageStatusById" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">

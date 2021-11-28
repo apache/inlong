@@ -58,7 +58,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         Process process = context.getProcess();
         ProcessForm form = context.getProcessForm();
         if (process.getFormClass() != null) {
-            Preconditions.checkNotNull(form, "form can't be null");
+            Preconditions.checkNotNull(form, "form cannot be null");
             Preconditions.checkTrue(form.getClass().isAssignableFrom(process.getFormClass()),
                     () -> "form type not match, should be class " + process.getFormClass());
             form.validate();

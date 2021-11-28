@@ -35,14 +35,15 @@ public class DataStreamEntity implements Serializable {
     private Integer storagePeriod;
     private String dataType;
     private String dataEncoding;
-    private String fileDelimiter;
+    private String dataSeparator;
+    private String dataEscapeChar;
     private Integer havePredefinedFields;
-    private String inCharges;
 
     private Integer dailyRecords;
     private Integer dailyStorage;
     private Integer peakRecords;
     private Integer maxLength;
+    private String inCharges;
 
     private Integer status;
     private Integer previousStatus;

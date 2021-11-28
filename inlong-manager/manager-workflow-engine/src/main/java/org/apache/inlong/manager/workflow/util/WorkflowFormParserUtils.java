@@ -41,8 +41,8 @@ public class WorkflowFormParserUtils {
      */
     public static <T extends TaskForm> T parseTaskForm(TaskInstance taskInstance, Process process)
             throws FormParseException {
-        Preconditions.checkNotNull(taskInstance, "taskInstance can't be null");
-        Preconditions.checkNotNull(process, "process can't be null");
+        Preconditions.checkNotNull(taskInstance, "taskInstance cannot be null");
+        Preconditions.checkNotNull(process, "process cannot be null");
 
         if (StringUtils.isEmpty(taskInstance.getFormData())) {
             return null;
@@ -67,7 +67,7 @@ public class WorkflowFormParserUtils {
      */
     public static <T extends ProcessForm> T parseProcessForm(String formDate, Process process)
             throws FormParseException {
-        Preconditions.checkNotNull(process, "process can't be null");
+        Preconditions.checkNotNull(process, "process cannot be null");
 
         if (StringUtils.isEmpty(formDate)) {
             return null;

@@ -85,7 +85,7 @@ CREATE TABLE `business`
     `schema_name`     varchar(128)          DEFAULT NULL COMMENT 'Data type, associated data_schema table',
     `in_charges`      varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `followers`       varchar(512)          DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
-    `status`          int(11)               DEFAULT '21' COMMENT 'Business status',
+    `status`          int(4)                DEFAULT '21' COMMENT 'Business status',
     `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`         varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`        varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -150,7 +150,7 @@ CREATE TABLE `cluster_info`
     `url`         varchar(256)          DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)            DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
     `ext_props`   text                  DEFAULT NULL COMMENT 'extended properties',
-    `status`      int(11)               DEFAULT '1' COMMENT 'cluster status',
+    `status`      int(4)                DEFAULT '1' COMMENT 'cluster status',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -183,7 +183,7 @@ CREATE TABLE `common_db_server`
     `db_description`      varchar(256)          DEFAULT NULL COMMENT 'DB description',
     `backup_db_server_ip` varchar(64)           DEFAULT NULL COMMENT 'Backup DB HOST',
     `backup_db_port`      int(11)               DEFAULT NULL COMMENT 'Backup DB port',
-    `status`              int(11)               DEFAULT '0' COMMENT 'status',
+    `status`              int(4)                DEFAULT '0' COMMENT 'status',
     `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -208,7 +208,7 @@ CREATE TABLE `common_file_server`
     `issue_type`     varchar(128)         DEFAULT NULL COMMENT 'Issuance method, such as SSH, TCS, etc.',
     `username`       varchar(64) NOT NULL COMMENT 'User name of the data source IP host',
     `password`       varchar(64) NOT NULL COMMENT 'The password corresponding to the above user name',
-    `status`         int(11)              DEFAULT '0' COMMENT 'status',
+    `status`         int(4)               DEFAULT '0' COMMENT 'status',
     `is_deleted`     tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`        varchar(64) NOT NULL COMMENT 'Creator name',
     `modifier`       varchar(64)          DEFAULT NULL COMMENT 'Modifier name',
@@ -234,12 +234,12 @@ CREATE TABLE `consumption`
     `topic`               varchar(255) NOT NULL COMMENT 'Consumption topic',
     `filter_enabled`      int(2)                DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
     `inlong_stream_id`    varchar(1024)         DEFAULT NULL COMMENT 'Data stream ID for consumption, if filter_enable is 1, it cannot empty',
-    `status`              int(11)      NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
+    `status`              int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
+    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'creator',
     `modifier`            varchar(64)           DEFAULT NULL COMMENT 'modifier',
     `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`          int(2)                DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     PRIMARY KEY (`id`)
 );
 
@@ -249,8 +249,8 @@ CREATE TABLE `consumption`
 DROP TABLE IF EXISTS `consumption_pulsar`;
 CREATE TABLE `consumption_pulsar`
 (
-    `id`                  int          NOT NULL AUTO_INCREMENT,
-    `consumption_id`      int          DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT,
+    `consumption_id`      int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `consumer_group_name` varchar(255) NOT NULL COMMENT 'Consumer group name',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group ID',
@@ -258,7 +258,7 @@ CREATE TABLE `consumption_pulsar`
     `retry_letter_topic`  varchar(255) DEFAULT NULL COMMENT 'The name of the retry queue topic',
     `is_dlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
     `dead_letter_topic`   varchar(255) DEFAULT NULL COMMENT 'dead letter topic name',
-    `is_deleted`          int          DEFAULT '0' COMMENT 'Whether to delete',
+    `is_deleted`          tinyint(1)   DEFAULT '0' COMMENT 'Whether to delete',
     PRIMARY KEY (`id`)
 ) COMMENT ='Pulsar consumption table';
 
@@ -278,7 +278,7 @@ CREATE TABLE `data_proxy_cluster`
     `net_type`    varchar(20)           DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
     `in_charges`  varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `ext_props`   text                  DEFAULT NULL COMMENT 'Extended properties',
-    `status`      int(11)               DEFAULT '1' COMMENT 'Cluster status',
+    `status`      int(4)                DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -321,7 +321,8 @@ CREATE TABLE `data_source_cmd_config`
     `modify_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last update time ',
     `create_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `result_info`         varchar(64)          DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_1` (`task_id`, `bSend`, `specified_data_time`)
 );
 
 -- ----------------------------
@@ -340,18 +341,24 @@ CREATE TABLE `data_stream`
     `storage_period`         int(11)           DEFAULT '1' COMMENT 'The storage period of data in MQ, unit: day',
     `data_type`              varchar(20)       DEFAULT 'TEXT' COMMENT 'Data type, there are: TEXT, KEY-VALUE, PB, BON, TEXT and BON should be treated differently',
     `data_encoding`          varchar(8)        DEFAULT 'UTF-8' COMMENT 'Data encoding format, including: UTF-8, GBK',
-    `file_delimiter`         varchar(8)        DEFAULT NULL COMMENT 'The source data field separator, stored as ASCII code',
+    `data_separator`         varchar(8)        DEFAULT NULL COMMENT 'The source data field separator, stored as ASCII code',
+    `data_escape_char`       varchar(8)        DEFAULT NULL COMMENT 'Source data field escape character, the default is NULL (NULL), stored as 1 character',
     `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(File, DB access) whether there are predefined fields, 0: none, 1: yes (save to data_stream_field)',
+    `daily_records`          int(11)           DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
+    `daily_storage`          int(11)           DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
+    `peak_records`           int(11)           DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
+    `max_length`             int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `in_charges`             varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`                 int(11)           DEFAULT '0' COMMENT 'Data stream status',
-    `previous_status`        int(11)           DEFAULT '0' COMMENT 'Previous status',
+    `status`                 int(4)            DEFAULT '0' COMMENT 'Data stream status',
+    `previous_status`        int(4)            DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             tinyint(1)        DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`                varchar(64)       DEFAULT NULL COMMENT 'Creator name',
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`              text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_data_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`, `modify_time`)
 );
 
 -- ----------------------------
@@ -367,7 +374,8 @@ CREATE TABLE `data_stream_ext`
     `key_value`        varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_stream_id` (`inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -391,7 +399,8 @@ CREATE TABLE `data_stream_field`
     `bon_field_path`      varchar(256) DEFAULT NULL COMMENT 'BON field path',
     `bon_field_type`      varchar(64)  DEFAULT NULL COMMENT 'BON field type',
     `encrypt_level`       varchar(20)  DEFAULT NULL COMMENT 'Encryption level',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_stream_id` (`inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -412,7 +421,7 @@ CREATE TABLE `operation_log`
     `cost_time`           bigint(20)         DEFAULT NULL COMMENT 'time-consuming',
     `body`                text COMMENT 'Request body',
     `param`               text COMMENT 'parameter',
-    `status`              tinyint(1)         DEFAULT NULL COMMENT 'status',
+    `status`              int(4)             DEFAULT NULL COMMENT 'status',
     `request_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'request time',
     `err_msg`             text COMMENT 'Error message',
     PRIMARY KEY (`id`)
@@ -432,7 +441,9 @@ CREATE TABLE `role`
     `create_by`   varchar(255) NOT NULL,
     `update_by`   varchar(255) NOT NULL,
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `role_role_code_uindex` (`role_code`),
+    UNIQUE KEY `role_role_name_uindex` (`role_name`)
 );
 
 -- ----------------------------
@@ -450,7 +461,7 @@ CREATE TABLE `source_db_basic`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`        json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -471,8 +482,8 @@ CREATE TABLE `source_db_detail`
     `table_fields`     longtext COMMENT 'Data table fields, multiple are separated by half-width commas, required for increment',
     `data_sql`         longtext COMMENT 'SQL statement to collect source data, required for full amount',
     `crontab`          varchar(56)           DEFAULT NULL COMMENT 'Timed scheduling expression, required for full amount',
-    `status`           int(11)               DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(11)               DEFAULT '0' COMMENT 'Previous status',
+    `status`           int(4)                DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)                DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -525,8 +536,8 @@ CREATE TABLE `source_file_detail`
     `username`         varchar(32)  NOT NULL COMMENT 'User name of the data source IP host',
     `password`         varchar(64)  NOT NULL COMMENT 'The password corresponding to the above user name',
     `file_path`        varchar(256) NOT NULL COMMENT 'File path, supports regular matching',
-    `status`           int(11)               DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(11)               DEFAULT '0' COMMENT 'Previous status',
+    `status`           int(4)                DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)                DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -548,44 +559,45 @@ CREATE TABLE `storage_ext`
     `key_name`     varchar(64) NOT NULL COMMENT 'Configuration item name',
     `key_value`    varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`   tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_storage_id` (`storage_id`)
 );
 
 -- ----------------------------
 -- Table structure for storage_hive
 -- ----------------------------
 DROP TABLE IF EXISTS `storage_hive`;
-DROP TABLE IF EXISTS `storage_hive`;
 CREATE TABLE `storage_hive`
 (
-    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`     varchar(128) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id`    varchar(128) NOT NULL COMMENT 'Owning data stream id',
-    `jdbc_url`            varchar(255) NOT NULL COMMENT 'Hive JDBC connection URL, such as "jdbc:hive2://127.0.0.1:10000"',
-    `username`            varchar(128) NOT NULL COMMENT 'Username',
-    `password`            varchar(255) NOT NULL COMMENT 'User password',
-    `db_name`             varchar(128) NOT NULL COMMENT 'Target database name',
-    `table_name`          varchar(128) NOT NULL COMMENT 'Target data table name',
-    `primary_partition`   varchar(255)          DEFAULT 'dt' COMMENT 'primary partition field',
-    `secondary_partition` varchar(256)          DEFAULT NULL COMMENT 'secondary partition field',
-    `partition_type`      varchar(10)           DEFAULT NULL COMMENT 'The partition type, there are: H-by hour, D-by day, W-by week, M-by month, O-one-time, R-non-periodical',
-    `file_format`         varchar(15)           DEFAULT 'TextFile' COMMENT 'The stored table format, TextFile, RCFile, SequenceFile, Avro',
-    `encoding_type`       varchar(255)          DEFAULT NULL COMMENT 'data encoding',
-    `field_splitter`      varchar(10)           DEFAULT NULL COMMENT 'field separator',
-    `hdfs_default_fs`     varchar(255)          DEFAULT NULL COMMENT 'HDFS defaultFS, such as "hdfs://127.0.0.1:9000"',
-    `warehouse_dir`       varchar(250)          DEFAULT '/user/hive/warehouse' COMMENT 'Hive table storage path on HDFS, such as "/user/hive/warehouse"',
-    `usage_interval`      varchar(10)           DEFAULT NULL COMMENT 'The amount of time that Sort collected data will land on Hive, there are 10M, 15M, 30M, 1H, 1D',
-    `storage_period`      int(5)                DEFAULT '10' COMMENT 'Data storage period, unit: day',
-    `status`              int(11)               DEFAULT '0' COMMENT 'status',
-    `previous_status`     int(11)               DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
-    `opt_log`             varchar(5000)         DEFAULT NULL COMMENT 'Background operation log',
+    `id`                          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`             varchar(128) NOT NULL COMMENT 'Owning business group id',
+    `inlong_stream_id`            varchar(128) NOT NULL COMMENT 'Owning data stream id',
+    `jdbc_url`                    varchar(255)          DEFAULT NULL COMMENT 'Hive JDBC connection URL, such as "jdbc:hive2://127.0.0.1:10000"',
+    `username`                    varchar(128)          DEFAULT NULL COMMENT 'Username',
+    `password`                    varchar(255)          DEFAULT NULL COMMENT 'User password',
+    `db_name`                     varchar(128)          DEFAULT NULL COMMENT 'Target database name',
+    `table_name`                  varchar(128)          DEFAULT NULL COMMENT 'Target data table name',
+    `hdfs_default_fs`             varchar(255)          DEFAULT NULL COMMENT 'HDFS defaultFS, such as "hdfs://127.0.0.1:9000"',
+    `warehouse_dir`               varchar(250)          DEFAULT '/user/hive/warehouse' COMMENT 'Hive table storage path on HDFS, such as "/user/hive/warehouse"',
+    `partition_interval`          int(5)                DEFAULT NULL COMMENT 'Partition interval, support: 1(D / H), 10 I, 30 I',
+    `partition_unit`              varchar(10)           DEFAULT 'D' COMMENT 'Partition type, support: D-day, H-hour, I-minute',
+    `primary_partition`           varchar(255)          DEFAULT 'dt' COMMENT 'primary partition field',
+    `secondary_partition`         varchar(256)          DEFAULT NULL COMMENT 'secondary partition field',
+    `partition_creation_strategy` varchar(50)           DEFAULT 'COMPLETED' COMMENT 'Partition creation strategy, support: ARRIVED, COMPLETED',
+    `file_format`                 varchar(15)           DEFAULT 'TextFile' COMMENT 'The stored table format, TextFile, RCFile, SequenceFile, Avro',
+    `data_encoding`               varchar(20)           DEFAULT 'UTF-8' COMMENT 'data encoding type',
+    `data_separator`              varchar(10)           DEFAULT NULL COMMENT 'data field separator',
+    `storage_period`              int(5)                DEFAULT '10' COMMENT 'Data storage period, unit: day',
+    `opt_log`                     varchar(5000)         DEFAULT NULL COMMENT 'Background operation log',
+    `status`                      int(4)                DEFAULT '0' COMMENT 'status',
+    `previous_status`             int(4)                DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`                  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `creator`                     varchar(64)           DEFAULT NULL COMMENT 'creator name',
+    `modifier`                    varchar(64)           DEFAULT NULL COMMENT 'modifier name',
+    `create_time`                 timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time`                 timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    `temp_view`                   text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -609,7 +621,8 @@ CREATE TABLE `storage_hive_field`
     `is_exist`          tinyint(1)    DEFAULT '0' COMMENT 'Does it exist, 0: does not exist, 1: exists',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_storage_id` (`storage_id`)
 );
 
 -- ----------------------------
@@ -699,7 +712,8 @@ CREATE TABLE `user`
     `update_time`  datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
     `create_by`    varchar(255) NOT NULL COMMENT 'create by sb.',
     `update_by`    varchar(255)          DEFAULT NULL COMMENT 'update by sb.',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `user_name_uindex` (`name`)
 );
 
 -- create default admin user, username is 'admin', password is 'inlong'
@@ -742,7 +756,8 @@ CREATE TABLE `wf_approver`
     `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'update time',
     `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
 -- create default approver for new consumption and new business
@@ -797,7 +812,7 @@ CREATE TABLE `wf_process_instance`
     `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext`             text COMMENT 'Extended information-text',
+    `ext`             text COMMENT 'Extended information-json',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
     PRIMARY KEY (`id`)
 );
@@ -823,7 +838,7 @@ CREATE TABLE `wf_task_instance`
     `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
-    `ext`                  text COMMENT 'Extended information-text',
+    `ext`                  text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
 );
 
@@ -840,13 +855,14 @@ CREATE TABLE `cluster_set`
     `middleware_type` varchar(10)           DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `in_charges`      varchar(512) COMMENT 'Name of responsible person, separated by commas',
     `followers`       varchar(512) COMMENT 'List of names of business followers, separated by commas',
-    `status`          int(11)               DEFAULT '21' COMMENT 'ClusterSet status',
+    `status`          int(4)                DEFAULT '21' COMMENT 'ClusterSet status',
     `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`         varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`        varchar(64)  NULL COMMENT 'Modifier name',
     `create_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_set` (`set_name`)
 );
 
 -- ----------------------------
@@ -858,7 +874,8 @@ CREATE TABLE `cluster_set_inlongid`
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `set_name`        varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `inlong_group_id` varchar(128) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`, `inlong_group_id`)
 );
 
 -- ----------------------------
@@ -871,7 +888,8 @@ CREATE TABLE `cache_cluster`
     `cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
     `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `zone`         varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cache_cluster` (`cluster_name`)
 );
 
 -- ----------------------------
@@ -885,8 +903,9 @@ CREATE TABLE `cache_cluster_ext`
     `key_name`     varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`    varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`   tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_cache_cluster` (`cluster_name`)
 );
 
 -- ----------------------------
@@ -899,7 +918,8 @@ CREATE TABLE `cache_topic`
     `topic_name`    varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
     `set_name`      varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `partition_num` int(11)      NOT NULL COMMENT 'Partition number',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cache_topic` (`topic_name`, `set_name`)
 );
 
 -- ----------------------------
@@ -912,7 +932,8 @@ CREATE TABLE `proxy_cluster`
     `cluster_name` varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
     `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `zone`         varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_proxy_cluster` (`cluster_name`, `set_name`)
 );
 
 -- ----------------------------
@@ -924,7 +945,8 @@ CREATE TABLE `proxy_cluster_to_cache_cluster`
     `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `proxy_cluster_name` varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
     `cache_cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_proxy_cluster_to_cache_cluster` (`proxy_cluster_name`, `cache_cluster_name`)
 );
 
 -- ----------------------------
@@ -939,7 +961,8 @@ CREATE TABLE `flume_source`
     `type`          varchar(128) NOT NULL COMMENT 'FlumeSource classname',
     `channels`      varchar(128) NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
     `selector_type` varchar(128) NOT NULL COMMENT 'FlumeSource channel selector classname',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_source` (`source_name`, `set_name`)
 );
 
 -- ----------------------------
@@ -954,8 +977,9 @@ CREATE TABLE `flume_source_ext`
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_source_ext` (`parent_name`)
 );
 
 -- ----------------------------
@@ -968,7 +992,8 @@ CREATE TABLE `flume_channel`
     `channel_name` varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
     `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `type`         varchar(128) NOT NULL COMMENT 'FlumeChannel classname',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_channel` (`channel_name`, `set_name`)
 );
 
 -- ----------------------------
@@ -983,8 +1008,9 @@ CREATE TABLE `flume_channel_ext`
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_channel_ext` (`parent_name`)
 );
 
 -- ----------------------------
@@ -998,7 +1024,8 @@ CREATE TABLE `flume_sink`
     `set_name`  varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `type`      varchar(128) NOT NULL COMMENT 'FlumeSink classname',
     `channel`   varchar(128) NOT NULL COMMENT 'FlumeSink channel',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_flume_sink` (`sink_name`, `set_name`)
 );
 
 -- ----------------------------
@@ -1013,8 +1040,9 @@ CREATE TABLE `flume_sink_ext`
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_sink_ext` (`parent_name`)
 );
 
 SET FOREIGN_KEY_CHECKS = 1;

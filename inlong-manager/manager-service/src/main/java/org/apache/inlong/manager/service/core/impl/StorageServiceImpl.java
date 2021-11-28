@@ -146,7 +146,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
         // Query HDFS, HIVE, ES storage information and encapsulate it in the result set
         List<StorageSummaryInfo> totalList = new ArrayList<>();
-        List<StorageSummaryInfo> hiveSummaryList = hiveStorageMapper.selectSummaryByIdentifier(groupId, streamId);
+        List<StorageSummaryInfo> hiveSummaryList = hiveStorageMapper.selectSummary(groupId, streamId);
 
         totalList.addAll(hiveSummaryList);
 

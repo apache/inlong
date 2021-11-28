@@ -19,6 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
 import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
@@ -45,7 +46,7 @@ public interface StorageHiveEntityMapper {
      * @param request Paging query conditions
      * @return Hive storage entity list
      */
-    List<StorageHiveEntity> selectByCondition(StoragePageRequest request);
+    List<StorageHiveEntity> selectByCondition(@Param("request") StoragePageRequest request);
 
     /**
      * According to the business group id and data stream id, query valid storage information
@@ -80,7 +81,16 @@ public interface StorageHiveEntityMapper {
     /**
      * According to the business group id and data stream id, query Hive storage summary information
      */
-    List<StorageSummaryInfo> selectSummaryByIdentifier(@Param("groupId") String groupId,
+    List<StorageSummaryInfo> selectSummary(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
+     * Select Hive configs for Sort under the business group id and stream id
+     *
+     * @param groupId Business group id
+     * @param streamId Data stream id, if is null, get all configs under the group id
+     * @return Hive Sort config
+     */
+    List<StorageHiveSortInfo> selectHiveSortInfoByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
 }

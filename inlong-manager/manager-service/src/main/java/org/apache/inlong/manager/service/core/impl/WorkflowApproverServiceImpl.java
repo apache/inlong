@@ -125,8 +125,8 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public void update(WorkflowApprover config, String operator) {
-        Preconditions.checkNotNull(config, "config can't be null");
-        Preconditions.checkNotNull(config.getId(), "id can't be null");
+        Preconditions.checkNotNull(config, "config cannot be null");
+        Preconditions.checkNotNull(config.getId(), "id cannot be null");
 
         WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(config.getId());
         Preconditions.checkNotNull(entity, "not exist with id:" + config.getId());

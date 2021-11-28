@@ -52,4 +52,7 @@ public class DataStreamPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "Business in charges", hidden = true)
+    private String inCharges;
+
 }

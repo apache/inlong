@@ -55,7 +55,8 @@ public class BusinessInfo {
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     private String middlewareType;
 
-    @ApiModelProperty(value = "MQ resource object, in business, Tube corresponds to Topic")
+    @ApiModelProperty(value = "MQ resource object, in business",
+            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResourceObj;
 
     @ApiModelProperty(value = "Tube master URL")

@@ -87,11 +87,11 @@ public class StorageHiveOperation extends StorageBaseOperation {
 
         // Set the encoding type and field splitter
         DataStreamEntity streamEntity = dataStreamMapper.selectByIdentifier(groupId, entity.getInlongStreamId());
-        String encodingType = streamEntity.getDataEncoding() == null
+        String dataEncoding = streamEntity.getDataEncoding() == null
                 ? StandardCharsets.UTF_8.displayName() : streamEntity.getDataEncoding();
-        entity.setEncodingType(encodingType);
-        if (entity.getFieldSplitter() == null) {
-            entity.setFieldSplitter(streamEntity.getFileDelimiter());
+        entity.setDataEncoding(dataEncoding);
+        if (entity.getDataSeparator() == null) {
+            entity.setDataSeparator(streamEntity.getDataSeparator());
         }
 
         entity.setStatus(EntityStatus.DATA_STORAGE_NEW.getCode());

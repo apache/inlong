@@ -39,46 +39,52 @@ public class StorageHiveInfo extends BaseStorageInfo {
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
 
-    @ApiModelProperty("username for JDBC URL")
+    @ApiModelProperty("Username for JDBC URL")
     private String username;
 
-    @ApiModelProperty("user password")
+    @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("target database name")
+    @ApiModelProperty("Target database name")
     private String dbName;
 
-    @ApiModelProperty("target table name")
+    @ApiModelProperty("Target table name")
     private String tableName;
-
-    @ApiModelProperty("primary partition field")
-    private String primaryPartition;
-
-    @ApiModelProperty("secondary partition field")
-    private String secondaryPartition;
-
-    @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
-    private String partitionType;
-
-    @ApiModelProperty("file format, support: TextFile, RCFile, SequenceFile, Avro")
-    private String fileFormat;
-
-    @ApiModelProperty("field splitter")
-    private String fieldSplitter;
-
-    @ApiModelProperty("data encoding type")
-    private String encodingType;
 
     @ApiModelProperty("HDFS defaultFS")
     private String hdfsDefaultFs;
 
-    @ApiModelProperty("warehouse directory")
+    @ApiModelProperty("Warehouse directory")
     private String warehouseDir;
 
-    @ApiModelProperty("interval at which Sort collects data to Hive is 10M, 15M, 30M, 1H, 1D")
-    private String usageInterval;
+    @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
+    private Integer partitionInterval;
 
-    @ApiModelProperty("backend operation log")
+    @ApiModelProperty("Partition type, support: D-day, H-hour, I-minute")
+    private String partitionUnit;
+
+    @ApiModelProperty("Primary partition field")
+    private String primaryPartition;
+
+    @ApiModelProperty("Secondary partition field")
+    private String secondaryPartition;
+
+    @ApiModelProperty("Partition creation strategy, partition start, partition close")
+    private String partitionCreationStrategy;
+
+    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    private String fileFormat;
+
+    @ApiModelProperty("Data encoding type")
+    private String dataEncoding;
+
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
+
+    @ApiModelProperty("Data storage period in Hive, unit: Day")
+    private Integer storagePeriod;
+
+    @ApiModelProperty("Backend operation log")
     private String optLog;
 
     @ApiModelProperty("hive table field list")

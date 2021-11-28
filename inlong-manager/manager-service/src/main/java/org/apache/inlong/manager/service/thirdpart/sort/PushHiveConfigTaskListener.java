@@ -17,20 +17,26 @@
 
 package org.apache.inlong.manager.service.thirdpart.sort;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
+import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
@@ -42,8 +48,13 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
+import org.apache.inlong.sort.protocol.sink.SinkInfo;
+import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +64,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class PushHiveConfigTaskListener implements TaskEventListener {
 
+    private static final Map<String, String> PARTITION_TIME_FORMAT_MAP = new HashMap<>();
+
+    private static final Map<String, TimeUnit> PARTITION_TIME_UNIT_MAP = new HashMap<>();
+
+    static {
+        PARTITION_TIME_FORMAT_MAP.put("D", "yyyyMMdd");
+        PARTITION_TIME_FORMAT_MAP.put("H", "yyyyMMddHH");
+        PARTITION_TIME_FORMAT_MAP.put("I", "yyyyMMddHHmm");
+
+        PARTITION_TIME_UNIT_MAP.put("D", TimeUnit.DAYS);
+        PARTITION_TIME_UNIT_MAP.put("H", TimeUnit.HOURS);
+        PARTITION_TIME_UNIT_MAP.put("I", TimeUnit.MINUTES);
+    }
+
     @Autowired
-    private StorageService storageService;
+    private ClusterBean clusterBean;
+    @Autowired
+    private BusinessEntityMapper businessMapper;
     @Autowired
     private StorageHiveEntityMapper storageHiveMapper;
     @Autowired
-    private DataStreamService dataStreamService;
+    private StorageHiveFieldEntityMapper hiveFieldMapper;
     @Autowired
-    private ClusterBean clusterBean;
+    private DataStreamService dataStreamService;
 
     @Override
     public TaskEvent event() {
@@ -76,19 +103,24 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
         String groupId = businessInfo.getInlongGroupId();
+
+        BusinessEntity business = businessMapper.selectByIdentifier(groupId);
+        if (business == null || EntityStatus.IS_DELETED.getCode().equals(business.getIsDeleted())) {
+            log.warn("skip to push sort hive config for groupId={}, as biz not exists or has been deleted", groupId);
+            return ListenerResult.success();
+        }
+
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();
+        List<StorageHiveSortInfo> hiveInfoList = storageHiveMapper.selectHiveSortInfoByIdentifier(groupId, streamId);
+        for (StorageHiveSortInfo hiveInfo : hiveInfoList) {
+            Integer storageId = hiveInfo.getId();
 
-        List<StorageHiveEntity> storageHiveEntities = storageHiveMapper.selectByIdentifier(groupId, streamId);
-        for (StorageHiveEntity hiveEntity : storageHiveEntities) {
-            Integer storageId = hiveEntity.getId();
-            StorageHiveInfo hiveStorage = (StorageHiveInfo) storageService
-                    .getById(BizConstant.STORAGE_HIVE, storageId);
             if (log.isDebugEnabled()) {
-                log.debug("hive storage info: {}", hiveStorage);
+                log.debug("hive storage info: {}", hiveInfo);
             }
 
-            DataFlowInfo dataFlowInfo = getDataFlowInfo(businessInfo, hiveStorage);
+            DataFlowInfo dataFlowInfo = getDataFlowInfo(business, hiveInfo);
             if (log.isDebugEnabled()) {
                 log.debug("try to push hive config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }
@@ -109,26 +141,62 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         return ListenerResult.success();
     }
 
-    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveInfo hiveStorage) {
-        Stream<FieldInfo> hiveFields = hiveStorage.getHiveFieldList().stream().map(field -> {
-            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
-            return new FieldInfo(field.getFieldName(), formatInfo);
-        });
+    private DataFlowInfo getDataFlowInfo(BusinessEntity businessEntity, StorageHiveSortInfo hiveInfo) {
+        String groupId = hiveInfo.getInlongGroupId();
+        String streamId = hiveInfo.getInlongStreamId();
+        List<StorageHiveFieldEntity> fieldList = hiveFieldMapper.selectHiveFields(groupId, streamId);
 
-        List<FieldInfo> sinkFields = hiveFields.collect(Collectors.toList());
-        FieldInfo partitionFieldInfo = new FieldInfo(hiveStorage.getPrimaryPartition(),
-                new TimestampFormatInfo("MILLIS"));
-        sinkFields.add(partitionFieldInfo);
+        if (fieldList == null || fieldList.size() == 0) {
+            throw new WorkflowListenerException("no hive fields for groupId=" + groupId + ", streamId=" + streamId);
+        }
 
-        String hiveServerUrl = hiveStorage.getJdbcUrl();
-        if (hiveServerUrl != null && !hiveServerUrl.startsWith("jdbc:hive2://")) {
-            hiveServerUrl = "jdbc:hive2://" + hiveServerUrl;
+        SourceInfo sourceInfo = getSourceInfo(businessEntity, hiveInfo, fieldList);
+        SinkInfo sinkInfo = getSinkInfo(hiveInfo, fieldList);
+
+        // push information
+        return new DataFlowInfo(hiveInfo.getId(), sourceInfo, sinkInfo);
+    }
+
+    private HiveSinkInfo getSinkInfo(StorageHiveSortInfo hiveInfo, List<StorageHiveFieldEntity> fieldList) {
+        if (hiveInfo.getJdbcUrl() == null) {
+            throw new WorkflowListenerException("hive server url cannot be empty");
+        }
+
+        // Use the field separator in Hive, the default is TextFile
+        Character separator = (char) Integer.parseInt(hiveInfo.getTargetSeparator());
+        HiveFileFormat fileFormat;
+        String format = hiveInfo.getFileFormat();
+
+        if (BizConstant.FILE_FORMAT_ORC.equalsIgnoreCase(format)) {
+            fileFormat = new HiveSinkInfo.OrcFileFormat(1000);
+        } else if (BizConstant.FILE_FORMAT_SEQUENCE.equalsIgnoreCase(format)) {
+            fileFormat = new HiveSinkInfo.SequenceFileFormat(separator, 100);
+        } else if (BizConstant.FILE_FORMAT_PARQUET.equalsIgnoreCase(format)) {
+            fileFormat = new HiveSinkInfo.ParquetFileFormat();
+        } else {
+            fileFormat = new HiveSinkInfo.TextFileFormat(separator);
+        }
+
+        // The primary partition field, in Sink must be HiveTimePartitionInfo
+        List<HiveSinkInfo.HivePartitionInfo> partitionList = new ArrayList<>();
+        String primary = hiveInfo.getPrimaryPartition();
+        if (StringUtils.isNotEmpty(primary)) {
+            // Hive partitions are by day, hour, and minute
+            String unit = hiveInfo.getPartitionUnit();
+            HiveTimePartitionInfo timePartitionInfo = new HiveTimePartitionInfo(
+                    primary, PARTITION_TIME_FORMAT_MAP.get(unit));
+            partitionList.add(timePartitionInfo);
+        }
+        // For the secondary partition field, the sink is temporarily encapsulated as HiveFieldPartitionInfo,
+        // TODO the type be set according to the type of the field itself.
+        if (StringUtils.isNotEmpty(hiveInfo.getSecondaryPartition())) {
+            partitionList.add(new HiveSinkInfo.HiveFieldPartitionInfo(hiveInfo.getSecondaryPartition()));
         }
 
         // dataPath = hdfsUrl + / + warehouseDir + / + dbName + .db/ + tableName
         StringBuilder dataPathBuilder = new StringBuilder();
-        String hdfsUrl = hiveStorage.getHdfsDefaultFs();
-        String warehouseDir = hiveStorage.getWarehouseDir();
+        String hdfsUrl = hiveInfo.getHdfsDefaultFs();
+        String warehouseDir = hiveInfo.getWarehouseDir();
         if (hdfsUrl.endsWith("/")) {
             dataPathBuilder.append(hdfsUrl, 0, hdfsUrl.length() - 1);
         } else {
@@ -139,57 +207,116 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         } else {
             dataPathBuilder.append(warehouseDir);
         }
-        String dataPath = dataPathBuilder.append("/")
-                .append(hiveStorage.getDbName())
-                .append(".db/")
-                .append(hiveStorage.getTableName())
-                .toString();
+        String dataPath = dataPathBuilder.append("/").append(hiveInfo.getDbName())
+                .append(".db/").append(hiveInfo.getTableName()).toString();
 
-        // Encapsulate the deserialization information in the source
-        HiveSinkInfo.HiveFileFormat fileFormat = new HiveSinkInfo.TextFileFormat(',');
-        if (hiveStorage.getFieldSplitter() != null) {
-            char c = (char) Integer.parseInt(hiveStorage.getFieldSplitter());
-            fileFormat = new HiveSinkInfo.TextFileFormat(c);
+        // Get the sink field, if there is no partition field in the source field, add the partition field to the end
+        List<FieldInfo> fieldInfoList = getSinkFields(fieldList, hiveInfo.getPrimaryPartition());
+
+        return new HiveSinkInfo(fieldInfoList.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
+                hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
+                dataPath, partitionList.toArray(new HiveSinkInfo.HivePartitionInfo[0]), fileFormat);
+    }
+
+    /**
+     * Get source info
+     */
+    private SourceInfo getSourceInfo(BusinessEntity businessEntity, StorageHiveSortInfo info,
+            List<StorageHiveFieldEntity> fieldList) {
+        DeserializationInfo deserializationInfo = null;
+        boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(info.getDataSourceType());
+        if (!isDbType) {
+            // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use TDMsgCsv
+            String dataType = info.getDataType();
+            if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataType)
+                    || BizConstant.DATA_TYPE_KEY_VALUE.equalsIgnoreCase(dataType)) {
+                // Use the field separator from the data stream
+                char separator = (char) Integer.parseInt(info.getSourceSeparator());
+                // TODO support escape
+                /*Character escape = null;
+                if (info.getDataEscapeChar() != null) {
+                    escape = info.getDataEscapeChar().charAt(0);
+                }*/
+                // Whether to delete the first separator, the default is false for the time being
+                deserializationInfo = new TDMsgCsvDeserializationInfo(info.getInlongStreamId(), separator);
+            }
         }
 
-        // encapsulate hive sink
-        HiveSinkInfo hiveSinkInfo = new HiveSinkInfo(
-                sinkFields.toArray(new FieldInfo[0]),
-                hiveServerUrl,
-                hiveStorage.getDbName(),
-                hiveStorage.getTableName(),
-                hiveStorage.getUsername(),
-                hiveStorage.getPassword(),
-                dataPath,
-                Stream.of(new HiveSinkInfo.HiveTimePartitionInfo(hiveStorage.getPrimaryPartition(),
-                        "yyyyMMddHH")).toArray(HiveSinkInfo.HivePartitionInfo[]::new),
-                fileFormat
-        );
+        // The number and order of the source fields must be the same as the target fields
+        SourceInfo sourceInfo = null;
+        // Get the source field, if there is no partition field in source, add the partition field to the end
+        List<FieldInfo> sourceFields = getSourceFields(fieldList, info.getPrimaryPartition());
 
-        // data stream fields
-        DataStreamInfo dataStream = dataStreamService.get(hiveStorage.getInlongGroupId(),
-                hiveStorage.getInlongStreamId());
-        Stream<FieldInfo> streamFields = dataStream.getFieldList().stream().map(field -> {
+        String middleWare = businessEntity.getMiddlewareType();
+        if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middleWare)) {
+            String masterAddress = clusterBean.getTubeMaster();
+            Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
+            String topic = businessEntity.getMqResourceObj();
+            // The consumer group name is: taskName_topicName_consumer_group
+            String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
+            sourceInfo = new TubeSourceInfo(topic, masterAddress, consumerGroup,
+                    deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
+        } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
+            String tenant = clusterBean.getDefaultTenant();
+            String namespace = businessEntity.getMqResourceObj();
+            String pulsarTopic = info.getMqResourceObj();
+            // Full name of Topic in Pulsar
+            String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
+            String adminUrl = clusterBean.getPulsarServiceUrl();
+            String serviceUrl = clusterBean.getPulsarServiceUrl();
+            String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
+            sourceInfo = new PulsarSourceInfo(adminUrl, serviceUrl, fullTopicName, consumerGroup,
+                    deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
+        }
+
+        return sourceInfo;
+    }
+
+    /**
+     * Get sink fields
+     */
+    private List<FieldInfo> getSinkFields(List<StorageHiveFieldEntity> fieldList, String partitionField) {
+        boolean duplicate = false;
+        List<FieldInfo> fieldInfoList = new ArrayList<>();
+        for (StorageHiveFieldEntity field : fieldList) {
+            String fieldName = field.getFieldName();
+            if (fieldName.equals(partitionField)) {
+                duplicate = true;
+            }
+
             FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
-            return new FieldInfo(field.getFieldName(), formatInfo);
-        });
-
-        String topic = businessInfo.getMqResourceObj();
-        String consumeGroupName = "sort_" + businessInfo.getMqResourceObj() + "_consumer_group";
-        TDMsgCsvDeserializationInfo deserializationInfo = null;
-        if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataStream.getDataType())) {
-            char c = (char) Integer.parseInt(dataStream.getFileDelimiter());
-            deserializationInfo = new TDMsgCsvDeserializationInfo(hiveStorage.getInlongStreamId(), c);
+            FieldInfo fieldInfo = new FieldInfo(fieldName, formatInfo);
+            fieldInfoList.add(fieldInfo);
         }
-        SourceInfo sourceInfo = new TubeSourceInfo(topic, clusterBean.getTubeMaster(), consumeGroupName,
-                deserializationInfo, streamFields.toArray(FieldInfo[]::new));
 
-        // push information
-        return new DataFlowInfo(hiveStorage.getId(), sourceInfo, hiveSinkInfo);
+        // There is no partition field in the ordinary field, you need to add the partition field to the end
+        if (!duplicate && StringUtils.isNotEmpty(partitionField)) {
+            FieldInfo fieldInfo = new FieldInfo(partitionField, new TimestampFormatInfo("MILLIS"));
+            fieldInfoList.add(0, fieldInfo);
+        }
+        return fieldInfoList;
+    }
+
+    /**
+     * Get source field list
+     * TODO  support BuiltInField
+     */
+    private List<FieldInfo> getSourceFields(List<StorageHiveFieldEntity> fieldList, String partitionField) {
+        List<FieldInfo> fieldInfoList = new ArrayList<>();
+        for (StorageHiveFieldEntity field : fieldList) {
+            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getSourceFieldType().toLowerCase());
+            String fieldName = field.getSourceFieldName();
+
+            FieldInfo fieldInfo = new FieldInfo(fieldName, formatInfo);
+            fieldInfoList.add(fieldInfo);
+        }
+
+        return fieldInfoList;
     }
 
     @Override
     public boolean async() {
         return false;
     }
+
 }

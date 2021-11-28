@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfoToHiveConfig;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
@@ -54,7 +54,7 @@ public class HiveTableOperator {
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createHiveTable(String groupId, DataStreamInfoToHiveConfig hiveConfig) {
+    public void createHiveTable(String groupId, StorageHiveSortInfo hiveConfig) {
         if (log.isDebugEnabled()) {
             log.debug("begin create hive table for business={}, hiveConfig={}", groupId, hiveConfig);
         }
@@ -90,7 +90,7 @@ public class HiveTableOperator {
         log.info("finish create hive table for business {} ", groupId);
     }
 
-    protected HiveTableQueryBean getTableQueryBean(DataStreamInfoToHiveConfig hiveConfig) {
+    protected HiveTableQueryBean getTableQueryBean(StorageHiveSortInfo hiveConfig) {
         String groupId = hiveConfig.getInlongGroupId();
         String streamId = hiveConfig.getInlongStreamId();
         log.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);
@@ -119,11 +119,11 @@ public class HiveTableOperator {
         HiveTableQueryBean queryBean = new HiveTableQueryBean();
         queryBean.setColumns(columnQueryBeans);
         // set terminated symbol
-        if (hiveConfig.getFieldSplitter() != null) {
-            char ch = (char) Integer.parseInt(hiveConfig.getFieldSplitter());
+        if (hiveConfig.getTargetSeparator() != null) {
+            char ch = (char) Integer.parseInt(hiveConfig.getTargetSeparator());
             queryBean.setFieldTerSymbol(String.valueOf(ch));
         }
-        queryBean.setUsername(hiveConfig.getUserName());
+        queryBean.setUsername(hiveConfig.getUsername());
         queryBean.setPassword(hiveConfig.getPassword());
         queryBean.setTableName(hiveConfig.getTableName());
         queryBean.setDbName(hiveConfig.getDbName());

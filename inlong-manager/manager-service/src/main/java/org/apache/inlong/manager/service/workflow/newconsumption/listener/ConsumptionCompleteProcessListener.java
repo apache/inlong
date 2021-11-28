@@ -94,9 +94,9 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     private NewConsumptionApproveForm getAdminApproveForm(WorkflowContext context) {
         TaskInstance adminTask = queryService.listTask(TaskQuery.builder()
-                .processInstId(context.getProcessInstance().getId())
-                .name(NewConsumptionWorkflowDefinition.UT_ADMINT_NAME)
-                .build())
+                        .processInstId(context.getProcessInstance().getId())
+                        .name(NewConsumptionWorkflowDefinition.UT_ADMINT_NAME)
+                        .build())
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(BizErrorCodeEnum.WORKFLOW_EXE_FAILED,
@@ -104,7 +104,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
         Process process = context.getProcess();
         NewConsumptionApproveForm form = WorkflowFormParserUtils.parseTaskForm(adminTask, process);
-        Preconditions.checkNotNull(form, "form can't be null");
+        Preconditions.checkNotNull(form, "form cannot be null");
         return form;
     }
 
