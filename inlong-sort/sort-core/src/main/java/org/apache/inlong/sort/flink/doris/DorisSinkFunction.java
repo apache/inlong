@@ -28,50 +28,47 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.DorisSinkInfo;
 
-
 public class DorisSinkFunction  extends RichSinkFunction<Tuple2<Boolean, Row>> {
-	private transient DorisOutputFormat outputFormat;
-	private DorisSinkInfo dorisSinkInfo;
+    private transient DorisOutputFormat outputFormat;
+    private DorisSinkInfo dorisSinkInfo;
 
+    public DorisSinkFunction(DorisSinkInfo dorisSinkInfo) {
+        this.dorisSinkInfo = dorisSinkInfo;
+    }
 
-	public DorisSinkFunction( DorisSinkInfo dorisSinkInfo) {
-		this.dorisSinkInfo = dorisSinkInfo;
-	}
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        FieldInfo[] fields = dorisSinkInfo.getFields();
+        int fieldsLength = fields.length;
+        String[] fieldNames = new String[fieldsLength];
+        FormatInfo[] formatInfos = new FormatInfo[fieldsLength];
+        for (int i = 0; i < fieldsLength; ++i) {
+            FieldInfo field = fields[i];
+            fieldNames[i] = field.getName();
+            formatInfos[i] = field.getFormatInfo();
+        }
 
-	@Override
-	public void open(Configuration parameters) throws Exception {
+        DorisSinkOptions dorisSinkOptions = new DorisSinkOptionsBuilder()
+                .setFeNodes(dorisSinkInfo.getFenodes())
+                .setUsername(dorisSinkInfo.getUsername())
+                .setPassword(dorisSinkInfo.getPassword())
+                .setTableIdentifier(dorisSinkInfo.getTableIdentifier())
+                .build();
+        // generate DorisOutputFormat
+        outputFormat = new DorisOutputFormat(dorisSinkOptions,fieldNames,formatInfos);
 
-		FieldInfo[] fields = dorisSinkInfo.getFields();
-		int fieldsLength = fields.length;
-		String[] fieldNames = new String[fieldsLength];
-		FormatInfo[] formatInfos = new FormatInfo[fieldsLength];
-		for (int i = 0; i < fieldsLength; ++i) {
-			FieldInfo field = fields[i];
-			fieldNames[i] = field.getName();
-			formatInfos[i] = field.getFormatInfo();
-		}
+        RuntimeContext ctx = getRuntimeContext();
+        outputFormat.setRuntimeContext(ctx);
+        outputFormat.open(ctx.getIndexOfThisSubtask(), ctx.getNumberOfParallelSubtasks());
+    }
 
-		DorisSinkOptions dorisSinkOptions = new DorisSinkOptionsBuilder()
-				.setFeNodes(dorisSinkInfo.getFenodes())
-				.setUsername(dorisSinkInfo.getUsername())
-				.setPassword(dorisSinkInfo.getPassword())
-				.setTableIdentifier(dorisSinkInfo.getTableIdentifier())
-				.build();
-		// generate DorisOutputFormat
-		outputFormat = new DorisOutputFormat(dorisSinkOptions,fieldNames,formatInfos);
+    @Override
+    public void close() throws Exception {
+        outputFormat.close();
+    }
 
-		RuntimeContext ctx = getRuntimeContext();
-		outputFormat.setRuntimeContext(ctx);
-		outputFormat.open(ctx.getIndexOfThisSubtask(), ctx.getNumberOfParallelSubtasks());
-	}
-
-	@Override
-	public void close() throws Exception {
-		outputFormat.close();
-	}
-
-	@Override
-	public void invoke(Tuple2<Boolean, Row> value) throws Exception {
-		outputFormat.writeRecord(value);
-	}
+    @Override
+    public void invoke(Tuple2<Boolean, Row> value) throws Exception {
+        outputFormat.writeRecord(value);
+    }
 }

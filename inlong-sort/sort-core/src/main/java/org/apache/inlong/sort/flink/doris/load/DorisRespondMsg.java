@@ -20,183 +20,200 @@ package org.apache.inlong.sort.flink.doris.load;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import com.google.gson.annotations.SerializedName;
 
 public class DorisRespondMsg {
-	private int TxnId;
+    @SerializedName("TxnId")
+    private int txnId;
 
-	private String Label;
+    @SerializedName("Label")
+    private String label;
 
-	private String Status;
+    @SerializedName("Status")
+    private String status;
 
-	private String ExistingJobStatus;
+    @SerializedName("ExistingJobStatus")
+    private String existingJobStatus;
 
-	private String Message;
+    @SerializedName("Message")
+    private String message;
 
-	private long NumberTotalRows;
+    @SerializedName("NumberTotalRows")
+    private long numberTotalRows;
 
-	private long NumberLoadedRows;
+    @SerializedName("NumberLoadedRows")
+    private long numberLoadedRows;
 
-	private int NumberFilteredRows;
+    @SerializedName("NumberFilteredRows")
+    private int numberFilteredRows;
 
-	private int NumberUnselectedRows;
+    @SerializedName("NumberUnselectedRows")
+    private int numberUnselectedRows;
 
-	private long LoadBytes;
+    @SerializedName("LoadBytes")
+    private long loadBytes;
 
-	private int LoadTimeMs;
+    @SerializedName("LoadTimeMs")
+    private int loadTimeMs;
 
-	private int BeginTxnTimeMs;
+    @SerializedName("BeginTxnTimeMs")
+    private int beginTxnTimeMs;
 
-	private int StreamLoadPutTimeMs;
+    @SerializedName("StreamLoadPutTimeMs")
+    private int streamLoadPutTimeMs;
 
-	private int ReadDataTimeMs;
+    @SerializedName("ReadDataTimeMs")
+    private int readDataTimeMs;
 
-	private int WriteDataTimeMs;
+    @SerializedName("WriteDataTimeMs")
+    private int writeDataTimeMs;
 
-	private int CommitAndPublishTimeMs;
+    @SerializedName("CommitAndPublishTimeMs")
+    private int commitAndPublishTimeMs;
 
-	private String ErrorURL;
+    @SerializedName("ErrorURL")
+    private String errorURL;
 
-	public int getTxnId() {
-		return TxnId;
-	}
+    public int getTxnId() {
+        return txnId;
+    }
 
-	public void setTxnId(int txnId) {
-		TxnId = txnId;
-	}
+    public void setTxnId(int txnId) {
+        this.txnId = txnId;
+    }
 
-	public String getLabel() {
-		return Label;
-	}
+    public String getLabel() {
+        return label;
+    }
 
-	public void setLabel(String label) {
-		Label = label;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
-	public String getStatus() {
-		return Status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setStatus(String status) {
-		Status = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public String getExistingJobStatus() {
-		return ExistingJobStatus;
-	}
+    public String getExistingJobStatus() {
+        return existingJobStatus;
+    }
 
-	public void setExistingJobStatus(String existingJobStatus) {
-		ExistingJobStatus = existingJobStatus;
-	}
+    public void setExistingJobStatus(String existingJobStatus) {
+        this.existingJobStatus = existingJobStatus;
+    }
 
-	public String getMessage() {
-		return Message;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public void setMessage(String message) {
-		Message = message;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public long getNumberTotalRows() {
-		return NumberTotalRows;
-	}
+    public long getNumberTotalRows() {
+        return numberTotalRows;
+    }
 
-	public void setNumberTotalRows(long numberTotalRows) {
-		NumberTotalRows = numberTotalRows;
-	}
+    public void setNumberTotalRows(long numberTotalRows) {
+        this.numberTotalRows = numberTotalRows;
+    }
 
-	public long getNumberLoadedRows() {
-		return NumberLoadedRows;
-	}
+    public long getNumberLoadedRows() {
+        return numberLoadedRows;
+    }
 
-	public void setNumberLoadedRows(long numberLoadedRows) {
-		NumberLoadedRows = numberLoadedRows;
-	}
+    public void setNumberLoadedRows(long numberLoadedRows) {
+        this.numberLoadedRows = numberLoadedRows;
+    }
 
-	public int getNumberFilteredRows() {
-		return NumberFilteredRows;
-	}
+    public int getNumberFilteredRows() {
+        return numberFilteredRows;
+    }
 
-	public void setNumberFilteredRows(int numberFilteredRows) {
-		NumberFilteredRows = numberFilteredRows;
-	}
+    public void setNumberFilteredRows(int numberFilteredRows) {
+        this.numberFilteredRows = numberFilteredRows;
+    }
 
-	public int getNumberUnselectedRows() {
-		return NumberUnselectedRows;
-	}
+    public int getNumberUnselectedRows() {
+        return numberUnselectedRows;
+    }
 
-	public void setNumberUnselectedRows(int numberUnselectedRows) {
-		NumberUnselectedRows = numberUnselectedRows;
-	}
+    public void setNumberUnselectedRows(int numberUnselectedRows) {
+        this.numberUnselectedRows = numberUnselectedRows;
+    }
 
-	public long getLoadBytes() {
-		return LoadBytes;
-	}
+    public long getLoadBytes() {
+        return loadBytes;
+    }
 
-	public void setLoadBytes(long loadBytes) {
-		LoadBytes = loadBytes;
-	}
+    public void setLoadBytes(long loadBytes) {
+        this.loadBytes = loadBytes;
+    }
 
-	public int getLoadTimeMs() {
-		return LoadTimeMs;
-	}
+    public int getLoadTimeMs() {
+        return loadTimeMs;
+    }
 
-	public void setLoadTimeMs(int loadTimeMs) {
-		LoadTimeMs = loadTimeMs;
-	}
+    public void setLoadTimeMs(int loadTimeMs) {
+        this.loadTimeMs = loadTimeMs;
+    }
 
-	public int getBeginTxnTimeMs() {
-		return BeginTxnTimeMs;
-	}
+    public int getBeginTxnTimeMs() {
+        return beginTxnTimeMs;
+    }
 
-	public void setBeginTxnTimeMs(int beginTxnTimeMs) {
-		BeginTxnTimeMs = beginTxnTimeMs;
-	}
+    public void setBeginTxnTimeMs(int beginTxnTimeMs) {
+        this.beginTxnTimeMs = beginTxnTimeMs;
+    }
 
-	public int getStreamLoadPutTimeMs() {
-		return StreamLoadPutTimeMs;
-	}
+    public int getStreamLoadPutTimeMs() {
+        return streamLoadPutTimeMs;
+    }
 
-	public void setStreamLoadPutTimeMs(int streamLoadPutTimeMs) {
-		StreamLoadPutTimeMs = streamLoadPutTimeMs;
-	}
+    public void setStreamLoadPutTimeMs(int streamLoadPutTimeMs) {
+        this.streamLoadPutTimeMs = streamLoadPutTimeMs;
+    }
 
-	public int getReadDataTimeMs() {
-		return ReadDataTimeMs;
-	}
+    public int getReadDataTimeMs() {
+        return readDataTimeMs;
+    }
 
-	public void setReadDataTimeMs(int readDataTimeMs) {
-		ReadDataTimeMs = readDataTimeMs;
-	}
+    public void setReadDataTimeMs(int readDataTimeMs) {
+        this.readDataTimeMs = readDataTimeMs;
+    }
 
-	public int getWriteDataTimeMs() {
-		return WriteDataTimeMs;
-	}
+    public int getWriteDataTimeMs() {
+        return writeDataTimeMs;
+    }
 
-	public void setWriteDataTimeMs(int writeDataTimeMs) {
-		WriteDataTimeMs = writeDataTimeMs;
-	}
+    public void setWriteDataTimeMs(int writeDataTimeMs) {
+        this.writeDataTimeMs = writeDataTimeMs;
+    }
 
-	public int getCommitAndPublishTimeMs() {
-		return CommitAndPublishTimeMs;
-	}
+    public int getCommitAndPublishTimeMs() {
+        return commitAndPublishTimeMs;
+    }
 
-	public void setCommitAndPublishTimeMs(int commitAndPublishTimeMs) {
-		CommitAndPublishTimeMs = commitAndPublishTimeMs;
-	}
+    public void setCommitAndPublishTimeMs(int commitAndPublishTimeMs) {
+        this.commitAndPublishTimeMs = commitAndPublishTimeMs;
+    }
 
-	public String getErrorURL() {
-		return ErrorURL;
-	}
+    public String getErrorURL() {
+        return errorURL;
+    }
 
-	public void setErrorURL(String errorURL) {
-		ErrorURL = errorURL;
-	}
+    public void setErrorURL(String errorURL) {
+        this.errorURL = errorURL;
+    }
 
-	@Override
-	public String toString() {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		return gson.toJson(this);
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        return gson.toJson(this);
 
-	}
+    }
 }

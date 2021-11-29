@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.sort.flink.doris;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -28,43 +29,38 @@ import org.apache.flink.api.java.tuple.Tuple2;
 
 import java.io.IOException;
 
-
 public class TestDorisSink {
-	public static void main(String[] args) throws Exception {
-		ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-		env.setParallelism(1);
+    public static void main(String[] args) throws Exception {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
 
+        final DataSource<Tuple2<Boolean, Row>> data = env.fromElements(
+                new Tuple2<Boolean, Row>(true, Row.of(1, "pengpeng", 13)),
+                new Tuple2<Boolean, Row>(true, Row.of(2, "xingxing", 2))
+        );
 
+        DorisSinkOptions dorisSinkOptions = new DorisSinkOptionsBuilder()
+                .setFeNodes("127.0.0.1:8030")
+                .setUsername("admin")
+                .setPassword("")
+                .setTableIdentifier("example_db.test_stream_load")
+                .build();
 
-		final DataSource<Tuple2<Boolean, Row>> data = env.fromElements(
-				new Tuple2<Boolean, Row>(true, Row.of(1, "pengpeng", 13)),
-				new Tuple2<Boolean, Row>(true, Row.of(2, "xingxing", 2))
-		);
+        String[] fiels = {"id", "name", "age"};
+        FormatInfo[] formatInfos = new FormatInfo[]{
+                IntFormatInfo.INSTANCE,
+                StringFormatInfo.INSTANCE,
+                StringFormatInfo.INSTANCE};
+        DorisOutputFormat outputFormat = new DorisOutputFormat(dorisSinkOptions,fiels,formatInfos);
 
+        try {
+            outputFormat.open(0, 1);
+            data.output(outputFormat);
+            outputFormat.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		DorisSinkOptions dorisSinkOptions = new DorisSinkOptionsBuilder()
-				.setFeNodes("127.0.0.1:8030")
-				.setUsername("admin")
-				.setPassword("")
-				.setTableIdentifier("example_db.test_stream_load")
-				.build();
-
-
-		String[] fiels = {"id", "name", "age"};
-		FormatInfo[] formatInfos = new FormatInfo[]{
-				IntFormatInfo.INSTANCE,
-				StringFormatInfo.INSTANCE,
-				StringFormatInfo.INSTANCE};
-		DorisOutputFormat outputFormat = new DorisOutputFormat(dorisSinkOptions,fiels,formatInfos);
-
-		try {
-			outputFormat.open(0, 1);
-			data.output(outputFormat);
-			outputFormat.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		env.execute("doris batch sink example");
-	}
+        env.execute("doris batch sink example");
+    }
 }

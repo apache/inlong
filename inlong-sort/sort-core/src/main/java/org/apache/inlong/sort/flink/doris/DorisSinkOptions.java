@@ -26,67 +26,68 @@ import java.util.Properties;
  **/
 public class DorisSinkOptions implements Serializable {
 
+    private final Integer batchSize;
+    private final Integer maxRetries;
+    private  Integer flushIntervalSecond;
+    private final String database;
+    private final String table;
+    private final String username;
+    private final String password;
+    private final String[] feHostPorts;
 
-	private final Integer batchSize;
-	private final Integer maxRetries;
-	private  Integer flushIntervalSecond;
-	private final String database;
-	private final String table;
-	private final String username;
-	private final String password;
-	private final String[] feHostPorts;
+    /**
+     * Properties for the StreamLoad.
+     */
+    private final Properties streamLoadProp;
 
+    public DorisSinkOptions(Integer batchSize, Integer maxRetries,
+                            Integer flushIntervalSecond, String database,
+                            String table, String username, String password,
+                            String[] feHostPorts, Properties streamLoadProp) {
+        this.batchSize = batchSize;
+        this.maxRetries = maxRetries;
+        this.flushIntervalSecond = flushIntervalSecond;
+        this.database = database;
+        this.table = table;
+        this.username = username;
+        this.password = password;
+        this.feHostPorts = feHostPorts;
+        this.streamLoadProp = streamLoadProp;
+    }
 
-	/**
-	 * Properties for the StreamLoad.
-	 */
-	private final Properties streamLoadProp;
+    public Integer getBatchSize() {
+        return batchSize;
+    }
 
-	public DorisSinkOptions(Integer batchSize, Integer maxRetries, Integer flushIntervalSecond, String database, String table, String username, String password, String[] feHostPorts, Properties streamLoadProp) {
-		this.batchSize = batchSize;
-		this.maxRetries = maxRetries;
-		this.flushIntervalSecond = flushIntervalSecond;
-		this.database = database;
-		this.table = table;
-		this.username = username;
-		this.password = password;
-		this.feHostPorts = feHostPorts;
-		this.streamLoadProp = streamLoadProp;
-	}
+    public Integer getMaxRetries() {
+        return maxRetries;
+    }
 
-	public Integer getBatchSize() {
-		return batchSize;
-	}
+    public Integer getFlushIntervalSecond() {
+        return flushIntervalSecond;
+    }
 
-	public Integer getMaxRetries() {
-		return maxRetries;
-	}
+    public String getDatabase() {
+        return database;
+    }
 
-	public Integer getFlushIntervalSecond() {
-		return flushIntervalSecond;
-	}
+    public String getTable() {
+        return table;
+    }
 
-	public String getDatabase() {
-		return database;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getTable() {
-		return table;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String[] getFeHostPorts() {
+        return feHostPorts;
+    }
 
-	public String getPassword() {
-		return password;
-	}
-
-	public String[] getFeHostPorts() {
-		return feHostPorts;
-	}
-
-	public Properties getStreamLoadProp() {
-		return streamLoadProp;
-	}
+    public Properties getStreamLoadProp() {
+        return streamLoadProp;
+    }
 }

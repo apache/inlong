@@ -15,50 +15,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.sort.flink.doris.load;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-
 public class DorisRespond {
-	private int responseCode;
-	private String responseStatusReason;
-	private String responseBody;
+    private int responseCode;
+    private String responseStatusReason;
+    private String responseBody;
 
-	public DorisRespond(int responseCode, String responseStatusReason, String responseBody) {
-		this.responseCode = responseCode;
-		this.responseStatusReason = responseStatusReason;
-		this.responseBody = responseBody;
-	}
+    public DorisRespond(int responseCode, String responseStatusReason, String responseBody) {
+        this.responseCode = responseCode;
+        this.responseStatusReason = responseStatusReason;
+        this.responseBody = responseBody;
+    }
 
-	public int getResponseCode() {
-		return responseCode;
-	}
+    public int getResponseCode() {
+        return responseCode;
+    }
 
-	public void setResponseCode(int responseCode) {
-		this.responseCode = responseCode;
-	}
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
+    }
 
-	public String getResponseStatusReason() {
-		return responseStatusReason;
-	}
+    public String getResponseStatusReason() {
+        return responseStatusReason;
+    }
 
-	public void setResponseStatusReason(String responseStatusReason) {
-		this.responseStatusReason = responseStatusReason;
-	}
+    public void setResponseStatusReason(String responseStatusReason) {
+        this.responseStatusReason = responseStatusReason;
+    }
 
-	public String getResponseBody() {
-		return responseBody;
-	}
+    public String getResponseBody() {
+        return responseBody;
+    }
 
-	public void setResponseBody(String responseBody) {
-		this.responseBody = responseBody;
-	}
+    public void setResponseBody(String responseBody) {
+        this.responseBody = responseBody;
+    }
 
-	@Override
-	public String toString() {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		return gson.toJson(this);
-	}
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        return gson.toJson(this);
+    }
 }

@@ -72,8 +72,6 @@ public class DorisSinkInfo extends SinkInfo {
         this.flushIntervalSecond = flushIntervalSecond;
     }
 
-
-
     @JsonProperty("username")
     public String getUsername() {
         return username;

@@ -33,7 +33,6 @@ import org.apache.inlong.sort.flink.transformation.RecordTransformer;
 import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.DorisSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.slf4j.Logger;
