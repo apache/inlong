@@ -1,23 +1,39 @@
-#### InLong Standalone Using Docker Compose
+## InLong Standalone Using Docker Compose
+
 Deploy all InLong module by Docker Compose, it's only available for development.
 
 Requirements:
+
 - [Docker](https://docs.docker.com/engine/install/) 19.03.1+
 - Docker Compose 1.29.2+
 
-##### Deploy
+### Deploy
+
+Manually copy SQL files from `inlong-manager/sql` to the `docker/compose/sql` directory.
+
+Or execute the following command to copy the file.
+
+```shell
+cp inlong-manager/sql/apache_inlong_manager.sql  docker/docker-compose/sql
 ```
+
+Then, start all components.
+
+```shell
 docker-compose up -d
 ```
 
-##### Use InLong
+### Use InLong
+
 After all containers run successfully, you can access `http://localhost` with default account:
-```
+
+```shell
 User: admin
 Password: inlong
 ```
 
-##### Destroy
-```
+### Destroy
+
+```shell
 docker-compose down
 ```
