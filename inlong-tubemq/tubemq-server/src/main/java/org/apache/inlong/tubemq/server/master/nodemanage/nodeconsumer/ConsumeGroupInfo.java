@@ -131,7 +131,7 @@ public class ConsumeGroupInfo {
                         consumerInfoMap.get(inConsumer.getConsumerId());
                 if (curConsumerInfo != null) {
                     curConsumerInfo.updCurConsumerInfo(inConsumer);
-                    result.setCheckData("Ok!");
+                    result.setCheckData(false);
                     return true;
                 }
             }
@@ -139,7 +139,7 @@ public class ConsumeGroupInfo {
             if (consumeType == ConsumeType.CONSUME_BAND) {
                 bookPartitionInfo(inConsumer);
             }
-            result.setCheckData("Ok!");
+            result.setCheckData(true);
             return true;
         } finally {
             csmInfoRWLock.writeLock().unlock();
@@ -349,8 +349,8 @@ public class ConsumeGroupInfo {
         return allocatedTimes.get();
     }
 
-    public void addAllocatedTimes() {
-        this.allocatedTimes.incrementAndGet();
+    public int addAllocatedTimes() {
+        return this.allocatedTimes.incrementAndGet();
     }
 
     public boolean isGroupEmpty() {

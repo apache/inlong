@@ -30,11 +30,12 @@ public class ProducerInfoHolder {
         return producerInfoMap.get(producerId);
     }
 
-    public void setProducerInfo(String producerId,
-                                Set<String> topicSet,
-                                String host, boolean overTLS) {
-        producerInfoMap.put(producerId,
+    public boolean setProducerInfo(String producerId,
+                                        Set<String> topicSet,
+                                        String host, boolean overTLS) {
+        ProducerInfo oldObj = producerInfoMap.put(producerId,
                 new ProducerInfo(producerId, topicSet, host, overTLS));
+        return (oldObj == null);
     }
 
     public void updateProducerInfo(String producerId,
