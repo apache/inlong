@@ -31,6 +31,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+        </dependency>
+
+        <dependency>
             <artifactId>commons-dbutils</artifactId>
             <groupId>commons-dbutils</groupId>
         </dependency>

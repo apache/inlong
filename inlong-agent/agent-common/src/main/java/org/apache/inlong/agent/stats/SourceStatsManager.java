@@ -23,13 +23,18 @@ import io.prometheus.client.Counter;
 
 public class SourceStatsManager {
 
+    public static final String AGENT_SOURCE_METRICS_PREFIX = "inlong_agent_source_";
+
+    public static final String SOURCE_SUCCESS_COUNT_NAME = "success_count";
+    public static final String SOURCE_FAIL_COUNT_NAME = "fail_count";
+
     private static final Counter SOURCE_SUCCESS_COUNT = Counter.build()
-            .name("inlong_agent_source_success_count")
+            .name(AGENT_SOURCE_METRICS_PREFIX + SOURCE_SUCCESS_COUNT_NAME)
             .help("The success message count in agent source since agent started.")
             .register();
 
     private static final Counter SOURCE_FAIL_COUNT = Counter.build()
-            .name("inlong_agent_source_fail_count")
+            .name(AGENT_SOURCE_METRICS_PREFIX + SOURCE_FAIL_COUNT_NAME)
             .help("The failed message count in agent source since agent started.")
             .register();
 
@@ -41,10 +46,24 @@ public class SourceStatsManager {
     }
 
     /**
+     * Get the count of successful sources.
+     */
+    public static double getSourceSuccessCount() {
+        return SOURCE_SUCCESS_COUNT.get();
+    }
+
+    /**
      * Count the source failed message count in agent source since agent started.
      */
     public static void incrSourceFailCount() {
         SOURCE_FAIL_COUNT.inc();
+    }
+
+    /**
+     * Get the count of failed sources.
+     */
+    public static double getSourceFailCount() {
+        return SOURCE_FAIL_COUNT.get();
     }
 
 }

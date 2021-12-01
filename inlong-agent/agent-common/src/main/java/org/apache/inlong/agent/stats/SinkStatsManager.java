@@ -23,13 +23,18 @@ import io.prometheus.client.Counter;
 
 public class SinkStatsManager {
 
+    public static final String AGENT_SINK_METRICS_PREFIX = "inlong_agent_sink_";
+
+    public static final String SINK_SUCCESS_COUNT_NAME = "success_count";
+    public static final String SINK_FAIL_COUNT_NAME = "fail_count";
+
     private static final Counter SINK_SUCCESS_COUNT = Counter.build()
-            .name("inlong_agent_sink_success_count")
+            .name(AGENT_SINK_METRICS_PREFIX + SINK_SUCCESS_COUNT_NAME)
             .help("The sink success message count in agent source since agent started.")
             .register();
 
     private static final Counter SINK_FAIL_COUNT = Counter.build()
-            .name("inlong_agent_sink_fail_count")
+            .name(AGENT_SINK_METRICS_PREFIX + SINK_FAIL_COUNT_NAME)
             .help("The sink failed message count in agent source since agent started.")
             .register();
 
@@ -41,10 +46,24 @@ public class SinkStatsManager {
     }
 
     /**
+     * Get the count of successful sinks.
+     */
+    public static double getSinkSuccessCount() {
+        return SINK_SUCCESS_COUNT.get();
+    }
+
+    /**
      * Count the sink failed message count in agent source since agent started.
      */
     public static void incrSinkFailCount() {
         SINK_FAIL_COUNT.inc();
+    }
+
+    /**
+     * Get the count of failed sinks.
+     */
+    public static double getSinkFailCount() {
+        return SINK_FAIL_COUNT.get();
     }
 
 }

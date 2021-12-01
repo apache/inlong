@@ -52,6 +52,7 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.stats.SinkStatsManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
@@ -83,8 +84,12 @@ public class PulsarSink extends AbstractDaemon implements Sink {
                 // put message to cache, wait until cache is not full.
                 pluginMetricNew.sendNum.incrementAndGet();
                 cache.put(message.getBody());
+                // increment the count of successful sinks
+                SinkStatsManager.incrSinkSuccessCount();
             } catch (Exception ignored) {
                 // ignore it
+                // increment the count of failed sinks
+                SinkStatsManager.incrSinkFailCount();
             }
         }
     }

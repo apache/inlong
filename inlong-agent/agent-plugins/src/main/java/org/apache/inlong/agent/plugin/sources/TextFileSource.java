@@ -32,6 +32,7 @@ import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.stats.SourceStatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,8 @@ public class TextFileSource implements Source {
             addValidator(filterPattern, textFileReader);
             result.add(textFileReader);
         }
+        // increment the count of successful sources
+        SourceStatsManager.incrSourceSuccessCount();
         return result;
     }
 

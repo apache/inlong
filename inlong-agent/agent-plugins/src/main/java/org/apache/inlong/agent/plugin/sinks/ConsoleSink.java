@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.agent.stats.SinkStatsManager;
 
 /**
  * message write to console
@@ -32,6 +33,11 @@ public class ConsoleSink implements Sink {
     public void write(Message message) {
         if (message != null) {
             System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
+            // increment the count of successful sinks
+            SinkStatsManager.incrSinkSuccessCount();
+        } else {
+            // increment the count of failed sinks
+            SinkStatsManager.incrSinkFailCount();
         }
     }
 

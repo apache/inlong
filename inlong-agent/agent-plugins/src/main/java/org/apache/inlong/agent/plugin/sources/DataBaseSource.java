@@ -23,6 +23,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
+import org.apache.inlong.agent.stats.SourceStatsManager;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 
 /**
@@ -58,9 +59,18 @@ public class DataBaseSource implements Source {
     @Override
     public List<Reader> split(JobProfile conf) {
         String sqlPattern = conf.get(JOB_DATABASE_SQL, "").toLowerCase();
+        List<Reader> readerList = null;
         if (!sqlPattern.isEmpty()) {
-            return splitSqlJob(sqlPattern);
+            readerList = splitSqlJob(sqlPattern);
         }
-        return null;
+        if (readerList != null) {
+            // increment the count of successful sources
+            SourceStatsManager.incrSourceSuccessCount();
+        } else {
+            // database type or sql is incorrect
+            // increment the count of failed sources
+            SourceStatsManager.incrSourceFailCount();
+        }
+        return readerList;
     }
 }

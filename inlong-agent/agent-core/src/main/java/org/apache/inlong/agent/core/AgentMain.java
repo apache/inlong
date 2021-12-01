@@ -44,7 +44,7 @@ public class AgentMain {
     private static HTTPServer metricsServer;
 
     static {
-        // register hotspot exporters
+        // register hotspot collectors
         DefaultExports.initialize();
     }
 
