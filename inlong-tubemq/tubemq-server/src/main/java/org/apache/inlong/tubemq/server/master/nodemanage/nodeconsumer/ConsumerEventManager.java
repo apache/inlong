@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +42,12 @@ public class ConsumerEventManager {
             new ConcurrentHashMap<>();
 
     private final ConsumerInfoHolder consumerHolder;
+    private final MasterMetric masterMetrics;
 
-    public ConsumerEventManager(ConsumerInfoHolder consumerHolder) {
+    public ConsumerEventManager(ConsumerInfoHolder consumerHolder,
+                                MasterMetric masterMetrics) {
         this.consumerHolder = consumerHolder;
+        this.masterMetrics = masterMetrics;
     }
 
     public boolean addDisconnectEvent(String consumerId,
@@ -54,7 +58,9 @@ public class ConsumerEventManager {
             eventList = new LinkedList<>();
             LinkedList<ConsumerEvent> tmptList =
                     disconnectEventMap.putIfAbsent(consumerId, eventList);
-            if (tmptList != null) {
+            if (tmptList == null) {
+                masterMetrics.svrBalDisConEventConsumerCnt.incrementAndGet();
+            } else {
                 eventList = tmptList;
             }
         }
@@ -71,7 +77,9 @@ public class ConsumerEventManager {
             eventList = new LinkedList<>();
             LinkedList<ConsumerEvent> tmptList =
                     connectEventMap.putIfAbsent(consumerId, eventList);
-            if (tmptList != null) {
+            if (tmptList == null) {
+                masterMetrics.svrBalConEventConsumerCnt.incrementAndGet();
+            } else {
                 eventList = tmptList;
             }
         }
@@ -119,8 +127,9 @@ public class ConsumerEventManager {
     public ConsumerEvent removeFirst(String consumerId) {
         ConsumerEvent event = null;
         String group = consumerHolder.getGroupName(consumerId);
+        boolean selDisConnMap = hasDisconnectEvent(group);
         ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
-                hasDisconnectEvent(group) ? disconnectEventMap : connectEventMap;
+                selDisConnMap ? disconnectEventMap : connectEventMap;
         LinkedList<ConsumerEvent> eventList = currentEventMap.get(consumerId);
         if (eventList != null) {
             synchronized (eventList) {
@@ -128,6 +137,11 @@ public class ConsumerEventManager {
                     event = eventList.removeFirst();
                     if (eventList.isEmpty()) {
                         currentEventMap.remove(consumerId);
+                        if (selDisConnMap) {
+                            masterMetrics.svrBalDisConEventConsumerCnt.decrementAndGet();
+                        } else {
+                            masterMetrics.svrBalConEventConsumerCnt.decrementAndGet();
+                        }
                     }
                 }
             }
@@ -182,8 +196,15 @@ public class ConsumerEventManager {
     }
 
     public void removeAll(String consumerId) {
-        disconnectEventMap.remove(consumerId);
-        connectEventMap.remove(consumerId);
+        LinkedList<ConsumerEvent> eventInfos =
+                disconnectEventMap.remove(consumerId);
+        if (eventInfos != null) {
+            masterMetrics.svrBalDisConEventConsumerCnt.decrementAndGet();
+        }
+        eventInfos = connectEventMap.remove(consumerId);
+        if (eventInfos != null) {
+            masterMetrics.svrBalConEventConsumerCnt.decrementAndGet();
+        }
     }
 
     /**

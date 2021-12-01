@@ -45,6 +45,7 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,8 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
     private final BrokerAbnHolder brokerAbnHolder;
     // broker topic configure for consumer and producer
     private final BrokerPSInfoHolder brokerPubSubInfo = new BrokerPSInfoHolder();
+    // master metrics
+    private final MasterMetric masterMetrics;
 
     /**
      * Constructor by TMaster
@@ -82,12 +85,13 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
      * @param tMaster  the initial TMaster object
      */
     public DefBrokerRunManager(TMaster tMaster) {
+        this.masterMetrics = tMaster.getMasterMetrics();
         this.metaDataManager = tMaster.getDefMetaDataManager();
         this.heartbeatManager = tMaster.getHeartbeatManager();
         MasterConfig masterConfig = tMaster.getMasterConfig();
         this.brokerAbnHolder =
                 new BrokerAbnHolder(masterConfig.getMaxAutoForbiddenCnt(),
-                        this.metaDataManager);
+                        this.metaDataManager, this.masterMetrics);
         heartbeatManager.regBrokerCheckBusiness(masterConfig.getBrokerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
                     @Override
@@ -145,9 +149,12 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                 || brokerTLSReg == null
                 || !brokerReg.equals(entity.getSimpleBrokerInfo())
                 || !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
-            if (brokerReg != null
-                    && !brokerReg.equals(entity.getSimpleBrokerInfo())) {
-                this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
+            if (brokerReg == null) {
+                masterMetrics.brokerConfigCnt.incrementAndGet();
+            } else {
+                if (!brokerReg.equals(entity.getSimpleBrokerInfo())) {
+                    this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
+                }
             }
             if (brokerTLSReg != null
                     && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
@@ -241,6 +248,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                             brokerInfo.getBrokerId(), tmpRunStatusInfo);
             if (runStatusInfo == null) {
                 brokerTotalCount.incrementAndGet();
+                masterMetrics.brokerOnlineCnt.incrementAndGet();
                 runStatusInfo = tmpRunStatusInfo;
             }
         } else {
@@ -470,6 +478,10 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
         runStatusInfo = brokerRunSyncManageMap.remove(brokerId);
         if (runStatusInfo == null) {
             return false;
+        }
+        masterMetrics.brokerOnlineCnt.decrementAndGet();
+        if (isTimeout) {
+            masterMetrics.brokerTmoTotCnt.incrementAndGet();
         }
         brokerTotalCount.decrementAndGet();
         brokerAbnHolder.removeBroker(brokerId);
