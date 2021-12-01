@@ -55,6 +55,13 @@ public class BusinessInfo {
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
     private String middlewareType;
 
+    @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
+            + "messages; serial: single partition, low throughput, and orderly messages")
+    private String queueModule = "parallel";
+
+    @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
+    private Integer topicPartitionNum = 3;
+
     @ApiModelProperty(value = "MQ resource object, in business",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResourceObj;
@@ -67,13 +74,6 @@ public class BusinessInfo {
 
     @ApiModelProperty(value = "Pulsar service URL")
     private String pulsarServiceUrl;
-
-    @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
-            + "messages; serial: single partition, low throughput, and orderly messages")
-    private String queueModule = "parallel";
-
-    @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
-    private Integer topicPartitionNum = 3;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;

@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
-import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessApproveForm;
-import org.apache.inlong.manager.service.workflow.newconsumption.NewConsumptionApproveForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessAdminApproveForm;
+import org.apache.inlong.manager.service.workflow.consumption.ConsumptionAdminApproveForm;
 import org.apache.inlong.manager.workflow.model.definition.TaskForm;
 
 /**
@@ -31,8 +31,8 @@ import org.apache.inlong.manager.workflow.model.definition.TaskForm;
 @Data
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NewBusinessApproveForm.class, name = NewBusinessApproveForm.FORM_NAME),
-        @JsonSubTypes.Type(value = NewConsumptionApproveForm.class, name = NewConsumptionApproveForm.FORM_NAME),
+        @JsonSubTypes.Type(value = BusinessAdminApproveForm.class, name = BusinessAdminApproveForm.FORM_NAME),
+        @JsonSubTypes.Type(value = ConsumptionAdminApproveForm.class, name = ConsumptionAdminApproveForm.FORM_NAME),
 })
 public abstract class BaseWorkflowTaskFormType implements TaskForm {
 

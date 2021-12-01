@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
-import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.newconsumption.NewConsumptionWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
+import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
 
 /**
@@ -35,8 +35,8 @@ import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = NewBusinessWorkflowForm.class, name = NewBusinessWorkflowForm.FORM_NAME),
         @JsonSubTypes.Type(value = NewConsumptionWorkflowForm.class, name = NewConsumptionWorkflowForm.FORM_NAME),
-        @JsonSubTypes.Type(value = CreateResourceWorkflowForm.class,
-                name = CreateResourceWorkflowForm.FORM_NAME),
+        @JsonSubTypes.Type(value = BusinessResourceWorkflowForm.class,
+                name = BusinessResourceWorkflowForm.FORM_NAME),
 })
 public abstract class BaseWorkflowFormType implements ProcessForm {
 

@@ -37,7 +37,7 @@ import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
@@ -100,7 +100,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
             log.debug("begin push hive config to sort, context={}", context);
         }
 
-        CreateResourceWorkflowForm form = (CreateResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
         String groupId = businessInfo.getInlongGroupId();
 
@@ -262,7 +262,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
             String pulsarTopic = info.getMqResourceObj();
             // Full name of Topic in Pulsar
             String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
-            String adminUrl = clusterBean.getPulsarServiceUrl();
+            String adminUrl = clusterBean.getPulsarAdminUrl();
             String serviceUrl = clusterBean.getPulsarServiceUrl();
             String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
             sourceInfo = new PulsarSourceInfo(adminUrl, serviceUrl, fullTopicName, consumerGroup,

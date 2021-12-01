@@ -15,33 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.thirdpart.mq;
+package org.apache.inlong.manager.service.thirdpart.hive;
 
-import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
-import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
+import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
-import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * Create a listener for MQ resource tasks
+ * Event listener of create hive table for one data stream
  */
-@Component
+@Service
 @Slf4j
-public class CreateTubeTopicTaskListener implements TaskEventListener {
+public class CreateHiveTableForStreamListener implements TaskEventListener {
 
     @Autowired
-    private TubeMqOptService tubeMqOptService;
+    private StorageHiveEntityMapper hiveEntityMapper;
     @Autowired
-    private BusinessService businessService;
+    private HiveTableOperator hiveTableOperator;
 
     @Override
     public TaskEvent event() {
@@ -49,26 +47,21 @@ public class CreateTubeTopicTaskListener implements TaskEventListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
+    public ListenerResult listen(WorkflowContext context) {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
-
-        log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
         String groupId = form.getInlongGroupId();
+        String streamId = form.getInlongStreamId();
+        log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);
 
-        try {
-            BusinessInfo businessInfo = businessService.get(groupId);
-            String topicName = businessInfo.getMqResourceObj();
-            AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
-            request.setUser("inlong-manager");
-            AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
-            tasksBean.setTopicName(topicName);
-            request.setAddTopicTasks(Collections.singletonList(tasksBean));
-            tubeMqOptService.createNewTopic(request);
-
-            log.info("finish to create tube topic for groupId={}", groupId);
-        } catch (Exception e) {
-            log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
+        List<StorageHiveSortInfo> hiveConfig = hiveEntityMapper.selectHiveSortInfoByIdentifier(groupId, streamId);
+        if (hiveConfig == null || hiveConfig.size() == 0) {
+            return ListenerResult.success();
         }
+        for (StorageHiveSortInfo info : hiveConfig) {
+            hiveTableOperator.createHiveTable(groupId, info);
+        }
+
+        log.info("finish create hive table for business {} - {} ", groupId, streamId);
         return ListenerResult.success();
     }
 
@@ -76,4 +69,5 @@ public class CreateTubeTopicTaskListener implements TaskEventListener {
     public boolean async() {
         return false;
     }
+
 }

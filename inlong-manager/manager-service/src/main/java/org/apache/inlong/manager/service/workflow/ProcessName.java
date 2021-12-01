@@ -25,22 +25,22 @@ public enum ProcessName {
     /**
      * New business access application process
      */
-    NEW_BUSINESS_WORKFLOW("New Business Access"),
+    NEW_BUSINESS_WORKFLOW("New-Business-Access"),
 
     /**
      * New data consumption application process
      */
-    NEW_CONSUMPTION_WORKFLOW("New Data Consumption"),
+    NEW_CONSUMPTION_WORKFLOW("New-Data-Consumption"),
 
     /**
      * New business resource creation
      */
-    CREATE_BUSINESS_RESOURCE("New Business Access Resource"),
+    CREATE_BUSINESS_RESOURCE("Business-Access-Resource"),
 
     /**
      * Single data stream resource creation
      */
-    CREATE_DATASTREAM_RESOURCE("Single Data Stream Resource");
+    CREATE_DATASTREAM_RESOURCE("Data-Stream-Resource");
 
     private final String displayName;
 
