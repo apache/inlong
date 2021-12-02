@@ -21,7 +21,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
@@ -69,16 +68,16 @@ public class ConsumptionController {
 
     @GetMapping("/get/{id}")
     @ApiOperation(value = "Get consumption details")
-    public Response<ConsumptionInfo> getDetail(
-            @ApiParam(value = "Consumption ID", required = true) @PathVariable(name = "id") Integer id) {
+    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    public Response<ConsumptionInfo> getDetail(@PathVariable(name = "id") Integer id) {
         return Response.success(consumptionService.get(id));
     }
 
     @DeleteMapping("/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data consumption")
-    public Response<Object> delete(
-            @ApiParam(value = "Consumption ID", required = true) @PathVariable(name = "id") Integer id) {
+    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    public Response<Object> delete(@PathVariable(name = "id") Integer id) {
         this.consumptionService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success();
     }
@@ -86,8 +85,7 @@ public class ConsumptionController {
     @PostMapping("/save")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Save data consumption", notes = "Full coverage")
-    public Response<Integer> saveConsumptionInfo(
-            @Validated @RequestBody ConsumptionInfo consumptionInfo) {
+    public Response<Integer> save(@Validated @RequestBody ConsumptionInfo consumptionInfo) {
         String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
         return Response.success(consumptionService.save(consumptionInfo, currentUser));
     }
