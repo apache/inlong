@@ -110,6 +110,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.DefBrokerRunManager;
@@ -163,6 +164,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private AtomicInteger curCltBalanceParal = new AtomicInteger(0);
     private Sleeper stopSleeper = new Sleeper(1000, this);
     private SimpleVisitTokenManager visitTokenManager;
+    private final MasterMetric masterMetrics;
 
     /**
      * constructor
@@ -177,6 +179,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.checkAndCreateBdbDataPath();
         this.masterAddInfo =
                 new NodeAddrInfo(masterConfig.getHostName(), masterConfig.getPort());
+        this.masterMetrics = MasterMetric.create();
         this.svrExecutor = Executors.newFixedThreadPool(this.masterConfig.getRebalanceParallel());
         this.cltExecutor = Executors.newFixedThreadPool(this.masterConfig.getRebalanceParallel());
         this.visitTokenManager = new SimpleVisitTokenManager(this.masterConfig);
@@ -185,17 +188,17 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
                 false, TBaseConstants.META_VALUE_UNDEFINED);
         this.producerHolder = new ProducerInfoHolder();
-        this.consumerHolder = new ConsumerInfoHolder(this.masterConfig);
-        this.consumerEventManager = new ConsumerEventManager(consumerHolder);
+        this.consumerHolder = new ConsumerInfoHolder(this);
+        this.consumerEventManager = new ConsumerEventManager(consumerHolder, masterMetrics);
         this.topicPSInfoManager = new TopicPSInfoManager(this);
-        this.loadBalancer = new DefaultLoadBalancer();
+        this.loadBalancer = new DefaultLoadBalancer(masterMetrics);
         heartbeatManager.regConsumerCheckBusiness(masterConfig.getConsumerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
                     @Override
                     public void onTimeout(String nodeId, TimeoutInfo nodeInfo) {
                         logger.info(new StringBuilder(512).append("[Consumer Timeout] ")
                                 .append(nodeId).toString());
-                        new ReleaseConsumer().run(nodeId);
+                        new ReleaseConsumer().run(nodeId, true);
                     }
                 });
         heartbeatManager.regProducerCheckBusiness(masterConfig.getProducerHeartbeatTimeoutMs(),
@@ -204,7 +207,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) {
                         logger.info(new StringBuilder(512).append("[Producer Timeout] ")
                                 .append(nodeId).toString());
-                        new ReleaseProducer().run(nodeId);
+                        new ReleaseProducer().run(nodeId, true);
                     }
                 });
         this.defMetaDataManager = new MetaDataManager(this);
@@ -280,6 +283,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return brokerRunManager;
     }
 
+    public MasterMetric getMasterMetrics() {
+        return masterMetrics;
+    }
+
     /**
      * Producer register request to master
      *
@@ -343,8 +350,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         final String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
         heartbeatManager.regProducerNode(producerId);
-        producerHolder.setProducerInfo(producerId,
-                new HashSet<>(transTopicSet), hostName, overtls);
+        if (producerHolder.setProducerInfo(producerId,
+                new HashSet<>(transTopicSet), hostName, overtls)) {
+            masterMetrics.producerCnt.incrementAndGet();
+        }
         Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
                 brokerRunManager.getBrokerStaticInfo(overtls);
         builder.setBrokerCheckSum(brokerStaticInfo.getF0());
@@ -493,7 +502,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         final String producerId = (String) paramCheckResult.checkData;
         checkNodeStatus(producerId, strBuffer);
-        new ReleaseProducer().run(producerId);
+        new ReleaseProducer().run(producerId, false);
         heartbeatManager.unRegProducerNode(producerId);
         logger.info(strBuffer.append("[Producer Closed] ")
                 .append(producerId).append(", isOverTLS=").append(overtls).toString());
@@ -913,7 +922,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         String nodeId = getConsumerKey(groupName, clientId);
         logger.info(strBuffer.append("[Consumer Closed]").append(nodeId)
                 .append(", isOverTLS=").append(overtls).toString());
-        new ReleaseConsumer().run(nodeId);
+        new ReleaseConsumer().run(nodeId, false);
         heartbeatManager.unRegConsumerNode(nodeId);
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -1679,6 +1688,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             int startIndex = 0;
             int endIndex = 0;
             // set parallel balance signal
+            final long startBalanceTime = System.currentTimeMillis();
             curSvrBalanceParal.set(masterConfig.getRebalanceParallel());
             for (int i = 0; i < masterConfig.getRebalanceParallel(); i++) {
                 // get groups need to balance
@@ -1686,7 +1696,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 endIndex = Math.min((i + 1) * unitNum, balanceTaskCnt);
                 final List<String> subGroups = groupsNeedToBalance.subList(startIndex, endIndex);
                 if (subGroups.isEmpty()) {
-                    curSvrBalanceParal.decrementAndGet();
+                    if (curSvrBalanceParal.decrementAndGet() == 0) {
+                        long durTime = System.currentTimeMillis() - startBalanceTime;
+                        masterMetrics.svrBalLatency.set(durTime);
+                        if (durTime > masterMetrics.svrBalLatencyMax.get()) {
+                            masterMetrics.svrBalLatencyMax.set(durTime);
+                        }
+                    }
                     continue;
                 }
                 // execute balance
@@ -1725,7 +1741,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         } catch (Throwable e) {
                             logger.warn("[Svr-Balance processor] Error during process", e);
                         } finally {
-                            curSvrBalanceParal.decrementAndGet();
+                            if (curSvrBalanceParal.decrementAndGet() == 0) {
+                                long durTime = System.currentTimeMillis() - startBalanceTime;
+                                masterMetrics.svrBalLatency.set(durTime);
+                                if (durTime > masterMetrics.svrBalLatencyMax.get()) {
+                                    masterMetrics.svrBalLatencyMax.set(durTime);
+                                }
+                            }
                         }
                     }
                 });
@@ -2535,12 +2557,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     }
 
     private abstract static class AbstractReleaseRunner {
-        abstract void run(String arg);
+        abstract void run(String arg, boolean isTimeout);
     }
 
     private class ReleaseConsumer extends AbstractReleaseRunner {
         @Override
-        void run(String arg) {
+        void run(String arg, boolean isTimeout) {
             String[] nodeStrs = arg.split(TokenConstants.GROUP_SEP);
             String consumerId = nodeStrs[0];
             String group = nodeStrs[1];
@@ -2551,8 +2573,22 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ConsumerInfo info = consumerHolder.removeConsumer(group, consumerId);
                 currentSubInfo.remove(consumerId);
                 consumerEventManager.removeAll(consumerId);
-                if (info != null && consumerHolder.isConsumeGroupEmpty(group)) {
-                    topicPSInfoManager.rmvGroupSubTopicInfo(group, info.getTopicSet());
+                if (info != null) {
+                    if (consumerHolder.isConsumeGroupEmpty(group)) {
+                        topicPSInfoManager.rmvGroupSubTopicInfo(group, info.getTopicSet());
+                        // metric
+                        masterMetrics.consumeGroupCnt.decrementAndGet();
+                        if (info.getConsumeType() == ConsumeType.CONSUME_CLIENT_REB) {
+                            masterMetrics.cltBalConsumeGroupCnt.decrementAndGet();
+                        }
+                        if (isTimeout) {
+                            masterMetrics.consumeGroupTmoTotCnt.incrementAndGet();
+                        }
+                    }
+                    masterMetrics.consumerCnt.decrementAndGet();
+                    if (isTimeout) {
+                        masterMetrics.consumerTmoTotCnt.incrementAndGet();
+                    }
                 }
             } catch (IOException e) {
                 logger.warn("Failed to lock.", e);
@@ -2566,11 +2602,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
 
     private class ReleaseProducer extends AbstractReleaseRunner {
         @Override
-        void run(String clientId) {
+        void run(String clientId, boolean isTimeout) {
             if (clientId != null) {
                 ProducerInfo info = producerHolder.removeProducer(clientId);
                 if (info != null) {
                     topicPSInfoManager.rmvProducerTopicPubInfo(clientId, info.getTopicSet());
+                    masterMetrics.producerCnt.decrementAndGet();
+                    if (isTimeout) {
+                        masterMetrics.producerTmoTotCnt.incrementAndGet();
+                    }
                 }
             }
         }

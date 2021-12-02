@@ -29,6 +29,8 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
+import org.apache.inlong.tubemq.server.master.TMaster;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ public class ConsumerInfoHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumerInfoHolder.class);
     private final MasterConfig masterConfig;     // master configure
+    private final MasterMetric masterMetrics;
     private final RowLock groupRowLock;    //lock
     private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap =
             new ConcurrentHashMap<>();
@@ -47,8 +50,9 @@ public class ConsumerInfoHolder {
     private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet =
             new ConcurrentHashSet<>();
 
-    public ConsumerInfoHolder(MasterConfig masterConfig) {
-        this.masterConfig = masterConfig;
+    public ConsumerInfoHolder(TMaster tMasterr) {
+        this.masterMetrics = tMasterr.getMasterMetrics();
+        this.masterConfig = tMasterr.getMasterConfig();
         this.groupRowLock = new RowLock("Group-RowLock",
                 this.masterConfig.getRowLockWaitDurMs());
     }
@@ -351,14 +355,20 @@ public class ConsumerInfoHolder {
                 consumeGroupInfo = groupInfoMap.putIfAbsent(group, tmpGroupInfo);
                 if (consumeGroupInfo == null) {
                     consumeGroupInfo = tmpGroupInfo;
+                    masterMetrics.consumeGroupCnt.incrementAndGet();
                     if (tmpGroupInfo.isClientBalance()) {
                         clientBalanceGroupSet.add(group);
+                        masterMetrics.cltBalConsumeGroupCnt.incrementAndGet();
                     } else {
                         serverBalanceGroupSet.add(group);
                     }
                 }
             }
             if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
+                Boolean isNewAdd = (Boolean) result.checkData;
+                if (isNewAdd) {
+                    masterMetrics.consumerCnt.incrementAndGet();
+                }
                 if (!isNotAllocated) {
                     consumeGroupInfo.settAllocated();
                 }
