@@ -51,7 +51,6 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <!-- 将项目所有依赖包拷贝到发布包的lib目录下 -->
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>

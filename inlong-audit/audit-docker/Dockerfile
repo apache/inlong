@@ -21,9 +21,6 @@ FROM openjdk:8-jdk
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
 EXPOSE 46801
-ENV MANAGER_OPENAPI_IP=127.0.0.1
-ENV MANAGER_OPENAPI_PORT=8082
-ENV TUBMQ_MASTER_LIST=127.0.0.1:8715
 WORKDIR /opt/inlong-audit
 ADD audit-docker.sh bin/
 RUN chmod +x bin/audit-docker.sh
