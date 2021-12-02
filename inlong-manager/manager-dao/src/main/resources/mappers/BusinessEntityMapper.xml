@@ -27,6 +27,8 @@
         <result column="cn_name" jdbcType="VARCHAR" property="cnName"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
+        <result column="queue_module" jdbcType="VARCHAR" property="queueModule"/>
+        <result column="topic_partition_num" jdbcType="INTEGER" property="topicPartitionNum"/>
         <result column="mq_resource_obj" jdbcType="VARCHAR" property="mqResourceObj"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
         <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
@@ -50,8 +52,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, name, cn_name, description, middleware_type, mq_resource_obj,
-        daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
+        id, inlong_group_id, name, cn_name, description, middleware_type, queue_module, topic_partition_num,
+        mq_resource_obj, daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
         status, is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -115,6 +117,7 @@
             parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
         insert into business (id, inlong_group_id, name,
                               cn_name, description, middleware_type,
+                              queue_module, topic_partition_num,
                               mq_resource_obj, daily_records, daily_storage,
                               peak_records, max_length, schema_name,
                               in_charges, followers, status,
@@ -122,6 +125,7 @@
                               create_time, modify_time, temp_view)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
                 #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
+                #{queueModule,jdbcType=VARCHAR}, #{topicPartitionNum,jdbcType=INTEGER},
                 #{mqResourceObj,jdbcType=VARCHAR}, #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER}, #{schemaName,jdbcType=VARCHAR},
                 #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
@@ -149,6 +153,12 @@
             </if>
             <if test="middlewareType != null">
                 middleware_type,
+            </if>
+            <if test="queueModule != null">
+                queue_module,
+            </if>
+            <if test="topicPartitionNum != null">
+                topic_partition_num,
             </if>
             <if test="mqResourceObj != null">
                 mq_resource_obj,
@@ -215,6 +225,12 @@
             <if test="middlewareType != null">
                 #{middlewareType,jdbcType=VARCHAR},
             </if>
+            <if test="queueModule != null">
+                #{queueModule,jdbcType=VARCHAR},
+            </if>
+            <if test="topicPartitionNum != null">
+                #{topicPartitionNum,jdbcType=INTEGER},
+            </if>
             <if test="mqResourceObj != null">
                 #{mqResourceObj,jdbcType=VARCHAR},
             </if>
@@ -280,6 +296,12 @@
             <if test="middlewareType != null">
                 middleware_type = #{middlewareType,jdbcType=VARCHAR},
             </if>
+            <if test="queueModule != null">
+                queue_module = #{queueModule,jdbcType=VARCHAR},
+            </if>
+            <if test="topicPartitionNum != null">
+                topic_partition_num = #{topicPartitionNum,jdbcType=INTEGER},
+            </if>
             <if test="mqResourceObj != null">
                 mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
             </if>
@@ -343,6 +365,12 @@
             <if test="middlewareType != null">
                 middleware_type = #{middlewareType,jdbcType=VARCHAR},
             </if>
+            <if test="queueModule != null">
+                queue_module = #{queueModule,jdbcType=VARCHAR},
+            </if>
+            <if test="topicPartitionNum != null">
+                topic_partition_num = #{topicPartitionNum,jdbcType=INTEGER},
+            </if>
             <if test="mqResourceObj != null">
                 mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
             </if>
@@ -389,26 +417,28 @@
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
         update business
-        set inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
-            name            = #{name,jdbcType=VARCHAR},
-            cn_name         = #{cnName,jdbcType=VARCHAR},
-            description     = #{description,jdbcType=VARCHAR},
-            middleware_type = #{middlewareType,jdbcType=VARCHAR},
-            mq_resource_obj = #{mqResourceObj,jdbcType=VARCHAR},
-            daily_records   = #{dailyRecords,jdbcType=INTEGER},
-            daily_storage   = #{dailyStorage,jdbcType=INTEGER},
-            peak_records    = #{peakRecords,jdbcType=INTEGER},
-            max_length      = #{maxLength,jdbcType=INTEGER},
-            schema_name     = #{schemaName,jdbcType=VARCHAR},
-            in_charges      = #{inCharges,jdbcType=VARCHAR},
-            followers       = #{followers,jdbcType=VARCHAR},
-            status          = #{status,jdbcType=INTEGER},
-            is_deleted      = #{isDeleted,jdbcType=INTEGER},
-            creator         = #{creator,jdbcType=VARCHAR},
-            modifier        = #{modifier,jdbcType=VARCHAR},
-            create_time     = #{createTime,jdbcType=TIMESTAMP},
-            modify_time     = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view       = #{tempView,jdbcType=LONGVARCHAR}
+        set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
+            name                = #{name,jdbcType=VARCHAR},
+            cn_name             = #{cnName,jdbcType=VARCHAR},
+            description         = #{description,jdbcType=VARCHAR},
+            middleware_type     = #{middlewareType,jdbcType=VARCHAR},
+            queue_module        = #{queueModule,jdbcType=VARCHAR},
+            topic_partition_num = #{topicPartitionNum,jdbcType=INTEGER},
+            mq_resource_obj     = #{mqResourceObj,jdbcType=VARCHAR},
+            daily_records       = #{dailyRecords,jdbcType=INTEGER},
+            daily_storage       = #{dailyStorage,jdbcType=INTEGER},
+            peak_records        = #{peakRecords,jdbcType=INTEGER},
+            max_length          = #{maxLength,jdbcType=INTEGER},
+            schema_name         = #{schemaName,jdbcType=VARCHAR},
+            in_charges          = #{inCharges,jdbcType=VARCHAR},
+            followers           = #{followers,jdbcType=VARCHAR},
+            status              = #{status,jdbcType=INTEGER},
+            is_deleted          = #{isDeleted,jdbcType=INTEGER},
+            creator             = #{creator,jdbcType=VARCHAR},
+            modifier            = #{modifier,jdbcType=VARCHAR},
+            create_time         = #{createTime,jdbcType=TIMESTAMP},
+            modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
+            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateStatusByIdentifier">

@@ -15,59 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.thirdpart.mq;
+package org.apache.inlong.manager.service.workflow.stream;
 
-import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * Create a listener for MQ resource tasks
+ * Initialize the listener for business information
  */
-@Component
-@Slf4j
-public class CreateTubeTopicTaskListener implements TaskEventListener {
+@Service
+public class InitBusinessInfoForStreamListener implements ProcessEventListener {
 
-    @Autowired
-    private TubeMqOptService tubeMqOptService;
     @Autowired
     private BusinessService businessService;
 
     @Override
-    public TaskEvent event() {
-        return TaskEvent.COMPLETE;
+    public ProcessEvent event() {
+        return ProcessEvent.CREATE;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
-
-        log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
-        String groupId = form.getInlongGroupId();
-
-        try {
-            BusinessInfo businessInfo = businessService.get(groupId);
-            String topicName = businessInfo.getMqResourceObj();
-            AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
-            request.setUser("inlong-manager");
-            AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
-            tasksBean.setTopicName(topicName);
-            request.setAddTopicTasks(Collections.singletonList(tasksBean));
-            tubeMqOptService.createNewTopic(request);
-
-            log.info("finish to create tube topic for groupId={}", groupId);
-        } catch (Exception e) {
-            log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
+        BusinessInfo businessInfo = businessService.get(context.getProcessForm().getInlongGroupId());
+        if (businessInfo != null) {
+            form.setBusinessInfo(businessInfo);
+        } else {
+            throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
         return ListenerResult.success();
     }

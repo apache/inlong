@@ -15,60 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.thirdpart.mq;
+package org.apache.inlong.manager.service.workflow.business.listener;
 
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
 import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Create a listener for MQ resource tasks
+ * Create business resources [process completion] event listener
  */
-@Component
 @Slf4j
-public class CreateTubeTopicTaskListener implements TaskEventListener {
+@Component
+public class BusinessCompleteProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private TubeMqOptService tubeMqOptService;
     @Autowired
     private BusinessService businessService;
+    @Autowired
+    private DataStreamService dataStreamService;
 
     @Override
-    public TaskEvent event() {
-        return TaskEvent.COMPLETE;
+    public ProcessEvent event() {
+        return ProcessEvent.COMPLETE;
     }
 
+    /**
+     * After the process of creating business resources is completed, modify the status of business and all data stream
+     * belong to this business to [Configuration Successful] [Configuration Failed]
+     * <p/>{@link BusinessFailedProcessListener#listen}
+     */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
 
-        log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
         String groupId = form.getInlongGroupId();
+        String username = context.getApplicant();
+        // update business status
+        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        // update data stream status
+        dataStreamService.updateStatus(groupId, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
 
-        try {
-            BusinessInfo businessInfo = businessService.get(groupId);
-            String topicName = businessInfo.getMqResourceObj();
-            AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
-            request.setUser("inlong-manager");
-            AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
-            tasksBean.setTopicName(topicName);
-            request.setAddTopicTasks(Collections.singletonList(tasksBean));
-            tubeMqOptService.createNewTopic(request);
-
-            log.info("finish to create tube topic for groupId={}", groupId);
-        } catch (Exception e) {
-            log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
-        }
         return ListenerResult.success();
     }
 

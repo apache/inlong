@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.workflow.model.view.CountByKey;
@@ -34,7 +35,8 @@ public interface ConsumptionEntityMapper {
 
     ConsumptionEntity selectByPrimaryKey(Integer id);
 
-    ConsumptionEntity selectConsumptionExists(String groupId, String topic, String consumerGroup);
+    ConsumptionEntity selectConsumptionExists(@Param("groupId") String groupId, @Param("topic") String topic,
+            @Param("consumerGroup") String consumerGroup);
 
     int updateByPrimaryKeySelective(ConsumptionEntity record);
 

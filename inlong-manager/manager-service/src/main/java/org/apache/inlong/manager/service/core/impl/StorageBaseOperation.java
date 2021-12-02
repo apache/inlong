@@ -38,9 +38,9 @@ import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageExtEntityMapper;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.newbusiness.CreateResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.newbusiness.NewBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.newstream.SingleStreamWorkflowDefinition;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
+import org.apache.inlong.manager.service.workflow.stream.CreateStreamWorkflowDefinition;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +150,7 @@ public class StorageBaseOperation {
     /**
      * Asynchronously initiate a single data stream related workflow
      *
-     * @see SingleStreamWorkflowDefinition
+     * @see CreateStreamWorkflowDefinition
      */
     class WorkflowStartRunnable implements Runnable {
 
@@ -170,7 +170,7 @@ public class StorageBaseOperation {
             LOGGER.info("begin start data stream workflow, groupId={}, streamId={}", groupId, streamId);
 
             BusinessInfo businessInfo = CommonBeanUtils.copyProperties(businessEntity, BusinessInfo::new);
-            CreateResourceWorkflowForm form = genBizResourceWorkflowForm(businessInfo, streamId);
+            BusinessResourceWorkflowForm form = genBizResourceWorkflowForm(businessInfo, streamId);
 
             workflowService.start(ProcessName.CREATE_DATASTREAM_RESOURCE, operator, form);
             LOGGER.info("success start data stream workflow, groupId={}, streamId={}", groupId, streamId);
@@ -179,8 +179,8 @@ public class StorageBaseOperation {
         /**
          * Generate [Create Business Resource] form
          */
-        private CreateResourceWorkflowForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String streamId) {
-            CreateResourceWorkflowForm form = new CreateResourceWorkflowForm();
+        private BusinessResourceWorkflowForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String streamId) {
+            BusinessResourceWorkflowForm form = new BusinessResourceWorkflowForm();
             form.setBusinessInfo(businessInfo);
             form.setInlongStreamId(streamId);
             return form;

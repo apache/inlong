@@ -59,7 +59,7 @@ import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.newconsumption.NewConsumptionWorkflowForm;
+import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.workflow.model.view.CountByKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -344,6 +344,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setMiddlewareType(middlewareType);
         entity.setTopic(topic);
         entity.setConsumerGroupId(consumerGroup);
+        entity.setConsumerGroupName(consumerGroup);
         entity.setInCharges(bizInfo.getInCharges());
         entity.setFilterEnabled(0);
 

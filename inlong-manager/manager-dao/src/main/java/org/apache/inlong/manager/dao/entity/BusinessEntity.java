@@ -31,6 +31,8 @@ public class BusinessEntity implements Serializable {
     private String cnName;
     private String description;
     private String middlewareType;
+    private String queueModule;
+    private Integer topicPartitionNum;
     private String mqResourceObj;
     private Integer dailyRecords;
     private Integer dailyStorage;
