@@ -41,35 +41,35 @@ message Pong {
 
 message AuditRequest {
   uint64 request_id = 1;
-  AuditMessageHeader msg_header = 2;   //包头
-  repeated AuditMessageBody msg_body = 3;   //包体
+  AuditMessageHeader msg_header = 2;
+  repeated AuditMessageBody msg_body = 3;
 }
 
 message AuditMessageHeader {
-  string ip = 1;            //sdk客户端ip
-  string docker_id = 2;     //sdk所在容器ID
-  string thread_id = 3;     //sdk所在的线程ID
-  uint64 sdk_ts = 4;        //sdk上报时间
-  uint64 packet_id = 5;     //sdk上报的包ID
+  string ip = 1;
+  string docker_id = 2;
+  string thread_id = 3;
+  uint64 sdk_ts = 4;
+  uint64 packet_id = 5;
 }
 
 message AuditMessageBody {
-  uint64 log_ts = 1;    //日志时间
-  string inlong_group_id= 2;   //inlong_group_id
-  string inlong_stream_id= 3; //inlong_stream_id
-  string audit_id = 4;   //审计ID
-  uint64 count = 5;     //条数
-  uint64 size = 6;      //大小
-  int64  delay = 7;      //总传输延时
+  uint64 log_ts = 1;
+  string inlong_group_id= 2;
+  string inlong_stream_id= 3;
+  string audit_id = 4;
+  uint64 count = 5;
+  uint64 size = 6;
+  int64  delay = 7;
 }
 
 message AuditReply {
   enum RSP_CODE {
-    SUCCESS  = 0;  //成功
-    FAILED   = 1;   //失败
-    DISASTER = 2; //容灾
+    SUCCESS  = 0;
+    FAILED   = 1;
+    DISASTER = 2;
   }
   uint64 request_id = 1;
-  RSP_CODE rsp_code = 2;   //服务端返回码
+  RSP_CODE rsp_code = 2;  
   string message = 3;
 }
