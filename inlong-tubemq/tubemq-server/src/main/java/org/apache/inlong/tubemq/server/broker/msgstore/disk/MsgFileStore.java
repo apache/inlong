@@ -35,6 +35,7 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
+import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.stats.CountItem;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -196,6 +197,7 @@ public class MsgFileStore implements Closeable {
             // print abnormal information
             if (inIndexOffset != indexOffset || inDataOffset != dataOffset) {
                 ServiceStatusHolder.addWriteIOErrCnt();
+                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
                 logger.error(sb.append("[File Store]: appendMsg data Error, storekey=")
                     .append(this.storeKey).append(",msgCnt=").append(msgCnt)
                     .append(",indexSize=").append(indexSize)
@@ -209,6 +211,7 @@ public class MsgFileStore implements Closeable {
         } catch (Throwable e) {
             if (!closed.get()) {
                 ServiceStatusHolder.addWriteIOErrCnt();
+                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
             }
             samplePrintCtrl.printExceptionCaught(e);
         } finally {
@@ -324,6 +327,7 @@ public class MsgFileStore implements Closeable {
             } catch (Throwable e2) {
                 if (e2 instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
+                    BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
                 }
                 samplePrintCtrl.printExceptionCaught(e2,
                     messageStore.getStoreKey(), String.valueOf(partitionId));

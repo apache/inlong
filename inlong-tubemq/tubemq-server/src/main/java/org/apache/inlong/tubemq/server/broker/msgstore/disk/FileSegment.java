@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.utils.CheckSum;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
+import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,7 @@ public class FileSegment implements Segment {
             } catch (final Exception e) {
                 if (e instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
+                    BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
                 }
                 if (this.segmentType == SegmentType.DATA) {
                     logger.error("[File Store] Set DATA Segment cachedSize error", e);
@@ -138,6 +140,7 @@ public class FileSegment implements Segment {
             } catch (Throwable ee) {
                 if (ee instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
+                    BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
                 }
                 logger.error(new StringBuilder(512).append("[File Store] Close ")
                         .append(this.file.getAbsoluteFile().toString())
@@ -160,6 +163,7 @@ public class FileSegment implements Segment {
         } catch (Throwable e1) {
             if (e1 instanceof IOException) {
                 ServiceStatusHolder.addReadIOErrCnt();
+                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
             }
             logger.error("[File Store] failure to close channel ", e1);
         }
@@ -171,6 +175,7 @@ public class FileSegment implements Segment {
         } catch (Throwable ee) {
             if (ee instanceof IOException) {
                 ServiceStatusHolder.addReadIOErrCnt();
+                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
             }
             logger.error("[File Store] failure to delete file ", ee);
         }
