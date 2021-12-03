@@ -70,6 +70,6 @@ message AuditReply {
     DISASTER = 2;
   }
   uint64 request_id = 1;
-  RSP_CODE rsp_code = 2;  
+  RSP_CODE rsp_code = 2;
   string message = 3;
 }
