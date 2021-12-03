@@ -30,6 +30,8 @@ public class Constants {
 
     public static final String SINK_TYPE_CLICKHOUSE = "clickhouse";
 
+    public static final String SINK_TYPE_DORIS = "doris";
+
     public static final String SINK_TYPE_HIVE = "hive";
 
     public static final String METRIC_DATA_OUTPUT_TAG_ID = "metric_data_side_output";

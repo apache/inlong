@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.flink;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.configuration.Constants.SINK_TYPE_DORIS;
 import static org.apache.inlong.sort.configuration.Constants.SINK_TYPE_HIVE;
 
 import org.apache.flink.api.java.functions.KeySelector;
@@ -29,6 +30,7 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.clickhouse.ClickHouseMultiSinkFunction;
 import org.apache.inlong.sort.flink.deserialization.DeserializationSchema;
+import org.apache.inlong.sort.flink.doris.DorisMultiSinkFunction;
 import org.apache.inlong.sort.flink.hive.HiveMultiTenantCommitter;
 import org.apache.inlong.sort.flink.hive.HiveMultiTenantWriter;
 import org.apache.inlong.sort.flink.metrics.MetricData;
@@ -92,6 +94,12 @@ public class Entrance {
                     .setParallelism(sinkParallelism)
                     .uid(Constants.SINK_UID)
                     .name("Clickhouse Sink");
+        } else if (sinkType.equals(SINK_TYPE_DORIS)) {
+            deserializationStream
+                    .process(new DorisMultiSinkFunction(config))
+                    .uid(Constants.SINK_UID)
+                    .name("Doris Sink")
+                    .setParallelism(sinkParallelism);
         } else if (sinkType.equals(SINK_TYPE_HIVE)) {
             deserializationStream
                     .process(new HiveMultiTenantWriter(config))
