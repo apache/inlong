@@ -18,6 +18,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import merge from 'lodash/merge';
 import { trim } from '@/utils';
 import Form, { FormProps } from 'antd/lib/form';
 import FormItemContent, { FormItemProps } from './FormItemContent';
@@ -68,7 +69,9 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
   const combineContentWithProps = useCallback(
     (initialContent: Record<string, any>[], props: FormGeneratorProps) => {
       return initialContent.map((v: any) => {
-        const { type, name, props: initialProps = {} } = v;
+        const { type, props: initialProps = {} } = v;
+        const namePath = Array.isArray(v.name) ? v.name : v.name && v.name.split('.');
+        const name = namePath && namePath.length > 1 ? namePath : v.name;
         // props hold
         const holdProps = {} as any;
         if (type === 'inputsearch') {
@@ -93,12 +96,23 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
           // Note that the key value must be collected (cooperate with extraNames), otherwise the set will be invalid
           holdProps.onChange = (...rest) => {
             const mappingValues = initialProps.onChange(...rest);
-            mappingValues && form.setFieldsValue(mappingValues);
+            if (mappingValues) {
+              form.setFieldsValue(mappingValues);
+              setRealTimeValues(prev => ({ ...merge(prev, mappingValues) }));
+              props.onValuesChange &&
+                props.onValuesChange(mappingValues, merge(mappingValues, form.getFieldsValue()));
+            }
           };
+        }
+
+        if (v.suffix?.name) {
+          const suffixNp = Array.isArray(v.suffix.name) ? v.suffix.name : v.suffix.name.split('.');
+          v.suffix.name = suffixNp && suffixNp.length > 1 ? suffixNp : v.suffix.name;
         }
 
         return {
           ...v,
+          name,
           props: {
             ...initialProps,
             ...holdProps,
