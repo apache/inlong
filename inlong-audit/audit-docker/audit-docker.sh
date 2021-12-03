@@ -18,7 +18,7 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-sed -i "s/PULSAR_LIST/$PULSAR_BROKER_LIST/g" ${file_path}/conf/flume.conf
+sed -i "s/PULSAR_LIST/$PULSAR_BROKER_LIST/g" ${file_path}/conf/audit.conf
 cat <<EOF > ${file_path}/conf/common.properties
 manager_hosts=$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT
 EOF
@@ -27,4 +27,4 @@ bash +x ${file_path}/bin/prepare_env.sh
 bash +x ${file_path}/bin/start.sh
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/flume.log
+tail -F ${file_path}/logs/audit-source.log

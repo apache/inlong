@@ -20,4 +20,4 @@
 #
 
 # this program kills the audit
-ps -ef |grep "org.apache.flume.node.Application"|grep "apache-inlong-audit"|grep -v grep|awk '{print $2}'|xargs kill -9
+ps -ef |grep "org.apache.inlong.audit.node.Application"|grep "apache-inlong-audit"|grep -v grep|awk '{print $2}'|xargs kill -9

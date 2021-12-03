@@ -19,5 +19,5 @@
 # under the License.
 #
 cd "$(dirname "$0")"/../
-chmod 777 bin/flume-ng
-nohup bin/flume-ng agent --conf conf/ -f conf/flume.conf -n agent1 --no-reload-conf  > audit.log 2>&1 &
+chmod 777 bin/audit-ng
+nohup bin/audit-ng agent --conf conf/ -f conf/audit.conf -n agent1 --no-reload-conf  > audit.log 2>&1 &

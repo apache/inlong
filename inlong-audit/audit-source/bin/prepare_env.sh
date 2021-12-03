@@ -21,7 +21,7 @@
 
 cd "$(dirname "$0")"/../conf
 
-for i in {common.properties,topics.properties}
+for i in {server.properties}
   do
     touch $i
 done
