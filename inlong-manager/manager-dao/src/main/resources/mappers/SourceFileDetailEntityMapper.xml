@@ -56,7 +56,7 @@
         <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
         <result column="mq_resource_obj" jdbcType="VARCHAR" property="topic"/>
         <result column="data_generate_rule" jdbcType="VARCHAR" property="dataGenerateRule"/>
-        <result column="file_delimiter" jdbcType="VARCHAR" property="fieldSplitter"/>
+        <result column="data_separator" jdbcType="VARCHAR" property="fieldSplitter"/>
         <result column="sort_type" jdbcType="VARCHAR" property="sortType"/>
     </resultMap>
     <sql id="Base_Column_List">
@@ -387,7 +387,7 @@
                biz.mq_resource_obj,
                ds.data_generate_rule,
                ds.sort_type,
-               stream.file_delimiter
+               stream.data_separator
         from source_file_basic basic,
              source_file_detail detail,
              business biz,
@@ -417,7 +417,7 @@
                biz.mq_resource_obj,
                ds.data_generate_rule,
                ds.sort_type,
-               stream.file_delimiter
+               stream.data_separator
         from source_file_basic basic,
              source_file_detail detail,
              business biz,

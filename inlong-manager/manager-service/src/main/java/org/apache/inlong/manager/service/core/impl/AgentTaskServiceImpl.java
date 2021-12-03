@@ -54,13 +54,13 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentTaskServiceImpl.class);
 
     @Autowired
-    private SourceFileDetailEntityMapper sourceFileDetailEntityMapper;
+    private SourceFileDetailEntityMapper fileDetailMapper;
 
     @Autowired
-    private DataSourceCmdConfigEntityMapper dataSourceCmdConfigEntityMapper;
+    private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
 
     @Autowired
-    private DataStreamFieldEntityMapper dataStreamFieldEntityMapper;
+    private DataStreamFieldEntityMapper streamFieldMapper;
 
     @Override
     public FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info) {
@@ -74,13 +74,11 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         // Query pending special commands
         List<FileAgentCMDConfig> cmdConfigs = getFileAgentCMDConfigs(info);
 
-        FileAgentTaskInfo taskInfo = FileAgentTaskInfo.builder().cmdConfigs(cmdConfigs).dataConfigs(taskConfigs)
-                .build();
-        return taskInfo;
+        return FileAgentTaskInfo.builder().cmdConfigs(cmdConfigs).dataConfigs(taskConfigs).build();
     }
 
     private List<FileAgentCMDConfig> getFileAgentCMDConfigs(FileAgentCommandInfo info) {
-        return dataSourceCmdConfigEntityMapper.queryCmdByAgentIp(info.getAgentIp()).stream().map(cmd -> {
+        return sourceCmdConfigMapper.queryCmdByAgentIp(info.getAgentIp()).stream().map(cmd -> {
             FileAgentCMDConfig cmdConfig = new FileAgentCMDConfig();
             cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
             cmdConfig.setOp(cmd.getCmdType());
@@ -92,7 +90,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
 
     private List<FileAgentTaskConfig> getFileAgentTaskConfigs(FileAgentCommandInfo info) {
         // Query pending special commands
-        List<FileAgentTaskConfig> taskConfigs = sourceFileDetailEntityMapper.selectFileAgentTaskByIp(info.getAgentIp());
+        List<FileAgentTaskConfig> taskConfigs = fileDetailMapper.selectFileAgentTaskByIp(info.getAgentIp());
         for (FileAgentTaskConfig config : taskConfigs) {
             FileAgentDataGenerateRule ruleEnu = FileAgentDataGenerateRule.fromRuleValue(config.getDataGenerateRule());
             if (ruleEnu != null) {
@@ -106,7 +104,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 s.append("p=t").append("&");
             }
 
-            List<DataStreamFieldEntity> preFields = dataStreamFieldEntityMapper
+            List<DataStreamFieldEntity> preFields = streamFieldMapper
                     .selectDataStreamFields(config.getInlongGroupId(), config.getInlongStreamId());
 
             if (!config.getSortType().equalsIgnoreCase("13")) {
@@ -128,7 +126,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 update.setId(config.getTaskId());
                 update.setStatus(nextStatus);
                 update.setPreviousStatus(currentStatus);
-                sourceFileDetailEntityMapper.updateByPrimaryKeySelective(update);
+                fileDetailMapper.updateByPrimaryKeySelective(update);
             }
         }
         return taskConfigs;
@@ -139,7 +137,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             List<FileAgentCommandInfo.CommandInfoBean> commandInfos = info.getCommandInfo();
 
             for (FileAgentCommandInfo.CommandInfoBean command : commandInfos) {
-                SourceFileDetailEntity current = sourceFileDetailEntityMapper.selectByPrimaryKey(command.getTaskId());
+                SourceFileDetailEntity current = fileDetailMapper.selectByPrimaryKey(command.getTaskId());
 
                 if (current != null) {
                     int opType = command.getOpType();
@@ -150,7 +148,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                             cmd.setBsend(true);
                             cmd.setModifyTime(new Date());
                             cmd.setResultInfo(String.valueOf(command.getCommandResult()));
-                            dataSourceCmdConfigEntityMapper.updateByPrimaryKeySelective(cmd);
+                            sourceCmdConfigMapper.updateByPrimaryKeySelective(cmd);
                         }
 
                     } else { // Modify the result status of the data collection task
@@ -177,7 +175,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                             update.setId(command.getTaskId());
                             update.setStatus(nextStatus);
                             update.setPreviousStatus(current.getStatus());
-                            sourceFileDetailEntityMapper.updateByPrimaryKeySelective(update);
+                            fileDetailMapper.updateByPrimaryKeySelective(update);
                         }
                     }
                 }
@@ -188,7 +186,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     @Override
     public String confirmAgentIp(ConfirmAgentIpRequest request) {
         for (String ip : request.getIpList()) {
-            List<FileAgentTaskConfig> taskConfigs = sourceFileDetailEntityMapper.selectFileAgentTaskByIp(ip);
+            List<FileAgentTaskConfig> taskConfigs = fileDetailMapper.selectFileAgentTaskByIp(ip);
             if (!taskConfigs.isEmpty()) {
                 return taskConfigs.get(0).getIp();
             }
@@ -198,8 +196,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
 
     @Override
     public List<FileAgentTaskConfig> checkAgentTaskConf(CheckAgentTaskConfRequest request) {
-        List<FileAgentTaskConfig> taskConfigs = sourceFileDetailEntityMapper
-                .selectFileAgentTaskByIpForCheck(request.getAgentIp());
+        List<FileAgentTaskConfig> taskConfigs = fileDetailMapper.selectFileAgentTaskByIpForCheck(request.getAgentIp());
         LOGGER.info(request.getAgentIp() + " taskConfigs = " + taskConfigs);
         List<FileAgentTaskConfig> toAdds = getToBeAdded(request.getTaskInfo(), taskConfigs);
         List<Integer> toRemoves = getToBeRemoved(request.getTaskInfo(), taskConfigs);
@@ -239,7 +236,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 result.add(fileAgentTaskConfig);
             } else {
                 // 100, 103 print log
-                LOGGER.warn("Agent {} report taskid = {} with status {}, Skip taskid fileAgentTaskConfig = {} ",
+                LOGGER.warn("Agent {} report task id = {} with status {}, skip task id fileAgentTaskConfig = {} ",
                         request.getAgentIp(),
                         fileAgentTaskConfig.getTaskId(),
                         currentStatus,
@@ -262,7 +259,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             s.append("p=t").append("&");
         }
 
-        List<DataStreamFieldEntity> preFields = dataStreamFieldEntityMapper.selectDataStreamFields(
+        List<DataStreamFieldEntity> preFields = streamFieldMapper.selectDataStreamFields(
                 config.getInlongGroupId(),
                 config.getInlongStreamId());
 
