@@ -49,6 +49,7 @@ const Comp = ({ id }: Props, ref) => {
       formatResult: data => ({
         ...data,
         topic: data.topic.split(','),
+        inCharges: data.inCharges?.split(',') || [],
       }),
       onSuccess: data => {
         form.setFieldsValue(data);
