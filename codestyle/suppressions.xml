@@ -21,6 +21,7 @@
 
 <suppressions>
     <!-- suppress all checks in the generated directories -->
+    <suppress checks=".*" files="AuditApi.java" />
     <suppress checks=".*" files=".+[\\/]classes[\\/].+\.java" />
     <suppress checks=".*" files=".+[\\/]generated[\\/].+\.java" />
     <suppress checks=".*" files=".+[\\/]generated-sources[\\/].+\.java" />
