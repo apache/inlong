@@ -83,7 +83,7 @@ const Create: React.FC = () => {
         setMiddlewareType(result.middlewareType);
         setGroupId(result.inlongGroupId);
         history.push({
-          search: `?inlongGroupId=${result}&step=1`,
+          search: `?inlongGroupId=${result.inlongGroupId}&step=1`,
         });
       }
     } finally {

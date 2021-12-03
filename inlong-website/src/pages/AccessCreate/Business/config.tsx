@@ -42,12 +42,9 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
           </Divider>
         ),
       },
-      'bgName',
-      'productId',
       'name',
       'cnName',
       'inCharges',
-      'followers',
       'description',
       {
         type: (
