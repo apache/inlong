@@ -50,7 +50,7 @@ public class BrokerMetricsTest {
             Assert.assertEquals(Long.valueOf(1),
                     result1.getMetricValues().get(metrics.consumerTmoTotCnt.getName()));
             // get and reset value
-            MetricValues result2 = metrics.getAndReSetMetrics();
+            final MetricValues result2 = metrics.getAndReSetMetrics();
             metrics.zkExceptionCnt.incrementAndGet();
             metrics.zkExceptionCnt.getAndSet();
             metrics.consumerTmoTotCnt.incrementAndGet();
