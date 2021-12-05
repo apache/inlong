@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
+import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
@@ -271,8 +272,12 @@ public class MsgMemStore implements Closeable {
         final ByteBuffer tmpDataReadBuf = this.cacheDataSegment.asReadOnlyBuffer();
         tmpIndexBuffer.flip();
         tmpDataReadBuf.flip();
+        long tmpValue = System.currentTimeMillis();
         msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
             cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(), tmpDataReadBuf);
+        long dltTime = System.currentTimeMillis() - tmpValue;
+        BrokerMetricsHolder.METRICS.syncDataDurMin.update(dltTime);
+        BrokerMetricsHolder.METRICS.syncDataDurMax.update(dltTime);
         return true;
     }
 

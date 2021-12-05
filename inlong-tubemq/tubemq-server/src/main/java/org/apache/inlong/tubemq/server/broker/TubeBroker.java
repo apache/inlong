@@ -47,6 +47,7 @@ import org.apache.inlong.tubemq.server.broker.exception.StartupException;
 import org.apache.inlong.tubemq.server.broker.metadata.BrokerMetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
+import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.DefaultOffsetManager;
@@ -104,6 +105,8 @@ public class TubeBroker implements Stoppable {
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
+        // register metric bean
+        BrokerMetricsHolder.registerMXBean();
         this.metadataManager = new BrokerMetadataManager();
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
@@ -215,6 +218,8 @@ public class TubeBroker implements Stoppable {
                             if (!response.getSuccess()) {
                                 isKeepAlive.set(false);
                                 if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
+                                    BrokerMetricsHolder.METRICS
+                                            .masterNoNodeCnt.incrementAndGet();
                                     register2Master();
                                     heartbeatErrors.set(0);
                                     logger.info("Re-register to master successfully!");
@@ -229,6 +234,7 @@ public class TubeBroker implements Stoppable {
                             isKeepAlive.set(false);
                             heartbeatErrors.incrementAndGet();
                             samplePrintCtrl.printExceptionCaught(t);
+                            BrokerMetricsHolder.METRICS.hbExceptionCnt.incrementAndGet();
                         }
                     }
                 }
