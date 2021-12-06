@@ -66,7 +66,28 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     private int receiveBufferSize;
     private int highWaterMark;
     private int sendBufferSize;
-    private int trafficClass;
+
+    private static String HOST_DEFAULT_VALUE = "0.0.0.0";
+
+    private static int DEFAULT_MAX_THREADS = 32;
+
+    private static int DEFAULT_MAX_CONNECTIONS = 5000;
+
+    private static int MIN_MSG_LENGTH = 4;
+
+    private static int MAX_MSG_LENGTH = 1024 * 64;
+
+    private static int BUFFER_SIZE_MUST_THAN = 0;
+
+    private static int HIGH_WATER_MARK_DEFAULT_VALUE = 64 * 1024;
+
+    private static int RECEIVE_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+    private static int SEND_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+    private static int RECEIVE_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
+
+    private static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
 
     private Channel nettyChannel = null;
 
@@ -96,7 +117,6 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         serverBootstrap.setOption("child.keepAlive", keepAlive);
         serverBootstrap.setOption("child.receiveBufferSize", receiveBufferSize);
         serverBootstrap.setOption("child.sendBufferSize", sendBufferSize);
-        serverBootstrap.setOption("child.trafficClass", trafficClass);
         serverBootstrap.setOption("child.writeBufferHighWaterMark", highWaterMark);
         logger.info("load msgFactory=" + msgFactoryName + " and serviceDecoderName="
                 + serviceDecoderName);
@@ -180,37 +200,37 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     public void configure(Context context) {
         logger.info("context is {}", context);
         port = context.getInteger(ConfigConstants.CONFIG_PORT);
-        host = context.getString(ConfigConstants.CONFIG_HOST, "0.0.0.0");
+        host = context.getString(ConfigConstants.CONFIG_HOST, HOST_DEFAULT_VALUE);
 
         tcpNoDelay = context.getBoolean(ConfigConstants.TCP_NO_DELAY, true);
 
         keepAlive = context.getBoolean(ConfigConstants.KEEP_ALIVE, true);
-        highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK, 64 * 1024);
-        receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, 1024 * 64);
-        if (receiveBufferSize > 16 * 1024 * 1024) {
-            receiveBufferSize = 16 * 1024 * 1024;
+        highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK,
+                HIGH_WATER_MARK_DEFAULT_VALUE);
+        receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE,
+                RECEIVE_BUFFER_DEFAULT_SIZE);
+        if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
+            receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(receiveBufferSize > 0, "receiveBufferSize must be > 0");
+        Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
+                "receiveBufferSize must be > 0");
 
-        sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, 1024 * 64);
-        if (sendBufferSize > 16 * 1024 * 1024) {
-            sendBufferSize = 16 * 1024 * 1024;
+        sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
+        if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
+            sendBufferSize = SEND_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(sendBufferSize > 0, "sendBufferSize must be > 0");
-
-        trafficClass = context.getInteger(ConfigConstants.TRAFFIC_CLASS, 0);
-        Preconditions.checkArgument((trafficClass == 0 || trafficClass == 96),
-                "trafficClass must be == 0 or == 96");
+        Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
+                "sendBufferSize must be > 0");
 
         try {
-            maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, 32);
+            maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, DEFAULT_MAX_THREADS);
         } catch (NumberFormatException e) {
             logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
 
         try {
-            maxConnections = context.getInteger(CONNECTIONS, 5000);
+            maxConnections = context.getInteger(CONNECTIONS, DEFAULT_MAX_CONNECTIONS);
         } catch (NumberFormatException e) {
             logger.warn("BaseSource\'s \"connections\" property must specify an integer value.",
                     context.getString(CONNECTIONS));
@@ -234,9 +254,9 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         Preconditions.checkArgument(StringUtils.isNotBlank(messageHandlerName),
                 "messageHandlerName is empty");
 
-        maxMsgLength = context.getInteger(ConfigConstants.MAX_MSG_LENGTH, 1024 * 64);
+        maxMsgLength = context.getInteger(ConfigConstants.MAX_MSG_LENGTH, MAX_MSG_LENGTH);
         Preconditions.checkArgument(
-                (maxMsgLength >= 4 && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
+                (maxMsgLength >= MIN_MSG_LENGTH && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
                 "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
     }
 }

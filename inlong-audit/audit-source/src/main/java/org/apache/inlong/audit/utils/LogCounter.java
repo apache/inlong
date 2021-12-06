@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.utils;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LogCounter {
@@ -36,9 +37,10 @@ public class LogCounter {
     }
 
     public boolean shouldPrint() {
-        if (System.currentTimeMillis() - lastLogTime > reset) {
+        long currentMills = Instant.now().toEpochMilli();
+        if (currentMills - lastLogTime > reset) {
             counter.set(0);
-            this.lastLogTime = System.currentTimeMillis();
+            this.lastLogTime = currentMills;
         }
 
         if (counter.incrementAndGet() > start && counter.get() % control != 0) {

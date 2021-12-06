@@ -17,8 +17,12 @@
 
 package org.apache.inlong.audit.sink;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.flume.Event;
 
+@Getter
+@Setter
 public class EventStat {
     private Event event;
     private int myRetryCnt;
@@ -30,22 +34,6 @@ public class EventStat {
 
     public EventStat(Event event, int retryCnt) {
         this.event = event;
-        this.myRetryCnt = retryCnt;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public int getRetryCnt() {
-        return myRetryCnt;
-    }
-
-    public void setRetryCnt(int retryCnt) {
         this.myRetryCnt = retryCnt;
     }
 

@@ -22,15 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HighPriorityThreadFactory
         implements ThreadFactory {
-    static final AtomicInteger poolNumber = new AtomicInteger(1);
-    final AtomicInteger threadNumber;
-    final ThreadGroup group;
-    final String namePrefix;
-    final boolean isDaemon;
-
-    public HighPriorityThreadFactory() {
-        this("pool");
-    }
+    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private final AtomicInteger threadNumber;
+    private final ThreadGroup group;
+    private final String namePrefix;
+    private final boolean isDaemon;
 
     public HighPriorityThreadFactory(String name) {
         this(name, false);
