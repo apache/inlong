@@ -55,7 +55,7 @@ public class PulsarSinkTest {
         Context context = new Context();
 
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
-        context.put("pulsar_server_url_list", "pulsar://127.0.0.1:6650");
+        context.put("pulsar_server_url", "pulsar://127.0.0.1:6650");
 
         sink.setChannel(channel);
 
