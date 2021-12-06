@@ -18,13 +18,14 @@
 package org.apache.inlong.tubemq.corebase.metric;
 
 public enum MetricValueType {
-    NORMAL(0, "Normal"),
-    MIN(1, "Min"),
-    MAX(2, "Max");
+    NORMAL(0, "Normal", "Current value"),
+    MIN(1, "Min", "Historical minimum value"),
+    MAX(2, "Max", "Historical maximum value");
 
-    MetricValueType(int id, String name) {
+    MetricValueType(int id, String name, String desc) {
         this.id = id;
         this.name = name;
+        this.desc = desc;
     }
 
     public int getId() {
@@ -33,6 +34,10 @@ public enum MetricValueType {
 
     public String getName() {
         return name;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public static MetricValueType valueOf(int value) {
@@ -46,4 +51,5 @@ public enum MetricValueType {
 
     private final int id;
     private final String name;
+    private final String desc;
 }

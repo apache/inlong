@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +42,9 @@ public class ConsumerEventManager {
             new ConcurrentHashMap<>();
 
     private final ConsumerInfoHolder consumerHolder;
-    private final MasterMetric masterMetrics;
 
-    public ConsumerEventManager(ConsumerInfoHolder consumerHolder,
-                                MasterMetric masterMetrics) {
+    public ConsumerEventManager(ConsumerInfoHolder consumerHolder) {
         this.consumerHolder = consumerHolder;
-        this.masterMetrics = masterMetrics;
     }
 
     public boolean addDisconnectEvent(String consumerId,
@@ -59,7 +56,7 @@ public class ConsumerEventManager {
             LinkedList<ConsumerEvent> tmptList =
                     disconnectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
-                masterMetrics.svrBalDisConEventConsumerCnt.incrementAndGet();
+                MasterMetricsHolder.incSvrBalDisConConsumerCnt();
             } else {
                 eventList = tmptList;
             }
@@ -78,7 +75,7 @@ public class ConsumerEventManager {
             LinkedList<ConsumerEvent> tmptList =
                     connectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
-                masterMetrics.svrBalConEventConsumerCnt.incrementAndGet();
+                MasterMetricsHolder.incSvrBalConEventConsumerCnt();
             } else {
                 eventList = tmptList;
             }
@@ -138,9 +135,9 @@ public class ConsumerEventManager {
                     if (eventList.isEmpty()) {
                         currentEventMap.remove(consumerId);
                         if (selDisConnMap) {
-                            masterMetrics.svrBalDisConEventConsumerCnt.decrementAndGet();
+                            MasterMetricsHolder.decSvrBalDisConConsumerCnt();
                         } else {
-                            masterMetrics.svrBalConEventConsumerCnt.decrementAndGet();
+                            MasterMetricsHolder.decSvrBalConEventConsumerCnt();
                         }
                     }
                 }
@@ -199,11 +196,11 @@ public class ConsumerEventManager {
         LinkedList<ConsumerEvent> eventInfos =
                 disconnectEventMap.remove(consumerId);
         if (eventInfos != null) {
-            masterMetrics.svrBalDisConEventConsumerCnt.decrementAndGet();
+            MasterMetricsHolder.decSvrBalDisConConsumerCnt();
         }
         eventInfos = connectEventMap.remove(consumerId);
         if (eventInfos != null) {
-            masterMetrics.svrBalConEventConsumerCnt.decrementAndGet();
+            MasterMetricsHolder.decSvrBalConEventConsumerCnt();
         }
     }
 

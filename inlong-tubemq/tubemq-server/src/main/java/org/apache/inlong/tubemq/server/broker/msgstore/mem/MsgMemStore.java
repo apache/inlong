@@ -272,12 +272,10 @@ public class MsgMemStore implements Closeable {
         final ByteBuffer tmpDataReadBuf = this.cacheDataSegment.asReadOnlyBuffer();
         tmpIndexBuffer.flip();
         tmpDataReadBuf.flip();
-        long tmpValue = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
             cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(), tmpDataReadBuf);
-        long dltTime = System.currentTimeMillis() - tmpValue;
-        BrokerMetricsHolder.METRICS.syncDataDurMin.update(dltTime);
-        BrokerMetricsHolder.METRICS.syncDataDurMax.update(dltTime);
+        BrokerMetricsHolder.updSyncDataDurations(System.currentTimeMillis() - startTime);
         return true;
     }
 
