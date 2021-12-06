@@ -218,8 +218,7 @@ public class TubeBroker implements Stoppable {
                             if (!response.getSuccess()) {
                                 isKeepAlive.set(false);
                                 if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                                    BrokerMetricsHolder.METRICS
-                                            .masterNoNodeCnt.incrementAndGet();
+                                    BrokerMetricsHolder.incMasterNoNodeCnt();
                                     register2Master();
                                     heartbeatErrors.set(0);
                                     logger.info("Re-register to master successfully!");
@@ -234,7 +233,7 @@ public class TubeBroker implements Stoppable {
                             isKeepAlive.set(false);
                             heartbeatErrors.incrementAndGet();
                             samplePrintCtrl.printExceptionCaught(t);
-                            BrokerMetricsHolder.METRICS.hbExceptionCnt.incrementAndGet();
+                            BrokerMetricsHolder.incHBExceptionCnt();
                         }
                     }
                 }

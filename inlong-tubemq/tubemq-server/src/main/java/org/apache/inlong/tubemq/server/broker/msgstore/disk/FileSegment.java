@@ -115,7 +115,7 @@ public class FileSegment implements Segment {
             } catch (final Exception e) {
                 if (e instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
-                    BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
+                    BrokerMetricsHolder.incIOExceptionCnt();
                 }
                 if (this.segmentType == SegmentType.DATA) {
                     logger.error("[File Store] Set DATA Segment cachedSize error", e);
@@ -140,7 +140,7 @@ public class FileSegment implements Segment {
             } catch (Throwable ee) {
                 if (ee instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
-                    BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
+                    BrokerMetricsHolder.incIOExceptionCnt();
                 }
                 logger.error(new StringBuilder(512).append("[File Store] Close ")
                         .append(this.file.getAbsoluteFile().toString())
@@ -163,7 +163,7 @@ public class FileSegment implements Segment {
         } catch (Throwable e1) {
             if (e1 instanceof IOException) {
                 ServiceStatusHolder.addReadIOErrCnt();
-                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
+                BrokerMetricsHolder.incIOExceptionCnt();
             }
             logger.error("[File Store] failure to close channel ", e1);
         }
@@ -175,7 +175,7 @@ public class FileSegment implements Segment {
         } catch (Throwable ee) {
             if (ee instanceof IOException) {
                 ServiceStatusHolder.addReadIOErrCnt();
-                BrokerMetricsHolder.METRICS.ioExceptionCnt.incrementAndGet();
+                BrokerMetricsHolder.incIOExceptionCnt();
             }
             logger.error("[File Store] failure to delete file ", ee);
         }

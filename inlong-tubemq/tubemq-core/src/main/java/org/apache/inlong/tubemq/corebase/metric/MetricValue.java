@@ -17,14 +17,11 @@
 
 package org.apache.inlong.tubemq.corebase.metric;
 
-import java.beans.ConstructorProperties;
-
 public class MetricValue {
     private final String type;
     private final String name;
     private final long value;
 
-    @ConstructorProperties({"type", "name", "value"})
     public MetricValue(String type, String name, long value) {
         this.name = name;
         this.type = type;

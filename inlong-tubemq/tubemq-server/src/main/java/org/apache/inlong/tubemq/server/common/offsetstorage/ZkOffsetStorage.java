@@ -79,7 +79,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             this.zkw = new ZooKeeperWatcher(zkConfig);
         } catch (Throwable e) {
-            BrokerMetricsHolder.METRICS.zkExceptionCnt.incrementAndGet();
+            BrokerMetricsHolder.incZKExceptionCnt();
             logger.error(new StringBuilder(256)
                     .append("[ZkOffsetStorage] Failed to connect ZooKeeper server (")
                     .append(this.zkConfig.getZkServerAddr()).append(") !").toString(), e);
@@ -143,7 +143,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, znode);
         } catch (KeeperException e) {
-            BrokerMetricsHolder.METRICS.zkExceptionCnt.incrementAndGet();
+            BrokerMetricsHolder.incZKExceptionCnt();
             logger.error("KeeperException during load offsets from ZooKeeper", e);
             return null;
         }
@@ -183,7 +183,7 @@ public class ZkOffsetStorage implements OffsetStorage {
             try {
                 ZKUtil.updatePersistentPath(this.zkw, offsetPath, offsetData);
             } catch (final Throwable t) {
-                BrokerMetricsHolder.METRICS.zkExceptionCnt.incrementAndGet();
+                BrokerMetricsHolder.incZKExceptionCnt();
                 logger.error("Exception during commit offsets to ZooKeeper", t);
                 throw new OffsetStoreException(t);
             }
@@ -224,7 +224,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     offsetMap.put(partitionId, Long.parseLong(offsetInfoStrs[1]));
                 }
             } catch (Throwable e) {
-                BrokerMetricsHolder.METRICS.zkExceptionCnt.incrementAndGet();
+                BrokerMetricsHolder.incZKExceptionCnt();
                 offsetMap.put(partitionId, null);
             }
         }

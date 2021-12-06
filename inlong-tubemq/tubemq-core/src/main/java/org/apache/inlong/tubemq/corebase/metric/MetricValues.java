@@ -17,14 +17,12 @@
 
 package org.apache.inlong.tubemq.corebase.metric;
 
-import java.beans.ConstructorProperties;
 import java.util.Map;
 
 public class MetricValues {
     private final String lastResetTime;
     private final Map<String, Long> metricValues;
 
-    @ConstructorProperties({"lastResetTime", "metricValues"})
     public MetricValues(String lastResetTime, Map<String, Long> metricValues) {
         this.lastResetTime = lastResetTime;
         this.metricValues = metricValues;

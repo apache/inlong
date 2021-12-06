@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.corebase.metric;
 public class CountMetricItem extends AbsMetricItem {
 
     public CountMetricItem(String name) {
-        super(MetricType.COUNTER, name);
+        super(MetricType.COUNTER, MetricValueType.MAX, name, 0);
     }
 
     @Override

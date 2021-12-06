@@ -614,7 +614,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     private void commitCfmOffsets(boolean retryable) {
-        long tmpValue = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey())
                     || entry.getValue() == null || entry.getValue().isEmpty()) {
@@ -622,9 +622,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
             zkOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable);
         }
-        long dltTime = System.currentTimeMillis() - tmpValue;
-        BrokerMetricsHolder.METRICS.syncZkDurMin.update(dltTime);
-        BrokerMetricsHolder.METRICS.syncZkDurMax.update(dltTime);
+        BrokerMetricsHolder.updSyncZKDurations(System.currentTimeMillis() - startTime);
     }
 
     /***

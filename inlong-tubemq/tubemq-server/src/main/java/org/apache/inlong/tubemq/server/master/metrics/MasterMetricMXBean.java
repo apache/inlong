@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.broker.metrics;
+package org.apache.inlong.tubemq.server.master.metrics;
 
 import org.apache.inlong.tubemq.corebase.metric.MetricValues;
 
 /**
- * BrokerMetricMXBean
- * Broker's metric data access interface, including:
+ * MasterMetricMXBean
+ * Master's metric data access interface, including:
  * the getMetric() that  directly obtains data
  * the getAndReSetMetrics() that can clear the values of
  *     the counter, maximum and minimum extremum Gauge data
  */
-public interface BrokerMetricMXBean {
+public interface MasterMetricMXBean {
 
     // get current metric data by viewing mode
     MetricValues getMetrics();

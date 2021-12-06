@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.corebase.metric;
 public class GaugeNormMetricItem extends AbsMetricItem {
 
     public GaugeNormMetricItem(String name) {
-        super(MetricType.GAUGE, MetricValueType.MIN, name, 0);
+        super(MetricType.GAUGE, MetricValueType.NORMAL, name, 0);
     }
 
     @Override
