@@ -153,7 +153,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
         return consumer;
     }
 
-    protected void handleMessage(Message<byte[]> msg) throws Exception{
+    protected void handleMessage(Message<byte[]> msg) throws Exception {
         String body = new String(msg.getData(),"UTF-8");
         AuditData msgBody =
                 gson.fromJson(body, AuditData.class);
