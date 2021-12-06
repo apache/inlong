@@ -34,7 +34,6 @@
     <modules>
         <module>sort-standalone-source</module>
         <module>sort-standalone-dist</module>
-        <module>sort-standalone-docker</module>
     </modules>
 
     <properties>
