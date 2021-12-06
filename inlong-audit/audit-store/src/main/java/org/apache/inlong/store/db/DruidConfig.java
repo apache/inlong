@@ -65,7 +65,7 @@ public class DruidConfig {
             druidDataSource.setFilters(properties.getFilters());
             druidDataSource.init();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("druidDataSource has error e = {}", e);
         }
         return druidDataSource;
     }

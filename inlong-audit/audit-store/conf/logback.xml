@@ -18,11 +18,9 @@
  under the License.
 -->
 <configuration  scan="true" scanPeriod="60s">
-	<!--日志配置-->
 	<property name="PROJECT_NAME" value="audit-store"/>
 	<property name="LOG_BACK_DIR" value="logs"/>
 
-	<!-- logback 工程的日志配置-->
 	<appender name="INFO_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_BACK_DIR}/info.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -37,12 +35,9 @@
 			<pattern>%d{yyy-MM-dd HH:mm:ss.SSS,GMT+8} %p %t - %m%n</pattern>
 			<charset class="java.nio.charset.Charset">UTF-8</charset>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印INFO日志 -->
-			<!--过滤 INFO-->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>INFO</level>
-			<!--匹配到就禁止-->
 			<onMatch>ACCEPT</onMatch>
-			<!--没有匹配到就允许-->
 			<onMismatch>DENY</onMismatch>
 		</filter>
 	</appender>
@@ -61,12 +56,9 @@
 			<pattern>%d{yyy-MM-dd HH:mm:ss.SSS,GMT+8} %p %t - %m%n</pattern>
 			<charset class="java.nio.charset.Charset">UTF-8</charset>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印ERROR日志 -->
-			<!--过滤 ERROR-->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
-			<!--匹配到就禁止-->
 			<onMatch>ACCEPT</onMatch>
-			<!--没有匹配到就允许-->
 			<onMismatch>DENY</onMismatch>
 		</filter>
 	</appender>
@@ -85,17 +77,13 @@
 			<pattern>%d{yyy-MM-dd HH:mm:ss.SSS,GMT+8} %p %t - %m%n</pattern>
 			<charset class="java.nio.charset.Charset">UTF-8</charset>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印DEBUG日志 -->
-			<!--过滤 ERROR-->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>DEBUG</level>
-			<!--匹配到就禁止-->
 			<onMatch>ACCEPT</onMatch>
-			<!--没有匹配到就允许-->
 			<onMismatch>DENY</onMismatch>
 		</filter>
 	</appender>
 
-	<!-- 开发环境使用 打印在控制台-->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<param name="Pattern"
@@ -123,7 +111,6 @@
 		</encoder>
 	</appender>
 
-	<!--开发环境为DEBUG等级-->
 	<root level="DEBUG">
 		<appender-ref ref="INFO_ROLLING"/>
 		<appender-ref ref="DEBUG_ROLLING"/>
