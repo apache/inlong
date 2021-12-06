@@ -92,6 +92,7 @@
     <module>inlong-agent</module>
     <module>inlong-manager</module>
     <module>inlong-sort</module>
+    <module>inlong-sort-standalone</module>
     <module>inlong-website</module>
     <module>inlong-distribution</module>
   </modules>
