@@ -114,4 +114,143 @@ public class DataProxyMetricItem extends MetricItem {
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
     }
+
+    /**
+     * get clusterId
+     * 
+     * @return the clusterId
+     */
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    /**
+     * get readSuccessCount
+     * 
+     * @return the readSuccessCount
+     */
+    public long getReadSuccessCount() {
+        return readSuccessCount.get();
+    }
+
+    /**
+     * get readSuccessSize
+     * 
+     * @return the readSuccessSize
+     */
+    public long getReadSuccessSize() {
+        return readSuccessSize.get();
+    }
+
+    /**
+     * get readFailCount
+     * 
+     * @return the readFailCount
+     */
+    public long getReadFailCount() {
+        return readFailCount.get();
+    }
+
+    /**
+     * get readFailSize
+     * 
+     * @return the readFailSize
+     */
+    public long getReadFailSize() {
+        return readFailSize.get();
+    }
+
+    /**
+     * get sendCount
+     * 
+     * @return the sendCount
+     */
+    public long getSendCount() {
+        return sendCount.get();
+    }
+
+    /**
+     * get sendSize
+     * 
+     * @return the sendSize
+     */
+    public long getSendSize() {
+        return sendSize.get();
+    }
+
+    /**
+     * get sendSuccessCount
+     * 
+     * @return the sendSuccessCount
+     */
+    public long getSendSuccessCount() {
+        return sendSuccessCount.get();
+    }
+
+    /**
+     * get sendSuccessSize
+     * 
+     * @return the sendSuccessSize
+     */
+    public long getSendSuccessSize() {
+        return sendSuccessSize.get();
+    }
+
+    /**
+     * get sendFailCount
+     * 
+     * @return the sendFailCount
+     */
+    public long getSendFailCount() {
+        return sendFailCount.get();
+    }
+
+    /**
+     * get sendFailSize
+     * 
+     * @return the sendFailSize
+     */
+    public long getSendFailSize() {
+        return sendFailSize.get();
+    }
+
+    /**
+     * get sinkDuration
+     * 
+     * @return the sinkDuration
+     */
+    public long getSinkAverageDuration() {
+        long longSendSuccessCount = sendSuccessCount.get();
+        if (longSendSuccessCount <= 0) {
+            return 0;
+        }
+        return sinkDuration.get() / longSendSuccessCount;
+    }
+
+    /**
+     * get nodeDuration
+     * 
+     * @return the nodeDuration
+     */
+    public long getNodeAverageDuration() {
+        long longSendSuccessCount = sendSuccessCount.get();
+        if (longSendSuccessCount <= 0) {
+            return 0;
+        }
+        return nodeDuration.get() / longSendSuccessCount;
+    }
+
+    /**
+     * get wholeDuration
+     * 
+     * @return the wholeDuration
+     */
+    public long getWholeAverageDuration() {
+        long longSendSuccessCount = sendSuccessCount.get();
+        if (longSendSuccessCount <= 0) {
+            return 0;
+        }
+        return wholeDuration.get() / longSendSuccessCount;
+    }
+
 }

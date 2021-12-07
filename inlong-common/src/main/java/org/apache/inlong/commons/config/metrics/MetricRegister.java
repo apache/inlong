@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class MetricRegister {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MetricRegister.class);
+    public static final String JMX_DOMAIN = "org.apache.inlong";
 
     /**
      * register MetricItem
@@ -41,8 +42,8 @@ public class MetricRegister {
     public static void register(MetricItem obj) {
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricUtils.getDomain(obj.getClass())).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append(obj.getDimensionsKey());
+        beanName.append(JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR).append("type=")
+                .append(MetricUtils.getDomain(obj.getClass())).append(",").append(obj.getDimensionsKey());
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);
@@ -61,8 +62,8 @@ public class MetricRegister {
     public static void register(MetricItemSet<? extends MetricItem> obj) {
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricUtils.getDomain(obj.getClass())).append(MetricItemMBean.DOMAIN_SEPARATOR).append("name=")
-                .append(obj.getName());
+        beanName.append(JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR).append("type=")
+                .append(MetricUtils.getDomain(obj.getClass())).append(",name=").append(obj.getName());
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);
