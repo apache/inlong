@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuditData {
+    public static int HEAD_LENGTH = 4;
     private final long sdkTime;
     private final AuditApi.AuditRequest content;
     private final Long requestId;
@@ -48,7 +49,7 @@ public class AuditData {
     }
 
     public byte[] getDataByte() {
-        return addBytes(ByteBuffer.allocate(4).putInt(content.toByteArray().length).array(),
+        return addBytes(ByteBuffer.allocate(HEAD_LENGTH).putInt(content.toByteArray().length).array(),
                 content.toByteArray());
     }
 

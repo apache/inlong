@@ -4,18 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>${project.groupId}</groupId>
+    <parent>
+        <groupId>org.apache.inlong</groupId>
+        <artifactId>inlong-audit</artifactId>
+        <version>0.12.0-incubating-SNAPSHOT</version>
+    </parent>
+
     <artifactId>audit-sdk</artifactId>
-    <version>${project.version}</version>
     <packaging>pom</packaging>
     <name>Apache InLong - Audit Sdk</name>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <compiler.source>1.8</compiler.source>
+        <compiler.target>1.8</compiler.target>
     </properties>
 
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.inlong</groupId>-->
+<!--            <artifactId>audit-common</artifactId>-->
+<!--            <version>0.12.0-incubating-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
@@ -31,39 +41,60 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.1.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-audit</artifactId>
-            <version>0.12.0-incubating-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/audit-common-0.12.0-incubating-SNAPSHOT.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>junit</groupId>-->
+<!--            <artifactId>junit</artifactId>-->
+<!--            <version>4.12</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-common</artifactId>
+            <version>0.12.0-incubating-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <groupId> org.apache.maven.plugins </groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${compiler.source}</source>
+                    <target>${compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass></mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
             </plugin>
         </plugins>
     </build>

@@ -26,9 +26,6 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 public class Decoder extends FrameDecoder {
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;
-    //length content
-    private int HEADER_TAG_LENGTH = 4;
-
     /**
      * Constructor
      */
@@ -52,13 +49,13 @@ public class Decoder extends FrameDecoder {
             return null;
         }
         // If the package is not complete, continue to wait for the return package
-        if (buffer.readableBytes() < (totalLen - HEADER_TAG_LENGTH)) {
+        if (buffer.readableBytes() < (totalLen - AuditData.HEAD_LENGTH)) {
             buffer.resetReaderIndex();
             return null;
         }
         ChannelBuffer returnBuffer = new DynamicChannelBuffer(ChannelBuffers.BIG_ENDIAN, totalLen);
         returnBuffer.writeInt(totalLen);
-        buffer.readBytes(returnBuffer, HEADER_TAG_LENGTH, totalLen - HEADER_TAG_LENGTH);
+        buffer.readBytes(returnBuffer, AuditData.HEAD_LENGTH, totalLen - AuditData.HEAD_LENGTH);
         return returnBuffer;
     }
 }

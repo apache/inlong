@@ -49,6 +49,7 @@ public class SenderManager {
     public static final Long MAX_REQUEST_ID = 1000000000L;
     public static final int ALL_CONNECT_CHANNEL = -1;
     public static final int DEFAULT_CONNECT_CHANNEL = 2;
+
     private SenderGroup sender;
     private int maxConnectChannels = ALL_CONNECT_CHANNEL;
     private SecureRandom sRandom = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
