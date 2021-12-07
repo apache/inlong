@@ -23,7 +23,7 @@
 # constants
 ################################
 
-FLUME_AGENT_CLASS="org.apache.inlong.sort.standalone.Application"
+FLUME_AGENT_CLASS="org.apache.inlong.sort.standalone.SortStandaloneApplication"
 FLUME_AVRO_CLIENT_CLASS="org.apache.flume.client.avro.AvroCLIClient"
 FLUME_VERSION_CLASS="org.apache.flume.tools.VersionInfo"
 

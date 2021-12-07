@@ -21,7 +21,7 @@ package org.apache.inlong.sort.standalone;
  * 
  * Application
  */
-public class Application {
+public class SortStandaloneApplication {
 
 //    public static final Logger LOG = InlongLoggerFactory.getLogger(Application.class);
 

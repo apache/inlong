@@ -38,73 +38,18 @@
                 <exclude>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</exclude>
             </excludes>
         </dependencySet>
-        <dependencySet>
-            <outputDirectory>tools</outputDirectory>
-            <unpack>false</unpack>
-            <useProjectArtifact>true</useProjectArtifact>
-            <includes>
-                <include>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</include>
-            </includes>
-        </dependencySet>
     </dependencySets>
-
 
     <fileSets>
         <fileSet>
-            <directory>../</directory>
-
-            <excludes>
-                <exclude>flume-ng-configuration/**</exclude>
-                <exclude>flume-ng-sdk/**</exclude>
-                <exclude>flume-ng-core/**</exclude>
-                <exclude>flume-ng-node/**</exclude>
-                <exclude>flume-ng-dist/**</exclude>
-                <exclude>flume-ng-channels/**</exclude>
-                <exclude>flume-ng-sinks/**</exclude>
-                <exclude>flume-ng-sources/**</exclude>
-                <exclude>flume-ng-legacy-sources/**</exclude>
-                <exclude>flume-ng-clients/**</exclude>
-                <exclude>flume-ng-embedded-agent/**</exclude>
-                <exclude>flume-tools/**</exclude>
-                <exclude>**/target/**</exclude>
-                <exclude>**/.classpath</exclude>
-                <exclude>**/.project</exclude>
-                <exclude>**/.settings/**</exclude>
-                <exclude>lib/**</exclude>
-            </excludes>
-
-            <includes>
-                <include>DEVNOTES</include>
-                <include>README</include>
-                <include>LICENSE</include>
-                <include>NOTICE</include>
-                <include>CHANGELOG</include>
-                <include>RELEASE-NOTES</include>
-                <include>bin/**</include>
-                <include>conf/**</include>
-            </includes>
-        </fileSet>
-
-        <fileSet>
-            <directory>../target/site</directory>
-            <includes>
-                <include>/**</include>
-            </includes>
-            <outputDirectory>docs</outputDirectory>
-        </fileSet>
-
-        <fileSet>
-            <directory>conf</directory>
-            <outputDirectory>conf</outputDirectory>
-        </fileSet>
-
-        <fileSet>
-            <directory>bin</directory>
+            <directory>./</directory>
             <fileMode>755</fileMode>
             <directoryMode>755</directoryMode>
-            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>bin/**</include>
+                <include>conf/**</include>
+                <include>lib/**</include>
+            </includes>
         </fileSet>
-
     </fileSets>
-
 </assembly>

@@ -20,5 +20,5 @@
 #
 source /etc/profile
 cd "$(dirname "$0")"/../
-chmod 777 bin/flume-ng
-nohup bin/flume-ng agent --conf conf/ > sort.log 2>&1 &
+chmod 777 bin/sort-standalone
+nohup bin/sort-standalone agent --conf conf/ > sort.log 2>&1 &
