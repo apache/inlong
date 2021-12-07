@@ -23,24 +23,11 @@ package org.apache.inlong.sort.standalone;
  */
 public class SortStandaloneApplication {
 
-//    public static final Logger LOG = InlongLoggerFactory.getLogger(Application.class);
-
     /**
      * main
      * 
      * @param args
      */
     public static void main(String[] args) {
-//        LOG.info("start to sort-standalone");
-//        try {
-//            SortCluster cluster = new SortCluster();
-//            //
-//            cluster.start();
-//            // metrics
-//            MetricObserver.init(CommonPropertiesHolder.get());
-//            Thread.sleep(5000);
-//        } catch (Exception e) {
-//            LOG.error("A fatal error occurred while running. Exception follows.", e);
-//        }
     }
 }
