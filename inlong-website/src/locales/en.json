@@ -112,7 +112,7 @@
   "components.ConsumeHelper.BusinessSelect.MyBusinessModal.BusinessName": "Group name",
   "components.ConsumeHelper.BusinessSelect.MyBusinessModal.Select": "Select",
   "components.ConsumeHelper.BusinessSelect.MyBusinessModal.Owners": "Owners",
-  "components.ConsumeHelper.BusinessSelect.MyBusinessModal.MyAccessBusiness": "My Access Group",
+  "components.ConsumeHelper.BusinessSelect.MyBusinessModal.MyAccessBusiness": "My Data Streams Group",
   "components.ConsumeHelper.BusinessSelect.Search": "Search",
   "components.ConsumeHelper.FieldsConfig.basicFields.Consumption": "Consumption",
   "components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupName": "Consumer group name",
