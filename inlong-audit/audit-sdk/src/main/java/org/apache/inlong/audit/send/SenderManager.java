@@ -33,8 +33,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -57,26 +55,26 @@ public class SenderManager {
     private HashSet<String> currentIpPorts = new HashSet<String>();
     private AtomicLong requestIdSeq = new AtomicLong(0L);
     private ConcurrentHashMap<Long, AuditData> dataMap = new ConcurrentHashMap<>();
-    private org.apache.inlong.audit.util.Config Config;
+    private Config config;
 
     /**
      * Constructor
      *
-     * @param Config
+     * @param config
      */
-    public SenderManager(Config Config) {
-        this(Config, DEFAULT_CONNECT_CHANNEL);
+    public SenderManager(Config config) {
+        this(config, DEFAULT_CONNECT_CHANNEL);
     }
 
     /**
      * Constructor
      *
-     * @param Config
+     * @param config
      * @param maxConnectChannels
      */
-    public SenderManager(Config Config, int maxConnectChannels) {
+    public SenderManager(Config config, int maxConnectChannels) {
         try {
-            this.Config = Config;
+            this.config = config;
             this.maxConnectChannels = maxConnectChannels;
             SenderHandler clientHandler = new SenderHandler(this);
             this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, new Decoder(), clientHandler);

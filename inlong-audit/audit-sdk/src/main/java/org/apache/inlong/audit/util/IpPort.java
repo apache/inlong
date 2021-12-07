@@ -3,6 +3,7 @@ package org.apache.inlong.audit.util;
 import java.net.InetSocketAddress;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jboss.netty.channel.Channel;
+
 public class IpPort {
     public static final String SEPARATOR = ":";
     public final String ip;

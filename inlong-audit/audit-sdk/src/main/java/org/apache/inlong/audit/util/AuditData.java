@@ -54,6 +54,7 @@ public class AuditData {
     }
 
     /**
+     * Concatenated byte array
      * @param data1
      * @param data2
      * @return data1 and  data2 combined package result

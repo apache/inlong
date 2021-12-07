@@ -26,11 +26,6 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 public class Decoder extends FrameDecoder {
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;
-    /**
-     * Constructor
-     */
-    public Decoder() {
-    }
 
     /**
      * decoding
@@ -38,7 +33,8 @@ public class Decoder extends FrameDecoder {
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) {
         // Every time you need to read the complete package (that is, read to the end of the package),
-        // otherwise only the first one will be parsed correctly, which will adversely affect the parsing of the subsequent package
+        // otherwise only the first one will be parsed correctly,
+        // which will adversely affect the parsing of the subsequent package
         buffer.array();
         buffer.markReaderIndex();
         //Packet composition: 4 bytes length content + ProtocolBuffer content

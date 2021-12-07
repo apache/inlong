@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>audit-sdk</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>Apache InLong - Audit Sdk</name>
 
     <properties>
@@ -21,11 +21,6 @@
     </properties>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.inlong</groupId>-->
-<!--            <artifactId>audit-common</artifactId>-->
-<!--            <version>0.12.0-incubating-SNAPSHOT</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
@@ -41,16 +36,10 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.1.0</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>junit</groupId>-->
-<!--            <artifactId>junit</artifactId>-->
-<!--            <version>4.12</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,7 +52,6 @@
     <build>
         <plugins>
             <plugin>
-                <inherited>true</inherited>
                 <groupId> org.apache.maven.plugins </groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -72,29 +60,6 @@
                     <target>${compiler.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass></mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
             </plugin>
         </plugins>
     </build>

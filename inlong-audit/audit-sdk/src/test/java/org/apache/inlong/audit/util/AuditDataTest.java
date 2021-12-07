@@ -1,11 +1,12 @@
 package org.apache.inlong.audit.util;
 
 import org.apache.inlong.audit.protocol.AuditApi;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-class AuditDataTest {
+
+public class AuditDataTest {
     @Test
-    void increaseResendTimes() {
+    public void increaseResendTimes() {
         AuditApi.AuditRequest content = null;
         AuditData test = new AuditData(System.currentTimeMillis(), content, 1L);
         int resendTimes = test.increaseResendTimes();
@@ -17,7 +18,7 @@ class AuditDataTest {
     }
 
     @Test
-    void getDataByte() {
+    public void getDataByte() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
         AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header).addMsgBody(body).build();
@@ -28,6 +29,6 @@ class AuditDataTest {
     }
 
     @Test
-    void addBytes() {
+    public void addBytes() {
     }
 }

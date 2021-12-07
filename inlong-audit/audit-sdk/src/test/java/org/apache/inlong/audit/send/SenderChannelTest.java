@@ -8,11 +8,11 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
-class SenderChannelTest {
+public class SenderChannelTest {
     private ClientBootstrap client = new ClientBootstrap();
     private IpPort ipPortObj = new IpPort("127.0.0.1", 80);
     private ChannelFuture future;
@@ -44,30 +44,30 @@ class SenderChannelTest {
     }
 
     @Test
-    void tryAcquire() {
+    public void tryAcquire() {
         boolean ret = senderChannel.tryAcquire();
         System.out.println(ret);
     }
 
     @Test
-    void release() {
+    public void release() {
         senderChannel.release();
     }
 
     @Test
-    void testToString() {
+    public void testToString() {
         IpPort ipPort = senderChannel.getIpPort();
         System.out.println(ipPort);
     }
 
     @Test
-    void getIpPort() {
+    public void getIpPort() {
         String toString = senderChannel.toString();
         System.out.println(toString);
     }
 
     @Test
-    void getChannel() {
+    public void getChannel() {
         Channel channel = senderChannel.getChannel();
         System.out.println(channel.getConfig().getConnectTimeoutMillis());
         System.out.println(channel.getRemoteAddress());

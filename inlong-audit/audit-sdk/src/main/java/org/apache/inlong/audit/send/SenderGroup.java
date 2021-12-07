@@ -30,9 +30,9 @@ public class SenderGroup {
     public static final int DEFAULT_SYNCH_REQUESTS = 1;
 
     private ClientBootstrap client = new ClientBootstrap();
-    private List<LinkedBlockingQueue<SenderChannel>> channelGroups = new ArrayList<LinkedBlockingQueue<SenderChannel>>();
+    private List<LinkedBlockingQueue<SenderChannel>> channelGroups = new ArrayList<>();
     private int mIndex = 0;
-    private List<SenderChannel> deleteChannels = new ArrayList<SenderChannel>();
+    private List<SenderChannel> deleteChannels = new ArrayList<>();
     private ConcurrentHashMap<String, SenderChannel> totalChannels = new ConcurrentHashMap<>();
 
     private int senderThreadNum;
@@ -149,7 +149,7 @@ public class SenderGroup {
     }
 
     /**
-     * 释release channel
+     * release channel
      */
     public void release(InetSocketAddress addr) {
         String destIp = addr.getHostName();

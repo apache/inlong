@@ -32,7 +32,8 @@ public class Config {
                 NetworkInterface intf = en.nextElement();
                 String name = intf.getName();
                 if (!name.contains("docker") && !name.contains("lo")) {
-                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses();
+                         enumIpAddr.hasMoreElements(); ) {
                         InetAddress inetAddress = enumIpAddr.nextElement();
                         if (!inetAddress.isLoopbackAddress()) {
                             String ipaddress = inetAddress.getHostAddress();
@@ -66,16 +67,20 @@ public class Config {
                 dockerId = dockerID2.substring(n + 1, 12);
             }
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             return;
         } catch (NullPointerException e2) {
+            System.out.println(e2.getMessage());
             return;
         } catch (Exception e3) {
+            System.out.println(e3.getMessage());
             return;
         } finally {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e) {
+                } catch (IOException e4) {
+                    System.out.println(e4.getMessage());
                 }
             }
         }

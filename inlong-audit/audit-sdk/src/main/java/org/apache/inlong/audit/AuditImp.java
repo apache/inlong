@@ -1,8 +1,8 @@
 package org.apache.inlong.audit;
 
 //import org.apache.inlong.audit.protocol.AuditApi;
+
 import org.apache.inlong.audit.protocol.AuditApi;
-import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.send.SenderManager;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
@@ -52,7 +52,7 @@ public class AuditImp {
     public void init(String configFile) {
         this.configFile = configFile;
         config.init();
-        timer.schedule(timerTask, 1000 * 10, 1000 * 10);
+        timer.schedule(timerTask, 1000 * 60, 1000 * 60);
         this.manager = new SenderManager(config);
         this.manager.reload(this.configFile);
     }
@@ -69,11 +69,14 @@ public class AuditImp {
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
-        String key = (logTime / (60 * 1000)) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS + inlongStreamID + FIELD_SEPARATORS + auditID;
+        String key = (logTime / (60 * 1000)) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
+                + inlongStreamID + FIELD_SEPARATORS + auditID;
         addByKey(key, count, size, delayTime);
     }
 
     /**
+     * add by key
+     *
      * @param key
      * @param count
      * @param size
