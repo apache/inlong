@@ -58,7 +58,7 @@ import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
-import org.apache.inlong.agent.stats.SinkStatsManager;
+import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +86,12 @@ public class ProxySink extends AbstractSink {
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
 
+    private final SinkMetrics sinkMetrics;
+
+    public ProxySink(SinkMetrics sinkMetrics) {
+        this.sinkMetrics = sinkMetrics;
+    }
+
     @Override
     public void write(Message message) {
         if (message != null) {
@@ -107,10 +113,10 @@ public class ProxySink extends AbstractSink {
                         return packProxyMessage;
                     });
                 // increment the count of successful sinks
-                SinkStatsManager.incrSinkSuccessCount();
+                sinkMetrics.incSinkSuccessCount();
             } else {
                 // increment the count of failed sinks
-                SinkStatsManager.incrSinkFailCount();
+                sinkMetrics.incSinkFailCount();
             }
         }
     }

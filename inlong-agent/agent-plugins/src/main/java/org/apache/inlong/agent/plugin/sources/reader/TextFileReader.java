@@ -35,7 +35,7 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
-import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class TextFileReader implements Reader {
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
-    private final PluginMetric textFileMetric;
+    private final PluginJmxMetric textFileMetric;
     private List<Validator> validators = new ArrayList<>();
 
     public TextFileReader(File file, int position) {
@@ -65,7 +65,7 @@ public class TextFileReader implements Reader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
-        textFileMetric = new PluginMetric("AgentTextMetric");
+        textFileMetric = new PluginJmxMetric("AgentTextMetric");
     }
 
     public TextFileReader(File file) {
@@ -77,7 +77,7 @@ public class TextFileReader implements Reader {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
             if (validateMessage(message)) {
-                textFileMetric.readNum.incrementAndGet();
+                textFileMetric.incReadNum();
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -163,6 +163,6 @@ public class TextFileReader implements Reader {
     public void destroy() {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-            textFileMetric.tagName, textFileMetric.readNum.get());
+            textFileMetric.tagName, textFileMetric.getReadNum());
     }
 }

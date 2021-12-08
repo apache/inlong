@@ -50,9 +50,11 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.apache.inlong.agent.stats.SinkStatsManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
@@ -73,7 +75,8 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     private LinkedBlockingQueue<byte[]> cache;
     private final List<Producer<byte[]>> producerList = new ArrayList<>();
 
-    private final PluginMetric pluginMetricNew = new PluginMetric("AgentPulsarMetric");
+    private final PluginMetric pluginMetricNew = new PluginJmxMetric("AgentPulsarMetric");
+    private final SinkMetrics sinkMetrics = new SinkJmxMetric();
     private PulsarClient client;
 
     @Override
@@ -82,14 +85,14 @@ public class PulsarSink extends AbstractDaemon implements Sink {
             // if message is not null
             try {
                 // put message to cache, wait until cache is not full.
-                pluginMetricNew.sendNum.incrementAndGet();
+                pluginMetricNew.incSendNum();
                 cache.put(message.getBody());
                 // increment the count of successful sinks
-                SinkStatsManager.incrSinkSuccessCount();
+                sinkMetrics.incSinkSuccessCount();
             } catch (Exception ignored) {
                 // ignore it
                 // increment the count of failed sinks
-                SinkStatsManager.incrSinkFailCount();
+                sinkMetrics.incSinkFailCount();
             }
         }
     }
@@ -121,7 +124,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
         try {
             stop();
             LOGGER.info("send success num is {}, failed num is {}",
-                pluginMetricNew.sendSuccessNum.get(), pluginMetricNew.sendFailedNum.get());
+                pluginMetricNew.getSendSuccessNum(), pluginMetricNew.getSendFailedNum());
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         }
@@ -141,12 +144,12 @@ public class PulsarSink extends AbstractDaemon implements Sink {
                 // exception is not null, that means not success.
                 // TODO: add metric or retry sending message.
                 if (t != null) {
-                    pluginMetricNew.sendFailedNum.incrementAndGet();
+                    pluginMetricNew.incSendFailedNum();
                     if (!cache.offer(item)) {
                         LOGGER.warn("message {} not add back to retry", m);
                     }
                 } else {
-                    pluginMetricNew.sendSuccessNum.incrementAndGet();
+                    pluginMetricNew.incSendSuccessNum();
                 }
             });
         } else {

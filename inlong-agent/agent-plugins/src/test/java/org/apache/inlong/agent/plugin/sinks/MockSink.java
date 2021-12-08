@@ -27,7 +27,8 @@ import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
-import org.apache.inlong.agent.stats.SinkStatsManager;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,16 +42,18 @@ public class MockSink implements Sink {
     private String jobInstanceId;
     private long dataTime;
 
+    private final SinkMetrics sinkMetrics = new SinkJmxMetric();
+
     @Override
     public void write(Message message) {
         if (message != null) {
             number.incrementAndGet();
             taskPositionManager.updateFileSinkPosition(jobInstanceId, sourceFileName, 1);
             // increment the count of successful sinks
-            SinkStatsManager.incrSinkSuccessCount();
+            sinkMetrics.incSinkSuccessCount();
         } else {
             // increment the count of failed sinks
-            SinkStatsManager.incrSinkFailCount();
+            sinkMetrics.incSinkFailCount();
         }
     }
 

@@ -23,6 +23,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constants.AgentConstants;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class MemoryChannel implements Channel {
 
     private LinkedBlockingQueue<Message> queue;
 
-    private final PluginMetric pluginMetricNew = new PluginMetric("AgentMemoryPlugin");
+    private final PluginMetric pluginMetricNew = new PluginJmxMetric("AgentMemoryPlugin");
 
     /**
      * {@inheritDoc}
@@ -42,12 +43,12 @@ public class MemoryChannel implements Channel {
     public void push(Message message) {
         try {
             if (message != null) {
-                pluginMetricNew.readNum.incrementAndGet();
+                pluginMetricNew.incReadNum();
                 queue.put(message);
-                pluginMetricNew.readSuccessNum.incrementAndGet();
+                pluginMetricNew.incReadSuccessNum();
             }
         } catch (InterruptedException ex) {
-            pluginMetricNew.readFailedNum.incrementAndGet();
+            pluginMetricNew.incReadFailedNum();
             Thread.currentThread().interrupt();
         }
     }
@@ -56,17 +57,17 @@ public class MemoryChannel implements Channel {
     public boolean push(Message message, long timeout, TimeUnit unit) {
         try {
             if (message != null) {
-                pluginMetricNew.readNum.incrementAndGet();
+                pluginMetricNew.incReadNum();
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
-                    pluginMetricNew.readSuccessNum.incrementAndGet();
+                    pluginMetricNew.incReadSuccessNum();
                 } else {
-                    pluginMetricNew.readFailedNum.incrementAndGet();
+                    pluginMetricNew.incReadFailedNum();
                 }
                 return result;
             }
         } catch (InterruptedException ex) {
-            pluginMetricNew.readFailedNum.incrementAndGet();
+            pluginMetricNew.incReadFailedNum();
             Thread.currentThread().interrupt();
         }
         return false;
@@ -80,11 +81,11 @@ public class MemoryChannel implements Channel {
         try {
             Message message = queue.poll(timeout, unit);
             if (message != null) {
-                pluginMetricNew.sendSuccessNum.incrementAndGet();
+                pluginMetricNew.incSendSuccessNum();
             }
             return message;
         } catch (InterruptedException ex) {
-            pluginMetricNew.sendFailedNum.incrementAndGet();
+            pluginMetricNew.incSendFailedNum();
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ex);
         }
@@ -104,8 +105,8 @@ public class MemoryChannel implements Channel {
         }
         LOGGER.info("destroy channel, memory channel metric, readNum: {}, readSuccessNum: {}, "
             + "readFailedNum: {}, sendSuccessNum: {}, sendFailedNum: {}",
-            pluginMetricNew.readNum.get(), pluginMetricNew.readSuccessNum.get(),
-            pluginMetricNew.readFailedNum.get(), pluginMetricNew.sendSuccessNum.get(),
-            pluginMetricNew.sendFailedNum.get());
+            pluginMetricNew.getReadNum(), pluginMetricNew.getReadSuccessNum(),
+            pluginMetricNew.getReadFailedNum(), pluginMetricNew.getSendSuccessNum(),
+            pluginMetricNew.getSendFailedNum());
     }
 }

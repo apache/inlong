@@ -33,6 +33,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constants.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.message.SequentialID;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.dataproxy.ProxyClientConfig;
@@ -83,7 +84,7 @@ public class SenderManager {
     private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
     private final String sourceFilePath;
-    private final PluginMetric metric = new PluginMetric("AgentSenderManager");
+    private final PluginMetric metric = new PluginJmxMetric("AgentSenderManager");
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourceFilePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -194,7 +195,7 @@ public class SenderManager {
                 sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
-            metric.sendSuccessNum.addAndGet(bodyList.size());
+            metric.incSendSuccessNum(bodyList.size());
             taskPositionManager.updateFileSinkPosition(jobId, sourceFilePath, bodyList.size());
         }
 

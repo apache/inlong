@@ -27,6 +27,8 @@ import java.util.List;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.junit.AfterClass;
@@ -66,7 +68,8 @@ public class TestDateFormatRegex {
     public void testFileFilter() throws Exception {
         String currentDate = AgentUtils.formatCurrentTime("yyyyMMdd");
         Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
-        TextFileSource source = new TextFileSource();
+        SourceMetrics sourceMetrics = new SourceJmxMetric();
+        TextFileSource source = new TextFileSource(sourceMetrics);
         JobProfile profile = new JobProfile();
         profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");

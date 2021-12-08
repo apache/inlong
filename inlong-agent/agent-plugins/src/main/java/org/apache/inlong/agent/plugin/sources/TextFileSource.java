@@ -30,9 +30,9 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.apache.inlong.agent.stats.SourceStatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,12 @@ public class TextFileSource implements Source {
 
     // path + suffix
     public static final String MD5_SUFFIX = ".md5";
+
+    private final SourceMetrics sourceMetrics;
+
+    public TextFileSource(SourceMetrics sourceMetrics) {
+        this.sourceMetrics = sourceMetrics;
+    }
 
     @Override
     public List<Reader> split(JobProfile jobConf) {
@@ -62,7 +68,7 @@ public class TextFileSource implements Source {
             result.add(textFileReader);
         }
         // increment the count of successful sources
-        SourceStatsManager.incrSourceSuccessCount();
+        sourceMetrics.incSourceSuccessCount();
         return result;
     }
 

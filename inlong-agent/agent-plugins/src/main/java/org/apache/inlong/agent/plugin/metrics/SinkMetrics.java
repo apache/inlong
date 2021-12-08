@@ -17,33 +17,28 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.plugin.metrics;
 
-public interface TaskMetrics {
-
-    /**
-     * Increment the running task metric.
-     */
-    void incRunningTaskCount();
+public interface SinkMetrics {
 
     /**
-     * Decrement the running task metric.
+     * Count the sink success message count in agent sink since agent started.
      */
-    void decRunningTaskCount();
+    void incSinkSuccessCount();
 
     /**
-     * Increment the retrying task metric.
+     * @return Count of the sink success metric.
      */
-    void incRetryingTaskCount();
+    long getSinkSuccessCount();
 
     /**
-     * Decrement the retrying task metric.
+     * Count the sink failed message count in agent sink since agent started.
      */
-    void decRetryingTaskCount();
+    void incSinkFailCount();
 
     /**
-     * Increment the fatal task metric.
+     * @return Count of the sink failed metric.
      */
-    void incFatalTaskCount();
+    long getSinkFailCount();
 
 }

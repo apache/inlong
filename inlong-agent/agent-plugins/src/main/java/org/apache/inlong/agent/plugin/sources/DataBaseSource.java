@@ -22,8 +22,8 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
-import org.apache.inlong.agent.stats.SourceStatsManager;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 
 /**
@@ -32,6 +32,12 @@ import org.apache.inlong.agent.utils.AgentDbUtils;
 public class DataBaseSource implements Source {
 
     private static final String JOB_DATABASE_SQL = "job.database.sql";
+
+    private final SourceMetrics sourceMetrics;
+
+    public DataBaseSource(SourceMetrics sourceMetrics) {
+        this.sourceMetrics = sourceMetrics;
+    }
 
     /**
      * Use SQL to read data.
@@ -65,11 +71,11 @@ public class DataBaseSource implements Source {
         }
         if (readerList != null) {
             // increment the count of successful sources
-            SourceStatsManager.incrSourceSuccessCount();
+            sourceMetrics.incSourceSuccessCount();
         } else {
             // database type or sql is incorrect
             // increment the count of failed sources
-            SourceStatsManager.incrSourceFailCount();
+            sourceMetrics.incSourceFailCount();
         }
         return readerList;
     }
