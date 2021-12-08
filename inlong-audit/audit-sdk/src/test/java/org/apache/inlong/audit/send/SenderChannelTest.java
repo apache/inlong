@@ -35,6 +35,9 @@ public class SenderChannelTest {
     private ChannelFuture future;
     SenderChannel senderChannel;
 
+    /**
+     * test  SenderChannel
+     */
     public SenderChannelTest() {
         try {
             client.setFactory(new NioClientSocketChannelFactory(

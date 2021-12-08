@@ -21,7 +21,6 @@ import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.Config;
 import org.junit.Test;
 
-
 public class SenderManagerTest {
     private Config testConfig = new Config();
 
@@ -35,21 +34,22 @@ public class SenderManagerTest {
     @Test
     public void nextRequestId() {
         SenderManager testManager = new SenderManager(testConfig);
-        Long RequestId = testManager.nextRequestId();
-        System.out.println(RequestId);
+        Long requestId = testManager.nextRequestId();
+        System.out.println(requestId);
 
-        RequestId = testManager.nextRequestId();
-        System.out.println(RequestId);
+        requestId = testManager.nextRequestId();
+        System.out.println(requestId);
 
-        RequestId = testManager.nextRequestId();
-        System.out.println(RequestId);
+        requestId = testManager.nextRequestId();
+        System.out.println(requestId);
     }
 
     @Test
     public void send() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header).addMsgBody(body).build();
+        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
+                                        .addMsgBody(body).build();
         SenderManager testManager = new SenderManager(testConfig);
         testManager.send(System.currentTimeMillis(), content);
     }

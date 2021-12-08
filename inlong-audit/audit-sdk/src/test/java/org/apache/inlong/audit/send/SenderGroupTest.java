@@ -38,7 +38,8 @@ public class SenderGroupTest {
     public void send() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header).addMsgBody(body).build();
+        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
+                                        .addMsgBody(body).build();
         AuditData testData = new AuditData(System.currentTimeMillis(), content, 1L);
         ChannelBuffer dataBuf = ChannelBuffers.wrappedBuffer(testData.getDataByte());
         sender.send(dataBuf);

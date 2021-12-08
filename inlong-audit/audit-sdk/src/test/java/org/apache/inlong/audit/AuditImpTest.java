@@ -17,15 +17,10 @@
 
 package org.apache.inlong.audit;
 
-
 import org.junit.Test;
 
 public class AuditImpTest {
-    @Test
-    public void init() {
-        AuditImp.getInstance().init("inlog_audit.txt");
-    }
-
+    
     @Test
     public void add() {
         AuditImp.getInstance().init("inlog_audit.txt");
