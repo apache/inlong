@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 
 /**
@@ -125,11 +127,15 @@ public class AgentMain {
             manager.start();
             stopManagerIfKilled(manager);
 
-            // starting metrics server
-            int metricsServerPort = AgentConfiguration.getAgentConf()
-                    .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
-            LOGGER.info("Starting prometheus metrics server on port {}", metricsServerPort);
-            metricsServer = new HTTPServer(metricsServerPort);
+            boolean enablePrometheus = AgentConfiguration.getAgentConf()
+                    .getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);
+            if (enablePrometheus) {
+                // starting metrics server
+                int metricsServerPort = AgentConfiguration.getAgentConf()
+                        .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
+                LOGGER.info("Starting prometheus metrics server on port {}", metricsServerPort);
+                metricsServer = new HTTPServer(metricsServerPort);
+            }
 
             manager.join();
         } catch (Exception ex) {
