@@ -32,6 +32,7 @@
     <name>Apache InLong - Sort - Standalone</name>
 
     <modules>
+        <module>sort-standalone-common</module>
         <module>sort-standalone-source</module>
         <module>sort-standalone-dist</module>
     </modules>
@@ -42,6 +43,12 @@
         <flume.version>1.9.0</flume.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <pulsar.version>2.7.2</pulsar.version>
+        <junit.version>4.13</junit.version>
+        <guava.version>19.0</guava.version>
+        <skipTests>false</skipTests>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <compiler.source>1.8</compiler.source>
+        <compiler.target>1.8</compiler.target>
     </properties>
 
     <dependencies>
@@ -69,6 +76,29 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>inlong-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>2.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>2.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
