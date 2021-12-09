@@ -22,7 +22,7 @@ package org.apache.inlong.sort.standalone.config.pojo.type;
  */
 public enum DataType {
 
-    TEXT("text"), PB("pb"), JCE("jce"), N("n");
+    TEXT("text"), PB("pb"), JCE("jce"), UNKNOWN("n");
 
     private final String value;
 
@@ -65,6 +65,6 @@ public enum DataType {
                 return v;
             }
         }
-        return N;
+        return UNKNOWN;
     }
 }

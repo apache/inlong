@@ -78,7 +78,6 @@ public final class SortClusterConfigHolder {
                 }
             } catch (Throwable t) {
                 LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
-                LOG.error(t.getMessage(), t);
             }
             if (instance.loader == null) {
                 instance.loader = new ClassResourceSortClusterConfigLoader();
