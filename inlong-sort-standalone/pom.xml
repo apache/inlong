@@ -50,6 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.source>1.8</compiler.source>
         <compiler.target>1.8</compiler.target>
+		<pulsar.version>2.7.2</pulsar.version>
     </properties>
 
     <dependencies>
@@ -83,6 +84,17 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+		<dependency>
+			<groupId>org.apache.pulsar</groupId>
+			<artifactId>pulsar-client</artifactId>
+			<version>${pulsar.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
