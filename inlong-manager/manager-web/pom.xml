@@ -126,6 +126,15 @@
                     <include>*.sh</include>
                 </includes>
             </resource>
+            <!-- Filter sql files to sql directory -->
+            <resource>
+                <directory>sql</directory>
+                <filtering>true</filtering>
+                <targetPath>sql</targetPath>
+                <includes>
+                    <include>*.sql</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>
