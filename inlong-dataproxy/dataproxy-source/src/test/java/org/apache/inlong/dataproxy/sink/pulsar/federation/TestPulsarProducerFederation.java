@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
-import org.apache.inlong.dataproxy.config.loader.TestContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.MessageId;
@@ -51,10 +50,10 @@ import org.slf4j.LoggerFactory;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({PulsarClient.class, ClientBuilder.class, MessageId.class,
-    Producer.class, ProducerBuilder.class, TypedMessageBuilder.class})
+        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class})
 public class TestPulsarProducerFederation {
 
-    public static final Logger LOG = LoggerFactory.getLogger(TestContextIdTopicConfigLoader.class);
+    public static final Logger LOG = LoggerFactory.getLogger(TestPulsarProducerFederation.class);
     public static Context context;
     public static Context sinkContext;
 
