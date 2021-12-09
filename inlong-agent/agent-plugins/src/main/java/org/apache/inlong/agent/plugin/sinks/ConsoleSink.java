@@ -22,17 +22,26 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
+import org.apache.inlong.agent.utils.ConfigUtil;
 
 /**
  * message write to console
  */
 public class ConsoleSink implements Sink {
 
+    private static final String CONSOLE_SINK_TAG_NAME = "AgentConsoleSinkMetric";
+
     private final SinkMetrics sinkMetrics;
 
-    public ConsoleSink(SinkMetrics sinkMetrics) {
-        this.sinkMetrics = sinkMetrics;
+    public ConsoleSink() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sinkMetrics = new SinkPrometheusMetrics(CONSOLE_SINK_TAG_NAME);
+        } else {
+            this.sinkMetrics = new SinkJmxMetric(CONSOLE_SINK_TAG_NAME);
+        }
     }
 
     @Override

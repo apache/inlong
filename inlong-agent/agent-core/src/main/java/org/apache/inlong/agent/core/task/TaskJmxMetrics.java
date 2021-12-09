@@ -37,7 +37,7 @@ public class TaskJmxMetrics extends MetricItem implements TaskMetrics {
 
     private static final TaskJmxMetrics JOB_METRICS = new TaskJmxMetrics();
     private static final AtomicBoolean REGISTER_ONCE = new AtomicBoolean(false);
-    public static final String AGENT_TASK = "AgentTaskMetric";
+    private static final String AGENT_TASK = "AgentTaskMetric";
 
     @Dimension
     public String module;
@@ -50,6 +50,9 @@ public class TaskJmxMetrics extends MetricItem implements TaskMetrics {
 
     @CountMetric
     private final AtomicLong fatalTasks = new AtomicLong(0);
+
+    private TaskJmxMetrics() {
+    }
 
     public static TaskJmxMetrics create() {
         // register one time.

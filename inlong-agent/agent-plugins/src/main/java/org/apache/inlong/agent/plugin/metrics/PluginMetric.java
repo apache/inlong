@@ -20,6 +20,11 @@ package org.apache.inlong.agent.plugin.metrics;
 public interface PluginMetric {
 
     /**
+     * @return The tag name of plugin metrics.
+     */
+    String getTagName();
+
+    /**
      * Increment the count of the read number metric.
      */
     void incReadNum();

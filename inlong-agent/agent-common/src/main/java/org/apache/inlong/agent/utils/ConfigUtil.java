@@ -17,33 +17,18 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.plugin.metrics;
+package org.apache.inlong.agent.utils;
 
-public interface SinkMetrics {
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
+import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_ENABLE;
 
-    /**
-     * @return The tag name of sink metrics.
-     */
-    String getTagName();
+import org.apache.inlong.agent.conf.AgentConfiguration;
 
-    /**
-     * Count the sink success message count in agent sink since agent started.
-     */
-    void incSinkSuccessCount();
+public class ConfigUtil {
 
-    /**
-     * @return Count of the sink success metric.
-     */
-    long getSinkSuccessCount();
-
-    /**
-     * Count the sink failed message count in agent sink since agent started.
-     */
-    void incSinkFailCount();
-
-    /**
-     * @return Count of the sink failed metric.
-     */
-    long getSinkFailCount();
+    public static boolean isPrometheusEnabled() {
+        AgentConfiguration conf = AgentConfiguration.getAgentConf();
+        return conf.getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);
+    }
 
 }

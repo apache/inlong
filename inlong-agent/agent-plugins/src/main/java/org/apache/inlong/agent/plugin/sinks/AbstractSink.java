@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSink implements Sink {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSink.class);
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {

@@ -36,14 +36,20 @@ import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TextFileReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
+
+    private static final String TEXT_FILE_READER_TAG_NAME = "AgentTextMetric";
+
     public static final int NEVER_STOP_SIGN = -1;
 
     private final File file;
@@ -54,7 +60,7 @@ public class TextFileReader implements Reader {
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
-    private final PluginJmxMetric textFileMetric;
+    private final PluginMetric textFileMetric;
     private List<Validator> validators = new ArrayList<>();
 
     public TextFileReader(File file, int position) {
@@ -65,7 +71,12 @@ public class TextFileReader implements Reader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
-        textFileMetric = new PluginJmxMetric("AgentTextMetric");
+
+        if (ConfigUtil.isPrometheusEnabled()) {
+            textFileMetric = new PluginPrometheusMetric(TEXT_FILE_READER_TAG_NAME);
+        } else {
+            textFileMetric = new PluginJmxMetric(TEXT_FILE_READER_TAG_NAME);
+        }
     }
 
     public TextFileReader(File file) {
@@ -163,6 +174,6 @@ public class TextFileReader implements Reader {
     public void destroy() {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-            textFileMetric.tagName, textFileMetric.getReadNum());
+            textFileMetric.getTagName(), textFileMetric.getReadNum());
     }
 }

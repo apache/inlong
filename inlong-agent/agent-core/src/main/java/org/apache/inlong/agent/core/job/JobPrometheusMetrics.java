@@ -26,31 +26,35 @@ public class JobPrometheusMetrics implements JobMetrics {
 
     public static final String AGENT_JOB_METRICS_PREFIX = "inlong_agent_job_";
 
-    public static final String RUNNING_JOB_GAUGE_NAME = "running_job_gauge";
-    public static final String FATAL_JOB_COUNTER_NAME = "fatal_job_counter";
+    public static final String RUNNING_JOB_GAUGE_NAME = "running_job_count";
+    public static final String FATAL_JOB_COUNTER_NAME = "fatal_job_count";
 
-    private final Gauge runningJobGauge = Gauge.build()
+    private static final String AGENT_JOB_METRIC = "AgentJobMetric";
+
+    private static final Gauge RUNNING_JOB_GAUGE = Gauge.build()
             .name(AGENT_JOB_METRICS_PREFIX + RUNNING_JOB_GAUGE_NAME)
             .help("The count of jobs currently running.")
+            .labelNames("tag")
             .register();
 
-    private final Counter fatalJobCounter = Counter.build()
+    private static final Counter FATAL_JOB_COUNTER = Counter.build()
             .name(AGENT_JOB_METRICS_PREFIX + FATAL_JOB_COUNTER_NAME)
             .help("The total number of current fatal jobs.")
+            .labelNames("tag")
             .register();
 
     @Override
     public void incRunningJobCount() {
-        runningJobGauge.inc();
+        RUNNING_JOB_GAUGE.labels(AGENT_JOB_METRIC).inc();
     }
 
     @Override
     public void decRunningJobCount() {
-        runningJobGauge.dec();
+        RUNNING_JOB_GAUGE.labels(AGENT_JOB_METRIC).dec();
     }
 
     @Override
     public void incFatalJobCount() {
-        fatalJobCounter.inc();
+        FATAL_JOB_COUNTER.labels(AGENT_JOB_METRIC).inc();
     }
 }

@@ -22,6 +22,11 @@ package org.apache.inlong.agent.plugin.metrics;
 public interface SourceMetrics {
 
     /**
+     * @return The tag name of source metrics.
+     */
+    String getTagName();
+
+    /**
      * Count the source success message count in agent source since agent started.
      */
     void incSourceSuccessCount();

@@ -34,7 +34,7 @@ import org.apache.inlong.commons.config.metrics.MetricRegister;
 public class PluginJmxMetric extends MetricItem implements PluginMetric {
 
     @Dimension
-    public String tagName;
+    private final String tagName;
 
     @Metric
     private final AtomicLong readNum = new AtomicLong(0);
@@ -57,6 +57,11 @@ public class PluginJmxMetric extends MetricItem implements PluginMetric {
     public PluginJmxMetric(String tagName) {
         this.tagName = tagName;
         MetricRegister.register(this);
+    }
+
+    @Override
+    public String getTagName() {
+        return tagName;
     }
 
     @Override

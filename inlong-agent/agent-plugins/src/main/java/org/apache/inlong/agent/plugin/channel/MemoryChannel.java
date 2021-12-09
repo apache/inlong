@@ -25,6 +25,8 @@ import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +34,19 @@ public class MemoryChannel implements Channel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
+    private static final String MEMORY_CHANNEL_TAG_NAME = "AgentMemoryPlugin";
+
     private LinkedBlockingQueue<Message> queue;
 
-    private final PluginMetric pluginMetricNew = new PluginJmxMetric("AgentMemoryPlugin");
+    private final PluginMetric pluginMetricNew;
+
+    public MemoryChannel() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.pluginMetricNew = new PluginPrometheusMetric(MEMORY_CHANNEL_TAG_NAME);
+        } else {
+            this.pluginMetricNew = new PluginJmxMetric(MEMORY_CHANNEL_TAG_NAME);
+        }
+    }
 
     /**
      * {@inheritDoc}

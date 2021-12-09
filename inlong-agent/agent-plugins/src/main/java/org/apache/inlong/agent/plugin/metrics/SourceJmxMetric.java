@@ -20,12 +20,18 @@
 package org.apache.inlong.agent.plugin.metrics;
 
 import org.apache.inlong.agent.metrics.Metric;
+import org.apache.inlong.commons.config.metrics.Dimension;
+import org.apache.inlong.commons.config.metrics.MetricDomain;
 import org.apache.inlong.commons.config.metrics.MetricItem;
 import org.apache.inlong.commons.config.metrics.MetricRegister;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+@MetricDomain(name = "SourceMetric")
 public class SourceJmxMetric extends MetricItem implements SourceMetrics {
+
+    @Dimension
+    private final String tagName;
 
     @Metric
     private final AtomicLong sourceSuccessCounter = new AtomicLong(0);
@@ -33,8 +39,14 @@ public class SourceJmxMetric extends MetricItem implements SourceMetrics {
     @Metric
     private final AtomicLong sourceFailCounter = new AtomicLong(0);
 
-    public SourceJmxMetric() {
+    public SourceJmxMetric(String tagName) {
+        this.tagName = tagName;
         MetricRegister.register(this);
+    }
+
+    @Override
+    public String getTagName() {
+        return tagName;
     }
 
     @Override

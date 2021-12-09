@@ -29,6 +29,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constants.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,12 @@ public class TaskManager extends AbstractDaemon {
             new SynchronousQueue<>(),
             new AgentThreadFactory("task"));
         // metric for task level
-        taskMetrics = TaskJmxMetrics.create();
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.taskMetrics = new TaskPrometheusMetrics();
+        } else {
+            this.taskMetrics = TaskJmxMetrics.create();
+        }
+
         tasks = new ConcurrentHashMap<>();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         retryTasks = new LinkedBlockingQueue<>(

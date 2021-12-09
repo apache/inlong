@@ -28,33 +28,46 @@ public class SinkPrometheusMetrics implements SinkMetrics {
     public static final String SINK_SUCCESS_COUNTER_NAME = "success_count";
     public static final String SINK_FAIL_COUNTER_NAME = "fail_count";
 
-    private final Counter sinkSuccessCounter = Counter.build()
+    private final String tagName;
+
+    private static final Counter SINK_SUCCESS_COUNTER = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_SUCCESS_COUNTER_NAME)
             .help("The success message count in agent sink since agent started.")
+            .labelNames("tag")
             .register();
 
-    private final Counter sinkFailCounter = Counter.build()
+    private static final Counter SINK_FAIL_COUNTER = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_FAIL_COUNTER_NAME)
             .help("The failed message count in agent sink since agent started.")
+            .labelNames("tag")
             .register();
+
+    public SinkPrometheusMetrics(String tagName) {
+        this.tagName = tagName;
+    }
+
+    @Override
+    public String getTagName() {
+        return tagName;
+    }
 
     @Override
     public void incSinkSuccessCount() {
-        sinkSuccessCounter.inc();
+        SINK_SUCCESS_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSinkSuccessCount() {
-        return (long) sinkSuccessCounter.get();
+        return (long) SINK_SUCCESS_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incSinkFailCount() {
-        sinkFailCounter.inc();
+        SINK_FAIL_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSinkFailCount() {
-        return (long) sinkFailCounter.get();
+        return (long) SINK_FAIL_COUNTER.labels(tagName).get();
     }
 }

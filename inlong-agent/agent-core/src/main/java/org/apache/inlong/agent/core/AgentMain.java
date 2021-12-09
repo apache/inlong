@@ -26,14 +26,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
-import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 
 /**
@@ -127,9 +126,7 @@ public class AgentMain {
             manager.start();
             stopManagerIfKilled(manager);
 
-            boolean enablePrometheus = AgentConfiguration.getAgentConf()
-                    .getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);
-            if (enablePrometheus) {
+            if (ConfigUtil.isPrometheusEnabled()) {
                 // starting metrics server
                 int metricsServerPort = AgentConfiguration.getAgentConf()
                         .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);

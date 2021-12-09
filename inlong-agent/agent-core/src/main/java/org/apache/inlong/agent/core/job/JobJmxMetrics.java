@@ -46,6 +46,9 @@ public class JobJmxMetrics extends MetricItem implements JobMetrics {
     @CountMetric
     private final AtomicLong fatalJobs = new AtomicLong(0);
 
+    private JobJmxMetrics() {
+    }
+
     public static JobJmxMetrics create() {
         if (REGISTER_ONCE.compareAndSet(false, true)) {
             JOB_METRICS.tagName = AGENT_JOB_METRIC;

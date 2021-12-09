@@ -52,10 +52,13 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
@@ -66,6 +69,9 @@ import org.slf4j.LoggerFactory;
 
 public class PulsarSink extends AbstractDaemon implements Sink {
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSink.class);
+
+    private static final String PULSAR_SINK_TAG_NAME = "AgentPulsarMetric";
+
     private boolean async;
     private long pollTimeout;
     private int threadNum;
@@ -75,9 +81,19 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     private LinkedBlockingQueue<byte[]> cache;
     private final List<Producer<byte[]>> producerList = new ArrayList<>();
 
-    private final PluginMetric pluginMetricNew = new PluginJmxMetric("AgentPulsarMetric");
-    private final SinkMetrics sinkMetrics = new SinkJmxMetric();
+    private final PluginMetric pluginMetricNew;
+    private final SinkMetrics sinkMetrics;
     private PulsarClient client;
+
+    public PulsarSink() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.pluginMetricNew = new PluginPrometheusMetric(PULSAR_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkPrometheusMetrics(PULSAR_SINK_TAG_NAME);
+        } else {
+            this.pluginMetricNew = new PluginJmxMetric(PULSAR_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkJmxMetric(PULSAR_SINK_TAG_NAME);
+        }
+    }
 
     @Override
     public void write(Message message) {

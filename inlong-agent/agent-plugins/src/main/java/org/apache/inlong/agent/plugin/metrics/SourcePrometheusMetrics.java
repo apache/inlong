@@ -26,6 +26,8 @@ public class SourcePrometheusMetrics implements SourceMetrics {
     public static final String SOURCE_SUCCESS_COUNTER_NAME = "success_count";
     public static final String SOURCE_FAIL_COUNTER_NAME = "fail_count";
 
+    private final String tagName;
+
     private final Counter sourceSuccessCounter = Counter.build()
             .name(AGENT_SOURCE_METRICS_PREFIX + SOURCE_SUCCESS_COUNTER_NAME)
             .help("The success message count in agent source since agent started.")
@@ -36,23 +38,32 @@ public class SourcePrometheusMetrics implements SourceMetrics {
             .help("The failed message count in agent source since agent started.")
             .register();
 
+    public SourcePrometheusMetrics(String tagName) {
+        this.tagName = tagName;
+    }
+
+    @Override
+    public String getTagName() {
+        return tagName;
+    }
+
     @Override
     public void incSourceSuccessCount() {
-        sourceSuccessCounter.inc();
+        sourceSuccessCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSourceSuccessCount() {
-        return (long) sourceSuccessCounter.get();
+        return (long) sourceSuccessCounter.labels(tagName).get();
     }
 
     @Override
     public void incSourceFailCount() {
-        sourceFailCounter.inc();
+        sourceFailCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSourceFailCount() {
-        return (long) sourceFailCounter.get();
+        return (long) sourceFailCounter.labels(tagName).get();
     }
 }

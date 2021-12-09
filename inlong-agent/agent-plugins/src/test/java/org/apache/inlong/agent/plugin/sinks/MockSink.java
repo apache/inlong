@@ -29,20 +29,33 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MockSink implements Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MockSink.class);
+
+    public static final String MOCK_SINK_TAG_NAME = "AgentMockSinkMetric";
+
     private final AtomicLong number = new AtomicLong(0);
     private TaskPositionManager taskPositionManager;
     private String sourceFileName;
     private String jobInstanceId;
     private long dataTime;
 
-    private final SinkMetrics sinkMetrics = new SinkJmxMetric();
+    private final SinkMetrics sinkMetrics ;
+
+    public MockSink() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sinkMetrics = new SinkPrometheusMetrics(MOCK_SINK_TAG_NAME);
+        } else {
+            this.sinkMetrics = new SinkJmxMetric(MOCK_SINK_TAG_NAME);
+        }
+    }
 
     @Override
     public void write(Message message) {
