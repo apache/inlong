@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sinks;
 import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
 import org.slf4j.Logger;

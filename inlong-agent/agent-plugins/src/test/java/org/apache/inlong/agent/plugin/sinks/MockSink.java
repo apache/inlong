@@ -47,7 +47,7 @@ public class MockSink implements Sink {
     private String jobInstanceId;
     private long dataTime;
 
-    private final SinkMetrics sinkMetrics ;
+    private final SinkMetrics sinkMetrics;
 
     public MockSink() {
         if (ConfigUtil.isPrometheusEnabled()) {

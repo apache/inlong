@@ -58,8 +58,6 @@ import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
-import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
 import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
