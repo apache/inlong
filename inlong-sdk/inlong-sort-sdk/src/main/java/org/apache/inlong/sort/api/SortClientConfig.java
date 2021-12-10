@@ -35,8 +35,6 @@ public class SortClientConfig implements Serializable {
     private InLongTopicChangeListener assignmentsListener;
     //回调消费给DDS
     private ReadCallback callback;
-    private int callbackCorePoolSize = 10;
-    private int callbackMaximumPoolSize = 20;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
 
@@ -123,22 +121,6 @@ public class SortClientConfig implements Serializable {
      */
     public void setCallback(ReadCallback callback) {
         this.callback = callback;
-    }
-
-    public int getCallbackCorePoolSize() {
-        return callbackCorePoolSize;
-    }
-
-    public void setCallbackCorePoolSize(int callbackCorePoolSize) {
-        this.callbackCorePoolSize = callbackCorePoolSize;
-    }
-
-    public int getCallbackMaximumPoolSize() {
-        return callbackMaximumPoolSize;
-    }
-
-    public void setCallbackMaximumPoolSize(int callbackMaximumPoolSize) {
-        this.callbackMaximumPoolSize = callbackMaximumPoolSize;
     }
 
     public int getCallbackQueueSize() {

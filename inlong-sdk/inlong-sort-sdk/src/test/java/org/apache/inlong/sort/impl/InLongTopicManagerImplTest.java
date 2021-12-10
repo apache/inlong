@@ -53,19 +53,23 @@ public class InLongTopicManagerImplTest {
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
 
-        PulsarClient pulsarClient = PowerMockito.mock(PulsarClient.class);
-        ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
-        pulsarClients.put("test", pulsarClient);
-
-        inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
-        System.out.println(inLongTopicFetcher);
-
     }
 
+    @Test
     public void testRemoveFetcher() {
+
+        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.removeFetcher(inLongTopic, true);
+        Assert.assertNull(inLongTopicFetcher);
+
     }
 
+    @Test
     public void testGetFetcher() {
+        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InLongTopicFetcher fetcher = inLongTopicManager.getFetcher(inLongTopic.getTopicKey());
+        Assert.assertNull(fetcher);
+
     }
 
     public void testGetManagedInLongTopics() {
@@ -80,11 +84,3 @@ public class InLongTopicManagerImplTest {
     public void testClean() {
     }
 }
-/*
-        try {
-            List<ConsumeTopicPartition> tps = Whitebox.invokeMethod(MasterMain.getInstance(), "getTpsByCid", cid);
-            System.out.println(tps);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
- */

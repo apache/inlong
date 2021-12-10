@@ -19,10 +19,6 @@
 
 package org.apache.inlong.sort.api;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sort.stat.StatManager;
 
 public abstract class ClientContext implements Cleanable {
@@ -30,19 +26,10 @@ public abstract class ClientContext implements Cleanable {
     protected final SortClientConfig config;
 
     protected final StatManager statManager;
-    private final Executor executor;
 
     public ClientContext(SortClientConfig config, MetricReporter reporter) {
         this.config = config;
         this.statManager = new StatManager(this, reporter);
-
-        executor = new ThreadPoolExecutor(
-                config.getCallbackCorePoolSize(),
-                config.getCallbackMaximumPoolSize(),
-                15,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(config.getCallbackQueueSize())
-        );
     }
 
     public SortClientConfig getConfig() {
@@ -59,7 +46,4 @@ public abstract class ClientContext implements Cleanable {
         return statManager;
     }
 
-    public Executor getReadCallbackExecutorPool() {
-        return executor;
-    }
 }

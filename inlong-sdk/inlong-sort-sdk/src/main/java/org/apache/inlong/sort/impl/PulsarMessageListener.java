@@ -21,6 +21,7 @@ package org.apache.inlong.sort.impl;
 
 import java.util.Base64;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sort.api.ClientContext;
 import org.apache.inlong.sort.entity.MessageRecord;
 import org.apache.inlong.sort.entity.InLongTopic;
@@ -72,6 +73,7 @@ public class PulsarMessageListener implements MessageListener<byte[]> {
 
     @Override
     public void received(Consumer consumer, Message msg) {
+        String offsetKey = null;
         try {
             inLongTopicInFetcher.isValidState();
             clientContext.getStatManager()
@@ -79,16 +81,17 @@ public class PulsarMessageListener implements MessageListener<byte[]> {
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                     .addConsumeSize(msg.getData().length).addCallbackTimes(1).addMsgCount(1);
 
-            String offsetKey = getOffset(msg.getMessageId());
+            offsetKey = getOffset(msg.getMessageId());
             offsetCache.put(offsetKey, msg.getMessageId());
-
-            clientContext.getReadCallbackExecutorPool()
-                    .execute(() -> handleMsg(
-                            new MessageRecord(inLongTopic.getTopicKey(), msg.getData(), msg.getProperties(),
-                                    offsetKey, System.currentTimeMillis())));
+            callbackMessageRecord(msg, offsetKey);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    private void callbackMessageRecord(Message msg, String offsetKey) throws InterruptedException {
+        handleMsg(new MessageRecord(inLongTopic.getTopicKey(), msg.getData(), msg.getProperties(),
+                                offsetKey, System.currentTimeMillis()));
     }
 
     private String getOffset(MessageId msgId) {

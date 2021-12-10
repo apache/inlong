@@ -94,6 +94,7 @@
     <module>inlong-sort</module>
     <module>inlong-website</module>
     <module>inlong-distribution</module>
+    <module>inlong-sdk</module>
   </modules>
 
   <properties>

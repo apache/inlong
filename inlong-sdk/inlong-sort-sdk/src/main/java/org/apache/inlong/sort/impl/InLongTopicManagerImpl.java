@@ -103,7 +103,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
 
     @Override
     public InLongTopicFetcher removeFetcher(InLongTopic inLongTopic, boolean closeFetcher) {
-        InLongTopicFetcher result = fetchers.remove(inLongTopic);
+        InLongTopicFetcher result = fetchers.remove(inLongTopic.getTopicKey());
         if (result != null && closeFetcher) {
             result.close();
         }
