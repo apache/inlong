@@ -128,6 +128,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     /**
      * offline all inlong topic
      */
+    @Override
     public void offlineAllTp() {
         String subscribeId = context.getConfig().getSortTaskId();
         try {
@@ -138,10 +139,6 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-    }
-
-    private void closeAllFetcher() {
-        closeFetcher();
     }
 
     @Override
@@ -163,6 +160,10 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
 
         }
         return result;
+    }
+
+    private void closeAllFetcher() {
+        closeFetcher();
     }
 
     private void closeFetcher() {

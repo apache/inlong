@@ -40,6 +40,12 @@ public class StatManager implements Cleanable {
     private final String defaultTopic = "default";
     private final int defaultPartitionId = 0;
 
+    /**
+     * StatManager Constructor
+     *
+     * @param context ClientContext
+     * @param reporter MetricReporter
+     */
     public StatManager(ClientContext context, MetricReporter reporter) {
         this.config = context.getConfig();
         this.reporter = reporter;
@@ -50,6 +56,11 @@ public class StatManager implements Cleanable {
         processTask.start(threadName);
     }
 
+    /**
+     * clean
+     *
+     * @return true/false
+     */
     @Override
     public boolean clean() {
         if (this.processTask != null) {

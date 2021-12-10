@@ -19,8 +19,6 @@
 
 package org.apache.inlong.sort.api;
 
-
-import java.io.IOException;
 import org.apache.inlong.sort.entity.InLongTopic;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -38,7 +36,7 @@ public abstract class InLongTopicFetcher {
 
     public abstract boolean init(PulsarClient pulsarClient);
 
-    public abstract void ack(String msgOffset) throws IOException, Exception;
+    public abstract void ack(String msgOffset) throws Exception;
 
     public abstract void pause();
 
@@ -58,5 +56,9 @@ public abstract class InLongTopicFetcher {
 
     public abstract long getAckedOffset();
 
+    public abstract void seek(long offset) throws Exception;
+
     public abstract void seek(MessageId messageId) throws PulsarClientException;
+
+    public abstract String getFetcherType();
 }

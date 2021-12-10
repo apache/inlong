@@ -43,6 +43,11 @@ public class SortClientImpl extends SortClient {
 
     private final InLongTopicManager inLongTopicManager;
 
+    /**
+     * SortClient Constructor
+     *
+     * @param sortClientConfig SortClientConfig
+     */
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
@@ -55,6 +60,14 @@ public class SortClientImpl extends SortClient {
         }
     }
 
+    /**
+     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and ManagerReportHandler
+     *
+     * @param sortClientConfig SortClientConfig
+     * @param queryConsumeConfig QueryConsumeConfig
+     * @param metricReporter MetricReporter
+     * @param managerReportHandler ManagerReportHandler
+     */
     public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
             MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
         try {
@@ -68,12 +81,25 @@ public class SortClientImpl extends SortClient {
         }
     }
 
+    /**
+     * init SortClient
+     *
+     * @return true/false
+     * @throws Throwable
+     */
     @Override
     public boolean init() throws Throwable {
         logger.info(logPrefix + "init|" + sortClientConfig);
         return true;
     }
 
+    /**
+     * ack offset to msgKey
+     *
+     * @param msgKey String
+     * @param msgOffset String
+     * @throws Exception
+     */
     @Override
     public void ack(String msgKey, String msgOffset)
             throws Exception {
@@ -82,6 +108,11 @@ public class SortClientImpl extends SortClient {
         inLongTopicFetcher.ack(msgOffset);
     }
 
+    /**
+     * close SortClient
+     *
+     * @return true/false
+     */
     @Override
     public boolean close() {
         boolean cleanInLongTopicManager = doClose(inLongTopicManager);

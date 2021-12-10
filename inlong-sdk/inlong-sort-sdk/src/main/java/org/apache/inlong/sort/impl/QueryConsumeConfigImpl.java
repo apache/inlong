@@ -33,14 +33,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sort.api.ClientContext;
 import org.apache.inlong.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sort.entity.CacheZone;
+import org.apache.inlong.sort.entity.CacheZoneCluster;
+import org.apache.inlong.sort.entity.CacheZoneConfig;
 import org.apache.inlong.sort.entity.ConsumeConfig;
 import org.apache.inlong.sort.entity.InLongTopic;
 import org.apache.inlong.sort.entity.ManagerResponse;
-import org.apache.inlong.sort.entity.CacheZoneConfig;
 import org.apache.inlong.sort.entity.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +128,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
     /**
      * handle request response
+     *
      * UPDATE_VALUE = 0; conf update
      * NOUPDATE_VALUE = 1; conf no update, md5 is same
      * REQ_PARAMS_ERROR = -101; request params error
@@ -186,6 +187,12 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         this.subscribedTopic = newGroupTopicsMap;
     }
 
+    /**
+     * query ConsumeConfig
+     *
+     * @param sortTaskId String
+     * @return ConsumeConfig
+     */
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         reload();

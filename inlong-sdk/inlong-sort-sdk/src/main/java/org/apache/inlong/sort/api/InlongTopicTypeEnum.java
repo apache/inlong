@@ -20,7 +20,7 @@
 package org.apache.inlong.sort.api;
 
 public enum InlongTopicTypeEnum {
-    PULSAR("pulsar"), KAFKA("kafak"), TUBE("tube");
+    PULSAR("pulsar"), KAFKA("kafka"), TUBE("tube");
     private final String name;
 
     InlongTopicTypeEnum(String name) {

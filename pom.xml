@@ -17,62 +17,65 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <packaging>pom</packaging>
-  <parent>
-    <groupId>org.apache</groupId>
-    <artifactId>apache</artifactId>
-    <version>23</version>
-  </parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>23</version>
+    </parent>
 
-  <groupId>org.apache.inlong</groupId>
-  <artifactId>inlong</artifactId>
-  <version>0.12.0-incubating-SNAPSHOT</version>
-  <name>Apache InLong</name>
+    <groupId>org.apache.inlong</groupId>
+    <artifactId>inlong</artifactId>
+    <version>0.12.0-incubating-SNAPSHOT</version>
+    <name>Apache InLong</name>
 
-  <description>InLong is a one-stop data streaming platform that provides automatic,
-    secure, distributed, and efficient data publishing and subscription capabilities.
-    This platform helps you easily build stream-based data applications.</description>
-  <url>https://github.com/apache/incubator-inlong</url>
-
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>https://www.apache.org/</url>
-  </organization>
-  <inceptionYear>2013</inceptionYear>
-
-  <developers>
-    <developer>
-      <organization>Apache InLong(incubating) developers</organization>
-      <organizationUrl>https://inlong.apache.org/</organizationUrl>
-    </developer>
-  </developers>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <scm>
+    <description>InLong is a one-stop data streaming platform that provides automatic,
+        secure, distributed, and efficient data publishing and subscription capabilities.
+        This platform helps you easily build stream-based data applications.
+    </description>
     <url>https://github.com/apache/incubator-inlong</url>
-    <connection>scm:git:https://github.com/apache/incubator-inlong.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:apache/incubator-inlong.git</developerConnection>
-  </scm>
 
-  <ciManagement>
-    <system>GitHub Actions</system>
-    <url>https://github.com/apache/incubator-inlong/actions</url>
-  </ciManagement>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>https://www.apache.org/</url>
+    </organization>
+    <inceptionYear>2013</inceptionYear>
 
-  <issueManagement>
-    <system>Github</system>
-    <url>https://github.com/apache/incubator-inlong/issues</url>
-  </issueManagement>
+    <developers>
+        <developer>
+            <organization>Apache InLong(incubating) developers</organization>
+            <organizationUrl>https://inlong.apache.org/</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/apache/incubator-inlong</url>
+        <connection>scm:git:https://github.com/apache/incubator-inlong.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:apache/incubator-inlong.git
+        </developerConnection>
+    </scm>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/apache/incubator-inlong/actions</url>
+    </ciManagement>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/apache/incubator-inlong/issues</url>
+    </issueManagement>
 
     <mailingLists>
         <mailingList>
@@ -83,183 +86,185 @@
         </mailingList>
     </mailingLists>
 
-  <modules>
-    <module>inlong-common</module>
-    <module>inlong-tubemq</module>
-    <module>inlong-audit</module>
-    <module>inlong-dataproxy</module>
-    <module>inlong-dataproxy-sdk</module>
-    <module>inlong-agent</module>
-    <module>inlong-manager</module>
-    <module>inlong-sort</module>
-    <module>inlong-website</module>
-    <module>inlong-distribution</module>
-    <module>inlong-sdk</module>
-  </modules>
+    <modules>
+        <module>inlong-common</module>
+        <module>inlong-tubemq</module>
+        <module>inlong-audit</module>
+        <module>inlong-dataproxy</module>
+        <module>inlong-dataproxy-sdk</module>
+        <module>inlong-agent</module>
+        <module>inlong-manager</module>
+        <module>inlong-sort</module>
+        <module>inlong-website</module>
+        <module>inlong-distribution</module>
+    </modules>
 
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <checkstyle.version>6.19</checkstyle.version>
-    <project.build.encoding>UTF-8</project.build.encoding>
-    <plugin.compile.version>3.8.1</plugin.compile.version>
-    <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
-    <docker.organization>inlong</docker.organization>
-  </properties>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <checkstyle.version>6.19</checkstyle.version>
+        <project.build.encoding>UTF-8</project.build.encoding>
+        <plugin.compile.version>3.8.1</plugin.compile.version>
+        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <docker.organization>inlong</docker.organization>
+    </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <encoding>${project.build.encoding}</encoding>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-        <version>${plugin.compile.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.1</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>8.29</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <configLocation>codestyle/checkstyle.xml</configLocation>
-          <suppressionsLocation>codestyle/suppressions.xml</suppressionsLocation>
-          <encoding>UTF-8</encoding>
-          <consoleOutput>true</consoleOutput>
-          <failOnViolation>true</failOnViolation>
-          <includeResources>false</includeResources>
-          <includeTestResources>false</includeTestResources>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>checkstyle</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>2.0.0</version>
-        <configuration>
-          <!-- here add configures -->
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <version>0.13</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <consoleOutput>true</consoleOutput>
-          <excludeSubProjects>false</excludeSubProjects>
-          <numUnapprovedLicenses>0</numUnapprovedLicenses>
-          <licenses>
-            <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
-              <licenseFamilyCategory>AL2</licenseFamilyCategory>
-              <licenseFamilyName>Apache License 2.0</licenseFamilyName>
-              <notes/>
-              <patterns>
-                <pattern>Licensed to the Apache Software Foundation (ASF) under one </pattern>
-              </patterns>
-            </license>
-          </licenses>
-          <licenseFamilies>
-            <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
-              <familyName>Apache License 2.0</familyName>
-            </licenseFamily>
-          </licenseFamilies>
-          <excludes>
-            <!-- Exclude license copies -->
-            <exclude>licenses/**</exclude>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+                <version>${plugin.compile.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.1.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.29</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>codestyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>codestyle/suppressions.xml</suppressionsLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failOnViolation>true</failOnViolation>
+                    <includeResources>false</includeResources>
+                    <includeTestResources>false</includeTestResources>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <!-- here add configures -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <version>0.13</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <excludeSubProjects>false</excludeSubProjects>
+                    <numUnapprovedLicenses>0</numUnapprovedLicenses>
+                    <licenses>
+                        <license
+                                implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                            <licenseFamilyCategory>AL2</licenseFamilyCategory>
+                            <licenseFamilyName>Apache License 2.0</licenseFamilyName>
+                            <notes/>
+                            <patterns>
+                                <pattern>Licensed to the Apache Software Foundation (ASF) under
+                                    one
+                                </pattern>
+                            </patterns>
+                        </license>
+                    </licenses>
+                    <licenseFamilies>
+                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            <familyName>Apache License 2.0</familyName>
+                        </licenseFamily>
+                    </licenseFamilies>
+                    <excludes>
+                        <!-- Exclude license copies -->
+                        <exclude>licenses/**</exclude>
 
-            <!-- Generated content -->
-            <exclude>LICENSE</exclude>
-            <exclude>NOTICE</exclude>
-            <exclude>DISCLAIMER-WIP</exclude>
-            <exclude>codestyle/checkstyle.xml</exclude>
+                        <!-- Generated content -->
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                        <exclude>DISCLAIMER-WIP</exclude>
+                        <exclude>codestyle/checkstyle.xml</exclude>
 
-            <!-- Documents -->
-            <exclude>**/*.md</exclude>
-            <exclude>**/*.MD</exclude>
-            <exclude>**/*.txt</exclude>
-            <exclude>**/*.json</exclude>
-            <exclude>**/docs/**</exclude>
-            <exclude>**/*.csv</exclude>
-            <exclude>**/logs/**</exclude>
-            <exclude>**/*.log</exclude>
+                        <!-- Documents -->
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/*.MD</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/docs/**</exclude>
+                        <exclude>**/*.csv</exclude>
+                        <exclude>**/logs/**</exclude>
+                        <exclude>**/*.log</exclude>
 
-            <!-- Web configure files -->
-            <exclude>**/.env</exclude>
-            <exclude>**/.env.production</exclude>
-            <exclude>**/.eslintignore</exclude>
-            <exclude>**/.eslintrc</exclude>
-            <exclude>**/.headerignore</exclude>
-            <exclude>**/.prettierrc</exclude>
-            <exclude>**/.stylelintrc</exclude>
-            <exclude>**/build/**</exclude>
-            <exclude>**/node_modules/**</exclude>
+                        <!-- Web configure files -->
+                        <exclude>**/.env</exclude>
+                        <exclude>**/.env.production</exclude>
+                        <exclude>**/.eslintignore</exclude>
+                        <exclude>**/.eslintrc</exclude>
+                        <exclude>**/.headerignore</exclude>
+                        <exclude>**/.prettierrc</exclude>
+                        <exclude>**/.stylelintrc</exclude>
+                        <exclude>**/build/**</exclude>
+                        <exclude>**/node_modules/**</exclude>
 
-            <!-- Github -->
-            <exclude>**/.github/**</exclude>
+                        <!-- Github -->
+                        <exclude>**/.github/**</exclude>
 
-            <!-- Intellij IDEA -->
-            <exclude>**/*.iml</exclude>
-            <exclude>**/.idea/**</exclude>
+                        <!-- Intellij IDEA -->
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/.idea/**</exclude>
 
-            <!-- Git files -->
-            <exclude>**/.gitignore</exclude>
-            <exclude>**/.gitmodules</exclude>
-            <exclude>**/.git/**</exclude>
+                        <!-- Git files -->
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitmodules</exclude>
+                        <exclude>**/.git/**</exclude>
 
-            <!-- Build targets -->
-            <exclude>**/target/**</exclude>
-            <exclude>**/out/**</exclude>
-            <exclude>**/dist/**</exclude>
+                        <!-- Build targets -->
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/out/**</exclude>
+                        <exclude>**/dist/**</exclude>
 
-            <!-- Test case : certificates used in test cases -->
-            <exclude>**/tubemq-core/src/test/resources/*.keystore</exclude>
-            <!-- Test case : temporary data for test cases -->
-            <exclude>**/AgentBaseTestsHelper/**</exclude>
+                        <!-- Test case : certificates used in test cases -->
+                        <exclude>**/tubemq-core/src/test/resources/*.keystore</exclude>
+                        <!-- Test case : temporary data for test cases -->
+                        <exclude>**/AgentBaseTestsHelper/**</exclude>
 
-            <!-- Referenced 3rd codes -->
-            <exclude>**/resources/assets/lib/**</exclude>
-            <exclude>**/resources/assets/public/**</exclude>
-            <exclude>**/tubemq-client-cpp/src/any.h</exclude>
-            <exclude>**/tubemq-client-cpp/src/buffer.h</exclude>
-            <exclude>**/tubemq-client-cpp/third_party/**</exclude>
+                        <!-- Referenced 3rd codes -->
+                        <exclude>**/resources/assets/lib/**</exclude>
+                        <exclude>**/resources/assets/public/**</exclude>
+                        <exclude>**/tubemq-client-cpp/src/any.h</exclude>
+                        <exclude>**/tubemq-client-cpp/src/buffer.h</exclude>
+                        <exclude>**/tubemq-client-cpp/third_party/**</exclude>
 
-            <!-- Go mod -->
-            <exclude>**/tubemq-client-go/go.mod</exclude>
-            <!-- Go sum -->
-            <exclude>**/tubemq-client-go/go.sum</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+                        <!-- Go mod -->
+                        <exclude>**/tubemq-client-go/go.mod</exclude>
+                        <!-- Go sum -->
+                        <exclude>**/tubemq-client-go/go.sum</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-  <repositories>
-  </repositories>
+    <repositories>
+    </repositories>
 
 </project>

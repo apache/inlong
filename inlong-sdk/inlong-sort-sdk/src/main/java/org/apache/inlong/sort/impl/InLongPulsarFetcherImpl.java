@@ -75,10 +75,20 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     }
 
     @Override
+    public void seek(long offset) throws Exception {
+
+    }
+
+    @Override
     public void seek(MessageId messageId) throws PulsarClientException {
         if (consumer != null) {
             consumer.seek(messageId);
         }
+    }
+
+    @Override
+    public String getFetcherType() {
+        return inLongTopic.getTopicType();
     }
 
     private void ackSucc(String offset) {

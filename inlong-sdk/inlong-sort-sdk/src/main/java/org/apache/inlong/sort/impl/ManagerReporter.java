@@ -46,6 +46,15 @@ public class ManagerReporter extends PeriodicTask {
     private final ManagerReportHandler reportHandler;
     private Map<Integer, Long> reportApiInterval = new HashMap<>();
 
+    /**
+     * ManagerReporter Constructor
+     *
+     * @param context ClientContext
+     * @param reportHandler ManagerReportHandler
+     * @param inLongTopicManager InLongTopicManager
+     * @param runInterval long
+     * @param timeUnit TimeUnit
+     */
     public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler,
             InLongTopicManager inLongTopicManager,
             long runInterval, TimeUnit timeUnit) {

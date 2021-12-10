@@ -29,6 +29,14 @@ public class SortClientStateCounter {
     public String topic;
     public int partitionId;
 
+    /**
+     * SortClientStateCounter Constructor
+     *
+     * @param sortId String
+     * @param clusterId String
+     * @param topic String
+     * @param partitionId int
+     */
     public SortClientStateCounter(String sortId, String clusterId, String topic, int partitionId) {
         this.sortId = sortId;
         this.clusterId = clusterId;
@@ -36,6 +44,11 @@ public class SortClientStateCounter {
         this.partitionId = partitionId;
     }
 
+    /**
+     * reset Counter
+     *
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter reset() {
         SortClientStateCounter counter = new SortClientStateCounter(sortId, clusterId, topic, partitionId);
         for (int i = 0, len = counter.count.length(); i < len; i++) {
@@ -44,6 +57,11 @@ public class SortClientStateCounter {
         return counter;
     }
 
+    /**
+     * get double[] values
+     *
+     * @return double[]
+     */
     public double[] getStatvalue() {
         double[] vals = new double[this.count.length()];
         for (int i = 0, len = this.count.length(); i < len; i++) {
@@ -52,82 +70,177 @@ public class SortClientStateCounter {
         return vals;
     }
 
+    /**
+     * consume byte size
+     *
+     * @param num long byte
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addConsumeSize(long num) {
         count.getAndAdd(0, num);
         return this;
     }
 
+    /**
+     * count callbak times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addCallbackTimes(int num) {
         count.getAndAdd(1, num);
         return this;
     }
 
+    /**
+     * count callbak time cost
+     *
+     * @param num long
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addCallbackTimeCost(long num) {
         count.getAndAdd(2, num);
         return this;
     }
 
-
+    /**
+     * count topic online times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addTopicOnlineTimes(int num) {
         count.getAndAdd(3, num);
         return this;
     }
 
+    /**
+     * count topic offline times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addTopicOfflineTimes(int num) {
         count.getAndAdd(4, num);
         return this;
     }
 
+    /**
+     * count request manager times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addRequestManagerTimes(int num) {
         count.getAndAdd(5, num);
         return this;
     }
 
+    /**
+     * count request manager time cost
+     *
+     * @param num long
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addRequestManagerTimeCost(long num) {
         count.getAndAdd(6, num);
         return this;
     }
 
-    public SortClientStateCounter addRequestManagerFailTimes(long num) {
+    /**
+     * count request manager fail times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
+    public SortClientStateCounter addRequestManagerFailTimes(int num) {
         count.getAndAdd(7, num);
         return this;
     }
 
-    public SortClientStateCounter addCallbackErrorTimes(long num) {
+    /**
+     * count callbak error times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
+    public SortClientStateCounter addCallbackErrorTimes(int num) {
         count.getAndAdd(8, num);
         return this;
     }
 
-    public SortClientStateCounter addAckFailTimes(long num) {
+    /**
+     * count ack fail times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
+    public SortClientStateCounter addAckFailTimes(int num) {
         count.getAndAdd(9, num);
         return this;
     }
 
-    public SortClientStateCounter addAckSuccTimes(long num) {
+    /**
+     * count ack succ times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
+    public SortClientStateCounter addAckSuccTimes(int num) {
         count.getAndAdd(10, num);
         return this;
     }
 
+    /**
+     * count callbak done times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addCallbackDoneTimes(int num) {
         count.getAndAdd(11, num);
         return this;
     }
 
+    /**
+     * count receive event num
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addMsgCount(int num) {
         count.getAndAdd(12, num);
         return this;
     }
 
+    /**
+     * count manager conf changed times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addManagerConfChangedTimes(int num) {
         count.getAndAdd(13, num);
         return this;
     }
 
+    /**
+     * count manager result code common error times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addRequestManagerCommonErrorTimes(int num) {
         count.getAndAdd(14, num);
         return this;
     }
 
+    /**
+     * count manager result param error times
+     *
+     * @param num int
+     * @return SortClientStateCounter
+     */
     public SortClientStateCounter addRequestManagerParamErrorTimes(int num) {
         count.getAndAdd(15, num);
         return this;

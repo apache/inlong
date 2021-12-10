@@ -23,11 +23,22 @@ import org.apache.inlong.sort.api.MetricReporter;
 
 public class MetricReporterImpl implements MetricReporter {
 
+    /**
+     * report metric by JMX
+     *
+     * @param monitorName String
+     * @param keys metric key
+     * @param values metric val
+     * @return true/false
+     */
     @Override
     public boolean report(String monitorName, String[] keys, double[] values) {
         return false;
     }
 
+    /**
+     * close
+     */
     @Override
     public void close() {
 

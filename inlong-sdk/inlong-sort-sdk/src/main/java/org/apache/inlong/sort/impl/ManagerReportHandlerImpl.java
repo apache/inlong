@@ -27,11 +27,23 @@ import org.apache.inlong.sort.entity.HeartBeatResult;
 
 public class ManagerReportHandlerImpl implements ManagerReportHandler {
 
+    /**
+     * report heartbeat to manager
+     *
+     * @param heartBeatParams HeartBeatParams
+     * @return HeartBeatResult
+     */
     @Override
     public HeartBeatResult heartbeat(HeartBeatParams heartBeatParams) {
         return null;
     }
 
+    /**
+     * updateConsumeStatus to manager
+     *
+     * @param consumeStatusParams ConsumeStatusParams
+     * @return ConsumeStatusResult
+     */
     @Override
     public ConsumeStatusResult updateConsumeStatus(ConsumeStatusParams consumeStatusParams) {
         return null;
