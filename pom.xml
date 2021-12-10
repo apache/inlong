@@ -86,19 +86,20 @@
         </mailingList>
     </mailingLists>
 
-  <modules>
-    <module>inlong-common</module>
-    <module>inlong-tubemq</module>
-    <module>inlong-audit</module>
-    <module>inlong-dataproxy</module>
-    <module>inlong-dataproxy-sdk</module>
-    <module>inlong-agent</module>
-    <module>inlong-manager</module>
-    <module>inlong-sort</module>
-    <module>inlong-sort-standalone</module>
-    <module>inlong-website</module>
-    <module>inlong-distribution</module>
-  </modules>
+    <modules>
+        <module>inlong-common</module>
+        <module>inlong-tubemq</module>
+        <module>inlong-audit</module>
+        <module>inlong-dataproxy</module>
+        <module>inlong-dataproxy-sdk</module>
+        <module>inlong-agent</module>
+        <module>inlong-manager</module>
+        <module>inlong-sort</module>
+        <module>inlong-sort-standalone</module>
+        <module>inlong-website</module>
+        <module>inlong-distribution</module>
+        <module>inlong-sdk</module>
+    </modules>
 
 
     <properties>
