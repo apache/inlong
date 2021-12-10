@@ -27,8 +27,6 @@ import java.util.List;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.junit.AfterClass;

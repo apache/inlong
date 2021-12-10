@@ -30,8 +30,6 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
