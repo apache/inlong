@@ -30,7 +30,7 @@ import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,6 @@ public class ConsumerInfoHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumerInfoHolder.class);
     private final MasterConfig masterConfig;     // master configure
-    private final MasterMetric masterMetrics;
     private final RowLock groupRowLock;    //lock
     private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap =
             new ConcurrentHashMap<>();
@@ -51,7 +50,6 @@ public class ConsumerInfoHolder {
             new ConcurrentHashSet<>();
 
     public ConsumerInfoHolder(TMaster tMasterr) {
-        this.masterMetrics = tMasterr.getMasterMetrics();
         this.masterConfig = tMasterr.getMasterConfig();
         this.groupRowLock = new RowLock("Group-RowLock",
                 this.masterConfig.getRowLockWaitDurMs());
@@ -355,19 +353,19 @@ public class ConsumerInfoHolder {
                 consumeGroupInfo = groupInfoMap.putIfAbsent(group, tmpGroupInfo);
                 if (consumeGroupInfo == null) {
                     consumeGroupInfo = tmpGroupInfo;
-                    masterMetrics.consumeGroupCnt.incrementAndGet();
                     if (tmpGroupInfo.isClientBalance()) {
                         clientBalanceGroupSet.add(group);
-                        masterMetrics.cltBalConsumeGroupCnt.incrementAndGet();
                     } else {
                         serverBalanceGroupSet.add(group);
                     }
+                    MasterMetricsHolder.incConsumerCnt(true,
+                            consumeGroupInfo.isClientBalance());
                 }
             }
             if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
-                Boolean isNewAdd = (Boolean) result.checkData;
-                if (isNewAdd) {
-                    masterMetrics.consumerCnt.incrementAndGet();
+                if ((Boolean) result.checkData) {
+                    MasterMetricsHolder.incConsumerCnt(false,
+                            consumeGroupInfo.isClientBalance());
                 }
                 if (!isNotAllocated) {
                     consumeGroupInfo.settAllocated();
@@ -391,12 +389,15 @@ public class ConsumerInfoHolder {
      *
      * @param group group name of consumer
      * @param consumerId consumer id
+     * @param isTimeout if timeout
      * @return ConsumerInfo
      */
-    public ConsumerInfo removeConsumer(String group, String consumerId) {
+    public ConsumerInfo removeConsumer(String group, String consumerId, boolean isTimeout) {
         if (group == null || consumerId == null) {
             return null;
         }
+        boolean isCltBal = false;
+        boolean rmvGroup = false;
         ConsumerInfo consumer = null;
         Integer lid = null;
         try {
@@ -406,11 +407,23 @@ public class ConsumerInfoHolder {
             if (consumeGroupInfo != null) {
                 consumer = consumeGroupInfo.removeConsumer(consumerId);
                 if (consumeGroupInfo.isGroupEmpty()) {
-                    groupInfoMap.remove(group);
+                    rmvGroup = (groupInfoMap.remove(group) != null);
                     if (consumeGroupInfo.isClientBalance()) {
-                        clientBalanceGroupSet.add(group);
+                        isCltBal = true;
+                        clientBalanceGroupSet.remove(group);
                     } else {
-                        serverBalanceGroupSet.add(group);
+                        serverBalanceGroupSet.remove(group);
+                    }
+                    if (rmvGroup) {
+                        if (consumer == null) {
+                            MasterMetricsHolder.decConsumeGroupCnt(isTimeout, isCltBal);
+                        } else {
+                            MasterMetricsHolder.decConsumerCnt(isTimeout, true, isCltBal);
+                        }
+                    }
+                } else {
+                    if (consumer != null) {
+                        MasterMetricsHolder.decConsumerCnt(isTimeout, false, false);
                     }
                 }
             }

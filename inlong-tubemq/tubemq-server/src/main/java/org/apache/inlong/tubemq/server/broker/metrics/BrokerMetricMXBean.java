@@ -20,14 +20,17 @@ package org.apache.inlong.tubemq.server.broker.metrics;
 import org.apache.inlong.tubemq.corebase.metric.MetricValues;
 
 /**
- * BrokerMonitorMXBean
- * Provide access interface of a metric item with JMX.<br>
- * Decouple between metric item and monitor system, in particular scene, <br>
- * inlong can depend on user-defined monitor system.
+ * BrokerMetricMXBean
+ * Broker's metric data access interface, including:
+ * the getMetric() that  directly obtains data
+ * the getAndReSetMetrics() that can clear the values of
+ *     the counter, maximum and minimum extremum Gauge data
  */
 public interface BrokerMetricMXBean {
 
+    // get current metric data by viewing mode
     MetricValues getMetrics();
 
+    // get current metric data and reset the Counter, maximum/minimum Gauge metric
     MetricValues getAndReSetMetrics();
 }

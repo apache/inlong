@@ -33,30 +33,32 @@ public class BrokerMetrics implements BrokerMetricMXBean {
 
     private final AtomicLong lastResetTime =
             new AtomicLong(System.currentTimeMillis());
-    public final AbsMetricItem syncDataDurMin =
-            new GaugeMinMetricItem("fSync_latency_min");
-    public final AbsMetricItem syncDataDurMax =
-            new GaugeMaxMetricItem("fSync_latency_max");
-    public final AbsMetricItem syncZkDurMin =
-            new GaugeMinMetricItem("zkSync_latency_min");
-    public final AbsMetricItem syncZkDurMax =
-            new GaugeMaxMetricItem("zkSync_latency_max");
-    public final AbsMetricItem zkExceptionCnt =
+    // Delay statistics for syncing data to files
+    protected final AbsMetricItem syncDataDurMin =
+            new GaugeMinMetricItem("fSync_duration_min");
+    protected final AbsMetricItem syncDataDurMax =
+            new GaugeMaxMetricItem("fSync_duration_max");
+    // Delay statistics for syncing data to Zookeeper
+    protected final AbsMetricItem syncZkDurMin =
+            new GaugeMinMetricItem("zkSync_duration_min");
+    protected final AbsMetricItem syncZkDurMax =
+            new GaugeMaxMetricItem("zkSync_duration_max");
+    // Zookeeper Exception statistics
+    protected final AbsMetricItem zkExceptionCnt =
             new CountMetricItem("zk_exception_cnt");
-    public final AbsMetricItem masterNoNodeCnt =
+    // Broker 2 Master status statistics
+    protected final AbsMetricItem masterNoNodeCnt =
             new CountMetricItem("online_timeout_cnt");
-    public final AbsMetricItem hbExceptionCnt =
+    protected final AbsMetricItem hbExceptionCnt =
             new CountMetricItem("hb_master_exception_cnt");
-    public final AbsMetricItem ioExceptionCnt =
+    // Disk IO Exception statistics
+    protected final AbsMetricItem ioExceptionCnt =
             new CountMetricItem("io_exception_cnt");
-    public final AbsMetricItem consumerOnlineCnt =
+    // Consumer client statistics
+    protected final AbsMetricItem consumerOnlineCnt =
             new GaugeNormMetricItem("consumer_online_cnt");
-    public final AbsMetricItem consumerTmoTotCnt =
+    protected final AbsMetricItem consumerTmoTotCnt =
             new CountMetricItem("consumer_timeout_cnt");
-
-    public BrokerMetrics() {
-        this.lastResetTime.set(System.currentTimeMillis());
-    }
 
     @Override
     public MetricValues getMetrics() {
@@ -91,6 +93,50 @@ public class BrokerMetrics implements BrokerMetricMXBean {
         long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
         return new MetricValues(
                 WebParameterUtils.date2yyyyMMddHHmmss(new Date(befTime)), metricValues);
+    }
+
+    public long getLastResetTime() {
+        return lastResetTime.get();
+    }
+
+    public AbsMetricItem getSyncDataDurMin() {
+        return syncDataDurMin;
+    }
+
+    public AbsMetricItem getSyncDataDurMax() {
+        return syncDataDurMax;
+    }
+
+    public AbsMetricItem getSyncZkDurMin() {
+        return syncZkDurMin;
+    }
+
+    public AbsMetricItem getSyncZkDurMax() {
+        return syncZkDurMax;
+    }
+
+    public AbsMetricItem getZkExceptionCnt() {
+        return zkExceptionCnt;
+    }
+
+    public AbsMetricItem getMasterNoNodeCnt() {
+        return masterNoNodeCnt;
+    }
+
+    public AbsMetricItem getHbExceptionCnt() {
+        return hbExceptionCnt;
+    }
+
+    public AbsMetricItem getIoExceptionCnt() {
+        return ioExceptionCnt;
+    }
+
+    public AbsMetricItem getConsumerOnlineCnt() {
+        return consumerOnlineCnt;
+    }
+
+    public AbsMetricItem getConsumerTmoTotCnt() {
+        return consumerTmoTotCnt;
     }
 }
 

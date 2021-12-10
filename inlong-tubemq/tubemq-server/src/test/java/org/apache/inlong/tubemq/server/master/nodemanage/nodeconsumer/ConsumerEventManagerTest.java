@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
 import static org.mockito.Mockito.mock;
 import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,14 +27,11 @@ import org.junit.Test;
 public class ConsumerEventManagerTest {
     private ConsumerEventManager consumerEventManager;
     private ConsumerInfoHolder consumerInfoHolder;
-    private MasterMetric masterMetrics;
 
     @Before
     public void setUp() throws Exception {
         consumerInfoHolder = mock(ConsumerInfoHolder.class);
-        masterMetrics = MasterMetric.create();
-        consumerEventManager =
-                new ConsumerEventManager(consumerInfoHolder, masterMetrics);
+        consumerEventManager = new ConsumerEventManager(consumerInfoHolder);
     }
 
     @After

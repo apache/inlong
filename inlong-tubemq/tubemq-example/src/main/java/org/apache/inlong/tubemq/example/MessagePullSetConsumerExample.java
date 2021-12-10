@@ -172,19 +172,17 @@ public final class MessagePullSetConsumerExample {
         // 2. build session factory object
         //    find and initialize TubeMultiSessionFactory object according to the Master cluster information
         MasterInfo masterInfo = consumerConfig.getMasterInfo();
-        MessageSessionFactory sessionFactory =
-                multSessFtyMap.get(masterInfo.getMasterClusterStr());
-        if (sessionFactory == null) {
-            MessageSessionFactory tmpSessionFactory =
-                    new TubeMultiSessionFactory(consumerConfig);
-            sessionFactory = multSessFtyMap.putIfAbsent(
-                    masterInfo.getMasterClusterStr(), tmpSessionFactory);
+
+        MessageSessionFactory sessionFactory;
+        synchronized (multSessFtyMap) {
+            sessionFactory =
+                    multSessFtyMap.get(masterInfo.getMasterClusterStr());
             if (sessionFactory == null) {
-                sessionFactory = tmpSessionFactory;
-            } else {
-                tmpSessionFactory.shutdown();
+                sessionFactory = new TubeMultiSessionFactory(consumerConfig);
+                multSessFtyMap.put(masterInfo.getMasterClusterStr(), sessionFactory);
             }
         }
+
         // 3. Create and get the PullMessageConsumer object
         return sessionFactory.createPullConsumer(consumerConfig);
     }

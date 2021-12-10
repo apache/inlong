@@ -27,9 +27,10 @@ import org.slf4j.LoggerFactory;
 public class BrokerMetricsHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerMetricsHolder.class);
-
+    // Registration status indicator
     private static final AtomicBoolean registered = new AtomicBoolean(false);
-    public static final BrokerMetrics METRICS = new BrokerMetrics();
+    // broker metrics information
+    private static final BrokerMetrics statsInfo = new BrokerMetrics();
 
     public static void registerMXBean() {
         if (!registered.compareAndSet(false, true)) {
@@ -38,11 +39,52 @@ public class BrokerMetricsHolder {
         try {
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             ObjectName mxBeanName =
-                    new ObjectName("org.apache.inlong.tubemq.server.broker:type=brokerMetrics");
-            mbs.registerMBean(METRICS, mxBeanName);
+                    new ObjectName("org.apache.inlong.tubemq.server.broker:type=BrokerMetrics");
+            mbs.registerMBean(statsInfo, mxBeanName);
         } catch (Exception ex) {
             logger.error("Register BrokerMXBean error: ", ex);
         }
+    }
+
+    public static void incConsumerCnt() {
+        statsInfo.consumerOnlineCnt.incrementAndGet();
+    }
+
+    public static void decConsumerCnt(boolean isTimeout) {
+        statsInfo.consumerOnlineCnt.decrementAndGet();
+        if (isTimeout) {
+            statsInfo.consumerTmoTotCnt.incrementAndGet();
+        }
+    }
+
+    public static void incMasterNoNodeCnt() {
+        statsInfo.masterNoNodeCnt.incrementAndGet();
+    }
+
+    public static void incHBExceptionCnt() {
+        statsInfo.hbExceptionCnt.incrementAndGet();
+    }
+
+    public static void incIOExceptionCnt() {
+        statsInfo.ioExceptionCnt.incrementAndGet();
+    }
+
+    public static void incZKExceptionCnt() {
+        statsInfo.zkExceptionCnt.incrementAndGet();
+    }
+
+    public static void updSyncDataDurations(long dltTime) {
+        statsInfo.syncDataDurMin.update(dltTime);
+        statsInfo.syncDataDurMax.update(dltTime);
+    }
+
+    public static void updSyncZKDurations(long dltTime) {
+        statsInfo.syncZkDurMin.update(dltTime);
+        statsInfo.syncZkDurMax.update(dltTime);
+    }
+
+    public static BrokerMetrics getStatsInfo() {
+        return statsInfo;
     }
 }
 

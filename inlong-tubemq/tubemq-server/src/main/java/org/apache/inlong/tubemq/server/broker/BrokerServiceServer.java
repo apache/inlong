@@ -845,7 +845,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             consumerNodeInfo = new ConsumerNodeInfo(storeManager, reqQryPriorityId,
                     clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr);
             if (consumerRegisterMap.put(partStr, consumerNodeInfo) == null) {
-                BrokerMetricsHolder.METRICS.consumerOnlineCnt.incrementAndGet();
+                BrokerMetricsHolder.incConsumerCnt();
             }
             heartbeatManager.regConsumerNode(getHeartbeatNodeId(clientId, partStr), clientId, partStr);
             MessageStore dataStore = null;
@@ -891,7 +891,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     heartbeatManager.getConsumerRegMap().get(getHeartbeatNodeId(consumerId, partStr));
             if (timeoutInfo == null || System.currentTimeMillis() >= timeoutInfo.getTimeoutTime()) {
                 if (consumerRegisterMap.remove(partStr) != null) {
-                    BrokerMetricsHolder.METRICS.consumerOnlineCnt.decrementAndGet();
+                    BrokerMetricsHolder.decConsumerCnt(true);
                 }
                 strBuffer.append("[Duplicated Register] Remove Invalid Consumer Register ")
                         .append(consumerId).append(TokenConstants.SEGMENT_SEP).append(partStr);
@@ -957,7 +957,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append(request.getPartitionId()).append(" updatedOffset:").append(updatedOffset).toString());
             strBuffer.delete(0, strBuffer.length());
             if (consumerRegisterMap.remove(partStr) != null) {
-                BrokerMetricsHolder.METRICS.consumerOnlineCnt.decrementAndGet();
+                BrokerMetricsHolder.decConsumerCnt(false);
             }
             heartbeatManager.unRegConsumerNode(
                     getHeartbeatNodeId(clientId, partStr));
@@ -1245,8 +1245,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     }
                     if (consumerNodeInfo.getConsumerId().equalsIgnoreCase(nodeInfo.getSecondKey())) {
                         if (consumerRegisterMap.remove(nodeInfo.getThirdKey()) != null) {
-                            BrokerMetricsHolder.METRICS.consumerOnlineCnt.decrementAndGet();
-                            BrokerMetricsHolder.METRICS.consumerTmoTotCnt.decrementAndGet();
+                            BrokerMetricsHolder.decConsumerCnt(true);
                         }
                         String[] groupTopicPart =
                                 consumerNodeInfo.getPartStr().split(TokenConstants.ATTR_SEP);

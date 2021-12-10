@@ -27,10 +27,6 @@ public abstract class AbsMetricItem {
     protected final String name;
     protected final AtomicLong value = new AtomicLong(0);
 
-    public AbsMetricItem(MetricType metricType, String name) {
-        this(metricType, MetricValueType.NORMAL, name, 0);
-    }
-
     public AbsMetricItem(MetricType metricType, MetricValueType valueType,
                          String name, long initialValue) {
         this.metricType = metricType;
@@ -65,6 +61,10 @@ public abstract class AbsMetricItem {
 
     public long incrementAndGet() {
         return value.incrementAndGet();
+    }
+
+    public boolean compareAndSet(long expect, long update) {
+        return value.compareAndSet(expect, update);
     }
 
     public long decrementAndGet() {

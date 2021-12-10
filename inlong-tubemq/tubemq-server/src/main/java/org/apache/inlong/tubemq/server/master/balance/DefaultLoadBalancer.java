@@ -34,7 +34,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetric;
+import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
@@ -48,10 +48,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultLoadBalancer implements LoadBalancer {
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancer.class);
     private static final Random RANDOM = new Random(System.currentTimeMillis());
-    private final MasterMetric masterMetrics;
 
-    public DefaultLoadBalancer(MasterMetric masterMetrics) {
-        this.masterMetrics = masterMetrics;
+    public DefaultLoadBalancer() {
+        // initial information
     }
 
     /**
@@ -663,13 +662,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             if (consumeGroupInfo.addAllocatedTimes() > 0) {
-                long durTime = System.currentTimeMillis() - consumeGroupInfo.getCreateTime();
-                if (durTime < masterMetrics.svrBalResetDurMin.get()) {
-                    masterMetrics.svrBalResetDurMin.set(durTime);
-                }
-                if (durTime > masterMetrics.svrBalResetDurMax.get()) {
-                    masterMetrics.svrBalResetDurMax.set(durTime);
-                }
+                MasterMetricsHolder.updSvrBalResetDurations(
+                        System.currentTimeMillis() - consumeGroupInfo.getCreateTime());
             }
         }
         return finalSubInfoMap;
