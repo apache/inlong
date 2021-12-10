@@ -29,6 +29,8 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SenderGroup {
+    private static final Logger logger = LoggerFactory.getLogger(SenderGroup.class);
     // maximum number of sending
     public static final int MAX_SEND_TIMES = 3;
     public static final int DEFAULT_WAIT_TIMES = 10000;
@@ -102,6 +105,7 @@ public class SenderGroup {
         SenderChannel channel = null;
         try {
             if (channels.size() <= 0) {
+                logger.error("channels is empty");
                 return new SenderResult("channels is empty", 0, false);
             }
             boolean isOk = false;
@@ -109,7 +113,13 @@ public class SenderGroup {
                 channels = channelGroups.get(mIndex);
                 for (int i = 0; i < channels.size(); i++) {
                     channel = channels.poll();
+                    boolean ret = channel.tryAcquire();
                     if (channel.tryAcquire()) {
+                        isOk = true;
+                        break;
+                    }
+
+                    if (ret) {
                         isOk = true;
                         break;
                     }
@@ -126,6 +136,7 @@ public class SenderGroup {
                 }
             }
             if (channel == null) {
+                logger.error("can not get a channel");
                 return new SenderResult("can not get a channel", 0, false);
             }
             ChannelFuture t = null;
@@ -143,13 +154,12 @@ public class SenderGroup {
             }
             return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
         } catch (Throwable ex) {
-            if (channel != null) {
-                channel.release();
-            }
+            logger.error(ex.getMessage());
             this.setHasSendError(true);
             return new SenderResult(ex.getMessage(), 0, false);
         } finally {
             if (channel != null) {
+                channel.release();
                 channels.offer(channel);
             }
         }
@@ -184,7 +194,6 @@ public class SenderGroup {
      * @param ipLists
      */
     public void updateConfig(Set<String> ipLists) {
-        System.out.println("updateConfig|" + ipLists.toString());
         try {
             for (SenderChannel dc : deleteChannels) {
                 dc.getChannel().disconnect();
@@ -210,7 +219,7 @@ public class SenderGroup {
                     newChannels.add(channel);
                     totalChannels.put(ipPort, channel);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    logger.error(e.getMessage());
                 }
             }
 
@@ -224,7 +233,7 @@ public class SenderGroup {
             }
             this.mIndex = newIndex;
         } catch (Throwable e) {
-            System.out.println("Update Sender Ip Failed." + e.getMessage());
+            logger.error("Update Sender Ip Failed." + e.getMessage());
         }
     }
 
@@ -247,8 +256,8 @@ public class SenderGroup {
                 oldChannel.disconnect();
                 oldChannel.close();
             }
-        } catch (Throwable ex) {
-            System.out.println("reconnect failed");
+        } catch (Throwable e) {
+            logger.error("reconnect failed." + e.getMessage());
         }
     }
 

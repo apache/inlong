@@ -28,6 +28,9 @@ import org.junit.Test;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class SenderGroupTest {
     Config testConfig = new Config();
     SenderManager testManager = new SenderManager(testConfig);
@@ -38,9 +41,10 @@ public class SenderGroupTest {
     public void send() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
-                                        .addMsgBody(body).build();
-        AuditData testData = new AuditData(System.currentTimeMillis(), content, 1L);
+        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
+                .addMsgBody(body).build();
+        AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
+        AuditData testData = new AuditData(System.currentTimeMillis(), baseCommand);
         ChannelBuffer dataBuf = ChannelBuffers.wrappedBuffer(testData.getDataByte());
         sender.send(dataBuf);
     }
@@ -63,21 +67,19 @@ public class SenderGroupTest {
     public void isHasSendError() {
         sender.setHasSendError(false);
         boolean isError = sender.isHasSendError();
-        System.out.println(isError);
-
+        assertFalse(isError);
         sender.setHasSendError(true);
         isError = sender.isHasSendError();
-        System.out.println(isError);
+        assertTrue(isError);
     }
 
     @Test
     public void setHasSendError() {
         sender.setHasSendError(false);
         boolean isError = sender.isHasSendError();
-        System.out.println(isError);
-
+        assertFalse(isError);
         sender.setHasSendError(true);
         isError = sender.isHasSendError();
-        System.out.println(isError);
+        assertTrue(isError);
     }
 }

@@ -19,12 +19,25 @@ package org.apache.inlong.audit;
 
 import org.junit.Test;
 
+import java.util.HashSet;
+
 public class AuditImpTest {
-    
+
+    @Test
+    public void setAuditProxy() {
+        HashSet<String> ipList = new HashSet<>();
+        ipList.add("0.0.0.0:11222");
+        AuditImp.getInstance().setAuditProxy(ipList);
+    }
+
     @Test
     public void add() {
-        AuditImp.getInstance().init("inlog_audit.txt");
+        HashSet<String> ipList = new HashSet<>();
+        ipList.add("0.0.0.0:11222");
+        AuditImp.getInstance().setAuditProxy(ipList);
         AuditImp.getInstance().add(1, "inlongGroupIDTest",
                 "inlongStreamIDTest", System.currentTimeMillis(), 1, 1);
     }
+
 }
+

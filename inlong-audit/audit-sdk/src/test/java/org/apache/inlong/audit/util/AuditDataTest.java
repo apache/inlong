@@ -20,29 +20,31 @@ package org.apache.inlong.audit.util;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 public class AuditDataTest {
     @Test
     public void increaseResendTimes() {
-        AuditApi.AuditRequest content = null;
-        AuditData test = new AuditData(System.currentTimeMillis(), content, 1L);
+        AuditApi.BaseCommand content = null;
+        AuditData test = new AuditData(System.currentTimeMillis(), content);
         int resendTimes = test.increaseResendTimes();
-        System.out.println(resendTimes);
+        assertTrue(resendTimes == 1);
         resendTimes = test.increaseResendTimes();
-        System.out.println(resendTimes);
+        assertTrue(resendTimes == 2);
         resendTimes = test.increaseResendTimes();
-        System.out.println(resendTimes);
+        assertTrue(resendTimes == 3);
     }
 
     @Test
     public void getDataByte() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
+        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
                 .addMsgBody(body).build();
-        AuditData test = new AuditData(System.currentTimeMillis(), content, 1L);
+        AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
+        AuditData test = new AuditData(System.currentTimeMillis(), baseCommand);
         byte[] data = test.getDataByte();
-        System.out.println(data[0]);
-        System.out.println(data);
+        assertTrue(data.length > 0);
     }
 
     @Test

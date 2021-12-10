@@ -38,7 +38,7 @@ public class SenderChannel {
         this.channel = channel;
         this.ipPort = ipPort;
         this.packToken = new Semaphore(maxSynchRequest);
-        this.channel.getConfig().setConnectTimeoutMillis(3000);
+        this.channel.getConfig().setConnectTimeoutMillis(5000);
     }
 
     /**

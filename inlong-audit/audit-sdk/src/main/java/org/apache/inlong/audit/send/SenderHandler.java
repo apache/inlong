@@ -22,8 +22,11 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SenderHandler extends SimpleChannelHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SenderHandler.class);
     private SenderManager manager;
 
     /**
@@ -43,8 +46,7 @@ public class SenderHandler extends SimpleChannelHandler {
         try {
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {
-            ex.printStackTrace();
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 
@@ -56,7 +58,7 @@ public class SenderHandler extends SimpleChannelHandler {
         try {
             manager.onExceptionCaught(ctx, e);
         } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 
@@ -68,7 +70,7 @@ public class SenderHandler extends SimpleChannelHandler {
         try {
             super.channelDisconnected(ctx, e);
         } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 
@@ -80,7 +82,7 @@ public class SenderHandler extends SimpleChannelHandler {
         try {
             super.channelClosed(ctx, e);
         } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 }

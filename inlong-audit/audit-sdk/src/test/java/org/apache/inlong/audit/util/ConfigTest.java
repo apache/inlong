@@ -19,6 +19,8 @@ package org.apache.inlong.audit.util;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 public class ConfigTest {
 
     @Test
@@ -26,7 +28,7 @@ public class ConfigTest {
         Config test = new Config();
         test.init();
         String ip = test.getLocalIP();
-        System.out.println(ip);
+        assertTrue(ip.length() >= 0);
     }
 
     @Test
@@ -34,6 +36,6 @@ public class ConfigTest {
         Config test = new Config();
         test.init();
         String dockerId = test.getDockerId();
-        System.out.println(dockerId);
+        assertTrue(dockerId.length() >= 0);
     }
 }

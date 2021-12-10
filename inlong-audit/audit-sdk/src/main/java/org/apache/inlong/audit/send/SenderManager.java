@@ -21,18 +21,15 @@ import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.AuditData;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.Decoder;
-import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * sender manager
  */
 public class SenderManager {
+    private static final Logger logger = LoggerFactory.getLogger(SenderManager.class);
     public static final int DEFAULT_SEND_THREADNUM = 2;
     public static final Long MAX_REQUEST_ID = 1000000000L;
     public static final int ALL_CONNECT_CHANNEL = -1;
@@ -79,32 +77,21 @@ public class SenderManager {
             this.maxConnectChannels = maxConnectChannels;
             SenderHandler clientHandler = new SenderHandler(this);
             this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, new Decoder(), clientHandler);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
         }
     }
 
     /**
      * update config
      */
-    public void reload(String configFile) {
-        HashSet<String> ipLists = new HashSet<>();
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(configFile));
-            String ipPort;
-            while ((ipPort = in.readLine()) != null) {
-                ipLists.add(ipPort);
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
-        if (ipLists.equals(currentIpPorts) && !this.sender.isHasSendError()) {
+    public void setAuditProxy(HashSet<String> ipPortList) {
+        if (ipPortList.equals(currentIpPorts) && !this.sender.isHasSendError()) {
             return;
         }
         this.sender.setHasSendError(false);
-        this.currentIpPorts = ipLists;
-        int ipSize = ipLists.size();
+        this.currentIpPorts = ipPortList;
+        int ipSize = ipPortList.size();
         int needNewSize = 0;
         if (this.maxConnectChannels == ALL_CONNECT_CHANNEL || this.maxConnectChannels >= ipSize) {
             needNewSize = ipSize;
@@ -113,7 +100,7 @@ public class SenderManager {
         }
         HashSet<String> updateConfigIpLists = new HashSet<>();
         List<String> availableIpLists = new ArrayList<String>();
-        availableIpLists.addAll(ipLists);
+        availableIpLists.addAll(ipPortList);
         for (int i = 0; i < needNewSize; i++) {
             int availableIpSize = availableIpLists.size();
             int newIpPortIndex = this.sRandom.nextInt(availableIpSize);
@@ -143,14 +130,12 @@ public class SenderManager {
      * send data
      *
      * @param sdkTime
-     * @param auditRequest
+     * @param baseCommand
      */
-    public void send(long sdkTime, AuditApi.AuditRequest auditRequest) {
-
-        Long requestId = this.nextRequestId();
-        AuditData data = new AuditData(sdkTime, auditRequest, requestId);
+    public void send(long sdkTime, AuditApi.BaseCommand baseCommand) {
+        AuditData data = new AuditData(sdkTime, baseCommand);
         // Cache first
-        this.dataMap.put(requestId, data);
+        this.dataMap.putIfAbsent(baseCommand.getAuditRequest().getRequestId(), data);
         this.sendData(data);
     }
 
@@ -190,27 +175,23 @@ public class SenderManager {
      * @param e
      */
     public void onMessageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        // Resolve address
-        InetSocketAddress destAddr = IpPort.parseInetSocketAddress(ctx.getChannel());
-        // Release channel semaphore
-        this.sender.release(destAddr);
         try {
             //Analyze abnormal events
             if (!(e.getMessage() instanceof ChannelBuffer)) {
-                System.out.println("onMessageReceived e.getMessage:" + e.getMessage());
+                logger.error("onMessageReceived e.getMessage:" + e.getMessage());
                 return;
             }
             ChannelBuffer readBuffer = (ChannelBuffer) e.getMessage();
             byte[] readBytes = readBuffer.toByteBuffer().array();
-            AuditApi.AuditReply auditReply = AuditApi.AuditReply.parseFrom(readBytes);
+            AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(readBytes);
             // Parse request id
-            Long requestId = auditReply.getRequestId();
+            Long requestId = baseCommand.getAuditReply().getRequestId();
             AuditData data = this.dataMap.get(requestId);
             if (data == null) {
-                System.out.println("can not find the requestid onMessageReceived:" + requestId);
+                logger.error("can not find the requestid onMessageReceived:" + requestId);
                 return;
             }
-            if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(auditReply.getRspCode())) {
+            if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
                 this.sender.notifyAll();
                 return;
@@ -221,7 +202,7 @@ public class SenderManager {
             }
             this.sender.notifyAll();
         } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
             this.sender.setHasSendError(true);
         }
     }
@@ -233,14 +214,11 @@ public class SenderManager {
      * @param e
      */
     public void onExceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+        logger.error(e.getCause().getMessage());
         try {
             this.sender.setHasSendError(true);
-            // Resolve address
-            InetSocketAddress destAddr = IpPort.parseInetSocketAddress(ctx.getChannel());
-            // Release channel semaphore
-            this.sender.release(destAddr);
         } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 }

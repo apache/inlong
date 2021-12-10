@@ -36,5 +36,4 @@ public class Encoder extends OneToOneEncoder {
             return src;
         }
     }
-
 }

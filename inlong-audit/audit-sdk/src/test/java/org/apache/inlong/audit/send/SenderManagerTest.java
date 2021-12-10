@@ -21,37 +21,36 @@ import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.Config;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
+;
+
 public class SenderManagerTest {
     private Config testConfig = new Config();
-
-    @Test
-    public void reload() {
-        testConfig.init();
-        SenderManager testManager = new SenderManager(testConfig);
-        testManager.reload("testFile");
-    }
 
     @Test
     public void nextRequestId() {
         SenderManager testManager = new SenderManager(testConfig);
         Long requestId = testManager.nextRequestId();
         System.out.println(requestId);
+        assertTrue(requestId == 0);
 
         requestId = testManager.nextRequestId();
-        System.out.println(requestId);
+        assertTrue(requestId == 1);
 
         requestId = testManager.nextRequestId();
-        System.out.println(requestId);
+        assertTrue(requestId == 2);
     }
 
     @Test
     public void send() {
         AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
         AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest content = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
-                                        .addMsgBody(body).build();
+        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
+                .addMsgBody(body).build();
+        AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
         SenderManager testManager = new SenderManager(testConfig);
-        testManager.send(System.currentTimeMillis(), content);
+        testManager.send(System.currentTimeMillis(), baseCommand);
     }
 
     @Test
@@ -59,6 +58,6 @@ public class SenderManagerTest {
         SenderManager testManager = new SenderManager(testConfig);
         testManager.clearBuffer();
         int dataMapSize = testManager.getDataMapSize();
-        System.out.println(dataMapSize);
+        assertTrue(dataMapSize == 0);
     }
 }

@@ -25,8 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AuditData {
     public static int HEAD_LENGTH = 4;
     private final long sdkTime;
-    private final AuditApi.AuditRequest content;
-    private final Long requestId;
+    private final AuditApi.BaseCommand content;
     private AtomicInteger resendTimes = new AtomicInteger(0);
 
     /**
@@ -34,12 +33,10 @@ public class AuditData {
      *
      * @param sdkTime
      * @param content
-     * @param requestId
      */
-    public AuditData(long sdkTime, AuditApi.AuditRequest content, Long requestId) {
+    public AuditData(long sdkTime, AuditApi.BaseCommand content) {
         this.sdkTime = sdkTime;
         this.content = content;
-        this.requestId = requestId;
     }
 
     /**
@@ -49,6 +46,11 @@ public class AuditData {
         return this.resendTimes.incrementAndGet();
     }
 
+    /**
+     * getDataByte
+     *
+     * @return
+     */
     public byte[] getDataByte() {
         return addBytes(ByteBuffer.allocate(HEAD_LENGTH).putInt(content.toByteArray().length).array(),
                 content.toByteArray());

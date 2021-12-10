@@ -36,7 +36,6 @@ public class Decoder extends FrameDecoder {
         // Every time you need to read the complete package (that is, read to the end of the package),
         // otherwise only the first one will be parsed correctly,
         // which will adversely affect the parsing of the subsequent package
-        buffer.array();
         buffer.markReaderIndex();
         //Packet composition: 4 bytes length content + ProtocolBuffer content
         int totalLen = buffer.readInt();
@@ -46,13 +45,12 @@ public class Decoder extends FrameDecoder {
             return null;
         }
         // If the package is not complete, continue to wait for the return package
-        if (buffer.readableBytes() < (totalLen - AuditData.HEAD_LENGTH)) {
+        if (buffer.readableBytes() < totalLen) {
             buffer.resetReaderIndex();
             return null;
         }
         ChannelBuffer returnBuffer = new DynamicChannelBuffer(ChannelBuffers.BIG_ENDIAN, totalLen);
-        returnBuffer.writeInt(totalLen);
-        buffer.readBytes(returnBuffer, AuditData.HEAD_LENGTH, totalLen - AuditData.HEAD_LENGTH);
+        buffer.readBytes(returnBuffer, 0, totalLen);
         return returnBuffer;
     }
 }

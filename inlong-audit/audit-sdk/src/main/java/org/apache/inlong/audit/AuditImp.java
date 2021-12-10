@@ -21,17 +21,24 @@ import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.send.SenderManager;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDITREQUEST;
 
 public class AuditImp {
+    private static final Logger logger = LoggerFactory.getLogger(AuditImp.class);
     private static AuditImp auditImp = new AuditImp();
     private static final String FIELD_SEPARATORS = ":";
     private ConcurrentHashMap<String, StatInfo> countMap = new ConcurrentHashMap<String, StatInfo>();
@@ -43,8 +50,9 @@ public class AuditImp {
     private int packageId = 1;
     private int dataId = 0;
     private static final int BATCH_NUM = 100;
+    boolean inited = false;
     private SenderManager manager;
-    private String configFile;
+    private static ReentrantLock globalLock = new ReentrantLock();
     private Timer timer = new Timer();
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -52,7 +60,7 @@ public class AuditImp {
             try {
                 sendReport();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
     };
@@ -64,12 +72,33 @@ public class AuditImp {
     /**
      * init
      */
-    public void init(String configFile) {
-        this.configFile = configFile;
+    private void init() {
+        if (inited) {
+            return;
+        }
         config.init();
         timer.schedule(timerTask, 1000 * 60, 1000 * 60);
         this.manager = new SenderManager(config);
-        this.manager.reload(this.configFile);
+    }
+
+    /**
+     * setAuditProxy
+     *
+     * @param ipPortList
+     */
+    public void setAuditProxy(HashSet<String> ipPortList) {
+        try {
+            globalLock.lockInterruptibly();
+            if (!inited) {
+                init();
+                inited = true;
+            }
+            this.manager.setAuditProxy(ipPortList);
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+        } finally {
+            globalLock.unlock();
+        }
     }
 
     /**
@@ -115,14 +144,12 @@ public class AuditImp {
      */
     private synchronized void sendReport() {
         manager.clearBuffer();
-        this.manager.reload(this.configFile);
         resetStat();
         // Retrieve statistics from the list of objects without statistics to be eliminated
         for (Map.Entry<String, StatInfo> entry : this.deleteCountMap.entrySet()) {
             this.sumThreadGroup(entry.getKey(), entry.getValue());
         }
         this.deleteCountMap.clear();
-        this.deleteKeyList.clear();
         for (Map.Entry<String, StatInfo> entry : countMap.entrySet()) {
             String key = entry.getKey();
             StatInfo value = entry.getValue();
@@ -147,7 +174,7 @@ public class AuditImp {
                 .setSdkTs(sdkTime).setPacketId(packageId)
                 .build();
         AuditApi.AuditRequest.Builder requestBulid = AuditApi.AuditRequest.newBuilder();
-        requestBulid.setMsgHeader(mssageHeader);
+        requestBulid.setMsgHeader(mssageHeader).setRequestId(manager.nextRequestId());
         for (Map.Entry<String, StatInfo> entry : threadSumMap.entrySet()) {
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
             long logTime = Long.parseLong(keyArray[0]) * 60;
@@ -165,13 +192,28 @@ public class AuditImp {
             if (dataId++ >= BATCH_NUM) {
                 dataId = 0;
                 packageId++;
-                manager.send(sdkTime, requestBulid.build());
+                sendByBaseCommand(sdkTime, requestBulid.build());
                 requestBulid.clearMsgBody();
             }
         }
         if (requestBulid.getMsgBodyCount() > 0) {
-            manager.send(sdkTime, requestBulid.build());
+            sendByBaseCommand(sdkTime, requestBulid.build());
+            requestBulid.clearMsgBody();
         }
+        threadSumMap.clear();
+        logger.info("finished send report.");
+    }
+
+    /**
+     * send base command
+     *
+     * @param sdkTime
+     * @param auditRequest
+     */
+    private void sendByBaseCommand(long sdkTime, AuditApi.AuditRequest auditRequest) {
+        AuditApi.BaseCommand.Builder baseCommand = AuditApi.BaseCommand.newBuilder();
+        baseCommand.setType(AUDITREQUEST).setAuditRequest(auditRequest).build();
+        manager.send(sdkTime, baseCommand.build());
     }
 
     /**
@@ -181,10 +223,14 @@ public class AuditImp {
      * @param statInfo
      */
     private void sumThreadGroup(String key, StatInfo statInfo) {
+        long count = statInfo.count.getAndSet(0);
+        if (0 == count) {
+            return;
+        }
         if (threadSumMap.get(key) == null) {
             threadSumMap.put(key, new StatInfo(0, 0, 0));
         }
-        long count = statInfo.count.getAndSet(0);
+
         long size = statInfo.size.getAndSet(0);
         long delay = statInfo.delay.getAndSet(0);
 

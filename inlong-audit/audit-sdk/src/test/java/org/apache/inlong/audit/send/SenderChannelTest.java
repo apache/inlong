@@ -26,12 +26,19 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class SenderChannelTest {
+    private static final Logger logger = LoggerFactory.getLogger(SenderChannelTest.class);
     private ClientBootstrap client = new ClientBootstrap();
-    private IpPort ipPortObj = new IpPort("127.0.0.1", 80);
+    private IpPort ipPortObj = new IpPort("0.0.0.0", 54041);
     private ChannelFuture future;
     SenderChannel senderChannel;
 
@@ -59,14 +66,14 @@ public class SenderChannelTest {
             future = client.connect(ipPortObj.addr).await();
             senderChannel = new SenderChannel(future.getChannel(), ipPortObj, 10);
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
     @Test
     public void tryAcquire() {
         boolean ret = senderChannel.tryAcquire();
-        System.out.println(ret);
+        assertTrue(ret);
     }
 
     @Test
@@ -77,21 +84,18 @@ public class SenderChannelTest {
     @Test
     public void testToString() {
         IpPort ipPort = senderChannel.getIpPort();
-        System.out.println(ipPort);
+        assertEquals(ipPort, ipPortObj);
     }
 
     @Test
     public void getIpPort() {
         String toString = senderChannel.toString();
-        System.out.println(toString);
+        assertEquals(toString, "0.0.0.0:54041");
     }
 
     @Test
     public void getChannel() {
         Channel channel = senderChannel.getChannel();
-        System.out.println(channel.getConfig().getConnectTimeoutMillis());
-        System.out.println(channel.getRemoteAddress());
-        System.out.println(channel.getId());
-        System.out.println(channel.getInterestOps());
+        assertFalse(channel.getRemoteAddress().toString().equals("0.0.0.0:54041"));
     }
 }

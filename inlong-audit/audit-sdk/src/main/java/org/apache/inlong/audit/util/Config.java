@@ -17,6 +17,9 @@
 
 package org.apache.inlong.audit.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,6 +30,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 public class Config {
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private String localIP = "";
     private String dockerId = "";
 
@@ -84,20 +88,20 @@ public class Config {
                 dockerId = dockerID2.substring(n + 1, 12);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
             return;
         } catch (NullPointerException e2) {
-            System.out.println(e2.getMessage());
+            logger.error(e2.getMessage());
             return;
         } catch (Exception e3) {
-            System.out.println(e3.getMessage());
+            logger.error(e3.getMessage());
             return;
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e4) {
-                    System.out.println(e4.getMessage());
+                    logger.error(e4.getMessage());
                 }
             }
         }
