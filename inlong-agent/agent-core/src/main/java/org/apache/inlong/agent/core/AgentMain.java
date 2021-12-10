@@ -45,8 +45,10 @@ public class AgentMain {
     private static HTTPServer metricsServer;
 
     static {
-        // register hotspot collectors
-        DefaultExports.initialize();
+        if (ConfigUtil.isPrometheusEnabled()) {
+            // register hotspot collectors
+            DefaultExports.initialize();
+        }
     }
 
     /**
@@ -139,7 +141,10 @@ public class AgentMain {
             LOGGER.error("exception caught", ex);
         } finally {
             manager.stop();
-            metricsServer.stop();
+
+            if (metricsServer != null) {
+                metricsServer.stop();
+            }
         }
     }
 }
