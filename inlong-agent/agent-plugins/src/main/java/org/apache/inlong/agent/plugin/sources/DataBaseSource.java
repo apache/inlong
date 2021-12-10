@@ -22,9 +22,12 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
+import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 
 /**
  * Make database as Source
@@ -33,10 +36,16 @@ public class DataBaseSource implements Source {
 
     private static final String JOB_DATABASE_SQL = "job.database.sql";
 
+    private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
+
     private final SourceMetrics sourceMetrics;
 
-    public DataBaseSource(SourceMetrics sourceMetrics) {
-        this.sourceMetrics = sourceMetrics;
+    public DataBaseSource() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sourceMetrics = new SourcePrometheusMetrics(DATABASE_SOURCE_TAG_NAME);
+        } else {
+            this.sourceMetrics = new SourceJmxMetric(DATABASE_SOURCE_TAG_NAME);
+        }
     }
 
     /**

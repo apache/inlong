@@ -97,8 +97,7 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
             "[1-2].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
-        SourceMetrics sourceMetrics = new SourceJmxMetric("test_text_file_reader");
-        TextFileSource fileSource = new TextFileSource(sourceMetrics);
+        TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(2, readerList.size());
         Reader reader = readerList.get(0);

@@ -68,8 +68,7 @@ public class TestDateFormatRegex {
     public void testFileFilter() throws Exception {
         String currentDate = AgentUtils.formatCurrentTime("yyyyMMdd");
         Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
-        SourceMetrics sourceMetrics = new SourceJmxMetric("test_file_filter");
-        TextFileSource source = new TextFileSource(sourceMetrics);
+        TextFileSource source = new TextFileSource();
         JobProfile profile = new JobProfile();
         profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");

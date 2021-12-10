@@ -30,9 +30,14 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
+import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
+import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +48,19 @@ public class TextFileSource implements Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
 
+    private static final String TEXT_FILE_SOURCE_TAG_NAME = "AgentTextFileSourceMetric";
+
     // path + suffix
     public static final String MD5_SUFFIX = ".md5";
 
     private final SourceMetrics sourceMetrics;
 
-    public TextFileSource(SourceMetrics sourceMetrics) {
-        this.sourceMetrics = sourceMetrics;
+    public TextFileSource() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sourceMetrics = new SourcePrometheusMetrics(TEXT_FILE_SOURCE_TAG_NAME);
+        } else {
+            this.sourceMetrics = new SourceJmxMetric(TEXT_FILE_SOURCE_TAG_NAME);
+        }
     }
 
     @Override
