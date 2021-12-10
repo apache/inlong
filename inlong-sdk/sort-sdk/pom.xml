@@ -9,11 +9,10 @@
         <artifactId>inlong-sdk</artifactId>
         <version>0.12.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>inlong-sort-sdk</artifactId>
+    <artifactId>sort-sdk</artifactId>
     <version>0.12.0-incubating-SNAPSHOT</version>
 
     <name>Apache InLong - Sort SDK</name>
-    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
@@ -56,13 +55,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.10</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
