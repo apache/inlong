@@ -12,7 +12,7 @@ The audit sdk uses log production time as the audit standard,
 which can ensure that each module is reconciled in accordance with the unified audit standard.
 
 ## usage
-### init
+### setAuditProxy
 Set the audit access layer ip:port list. The audit sdk will summarize the results according to the cycle 
 and send them to the ip:port list set by the interface.
 If the ip:port of the audit access layer is fixed, then this interface needs to be called once. 
