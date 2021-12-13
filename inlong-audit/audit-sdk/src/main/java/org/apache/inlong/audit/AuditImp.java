@@ -53,6 +53,7 @@ public class AuditImp {
     boolean inited = false;
     private SenderManager manager;
     private static ReentrantLock globalLock = new ReentrantLock();
+    private static int PERIOD = 1000 * 60;
     private Timer timer = new Timer();
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -77,7 +78,7 @@ public class AuditImp {
             return;
         }
         config.init();
-        timer.schedule(timerTask, 1000 * 60, 1000 * 60);
+        timer.schedule(timerTask, PERIOD, PERIOD);
         this.manager = new SenderManager(config);
     }
 
@@ -113,7 +114,7 @@ public class AuditImp {
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
-        String key = (logTime / (60 * 1000)) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
+        String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
                 + inlongStreamID + FIELD_SEPARATORS + auditID;
         addByKey(key, count, size, delayTime);
     }
