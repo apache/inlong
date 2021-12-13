@@ -232,13 +232,13 @@ public class SortClientConfig implements Serializable {
      * ConsumeStrategy
      */
     public enum ConsumeStrategy {
-        // consume from last ack position,if not exists then consume from smallest
-        smallest,
+        // consume from last ack position,if not exists then consume from earliest
+        earliest,
         // consume from last ack position,if not exists then consume from lastest
-        largest,
+        lastest,
         // consume from smallest position
-        smallest_absolutely,
+        earliest_absolutely,
         // consume from largest position
-        largest_absolutely
+        lastest_absolutely
     }
 }
