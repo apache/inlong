@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsar.federation;
+package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,11 +26,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
+import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
-import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
+import org.apache.inlong.sort.standalone.utils.Constants;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -43,7 +44,6 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PulsarProducerCluster implements LifecycleAware {
 
-    public static final Logger LOG = LoggerFactory.getLogger(PulsarProducerCluster.class);
+    public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarProducerCluster.class);
 
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
@@ -114,8 +114,6 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .authentication(AuthenticationFactory.token(authentication))
                     .build();
             this.baseBuilder = client.newProducer();
-//            Map<String, Object> builderConf = new HashMap<>();
-//            builderConf.putAll(context.getParameters());
             this.baseBuilder
                     .hashingScheme(HashingScheme.Murmur3_32Hash)
                     .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
@@ -166,7 +164,7 @@ public class PulsarProducerCluster implements LifecycleAware {
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
-        //
+        // close producer
         for (Entry<String, Producer<byte[]>> entry : this.producerMap.entrySet()) {
             try {
                 entry.getValue().close();
@@ -195,8 +193,9 @@ public class PulsarProducerCluster implements LifecycleAware {
      * send
      * 
      * @param event
+     * @param tx
      */
-    public boolean send(Event event) {
+    public boolean send(Event event, Transaction tx) {
         // send
         Map<String, String> headers = event.getHeaders();
         String topic = headers.get(Constants.TOPIC);
@@ -205,11 +204,8 @@ public class PulsarProducerCluster implements LifecycleAware {
         if (producer == null) {
             try {
                 LOG.info("try to new a object for topic " + topic);
-                SecureRandom secureRandom = new SecureRandom(
-                        (workerName + "-" + cacheClusterName + "-" + topic + System.currentTimeMillis()).getBytes());
-                String producerName = workerName + "-" + cacheClusterName + "-" + topic + "-" + secureRandom.nextLong();
                 producer = baseBuilder.clone().topic(topic)
-                        .producerName(producerName)
+                        .producerName(workerName + "-" + cacheClusterName + "-" + topic)
                         .create();
                 LOG.info("create new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
@@ -224,30 +220,30 @@ public class PulsarProducerCluster implements LifecycleAware {
         }
         // create producer failed
         if (producer == null) {
-            sinkContext.getBufferQueue().release(event.getBody().length);
+            tx.rollback();
+            tx.close();
             this.addMetric(event, topic, false, 0);
             return false;
         }
-        // sendAsync
-        CompletableFuture<MessageId> future = null;
         String messageKey = headers.get(Constants.MESSAGE_KEY);
-        long sendTime = System.currentTimeMillis();
         if (messageKey == null) {
-            future = producer.newMessage().properties(headers)
-                    .value(event.getBody()).sendAsync();
-        } else {
-            future = producer.newMessage().key(messageKey).properties(headers)
-                    .value(event.getBody()).sendAsync();
+            messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
         }
+        // sendAsync
+        long sendTime = System.currentTimeMillis();
+        CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
+                .value(event.getBody()).sendAsync();
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
                 LOG.error("Send fail:{}", ex.getMessage());
                 LOG.error(ex.getMessage(), ex);
-                sinkContext.getBufferQueue().offer(event);
+                tx.rollback();
+                tx.close();
                 this.addMetric(event, topic, false, 0);
             } else {
-                sinkContext.getBufferQueue().release(event.getBody().length);
+                tx.commit();
+                tx.close();
                 this.addMetric(event, topic, true, sendTime);
             }
         });
@@ -264,12 +260,12 @@ public class PulsarProducerCluster implements LifecycleAware {
      */
     private void addMetric(Event currentRecord, String topic, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.sinkContext.getProxyClusterId());
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.sinkContext.getClusterId());
         // metric
-        DataProxyMetricItem.fillInlongId(currentRecord, dimensions);
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.cacheClusterName);
-        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
-        DataProxyMetricItem metricItem = this.sinkContext.getMetricItemSet().findMetricItem(dimensions);
+        SortMetricItem.fillInlongId(currentRecord, dimensions);
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.cacheClusterName);
+        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
+        SortMetricItem metricItem = this.sinkContext.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
             metricItem.sendSuccessCount.incrementAndGet();
             metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
