@@ -68,7 +68,7 @@ public class PulsarFederationSinkContext extends SinkContext {
             }
             this.sortTaskConfig = newSortTaskConfig;
             this.producerContext = new Context(this.sortTaskConfig.getSinkParams());
-            //
+            // parse the config of id and topic
             Map<String, String> newIdTopicMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             for (Map<String, String> idParam : idList) {
@@ -78,13 +78,13 @@ public class PulsarFederationSinkContext extends SinkContext {
                 String topic = idParam.getOrDefault(Constants.TOPIC, uid);
                 newIdTopicMap.put(uid, topic);
             }
-            //
+            // build cache cluster config
             CacheClusterConfig clusterConfig = new CacheClusterConfig();
             clusterConfig.setClusterName(this.taskName);
             clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
             List<CacheClusterConfig> newClusterConfigList = new ArrayList<>();
             newClusterConfigList.add(clusterConfig);
-            //
+            // change current config
             this.idTopicMap = newIdTopicMap;
             this.clusterConfigList = newClusterConfigList;
         } catch (Throwable e) {

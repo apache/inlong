@@ -114,8 +114,6 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .authentication(AuthenticationFactory.token(authentication))
                     .build();
             this.baseBuilder = client.newProducer();
-//            Map<String, Object> builderConf = new HashMap<>();
-//            builderConf.putAll(context.getParameters());
             this.baseBuilder
                     .hashingScheme(HashingScheme.Murmur3_32Hash)
                     .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
@@ -166,7 +164,7 @@ public class PulsarProducerCluster implements LifecycleAware {
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
-        //
+        // close producer
         for (Entry<String, Producer<byte[]>> entry : this.producerMap.entrySet()) {
             try {
                 entry.getValue().close();
