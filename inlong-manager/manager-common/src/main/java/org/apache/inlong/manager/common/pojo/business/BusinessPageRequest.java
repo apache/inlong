@@ -34,6 +34,9 @@ public class BusinessPageRequest extends PageRequest {
     @ApiModelProperty(value = "Keywords")
     private String keyWord;
 
+    @ApiModelProperty(value = "MQ resource object")
+    private String middlewareType;
+
     @ApiModelProperty(value = "Status")
     private Integer status;
 
