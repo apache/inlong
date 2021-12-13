@@ -52,6 +52,9 @@ public class InLongPulsarFetcherImplTest {
     private StatManager statManager;
     private SortClientStateCounter sortClientStateCounter;
 
+    /**
+     * setUp
+     */
     @Before
     public void setUp() throws Exception {
         inLongTopic = new InLongTopic();
@@ -114,7 +117,6 @@ public class InLongPulsarFetcherImplTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Test
@@ -157,8 +159,6 @@ public class InLongPulsarFetcherImplTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Test

@@ -140,7 +140,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     }
 
     /**
-     * 创建Consumer
+     * create and init Consumer
      *
      * @return boolean
      */

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.impl;
 
-
 import org.apache.inlong.sort.api.ClientContext;
 import org.apache.inlong.sort.api.MetricReporter;
 import org.apache.inlong.sort.api.SortClientConfig;

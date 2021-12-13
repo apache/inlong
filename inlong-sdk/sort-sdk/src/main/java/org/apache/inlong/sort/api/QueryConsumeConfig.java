@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.api;
 
-
 import org.apache.inlong.sort.entity.ConsumeConfig;
 
 public interface QueryConsumeConfig {

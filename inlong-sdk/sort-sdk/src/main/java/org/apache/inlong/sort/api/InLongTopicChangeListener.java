@@ -20,7 +20,6 @@ package org.apache.inlong.sort.api;
 import java.util.Set;
 import org.apache.inlong.sort.entity.InLongTopic;
 
-
 public interface InLongTopicChangeListener {
 
     /**

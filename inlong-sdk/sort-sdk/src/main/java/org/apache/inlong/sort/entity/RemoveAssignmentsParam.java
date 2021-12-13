@@ -27,7 +27,6 @@ public class RemoveAssignmentsParam {
 
     public long callListenerTimeoutMs = 5000;
 
-
     public RemoveAssignmentsParam(String taskId, InLongTopic inLongTopic, boolean callListener) {
         this.taskId = taskId;
         this.inLongTopic = inLongTopic;

@@ -25,17 +25,12 @@ public class SortClientConfig implements Serializable {
 
     private static final long serialVersionUID = -7531960714809683830L;
 
-    //订阅id
     private String sortTaskId;
-    //订阅服务对应的名字
     private String sortClusterName = "default";
-    //回调dds 调度控制类信息
     private InLongTopicChangeListener assignmentsListener;
-    //回调消费给DDS
     private ReadCallback callback;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
-
     private String localIp;
     private String appName;
     private String serverName;
@@ -59,7 +54,6 @@ public class SortClientConfig implements Serializable {
         this.localIp = localIp;
     }
 
-
     public boolean isStopConsume() {
         return stopConsume;
     }
@@ -75,7 +69,6 @@ public class SortClientConfig implements Serializable {
     public void setSortTaskId(String sortTaskId) {
         this.sortTaskId = sortTaskId;
     }
-
 
     public String getSortClusterName() {
         return sortClusterName;
@@ -248,5 +241,4 @@ public class SortClientConfig implements Serializable {
         // consume from largest position
         largest_absolutely
     }
-
 }
