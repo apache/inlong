@@ -65,8 +65,7 @@ public class PrometheusMetricListener implements MetricListener {
             ObjectName objName = new ObjectName(strBeanName);
             mbs.registerMBean(metricItem, objName);
         } catch (Exception ex) {
-            LOG.error("exception while register mbean:{},error:{}", strBeanName, ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
+            LOG.error("exception while register mbean:{},error:{}", strBeanName, ex);
         }
         // prepare metric value map
         metricValueMap.put(SortMetricItem.M_READ_SUCCESS_COUNT, metricItem.readSuccessCount);
@@ -106,5 +105,4 @@ public class PrometheusMetricListener implements MetricListener {
             }
         }
     }
-
 }
