@@ -355,7 +355,7 @@ CREATE TABLE `data_stream`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_stream_id`       varchar(128) NOT NULL COMMENT 'Data stream id, non-deleted globally unique',
     `inlong_group_id`        varchar(128) NOT NULL COMMENT 'Owning business group id',
-    `name`                   varchar(64)  NOT NULL COMMENT 'The name of the data stream page display, can be Chinese',
+    `name`                   varchar(64)  DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
     `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is Topic',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
