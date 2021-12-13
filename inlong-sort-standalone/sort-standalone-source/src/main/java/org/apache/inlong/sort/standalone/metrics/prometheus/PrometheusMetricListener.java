@@ -48,7 +48,6 @@ public class PrometheusMetricListener implements MetricListener {
 
     public static final Logger LOG = LoggerFactory.getLogger(MetricRegister.class);
 
-    //
     private SortMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
 
@@ -69,7 +68,7 @@ public class PrometheusMetricListener implements MetricListener {
             LOG.error("exception while register mbean:{},error:{}", strBeanName, ex.getMessage());
             LOG.error(ex.getMessage(), ex);
         }
-        //
+        // prepare metric value map
         metricValueMap.put(SortMetricItem.M_READ_SUCCESS_COUNT, metricItem.readSuccessCount);
         metricValueMap.put(SortMetricItem.M_READ_SUCCESS_SIZE, metricItem.readSuccessSize);
         metricValueMap.put(SortMetricItem.M_READ_FAIL_COUNT, metricItem.readFailCount);
