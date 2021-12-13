@@ -242,7 +242,7 @@ DROP TABLE IF EXISTS `consumption`;
 CREATE TABLE `consumption`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(255) NULL COMMENT 'consumer group name',
+    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group id',
@@ -269,7 +269,7 @@ CREATE TABLE `consumption_pulsar`
     `id`                  int(11)      NOT NULL AUTO_INCREMENT,
     `consumption_id`      int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
-    `consumer_group_name` varchar(255) NOT NULL COMMENT 'Consumer group name',
+    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'Consumer group name',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group ID',
     `is_rlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
     `retry_letter_topic`  varchar(255) DEFAULT NULL COMMENT 'The name of the retry queue topic',
