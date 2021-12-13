@@ -58,13 +58,20 @@ import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
+
+    private static final String PROXY_SINK_TAG_NAME = "AgentProxySinkMetric";
+
     private MessageFilter messageFilter;
     private SenderManager senderManager;
     private byte[] fieldSplitter;
@@ -84,6 +91,16 @@ public class ProxySink extends AbstractSink {
     // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
+
+    private final SinkMetrics sinkMetrics;
+
+    public ProxySink() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sinkMetrics = new SinkPrometheusMetrics(PROXY_SINK_TAG_NAME);
+        } else {
+            this.sinkMetrics = new SinkJmxMetric(PROXY_SINK_TAG_NAME);
+        }
+    }
 
     @Override
     public void write(Message message) {
@@ -105,6 +122,11 @@ public class ProxySink extends AbstractSink {
                         //
                         return packProxyMessage;
                     });
+                // increment the count of successful sinks
+                sinkMetrics.incSinkSuccessCount();
+            } else {
+                // increment the count of failed sinks
+                sinkMetrics.incSinkFailCount();
             }
         }
     }

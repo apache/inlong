@@ -17,7 +17,8 @@
 
 package org.apache.inlong.agent.core;
 
-import java.util.Iterator;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -25,8 +26,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 
 /**
  * Agent entrance class
@@ -34,6 +41,15 @@ import org.slf4j.LoggerFactory;
 public class AgentMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMain.class);
+
+    private static HTTPServer metricsServer;
+
+    static {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            // register hotspot collectors
+            DefaultExports.initialize();
+        }
+    }
 
     /**
      * Print help information
@@ -111,11 +127,24 @@ public class AgentMain {
         try {
             manager.start();
             stopManagerIfKilled(manager);
+
+            if (ConfigUtil.isPrometheusEnabled()) {
+                // starting metrics server
+                int metricsServerPort = AgentConfiguration.getAgentConf()
+                        .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
+                LOGGER.info("Starting prometheus metrics server on port {}", metricsServerPort);
+                metricsServer = new HTTPServer(metricsServerPort);
+            }
+
             manager.join();
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         } finally {
             manager.stop();
+
+            if (metricsServer != null) {
+                metricsServer.stop();
+            }
         }
     }
 }

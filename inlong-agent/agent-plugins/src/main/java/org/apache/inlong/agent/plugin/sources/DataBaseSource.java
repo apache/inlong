@@ -22,8 +22,12 @@ import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
+import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 
 /**
  * Make database as Source
@@ -31,6 +35,18 @@ import org.apache.inlong.agent.utils.AgentDbUtils;
 public class DataBaseSource implements Source {
 
     private static final String JOB_DATABASE_SQL = "job.database.sql";
+
+    private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
+
+    private final SourceMetrics sourceMetrics;
+
+    public DataBaseSource() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sourceMetrics = new SourcePrometheusMetrics(DATABASE_SOURCE_TAG_NAME);
+        } else {
+            this.sourceMetrics = new SourceJmxMetric(DATABASE_SOURCE_TAG_NAME);
+        }
+    }
 
     /**
      * Use SQL to read data.
@@ -58,9 +74,18 @@ public class DataBaseSource implements Source {
     @Override
     public List<Reader> split(JobProfile conf) {
         String sqlPattern = conf.get(JOB_DATABASE_SQL, "").toLowerCase();
+        List<Reader> readerList = null;
         if (!sqlPattern.isEmpty()) {
-            return splitSqlJob(sqlPattern);
+            readerList = splitSqlJob(sqlPattern);
         }
-        return null;
+        if (readerList != null) {
+            // increment the count of successful sources
+            sourceMetrics.incSourceSuccessCount();
+        } else {
+            // database type or sql is incorrect
+            // increment the count of failed sources
+            sourceMetrics.incSourceFailCount();
+        }
+        return readerList;
     }
 }

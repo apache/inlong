@@ -17,33 +17,33 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.plugin.metrics;
 
-public interface TaskMetrics {
-
-    /**
-     * Increment the running task metric.
-     */
-    void incRunningTaskCount();
+public interface SourceMetrics {
 
     /**
-     * Decrement the running task metric.
+     * @return The tag name of source metrics.
      */
-    void decRunningTaskCount();
+    String getTagName();
 
     /**
-     * Increment the retrying task metric.
+     * Count the source success message count in agent source since agent started.
      */
-    void incRetryingTaskCount();
+    void incSourceSuccessCount();
 
     /**
-     * Decrement the retrying task metric.
+     * @return Count of the source success metric.
      */
-    void decRetryingTaskCount();
+    long getSourceSuccessCount();
 
     /**
-     * Increment the fatal task metric.
+     * Count the source failed message count in agent source since agent started.
      */
-    void incFatalTaskCount();
+    void incSourceFailCount();
+
+    /**
+     * @return Count of the source fail metric.
+     */
+    long getSourceFailCount();
 
 }

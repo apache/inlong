@@ -17,33 +17,18 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.utils;
 
-public interface TaskMetrics {
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
+import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_ENABLE;
 
-    /**
-     * Increment the running task metric.
-     */
-    void incRunningTaskCount();
+import org.apache.inlong.agent.conf.AgentConfiguration;
 
-    /**
-     * Decrement the running task metric.
-     */
-    void decRunningTaskCount();
+public class ConfigUtil {
 
-    /**
-     * Increment the retrying task metric.
-     */
-    void incRetryingTaskCount();
-
-    /**
-     * Decrement the retrying task metric.
-     */
-    void decRetryingTaskCount();
-
-    /**
-     * Increment the fatal task metric.
-     */
-    void incFatalTaskCount();
+    public static boolean isPrometheusEnabled() {
+        AgentConfiguration conf = AgentConfiguration.getAgentConf();
+        return conf.getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);
+    }
 
 }
