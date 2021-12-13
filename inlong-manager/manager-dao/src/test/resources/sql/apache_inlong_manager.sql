@@ -228,7 +228,7 @@ DROP TABLE IF EXISTS `consumption`;
 CREATE TABLE `consumption`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'consumer group name',
+    `consumer_group_name` varchar(255) NOT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group id',
@@ -254,7 +254,7 @@ CREATE TABLE `consumption_pulsar`
     `id`                  int(11)      NOT NULL AUTO_INCREMENT,
     `consumption_id`      int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
-    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'Consumer group name',
+    `consumer_group_name` varchar(255) NOT NULL COMMENT 'Consumer group name',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group ID',
     `is_rlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
     `retry_letter_topic`  varchar(255) DEFAULT NULL COMMENT 'The name of the retry queue topic',
@@ -336,7 +336,7 @@ CREATE TABLE `data_stream`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_stream_id`       varchar(128) NOT NULL COMMENT 'Data stream id, non-deleted globally unique',
     `inlong_group_id`        varchar(128) NOT NULL COMMENT 'Owning business group id',
-    `name`                   varchar(64)  DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
+    `name`                   varchar(64)  NOT NULL COMMENT 'The name of the data stream page display, can be Chinese',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
     `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is Topic',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
