@@ -47,7 +47,7 @@ public interface MessageConsumer extends Shutdownable {
      * consume data until the partition is unfrozen or
      * rebalanced to other clients in the same group
      *
-     * @return void
+     * @param partitionKeys  The partitionKey list that needs to be frozen
      */
     void freezePartitions(List<String> partitionKeys) throws TubeClientException;
 
@@ -55,7 +55,7 @@ public interface MessageConsumer extends Shutdownable {
      * unfreeze frozen partitions, the specified partition will
      * resume data consumption until the partition is frozen again
      *
-     * @return void
+     * @param partitionKeys  The partitionKey list that needs to be unfrozen
      */
     void unfreezePartitions(List<String> partitionKeys) throws TubeClientException;
 
@@ -63,7 +63,6 @@ public interface MessageConsumer extends Shutdownable {
      * unfreeze all frozen partitions, the unfreeze partition will
      * resume data consumption until the partition is frozen again
      *
-     * @return void
      */
     void relAllFrozenPartitions();
 

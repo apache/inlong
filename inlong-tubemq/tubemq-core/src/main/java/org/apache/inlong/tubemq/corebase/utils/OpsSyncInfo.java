@@ -35,6 +35,11 @@ public class OpsSyncInfo {
 
     }
 
+    /**
+     * Update Ops task information
+     *
+     * @param opsTaskInfo   the ops task information sent from Master
+     */
     public void updOpsSyncInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
         if (opsTaskInfo == null) {
             return;

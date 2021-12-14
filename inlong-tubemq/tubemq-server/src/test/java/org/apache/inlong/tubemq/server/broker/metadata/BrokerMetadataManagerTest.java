@@ -20,8 +20,8 @@ package org.apache.inlong.tubemq.server.broker.metadata;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 /***
  * BrokerMetadataManage test
@@ -44,13 +44,13 @@ public class BrokerMetadataManagerTest {
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         // get topic custom config.
         long count = brokerMetadataManager.getNumPartitions("topic2");
-        Assert.isTrue(count == 4);
+        Assert.assertEquals(count, 4);
         // add topic custom config.
         newTopicMetaConfInfoList.add("topic3:6:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         brokerMetadataManager.updateBrokerTopicConfigMap(0L, 1,
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         count = brokerMetadataManager.getNumPartitions("topic3");
-        Assert.isTrue(count == 6);
+        Assert.assertEquals(count, 6);
     }
 
     @Test
@@ -64,12 +64,12 @@ public class BrokerMetadataManagerTest {
         brokerMetadataManager.updateBrokerTopicConfigMap(0L, 0,
                 newBrokerDefMetaConfInfo, newTopicMetaConfInfoList, true, new StringBuilder());
         Map<String, TopicMetadata> topicMetadataMap = brokerMetadataManager.getRemovedTopicConfigMap();
-        Assert.isTrue(topicMetadataMap.size() == 0);
+        Assert.assertEquals(topicMetadataMap.size(), 0);
         List<String> rmvTopics = new LinkedList<>();
         rmvTopics.add("topic2:4:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000:1");
         // update topic custom config.
         brokerMetadataManager.updateBrokerRemoveTopicMap(true, rmvTopics, new StringBuilder());
         topicMetadataMap = brokerMetadataManager.getRemovedTopicConfigMap();
-        Assert.isTrue(topicMetadataMap.size() == 1);
+        Assert.assertEquals(topicMetadataMap.size(), 1);
     }
 }
