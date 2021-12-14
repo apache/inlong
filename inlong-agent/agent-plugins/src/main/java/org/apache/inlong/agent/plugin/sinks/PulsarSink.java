@@ -89,11 +89,15 @@ public class PulsarSink extends AbstractDaemon implements Sink {
 
     public PulsarSink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
-            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
-            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 

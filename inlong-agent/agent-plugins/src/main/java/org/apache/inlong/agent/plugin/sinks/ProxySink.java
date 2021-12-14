@@ -97,9 +97,11 @@ public class ProxySink extends AbstractSink {
 
     public ProxySink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(PROXY_SINK_TAG_NAME, index.incrementAndGet()));
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         } else {
-            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(PROXY_SINK_TAG_NAME, index.incrementAndGet()));
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         }
     }
 

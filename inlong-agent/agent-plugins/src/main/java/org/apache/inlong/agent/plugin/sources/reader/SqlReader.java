@@ -96,9 +96,11 @@ public class SqlReader implements Reader {
         this.sql = sql;
 
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sqlFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sqlFileMetric = new PluginPrometheusMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.sqlFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sqlFileMetric = new PluginJmxMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
