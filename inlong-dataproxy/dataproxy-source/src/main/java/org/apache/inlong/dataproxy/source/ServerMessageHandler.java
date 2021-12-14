@@ -22,6 +22,8 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -32,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
@@ -48,6 +49,9 @@ import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.utils.MonitorIndex;
+import org.apache.inlong.dataproxy.utils.MonitorIndexExt;
+import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -60,9 +64,6 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
 /**
  * Server message handler
  *
@@ -72,10 +73,14 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
 
     private static final String DEFAULT_REMOTE_IP_VALUE = "0.0.0.0";
+
     private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
+
     private static final ConfigManager configManager = ConfigManager.getInstance();
+
     private static final Joiner.MapJoiner mapJoiner = Joiner.on(AttributeConstants.SEPARATOR)
             .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+
     private static final Splitter.MapSplitter mapSplitter = Splitter
             .on(AttributeConstants.SEPARATOR)
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
@@ -87,6 +92,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     return new SimpleDateFormat("yyyyMMddHHmm");
                 }
             };
+
     private static final ThreadLocal<SimpleDateFormat> dateFormator4Transfer =
             new ThreadLocal<SimpleDateFormat>() {
                 @Override
@@ -95,27 +101,43 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
             };
     private AbstractSource source;
+
     private final ChannelGroup allChannels;
+
     private int maxConnections = Integer.MAX_VALUE;
+
     private boolean filterEmptyMsg = false;
+
     private final boolean isCompressed;
+
     private final ChannelProcessor processor;
-    private final ServiceDecoder serviceProcessor;
+
+    private final ServiceDecoder serviceDecoder;
+
     private final String defaultTopic;
+
     private String defaultMXAttr = "m=3";
+
     private final ChannelBuffer heartbeatBuffer;
+
     private final String protocolType;
+
+
+    private MonitorIndex monitorIndex;
+
+    private MonitorIndexExt monitorIndexExt;
+
     //
     private final DataProxyMetricItemSet metricItemSet;
 
-    public ServerMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
-                                ChannelGroup allChannels,
-                                String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,
-                                Integer maxCons,
-                                Boolean isCompressed, String protocolType) {
+    public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
+            ChannelGroup allChannels,
+            String topic, String attr, Boolean filterEmptyMsg,
+            Integer maxCons, Boolean isCompressed, MonitorIndex monitorIndex,
+            MonitorIndexExt monitorIndexExt, String protocolType) {
         this.source = source;
         this.processor = source.getChannelProcessor();
-        this.serviceProcessor = serProcessor;
+        this.serviceDecoder = serviceDecoder;
         this.allChannels = allChannels;
         this.defaultTopic = topic;
         if (null != attr) {
@@ -132,6 +154,8 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         } else {
             this.metricItemSet = new DataProxyMetricItemSet(this.toString());
         }
+        this.monitorIndex = monitorIndex;
+        this.monitorIndexExt = monitorIndexExt;
     }
 
     private String getRemoteIp(Channel channel) {
@@ -225,7 +249,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
-        Map<String, String> attrMap, AtomicReference<String> topicInfo) {
+            Map<String, String> attrMap, AtomicReference<String> topicInfo) {
         String groupId = message.getGroupId();
         String streamId;
         if (null != groupId) {
@@ -233,10 +257,10 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             if ("dc".equals(from)) {
                 String dcInterfaceId = message.getStreamId();
                 if (StringUtils.isNotEmpty(dcInterfaceId)
-                    && configManager.getDcMappingProperties()
-                    .containsKey(dcInterfaceId.trim())) {
+                        && configManager.getDcMappingProperties()
+                        .containsKey(dcInterfaceId.trim())) {
                     groupId = configManager.getDcMappingProperties()
-                        .get(dcInterfaceId.trim()).trim();
+                            .get(dcInterfaceId.trim()).trim();
                     message.setGroupId(groupId);
                 }
             }
@@ -258,16 +282,16 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
 
             if (configManager.getGroupIdMappingProperties() != null
-                && configManager.getStreamIdMappingProperties() != null) {
+                    && configManager.getStreamIdMappingProperties() != null) {
                 groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
                 streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
-                    ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+                        ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
                 if (groupId != null && streamId != null) {
                     String enableTrans =
-                        (configManager.getGroupIdEnableMappingProperties() == null)
-                            ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
+                            (configManager.getGroupIdEnableMappingProperties() == null)
+                                    ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
                     if (("TRUE".equalsIgnoreCase(enableTrans) && "TRUE"
-                        .equalsIgnoreCase(num2name))) {
+                            .equalsIgnoreCase(num2name))) {
                         String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
                         message.setData(newBinMsg(message.getData(), extraAttr));
                     }
@@ -287,8 +311,8 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     private void updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
-        Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-        String strRemoteIP, MsgType msgType) {
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP, MsgType msgType) {
         for (ProxyMessage message : msgList) {
             Map<String, String> attrMap = message.getAttributeMap();
 
@@ -298,7 +322,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
             topic = topicInfo.get();
 
-//                if(groupId==null)groupId="b_test";//default groupId
+            //                if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
@@ -315,15 +339,15 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             if (groupId != null && streamId != null) {
                 String tubeSwtichKey = groupId + SEPARATOR + streamId;
                 if (configManager.getTubeSwitchProperties().get(tubeSwtichKey) != null
-                    && "false".equals(configManager.getTubeSwitchProperties()
-                    .get(tubeSwtichKey).trim())) {
+                        && "false".equals(configManager.getTubeSwitchProperties()
+                        .get(tubeSwtichKey).trim())) {
                     continue;
                 }
             }
 
             if (!"pb".equals(attrMap.get(AttributeConstants.MESSAGE_TYPE))
-                && !MsgType.MSG_MULTI_BODY.equals(msgType)
-                && !MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
+                    && !MsgType.MSG_MULTI_BODY.equals(msgType)
+                    && !MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
                 byte[] data = message.getData();
                 if (data[data.length - 1] == '\n') {
                     int tripDataLen = data.length - 1;
@@ -340,16 +364,16 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 streamId = "";
             }
             HashMap<String, List<ProxyMessage>> streamIdMsgMap = messageMap
-                .computeIfAbsent(topic, k -> new HashMap<>());
+                    .computeIfAbsent(topic, k -> new HashMap<>());
             List<ProxyMessage> streamIdMsgList = streamIdMsgMap
-                .computeIfAbsent(streamId, k -> new ArrayList<>());
+                    .computeIfAbsent(streamId, k -> new ArrayList<>());
             streamIdMsgList.add(message);
         }
     }
 
     private void formatMessagesAndSend(Map<String, String> commonAttrMap,
-        Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-        String strRemoteIP, MsgType msgType) throws MessageIDException {
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP, MsgType msgType) throws MessageIDException {
 
         int tdMsgVer = 1;
         if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
@@ -407,7 +431,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
 
                     StringBuilder sidBuilder = new StringBuilder();
                     sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(streamIdEntry.getKey())
-                        .append(SEPARATOR).append(sequenceId);
+                            .append(SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
 
@@ -420,19 +444,33 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 } catch (Exception e1) {
                     long uniqVal = Long.parseLong(commonAttrMap.get(AttributeConstants.UNIQ_ID));
                     throw new MessageIDException(uniqVal,
-                        ErrorCode.DT_ERROR,
-                        new Throwable("attribute dt=" + headers.get(AttributeConstants.DATA_TIME
-                            + " has error, detail is: topic=" + topicEntry.getKey() + "&streamId="
-                            + streamIdEntry.getKey() + "&NodeIP=" + strRemoteIP), e1));
+                            ErrorCode.DT_ERROR,
+                            new Throwable("attribute dt=" + headers.get(AttributeConstants.DATA_TIME
+                                    + " has error, detail is: topic=" + topicEntry.getKey() + "&streamId="
+                                    + streamIdEntry.getKey() + "&NodeIP=" + strRemoteIP), e1));
                 }
 
                 dtten = dtten / 1000 / 60 / 10;
                 dtten = dtten * 1000 * 60 * 10;
+                StringBuilder newbase = new StringBuilder();
+                newbase.append(protocolType).append(SEPARATOR)
+                        .append(topicEntry.getKey()).append(SEPARATOR)
+                        .append(streamIdEntry.getKey()).append(SEPARATOR)
+                        .append(strRemoteIP).append(SEPARATOR)
+                        .append(NetworkUtils.getLocalIp()).append(SEPARATOR)
+                        .append(new SimpleDateFormat("yyyyMMddHHmm")
+                                .format(dtten)).append(SEPARATOR).append(pkgTimeStr);
                 try {
                     processor.processEvent(event);
+                    monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
                     this.addMetric(true, data.length);
+                    monitorIndex.addAndGet(new String(newbase),
+                            Integer.parseInt(proxyMetricMsgCnt), 1, data.length, 0);
                 } catch (Throwable ex) {
                     logger.error("Error writting to channel,data will discard.", ex);
+                    monitorIndexExt.incrementAndGet("EVENT_DROPPED");
+                    monitorIndex.addAndGet(new String(newbase), 0,0,0,
+                            Integer.parseInt(proxyMetricMsgCnt));
                     this.addMetric(false, data.length);
                     throw new ChannelException("ProcessEvent error can't write event to channel.");
                 }
@@ -441,15 +479,15 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     private void responsePackage(Map<String, String> commonAttrMap,
-        Map<String, Object> resultMap,
-        Channel remoteChannel,
-        SocketAddress remoteSocketAddress,
-        MsgType msgType) throws Exception {
+            Map<String, Object> resultMap,
+            Channel remoteChannel,
+            SocketAddress remoteSocketAddress,
+            MsgType msgType) throws Exception {
         if (!commonAttrMap.containsKey("isAck") || "true".equals(commonAttrMap.get("isAck"))) {
             if (MsgType.MSG_ACK_SERVICE.equals(msgType) || MsgType.MSG_ORIGINAL_RETURN
-                .equals(msgType)
-                || MsgType.MSG_MULTI_BODY.equals(msgType) || MsgType.MSG_MULTI_BODY_ATTR
-                .equals(msgType)) {
+                    .equals(msgType)
+                    || MsgType.MSG_MULTI_BODY.equals(msgType) || MsgType.MSG_MULTI_BODY_ATTR
+                    .equals(msgType)) {
                 byte[] backAttr = mapJoiner.join(commonAttrMap).getBytes(StandardCharsets.UTF_8);
                 byte[] backBody = null;
 
@@ -474,14 +512,14 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     } else {
                         String backAttrStr = new String(backAttr, StandardCharsets.UTF_8);
                         logger.warn(
-                            "the send buffer1 is full, so disconnect it!please check remote client"
-                                + "; Connection info:"
-                                + remoteChannel + ";attr is " + backAttrStr);
+                                "the send buffer1 is full, so disconnect it!please check remote client"
+                                        + "; Connection info:"
+                                        + remoteChannel + ";attr is " + backAttrStr);
                         throw new Exception(new Throwable(
-                            "the send buffer1 is full, so disconnect it!please check remote client"
-                                +
-                                "; Connection info:" + remoteChannel + ";attr is "
-                                + backAttrStr));
+                                "the send buffer1 is full, so disconnect it!please check remote client"
+                                        +
+                                        "; Connection info:" + remoteChannel + ";attr is "
+                                        + backAttrStr));
                     }
                 }
             } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
@@ -519,12 +557,12 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     remoteChannel.write(binBuffer, remoteSocketAddress);
                 } else {
                     logger.warn(
-                        "the send buffer2 is full, so disconnect it!please check remote client"
-                            + "; Connection info:" + remoteChannel + ";attr is "
-                            + backattrs);
+                            "the send buffer2 is full, so disconnect it!please check remote client"
+                                    + "; Connection info:" + remoteChannel + ";attr is "
+                                    + backattrs);
                     throw new Exception(new Throwable(
-                        "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
-                            + remoteChannel + ";attr is " + backattrs));
+                            "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
+                                    + remoteChannel + ";attr is " + backattrs));
                 }
             }
         }
@@ -552,7 +590,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         Channel remoteChannel = e.getChannel();
         Map<String, Object> resultMap = null;
         try {
-            resultMap = serviceProcessor.extractData(cb, remoteChannel);
+            resultMap = serviceDecoder.extractData(cb, remoteChannel);
         } catch (MessageIDException ex) {
             this.addMetric(false, 0);
             throw new IOException(ex.getCause());
@@ -572,8 +610,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         }
 
         if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-//            ChannelBuffer binBuffer = getBinHeart(resultMap,msgType);
-//            remoteChannel.write(binBuffer, remoteSocketAddress);
             this.addMetric(false, 0);
             return;
         }
@@ -590,21 +626,19 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
                     new HashMap<String, HashMap<String, List<ProxyMessage>>>(
-                    msgList.size());
+                            msgList.size());
 
             updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
             formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);
 
         } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
-//            logger.info("i am in FILE_CHECK_DATA ");
             Map<String, String> headers = new HashMap<String, String>();
             headers.put("msgtype", "filestatus");
             headers.put(ConfigConstants.FILE_CHECK_DATA,
                     "true");
             for (ProxyMessage message : msgList) {
                 byte[] body = message.getData();
-//                logger.info("data:"+new String(body));
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
@@ -625,7 +659,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     "true");
             for (ProxyMessage message : msgList) {
                 byte[] body = message.getData();
-//                logger.info("data:"+new String(body));
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
@@ -644,18 +677,25 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("exception caught", e.getCause());
+        monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
     }
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         logger.error("channel closed {}", ctx.getChannel());
+        super.channelClosed(ctx, e);
+        try {
+            e.getChannel().disconnect();
+            e.getChannel().close();
+        } catch (Exception ex) {
+            //
+        }
+        allChannels.remove(e.getChannel());
     }
 
     /**
      * addMetric
-     * 
-     * @param currentRecord
-     * @param topic
+     *
      * @param result
      * @param size
      */

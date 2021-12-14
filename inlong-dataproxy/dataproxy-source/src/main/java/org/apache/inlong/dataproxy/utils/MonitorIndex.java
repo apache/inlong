@@ -62,7 +62,7 @@ public class MonitorIndex {
                     } else {
                         StringBuilder stringBuilder = new StringBuilder();
                         value = stringBuilder.append(cnt).append("#").append(packcnt).append("#")
-                            .append(packsize).append("#").append(failcnt).toString();
+                                .append(packsize).append("#").append(failcnt).toString();
                     }
                     return value;
                 });

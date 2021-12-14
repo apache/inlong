@@ -19,10 +19,11 @@ package org.apache.inlong.dataproxy.source;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.MonitorIndex;
+import org.apache.inlong.dataproxy.utils.MonitorIndexExt;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -40,44 +41,71 @@ import org.slf4j.LoggerFactory;
 public class ServerMessageFactory implements ChannelPipelineFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
+
     private static final int DEFAULT_READ_IDLE_TIME = 70 * 60 * 1000;
+
+    private static long MAX_CHANNEL_MEMORY_SIZE = 1024 * 1024;
+
+    private static long MAX_TOTAL_MEMORY_SIZE = 1024 * 1024;
+
+    private static int MSG_LENGTH_LEN = 4;
+
     private AbstractSource source;
+
     private ChannelProcessor processor;
+
     private ChannelGroup allChannels;
+
     private ExecutionHandler executionHandler;
+
     private String protocolType;
-    private ServiceDecoder serviceProcessor;
+
+    private ServiceDecoder serviceDecoder;
+
     private String messageHandlerName;
+
     private int maxConnections = Integer.MAX_VALUE;
+
     private int maxMsgLength;
+
     private boolean isCompressed;
+
     private String name;
+
     private String topic;
+
     private String attr;
+
     private boolean filterEmptyMsg;
+
+    private MonitorIndex monitorIndex;
+
+    private MonitorIndexExt monitorIndexExt;
+
     private Timer timer = new HashedWheelTimer();
 
     /**
      * get server factory
      *
-     * @param processor
+     * @param source
      * @param allChannels
      * @param protocol
-     * @param serProcessor
+     * @param serviceDecoder
      * @param messageHandlerName
-     * @param maxMsgLength
      * @param topic
      * @param attr
      * @param filterEmptyMsg
      * @param maxCons
      * @param isCompressed
+     * @param monitorIndex
+     * @param monitorIndexExt
      * @param name
      */
-    public ServerMessageFactory(AbstractSource source,
-                                ChannelGroup allChannels, String protocol, ServiceDecoder serProcessor,
-                                String messageHandlerName, Integer maxMsgLength,
-                                String topic, String attr, Boolean filterEmptyMsg, Integer maxCons,
-                                Boolean isCompressed, String name) {
+    public ServerMessageFactory(AbstractSource source, ChannelGroup allChannels, String protocol,
+            ServiceDecoder serviceDecoder, String messageHandlerName, Integer maxMsgLength,
+            String topic, String attr, Boolean filterEmptyMsg, Integer maxCons,
+            Boolean isCompressed, MonitorIndex monitorIndex, MonitorIndexExt monitorIndexExt,
+            String name) {
         this.source = source;
         this.processor = source.getChannelProcessor();
         this.allChannels = allChannels;
@@ -86,17 +114,18 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
         this.filterEmptyMsg = filterEmptyMsg;
         int cores = Runtime.getRuntime().availableProcessors();
         this.protocolType = protocol;
-        this.serviceProcessor = serProcessor;
+        this.serviceDecoder = serviceDecoder;
         this.messageHandlerName = messageHandlerName;
         this.name = name;
         this.maxConnections = maxCons;
         this.maxMsgLength = maxMsgLength;
         this.isCompressed = isCompressed;
-
+        this.monitorIndex = monitorIndex;
+        this.monitorIndexExt = monitorIndexExt;
         if (protocolType.equalsIgnoreCase(ConfigConstants.UDP_PROTOCOL)) {
             this.executionHandler = new ExecutionHandler(
                     new OrderedMemoryAwareThreadPoolExecutor(cores * 2,
-                            1024 * 1024, 1024 * 1024));
+                            MAX_CHANNEL_MEMORY_SIZE, MAX_TOTAL_MEMORY_SIZE));
         }
     }
 
@@ -116,7 +145,7 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
         if (this.protocolType
                 .equalsIgnoreCase(ConfigConstants.TCP_PROTOCOL)) {
             cp.addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
-                    this.maxMsgLength, 0, 4, 0, 0, true));
+                    this.maxMsgLength, 0, MSG_LENGTH_LEN, 0, 0, true));
             cp.addLast("readTimeoutHandler", new ReadTimeoutHandler(timer,
                     DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
         }
@@ -128,12 +157,14 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
 
                 Constructor<?> ctor = clazz.getConstructor(
                         AbstractSource.class, ServiceDecoder.class, ChannelGroup.class,
-                        String.class, String.class, Boolean.class, Integer.class,
-                        Integer.class, Boolean.class, String.class);
+                        String.class, String.class, Boolean.class,
+                        Integer.class, Boolean.class, MonitorIndex.class,
+                        MonitorIndexExt.class, String.class);
 
                 SimpleChannelHandler messageHandler = (SimpleChannelHandler) ctor
-                        .newInstance(source, serviceProcessor, allChannels, topic, attr,
-                                filterEmptyMsg, maxMsgLength, maxConnections, isCompressed, protocolType
+                        .newInstance(source, serviceDecoder, allChannels, topic, attr,
+                                filterEmptyMsg, maxConnections,
+                                isCompressed,  monitorIndex, monitorIndexExt, protocolType
                         );
 
                 cp.addLast("messageHandler", messageHandler);
