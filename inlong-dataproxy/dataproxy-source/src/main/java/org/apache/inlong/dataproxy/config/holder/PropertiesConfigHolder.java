@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -93,12 +94,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
         boolean isSuccess = false;
         try {
             File sourceFile = new File(getFilePath());
-            File targetFile = new File(getNextBackupFileName());
             File tmpNewFile = new File(getFileName() + ".tmp");
-
-            if (sourceFile.exists()) {
-                FileUtils.copyFile(sourceFile, targetFile);
-            }
 
             List<String> lines = getStringListFromHolder(tmpHolder);
             FileUtils.writeLines(tmpNewFile, lines);
