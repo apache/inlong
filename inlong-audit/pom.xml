@@ -38,6 +38,7 @@
         <module>audit-docker</module>
         <module>audit-store</module>
         <module>audit-common</module>
+		<module>audit-sdk</module>
     </modules>
 
     <properties>
