@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <artifactId>inlong-sdk</artifactId>
-    <name>inlong-sdk</name>
+    <name>Apache InLong - SDK</name>
 
     <modules>
         <module>sort-sdk</module>

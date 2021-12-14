@@ -61,6 +61,8 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>target</outputDirectory>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <finalName>apache-inlong-agent-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>

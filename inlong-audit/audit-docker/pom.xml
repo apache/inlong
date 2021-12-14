@@ -84,38 +84,6 @@
               </buildArgs>
             </configuration>
           </plugin>
-          <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <version>${dockerfile-maven.version}</version>
-            <executions>
-              <execution>
-                <id>default</id>
-                <goals>
-                  <goal>build</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>tag-and-push-latest</id>
-                <goals>
-                  <goal>tag</goal>
-                  <goal>push</goal>
-                </goals>
-                <configuration>
-                  <repository>${docker.organization}/audit-store</repository>
-                  <tag>latest</tag>
-                </configuration>
-              </execution>
-            </executions>
-            <configuration>
-              <repository>${docker.organization}/audit</repository>
-              <pullNewerImage>false</pullNewerImage>
-              <tag>apache-inlong-audit-store-${project.version}</tag>
-              <buildArgs>
-                <AUDIT_TARBALL>target/apache-inlong-audit-store-${project.version}-bin.tar.gz</AUDIT_TARBALL>
-              </buildArgs>
-            </configuration>
-          </plugin>
         </plugins>
       </build>
     </profile>
