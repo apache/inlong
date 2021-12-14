@@ -565,7 +565,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Override
     public int selectCountByGroupId(String groupId) {
-        LOGGER.debug("begin bo get count by groupId={}", groupId);
+        LOGGER.debug("begin to get count by groupId={}", groupId);
         if (StringUtils.isEmpty(groupId)) {
             return 0;
         }
