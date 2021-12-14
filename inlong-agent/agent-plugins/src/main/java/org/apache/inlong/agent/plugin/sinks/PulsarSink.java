@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
@@ -84,14 +85,19 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     private final PluginMetric pluginMetricNew;
     private final SinkMetrics sinkMetrics;
     private PulsarClient client;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public PulsarSink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.pluginMetricNew = new PluginPrometheusMetric(PULSAR_SINK_TAG_NAME);
-            this.sinkMetrics = new SinkPrometheusMetrics(PULSAR_SINK_TAG_NAME);
+            this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.pluginMetricNew = new PluginJmxMetric(PULSAR_SINK_TAG_NAME);
-            this.sinkMetrics = new SinkJmxMetric(PULSAR_SINK_TAG_NAME);
+            this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 

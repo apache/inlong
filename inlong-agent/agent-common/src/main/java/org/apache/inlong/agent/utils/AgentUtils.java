@@ -169,6 +169,15 @@ public class AgentUtils {
     }
 
     /**
+     * Get uniq id with prefix and index.
+     *
+     * @return uniq id.
+     */
+    public static String getUniqId(String prefix, long index) {
+        return getUniqId(prefix, "", index);
+    }
+
+    /**
      * Get uniq id with timestamp and index.
      * @param id - job id
      * @param index - job index

@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -89,14 +90,17 @@ public class SqlReader implements Reader {
     private boolean finished = false;
     private String separator;
     private final PluginMetric sqlFileMetric;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public SqlReader(String sql) {
         this.sql = sql;
 
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sqlFileMetric = new PluginPrometheusMetric(SQL_READER_TAG_NAME);
+            this.sqlFileMetric = new PluginPrometheusMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.sqlFileMetric = new PluginJmxMetric(SQL_READER_TAG_NAME);
+            this.sqlFileMetric = new PluginJmxMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
