@@ -56,6 +56,7 @@
                 <version>${plugin.assembly.version}</version>
                 <configuration>
                     <finalName>apache-inlong-tubemq-server-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/main/assembly/assembly.xml</descriptor>
                     </descriptors>

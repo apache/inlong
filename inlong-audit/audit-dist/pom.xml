@@ -60,6 +60,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>target</outputDirectory>
                             <descriptors>
                                 <descriptor>assembly/assembly.xml</descriptor>
                             </descriptors>

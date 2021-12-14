@@ -25,29 +25,9 @@
     <id>bin</id>
 
     <formats>
-        <format>dir</format>
         <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <unpack>false</unpack>
-            <useProjectArtifact>true</useProjectArtifact>
-            <excludes>
-                <exclude>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</exclude>
-            </excludes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>tools</outputDirectory>
-            <unpack>false</unpack>
-            <useProjectArtifact>true</useProjectArtifact>
-            <includes>
-                <include>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
-
 
     <fileSets>
         <fileSet>
