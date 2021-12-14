@@ -49,6 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -87,7 +88,7 @@ public class ProxySink extends AbstractSink {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private volatile boolean shutdown = false;
-
+    private static AtomicLong index = new AtomicLong(0);
     // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
@@ -96,9 +97,9 @@ public class ProxySink extends AbstractSink {
 
     public ProxySink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sinkMetrics = new SinkPrometheusMetrics(PROXY_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         } else {
-            this.sinkMetrics = new SinkJmxMetric(PROXY_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         }
     }
 
