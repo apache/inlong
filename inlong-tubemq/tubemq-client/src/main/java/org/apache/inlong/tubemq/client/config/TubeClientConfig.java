@@ -364,6 +364,13 @@ public class TubeClientConfig {
         this.sessionMaxAllowedDelayedMsgCount = sessionMaxAllowedDelayedMsgCount;
     }
 
+    /**
+     * Set authenticate information
+     *
+     * @param needAuthentic   enable or disable authentication
+     * @param usrName         the user name
+     * @param usrPassWord     the password
+     */
     public void setAuthenticInfo(boolean needAuthentic,
                                  String usrName,
                                  String usrPassWord) {
@@ -385,6 +392,12 @@ public class TubeClientConfig {
         }
     }
 
+    /**
+     * Set TLS information
+     *
+     * @param trustStorePath        the trusted store path
+     * @param trustStorePassword    the trusted store password
+     */
     public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) {
         // public void setTLSEnableInfo(String trustStorePath, String trustStorePassword,
         // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws Exception {
@@ -544,6 +557,11 @@ public class TubeClientConfig {
         return masterInfo.equals(that.masterInfo);
     }
 
+    /**
+     * Get the configured Json string information
+     *
+     * @return    the configured Json string information
+     */
     public String toJsonString() {
         int num = 0;
         String localAddress = null;
