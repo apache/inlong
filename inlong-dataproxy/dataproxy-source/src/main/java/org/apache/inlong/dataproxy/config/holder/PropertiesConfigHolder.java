@@ -93,8 +93,12 @@ public class PropertiesConfigHolder extends ConfigHolder {
         boolean isSuccess = false;
         try {
             File sourceFile = new File(getFilePath());
+            File targetFile = new File(getNextBackupFileName());
             File tmpNewFile = new File(getFileName() + ".tmp");
 
+            if (sourceFile.exists()) {
+                FileUtils.copyFile(sourceFile, targetFile);
+            }
             List<String> lines = getStringListFromHolder(tmpHolder);
             FileUtils.writeLines(tmpNewFile, lines);
 
