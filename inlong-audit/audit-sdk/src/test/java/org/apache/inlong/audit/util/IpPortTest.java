@@ -51,16 +51,4 @@ public class IpPortTest {
         ret = test.equals(test3);
         assertTrue(ret);
     }
-
-    @Test
-    public void parseIpPort() {
-        IpPort testIpPort = test.parseIpPort("127.0.0.1:83");
-        System.out.println(testIpPort);
-    }
-
-    @Test
-    public void testToString() {
-        String toSteing = test.toString();
-        System.out.println(toSteing);
-    }
 }
