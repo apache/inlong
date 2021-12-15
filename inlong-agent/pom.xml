@@ -71,6 +71,8 @@
         <jetty.version>9.4.34.v20201102</jetty.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
+        <lombok.version>1.18.12</lombok.version>
+        <prometheus.simpleclient.version>0.9.0</prometheus.simpleclient.version>
     </properties>
 
     <repositories>
@@ -89,6 +91,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -241,6 +248,11 @@
             </dependency>
 
             <dependency>
+                <artifactId>inlong-common</artifactId>
+                <groupId>org.apache.inlong</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <artifactId>agent-common</artifactId>
                 <groupId>org.apache.tubemq</groupId>
                 <version>${project.version}</version>
@@ -273,6 +285,22 @@
                 <groupId>org.awaitility</groupId>
                 <scope>test</scope>
                 <version>${awaitility.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_hotspot</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

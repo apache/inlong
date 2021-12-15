@@ -36,6 +36,8 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.inlong.commons.config.metrics.MetricItem;
 import org.apache.inlong.commons.config.metrics.MetricItemMBean;
 import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.config.metrics.MetricUtils;
 import org.apache.inlong.commons.config.metrics.MetricValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +96,12 @@ public class MetricListenerRunnable implements Runnable {
     @SuppressWarnings("unchecked")
     private List<MetricItemValue> getItemValues() throws InstanceNotFoundException, AttributeNotFoundException,
             ReflectionException, MBeanException, MalformedObjectNameException, ClassNotFoundException {
-        ObjectName objName = new ObjectName(domain + MetricItemMBean.DOMAIN_SEPARATOR + "*");
+        StringBuilder beanName = new StringBuilder();
+        beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+                .append(MetricItemMBean.PROPERTY_SEPARATOR)
+                .append("*");
+        ObjectName objName = new ObjectName(beanName.toString());
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
         LOG.info("getItemValues for domain:{},queryMBeans:{}", domain, mbeans);

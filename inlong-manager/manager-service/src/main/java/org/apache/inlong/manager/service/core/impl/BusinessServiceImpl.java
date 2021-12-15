@@ -237,6 +237,7 @@ public class BusinessServiceImpl implements BusinessService {
                         "Pulsar params must meet: ackQuorum <= writeQuorum");
             }
             BusinessPulsarEntity pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, BusinessPulsarEntity::new);
+            pulsarEntity.setInlongGroupId(groupId);
             businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
         }
 

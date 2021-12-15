@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -204,8 +205,11 @@ public class PulsarProducerCluster implements LifecycleAware {
         if (producer == null) {
             try {
                 LOG.info("try to new a object for topic " + topic);
+                SecureRandom secureRandom = new SecureRandom(
+                        (workerName + "-" + cacheClusterName + "-" + topic + System.currentTimeMillis()).getBytes());
+                String producerName = workerName + "-" + cacheClusterName + "-" + topic + "-" + secureRandom.nextLong();
                 producer = baseBuilder.clone().topic(topic)
-                        .producerName(workerName + "-" + cacheClusterName + "-" + topic)
+                        .producerName(producerName)
                         .create();
                 LOG.info("create new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
@@ -224,14 +228,17 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.addMetric(event, topic, false, 0);
             return false;
         }
-        String messageKey = headers.get(Constants.MESSAGE_KEY);
-        if (messageKey == null) {
-            messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
-        }
         // sendAsync
+        CompletableFuture<MessageId> future = null;
+        String messageKey = headers.get(Constants.MESSAGE_KEY);
         long sendTime = System.currentTimeMillis();
-        CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
-                .value(event.getBody()).sendAsync();
+        if (messageKey == null) {
+            future = producer.newMessage().properties(headers)
+                    .value(event.getBody()).sendAsync();
+        } else {
+            future = producer.newMessage().key(messageKey).properties(headers)
+                    .value(event.getBody()).sendAsync();
+        }
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {

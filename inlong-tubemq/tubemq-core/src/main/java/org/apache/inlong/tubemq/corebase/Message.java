@@ -54,8 +54,8 @@ public class Message implements Serializable {
     /**
      * init with topic and data body
      *
-     * @param topic
-     * @param data
+     * @param topic  topic name
+     * @param data   message content
      */
     public Message(final String topic, final byte[] data) {
         super();
@@ -66,11 +66,11 @@ public class Message implements Serializable {
     /**
      * init with indexId topic data attribute flag
      *
-     * @param indexId
-     * @param topic
-     * @param data
-     * @param attribute
-     * @param flag
+     * @param indexId    index id
+     * @param topic      topic name
+     * @param data       message content
+     * @param attribute  message attribute
+     * @param flag       message flag
      */
     protected Message(long indexId, String topic, byte[] data, String attribute, int flag) {
         this.indexId = indexId;
@@ -105,8 +105,12 @@ public class Message implements Serializable {
     }
 
     /**
-     * @param msgType
-     * @param msgTime
+     * Set the filtering items that need to be filtered and the message forwarding time
+     *
+     * @param msgType   the ID of the stream that needs to be filtered,
+     *                 if not required, set null
+     * @param msgTime   the time when the message was sent, the format is yyyyMMddHHmm,
+     *                  if not required, set null
      */
     public void putSystemHeader(final String msgType, final String msgTime) {
         this.msgType = null;
@@ -194,8 +198,10 @@ public class Message implements Serializable {
     }
 
     /**
-     * @param keyVal
-     * @return
+     * Get key's value from attribute by key name
+     *
+     * @param keyVal   the key name
+     * @return  the key's value of the key name stored in attribute
      */
     public String getAttrValue(final String keyVal) {
         if (TStringUtils.isBlank(keyVal)) {
@@ -219,8 +225,10 @@ public class Message implements Serializable {
     }
 
     /**
-     * @param keyVal
-     * @param valueVal
+     * Store key and value in attribute
+     *
+     * @param keyVal    the key name
+     * @param valueVal  the key value
      */
     public void setAttrKeyVal(final String keyVal, final String valueVal) {
         if (TStringUtils.isBlank(keyVal)) {

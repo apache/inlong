@@ -69,12 +69,7 @@
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>inlong-dataproxy-sdk</artifactId>
@@ -84,11 +79,13 @@
             <artifactId>slf4j-log4j12</artifactId>
             <groupId>org.slf4j</groupId>
         </dependency>
+
         <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <artifactId>mockito-core</artifactId>
             <groupId>org.mockito</groupId>
@@ -115,9 +112,9 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>agent-common</artifactId>

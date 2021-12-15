@@ -73,6 +73,11 @@
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -89,6 +94,7 @@
                         </goals>
                         <configuration>
                             <finalName>apache-inlong-audit-source-${project.version}</finalName>
+                            <outputDirectory>target</outputDirectory>
                             <descriptors>
                                 <descriptor>assembly/assembly.xml</descriptor>
                             </descriptors>

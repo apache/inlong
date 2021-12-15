@@ -33,8 +33,11 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constants.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.message.SequentialID;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.apache.inlong.dataproxy.ProxyClientConfig;
 import org.apache.inlong.dataproxy.DefaultMessageSender;
 import org.apache.inlong.dataproxy.SendMessageCallback;
@@ -54,6 +57,7 @@ public class SenderManager {
     // cache for group and sender list, share the map cross agent lifecycle.
     private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
             new ConcurrentHashMap<>();
+    private static final String SENDER_MANAGER_TAG_NAME = "AgentSenderManager";
 
     // sharing worker threads between sender client
     // in case of thread abusing.
@@ -83,7 +87,7 @@ public class SenderManager {
     private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
     private final String sourceFilePath;
-    private final PluginMetric metric = new PluginMetric("AgentSenderManager");
+    private final PluginMetric metric;
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourceFilePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -114,6 +118,12 @@ public class SenderManager {
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
         this.sourceFilePath = sourceFilePath;
         this.inlongGroupId = inlongGroupId;
+
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.metric = new PluginPrometheusMetric(SENDER_MANAGER_TAG_NAME);
+        } else {
+            this.metric = new PluginJmxMetric(SENDER_MANAGER_TAG_NAME);
+        }
     }
 
     /**
@@ -194,7 +204,7 @@ public class SenderManager {
                 sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
-            metric.sendSuccessNum.addAndGet(bodyList.size());
+            metric.incSendSuccessNum(bodyList.size());
             taskPositionManager.updateFileSinkPosition(jobId, sourceFilePath, bodyList.size());
         }
 

@@ -49,6 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -58,13 +59,20 @@ import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
+import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
+import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
+
+    private static final String PROXY_SINK_TAG_NAME = "AgentProxySinkMetric";
+
     private MessageFilter messageFilter;
     private SenderManager senderManager;
     private byte[] fieldSplitter;
@@ -80,10 +88,22 @@ public class ProxySink extends AbstractSink {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private volatile boolean shutdown = false;
-
+    private static AtomicLong index = new AtomicLong(0);
     // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
+
+    private final SinkMetrics sinkMetrics;
+
+    public ProxySink() {
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
+        } else {
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
+        }
+    }
 
     @Override
     public void write(Message message) {
@@ -105,6 +125,11 @@ public class ProxySink extends AbstractSink {
                         //
                         return packProxyMessage;
                     });
+                // increment the count of successful sinks
+                sinkMetrics.incSinkSuccessCount();
+            } else {
+                // increment the count of failed sinks
+                sinkMetrics.incSinkFailCount();
             }
         }
     }

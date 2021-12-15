@@ -53,7 +53,7 @@ public class MessageFetchManager {
     /**
      * Start a worker pool to fetch the message.
      *
-     * @throws TubeClientException
+     * @throws TubeClientException   Exception thrown
      */
     public void startFetchWorkers() throws TubeClientException {
         this.pushConsumer.getBaseConsumer().checkClientRunning();
@@ -95,6 +95,11 @@ public class MessageFetchManager {
         return this.managerStatus.get() == 0;
     }
 
+    /**
+     * Stop fetch worker threads
+     *
+     * @param onlySetStatus  Whether to only set the state without stopping the operation
+     */
     public void stopFetchWorkers(boolean onlySetStatus) throws InterruptedException {
         if (onlySetStatus) {
             if (this.managerStatus.get() == 0) {

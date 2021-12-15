@@ -70,9 +70,11 @@ public class TestMetricItemMBean {
         //
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricUtils.getDomain(AgentMetricItem.class)).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append("module=").append(MODULE).append(MetricItemMBean.PROPERTY_SEPARATOR)
+        beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                .append("type=").append(MetricUtils.getDomain(AgentMetricItem.class))
+                .append(MetricItemMBean.PROPERTY_SEPARATOR)
                 .append("aspect=").append(ASPECT).append(MetricItemMBean.PROPERTY_SEPARATOR)
+                .append("module=").append(MODULE).append(MetricItemMBean.PROPERTY_SEPARATOR)
                 .append("tag=").append(TAG);
         String strBeanName = beanName.toString();
         ObjectName objName = new ObjectName(strBeanName);

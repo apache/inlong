@@ -41,6 +41,7 @@ import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,12 @@ public class JobManager extends AbstractDaemon {
                     AgentConstants.JOB_MONITOR_INTERVAL, AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
         this.jobDbCacheTime = conf.getLong(JOB_DB_CACHE_TIME, DEFAULT_JOB_DB_CACHE_TIME);
         this.jobDbCacheCheckInterval = conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
-        this.jobMetrics = JobMetrics.create();
+
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.jobMetrics = new JobPrometheusMetrics();
+        } else {
+            this.jobMetrics = JobJmxMetrics.create();
+        }
     }
 
     /**
@@ -106,7 +112,7 @@ public class JobManager extends AbstractDaemon {
                 LOGGER.warn("{} has been added to running pool, "
                     + "cannot be added repeatedly", job.getJobInstanceId());
             } else {
-                jobMetrics.runningJobs.incrementAndGet();
+                jobMetrics.incRunningJobCount();
             }
         } catch (Exception rje) {
             LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
@@ -199,7 +205,7 @@ public class JobManager extends AbstractDaemon {
     public void markJobAsSuccess(String jobId) {
         JobWrapper wrapper = jobs.remove(jobId);
         if (wrapper != null) {
-            jobMetrics.runningJobs.decrementAndGet();
+            jobMetrics.decRunningJobCount();
             LOGGER.info("job instance {} is success", jobId);
             // mark job as success.
             jobConfDB.updateJobState(jobId, StateSearchKey.SUCCESS);
@@ -210,8 +216,8 @@ public class JobManager extends AbstractDaemon {
         JobWrapper wrapper = jobs.remove(jobId);
         if (wrapper != null) {
             LOGGER.info("job instance {} is failed", jobId);
-            jobMetrics.runningJobs.decrementAndGet();
-            jobMetrics.fatalJobs.incrementAndGet();
+            jobMetrics.decRunningJobCount();
+            jobMetrics.incFatalJobCount();
             // mark job as success.
             jobConfDB.updateJobState(jobId, StateSearchKey.FAILED);
         }

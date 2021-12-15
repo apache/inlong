@@ -29,14 +29,19 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +51,8 @@ import org.slf4j.LoggerFactory;
 public class SqlReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
+
+    private static final String SQL_READER_TAG_NAME = "AgentSqlMetric";
 
     private static final String JOB_DATABASE_USER = "job.database.user";
     private static final String JOB_DATABASE_PASSWORD = "job.database.password";
@@ -82,9 +89,19 @@ public class SqlReader implements Reader {
     private int[] columnTypeCodes;
     private boolean finished = false;
     private String separator;
+    private final PluginMetric sqlFileMetric;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public SqlReader(String sql) {
         this.sql = sql;
+
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.sqlFileMetric = new PluginPrometheusMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+        } else {
+            this.sqlFileMetric = new PluginJmxMetric(
+                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+        }
     }
 
     @Override
@@ -110,6 +127,8 @@ public class SqlReader implements Reader {
                     }
                     lineColumns.add(dataValue);
                 }
+                sqlFileMetric.incReadNum();
+
                 // TODO: return message.
                 return null;
             } else {
@@ -117,6 +136,7 @@ public class SqlReader implements Reader {
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
+            sqlFileMetric.incReadFailedNum();
             throw new RuntimeException(ex);
         }
         return null;

@@ -87,10 +87,12 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param qyrPriorityId
-     * @param flowCtrlId
-     * @param flowCtrlInfo
-     * @throws Exception
+     * Parse flow control information and update stored cached old content
+     *
+     * @param qyrPriorityId    query priority id
+     * @param flowCtrlId       flow control information id
+     * @param flowCtrlInfo     flow control information content
+     * @throws Exception       Exception thrown
      */
     public void updateFlowCtrlInfo(final int qyrPriorityId,
                                    final long flowCtrlId,
@@ -126,8 +128,10 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param lastDataDlt
-     * @return FlowCtrlResult
+     * Get current data lag limit strategy
+     *
+     * @param lastDataDlt      current consumption lag of data
+     * @return FlowCtrlResult  current flow control policy
      */
     public FlowCtrlResult getCurDataLimit(long lastDataDlt) {
         Calendar rightNow = Calendar.getInstance(timeZone);
@@ -171,7 +175,7 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * initial statis data
+     * Initial data limit statistics
      */
     private void initialStatisData() {
         initialDataLimitStatisInfo();
@@ -180,7 +184,7 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * initial data limit statis info
+     * Initial data limit statistics
      */
     private void initialDataLimitStatisInfo() {
         List<FlowCtrlItem> flowCtrlItemList = this.flowCtrlRuleSet.get(0);
@@ -256,9 +260,11 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param msgZeroCnt
-     * @param rcmVal
-     * @return
+     * Get the current fetch frequency limit strategy
+     *
+     * @param msgZeroCnt   the continuous consumption count without messages
+     * @param rcmVal       the default frequency limit value
+     * @return             the required frequency limit value
      */
     public int getCurFreqLimitTime(int msgZeroCnt, int rcmVal) {
         if (msgZeroCnt < this.minZeroCnt.get()) {
@@ -287,7 +293,8 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     * @param qryPriorityId
+     * Set query priority id value
+     * @param qryPriorityId   need to set value
      */
     public void setQryPriorityId(int qryPriorityId) {
         this.qryPriorityId.set(qryPriorityId);
@@ -311,9 +318,10 @@ public class FlowCtrlRuleHandler {
 
     /**
      * Parse FlowCtrlInfo value
-     * @param flowCtrlInfo flowCtrlInfo json value
-     * @return parse result
-     * @throws Exception
+     *
+     * @param flowCtrlInfo    flowCtrlInfo json value
+     * @return                parse result
+     * @throws Exception      Exception thrown
      */
     public Map<Integer, List<FlowCtrlItem>> parseFlowCtrlInfo(final String flowCtrlInfo)
             throws Exception {
@@ -393,8 +401,8 @@ public class FlowCtrlRuleHandler {
      * @param recordNo    record no
      * @param typeVal     type value
      * @param jsonObject  record json value
-     * @return parsed result
-     * @throws Exception
+     * @return             parsed result
+     * @throws Exception   Exception thrown
      */
     private List<FlowCtrlItem> parseDataLimit(int recordNo, int typeVal,
                                               JsonObject jsonObject) throws Exception {
@@ -501,8 +509,8 @@ public class FlowCtrlRuleHandler {
      * @param recordNo    record no
      * @param typeVal     type value
      * @param jsonObject  record json value
-     * @return parsed result
-     * @throws Exception
+     * @return            parsed result
+     * @throws Exception  Exception thrown
      */
     private List<FlowCtrlItem> parseFreqLimit(int recordNo, int typeVal,
                                               JsonObject jsonObject) throws Exception {
@@ -580,11 +588,12 @@ public class FlowCtrlRuleHandler {
 
     /**
      *  Parse low frequent fetch count
+     *
      * @param recordNo    record no
      * @param typeVal     type value
      * @param jsonObject  record json value
-     * @return parsed result
-     * @throws Exception
+     * @return            parsed result
+     * @throws Exception   Exception thrown
      */
     private List<FlowCtrlItem> parseLowFetchLimit(int recordNo, int typeVal,
                                                   JsonObject jsonObject) throws Exception {
@@ -700,12 +709,13 @@ public class FlowCtrlRuleHandler {
 
     /**
      *  Parse time information
+     *
      * @param ruleObject   rule value object
-     * @param fieldName   field name
-     * @param itemNo       rule no
-     * @param recordNo     record no
-     * @return parse result
-     * @throws Exception
+     * @param fieldName     field name
+     * @param itemNo        rule no
+     * @param recordNo      record no
+     * @return              parse result
+     * @throws Exception    Exception thrown
      */
     private int validAndGetTimeValue(JsonObject ruleObject, String fieldName,
                                      int itemNo, int recordNo) throws Exception {
