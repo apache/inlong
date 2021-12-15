@@ -92,10 +92,4 @@ public class SenderChannelTest {
         String toString = senderChannel.toString();
         assertEquals(toString, "0.0.0.0:54041");
     }
-
-    @Test
-    public void getChannel() {
-        Channel channel = senderChannel.getChannel();
-        assertFalse(channel.getRemoteAddress().toString().equals("0.0.0.0:54041"));
-    }
 }
