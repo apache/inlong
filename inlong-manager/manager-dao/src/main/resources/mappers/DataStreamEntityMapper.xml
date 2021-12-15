@@ -420,7 +420,7 @@
                 peak_records= #{peakRecords,jdbcType=INTEGER},
             </if>
             <if test="maxLength != null">
-                max_length= #{maxLength,jdbcType=INTEGER}
+                max_length= #{maxLength,jdbcType=INTEGER},
             </if>
             <if test="inCharges != null">
                 in_charges = #{inCharges,jdbcType=VARCHAR},
