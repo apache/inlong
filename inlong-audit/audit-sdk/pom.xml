@@ -36,7 +36,7 @@
         <compiler.source>1.8</compiler.source>
         <compiler.target>1.8</compiler.target>
         <netty.version>3.8.0.Final</netty.version>
-        <junit.version>4.4</junit.version>
+        <junit.version>4.13</junit.version>
         <protobuf.version>3.19.1</protobuf.version>
         <commons.version>3.0</commons.version>
     </properties>
@@ -61,7 +61,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
