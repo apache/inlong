@@ -76,7 +76,7 @@ public class TestFileAgent {
     private void createFiles(String fileName) throws Exception {
         final Path hugeFile = Paths.get(testRootDir.toString(), fileName);
         FileWriter writer = new FileWriter(hugeFile.toFile());
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             writer.write(RECORD);
         }
         writer.flush();
@@ -85,7 +85,7 @@ public class TestFileAgent {
 
     @Test
     public void testFileAgent() throws Exception {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             createFiles(String.format("hugeFile.%s.txt", i));
         }
         createJobProfile(0);
