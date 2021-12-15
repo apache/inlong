@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -62,6 +63,7 @@ public class TextFileReader implements Reader {
     private long lastTime = 0;
     private final PluginMetric textFileMetric;
     private List<Validator> validators = new ArrayList<>();
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileReader(File file, int position) {
         this(file, position, "");
@@ -73,9 +75,9 @@ public class TextFileReader implements Reader {
         this.md5 = md5;
 
         if (ConfigUtil.isPrometheusEnabled()) {
-            textFileMetric = new PluginPrometheusMetric(TEXT_FILE_READER_TAG_NAME);
+            textFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            textFileMetric = new PluginJmxMetric(TEXT_FILE_READER_TAG_NAME);
+            textFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
