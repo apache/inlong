@@ -27,8 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SubscribeFetchResult is the wrapper of {@link MessageRecord}.
- * <p> In current version <b>0.12.0</b>, the metrics that SortSdkSource
- *  cares about is {@link #sortId}, {@link #headers} and {@link #body}.</p>
+ * <p> SubscribeFetchResult integrate message key, offset and message time in to the header map.</p>
  */
 public class SubscribeFetchResult {
 
@@ -52,7 +51,9 @@ public class SubscribeFetchResult {
             final String sortId,
             final MessageRecord message) {
         this.sortId = sortId;
-        this.headers.put(Constants.MESSAGE_KEY, message.getMsgKey());
+        this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, message.getMsgKey());
+        this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, message.getOffset());
+        this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(message.getRecTime()));
         this.headers.putAll(message.getMsgHeader());
         this.body = message.getMessage();
     }
@@ -88,7 +89,7 @@ public class SubscribeFetchResult {
 
         /**
          * Create one {@link SubscribeFetchResult}.
-         * <p> Validate sortId and message before construction of SubscribeFetchResult.</p>
+         * <p> Validate sortId and message before the construction of SubscribeFetchResult.</p>
          *
          * @param sortId The sortId of fetched message.
          * @param messageRecord Message that fetched from upstream data storage.
