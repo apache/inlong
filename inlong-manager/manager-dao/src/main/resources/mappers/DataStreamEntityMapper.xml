@@ -129,7 +129,7 @@
         select count(1)
         from data_stream
         <where>
-            inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+            inlong_group_id = #{groupId,jdbcType=VARCHAR}
             and is_deleted = 0
         </where>
     </select>
