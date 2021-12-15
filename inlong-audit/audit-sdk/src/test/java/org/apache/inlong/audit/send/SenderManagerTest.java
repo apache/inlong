@@ -17,13 +17,10 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.Config;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
-
-;
 
 public class SenderManagerTest {
     private Config testConfig = new Config();
@@ -40,17 +37,6 @@ public class SenderManagerTest {
 
         requestId = testManager.nextRequestId();
         assertTrue(requestId == 2);
-    }
-
-    @Test
-    public void send() {
-        AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
-        AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
-                .addMsgBody(body).build();
-        AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
-        SenderManager testManager = new SenderManager(testConfig);
-        testManager.send(System.currentTimeMillis(), baseCommand);
     }
 
     @Test
