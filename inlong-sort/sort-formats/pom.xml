@@ -206,7 +206,6 @@
                         <forkNumber>0${surefire.forkNumber}</forkNumber>
                         <log4j.configuration>${log4j.configuration}</log4j.configuration>
                     </systemPropertyVariables>
-                    <argLine>-Xmx2048m -XX:MaxPermSize=256m</argLine>
                 </configuration>
                 <executions>
                     <!--execute all the unit tests-->
