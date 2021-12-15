@@ -20,7 +20,6 @@ package org.apache.inlong.audit.send;
 import org.apache.inlong.audit.util.Encoder;
 import org.apache.inlong.audit.util.IpPort;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SenderChannelTest {
