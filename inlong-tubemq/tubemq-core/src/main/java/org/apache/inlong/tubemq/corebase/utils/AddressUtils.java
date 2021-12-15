@@ -138,6 +138,11 @@ public class AddressUtils {
         }
     }
 
+    /**
+     * Get local IP V4 address
+     *
+     * @return  the local IP V4 address
+     */
     public static String getIPV4LocalAddress() {
         if (localIPAddress != null) {
             return localIPAddress;
@@ -175,6 +180,11 @@ public class AddressUtils {
             .append(" in local networkInterfaces!").toString());
     }
 
+    /**
+     * Get the local IP V4 address from the designated NetworkInterface
+     *
+     * @return  the local IP V4 address
+     */
     public static String getIPV4LocalAddress(String defEthName) {
         boolean foundNetInter = false;
         try {

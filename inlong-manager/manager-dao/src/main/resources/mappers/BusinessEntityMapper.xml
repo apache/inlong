@@ -93,6 +93,9 @@
             <if test="keyWord != null and keyWord != ''">
                 and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
             </if>
+            <if test="middlewareType != null and middlewareType != ''">
+                and middleware_type = #{middlewareType, jdbcType=VARCHAR}
+            </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>

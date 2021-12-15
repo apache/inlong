@@ -113,7 +113,7 @@ export default (
       type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.QueueModule'),
       name: 'queueModule',
-      initialValue: currentValues.queueModule ?? 'parallel',
+      initialValue: currentValues.queueModule ?? 'serial',
       rules: [{ required: true }],
       props: {
         options: [

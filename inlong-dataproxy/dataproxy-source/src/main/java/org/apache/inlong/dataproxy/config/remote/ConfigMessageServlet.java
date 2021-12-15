@@ -56,7 +56,7 @@ public class ConfigMessageServlet extends HttpServlet {
     private boolean handleTopicConfig(RequestContent requestContent) {
         Map<String, String> groupIdToTopic = new HashMap<String, String>();
         for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToTopic.put(item.get("groupId"), item.get("topic"));
+            groupIdToTopic.put(item.get("inlongGroupId"), item.get("topic"));
         }
         if ("add".equals(requestContent.getOperationType())) {
             return configManager.addTopicProperties(groupIdToTopic);
@@ -69,7 +69,7 @@ public class ConfigMessageServlet extends HttpServlet {
     private boolean handleMxConfig(RequestContent requestContent) {
         Map<String, String> groupIdToMValue = new HashMap<String, String>();
         for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToMValue.put(item.get("groupId"), item.get("m"));
+            groupIdToMValue.put(item.get("inlongGroupId"), item.get("m"));
         }
         if ("add".equals(requestContent.getOperationType())) {
             return configManager.addMxProperties(groupIdToMValue);

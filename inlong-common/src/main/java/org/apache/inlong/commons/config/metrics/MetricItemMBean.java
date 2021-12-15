@@ -19,12 +19,15 @@ package org.apache.inlong.commons.config.metrics;
 
 import java.util.Map;
 
+import javax.management.MXBean;
+
 /**
  * MetricItemMBean<br>
  * Provide access interface of a metric item with JMX.<br>
  * Decouple between metric item and monitor system, in particular scene, <br>
  * inlong can depend on user-defined monitor system.
  */
+@MXBean
 public interface MetricItemMBean {
 
     String ATTRIBUTE_KEY = "DimensionsKey";

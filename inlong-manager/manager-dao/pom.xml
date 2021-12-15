@@ -54,6 +54,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
@@ -76,8 +81,24 @@
             <artifactId>hive-jdbc</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>hadoop-common</artifactId>
+                    <artifactId>hive-llap-server</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-runner</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
                     <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlet</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>jetty-http</artifactId>
@@ -88,28 +109,8 @@
                     <groupId>org.eclipse.jetty</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>jetty-server</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-servlet</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
                     <artifactId>jetty-webapp</artifactId>
                     <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hive-llap-server</artifactId>
-                    <groupId>org.apache.hive</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-runner</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
-                    <groupId>org.apache.hadoop</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>javax.servlet-api</artifactId>
@@ -128,8 +129,28 @@
                     <groupId>org.slf4j</groupId>
                 </exclusion>
                 <exclusion>
+                    <artifactId>log4j-web</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hive-classification</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hbase-client</artifactId>
+                    <groupId>org.apache.hbase</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>tephra-hbase-compat-1.0</artifactId>
+                    <groupId>co.cask.tephra</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>json</artifactId>
@@ -156,6 +177,10 @@
                 <exclusion>
                     <artifactId>slf4j-log4j12</artifactId>
                     <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>hadoop-yarn-registry</artifactId>

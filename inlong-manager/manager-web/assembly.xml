@@ -41,6 +41,13 @@
             <fileMode>0755</fileMode>
         </fileSet>
 
+        <!-- Output all files in the sql directory to the packaged sql directory -->
+        <fileSet>
+            <directory>${build.outputDirectory}/sql</directory>
+            <outputDirectory>sql</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
         <!-- Specify to output the configuration file in target/classes to the conf directory-->
         <fileSet>
             <directory>${build.directory}/conf</directory>

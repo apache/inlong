@@ -28,8 +28,8 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constants.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
-import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TaskManager extends AbstractDaemon {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskManager.class);
 
     // task thread pool;
     private final ThreadPoolExecutor runningPool;
@@ -65,7 +65,12 @@ public class TaskManager extends AbstractDaemon {
             new SynchronousQueue<>(),
             new AgentThreadFactory("task"));
         // metric for task level
-        taskMetrics = TaskMetrics.create();
+        if (ConfigUtil.isPrometheusEnabled()) {
+            this.taskMetrics = new TaskPrometheusMetrics();
+        } else {
+            this.taskMetrics = TaskJmxMetrics.create();
+        }
+
         tasks = new ConcurrentHashMap<>();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         retryTasks = new LinkedBlockingQueue<>(
@@ -120,7 +125,7 @@ public class TaskManager extends AbstractDaemon {
                     LOGGER.warn("reject task {}", wrapper.getTask().getTaskId(), ex);
                 }
             }
-            taskMetrics.runningTasks.incrementAndGet();
+            taskMetrics.incRunningTaskCount();
         }
     }
 
@@ -137,7 +142,7 @@ public class TaskManager extends AbstractDaemon {
                 LOGGER.error("cannot submit to retry queue, max {}, current {}", taskMaxCapacity,
                         retryTasks.size());
             } else {
-                taskMetrics.retryingTasks.incrementAndGet();
+                taskMetrics.incRetryingTaskCount();
             }
             return success;
         } catch (Exception ex) {
@@ -180,7 +185,7 @@ public class TaskManager extends AbstractDaemon {
      * @param taskId - task id
      */
     public void removeTask(String taskId) {
-        taskMetrics.runningTasks.decrementAndGet();
+        taskMetrics.decRunningTaskCount();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
             taskWrapper.waitForFinish();
@@ -224,7 +229,7 @@ public class TaskManager extends AbstractDaemon {
                     while (!retryTasks.isEmpty()) {
                         TaskWrapper taskWrapper = retryTasks.poll();
                         if (taskWrapper != null) {
-                            taskMetrics.retryingTasks.decrementAndGet();
+                            taskMetrics.decRetryingTaskCount();
                             submitTask(taskWrapper);
                         }
                     }

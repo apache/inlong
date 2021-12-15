@@ -90,7 +90,7 @@ export const getHiveColumns: GetStorageColumnsType = (dataType, currentValues) =
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: text && !isNew,
+        // disabled: text && !isNew,
         // disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
     },
@@ -101,7 +101,7 @@ export const getHiveColumns: GetStorageColumnsType = (dataType, currentValues) =
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: hiveFieldTypes,
-        disabled: text && !isNew,
+        // disabled: text && !isNew,
       }),
       rules: [{ required: true }],
     },
