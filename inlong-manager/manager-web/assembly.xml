@@ -23,6 +23,7 @@
 
     <!-- Types of packaging, if there are N, N types of packages will be printed -->
     <formats>
+        <format>dir</format>
         <format>tar.gz</format>
     </formats>
 

@@ -219,7 +219,6 @@
                         </goals>
                         <configuration>
                             <finalName>apache-inlong-${project.artifactId}-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
