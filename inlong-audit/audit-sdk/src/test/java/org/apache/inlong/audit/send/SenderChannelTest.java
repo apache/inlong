@@ -20,7 +20,6 @@ package org.apache.inlong.audit.send;
 import org.apache.inlong.audit.util.Encoder;
 import org.apache.inlong.audit.util.IpPort;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SenderChannelTest {
@@ -91,11 +89,5 @@ public class SenderChannelTest {
     public void getIpPort() {
         String toString = senderChannel.toString();
         assertEquals(toString, "0.0.0.0:54041");
-    }
-
-    @Test
-    public void getChannel() {
-        Channel channel = senderChannel.getChannel();
-        assertFalse(channel.getRemoteAddress().toString().equals("0.0.0.0:54041"));
     }
 }
