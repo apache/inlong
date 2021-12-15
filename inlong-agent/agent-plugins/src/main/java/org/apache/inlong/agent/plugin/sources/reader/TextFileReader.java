@@ -75,9 +75,11 @@ public class TextFileReader implements Reader {
         this.md5 = md5;
 
         if (ConfigUtil.isPrometheusEnabled()) {
-            textFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+            textFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(
+                TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            textFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+            textFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(
+                TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
