@@ -95,7 +95,6 @@
                         <configuration>
                             <finalName>apache-inlong-audit-source-${project.version}</finalName>
                             <outputDirectory>target</outputDirectory>
-                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>assembly/assembly.xml</descriptor>
                             </descriptors>

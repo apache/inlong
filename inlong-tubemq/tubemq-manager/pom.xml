@@ -185,7 +185,6 @@
                         </goals>
                         <configuration>
                             <finalName>apache-inlong-tubemq-manager-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
