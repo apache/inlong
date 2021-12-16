@@ -44,6 +44,8 @@ public interface BusinessEntityMapper {
 
     List<BusinessEntity> selectByCondition(BusinessPageRequest request);
 
+    List<BusinessEntity> selectAll(Integer status);
+
     /**
      * get all config with business status of 130, that is, config successful
      */
