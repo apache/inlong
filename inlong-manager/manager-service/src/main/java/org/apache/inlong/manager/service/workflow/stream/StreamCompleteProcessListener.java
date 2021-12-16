@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
@@ -41,6 +42,8 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     private BusinessService businessService;
     @Autowired
     private DataStreamService streamService;
+    @Autowired
+    private SourceFileDetailEntityMapper fileDetailMapper;
 
     @Override
     public ProcessEvent event() {
@@ -56,12 +59,15 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
-        String username = context.getApplicant();
+        String user = context.getApplicant();
 
         // update business status
-        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), user);
         // update data stream status
-        streamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
+        streamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), user);
+        // update file data source status
+        fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), user);
+
         return ListenerResult.success();
     }
 

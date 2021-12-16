@@ -56,16 +56,15 @@ public enum EntityStatus {
     DATA_STORAGE_CONFIG_FAILED(120, "configuration failed"),
     DATA_STORAGE_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    // Data source related status
-    DATA_RESOURCE_NEW(200, "new"),
-    DATA_RESOURCE_DELETE(201, "deleted"),
+    // Data source (or Agent) related status
+    AGENT_DISABLE(99, "disable"),
+    AGENT_NORMAL(101, "normal"),
+    AGENT_FREEZE(102, "stopped"),
+    AGENT_FAILURE(103, "failed"),
 
-    // Agent related status
-    AGENT_WAIT_CREATE(200, "wait create"),
-    AGENT_WAIT_STOP(201, "wait stop"),
-    AGENT_WAIT_START(203, "wait start"),
-    AGENT_WAIT_DELETE(204, "wait delete"),
-    AGENT_WAIT_UPDATE(205, "wait update"),
+    // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
+    AGENT_ADD(200, "wait add"),
+    AGENT_DELETE(201, "wait delete"),
 
     ;
 
