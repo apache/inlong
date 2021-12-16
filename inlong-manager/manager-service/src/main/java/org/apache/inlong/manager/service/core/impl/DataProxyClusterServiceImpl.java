@@ -17,13 +17,18 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -34,11 +39,13 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyConfig;
+import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
-import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
+import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -46,13 +53,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.gson.Gson;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -66,11 +66,13 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Autowired
     private DataProxyClusterEntityMapper dataProxyClusterMapper;
     @Autowired
-    private SourceFileDetailEntityMapper sourceFileDetailMapper;
+    private BusinessEntityMapper businessMapper;
     @Autowired
-    private BusinessEntityMapper businessEntityMapper;
+    private DataStreamEntityMapper dataStreamMapper;
     @Autowired
     private DataProxyConfigRepository proxyRepository;
+    @Autowired
+    private ClusterBean clusterBean;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -211,9 +213,28 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Override
     public List<DataProxyConfig> getConfig() {
         // get all configs with business status of 130, that is, config successful
-        List<DataProxyConfig> configList = businessEntityMapper.selectDataProxyConfig();
-        if (configList == null) {
-            configList = Collections.emptyList();
+        // TODO Optimize query conditions
+        List<BusinessEntity> bizEntityList = businessMapper.selectAll(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
+        List<DataProxyConfig> configList = new ArrayList<>();
+        for (BusinessEntity entity : bizEntityList) {
+            String groupId = entity.getInlongGroupId();
+            String bizResource = entity.getMqResourceObj();
+
+            DataProxyConfig config = new DataProxyConfig();
+            config.setM(entity.getSchemaName());
+            if (BizConstant.MIDDLEWARE_TUBE.equals(entity.getMiddlewareType())) {
+                config.setInlongGroupId(groupId);
+                config.setTopic(bizResource);
+            } else if (BizConstant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
+                List<DataStreamEntity> streamList = dataStreamMapper.selectByGroupId(groupId);
+                for (DataStreamEntity stream : streamList) {
+                    String streamId = stream.getInlongStreamId();
+                    config.setInlongGroupId(groupId + "/" + streamId);
+                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + groupId + "/" + streamId);
+
+                }
+            }
+            configList.add(config);
         }
 
         return configList;
@@ -221,10 +242,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     /**
      * query data proxy config by cluster id
-     * 
-     * @param clusterName
-     * @param setName
-     * @param md5
+     *
      * @return data proxy config
      */
     public String getAllConfig(String clusterName, String setName, String md5) {
@@ -245,8 +263,6 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     /**
      * getErrorAllConfig
-     * 
-     * @return
      */
     private String getErrorAllConfig() {
         DataProxyConfigResponse response = new DataProxyConfigResponse();
