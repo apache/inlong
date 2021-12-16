@@ -60,7 +60,6 @@
                         </goals>
                         <configuration>
                             <finalName>apache-inlong-dataproxy-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>q
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
