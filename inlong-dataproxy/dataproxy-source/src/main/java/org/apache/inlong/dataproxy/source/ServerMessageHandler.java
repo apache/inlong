@@ -227,7 +227,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
         Map<String, String> attrMap, AtomicReference<String> topicInfo) {
         String groupId = message.getGroupId();
-        String streamId;
+        String streamId = null;
         if (null != groupId) {
             String from = commonAttrMap.get(AttributeConstants.FROM);
             if ("dc".equals(from)) {
@@ -241,7 +241,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
             }
 
-            String value = configManager.getTopicProperties().get(groupId);
+            String value = getTopic(groupId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
@@ -277,7 +277,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     message.setGroupId(groupId);
                     message.setStreamId(streamId);
 
-                    String value = configManager.getTopicProperties().get(groupId);
+                    String value = getTopic(groupId, streamId);
                     if (StringUtils.isNotEmpty(value)) {
                         topicInfo.set(value.trim());
                     }
@@ -652,10 +652,32 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     /**
+     * get topic
+     */
+    private String getTopic(String groupId) {
+        return getTopic(groupId, null);
+    }
+
+    /**
+     * get topic
+     */
+    private String getTopic(String groupId, String streamId) {
+        String topic = null;
+        if (StringUtils.isNotEmpty(groupId)) {
+            if (StringUtils.isNotEmpty(streamId)) {
+                topic = configManager.getTopicProperties().get(groupId + "/" + streamId);
+            }
+            if (StringUtils.isEmpty(topic)) {
+                topic = configManager.getTopicProperties().get(groupId);
+            }
+        }
+        logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
+        return topic;
+    }
+
+    /**
      * addMetric
      * 
-     * @param currentRecord
-     * @param topic
      * @param result
      * @param size
      */
