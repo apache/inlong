@@ -78,7 +78,7 @@ function transType(editing: boolean, conf, initialValues) {
         'cnName',
         'description',
         'inCharges',
-        // 'mqExtInfo.ensemble',
+        'mqExtInfo.ensemble',
         'mqExtInfo.writeQuorum',
         'mqExtInfo.ackQuorum',
         'mqExtInfo.retentionTime',
