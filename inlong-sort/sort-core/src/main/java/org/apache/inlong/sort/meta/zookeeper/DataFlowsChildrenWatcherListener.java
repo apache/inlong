@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.meta;
+package org.apache.inlong.sort.meta.zookeeper;
 
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
-import org.apache.inlong.sort.meta.ZookeeperWatcher.ChildrenWatcherListener;
+import org.apache.inlong.sort.meta.zookeeper.ZookeeperMetaWatcher.ChildrenWatcherListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.DataFlowStorageInfo;
 import org.slf4j.Logger;

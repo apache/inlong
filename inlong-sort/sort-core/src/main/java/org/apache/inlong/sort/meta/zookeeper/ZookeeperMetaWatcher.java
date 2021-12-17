@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.meta;
+package org.apache.inlong.sort.meta.zookeeper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -41,6 +41,8 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.meta.MetaManager;
+import org.apache.inlong.sort.meta.MetaWatcher;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.util.ZooKeeperUtils;
 import org.slf4j.Logger;
@@ -48,9 +50,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener, MetaWatcher {
+public class ZookeeperMetaWatcher implements AutoCloseable, UnhandledErrorListener, MetaWatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperWatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperMetaWatcher.class);
 
     private final Object lock = new Object();
 

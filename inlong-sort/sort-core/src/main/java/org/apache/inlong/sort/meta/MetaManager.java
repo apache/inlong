@@ -28,6 +28,7 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.apache.inlong.sort.configuration.ConfigOption;
 import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.meta.zookeeper.ZookeeperMetaWatcher;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.objenesis.instantiator.util.ClassUtils;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class MetaManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(MetaManager.class);
 
     public static final ConfigOption<String> META_WATCHER_TYPE = key("meta.watcher.type")
-            .defaultValue(ZookeeperWatcher.class.getName())
+            .defaultValue(ZookeeperMetaWatcher.class.getName())
             .withDescription("Defines the meta watcher class name.");
 
     private static MetaManager instance;
