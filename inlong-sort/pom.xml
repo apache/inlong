@@ -374,14 +374,6 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.apache.log4j:*</exclude>
-                                    <exclude>org.apache.logging.log4j:*</exclude>
-                                    <exclude>org.slf4j:*</exclude>
-                                    <exclude>log4j:log4j</exclude>
-                                </excludes>
-                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
