@@ -376,7 +376,7 @@
         update source_file_detail
         <set>
             status = #{status, jdbcType=INTEGER},
-            modifier = #{operator, jdbcType=VARCHAR}
+            modifier = #{modifier, jdbcType=VARCHAR}
         </set>
         <where>
             inlong_group_id = #{groupId, jdbcType=VARCHAR}

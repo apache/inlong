@@ -620,7 +620,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         // businessMapper.updateStatusByIdentifier(groupId, status, operator);
         streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);
 
-        LOGGER.info("success to update stream after approve for groupId={}", groupId);
+        LOGGER.info("success to update stream after approve for groupId=" + groupId + ", streamId=" + streamId);
         return true;
     }
 
