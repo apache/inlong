@@ -227,7 +227,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
         Map<String, String> attrMap, AtomicReference<String> topicInfo) {
         String groupId = message.getGroupId();
-        String streamId = null;
+        String streamId = message.getStreamId();
         if (null != groupId) {
             String from = commonAttrMap.get(AttributeConstants.FROM);
             if ("dc".equals(from)) {
@@ -241,7 +241,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
             }
 
-            String value = getTopic(groupId);
+            String value = getTopic(groupId, streamId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
