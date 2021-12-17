@@ -45,11 +45,12 @@ public interface SourceFileDetailEntityMapper {
      * @param groupId Business group id
      * @param streamId Data stream id
      * @param status Modified status
-     * @param operator Edit person's name
+     * @param modifier Modifier name
      * @return whether succeed
      * @apiNote If stream id is null, update all data stream associated with group id
      */
-    boolean updateStatusAfterApprove(String groupId, String streamId, Integer status, String operator);
+    boolean updateStatusAfterApprove(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("status") Integer status, @Param("modifier") String modifier);
 
     List<SourceFileDetailEntity> selectByCondition(SourceFileDetailPageRequest request);
 
