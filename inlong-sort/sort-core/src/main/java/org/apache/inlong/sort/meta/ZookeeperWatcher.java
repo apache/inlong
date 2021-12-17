@@ -15,18 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.util;
+package org.apache.inlong.sort.meta;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.UnhandledErrorListener;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -38,10 +39,16 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
+import org.apache.inlong.sort.util.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
+import com.google.common.base.Preconditions;
+
+public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener, MetaWatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperWatcher.class);
 
@@ -50,26 +57,52 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
     /**
      * Connection to the used ZooKeeper quorum.
      */
-    private final CuratorFramework client;
+    private CuratorFramework client;
 
     /**
      * Curator recipe to watch changes of a specific ZooKeeper node.
      */
     @GuardedBy("lock")
-    private final Map<String, NodeCache> caches;
+    private Map<String, NodeCache> caches;
 
     @GuardedBy("lock")
-    private final Map<String, PathChildrenCache> pathChildrenCaches;
+    private Map<String, PathChildrenCache> pathChildrenCaches;
 
-    private final ConnectionStateListener connectionStateListener =
-            (client, newState) -> handleStateChange(newState);
+    private ConnectionStateListener connectionStateListener = (client, newState) -> handleStateChange(newState);
 
-    public ZookeeperWatcher(CuratorFramework client) {
-        this.client = checkNotNull(client, "CuratorFramework client");
+    /**
+     * open
+     * 
+     * @param  config
+     * @param  metaListener
+     * @throws Exception
+     */
+    public void open(Configuration config, DataFlowInfoListener metaListener) throws Exception {
+        this.client = ZooKeeperUtils.startCuratorFramework(config);
         this.caches = new HashMap<>();
         this.pathChildrenCaches = new HashMap<>();
         client.getUnhandledErrorListenable().addListener(this);
         client.getConnectionStateListenable().addListener(connectionStateListener);
+        synchronized (MetaManager.LOCK) {
+            final String dataFlowsWatchingPath = getWatchingPathOfDataFlowsInCluster(
+                    config.getString(Constants.CLUSTER_ID));
+            DataFlowsChildrenWatcherListener dataFlowsChildrenWatcherListener = new DataFlowsChildrenWatcherListener(
+                    this.client, metaListener);
+            this.registerPathChildrenWatcher(
+                    dataFlowsWatchingPath, dataFlowsChildrenWatcherListener, true);
+            final List<ChildData> childData = this.getCurrentPathChildrenDatum(dataFlowsWatchingPath);
+            if (childData != null) {
+                dataFlowsChildrenWatcherListener.onInitialized(childData);
+            }
+        }
+    }
+
+    /**
+     * If you want to change the path rule here, please change ZkTools#getNodePathOfDataFlowStorageInfoInCluster in api
+     * too.
+     */
+    public static String getWatchingPathOfDataFlowsInCluster(String cluster) {
+        return "/clusters/" + cluster + "/dataflows";
     }
 
     @Override
@@ -93,17 +126,18 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
                 throw new Exception("Could not properly stop the ZooKeeperLeaderRetrievalService.", e);
             }
         }
+        this.client.close();
     }
 
     /**
      * Register a watcher on path.
      *
-     * @param watchingPath the watching path
-     * @param listener the callback listener
-     * @param initial if initial is true, it retrieves the data of the watching path
-     *         synchronously, then invokes the listener immediately. Otherwise it returns
-     *         immediately and invoke the listener asynchronously if the node is changed
-     * @throws Exception exception
+     * @param  watchingPath the watching path
+     * @param  listener     the callback listener
+     * @param  initial      if initial is true, it retrieves the data of the watching path synchronously, then invokes
+     *                      the listener immediately. Otherwise it returns immediately and invoke the listener
+     *                      asynchronously if the node is changed
+     * @throws Exception    exception
      */
     public void registerWatcher(
             String watchingPath, WatcherListener listener, boolean initial) throws Exception {
@@ -135,6 +169,7 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
 
     /**
      * Register pathChildren watcher.
+     * 
      * @param buildInitial whether build the initial cache or not.
      */
     public void registerPathChildrenWatcher(
@@ -204,19 +239,19 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
 
     protected void handleStateChange(ConnectionState newState) {
         switch (newState) {
-            case CONNECTED:
+            case CONNECTED :
                 LOG.info("Connected to ZooKeeper quorum.");
                 break;
-            case SUSPENDED:
+            case SUSPENDED :
                 LOG.warn("Connection to ZooKeeper suspended.");
                 break;
-            case RECONNECTED:
+            case RECONNECTED :
                 LOG.info("Connection to ZooKeeper was reconnected.");
                 break;
-            case LOST:
+            case LOST :
                 LOG.warn("Connection to ZooKeeper lost.");
                 break;
-            default:
+            default :
                 LOG.info("Received Zookeeper new state {}", newState);
                 break;
         }
@@ -266,6 +301,7 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
     }
 
     public interface ChildrenWatcherListener {
+
         void onChildAdded(ChildData childData) throws Exception;
 
         void onChildUpdated(ChildData childData) throws Exception;
@@ -307,28 +343,28 @@ public class ZookeeperWatcher implements AutoCloseable, UnhandledErrorListener {
 
             try {
                 switch (pathChildrenCacheEvent.getType()) {
-                    case INITIALIZED:
+                    case INITIALIZED :
                         childrenWatcherListener.onInitialized(pathChildrenCacheEvent.getInitialData());
                         break;
-                    case CHILD_ADDED:
+                    case CHILD_ADDED :
                         childrenWatcherListener.onChildAdded(pathChildrenCacheEvent.getData());
                         break;
-                    case CHILD_UPDATED:
+                    case CHILD_UPDATED :
                         childrenWatcherListener.onChildUpdated(pathChildrenCacheEvent.getData());
                         break;
-                    case CHILD_REMOVED:
+                    case CHILD_REMOVED :
                         childrenWatcherListener.onChildRemoved(pathChildrenCacheEvent.getData());
                         break;
-                    case CONNECTION_LOST:
+                    case CONNECTION_LOST :
                         childrenWatcherListener.onConnectionLost();
                         break;
-                    case CONNECTION_SUSPENDED:
+                    case CONNECTION_SUSPENDED :
                         childrenWatcherListener.onConnectionSuspended();
                         break;
-                    case CONNECTION_RECONNECTED:
+                    case CONNECTION_RECONNECTED :
                         childrenWatcherListener.onConnectionReconnected();
                         break;
-                    default:
+                    default :
                         LOG.error("Undefined pathChildrenCacheEvent");
                 }
             } catch (Throwable t) {
