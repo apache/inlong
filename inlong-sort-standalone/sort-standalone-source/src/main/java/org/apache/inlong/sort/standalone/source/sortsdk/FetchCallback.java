@@ -64,12 +64,12 @@ public class FetchCallback implements ReadCallback {
      *
      * @param sortId SortId of fetch message.
      * @param channelProcessor ChannelProcessor that message put in.
-     * @param contex The context to report fetch results.
+     * @param context The context to report fetch results.
      */
     private FetchCallback(
             final String sortId,
             final ChannelProcessor channelProcessor,
-            final SortSdkSourceContext contex) {
+            final SortSdkSourceContext context) {
         this.sortId = sortId;
         this.channelProcessor = channelProcessor;
         this.context = context;
