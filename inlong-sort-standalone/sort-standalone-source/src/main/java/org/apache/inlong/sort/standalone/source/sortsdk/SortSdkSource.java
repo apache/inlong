@@ -163,10 +163,10 @@ final public class SortSdkSource extends AbstractSource implements Configurable,
     private SortClient newClient(String sortId) {
         LOG.info("Start to new sort client for id: {}", sortId);
         try {
-            SortClientConfig clientConfig =
+            final SortClientConfig clientConfig =
                     new SortClientConfig(sortId, this.sortClusterName, new DefaultTopicChangeListener(),
                             SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
-            FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
+            final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
             SortClient client = SortClientFactory.createSortClient(clientConfig);
             client.init();
@@ -178,7 +178,5 @@ final public class SortSdkSource extends AbstractSource implements Configurable,
         }
         return null;
     }
-
-
 
 }

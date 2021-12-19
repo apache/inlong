@@ -20,6 +20,7 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 import com.google.common.base.Preconditions;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
+import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.slf4j.Logger;
@@ -56,7 +57,10 @@ public class FetchCallback implements ReadCallback {
     private final ChannelProcessor channelProcessor;
 
     /** Context of source, used to report fetch results. */
-    private SortSdkSourceContext context;
+    private final SortSdkSourceContext context;
+
+    /** Temporary usage for ACK. The {@link SortClient} and Callback should not circular reference each other. */
+    private SortClient client;
 
     /**
      * Private constructor of {@link FetchCallback}.
@@ -76,6 +80,14 @@ public class FetchCallback implements ReadCallback {
     }
 
     /**
+     * Set client for ack.
+     * @param client client for ack.
+     */
+    public void setClient(@NotNull SortClient client) {
+        this.client = client;
+    }
+
+    /**
      * The callback function that SortSDK invoke when fetch messages.
      *
      * @param messageRecord message
@@ -88,9 +100,12 @@ public class FetchCallback implements ReadCallback {
             final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
             channelProcessor.processEvent(profileEvent);
             context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
+            client.ack(messageRecord.getMsgKey(), messageRecord.getMsgKey());
         } catch (NullPointerException npe) {
             LOG.error("Fetch one NULL message from sortId {}.", sortId);
             context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
+        } catch (Exception e) {
+            LOG.error("Ack failed for sortId {}", sortId);
         }
     }
 
