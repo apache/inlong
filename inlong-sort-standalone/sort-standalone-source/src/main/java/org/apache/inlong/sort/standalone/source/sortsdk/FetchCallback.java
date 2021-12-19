@@ -83,7 +83,7 @@ public class FetchCallback implements ReadCallback {
     @Override
     public void onFinished(final MessageRecord messageRecord) {
         try {
-            Preconditions.checkNotNull(messageRecord);
+            Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
             final SubscribeFetchResult result = SubscribeFetchResult.Factory.create(sortId, messageRecord);
             final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
             channelProcessor.processEvent(profileEvent);
