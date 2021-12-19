@@ -46,14 +46,17 @@ import javax.validation.constraints.NotNull;
  */
 public class FetchCallback implements ReadCallback {
 
-    /** Logger of {@link FetchCallback}.*/
+    /** Logger of {@link FetchCallback}. */
     private static final Logger LOG = LoggerFactory.getLogger(FetchCallback.class);
 
-    /** SortId of fetch message.*/
+    /** SortId of fetch message. */
     private final String sortId;
 
-    /** ChannelProcessor that put message in specific channel.*/
+    /** ChannelProcessor that put message in specific channel. */
     private final ChannelProcessor channelProcessor;
+
+    /** Context of source, used to report fetch results. */
+    private SortSdkSourceContext context;
 
     /**
      * Private constructor of {@link FetchCallback}.
@@ -61,12 +64,15 @@ public class FetchCallback implements ReadCallback {
      *
      * @param sortId SortId of fetch message.
      * @param channelProcessor ChannelProcessor that message put in.
+     * @param contex The context to report fetch results.
      */
     private FetchCallback(
             final String sortId,
-            final ChannelProcessor channelProcessor) {
+            final ChannelProcessor channelProcessor,
+            final SortSdkSourceContext contex) {
         this.sortId = sortId;
         this.channelProcessor = channelProcessor;
+        this.context = context;
     }
 
     /**
@@ -81,9 +87,10 @@ public class FetchCallback implements ReadCallback {
             final SubscribeFetchResult result = SubscribeFetchResult.Factory.create(sortId, messageRecord);
             final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
             channelProcessor.processEvent(profileEvent);
-
+            context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
         } catch (NullPointerException npe) {
             LOG.error("Fetch one NULL message from sortId {}.", sortId);
+            context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
         }
     }
 
@@ -98,13 +105,15 @@ public class FetchCallback implements ReadCallback {
          *
          * @param sortId The sortId of fetched message.
          * @param channelProcessor The channelProcessor that put message in specific channel.
+         * @param context The context to report fetch results.
          *
          * @return One FetchCallback.
          */
         public static FetchCallback create(
                 @NotBlank(message = "sortId should not be null or empty.") final String sortId,
-                @NotNull(message = "channelProcessor should not be null.") final ChannelProcessor channelProcessor) {
-            return new FetchCallback(sortId, channelProcessor);
+                @NotNull(message = "channelProcessor should not be null.") final ChannelProcessor channelProcessor,
+                @NotNull(message = "context should not be null") final SortSdkSourceContext context) {
+            return new FetchCallback(sortId, channelProcessor, context);
         }
     }
 }
