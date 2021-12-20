@@ -80,8 +80,8 @@ public class CommonConstants {
     public static final String FIELD_SPLITTER = "proxy.field.splitter";
     public static final String DEFAULT_FIELD_SPLITTER = "|";
 
-    public static final String PROXY_KEY_GROUP_ID = "groupId";
-    public static final String PROXY_KEY_STREAM_ID = "streamId";
+    public static final String PROXY_KEY_GROUP_ID = "inlongGroupId";
+    public static final String PROXY_KEY_STREAM_ID = "inlongStreamId";
     public static final String PROXY_KEY_ID = "id";
     public static final String PROXY_KEY_AGENT_IP = "agentip";
     public static final String PROXY_OCEANUS_F = "f";
