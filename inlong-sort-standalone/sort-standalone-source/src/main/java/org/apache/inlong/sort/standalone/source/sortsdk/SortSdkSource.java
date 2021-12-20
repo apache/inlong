@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  * default constructor <b>WITHOUT</b> any arguments, and parameters will be configured by
  * {@link Configurable#configure(Context)}. </p>
  */
-final public class SortSdkSource extends AbstractSource implements Configurable, Runnable, EventDrivenSource {
+public final class SortSdkSource extends AbstractSource implements Configurable, Runnable, EventDrivenSource {
 
     /** Log of {@link SortSdkSource}. */
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);

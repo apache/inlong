@@ -62,7 +62,7 @@ public class SourceContext {
      * Obtain the reload interval of source.
      * @return Reload interval of source.
      */
-    final public long getReloadInterval() {
+    public final long getReloadInterval() {
         return sourceContext.getLong(SourceContext.KEY_RELOAD_INTERVAL, 60000L);
     }
 
@@ -70,7 +70,7 @@ public class SourceContext {
      * Obtain the cluster Id of source.
      * @return Cluster Id of source.
      */
-    final public String getClusterId() {
+    public final String getClusterId() {
         return clusterId;
     }
 
@@ -78,7 +78,7 @@ public class SourceContext {
      * Obtain the name of source.
      * @return Name of source.
      */
-    final public String getSourceName() {
+    public final String getSourceName() {
         return sourceName;
     }
 

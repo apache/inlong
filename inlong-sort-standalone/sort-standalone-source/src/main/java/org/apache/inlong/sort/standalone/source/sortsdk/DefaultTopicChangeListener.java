@@ -31,7 +31,10 @@ import java.util.Set;
 public class DefaultTopicChangeListener implements InLongTopicChangeListener {
 
     @Override
-    public boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics, Set<InLongTopic> newInLongTopics, Set<InLongTopic> removedInLongTopics) {
+    public boolean onAssignmentsChange(
+            Set<InLongTopic> allInLongTopics,
+            Set<InLongTopic> newInLongTopics,
+            Set<InLongTopic> removedInLongTopics) {
         return true;
     }
 

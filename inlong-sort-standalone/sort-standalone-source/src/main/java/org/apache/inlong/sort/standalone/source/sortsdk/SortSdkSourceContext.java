@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-final public class SortSdkSourceContext extends SourceContext {
+public final class SortSdkSourceContext extends SourceContext {
 
     /** Metric item set of Sort to create and maintain specific metric group. */
     private final SortMetricItemSet metricItemSet;
@@ -77,7 +77,7 @@ final public class SortSdkSourceContext extends SourceContext {
 
         final Map<String, String> dimensions = this.createSortSdkSourceDimensionMap(event, sortId, topic);
         final SortMetricItem metricItem = metricItemSet.findMetricItem(dimensions);
-        final int msgSize = event != null? event.getBody().length : -1;
+        final int msgSize = event != null ? event.getBody().length : -1;
         this.reportToMetric(metricItem, fetchResult, msgSize);
     }
 
