@@ -202,11 +202,11 @@ public class ProxySink extends AbstractSink {
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
             StandardCharsets.UTF_8);
         executorService.execute(flushCache());
-        senderManager = new SenderManager(jobConf, inlongStreamId, sourceFile);
+        senderManager = new SenderManager(jobConf, inlongGroupId, sourceFile);
         try {
             senderManager.addMessageSender();
         } catch (Exception ex) {
-            LOGGER.error("error while init sender for group id {}", inlongStreamId);
+            LOGGER.error("error while init sender for group id {}", inlongGroupId);
             throw new IllegalStateException(ex);
         }
     }
