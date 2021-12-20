@@ -25,6 +25,7 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
+import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.slf4j.Logger;
@@ -129,6 +130,10 @@ final public class SortSdkSource extends AbstractSource implements Configurable,
      * Reload clients by current {@link SortTaskConfig}.
      *
      * <p> Create new clients with new sort task id, and remove the finished or scheduled ones. </p>
+     *
+     * <p> Current version of SortSdk <b>DO NOT</b> support to get the corresponding sort id of {@link SortClient}.
+     *  Hence the maintenance of mapping of <SortId, SortClient> should be done by Source itself. Which is not elegant,
+     *  the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
      */
     private void reload() {
 
@@ -151,11 +156,14 @@ final public class SortSdkSource extends AbstractSource implements Configurable,
                 this.clients.put(sortId, client);
             }
         }
-
     }
 
     /**
      * Create one {@link SortClient} with specific sort id.
+     *
+     * <p> In current version, the {@link FetchCallback} will hold the client to ACK.
+     * For more details see {@link FetchCallback#onFinished(MessageRecord)}</p>
+     *
      * @param sortId Sort in of new client.
      *
      * @return New sort client.
@@ -170,6 +178,8 @@ final public class SortSdkSource extends AbstractSource implements Configurable,
             clientConfig.setCallback(callback);
             SortClient client = SortClientFactory.createSortClient(clientConfig);
             client.init();
+            // temporary use to ACK fetched msg.
+            callback.setClient(client);
             return client;
         } catch (UnknownHostException ex) {
             LOG.error("Got one UnknownHostException when init client of id: " + sortId, ex);

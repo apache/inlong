@@ -90,6 +90,10 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages.
      *
+     * <p> In order to ACK the fetched msg, {@link FetchCallback} has to hold the {@link SortClient} which results in
+     * <b>Cycle Reference</b>. The {@link SortClient} should deliver one object to ACK after invoke the callback method
+     * {@link ReadCallback#onFinished(MessageRecord)}. </p>
+     *
      * @param messageRecord message
      */
     @Override
@@ -102,10 +106,10 @@ public class FetchCallback implements ReadCallback {
             context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             client.ack(messageRecord.getMsgKey(), messageRecord.getMsgKey());
         } catch (NullPointerException npe) {
-            LOG.error("Fetch one NULL message from sortId {}.", sortId);
+            LOG.error("Got a null pointer exception for sortId " + sortId, npe);
             context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
         } catch (Exception e) {
-            LOG.error("Ack failed for sortId {}", sortId);
+            LOG.error("Ack failed for sortId " + sortId, e);
         }
     }
 
