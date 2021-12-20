@@ -52,9 +52,7 @@ public class TDMsgUtils {
     public static final char TDMSG_ATTR_KV_DELIMITER = '=';
 
     // keys in attributes
-    public static final String TDMSG_ATTR_INTERFACE_NAME = "iname";
-    public static final String TDMSG_ATTR_INTERFACE_ID = "id";
-    public static final String TDMSG_ATTR_INTERFACE_TID = "tid";
+    public static final String TDMSG_ATTR_STREAM_ID = "streamId";
     public static final String TDMSG_ATTR_TIME_T = "t";
     public static final String TDMSG_ATTR_TIME_DT = "dt";
     public static final String TDMSG_ATTR_ADD_COLUMN_PREFIX = "__addcol";
