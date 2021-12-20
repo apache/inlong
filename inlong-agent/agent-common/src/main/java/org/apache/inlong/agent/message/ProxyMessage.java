@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.message;
 
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_STREAM_ID;
+
 import java.util.Map;
 import org.apache.inlong.agent.plugin.Message;
 
@@ -35,8 +38,8 @@ public class ProxyMessage implements Message {
     public ProxyMessage(byte[] body, Map<String, String> header) {
         this.body = body;
         this.header = header;
-        this.inlongGroupId = header.get("inlongGroupId");
-        this.inlongStreamId = header.getOrDefault("inlongStreamId", DEFAULT_INLONG_STREAM_ID);
+        this.inlongGroupId = header.get(PROXY_KEY_GROUP_ID);
+        this.inlongStreamId = header.getOrDefault(PROXY_KEY_STREAM_ID, DEFAULT_INLONG_STREAM_ID);
     }
 
     /**
