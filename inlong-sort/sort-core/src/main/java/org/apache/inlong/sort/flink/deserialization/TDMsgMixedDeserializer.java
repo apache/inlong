@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.flink.Record;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.tdmsg.AbstractTDMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgMixedFormatConverter;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgUtils;
@@ -32,7 +32,7 @@ import org.apache.inlong.sort.formats.tdmsg.TDMsgUtils;
 /**
  * A deserializer to handle mixed TDMsg records of one topic.
  */
-public class TDMsgMixedDeserializer implements Deserializer<TDMsgSerializedRecord, Record> {
+public class TDMsgMixedDeserializer implements Deserializer<TDMsgMixedSerializedRecord, Record> {
 
     /**
      * Each topic should have same preDeserializer, so just keep one.
@@ -76,7 +76,7 @@ public class TDMsgMixedDeserializer implements Deserializer<TDMsgSerializedRecor
     }
 
     @Override
-    public void deserialize(TDMsgSerializedRecord tdMsgRecord, Collector<Record> collector) throws Exception {
+    public void deserialize(TDMsgMixedSerializedRecord tdMsgRecord, Collector<Record> collector) throws Exception {
         preDeserializer.flatMap(tdMsgRecord.getData(), new CallbackCollector<>(mixedRow -> {
             final String tid = TDMsgUtils.getTidFromMixedRow(mixedRow);
             final Set<Long> dataFlowIds = interface2DataFlowsMap.get(tid);
