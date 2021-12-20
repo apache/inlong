@@ -33,9 +33,9 @@
     <version>0.12.0-incubating-SNAPSHOT</version>
     <name>Apache InLong</name>
 
-    <description>InLong is a one-stop data streaming platform that provides automatic,
-        secure, distributed, and efficient data publishing and subscription capabilities.
-        This platform helps you easily build stream-based data applications.
+    <description>InLong is a one-stop data ingestion platform donated by Tencent to the Apache community.
+        It provides automatic, safe, reliable, and high-performance data transmission capabilities to
+        facilitate the construction of streaming-based data analysis, modeling, and applications.
     </description>
     <url>https://github.com/apache/incubator-inlong</url>
 
