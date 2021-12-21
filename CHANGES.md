@@ -21,7 +21,7 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
-## Release 0.12.0-incubating - Released (as of 2021-12-14)
+## Release 0.12.0-incubating - Released (as of 2021-12-22)
 
 ### FEATURES:
 | ISSUE  | Summary  |
@@ -62,6 +62,7 @@
 | [INLONG-1910](https://github.com/apache/incubator-inlong/issues/1910) | [Feature]Inlong-Sort-Standalone-sort-sdk support to consume events from inlong cache clusters(pulsar)
 | [INLONG-1926](https://github.com/apache/incubator-inlong/issues/1926) | [Feature]Inlong-Sort-Standalone support JMX metrics listener for pulling.
 | [INLONG-1938](https://github.com/apache/incubator-inlong/issues/1938) | [Feature] DataProxy send message to multi-pulsar cluster conf demo
+| [INLONG-2002](https://github.com/apache/incubator-inlong/issues/2002) | [Feature]creating data access with pulsar, users should be able to change the ensemble param
 
 ### IMPROVEMENTS:
 | ISSUE  | Summary  |
@@ -95,6 +96,8 @@
 | [INLONG-1935](https://github.com/apache/incubator-inlong/issues/1935) | [Improve] package the SQL file for the manager
 | [INLONG-1939](https://github.com/apache/incubator-inlong/issues/1939) | [Improve] add basic concepts for InLong
 | [INLONG-1952](https://github.com/apache/incubator-inlong/issues/1952) | [Improve] Update the office website structure image
+| [INLONG-1987](https://github.com/apache/incubator-inlong/issues/1987) | [Improve] Add function comment information in TubeMQ
+| [INLONG-2017](https://github.com/apache/incubator-inlong/issues/2017) | [Improve] Add more guide documents for Pulsar
 
 ### BUG FIXES:
 | ISSUE  | Summary  |
@@ -129,6 +132,25 @@
 | [INLONG-1967](https://github.com/apache/incubator-inlong/issues/1967) | [Bug][InLong-Manager] Cannot create the Pulsar subscription
 | [INLONG-1973](https://github.com/apache/incubator-inlong/issues/1973) | [Bug]with the demo conf of dataproxy, the app can not start rightly
 | [INLONG-1975](https://github.com/apache/incubator-inlong/issues/1975) | [Bug]error occurs when deleting a data access
+| [INLONG-1978](https://github.com/apache/incubator-inlong/issues/1978) | [Bug]Create multiple file import tasks, and inlong-agent reports an error when registering metric
+| [INLONG-1980](https://github.com/apache/incubator-inlong/issues/1980) | [Bug]the content of topics.properties generated incorrectly，and too much backup files generate automatically
+| [INLONG-1981](https://github.com/apache/incubator-inlong/issues/1981) | [Bug] When compiling the project, the InLong-audit module reported Warning errors
+| [INLONG-1984](https://github.com/apache/incubator-inlong/issues/1984) | [Bug][InLong-Manager] Create pulsar access, modify pulsar related parameters failed
+| [INLONG-1995](https://github.com/apache/incubator-inlong/issues/1995) | [Bug] Compile Audit-SDK and report TestNGException
+| [INLONG-1996](https://github.com/apache/incubator-inlong/issues/1996) | [Bug] Compile the project and InLong-Agent module throws 3 exceptions
+| [INLONG-1997](https://github.com/apache/incubator-inlong/issues/1997) | [Bug]after the compilation of inlong, no lib directory in inlong-dataproxy
+| [INLONG-2009](https://github.com/apache/incubator-inlong/issues/2009) | [Bug]Topic obtained through "/api/inlong/manager/openapi/dataproxy/getConfig" is not right
+| [INLONG-2012](https://github.com/apache/incubator-inlong/issues/2012) | [Bug] Inlong-agent could not fetch file agent task through api --"/api/inlong/manager/openapi/agent/fileAgent/getTaskConf"
+| [INLONG-2014](https://github.com/apache/incubator-inlong/issues/2014) | [Bug]inlong-dataproxy could not identify the groupId and topic format of topics.properties
+| [INLONG-2018](https://github.com/apache/incubator-inlong/issues/2018) | [Bug]after approving a data access, some failures happen and the data access is always in the state of configuration
+| [INLONG-2020](https://github.com/apache/incubator-inlong/issues/2020) | [Bug] Dependency of "jul-to-slf4j" is missing for pulsar connector
+| [INLONG-2023](https://github.com/apache/incubator-inlong/issues/2023) | [Bug] Agent stream id is not passed to proxy
+| [INLONG-2026](https://github.com/apache/incubator-inlong/issues/2026) | [Bug] Found Pulsar client create failure when starting Sort
+| [INLONG-2030](https://github.com/apache/incubator-inlong/issues/2030) | [Bug]inlong-agent raises NPE error when running
+| [INLONG-2032](https://github.com/apache/incubator-inlong/issues/2032) | [Bug]"javax.xml.parsers.FactoryConfigurationError" throwed in flink when starting a inlong-sort job
+| [INLONG-2035](https://github.com/apache/incubator-inlong/issues/2035) | [Bug] Agent use wrong tid __ to generate message
+| [INLONG-2038](https://github.com/apache/incubator-inlong/issues/2038) | [Bug]inlong-sort abandon data from pulsar due to an ClassCastException
+| [INLONG-2043](https://github.com/apache/incubator-inlong/issues/2043) | [Bug] Sort module renames tid to streamId
 
 
 ## Release 0.11.0-incubating - Released (as of 2021-10-25)
