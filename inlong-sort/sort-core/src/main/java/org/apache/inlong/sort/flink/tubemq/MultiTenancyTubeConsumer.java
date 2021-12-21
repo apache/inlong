@@ -20,8 +20,6 @@ package org.apache.inlong.sort.flink.tubemq;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +34,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flink.runtime.net.ConnectionUtils;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.flink.util.TimeUtils;
 import org.apache.inlong.sort.configuration.Configuration;
@@ -46,6 +43,7 @@ import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.util.CommonUtils;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
+import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -195,14 +193,6 @@ public class MultiTenancyTubeConsumer {
             LOG.warn("Invalid master address {} provided of {}", tubeMasterAddresses, topic);
             return;
         }
-        final Pair<String, Integer> firstTubeMasterAddress = parsedTubeMasterAddress.get(0);
-        // get local address for connecting
-        InetSocketAddress firstSocketAddress = new InetSocketAddress(firstTubeMasterAddress.getLeft(),
-                firstTubeMasterAddress.getRight());
-        InetAddress localAddress = ConnectionUtils.findConnectingAddress(
-                firstSocketAddress, 2000L, 400L);
-        String localhost = localAddress.getHostAddress();
-
         final Map<String, Long> partitionToOffset;
         synchronized (context.getCheckpointLock()) {
             if (topicToOffset.containsKey(topic)) {
@@ -214,13 +204,13 @@ public class MultiTenancyTubeConsumer {
         }
 
         // initialize ConsumerConfig
-        ConsumerConfig consumerConfig = new ConsumerConfig(localhost, tubeMasterAddresses, consumerGroup);
+        ConsumerConfig consumerConfig = new ConsumerConfig(tubeMasterAddresses, consumerGroup);
         // consumeFromMax works only if there is no offset restored from checkpoint
         if (consumeFromMax && partitionToOffset.isEmpty()) {
-            consumerConfig.setConsumeModel(1);
+            consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS);
             LOG.info("Would consume {} from max offset", topic);
         } else {
-            consumerConfig.setConsumeModel(0);
+            consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         }
         consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
 
