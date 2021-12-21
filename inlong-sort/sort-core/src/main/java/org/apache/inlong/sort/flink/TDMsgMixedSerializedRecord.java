@@ -22,7 +22,7 @@ import static org.apache.inlong.sort.configuration.Constants.UNKNOWN_DATAFLOW_ID
 /**
  * Data flow id might not been got from mixed TDMsg data stream.
  */
-public class TDMsgSerializedRecord extends SerializedRecord {
+public class TDMsgMixedSerializedRecord extends SerializedRecord {
 
     private static final long serialVersionUID = 4075321919886376829L;
 
@@ -31,11 +31,11 @@ public class TDMsgSerializedRecord extends SerializedRecord {
     /**
      * Just satisfy requirement of Flink Pojo definition.
      */
-    public TDMsgSerializedRecord() {
+    public TDMsgMixedSerializedRecord() {
         super();
     }
 
-    public TDMsgSerializedRecord(String topic, long timestampMillis, byte[] data) {
+    public TDMsgMixedSerializedRecord(String topic, long timestampMillis, byte[] data) {
         super(UNKNOWN_DATAFLOW_ID, timestampMillis, data);
         this.topic = topic;
     }

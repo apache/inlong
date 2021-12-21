@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.flink.deserialization;
 
-import static org.apache.inlong.sort.configuration.Constants.UNKNOWN_DATAFLOW_ID;
-
 import com.google.common.base.Preconditions;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
@@ -26,7 +24,7 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.flink.SerializedRecord;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.flink.metrics.MetricData;
 import org.apache.inlong.sort.flink.metrics.MetricData.MetricSource;
 import org.apache.inlong.sort.flink.metrics.MetricData.MetricType;
@@ -58,6 +56,8 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
 
     private transient MultiTenancyTDMsgMixedDeserializer multiTenancyTdMsgMixedDeserializer;
 
+    private transient MultiTenancyDeserializer multiTenancyDeserializer;
+
     private transient MetaManager metaManager;
 
     private transient Boolean enableOutputMetrics;
@@ -70,6 +70,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
     public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
         schemaLock = new Object();
         multiTenancyTdMsgMixedDeserializer = new MultiTenancyTDMsgMixedDeserializer();
+        multiTenancyDeserializer = new MultiTenancyDeserializer();
         fieldMappingTransformer = new FieldMappingTransformer();
         recordTransformer = new RecordTransformer(config.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));
         metaManager = MetaManager.getInstance(config);
@@ -105,46 +106,34 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                 context.output(METRIC_DATA_OUTPUT_TAG, metricData);
             }
 
-            if (serializedRecord instanceof TDMsgSerializedRecord
-                    && serializedRecord.getDataFlowId() == UNKNOWN_DATAFLOW_ID) {
-                final TDMsgSerializedRecord tdmsgRecord = (TDMsgSerializedRecord) serializedRecord;
-                synchronized (schemaLock) {
-                    multiTenancyTdMsgMixedDeserializer.deserialize(
-                            tdmsgRecord,
-                            new CallbackCollector<>(sourceRecord -> {
-                                final Record sinkRecord = fieldMappingTransformer.transform(sourceRecord);
+            final CallbackCollector<Record> transformCollector = new CallbackCollector<>(sourceRecord -> {
+                final Record sinkRecord = fieldMappingTransformer.transform(sourceRecord);
 
-                                if (enableOutputMetrics) {
-                                    MetricData metricData = new MetricData(
-                                            // TODO, outputs this metric in Sink Function
-                                            MetricSource.SINK,
-                                            MetricType.SUCCESSFUL,
-                                            sinkRecord.getTimestampMillis(),
-                                            sinkRecord.getDataflowId(),
-                                            "",
-                                            1);
-
-                                    context.output(METRIC_DATA_OUTPUT_TAG, metricData);
-                                }
-
-                                collector.collect(recordTransformer.toSerializedRecord(sinkRecord));
-                            }));
-                }
-            } else {
-                // TODO, support more data types
-                if (enableOutputMetrics
-                        && !config.getString(Constants.SOURCE_TYPE).equals(Constants.SOURCE_TYPE_TUBE)) {
+                if (enableOutputMetrics) {
                     MetricData metricData = new MetricData(
-                            MetricSource.DESERIALIZATION,
-                            MetricType.ABANDONED,
-                            serializedRecord.getTimestampMillis(),
-                            serializedRecord.getDataFlowId(),
-                            "Unsupported schema",
+                            // TODO, outputs this metric in Sink Function
+                            MetricSource.SINK,
+                            MetricType.SUCCESSFUL,
+                            sinkRecord.getTimestampMillis(),
+                            sinkRecord.getDataflowId(),
+                            "",
                             1);
+
                     context.output(METRIC_DATA_OUTPUT_TAG, metricData);
                 }
 
-                LOG.warn("Abandon data due to unsupported record {}", serializedRecord);
+                collector.collect(recordTransformer.toSerializedRecord(sinkRecord));
+            });
+
+            if (serializedRecord instanceof TDMsgMixedSerializedRecord) {
+                final TDMsgMixedSerializedRecord tdmsgRecord = (TDMsgMixedSerializedRecord) serializedRecord;
+                synchronized (schemaLock) {
+                    multiTenancyTdMsgMixedDeserializer.deserialize(tdmsgRecord, transformCollector);
+                }
+            } else {
+                synchronized (schemaLock) {
+                    multiTenancyDeserializer.deserialize(serializedRecord, transformCollector);
+                }
             }
         } catch (Exception e) {
             if (enableOutputMetrics
@@ -169,6 +158,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         public void addDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
                 multiTenancyTdMsgMixedDeserializer.addDataFlow(dataFlowInfo);
+                multiTenancyDeserializer.addDataFlow(dataFlowInfo);
                 fieldMappingTransformer.addDataFlow(dataFlowInfo);
                 recordTransformer.addDataFlow(dataFlowInfo);
             }
@@ -178,6 +168,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         public void updateDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
                 multiTenancyTdMsgMixedDeserializer.updateDataFlow(dataFlowInfo);
+                multiTenancyDeserializer.updateDataFlow(dataFlowInfo);
                 fieldMappingTransformer.updateDataFlow(dataFlowInfo);
                 recordTransformer.updateDataFlow(dataFlowInfo);
             }
@@ -187,6 +178,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         public void removeDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
                 multiTenancyTdMsgMixedDeserializer.removeDataFlow(dataFlowInfo);
+                multiTenancyDeserializer.removeDataFlow(dataFlowInfo);
                 fieldMappingTransformer.removeDataFlow(dataFlowInfo);
                 recordTransformer.removeDataFlow(dataFlowInfo);
             }

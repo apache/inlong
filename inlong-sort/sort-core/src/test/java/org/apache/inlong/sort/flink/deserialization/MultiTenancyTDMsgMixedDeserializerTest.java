@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.inlong.commons.msg.TDMsg1;
 import org.apache.inlong.sort.flink.Record;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgUtils;
@@ -85,7 +85,7 @@ public class MultiTenancyTDMsgMixedDeserializerTest extends TestLogger {
         tdMsg1.addMsg(attrs, body1.getBytes());
 
         final TestingCollector<Record> collector = new TestingCollector<>();
-        deserializer.deserialize(new TDMsgSerializedRecord("topic", 0, tdMsg1.buildArray()), collector);
+        deserializer.deserialize(new TDMsgMixedSerializedRecord("topic", 0, tdMsg1.buildArray()), collector);
 
         assertEquals(1, collector.results.size());
         assertEquals(1L, collector.results.get(0).getDataflowId());
