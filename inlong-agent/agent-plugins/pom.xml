@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-agent</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>agent-plugins</artifactId>
     <modelVersion>4.0.0</modelVersion>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>inlong-dataproxy-sdk</artifactId>
-            <version>0.12.0-incubating-SNAPSHOT</version>
+            <version>0.13.0-incubating-SNAPSHOT</version>
         </dependency>
         <dependency>
             <artifactId>slf4j-log4j12</artifactId>
