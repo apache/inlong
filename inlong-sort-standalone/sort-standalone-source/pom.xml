@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort-standalone</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.12.0-incubating</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - SortStandalone Source</name>

@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-audit</artifactId>
-    <version>0.12.0-incubating-SNAPSHOT</version>
+    <version>0.12.0-incubating</version>
   </parent>
   <groupId>org.apache.inlong</groupId>
   <artifactId>audit-docker</artifactId>
