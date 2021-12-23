@@ -25,10 +25,12 @@ import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 
 /**
@@ -107,6 +109,10 @@ public class PulsarFederationWorker extends Thread {
                 // metric
                 SortMetricItem.fillInlongId(event, dimensions);
                 this.dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(Constants.TOPIC));
+                long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                        System.currentTimeMillis());
+                long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+                dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
                 SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
                 metricItem.sendCount.incrementAndGet();
                 metricItem.sendSize.addAndGet(event.getBody().length);
