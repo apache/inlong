@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,28 +55,28 @@ import java.util.concurrent.TimeUnit;
  */
 public final class SortSdkSource extends AbstractSource implements Configurable, Runnable, EventDrivenSource {
 
-    /** Log of {@link SortSdkSource}. */
+    // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
 
-    /** Default pool of {@link ScheduledExecutorService}. */
+    // Default pool of {@link ScheduledExecutorService}.
     private static final int CORE_POOL_SIZE = 1;
 
-    /** Default consume strategy of {@link SortClient}. */
+    // Default consume strategy of {@link SortClient}.
     private static final  SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
 
-    /** Map of {@link SortClient}. */
-    private ConcurrentHashMap<String, SortClient> clients;
+    // Map of {@link SortClient}.
+    private Map<String, SortClient> clients;
 
-    /** The cluster name of sort. */
+    // The cluster name of sort.
     private String sortClusterName;
 
-    /** Reload config interval. */
+    // Reload config interval.
     private long reloadInterval;
 
-    /** Context of SortSdkSource. */
+    // Context of SortSdkSource.
     private SortSdkSourceContext context;
 
-    /** Executor for config reloading. */
+    // Executor for config reloading.
     private ScheduledExecutorService pool;
 
     /**
@@ -168,7 +169,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      *
      * @return New sort client.
      */
-    private SortClient newClient(String sortId) {
+    private SortClient newClient(final String sortId) {
         LOG.info("Start to new sort client for id: {}", sortId);
         try {
             final SortClientConfig clientConfig =

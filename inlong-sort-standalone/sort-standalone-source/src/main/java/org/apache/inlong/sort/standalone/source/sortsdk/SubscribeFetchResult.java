@@ -31,13 +31,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SubscribeFetchResult {
 
-    /** The sortId of fetched message.*/
+    // The sortId of fetched message.
     private final String sortId;
 
-    /** Important metrics called headers of {@link MessageRecord}, including message key.*/
+    // Important metrics called headers of {@link MessageRecord}, including message key.
     private final Map<String, String> headers = new ConcurrentHashMap<>();
 
-    /** Row data in binary format.*/
+    // Row data in binary format.
     private final byte[] body;
 
     /**

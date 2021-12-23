@@ -30,16 +30,16 @@ import javax.validation.constraints.NotNull;
  */
 public class SourceContext {
 
-    /** The reload interval of source.*/
+    // The reload interval of source.
     private static final String KEY_RELOAD_INTERVAL = "reloadInterval";
 
-    /** The configured source context.*/
+    // The configured source context.
     private final Context sourceContext;
 
-    /** Name of source. Usually the class name of source.*/
+    // Name of source. Usually the class name of source.
     private final String sourceName;
 
-    /** Cluster Id of source.*/
+    // Cluster Id of source.
     @NotNull
     private final String clusterId;
 

@@ -31,9 +31,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Derived class of {@link SourceContext} which implements methods to report metrics.
+ */
 public final class SortSdkSourceContext extends SourceContext {
 
-    /** Metric item set of Sort to create and maintain specific metric group. */
+    // Metric item set of Sort to create and maintain specific metric group.
     private final SortMetricItemSet metricItemSet;
 
     /**

@@ -47,19 +47,19 @@ import javax.validation.constraints.NotNull;
  */
 public class FetchCallback implements ReadCallback {
 
-    /** Logger of {@link FetchCallback}. */
+    // Logger of {@link FetchCallback}.
     private static final Logger LOG = LoggerFactory.getLogger(FetchCallback.class);
 
-    /** SortId of fetch message. */
+    // SortId of fetch message.
     private final String sortId;
 
-    /** ChannelProcessor that put message in specific channel. */
+    // ChannelProcessor that put message in specific channel.
     private final ChannelProcessor channelProcessor;
 
-    /** Context of source, used to report fetch results. */
+    // Context of source, used to report fetch results.
     private final SortSdkSourceContext context;
 
-    /** Temporary usage for ACK. The {@link SortClient} and Callback should not circular reference each other. */
+    // Temporary usage for ACK. The {@link SortClient} and Callback should not circular reference each other.
     private SortClient client;
 
     /**
