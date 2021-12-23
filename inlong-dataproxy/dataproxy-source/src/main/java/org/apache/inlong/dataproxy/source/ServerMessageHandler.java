@@ -42,6 +42,7 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.commons.msg.TDMsg1;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
@@ -688,6 +689,9 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, source.getName());
         dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, "");
         dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, "");
+        long msgTime = System.currentTimeMillis();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
