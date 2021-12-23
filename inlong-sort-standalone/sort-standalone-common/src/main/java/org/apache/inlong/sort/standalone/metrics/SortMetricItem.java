@@ -42,6 +42,7 @@ public class SortMetricItem extends MetricItem {
     public static final String KEY_INLONG_STREAM_ID = "inlongStreamId";
     public static final String KEY_SINK_ID = "sinkId";// sortDestinationId
     public static final String KEY_SINK_DATA_ID = "sinkDataId";// topic or dest ip
+    public static final String KEY_MESSAGE_TIME = "msgTime";
     //
     public static final String M_READ_SUCCESS_COUNT = "readSuccessCount";
     public static final String M_READ_SUCCESS_SIZE = "readSuccessSize";
@@ -74,6 +75,8 @@ public class SortMetricItem extends MetricItem {
     public String sinkId;
     @Dimension
     public String sinkDataId;
+    @Dimension
+    public String msgTime = String.valueOf(0);
     @CountMetric
     public AtomicLong readSuccessCount = new AtomicLong(0);
     @CountMetric

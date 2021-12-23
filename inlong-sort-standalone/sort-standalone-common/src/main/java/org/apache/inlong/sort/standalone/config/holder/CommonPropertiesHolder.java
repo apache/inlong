@@ -25,8 +25,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesLoader;
-import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -41,6 +41,8 @@ public class CommonPropertiesHolder {
 
     private static Map<String, String> props;
     private static Context context;
+
+    private static long auditFormatInterval = 60000L;
 
     /**
      * init
@@ -58,6 +60,8 @@ public class CommonPropertiesHolder {
                         CommonPropertiesLoader loader = (CommonPropertiesLoader) loaderObject;
                         props.putAll(loader.load());
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
+                        auditFormatInterval = NumberUtils
+                                .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -160,5 +164,14 @@ public class CommonPropertiesHolder {
      */
     public static String getClusterId() {
         return getString(KEY_CLUSTER_ID);
+    }
+
+    /**
+     * getAuditFormatInterval
+     * 
+     * @return
+     */
+    public static long getAuditFormatInterval() {
+        return auditFormatInterval;
     }
 }
