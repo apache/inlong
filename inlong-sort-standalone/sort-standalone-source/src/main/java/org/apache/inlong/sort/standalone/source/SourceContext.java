@@ -30,8 +30,11 @@ import javax.validation.constraints.NotNull;
  */
 public class SourceContext {
 
-    // The reload interval of source.
+    // The key of reload interval of source.
     private static final String KEY_RELOAD_INTERVAL = "reloadInterval";
+
+    // the default reload interval value in ms.
+    private static final long DEFAULT_RELOAD_INTERVAL_MS = 6000L;
 
     // The configured source context.
     private final Context sourceContext;
@@ -63,7 +66,7 @@ public class SourceContext {
      * @return Reload interval of source.
      */
     public final long getReloadInterval() {
-        return sourceContext.getLong(SourceContext.KEY_RELOAD_INTERVAL, 60000L);
+        return sourceContext.getLong(SourceContext.KEY_RELOAD_INTERVAL, DEFAULT_RELOAD_INTERVAL_MS);
     }
 
     /**
