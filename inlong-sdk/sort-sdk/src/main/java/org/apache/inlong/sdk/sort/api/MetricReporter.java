@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.sort.api;
 
 public interface MetricReporter {
 
-    boolean report(String monitorName, String[] keys, double[] values);
+    boolean report(String monitorName, String[] keys, long[] values);
 
     void close();
 }

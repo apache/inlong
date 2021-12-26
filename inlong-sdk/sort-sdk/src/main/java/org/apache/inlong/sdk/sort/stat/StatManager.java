@@ -130,7 +130,7 @@ public class StatManager implements Cleanable {
                 String monitorName = SortClientConfig.MONITOR_NAME;
                 for (SortClientStateCounter offsetCounter : READAPISTATE.values()) {
                     SortClientStateCounter counter = offsetCounter.reset();
-                    String[] keys = new String[]{counter.sortId, config.getLocalIp(), counter.clusterId,
+                    String[] keys = new String[]{counter.sortTaskId, config.getLocalIp(), counter.cacheClusterId,
                             counter.topic, String.valueOf(counter.partitionId)};
                     if (reporter != null) {
                         logger.debug("report statistics:{} {}", Arrays.toString(keys),
