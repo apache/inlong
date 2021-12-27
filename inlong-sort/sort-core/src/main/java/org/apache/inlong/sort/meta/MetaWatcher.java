@@ -29,9 +29,9 @@ public interface MetaWatcher {
     /**
      * open
      * 
-     * @param  config
-     * @param  metaListener
-     * @throws Exception
+     * @param  config       command parameters when process start.
+     * @param  metaListener a listener of DataFlowInfo
+     * @throws Exception    any exception
      */
     public void open(Configuration config, DataFlowInfoListener metaListener) throws Exception;
 
