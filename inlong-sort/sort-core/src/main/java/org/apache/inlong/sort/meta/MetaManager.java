@@ -20,9 +20,9 @@ package org.apache.inlong.sort.meta;
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -78,8 +78,13 @@ public class MetaManager implements AutoCloseable {
         }
     }
 
+    /**
+     * Constructor
+     * 
+     * @param config process start parameters
+     */
     private MetaManager(Configuration config) {
-        dataFlowInfoMap = new HashMap<>();
+        dataFlowInfoMap = new ConcurrentHashMap<>();
         dataFlowInfoListeners = new ArrayList<>();
     }
 
@@ -148,28 +153,29 @@ public class MetaManager implements AutoCloseable {
      * @throws Exception
      */
     public void addDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
-        long dataFlowId = dataFlowInfo.getId();
-        DataFlowInfo oldDataFlowInfo = dataFlowInfoMap.put(dataFlowId, dataFlowInfo);
-        if (oldDataFlowInfo == null) {
-            LOG.info("Try to add dataFlow {}", dataFlowId);
-            for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
-                try {
-                    dataFlowInfoListener.addDataFlow(dataFlowInfo);
-                } catch (Exception e) {
-                    LOG.warn("Error happens when notifying listener data flow added", e);
+        synchronized (LOCK) {
+            long dataFlowId = dataFlowInfo.getId();
+            DataFlowInfo oldDataFlowInfo = dataFlowInfoMap.put(dataFlowId, dataFlowInfo);
+            if (oldDataFlowInfo == null) {
+                LOG.info("Try to add dataFlow {}", dataFlowId);
+                for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
+                    try {
+                        dataFlowInfoListener.addDataFlow(dataFlowInfo);
+                    } catch (Exception e) {
+                        LOG.warn("Error happens when notifying listener data flow added", e);
+                    }
                 }
-            }
-        } else {
-            LOG.warn("DataFlow {} should not be exist", dataFlowId);
-            for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
-                try {
-                    dataFlowInfoListener.updateDataFlow(dataFlowInfo);
-                } catch (Exception e) {
-                    LOG.warn("Error happens when notifying listener data flow updated", e);
+            } else {
+                LOG.warn("DataFlow {} should not be exist", dataFlowId);
+                for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
+                    try {
+                        dataFlowInfoListener.updateDataFlow(dataFlowInfo);
+                    } catch (Exception e) {
+                        LOG.warn("Error happens when notifying listener data flow updated", e);
+                    }
                 }
             }
         }
-
     }
 
     /**
@@ -179,35 +185,36 @@ public class MetaManager implements AutoCloseable {
      * @throws Exception
      */
     public void updateDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
-        long dataFlowId = dataFlowInfo.getId();
+        synchronized (LOCK) {
+            long dataFlowId = dataFlowInfo.getId();
 
-        DataFlowInfo oldDataFlowInfo = dataFlowInfoMap.put(dataFlowId, dataFlowInfo);
-        if (oldDataFlowInfo == null) {
-            LOG.warn("DataFlow {} should already be exist.", dataFlowId);
-            for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
-                try {
-                    dataFlowInfoListener.addDataFlow(dataFlowInfo);
-                } catch (Exception e) {
-                    LOG.warn("Error happens when notifying listener data flow updated", e);
+            DataFlowInfo oldDataFlowInfo = dataFlowInfoMap.put(dataFlowId, dataFlowInfo);
+            if (oldDataFlowInfo == null) {
+                LOG.warn("DataFlow {} should already be exist.", dataFlowId);
+                for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
+                    try {
+                        dataFlowInfoListener.addDataFlow(dataFlowInfo);
+                    } catch (Exception e) {
+                        LOG.warn("Error happens when notifying listener data flow updated", e);
+                    }
                 }
-            }
-        } else {
-            if (dataFlowInfo.equals(oldDataFlowInfo)) {
-                LOG.info("DataFlowInfo has not been changed, ignore update.");
-                return;
-            }
+            } else {
+                if (dataFlowInfo.equals(oldDataFlowInfo)) {
+                    LOG.info("DataFlowInfo has not been changed, ignore update.");
+                    return;
+                }
 
-            LOG.info("Try to update dataFlow {}.", dataFlowId);
+                LOG.info("Try to update dataFlow {}.", dataFlowId);
 
-            for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
-                try {
-                    dataFlowInfoListener.updateDataFlow(dataFlowInfo);
-                } catch (Exception e) {
-                    LOG.warn("Error happens when notifying listener data flow updated", e);
+                for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
+                    try {
+                        dataFlowInfoListener.updateDataFlow(dataFlowInfo);
+                    } catch (Exception e) {
+                        LOG.warn("Error happens when notifying listener data flow updated", e);
+                    }
                 }
             }
         }
-
     }
 
     /**
@@ -217,17 +224,18 @@ public class MetaManager implements AutoCloseable {
      * @throws Exception
      */
     public void removeDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
-        long dataFlowId = dataFlowInfo.getId();
+        synchronized (LOCK) {
+            long dataFlowId = dataFlowInfo.getId();
 
-        dataFlowInfoMap.remove(dataFlowId);
-        for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
-            try {
-                dataFlowInfoListener.removeDataFlow(dataFlowInfo);
-            } catch (Exception e) {
-                LOG.warn("Error happens when notifying listener data flow deleted", e);
+            dataFlowInfoMap.remove(dataFlowId);
+            for (DataFlowInfoListener dataFlowInfoListener : dataFlowInfoListeners) {
+                try {
+                    dataFlowInfoListener.removeDataFlow(dataFlowInfo);
+                } catch (Exception e) {
+                    LOG.warn("Error happens when notifying listener data flow deleted", e);
+                }
             }
         }
-
     }
 
     /**
