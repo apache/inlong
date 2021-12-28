@@ -32,13 +32,16 @@ import (
 )
 
 const (
-	MaxRPCTimeout      = 300000 * time.Millisecond
-	MinRPCTimeout      = 8000 * time.Millisecond
-	MaxSessionKeyLen   = 1024
-	MaxGroupLen        = 1024
-	MaxTopicLen        = 64
-	MaxFilterLen       = 256
-	MaxFilterItemCount = 500
+	MaxRPCTimeout              = 300000 * time.Millisecond
+	MinRPCTimeout              = 8000 * time.Millisecond
+	MaxSessionKeyLen           = 1024
+	MaxGroupLen                = 1024
+	MaxTopicLen                = 64
+	MaxFilterLen               = 256
+	MaxFilterItemCount         = 500
+	ConsumeFromFirstOffset     = -1
+	ConsumeFromLatestOffset    = 0
+	ConsumeFromMaxOffsetAlways = 1
 )
 
 // Config defines multiple configuration options.
@@ -196,6 +199,10 @@ func (c *Config) ValidateConsumer() error {
 		}
 	}
 
+	if err := c.validateConsumePosition(); err != nil {
+		return err
+	}
+
 	err := c.validateMaster()
 	if err != nil {
 		return errs.New(errs.RetInvalidConfig, err.Error())
@@ -298,6 +305,13 @@ func (c *Config) validateGroup(group string) error {
 	}
 	if valid, err := util.IsValidString(group); !valid {
 		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+	return nil
+}
+
+func (c *Config) validateConsumePosition() error {
+	if c.Consumer.ConsumePosition < ConsumeFromFirstOffset || c.Consumer.ConsumePosition > ConsumeFromMaxOffsetAlways {
+		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("consumePosition should be only in (-1, 0, 1), while %d is passed", c.Consumer.ConsumePosition))
 	}
 	return nil
 }
@@ -543,5 +557,11 @@ func WithBoundConsume(sessionKey string, sourceCount int, selectBig bool, partOf
 		c.Consumer.SourceCount = sourceCount
 		c.Consumer.SelectBig = selectBig
 		c.Consumer.PartitionOffset = partOffset
+	}
+}
+
+func WithConsumePosition(consumePosition int) Option {
+	return func(c *Config) {
+		c.Consumer.ConsumePosition = consumePosition
 	}
 }
