@@ -39,13 +39,9 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.meta.MetaManager;
-import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
-import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.DataFlowStorageInfo;
 import org.apache.inlong.sort.util.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,11 +73,11 @@ public class ZookeeperWatcherUtils implements AutoCloseable, UnhandledErrorListe
     /**
      * open
      * 
-     * @param  config       command parameters when process start.
-     * @param  metaListener a listener of DataFlowInfo
-     * @throws Exception    any exception
+     * @param  config    command parameters when process start.
+     * @param  listener  a listener of ChildrenWatcherListener
+     * @throws Exception any exception
      */
-    public void open(Configuration config, DataFlowInfoListener metaListener) throws Exception {
+    public void open(Configuration config, ChildrenWatcherListener listener) throws Exception {
         this.client = ZooKeeperUtils.startCuratorFramework(config);
         this.caches = new HashMap<>();
         this.pathChildrenCaches = new HashMap<>();
@@ -90,13 +86,12 @@ public class ZookeeperWatcherUtils implements AutoCloseable, UnhandledErrorListe
         synchronized (MetaManager.LOCK) {
             final String dataFlowsWatchingPath = getWatchingPathOfDataFlowsInCluster(
                     config.getString(Constants.CLUSTER_ID));
-            DataFlowsChildrenWatcherListener dataFlowsChildrenWatcherListener = new DataFlowsChildrenWatcherListener(
-                    this.client, metaListener);
+            listener.initCuratorFramework(client);
             this.registerPathChildrenWatcher(
-                    dataFlowsWatchingPath, dataFlowsChildrenWatcherListener, true);
+                    dataFlowsWatchingPath, listener, true);
             final List<ChildData> childData = this.getCurrentPathChildrenDatum(dataFlowsWatchingPath);
             if (childData != null) {
-                dataFlowsChildrenWatcherListener.onInitialized(childData);
+                listener.onInitialized(childData);
             }
         }
     }
@@ -306,6 +301,8 @@ public class ZookeeperWatcherUtils implements AutoCloseable, UnhandledErrorListe
 
     public interface ChildrenWatcherListener {
 
+        void initCuratorFramework(CuratorFramework zookeeperClient);
+
         void onChildAdded(ChildData childData) throws Exception;
 
         void onChildUpdated(ChildData childData) throws Exception;
@@ -374,97 +371,6 @@ public class ZookeeperWatcherUtils implements AutoCloseable, UnhandledErrorListe
             } catch (Throwable t) {
                 LOG.warn("Exception thrown in callback of path children changed listener on {}",
                         watchingPath, t);
-            }
-        }
-    }
-
-    private static class DataFlowsChildrenWatcherListener implements ChildrenWatcherListener {
-
-        private static final Logger LOG = LoggerFactory.getLogger(DataFlowsChildrenWatcherListener.class);
-
-        private final ObjectMapper objectMapper;
-
-        /**
-         * Connection to the used ZooKeeper quorum.
-         */
-        private final CuratorFramework zookeeperClient;
-
-        private final DataFlowInfoListener metaListener;
-
-        public DataFlowsChildrenWatcherListener(CuratorFramework zookeeperClient, DataFlowInfoListener metaListener) {
-            this.objectMapper = new ObjectMapper();
-            this.zookeeperClient = zookeeperClient;
-            this.metaListener = metaListener;
-        }
-
-        @Override
-        public void onChildAdded(ChildData childData) throws Exception {
-            LOG.info("DataFlow Added event retrieved");
-
-            final byte[] data = childData.getData();
-            if (data == null) {
-                return;
-            }
-
-            synchronized (MetaManager.LOCK) {
-                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
-                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
-                metaListener.addDataFlow(dataFlowInfo);
-            }
-        }
-
-        @Override
-        public void onChildUpdated(ChildData childData) throws Exception {
-            LOG.info("DataFlow Updated event retrieved");
-
-            final byte[] data = childData.getData();
-            if (data == null) {
-                return;
-            }
-
-            synchronized (MetaManager.LOCK) {
-                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
-                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
-                metaListener.updateDataFlow(dataFlowInfo);
-            }
-        }
-
-        @Override
-        public void onChildRemoved(ChildData childData) throws Exception {
-            LOG.info("DataFlow Removed event retrieved");
-
-            final byte[] data = childData.getData();
-            if (data == null) {
-                return;
-            }
-
-            synchronized (MetaManager.LOCK) {
-                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
-                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
-                metaListener.removeDataFlow(dataFlowInfo);
-            }
-        }
-
-        @Override
-        public void onInitialized(List<ChildData> childData) throws Exception {
-            LOG.info("Initialized event retrieved");
-
-            for (ChildData singleChildData : childData) {
-                onChildAdded(singleChildData);
-            }
-        }
-
-        private DataFlowInfo getDataFlowInfo(DataFlowStorageInfo dataFlowStorageInfo) throws Exception {
-            switch (dataFlowStorageInfo.getStorageType()) {
-                case ZK :
-                    String zkPath = dataFlowStorageInfo.getPath();
-                    byte[] data = zookeeperClient.getData().forPath(zkPath);
-                    return objectMapper.readValue(data, DataFlowInfo.class);
-                case HDFS :
-                    throw new IllegalArgumentException("HDFS dataFlow storage type not supported yet!");
-                default :
-                    throw new IllegalArgumentException("Unsupported dataFlow storage type "
-                            + dataFlowStorageInfo.getStorageType());
             }
         }
     }

@@ -17,9 +17,20 @@
 
 package org.apache.inlong.sort.meta.zookeeper;
 
+import java.util.List;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.meta.MetaWatcher;
+import org.apache.inlong.sort.meta.zookeeper.ZookeeperWatcherUtils.ChildrenWatcherListener;
+import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.inlong.sort.protocol.DataFlowStorageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -44,11 +55,113 @@ public class ZookeeperMetaWatcher implements MetaWatcher {
      * @throws Exception
      */
     public void open(Configuration config, DataFlowInfoListener metaListener) throws Exception {
-        this.watcherUtils.open(config, metaListener);
+        DataFlowsChildrenWatcherListener dataFlowsChildrenWatcherListener = new DataFlowsChildrenWatcherListener(
+                metaListener);
+        this.watcherUtils.open(config, dataFlowsChildrenWatcherListener);
     }
 
     @Override
     public void close() throws Exception {
         this.watcherUtils.close();
+    }
+
+    private static class DataFlowsChildrenWatcherListener implements ChildrenWatcherListener {
+
+        private static final Logger LOG = LoggerFactory.getLogger(DataFlowsChildrenWatcherListener.class);
+
+        private final ObjectMapper objectMapper;
+
+        /**
+         * Connection to the used ZooKeeper quorum.
+         */
+        private CuratorFramework zookeeperClient;
+
+        private final DataFlowInfoListener metaListener;
+
+        public DataFlowsChildrenWatcherListener(DataFlowInfoListener metaListener) {
+            this.objectMapper = new ObjectMapper();
+            this.metaListener = metaListener;
+        }
+
+        /**
+         * initCuratorFramework
+         * 
+         * @param zookeeperClient
+         */
+        @Override
+        public void initCuratorFramework(CuratorFramework zookeeperClient) {
+            this.zookeeperClient = zookeeperClient;
+        }
+
+        @Override
+        public void onChildAdded(ChildData childData) throws Exception {
+            LOG.info("DataFlow Added event retrieved");
+
+            final byte[] data = childData.getData();
+            if (data == null) {
+                return;
+            }
+
+            synchronized (MetaManager.LOCK) {
+                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
+                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
+                metaListener.addDataFlow(dataFlowInfo);
+            }
+        }
+
+        @Override
+        public void onChildUpdated(ChildData childData) throws Exception {
+            LOG.info("DataFlow Updated event retrieved");
+
+            final byte[] data = childData.getData();
+            if (data == null) {
+                return;
+            }
+
+            synchronized (MetaManager.LOCK) {
+                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
+                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
+                metaListener.updateDataFlow(dataFlowInfo);
+            }
+        }
+
+        @Override
+        public void onChildRemoved(ChildData childData) throws Exception {
+            LOG.info("DataFlow Removed event retrieved");
+
+            final byte[] data = childData.getData();
+            if (data == null) {
+                return;
+            }
+
+            synchronized (MetaManager.LOCK) {
+                DataFlowStorageInfo dataFlowStorageInfo = objectMapper.readValue(data, DataFlowStorageInfo.class);
+                DataFlowInfo dataFlowInfo = getDataFlowInfo(dataFlowStorageInfo);
+                metaListener.removeDataFlow(dataFlowInfo);
+            }
+        }
+
+        @Override
+        public void onInitialized(List<ChildData> childData) throws Exception {
+            LOG.info("Initialized event retrieved");
+
+            for (ChildData singleChildData : childData) {
+                onChildAdded(singleChildData);
+            }
+        }
+
+        private DataFlowInfo getDataFlowInfo(DataFlowStorageInfo dataFlowStorageInfo) throws Exception {
+            switch (dataFlowStorageInfo.getStorageType()) {
+                case ZK :
+                    String zkPath = dataFlowStorageInfo.getPath();
+                    byte[] data = zookeeperClient.getData().forPath(zkPath);
+                    return objectMapper.readValue(data, DataFlowInfo.class);
+                case HDFS :
+                    throw new IllegalArgumentException("HDFS dataFlow storage type not supported yet!");
+                default :
+                    throw new IllegalArgumentException("Unsupported dataFlow storage type "
+                            + dataFlowStorageInfo.getStorageType());
+            }
+        }
     }
 }
