@@ -61,7 +61,7 @@ defer c.Close()
 
 cr, err := c.GetMessage()
 // need to confirm by yourself.
-cr, err = c.Confirm(cr.ConfirmContext, true)
+_, err = c.Confirm(cr.ConfirmContext, true)
 
 for _, msg := range cr.Messages {
 	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", msg.ID, string(msg.Data))
@@ -89,7 +89,7 @@ defer c.Close()
 
 cr, err := c.GetMessage()
 // need to confirm by yourself.
-cr, err = c.Confirm(cr.ConfirmContext, true)
+_, err = c.Confirm(cr.ConfirmContext, true)
 
 for _, msg := range cr.Messages {
 	fmt.Printf("Received message msgId: %#v -- content: '%s'\n", msg.ID, string(msg.Data))

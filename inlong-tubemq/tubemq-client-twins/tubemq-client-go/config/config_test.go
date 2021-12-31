@@ -67,6 +67,40 @@ func TestParseAddress(t *testing.T) {
 	address = "127.0.0.1:9092,127.0.0.1:9093?filters=12312323&filters=1212"
 	_, err = ParseAddress(address)
 	assert.NotNil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=-1"
+	c, err = ParseAddress(address)
+	assert.Nil(t, err)
+	err = c.ValidateConsumer()
+	assert.Nil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=1"
+	c, err = ParseAddress(address)
+	assert.Nil(t, err)
+	err = c.ValidateConsumer()
+	assert.Nil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=0"
+	c, err = ParseAddress(address)
+	assert.Nil(t, err)
+	err = c.ValidateConsumer()
+	assert.Nil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=-2"
+	c, err = ParseAddress(address)
+	assert.Nil(t, err)
+	err = c.ValidateConsumer()
+	assert.NotNil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=2"
+	c, err = ParseAddress(address)
+	assert.Nil(t, err)
+	err = c.ValidateConsumer()
+	assert.NotNil(t, err)
+
+	address = "127.0.0.1:9092,127.0.0.1:9093?topic=Topic&group=group&filters=12312323&consumePosition=a"
+	c, err = ParseAddress(address)
+	assert.NotNil(t, err)
 }
 
 func TestValidateGroup(t *testing.T) {
@@ -130,5 +164,20 @@ func TestValidateConsumer(t *testing.T) {
 
 	partitionOffset = map[string]int64{"181895251:topic1:1": 0, "181895251:topic2:2": 10}
 	WithBoundConsume("11", 0, true, partitionOffset)(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	WithConsumePosition(2)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	WithConsumePosition(-2)(c)
+	assert.NotNil(t, c.ValidateConsumer())
+
+	WithConsumePosition(-1)(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	WithConsumePosition(0)(c)
+	assert.Nil(t, c.ValidateConsumer())
+
+	WithConsumePosition(1)(c)
 	assert.Nil(t, c.ValidateConsumer())
 }

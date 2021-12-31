@@ -60,7 +60,7 @@ func main() {
 			log.Errorf("Get message error %s", err.Error())
 			continue
 		}
-		cr, err = c.Confirm(cr.ConfirmContext, true)
+		_, err = c.Confirm(cr.ConfirmContext, true)
 		if err != nil {
 			log.Errorf("Confirm error %s", err.Error())
 			continue
