@@ -386,16 +386,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                 if (clientIdCache && clientId != null && lastTime != null && lastTime > 0) {
                     logger.info("{} agent package {} existed,just discard.", getName(), clientId);
                 } else {
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
+                    Message message = this.parseEvent2Message(topic, event);
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
 
@@ -414,21 +405,38 @@ public class MetaSink extends AbstractSink implements Configurable {
                         agentIdCache.put(clientId, System.currentTimeMillis());
                     }
 
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
+                    Message message = this.parseEvent2Message(topic, event);
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
                 }
             }
             illegalTopicMap.remove(topic);
+        }
+        
+        /**
+         * parseEvent2Message
+         * @param topic
+         * @param event
+         * @return
+         */
+        private Message parseEvent2Message(String topic, Event event) {
+            Message message = new Message(topic, event.getBody());
+            message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
+            String streamId = "";
+            if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
+                streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+            } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+                streamId = event.getHeaders().get(AttributeConstants.INAME);
+            }
+            message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+            // common attributes
+            Map<String, String> headers = event.getHeaders();
+            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
+            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
+            message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
+            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
+            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
+            return message;
         }
 
         private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
