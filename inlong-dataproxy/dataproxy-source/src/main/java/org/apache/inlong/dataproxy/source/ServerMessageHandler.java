@@ -620,8 +620,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         if (msgList != null
                 && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                 && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-            Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<String, HashMap<String, List<ProxyMessage>>>(
-                    msgList.size());
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
 
             updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
