@@ -29,9 +29,11 @@ chown -R $AS_USER $LOG_DIR
 
 # find java home
 if [ -z "$JAVA_HOME" ]; then
-  export JAVA=`which java`
+  export JAVA=$(which java)
+  export JPS=$(which jps)
 else
   export JAVA="$JAVA_HOME/bin/java"
+  export JPS="$JAVA_HOME/bin/jps"
 fi
 
 HEAP_OPTS="-Xmx1024m -Xms512m"
@@ -39,7 +41,13 @@ GC_OPTS="-XX:SurvivorRatio=6 -XX:+UseMembar -XX:+UseConcMarkSweepGC -XX:+CMSPara
 AGENT_JVM_ARGS="$HEAP_OPTS $GC_OPTS"
 
 # Add Agent Rmi Args when necessary
-# AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-
+AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
-export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+
+JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
+if [[ $JMX_ENABLED == 1 ]]; then
+  export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+else
+  export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+fi
