@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.utils;
+package org.apache.inlong.sort.meta;
+
+import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 
 /**
  * 
- * Constants
+ * MetaWatcher
  */
-public interface Constants {
+public interface MetaWatcher {
 
-    String INLONG_GROUP_ID = "inlongGroupId";
-    String INLONG_STREAM_ID = "inlongStreamId";
-    String TOPIC = "topic";
-    String HEADER_KEY_MSG_TIME = "msgTime";
-    String HEADER_KEY_SOURCE_IP = "sourceIp";
-    String HEADER_KEY_SOURCE_TIME = "sourceTime";
-    String HEADER_KEY_MESSAGE_KEY = "messageKey";
-    String HEADER_KEY_MSG_OFFSET = "msgOffset";
-    
-    String RELOAD_INTERVAL = "reloadInterval";
+    /**
+     * open
+     * 
+     * @param  config       command parameters when process start.
+     * @param  metaListener a listener of DataFlowInfo
+     * @throws Exception    any exception
+     */
+    public void open(Configuration config, DataFlowInfoListener metaListener) throws Exception;
+
+    /**
+     * close
+     * 
+     * @throws Exception
+     */
+    public void close() throws Exception;
 }

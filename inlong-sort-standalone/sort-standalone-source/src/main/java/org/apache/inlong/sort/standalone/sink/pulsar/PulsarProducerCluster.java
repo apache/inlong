@@ -226,7 +226,7 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.addMetric(event, topic, false, 0);
             return false;
         }
-        String messageKey = headers.get(Constants.MESSAGE_KEY);
+        String messageKey = headers.get(Constants.HEADER_KEY_MESSAGE_KEY);
         if (messageKey == null) {
             messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
         }

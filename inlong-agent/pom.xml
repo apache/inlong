@@ -56,7 +56,6 @@
         <slf4j.version>1.7.30</slf4j.version>
         <unit.version>4.13</unit.version>
         <common.lang.version>2.4</common.lang.version>
-        <spring.version>2.5.6</spring.version>
         <oro.version>2.0.8</oro.version>
         <aviator.version>2.2.1</aviator.version>
         <avro.version>1.7.2</avro.version>
@@ -208,12 +207,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <groupId>org.apache.commons</groupId>
                 <version>${common.lang3.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${spring.version}</version>
             </dependency>
 
             <dependency>

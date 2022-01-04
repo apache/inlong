@@ -70,7 +70,7 @@ func main() {
 					log.Errorf("Go routine %d, Get message error %s", i, err.Error())
 					continue
 				}
-				cr, err = c.Confirm(cr.ConfirmContext, true)
+				_, err = c.Confirm(cr.ConfirmContext, true)
 				if err != nil {
 					log.Errorf("Go routine %d, Confirm error %s", i, err.Error())
 					continue
