@@ -25,7 +25,7 @@ RUN curl -LOk "https://github.com/protocolbuffers/protobuf/releases/download/v${
     && unzip "protobuf-${PROTOBUF_VERSION}.zip" -d "/opt/" \
     && cd /opt/protobuf-${PROTOBUF_VERSION} \
     && ./configure --prefix=/usr && make && make DESTDIR=/protobuf/ install \
-    && rm -f "/tmp/protobuf-${PROTOBUF_VERSION}.zip"
+    && rm -f "protobuf-${PROTOBUF_VERSION}.zip"
 # for building tubemq
 FROM maven:3-openjdk-8
 WORKDIR /tubemq/
