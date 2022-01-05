@@ -21,7 +21,7 @@ FROM gcc:5.4.0 as protobuf
 RUN apt-get update && apt-get install -y unzip \
     && rm -rf /var/lib/apt/lists/
 ARG PROTOBUF_VERSION=2.5.0
-RUN curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.zip" \
+RUN curl -LOk "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.zip" \
     && unzip "protobuf-${PROTOBUF_VERSION}.zip" -d "/opt/" \
     && cd /opt/protobuf-${PROTOBUF_VERSION} \
     && ./configure --prefix=/usr && make && make DESTDIR=/protobuf/ install \

@@ -22,7 +22,7 @@ RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz --no-check-certifi
     && tar -xzvf openssl-1.1.0f.tar.gz \
     && rm openssl-1.1.0f.tar.gz && cd openssl-1.1.0f \
     && ./config && make && make install
-RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-cpp-3.13.0.tar.gz \
+RUN curl -LOk https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-cpp-3.13.0.tar.gz \
     && tar -xzvf protobuf-cpp-3.13.0.tar.gz && rm protobuf-cpp-3.13.0.tar.gz \
     && cd protobuf-3.13.0 && ./autogen.sh \
     && ./configure CXXFLAGS=-fPIC && make \
