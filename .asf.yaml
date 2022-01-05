@@ -19,13 +19,13 @@
 # of the project and make sure to discuss the changes with dev@ before committing.
 
 github:
-  description: "Apache InLong - a one-stop data ingestion platform"
+  description: "Apache InLong - a one-stop data integration framework"
   homepage: https://inlong.apache.org/
   labels:
     - inlong
     - one-stop-service
-    - data-ingestion
-    - messaging
+    - data-integration
+    - framework
     - data-streaming
     - event-streaming
   features:
