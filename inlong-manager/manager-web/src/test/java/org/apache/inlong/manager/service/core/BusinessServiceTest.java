@@ -40,7 +40,7 @@ public class BusinessServiceTest extends ServiceBaseTest {
         businessInfo.setName(groupName);
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         businessInfo.setCreator(operator);
-
+        businessInfo.setInCharges("test for business");
         BusinessPulsarInfo pulsarInfo = new BusinessPulsarInfo();
         pulsarInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         pulsarInfo.setEnsemble(3);

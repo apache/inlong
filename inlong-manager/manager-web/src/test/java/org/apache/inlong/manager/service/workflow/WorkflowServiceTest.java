@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import java.util.Collections;
+import java.util.Date;
 import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
 import org.apache.inlong.manager.workflow.model.ProcessState;
@@ -27,6 +28,10 @@ import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 public class WorkflowServiceTest extends ServiceBaseTest {
 
@@ -36,6 +41,20 @@ public class WorkflowServiceTest extends ServiceBaseTest {
     @Autowired
     private WorkflowDataAccessor workflowDataAccessor;
 
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+
+    @Test
+    public void testTransactionManager(){
+        System.out.println(platformTransactionManager.getClass().getName());
+        DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+        transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_NESTED);
+
+        TransactionStatus status = platformTransactionManager.getTransaction(transactionDefinition);
+        System.out.println(status.getClass().getName());
+        platformTransactionManager.commit(status);
+    }
+
     @Test
     public void testListTaskExecuteLogs() {
         // insert process instance
@@ -44,6 +63,9 @@ public class WorkflowServiceTest extends ServiceBaseTest {
                 .setId(1)
                 .setInlongGroupId(groupId)
                 .setName("CREATE_BUSINESS_RESOURCE")
+                .setDisplayName("wedata_test")
+                .setApplicant("wedata")
+                .setStartTime(new Date())
                 .setHidden(true)
                 .setState(ProcessState.COMPLETED.name());
         workflowDataAccessor.processInstanceStorage().insert(process);
@@ -52,6 +74,14 @@ public class WorkflowServiceTest extends ServiceBaseTest {
         TaskInstance task = new TaskInstance()
                 .setId(1)
                 .setType("ServiceTask")
+                .setProcessName("CREATE_BUSINESS_RESOURCE")
+                .setProcessDisplayName("wedata_test")
+                .setApplicant("wedata")
+                .setName("task")
+                .setDisplayName("wedata_test")
+                .setApprovers("kipshi")
+                .setState("start")
+                .setStartTime(new Date())
                 .setProcessInstId(1);
         workflowDataAccessor.taskInstanceStorage().insert(task);
         // query execute logs
