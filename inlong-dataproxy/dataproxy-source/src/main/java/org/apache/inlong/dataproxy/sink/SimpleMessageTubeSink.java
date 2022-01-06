@@ -66,9 +66,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public class MetaSinkForSimpleMessage extends AbstractSink implements Configurable {
+public class SimpleMessageTubeSink extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetaSinkForSimpleMessage.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleMessageTubeSink.class);
     private static int MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
     private static final String TUBE_REQUEST_TIMEOUT = "tube-request-timeout";
     private static final String KEY_DISK_IO_RATE_PER_SEC = "disk-io-rate-per-sec";
@@ -470,8 +470,8 @@ public class MetaSinkForSimpleMessage extends AbstractSink implements Configurab
                 EventStat es = null;
                 String topic = null;
                 try {
-                    if (MetaSinkForSimpleMessage.this.overflow) {
-                        MetaSinkForSimpleMessage.this.overflow = false;
+                    if (SimpleMessageTubeSink.this.overflow) {
+                        SimpleMessageTubeSink.this.overflow = false;
                         Thread.sleep(10);
                     }
                     if (!resendQueue.isEmpty()) {
@@ -586,14 +586,14 @@ public class MetaSinkForSimpleMessage extends AbstractSink implements Configurab
          */
         private void addMetric(Event currentRecord, boolean result, long sendTime) {
             Map<String, String> dimensions = new HashMap<>();
-            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSinkForSimpleMessage.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSinkForSimpleMessage.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, SimpleMessageTubeSink.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, SimpleMessageTubeSink.this.getName());
             if (currentRecord.getHeaders().containsKey(TOPIC)) {
                 dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, currentRecord.getHeaders().get(TOPIC));
             } else {
                 dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
             }
-            DataProxyMetricItem metricItem = MetaSinkForSimpleMessage.this.metricItemSet.findMetricItem(dimensions);
+            DataProxyMetricItem metricItem = SimpleMessageTubeSink.this.metricItemSet.findMetricItem(dimensions);
             if (result) {
                 metricItem.sendSuccessCount.incrementAndGet();
                 metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
@@ -621,7 +621,7 @@ public class MetaSinkForSimpleMessage extends AbstractSink implements Configurab
                 t = t.getCause();
             }
             if (t instanceof OverflowException) {
-                MetaSinkForSimpleMessage.this.overflow = true;
+                SimpleMessageTubeSink.this.overflow = true;
             }
             resendEvent(myEventStat, true);
         }
