@@ -116,7 +116,7 @@ public class TestBerkeleyDBImp {
         KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
         db.put(entity);
         KeyValueEntity entityResult1 = db.remove("searchKey1");
-        KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
+        KeyValueEntity entityResult = db.searchOne("test");
         Assert.assertEquals("searchKey1", entityResult1.getKey());
         Assert.assertNull(entityResult);
     }
@@ -125,7 +125,7 @@ public class TestBerkeleyDBImp {
     public void testFileNameSearch() {
         KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
         db.put(entity);
-        KeyValueEntity entityResult = db.searchOne("test");
+        KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
         Assert.assertEquals("searchKey1", entityResult.getKey());
     }
 

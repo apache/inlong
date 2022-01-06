@@ -116,7 +116,7 @@ public class TriggerManager extends AbstractDaemon {
                             if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
                                 deleteRelatedJobs(triggerProfile.getTriggerId());
                             }
-                            manager.getJobManager().submitJobProfile(profile);
+                            manager.getJobManager().submitFileJobProfile(profile);
                             addToTriggerMap(profile.get(JOB_ID), profile);
                         }
                     });

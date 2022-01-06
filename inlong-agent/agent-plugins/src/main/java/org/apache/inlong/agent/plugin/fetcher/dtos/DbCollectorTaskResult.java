@@ -18,26 +18,24 @@
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
 import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.inlong.agent.conf.JobProfile;
 
 @Data
-public class TaskResult {
+public class DbCollectorTaskResult {
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    private String version;
+    private boolean result;
+    private Integer errCode;
+    private String md5;
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
+    private DbCollectorTask data = new DbCollectorTask();
+
+    public JobProfile getJobProfile() {
+        JobProfile profile = null;
+        if (data == null) {
+            return profile;
         }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
+        profile = SqlJobProfileDto.convertToJobProfile(data);
+        return profile;
     }
 }

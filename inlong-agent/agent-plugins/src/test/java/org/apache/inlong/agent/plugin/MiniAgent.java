@@ -46,7 +46,7 @@ public class MiniAgent {
     }
 
     public void submitJob(JobProfile profile) {
-        manager.getJobManager().submitJobProfile(profile);
+        manager.getJobManager().submitFileJobProfile(profile);
     }
 
     public void submitTriggerJob(JobProfile profile) {
