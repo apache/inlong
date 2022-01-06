@@ -66,9 +66,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public class MetaSink extends AbstractSink implements Configurable {
+public class MetaSinkForSimpleMessage extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetaSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(MetaSinkForSimpleMessage.class);
     private static int MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
     private static final String TUBE_REQUEST_TIMEOUT = "tube-request-timeout";
     private static final String KEY_DISK_IO_RATE_PER_SEC = "disk-io-rate-per-sec";
@@ -386,16 +386,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                 if (clientIdCache && clientId != null && lastTime != null && lastTime > 0) {
                     logger.info("{} agent package {} existed,just discard.", getName(), clientId);
                 } else {
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
+                    Message message = this.parseEvent2Message(topic, event);
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
 
@@ -414,21 +405,38 @@ public class MetaSink extends AbstractSink implements Configurable {
                         agentIdCache.put(clientId, System.currentTimeMillis());
                     }
 
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
+                    Message message = this.parseEvent2Message(topic, event);
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
                 }
             }
             illegalTopicMap.remove(topic);
+        }
+        
+        /**
+         * parseEvent2Message
+         * @param topic
+         * @param event
+         * @return
+         */
+        private Message parseEvent2Message(String topic, Event event) {
+            Message message = new Message(topic, event.getBody());
+            message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
+            String streamId = "";
+            if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
+                streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+            } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+                streamId = event.getHeaders().get(AttributeConstants.INAME);
+            }
+            message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+            // common attributes
+            Map<String, String> headers = event.getHeaders();
+            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
+            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
+            message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
+            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
+            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
+            return message;
         }
 
         private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
@@ -462,8 +470,8 @@ public class MetaSink extends AbstractSink implements Configurable {
                 EventStat es = null;
                 String topic = null;
                 try {
-                    if (MetaSink.this.overflow) {
-                        MetaSink.this.overflow = false;
+                    if (MetaSinkForSimpleMessage.this.overflow) {
+                        MetaSinkForSimpleMessage.this.overflow = false;
                         Thread.sleep(10);
                     }
                     if (!resendQueue.isEmpty()) {
@@ -578,14 +586,14 @@ public class MetaSink extends AbstractSink implements Configurable {
          */
         private void addMetric(Event currentRecord, boolean result, long sendTime) {
             Map<String, String> dimensions = new HashMap<>();
-            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSink.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSinkForSimpleMessage.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSinkForSimpleMessage.this.getName());
             if (currentRecord.getHeaders().containsKey(TOPIC)) {
                 dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, currentRecord.getHeaders().get(TOPIC));
             } else {
                 dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
             }
-            DataProxyMetricItem metricItem = MetaSink.this.metricItemSet.findMetricItem(dimensions);
+            DataProxyMetricItem metricItem = MetaSinkForSimpleMessage.this.metricItemSet.findMetricItem(dimensions);
             if (result) {
                 metricItem.sendSuccessCount.incrementAndGet();
                 metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
@@ -613,7 +621,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                 t = t.getCause();
             }
             if (t instanceof OverflowException) {
-                MetaSink.this.overflow = true;
+                MetaSinkForSimpleMessage.this.overflow = true;
             }
             resendEvent(myEventStat, true);
         }
