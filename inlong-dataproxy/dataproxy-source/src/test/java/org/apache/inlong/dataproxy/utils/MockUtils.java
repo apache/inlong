@@ -20,6 +20,7 @@ package org.apache.inlong.dataproxy.utils;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.HashMap;
@@ -107,23 +108,29 @@ public class MockUtils {
         PowerMockito.when(PulsarClient.builder()).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.serviceUrl(anyString())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.authentication(any())).thenReturn(clientBuilder);
+        PowerMockito.when(clientBuilder.ioThreads(anyInt())).thenReturn(clientBuilder);
+        PowerMockito.when(clientBuilder.memoryLimit(anyLong(), any())).thenReturn(clientBuilder);
+        PowerMockito.when(clientBuilder.connectionsPerBroker(anyInt())).thenReturn(clientBuilder);
         PulsarClient client = PowerMockito.mock(PulsarClient.class);
         PowerMockito.when(clientBuilder.build()).thenReturn(client);
         //
         ProducerBuilder<byte[]> producerBuilder = PowerMockito.mock(ProducerBuilder.class);
         PowerMockito.when(client.newProducer()).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.hashingScheme(any())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.enableBatching(anyBoolean())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.batchingMaxBytes(anyInt())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.batchingMaxMessages(anyInt())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.batchingMaxPublishDelay(anyInt(), any())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.sendTimeout(anyInt(), any())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.maxPendingMessages(anyInt())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.maxPendingMessagesAcrossPartitions(anyInt())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.sendTimeout(anyInt(), any())).thenReturn(producerBuilder);
-        PowerMockito.when(producerBuilder.compressionType(any())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.batchingMaxMessages(anyInt())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.batchingMaxPublishDelay(anyInt(), any())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.batchingMaxBytes(anyInt())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.accessMode(any())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.messageRoutingMode(any())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.blockIfQueueFull(anyBoolean())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.roundRobinRouterBatchingPartitionSwitchFrequency(anyInt()))
                 .thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.enableBatching(anyBoolean())).thenReturn(producerBuilder);
+        PowerMockito.when(producerBuilder.compressionType(any())).thenReturn(producerBuilder);
+
+        PowerMockito.when(producerBuilder.hashingScheme(any())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.batcherBuilder(any())).thenReturn(producerBuilder);
         //
         Producer<byte[]> producer = mockProducer();
