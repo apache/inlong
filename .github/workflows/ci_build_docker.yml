@@ -46,8 +46,5 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -pl !inlong-website
-
-      - name: Build docker
-        run: mvn --batch-mode --update-snapshots -e -V package -DskipTests -Pdocker
+      - name: Build docker image
+        run: mvn --batch-mode --update-snapshots -e -V clean verify -DskipTests -Pdocker
