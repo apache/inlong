@@ -166,7 +166,7 @@ public class PulsarProducerCluster implements LifecycleAware {
             case "SNAPPY" :
                 return CompressionType.SNAPPY;
             default :
-                return CompressionType.SNAPPY;
+                return CompressionType.NONE;
         }
     }
 
