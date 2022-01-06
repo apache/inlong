@@ -69,9 +69,9 @@ import com.google.common.base.Splitter;
  * Server message handler
  *
  */
-public class ServerMessageHandlerForSimpleMessage extends SimpleChannelHandler {
+public class SimpleMessageHandler extends SimpleChannelHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandlerForSimpleMessage.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleMessageHandler.class);
 
     private static final String DEFAULT_REMOTE_IP_VALUE = "0.0.0.0";
     private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
@@ -110,7 +110,7 @@ public class ServerMessageHandlerForSimpleMessage extends SimpleChannelHandler {
     //
     private final DataProxyMetricItemSet metricItemSet;
 
-    public ServerMessageHandlerForSimpleMessage(AbstractSource source, ServiceDecoder serProcessor,
+    public SimpleMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,
             Integer maxCons,
