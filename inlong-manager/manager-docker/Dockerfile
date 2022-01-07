@@ -21,8 +21,7 @@ EXPOSE 8083
 
 # profile and env virables
 ENV ACTIVE_PROFILE=prod
-# Note: '/' and '&' symbles need to be escaped with the '\'
-ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_manager?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
+ENV JDBC_URL=127.0.0.1:3306
 ENV USERNAME=root
 ENV PASSWORD=inlong
 ENV TUBE_MANAGER=http://127.0.0.1:8089

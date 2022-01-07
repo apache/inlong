@@ -18,10 +18,12 @@
 #
 FROM openjdk:8-jdk
 # add tarball from target output
-ARG AUDIT_TARBALL
-ADD ${AUDIT_TARBALL} /opt/inlong-audit
-EXPOSE 46801
-WORKDIR /opt/inlong-audit
-ADD audit-docker.sh bin/
-RUN chmod +x bin/audit-docker.sh
-CMD ["bin/audit-docker.sh"]
+ARG AUDIT_STORE_TARBALL
+ADD ${AUDIT_STORE_TARBALL} /opt/inlong-audit-store
+ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_audit?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
+ENV USERNAME=root
+ENV PASSWORD=inlong
+WORKDIR /opt/inlong-audit-store
+ADD audit-store-docker.sh bin/
+RUN chmod +x bin/audit-store-docker.sh
+CMD ["bin/audit-store-docker.sh"]

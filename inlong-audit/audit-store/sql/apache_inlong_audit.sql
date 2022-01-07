@@ -15,6 +15,15 @@
  * limitations under the License.
  */
 
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- database for Manager Web
+-- ----------------------------
+CREATE DATABASE IF NOT EXISTS apache_inlong_audit;
+USE apache_inlong_audit;
+
 CREATE TABLE `audit_data` (
   `id` int(32) not null primary key auto_increment COMMENT 'id',
   `ip` varchar(32) NOT NULL DEFAULT '' COMMENT 'client ip',
