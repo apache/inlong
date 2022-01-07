@@ -77,45 +77,46 @@ public class StatManager implements Cleanable {
     }
 
     /**
-     * use for sortId
+     * use for sortTaskId
      *
-     * @param sortId String
-     * @return ReadApiStateCounter
+     * @param sortTaskId String
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId) {
-        String key = makeKey(sortId, defaultCluster, defaultTopic, String.valueOf(defaultPartitionId));
+    public SortClientStateCounter getStatistics(String sortTaskId) {
+        String key = makeKey(sortTaskId, defaultCluster, defaultTopic, String.valueOf(defaultPartitionId));
         return READAPISTATE
                 .computeIfAbsent(key,
-                        k -> new SortClientStateCounter(sortId, defaultCluster, defaultTopic, defaultPartitionId));
+                        k -> new SortClientStateCounter(sortTaskId, defaultCluster, defaultTopic, defaultPartitionId));
     }
 
     /**
      * use for pulsar type
      *
-     * @param sortId String
+     * @param sortTaskId String
      * @param clusterId String
      * @param topic String
-     * @return ReadApiStateCounter
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId, String clusterId, String topic) {
-        String key = makeKey(sortId, clusterId, topic, String.valueOf(defaultPartitionId));
+    public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic) {
+        String key = makeKey(sortTaskId, clusterId, topic, String.valueOf(defaultPartitionId));
         return READAPISTATE
-                .computeIfAbsent(key, k -> new SortClientStateCounter(sortId, clusterId, topic, defaultPartitionId));
+                .computeIfAbsent(key,
+                        k -> new SortClientStateCounter(sortTaskId, clusterId, topic, defaultPartitionId));
     }
 
     /**
      * use for
      *
-     * @param sortId String
+     * @param sortTaskId String
      * @param clusterId String
      * @param topic String
      * @param partitionId int
-     * @return ReadApiStateCounter
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId, String clusterId, String topic, int partitionId) {
-        String key = makeKey(sortId, clusterId, topic);
+    public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic, int partitionId) {
+        String key = makeKey(sortTaskId, clusterId, topic);
         return READAPISTATE
-                .computeIfAbsent(key, k -> new SortClientStateCounter(sortId, clusterId, topic, partitionId));
+                .computeIfAbsent(key, k -> new SortClientStateCounter(sortTaskId, clusterId, topic, partitionId));
     }
 
     private class ProcessStatThread extends PeriodicTask {
