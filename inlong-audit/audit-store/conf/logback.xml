@@ -22,7 +22,7 @@
 	<property name="LOG_BACK_DIR" value="logs"/>
 
 	<appender name="INFO_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_BACK_DIR}/info.log</file>
+		<file>${LOG_BACK_DIR}/audit-store.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- rollover daily -->
 			<fileNamePattern>${LOG_BACK_DIR}/info-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
