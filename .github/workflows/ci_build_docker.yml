@@ -48,3 +48,5 @@ jobs:
 
       - name: Build docker image
         run: mvn --batch-mode --update-snapshots -e -V clean verify -DskipTests -Pdocker
+        env:
+          CI: false
