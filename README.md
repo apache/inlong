@@ -82,6 +82,37 @@ $ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install 
 ```
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
+* Build
+
+  * Use mvn
+    ```
+    $ mvn package -DskipTests -Pdocker -pl inlong-website
+    ```
+
+  * Use nodejs
+    ```
+    $ npm run build
+    ```
+
+* Run(Use docker)
+```
+$ docker run -d --name website -e MANAGER_API_ADDRESS=127.0.0.1:8083 -p 80:80 inlong/website
+```
+
+* Dev(Use nodejs)
+```
+$ npm run dev
+```
+
+* Prettier(Use nodejs)
+```
+$ npm run prettier
+```
+
+* Eslint(Use nodejs)
+```
+$ npm run eslint
+```
 ## Deploy InLong
 InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/docs/user_guide/quick_start) in our project documentation.
 
