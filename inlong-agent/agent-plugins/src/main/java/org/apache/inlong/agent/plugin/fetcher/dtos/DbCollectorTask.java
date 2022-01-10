@@ -37,6 +37,7 @@ public class DbCollectorTask {
     private Integer retryTimes;
     private String inlongGroupId;
     private String inlongStreamId;
+    private String seperator;
 
     public boolean isValid() {
         return true;
