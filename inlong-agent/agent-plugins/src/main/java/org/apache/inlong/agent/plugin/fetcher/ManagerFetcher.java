@@ -77,9 +77,9 @@ import org.apache.inlong.agent.db.CommandEntity;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.fetcher.dtos.CmdConfig;
 import org.apache.inlong.agent.plugin.fetcher.dtos.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskRequsetDto;
+import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskRequestDto;
 import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskResult;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequsetDto;
+import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequestDto;
 import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
 import org.apache.inlong.agent.plugin.fetcher.enums.ManagerOpEnum;
 import org.apache.inlong.agent.plugin.utils.HttpManager;
@@ -287,7 +287,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public TaskRequsetDto getFileCommdFetchRequest(
             List<CommandEntity> unackedCommands) {
-        TaskRequsetDto requset = new TaskRequsetDto();
+        TaskRequestDto requset = new TaskRequestDto();
         requset.setAgentIp(localIp);
         requset.setCommandInfo(unackedCommands);
         return requset;
@@ -298,8 +298,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      *
      * @return
      */
-    public DbCollectorTaskRequsetDto getSqlTaskRequest() {
-        DbCollectorTaskRequsetDto request = new DbCollectorTaskRequsetDto();
+    public DbCollectorTaskRequestDto getSqlTaskRequest() {
+        DbCollectorTaskRequestDto request = new DbCollectorTaskRequestDto();
         request.setVersion(VERSION);
         request.setMd5("123456");
         return request;
