@@ -61,6 +61,8 @@ public class HiveSinkContext extends SinkContext {
     public static final String KEY_EVENT_FORMAT_HANDLER = "eventFormatHandler";
     public static final String KEY_TOKEN_OVERTIME = "tokenOvertime";
     public static final String KEY_MAX_OUTPUT_FILE_SIZE = "maxOutputFileSize";
+    public static final long MINUTE_MS = 60 * 1000;
+    public static final long GB_BYTES = 1024 * 1024 * 1024;
 
     // hive config
     public static final String KEY_HIVE_JDBC_URL = "hiveJdbcUrl";
@@ -74,10 +76,10 @@ public class HiveSinkContext extends SinkContext {
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
     // hdfs config
     private String hdfsPath;
-    private long maxFileOpenDelay = 5 * 60 * 1000;
-    private long fileArchiveDelay = maxFileOpenDelay + 60 * 1000;
-    private long tokenOvertime = 60 * 60 * 1000;
-    private long maxOutputFileSize = 2 * 1024 * 1024 * 1024;
+    private long maxFileOpenDelayMinute = 5;
+    private long fileArchiveDelayMinute = maxFileOpenDelayMinute + 1;
+    private long tokenOvertimeMinute = 60;
+    private long maxOutputFileSizeGb = 2;
     // hive config
     private String hiveJdbcUrl;
     private String hiveDatabase;
@@ -146,10 +148,10 @@ public class HiveSinkContext extends SinkContext {
             this.idConfigMap = newIdConfigMap;
             // hdfs config
             this.hdfsPath = parentContext.getString(KEY_HDFS_PATH);
-            this.maxFileOpenDelay = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, 5L * 60 * 1000);
-            this.fileArchiveDelay = maxFileOpenDelay + 60 * 1000;
-            this.tokenOvertime = parentContext.getLong(KEY_TOKEN_OVERTIME, 60L * 60 * 1000);
-            this.maxOutputFileSize = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, 2L * 1024 * 1024 * 1024);
+            this.maxFileOpenDelayMinute = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, 5L * 60 * 1000);
+            this.fileArchiveDelayMinute = maxFileOpenDelayMinute + 60 * 1000;
+            this.tokenOvertimeMinute = parentContext.getLong(KEY_TOKEN_OVERTIME, 60L * 60 * 1000);
+            this.maxOutputFileSizeGb = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, 2L * 1024 * 1024 * 1024);
             // hive config
             this.hiveJdbcUrl = parentContext.getString(KEY_HIVE_JDBC_URL);
             this.hiveDatabase = parentContext.getString(KEY_HIVE_DATABASE);
@@ -333,39 +335,39 @@ public class HiveSinkContext extends SinkContext {
     }
 
     /**
-     * get maxFileOpenDelay
+     * get maxFileOpenDelayMinute
      * 
-     * @return the maxFileOpenDelay
+     * @return the maxFileOpenDelayMinute
      */
-    public long getMaxFileOpenDelay() {
-        return maxFileOpenDelay;
+    public long getMaxFileOpenDelayMinute() {
+        return maxFileOpenDelayMinute;
     }
 
     /**
-     * get fileArchiveDelay
+     * get fileArchiveDelayMinute
      * 
-     * @return the fileArchiveDelay
+     * @return the fileArchiveDelayMinute
      */
-    public long getFileArchiveDelay() {
-        return fileArchiveDelay;
+    public long getFileArchiveDelayMinute() {
+        return fileArchiveDelayMinute;
     }
 
     /**
-     * get tokenOvertime
+     * get tokenOvertimeMinute
      * 
-     * @return the tokenOvertime
+     * @return the tokenOvertimeMinute
      */
-    public long getTokenOvertime() {
-        return tokenOvertime;
+    public long getTokenOvertimeMinute() {
+        return tokenOvertimeMinute;
     }
 
     /**
-     * get maxOutputFileSize
+     * get maxOutputFileSizeGb
      * 
-     * @return the maxOutputFileSize
+     * @return the maxOutputFileSizeGb
      */
-    public long getMaxOutputFileSize() {
-        return maxOutputFileSize;
+    public long getMaxOutputFileSizeGb() {
+        return maxOutputFileSizeGb;
     }
 
     /**

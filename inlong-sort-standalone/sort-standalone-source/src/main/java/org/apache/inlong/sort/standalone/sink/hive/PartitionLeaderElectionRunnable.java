@@ -95,9 +95,11 @@ public class PartitionLeaderElectionRunnable implements Runnable {
                     rs.close();
                     // close partition
                     long currentTime = System.currentTimeMillis();
-                    long beginScanTime = currentTime - 2 * idConfig.getMaxPartitionOpenDelay();
-                    long endScanTime = currentTime - idConfig.getPartitionIntervalMs() - context.getMaxFileOpenDelay();
-                    long forceCloseTime = currentTime - idConfig.getMaxPartitionOpenDelay();
+                    long beginScanTime = currentTime
+                            - 2 * idConfig.getMaxPartitionOpenDelayHour() * HdfsIdConfig.HOUR_MS;
+                    long endScanTime = currentTime - idConfig.getPartitionIntervalMs()
+                            - context.getMaxFileOpenDelayMinute() * HiveSinkContext.MINUTE_MS;
+                    long forceCloseTime = currentTime - idConfig.getMaxPartitionOpenDelayHour() * HdfsIdConfig.HOUR_MS;
                     for (long pt = beginScanTime; pt < endScanTime; pt += idConfig.getPartitionIntervalMs()) {
                         String strPartitionValue = idConfig.parsePartitionField(pt);
                         if (partitionSet.contains(strPartitionValue)) {
@@ -165,7 +167,7 @@ public class PartitionLeaderElectionRunnable implements Runnable {
             } else {
                 // check if last modified time of token file is over
                 FileStatus tokenFileStatus = fs.getFileStatus(tokenPath);
-                long tokenOvertime = context.getTokenOvertime();
+                long tokenOvertime = context.getTokenOvertimeMinute() * HiveSinkContext.MINUTE_MS;
                 if (System.currentTimeMillis() - tokenFileStatus.getModificationTime() < tokenOvertime
                         && tokenFileStatus.getLen() < 1024) {
                     // check if leader is same with local container name

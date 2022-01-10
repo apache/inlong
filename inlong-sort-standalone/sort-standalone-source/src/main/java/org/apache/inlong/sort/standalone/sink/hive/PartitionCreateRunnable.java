@@ -83,7 +83,8 @@ public class PartitionCreateRunnable implements Runnable {
                 FileSystem fs = idFile.getFs();
                 FileStatus[] fileStatusArray = fs.listStatus(new Path[]{idFile.getIntmpPath(), idFile.getInPath()});
                 long currentTime = System.currentTimeMillis();
-                long fileArchiveDelayTime = currentTime - context.getFileArchiveDelay();
+                long fileArchiveDelayTime = currentTime
+                        - context.getFileArchiveDelayMinute() * HiveSinkContext.MINUTE_MS;
                 for (FileStatus fileStatus : fileStatusArray) {
                     // check all file that have overtimed.
                     if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
@@ -136,7 +137,7 @@ public class PartitionCreateRunnable implements Runnable {
         long outputFileSize = 0;
         List<Path> concatInFiles = new ArrayList<>();
         for (FileStatus fileStatus : inFiles) {
-            if (outputFileSize < context.getMaxOutputFileSize()) {
+            if (outputFileSize < context.getMaxOutputFileSizeGb() * HiveSinkContext.GB_BYTES) {
                 concatInFiles.add(fileStatus.getPath());
                 continue;
             }

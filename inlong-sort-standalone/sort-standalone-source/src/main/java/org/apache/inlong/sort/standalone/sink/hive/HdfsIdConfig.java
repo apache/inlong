@@ -34,6 +34,7 @@ public class HdfsIdConfig {
     public static final String REGEX_DAY = "\\{yyyyMMdd\\}";
     public static final String REGEX_HOUR = "\\{yyyyMMddHH\\}";
     public static final String REGEX_MINUTE = "\\{yyyyMMddHHmm\\}";
+    public static final long HOUR_MS = 60 * 60 * 1000;
     private static ThreadLocal<SimpleDateFormat> FORMAT_DAY = new ThreadLocal<SimpleDateFormat>() {
 
         protected SimpleDateFormat initialValue() {
@@ -77,7 +78,7 @@ public class HdfsIdConfig {
     private String partitionFieldPattern;
     private String msgTimeFieldPattern;
     // close partition
-    private long maxPartitionOpenDelay = 8 * 60 * 60 * 1000;
+    private long maxPartitionOpenDelayHour = 8;
 
     /**
      * get inlongGroupId
@@ -244,21 +245,21 @@ public class HdfsIdConfig {
     }
 
     /**
-     * get maxPartitionOpenDelay
+     * get maxPartitionOpenDelayHour
      * 
-     * @return the maxPartitionOpenDelay
+     * @return the maxPartitionOpenDelayHour
      */
-    public long getMaxPartitionOpenDelay() {
-        return maxPartitionOpenDelay;
+    public long getMaxPartitionOpenDelayHour() {
+        return maxPartitionOpenDelayHour;
     }
 
     /**
-     * set maxPartitionOpenDelay
+     * set maxPartitionOpenDelayHour
      * 
-     * @param maxPartitionOpenDelay the maxPartitionOpenDelay to set
+     * @param maxPartitionOpenDelayHour the maxPartitionOpenDelayHour to set
      */
-    public void setMaxPartitionOpenDelay(long maxPartitionOpenDelay) {
-        this.maxPartitionOpenDelay = maxPartitionOpenDelay;
+    public void setMaxPartitionOpenDelayHour(long maxPartitionOpenDelayHour) {
+        this.maxPartitionOpenDelayHour = maxPartitionOpenDelayHour;
     }
 
     /**

@@ -86,7 +86,7 @@ public class HiveSink extends AbstractSink implements Configurable {
                     TimeUnit.MILLISECONDS);
             // partition leader election runnable
             this.scheduledPool.scheduleWithFixedDelay(new PartitionLeaderElectionRunnable(context),
-                    0, this.context.getMaxFileOpenDelay(),
+                    0, this.context.getMaxFileOpenDelayMinute() * HiveSinkContext.MINUTE_MS,
                     TimeUnit.MILLISECONDS);
             // process
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
@@ -204,7 +204,7 @@ public class HiveSink extends AbstractSink implements Configurable {
             dispatchProfile = this.dispatchQueue.poll();
         }
         // close overtime file
-        long overtime = currentTime - context.getFileArchiveDelay();
+        long overtime = currentTime - context.getFileArchiveDelayMinute() * HiveSinkContext.MINUTE_MS;
         Set<String> overtimePathSet = new HashSet<>();
         for (Entry<String, HdfsIdFile> entry : this.hdfsIdFileMap.entrySet()) {
             if (entry.getValue().getModifiedTime() < overtime) {
