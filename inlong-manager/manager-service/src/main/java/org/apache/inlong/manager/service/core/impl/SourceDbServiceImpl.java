@@ -338,7 +338,7 @@ public class SourceDbServiceImpl implements SourceDbService {
         }
 
         SourceDbDetailEntity dbEntity = CommonBeanUtils.copyProperties(detailInfo, SourceDbDetailEntity::new);
-        dbEntity.setStatus(EntityStatus.DATA_RESOURCE_NEW.getCode());
+        dbEntity.setStatus(EntityStatus.AGENT_ADD.getCode());
         dbEntity.setCreator(operator);
         dbEntity.setModifier(operator);
         dbEntity.setCreateTime(new Date());

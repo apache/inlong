@@ -24,6 +24,7 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.dataproxy.config.loader.CommonPropertiesLoader;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,8 @@ public class CommonPropertiesHolder {
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
 
     private static Map<String, String> props;
+
+    private static long auditFormatInterval = 60000L;
 
     /**
      * init
@@ -55,6 +58,8 @@ public class CommonPropertiesHolder {
                         CommonPropertiesLoader loader = (CommonPropertiesLoader) loaderObject;
                         props.putAll(loader.load());
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
+                        auditFormatInterval = NumberUtils
+                                .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -113,4 +118,14 @@ public class CommonPropertiesHolder {
         value = (value != null) ? value : props.getOrDefault(key, defaultValue);
         return value;
     }
+
+    /**
+     * getAuditFormatInterval
+     * 
+     * @return
+     */
+    public static long getAuditFormatInterval() {
+        return auditFormatInterval;
+    }
+
 }

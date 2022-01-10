@@ -146,6 +146,12 @@ public class FlowCtrlItem {
         return zeroCnt;
     }
 
+    /**
+     * Build json result string buffer
+     *
+     * @param sBuilder   the string buffer
+     * @return  the result content
+     */
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         switch (this.type) {
             case 1:

@@ -35,6 +35,8 @@ public class FileAgentCommandInfo {
     @ApiModelProperty(value = "agent result details")
     private List<CommandInfoBean> commandInfo;
 
+    @ApiModel("File agent command info")
+    @Data
     public static class CommandInfoBean {
 
         @ApiModelProperty(value = "operation result")
@@ -47,7 +49,7 @@ public class FileAgentCommandInfo {
         private int taskId;
 
         @ApiModelProperty(value = "operation type")
-        private int opType;
+        private int op;
 
         @ApiModelProperty(value = "data time")
         private String dataTime;
@@ -55,52 +57,5 @@ public class FileAgentCommandInfo {
         @ApiModelProperty(value = "operation id")
         private int id;
 
-        public int getCommandResult() {
-            return commandResult;
-        }
-
-        public void setCommandResult(int commandResult) {
-            this.commandResult = commandResult;
-        }
-
-        public int getTaskId() {
-            return taskId;
-        }
-
-        public void setTaskId(int taskId) {
-            this.taskId = taskId;
-        }
-
-        public int getOpType() {
-            return opType;
-        }
-
-        public void setOpType(int opType) {
-            this.opType = opType;
-        }
-
-        public String getDataTime() {
-            return dataTime;
-        }
-
-        public void setDataTime(String dataTime) {
-            this.dataTime = dataTime;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public long getDeliveryTime() {
-            return deliveryTime;
-        }
-
-        public void setDeliveryTime(long deliveryTime) {
-            this.deliveryTime = deliveryTime;
-        }
     }
 }

@@ -20,8 +20,10 @@ package org.apache.inlong.dataproxy.sink.pulsar.federation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
@@ -101,6 +103,10 @@ public class PulsarFederationWorker extends Thread {
                 DataProxyMetricItem.fillInlongId(currentRecord, dimensions);
                 this.dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
                         currentRecord.getHeaders().get(Constants.TOPIC));
+                long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                        System.currentTimeMillis());
+                long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+                dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
                 DataProxyMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
                 metricItem.sendCount.incrementAndGet();
                 metricItem.sendSize.addAndGet(currentRecord.getBody().length);

@@ -47,7 +47,9 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean verify -pl !inlong-website
+        run: mvn --batch-mode --update-snapshots -e -V clean verify
+        env:
+          CI: false
 
       - name: Upload unit test results
         if: ${{ failure() }}

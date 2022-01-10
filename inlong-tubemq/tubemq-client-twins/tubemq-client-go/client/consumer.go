@@ -31,6 +31,13 @@ type ConsumerResult struct {
 	Messages       []*Message
 }
 
+// ConfirmResult of a consumption.
+type ConfirmResult struct {
+	TopicName      string
+	ConfirmContext string
+	PeerInfo       *PeerInfo
+}
+
 var clientID uint64
 
 // Consumer is an interface that abstracts behavior of TubeMQ's consumer
@@ -38,7 +45,7 @@ type Consumer interface {
 	// GetMessage receive a single message.
 	GetMessage() (*ConsumerResult, error)
 	// Confirm the consumption of a message.
-	Confirm(confirmContext string, consumed bool) (*ConsumerResult, error)
+	Confirm(confirmContext string, consumed bool) (*ConfirmResult, error)
 	// GetCurrConsumedInfo returns the consumptions of the consumer.
 	GetCurrConsumedInfo() map[string]*remote.ConsumerOffset
 	// Close closes the consumer client and release the resources.

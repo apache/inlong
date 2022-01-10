@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
@@ -41,6 +42,8 @@ public class BusinessCompleteProcessListener implements ProcessEventListener {
     private BusinessService businessService;
     @Autowired
     private DataStreamService dataStreamService;
+    @Autowired
+    private SourceFileDetailEntityMapper fileDetailMapper;
 
     @Override
     public ProcessEvent event() {
@@ -62,6 +65,8 @@ public class BusinessCompleteProcessListener implements ProcessEventListener {
         businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
         // update data stream status
         dataStreamService.updateStatus(groupId, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
+        // update file data source status
+        fileDetailMapper.updateStatusAfterApprove(groupId, null, EntityStatus.AGENT_ADD.getCode(), username);
 
         return ListenerResult.success();
     }

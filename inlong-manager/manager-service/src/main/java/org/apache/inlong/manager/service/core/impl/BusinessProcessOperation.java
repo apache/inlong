@@ -24,17 +24,19 @@ import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.BusinessPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.BusinessPulsarEntityMapper;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +49,14 @@ import org.springframework.stereotype.Service;
 public class BusinessProcessOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessProcessOperation.class);
-
+    @Autowired
+    BusinessPulsarEntityMapper businessPulsarMapper;
     @Autowired
     private BusinessEntityMapper businessMapper;
     @Autowired
     private WorkflowService workflowService;
     @Autowired
     private DataStreamService streamService;
-    @Autowired
-    private StorageService storageService;
 
     /**
      * Allocate resource application groups for access services and initiate an approval process
@@ -95,6 +96,13 @@ public class BusinessProcessOperation {
      */
     public NewBusinessWorkflowForm genNewBusinessWorkflowForm(BusinessInfo businessInfo) {
         NewBusinessWorkflowForm form = new NewBusinessWorkflowForm();
+        form.setBusinessInfo(businessInfo);
+
+        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
+            BusinessPulsarEntity pulsarEntity = businessPulsarMapper.selectByGroupId(businessInfo.getInlongGroupId());
+            BusinessPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, BusinessPulsarInfo::new);
+            businessInfo.setMqExtInfo(pulsarInfo);
+        }
         form.setBusinessInfo(businessInfo);
 
         // Query all data streams under the groupId and the storage information of each data stream

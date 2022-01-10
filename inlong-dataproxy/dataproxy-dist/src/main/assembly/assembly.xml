@@ -34,20 +34,8 @@
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <useProjectArtifact>true</useProjectArtifact>
-            <excludes>
-                <exclude>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</exclude>
-            </excludes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>tools</outputDirectory>
-            <unpack>false</unpack>
-            <useProjectArtifact>true</useProjectArtifact>
-            <includes>
-                <include>org.apache.flume.flume-ng-clients:flume-ng-log4jappender:jar:jar-with-dependencies</include>
-            </includes>
         </dependencySet>
     </dependencySets>
-
 
     <fileSets>
         <fileSet>

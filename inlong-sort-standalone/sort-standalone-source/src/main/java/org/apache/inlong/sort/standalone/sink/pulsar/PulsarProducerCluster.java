@@ -29,6 +29,7 @@ import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
@@ -225,7 +226,7 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.addMetric(event, topic, false, 0);
             return false;
         }
-        String messageKey = headers.get(Constants.MESSAGE_KEY);
+        String messageKey = headers.get(Constants.HEADER_KEY_MESSAGE_KEY);
         if (messageKey == null) {
             messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
         }
@@ -265,14 +266,15 @@ public class PulsarProducerCluster implements LifecycleAware {
         SortMetricItem.fillInlongId(currentRecord, dimensions);
         dimensions.put(SortMetricItem.KEY_SINK_ID, this.cacheClusterName);
         dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
+        long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         SortMetricItem metricItem = this.sinkContext.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
             metricItem.sendSuccessCount.incrementAndGet();
             metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
-                long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                        sendTime);
                 long sinkDuration = currentTime - sendTime;
                 long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
                 long wholeDuration = currentTime - msgTime;

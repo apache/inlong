@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.flink.configuration.Configuration;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
+import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.Producer;
@@ -142,7 +143,7 @@ public class PulsarUtils {
     public static PulsarAdmin createAdmin(
             String adminUrl
     ) throws PulsarClientException {
-        return new PulsarAdmin(adminUrl, new ClientConfigurationData());
+        return new PulsarAdminImpl(adminUrl, new ClientConfigurationData());
     }
 
     public static Set<String> getTopicPartitions(
@@ -170,10 +171,10 @@ public class PulsarUtils {
             String consumerGroup
     ) throws PulsarAdminException {
         TopicStats topicStats = admin.topics().getStats(topicPartition);
-        if (topicStats.subscriptions.containsKey(consumerGroup)) {
+        if (topicStats.getSubscriptions().containsKey(consumerGroup)) {
             SubscriptionStats subStats =
-                    topicStats.subscriptions.get(consumerGroup);
-            if (subStats.consumers.size() != 0) {
+                    topicStats.getSubscriptions().get(consumerGroup);
+            if (subStats.getConsumers().size() != 0) {
                 throw new RuntimeException("Subscription been actively used by other consumers in this situation, the "
                         + "exactly-once semantics cannot be guaranteed.");
             } else {

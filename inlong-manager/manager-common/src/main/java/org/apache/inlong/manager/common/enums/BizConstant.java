@@ -50,6 +50,8 @@ public class BizConstant {
 
     public static final String CLUSTER_HIVE_TOPO = "HIVE_TOPO";
 
+    public static final String ID_IS_EMPTY = "id cannot empty during the update/delete operation";
+
     public static final String GROUP_ID_IS_EMPTY = "business group id is empty";
 
     public static final String STREAM_ID_IS_EMPTY = "data stream id is empty";
