@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.fetcher.dtos;
 import lombok.Data;
 
 @Data
-public class DbCollectorTaskRequsetDto {
+public class DbCollectorTaskRequestDto {
 
     private String version;
     private String md5;

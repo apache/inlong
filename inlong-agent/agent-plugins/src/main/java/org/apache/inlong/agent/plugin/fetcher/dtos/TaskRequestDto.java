@@ -23,7 +23,7 @@ import lombok.Data;
 import org.apache.inlong.agent.db.CommandEntity;
 
 @Data
-public class TaskRequsetDto {
+public class TaskRequestDto {
     private String agentIp;
     private List<CommandEntity> commandInfo = new ArrayList<>();
 }
