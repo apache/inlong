@@ -57,10 +57,10 @@ public class HiveSinkContext extends SinkContext {
     public static final String HIVE_DRIVER = "org.apache.hive.jdbc.HiveDriver";
     // hdfs config
     public static final String KEY_HDFS_PATH = "hdfsPath";
-    public static final String KEY_MAX_FILE_OPEN_DELAY = "maxFileOpenDelay";
+    public static final String KEY_MAX_FILE_OPEN_DELAY = "maxFileOpenDelayMinute";
     public static final String KEY_EVENT_FORMAT_HANDLER = "eventFormatHandler";
-    public static final String KEY_TOKEN_OVERTIME = "tokenOvertime";
-    public static final String KEY_MAX_OUTPUT_FILE_SIZE = "maxOutputFileSize";
+    public static final String KEY_TOKEN_OVERTIME = "tokenOvertimeMinute";
+    public static final String KEY_MAX_OUTPUT_FILE_SIZE = "maxOutputFileSizeGb";
     public static final long MINUTE_MS = 60 * 1000;
     public static final long GB_BYTES = 1024 * 1024 * 1024;
 
