@@ -285,7 +285,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * @param unackedCommands
      * @return
      */
-    public TaskRequsetDto getFileCommdFetchRequest(
+    public TaskRequestDto getFileCommdFetchRequest(
             List<CommandEntity> unackedCommands) {
         TaskRequestDto requset = new TaskRequestDto();
         requset.setAgentIp(localIp);
