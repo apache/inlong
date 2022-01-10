@@ -149,7 +149,7 @@ public class HiveSinkContext extends SinkContext {
             this.maxFileOpenDelay = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, 5L * 60 * 1000);
             this.fileArchiveDelay = maxFileOpenDelay + 60 * 1000;
             this.tokenOvertime = parentContext.getLong(KEY_TOKEN_OVERTIME, 60L * 60 * 1000);
-            this.maxOutputFileSize = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, 2l * 1024 * 1024 * 1024);
+            this.maxOutputFileSize = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, 2L * 1024 * 1024 * 1024);
             // hive config
             this.hiveJdbcUrl = parentContext.getString(KEY_HIVE_JDBC_URL);
             this.hiveDatabase = parentContext.getString(KEY_HIVE_DATABASE);

@@ -54,6 +54,7 @@ public class HdfsIdConfig {
     };
     // format repository
     private static ThreadLocal<Map<String, SimpleDateFormat>> FORMAT_REPOSITORY;
+    
     static {
         FORMAT_REPOSITORY = new ThreadLocal<Map<String, SimpleDateFormat>>() {
 
