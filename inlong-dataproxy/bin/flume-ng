@@ -216,7 +216,7 @@ run_flume() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$FLUME_CLASSPATH" -Djava.util.logging.config.file="/data/work/osgoo/authcentertest/apache-flume-1.6.0-bin/conf/netty.properties" \
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$FLUME_CLASSPATH" \
       -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
 }
 
