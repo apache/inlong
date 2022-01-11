@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.common.enums;
 
-import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
+/**
+ * Constant for db collector task
+ */
+public class DBCollectorTaskConstant {
 
-import java.util.ArrayList;
-import java.util.List;
+    public static final String INTERFACE_VERSION = "1.0";
 
-@Data
-public class TaskResult {
-
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
-
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
-    }
 }

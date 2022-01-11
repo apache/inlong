@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.db;
 
 import java.util.List;
+
 import org.apache.inlong.agent.AgentBaseTestsHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -125,7 +126,7 @@ public class TestBerkeleyDBImp {
     public void testFileNameSearch() {
         KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
         db.put(entity);
-        KeyValueEntity entityResult = db.searchOne("test");
+        KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
         Assert.assertEquals("searchKey1", entityResult.getKey());
     }
 

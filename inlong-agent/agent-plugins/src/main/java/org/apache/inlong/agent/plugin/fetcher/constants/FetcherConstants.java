@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.fetcher.constants;
 
 public class FetcherConstants {
+
     public static final String AGENT_FETCHER_INTERVAL = "agent.fetcher.interval";
     public static final int DEFAULT_AGENT_FETCHER_INTERVAL = 60;
 
@@ -30,16 +31,19 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
-    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/getInLongManagerIp";
+    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getInLongManagerIp";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi/agent";
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.vip.http.task.path";
     public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/fileAgent/getTaskConf";
 
     public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH = "agent.manager.vip.http.checkIP.path";
     public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/fileAgent/confirmAgentIp";
+
+    public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH = "agent.manager.dbcollect.gettask.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH = "/dbCollector/getTask";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 
@@ -49,5 +53,7 @@ public class FetcherConstants {
 
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";
+
+    public static final String VERSION = "1.0";
 
 }

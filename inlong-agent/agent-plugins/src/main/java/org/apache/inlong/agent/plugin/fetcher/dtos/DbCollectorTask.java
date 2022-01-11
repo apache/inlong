@@ -18,26 +18,28 @@
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
 import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class TaskResult {
+public class DbCollectorTask {
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    private String id;
+    private Integer type;
+    private Integer dbType;
+    private String ip;
+    private Integer port;
+    private String dbName;
+    private String user;
+    private String password;
+    private String sqlStatement;
+    private Integer totalLimit;
+    private Integer onceLimit;
+    private Integer timeLimit;
+    private Integer retryTimes;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String seperator;
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
+    public boolean isValid() {
+        return true;
     }
 }

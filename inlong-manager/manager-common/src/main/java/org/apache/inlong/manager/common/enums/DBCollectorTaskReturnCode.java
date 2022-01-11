@@ -15,29 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.common.enums;
 
-import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
+/**
+ * Operation type
+ */
+public enum DBCollectorTaskReturnCode {
 
-import java.util.ArrayList;
-import java.util.List;
+    SUCC(0, "success"),
+    EMPTY(1, "empty"),
+    INVALID_VERSION(2, "version is invalid"),
+    INVALID_STATE(3, "task state is invalid"),
+    ;
+    private final Integer code;
+    private final String description;
 
-@Data
-public class TaskResult {
+    DBCollectorTaskReturnCode(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    public Integer getCode() {
+        return code;
+    }
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
+    public String getDescription() {
+        return description;
     }
 }
