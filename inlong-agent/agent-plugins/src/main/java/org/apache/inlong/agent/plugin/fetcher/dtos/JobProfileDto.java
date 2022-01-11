@@ -34,8 +34,8 @@ public class JobProfileDto {
 
     public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
-    public static final String TDM_JOB = "TDM_JOB";
-    public static final String DEFAULT_BUS_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String MANAGER_JOB = "MANAGER_JOB";
+    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
     @Data
@@ -98,9 +98,9 @@ public class JobProfileDto {
         job.setDir(dir);
         job.setTrigger(DEFAULT_TRIGGER);
         job.setChannel(DEFAULT_CHANNEL);
-        job.setName(TDM_JOB);
+        job.setName(MANAGER_JOB);
         job.setSource(DEFAULT_SOURCE);
-        job.setSink(DEFAULT_BUS_SINK);
+        job.setSink(DEFAULT_DATAPROXY_SINK);
         job.setId(dataConfigs.getTaskId());
         job.setTimeOffset(dataConfigs.getTimeOffset());
         job.setOp(dataConfigs.getOp());

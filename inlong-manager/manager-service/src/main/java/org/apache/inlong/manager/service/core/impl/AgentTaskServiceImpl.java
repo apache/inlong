@@ -27,12 +27,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCMDConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
+import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandInfoBean;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
@@ -64,12 +66,17 @@ public class AgentTaskServiceImpl implements AgentTaskService {
 
     @Override
     public FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info) {
+        LOGGER.debug("begin to get file agent task by info={}", info);
+        if (info == null || info.getAgentIp() == null) {
+            LOGGER.error("agent command info cannot be empty");
+            return null;
+        }
 
         // Process the status of the postback task
-        dealCommandResult(info);
+        this.dealCommandResult(info);
 
         // Query pending tasks
-        List<FileAgentTaskConfig> taskConfigs = getFileAgentTaskConfigs(info);
+        List<FileAgentTaskConfig> taskConfigs = this.getFileAgentTaskConfigs(info);
 
         // Query pending special commands
         List<FileAgentCMDConfig> cmdConfigs = getFileAgentCMDConfigs(info);
@@ -117,67 +124,60 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 }
             }
 
-            config.setAdditionalAttr(s.toString().substring(0, s.toString().length() - 1));
-
-            int currentStatus = config.getStatus();
-            if (currentStatus / 100 == 2) { // Modify status 20x -> 30x
-                int nextStatus = currentStatus % 100 + 300;
-                SourceFileDetailEntity update = new SourceFileDetailEntity();
-                update.setId(config.getTaskId());
-                update.setStatus(nextStatus);
-                update.setPreviousStatus(currentStatus);
-                fileDetailMapper.updateByPrimaryKeySelective(update);
-            }
+            config.setAdditionalAttr(s.substring(0, s.toString().length() - 1));
         }
         return taskConfigs;
     }
 
     private void dealCommandResult(FileAgentCommandInfo info) {
-        if (CollectionUtils.isNotEmpty(info.getCommandInfo())) {
-            List<FileAgentCommandInfo.CommandInfoBean> commandInfos = info.getCommandInfo();
+        if (CollectionUtils.isEmpty(info.getCommandInfo())) {
+            LOGGER.warn("command info is empty, just return");
+            return;
+        }
 
-            for (FileAgentCommandInfo.CommandInfoBean command : commandInfos) {
-                SourceFileDetailEntity current = fileDetailMapper.selectByPrimaryKey(command.getTaskId());
+        for (CommandInfoBean command : info.getCommandInfo()) {
+            SourceFileDetailEntity current = fileDetailMapper.selectByPrimaryKey(command.getTaskId());
+            if (current == null) {
+                continue;
+            }
 
-                if (current != null) {
-                    int opType = command.getOpType();
-                    if (opType == 2 || opType == 6 || opType == 8) { // Channel results issued by special orders
-                        DataSourceCmdConfigEntity cmd = new DataSourceCmdConfigEntity();
-                        if (command.getId() > 0) { // Modify the data result status of special commands
-                            cmd.setId(command.getId());
-                            cmd.setBsend(true);
-                            cmd.setModifyTime(new Date());
-                            cmd.setResultInfo(String.valueOf(command.getCommandResult()));
-                            sourceCmdConfigMapper.updateByPrimaryKeySelective(cmd);
+            int op = command.getOp();
+            if (op == 2 || op == 6 || op == 8) { // Channel results issued by special orders
+                DataSourceCmdConfigEntity cmd = new DataSourceCmdConfigEntity();
+                if (command.getId() > 0) { // Modify the data result status of special commands
+                    cmd.setId(command.getId());
+                    cmd.setBsend(true);
+                    cmd.setModifyTime(new Date());
+                    cmd.setResultInfo(String.valueOf(command.getCommandResult()));
+                    sourceCmdConfigMapper.updateByPrimaryKeySelective(cmd);
+                }
+
+            } else { // Modify the result status of the data collection task
+                if (current.getModifyTime().getTime() - command.getDeliveryTime() > 1000 * 5) {
+                    log.warn(" task id {} receive heartbeat time delay more than 5's, skip it!",
+                            command.getTaskId());
+                    continue;
+                }
+
+                int result = command.getCommandResult();
+                int nextStatus = EntityStatus.AGENT_NORMAL.getCode();
+                int previousStatus = current.getStatus();
+                if (previousStatus / 100 == 2) { // Modify 30x -> 10x
+                    if (result == 0) { // Processed successfully
+                        if (previousStatus == EntityStatus.AGENT_ADD.getCode()) {
+                            nextStatus = EntityStatus.AGENT_NORMAL.getCode();
+                        } else if (previousStatus == EntityStatus.AGENT_DELETE.getCode()) {
+                            nextStatus = EntityStatus.AGENT_DISABLE.getCode();
                         }
-
-                    } else { // Modify the result status of the data collection task
-                        if (current.getModifyTime().getTime() - command.getDeliveryTime() > 1000 * 5) {
-                            log.warn(" task id {} receive heartbeat time delay more than 5's, skip it!",
-                                    command.getTaskId());
-                            continue;
-                        }
-                        int nextStatus = 101;
-                        if (current.getStatus() != null && current.getStatus() / 100 == 3) { // Modify 30x -> 10x
-                            if (command.getCommandResult() == 0) { // Processed successfully
-                                if (current.getStatus() == 300 || current.getStatus() == 305) {
-                                    nextStatus = 100;
-                                } else if (current.getStatus() == 301) { // To be deleted status becomes invalid 99
-                                    nextStatus = 101;
-                                } else if (current.getStatus() == 304) { // To be deleted status becomes invalid 99
-                                    nextStatus = 104;
-                                }
-                            } else if (command.getCommandResult() == 1) { // Processing failed
-                                nextStatus = 103;
-                            }
-
-                            SourceFileDetailEntity update = new SourceFileDetailEntity();
-                            update.setId(command.getTaskId());
-                            update.setStatus(nextStatus);
-                            update.setPreviousStatus(current.getStatus());
-                            fileDetailMapper.updateByPrimaryKeySelective(update);
-                        }
+                    } else if (result == 1) { // Processing failed
+                        nextStatus = EntityStatus.AGENT_FAILURE.getCode();
                     }
+
+                    SourceFileDetailEntity update = new SourceFileDetailEntity();
+                    update.setId(command.getTaskId());
+                    update.setStatus(nextStatus);
+                    update.setPreviousStatus(previousStatus);
+                    fileDetailMapper.updateByPrimaryKeySelective(update);
                 }
             }
         }
@@ -273,7 +273,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             }
         }
 
-        config.setAdditionalAttr(s.toString().substring(0, s.toString().length() - 1));
+        config.setAdditionalAttr(s.substring(0, s.toString().length() - 1));
     }
 
     @Override

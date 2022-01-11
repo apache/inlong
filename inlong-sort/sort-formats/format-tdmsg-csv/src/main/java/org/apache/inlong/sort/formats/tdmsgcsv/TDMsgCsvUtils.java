@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.tdmsgcsv;
 
-import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_INTERFACE_ID;
-import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_INTERFACE_NAME;
-import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_INTERFACE_TID;
+import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_STREAM_ID;
 import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_TIME_DT;
 import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_TIME_T;
 import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.getPredefinedFields;
@@ -59,19 +57,12 @@ public class TDMsgCsvUtils {
         Map<String, String> attributes = parseAttr(attr);
 
         // Extracts interface from the attributes.
-        String tid;
+        String streamId;
 
-        if (attributes.containsKey(TDMSG_ATTR_INTERFACE_NAME)) {
-            tid = attributes.get(TDMSG_ATTR_INTERFACE_NAME);
-        } else if (attributes.containsKey(TDMSG_ATTR_INTERFACE_ID)) {
-            tid = attributes.get(TDMSG_ATTR_INTERFACE_ID);
-        } else if (attributes.containsKey(TDMSG_ATTR_INTERFACE_TID)) {
-            tid = attributes.get(TDMSG_ATTR_INTERFACE_TID);
+        if (attributes.containsKey(TDMSG_ATTR_STREAM_ID)) {
+            streamId = attributes.get(TDMSG_ATTR_STREAM_ID);
         } else {
-            throw new IllegalArgumentException(
-                    "Could not find " + TDMSG_ATTR_INTERFACE_NAME
-                            + " or " + TDMSG_ATTR_INTERFACE_ID
-                            + " or " + TDMSG_ATTR_INTERFACE_TID + " in attributes!");
+            throw new IllegalArgumentException("Could not find " + TDMSG_ATTR_STREAM_ID + " in attributes!");
         }
 
         // Extracts time from the attributes
@@ -92,7 +83,7 @@ public class TDMsgCsvUtils {
         // Extracts predefined fields from the attributes
         List<String> predefinedFields = getPredefinedFields(attributes);
 
-        return new TDMsgHead(attributes, tid, time, predefinedFields);
+        return new TDMsgHead(attributes, streamId, time, predefinedFields);
     }
 
     public static TDMsgBody parseBody(

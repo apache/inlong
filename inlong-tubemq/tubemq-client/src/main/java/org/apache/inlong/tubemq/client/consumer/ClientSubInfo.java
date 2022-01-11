@@ -139,6 +139,15 @@ public class ClientSubInfo {
         this.subscribedTime = System.currentTimeMillis();
     }
 
+    /**
+     * Set Bound Consumption information
+     *
+     * @param sessionKey     consume session key
+     * @param sourceCount    the client count of consume group
+     * @param isSelectBig    whether select a bigger data If there is reset conflict
+     * @param partOffsetMap  the map of partitionKey and bootstrap offset
+     *
+     */
     public void setRequireBound(final String sessionKey,
                                 final int sourceCount,
                                 final boolean isSelectBig,

@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.flink.Record;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.tdmsg.AbstractTDMsgMixedFormatDeserializer;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgMixedFormatConverter;
@@ -39,6 +39,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgDeserializationInfo;
+import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.apache.inlong.sort.util.CommonUtils;
 
@@ -46,7 +47,7 @@ import org.apache.inlong.sort.util.CommonUtils;
  * A deserializer to handle mixed TDMsg records.
  */
 public class MultiTenancyTDMsgMixedDeserializer implements DataFlowInfoListener,
-        Deserializer<TDMsgSerializedRecord, Record> {
+        Deserializer<TDMsgMixedSerializedRecord, Record> {
 
     /**
      * Maps topic to mixed deserializer.
@@ -71,10 +72,17 @@ public class MultiTenancyTDMsgMixedDeserializer implements DataFlowInfoListener,
         final AbstractTDMsgMixedFormatDeserializer preDeserializer = allDeserializer.getLeft();
         final TDMsgMixedFormatConverter deserializer = allDeserializer.getRight();
 
-        // currently only tubeMQ source supports TDMsg format
-        final TubeSourceInfo tubeSourceInfo = (TubeSourceInfo) dataFlowInfo.getSourceInfo();
+        final String topic;
+        if (dataFlowInfo.getSourceInfo() instanceof TubeSourceInfo) {
+            topic = ((TubeSourceInfo) dataFlowInfo.getSourceInfo()).getTopic();
+        } else if (dataFlowInfo.getSourceInfo() instanceof PulsarSourceInfo) {
+            topic = ((PulsarSourceInfo) dataFlowInfo.getSourceInfo()).getTopic();
+        } else {
+            throw new UnsupportedOperationException("Unknown source type " + dataFlowInfo.getSourceInfo());
+        }
+
         final TDMsgMixedDeserializer mixedDeserializer = mixedDeserializerMap
-                .computeIfAbsent(tubeSourceInfo.getTopic(), topic -> new TDMsgMixedDeserializer());
+                 .computeIfAbsent(topic, key -> new TDMsgMixedDeserializer());
         mixedDeserializer.updateDataFlow(
                 dataFlowInfo.getId(), tdMsgDeserializationInfo.getTid(), preDeserializer, deserializer);
     }
@@ -102,7 +110,7 @@ public class MultiTenancyTDMsgMixedDeserializer implements DataFlowInfoListener,
         return deserializationInfo instanceof TDMsgDeserializationInfo;
     }
 
-    public void deserialize(TDMsgSerializedRecord record, Collector<Record> collector) throws Exception {
+    public void deserialize(TDMsgMixedSerializedRecord record, Collector<Record> collector) throws Exception {
         final String topic = record.getTopic();
         final TDMsgMixedDeserializer mixedDeserializer = mixedDeserializerMap.get(topic);
         if (mixedDeserializer == null) {

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.tdmsgcsv;
 
 import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.TDMSG_ATTR_STREAM_ID;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
@@ -98,7 +99,7 @@ public class TDMsgCsvFormatDeserializerTest {
                 new TDMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12,field13";
         String body2 = "123,field21,field22,field23";
         tdMsg1.addMsg(attrs, body1.getBytes());
@@ -106,7 +107,7 @@ public class TDMsgCsvFormatDeserializerTest {
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
@@ -147,7 +148,7 @@ public class TDMsgCsvFormatDeserializerTest {
                 new TDMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12,";
         String body2 = "123,field21,,field23";
         tdMsg1.addMsg(attrs, body1.getBytes());
@@ -155,7 +156,7 @@ public class TDMsgCsvFormatDeserializerTest {
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
@@ -196,7 +197,7 @@ public class TDMsgCsvFormatDeserializerTest {
                 new TDMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
         String body1 = "1,2,123,field11,field12,";
         String body2 = "1,2,123,field21,,field23";
         tdMsg1.addMsg(attrs, body1.getBytes());
@@ -204,7 +205,7 @@ public class TDMsgCsvFormatDeserializerTest {
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
         Row expectedRow1 = Row.of(
@@ -281,7 +282,7 @@ public class TDMsgCsvFormatDeserializerTest {
                 );
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "aaa,field11,field12,field13";
         String body2 = "123,field21,field22,field23";
         tdMsg1.addMsg(attrs, body1.getBytes());
@@ -289,7 +290,7 @@ public class TDMsgCsvFormatDeserializerTest {
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
@@ -329,14 +330,14 @@ public class TDMsgCsvFormatDeserializerTest {
                 );
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
         String body = ",1,2,3,field1,field2,field3";
 
         tdMsg1.addMsg(attrs, body.getBytes());
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
         Row expectedRow = Row.of(
@@ -374,14 +375,14 @@ public class TDMsgCsvFormatDeserializerTest {
                 );
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
         String body = ",1,2,field1,field2,field3";
 
         tdMsg1.addMsg(attrs, body.getBytes());
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
         Row expectedRow = Row.of(
@@ -408,7 +409,7 @@ public class TDMsgCsvFormatDeserializerTest {
                 new TDMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12";
         String body2 = "123,field21,field22,field23,field24";
         tdMsg1.addMsg(attrs, body1.getBytes());
@@ -416,7 +417,7 @@ public class TDMsgCsvFormatDeserializerTest {
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
@@ -456,14 +457,14 @@ public class TDMsgCsvFormatDeserializerTest {
                 new TDMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        String attrs = "m=0&iname=testInterfaceId&t=20200322&__addcol1__=1&"
+        String attrs = "m=0&" + TDMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&"
                + "__addcol2__=2&__addcol3__=3&__addcol4__=4&__addcol5__=5&__addcol6__=6&__addcol7__=7";
         String body = "field11,field12";
         tdMsg1.addMsg(attrs, body.getBytes());
 
         Map<String, String> expectedAttributes = new HashMap<>();
         expectedAttributes.put("m", "0");
-        expectedAttributes.put("iname", "testInterfaceId");
+        expectedAttributes.put(TDMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");

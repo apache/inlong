@@ -18,8 +18,8 @@
 package org.apache.inlong.tubemq.server.broker.utils;
 
 import java.nio.ByteBuffer;
+import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 /***
  * DataStoreUtils test.
@@ -34,6 +34,6 @@ public class DataStoreUtilsTest {
         int offset = 0;
         int val = DataStoreUtils.getInt(offset, data);
         // get int by DataStoreUtils
-        Assert.isTrue(val == 123);
+        Assert.assertEquals(val, 123);
     }
 }

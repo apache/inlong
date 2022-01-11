@@ -20,11 +20,8 @@ package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.LONG_TYPE_INFO;
 import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.STRING_TYPE_INFO;
-import static org.apache.flink.runtime.net.ConnectionUtils.findConnectingAddress;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.TimeUtils.parseDuration;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,6 +42,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
+import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
@@ -210,24 +208,12 @@ public class TubemqSourceFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-
-        String firstAddress = masterAddress.split(SPLIT_COMMA)[0];
-        String[] firstAddressSegments = firstAddress.split(SPLIT_COLON);
-        String firstHost = firstAddressSegments[0];
-        int firstPort = Integer.parseInt(firstAddressSegments[1]);
-        InetSocketAddress firstSocketAddress =
-            new InetSocketAddress(firstHost, firstPort);
-
-        InetAddress localAddress =
-            findConnectingAddress(firstSocketAddress, 2000, 400);
-        String localhost = localAddress.getHostAddress();
-
         ConsumerConfig consumerConfig =
-            new ConsumerConfig(localhost, masterAddress, consumerGroup);
-        consumerConfig
-            .setConsumeModel(consumeFromMax ? 1 : 0);
-        consumerConfig
-            .setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
+            new ConsumerConfig(masterAddress, consumerGroup);
+        consumerConfig.setConsumePosition(consumeFromMax
+                ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
+                : ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
+        consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
 
         final int numTasks = getRuntimeContext().getNumberOfParallelSubtasks();
 

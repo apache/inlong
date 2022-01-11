@@ -34,7 +34,7 @@ function help() {
 function running(){
 	if [ -f "$PID_FILE" ]; then
 		pid=$(cat "$PID_FILE")
-		process=`ps aux | grep "$pid" | grep -v grep`;
+		process=$("$JPS" | grep "$pid" | grep -v grep)
 		if [ "$process" == "" ]; then
 	    	return 1;
 		else

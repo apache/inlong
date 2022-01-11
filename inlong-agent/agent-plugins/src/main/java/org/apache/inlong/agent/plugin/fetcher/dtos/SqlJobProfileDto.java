@@ -34,7 +34,7 @@ public class SqlJobProfileDto {
 
     public static final String SQL_JOB = "SQL_JOB";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
-    public static final String DEFAULT_BUS_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
     @Data
@@ -53,17 +53,10 @@ public class SqlJobProfileDto {
     public static class Job {
 
         private int id;
-        //private Thread thread;
         private String name;
         private String source;
         private String sink;
         private String channel;
-        //private String pattern;
-        //private String op;
-        //private String cycleUnit;
-        //private String timeOffset;
-        //private String deliveryTime;
-        //private String addictiveString;
         private String ip;
         private Integer port;
         private String dbName;
@@ -96,17 +89,8 @@ public class SqlJobProfileDto {
         job.setId(Integer.parseInt(task.getId()));
         job.setName(SQL_JOB);
         job.setSource(DEFAULT_SOURCE);
-        job.setSink(DEFAULT_BUS_SINK);
+        job.setSink(DEFAULT_DATAPROXY_SINK);
         job.setChannel(DEFAULT_CHANNEL);
-        //job.setTimeOffset(dataConfigs.getTimeOffset());
-        //job.setOp(dataConfigs.getOp());
-        //job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        //if (!dataConfigs.getAdditionalAttr().isEmpty()) {
-        //    job.setAddictiveString(dataConfigs.getAdditionalAttr());
-        //}
-        //if (dataConfigs.getCycleUnit() != null) {
-        //    job.setCycleUnit(dataConfigs.getCycleUnit());
-        //}
         job.setIp(task.getIp());
         job.setPort(task.getPort());
         job.setDbName(task.getDbName());

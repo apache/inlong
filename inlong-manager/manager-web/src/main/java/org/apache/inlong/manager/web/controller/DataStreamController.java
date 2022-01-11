@@ -120,12 +120,12 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data stream information")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inlongGroupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
+    public Response<Boolean> delete(@RequestParam String inlongGroupId, @RequestParam String streamId) {
         String username = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(dataStreamService.delete(groupId, streamId, username));
+        return Response.success(dataStreamService.delete(inlongGroupId, streamId, username));
     }
 
     @RequestMapping(value = "/getSummaryList/{groupId}", method = RequestMethod.GET)

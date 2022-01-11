@@ -49,6 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -87,7 +88,7 @@ public class ProxySink extends AbstractSink {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private volatile boolean shutdown = false;
-
+    private static AtomicLong index = new AtomicLong(0);
     // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
     private long dataTime;
@@ -96,16 +97,19 @@ public class ProxySink extends AbstractSink {
 
     public ProxySink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sinkMetrics = new SinkPrometheusMetrics(PROXY_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         } else {
-            this.sinkMetrics = new SinkJmxMetric(PROXY_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                PROXY_SINK_TAG_NAME, index.incrementAndGet()));
         }
     }
 
     @Override
     public void write(Message message) {
         if (message != null) {
-            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongStreamId);
+            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
+            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
             extractStreamFromMessage(message, fieldSplitter);
             if (!(message instanceof EndMessage)) {
                 ProxyMessage proxyMessage = ProxyMessage.parse(message);
@@ -157,16 +161,16 @@ public class ProxySink extends AbstractSink {
      */
     private Runnable flushCache() {
         return () -> {
-            LOGGER.info("start flush cache thread for {} ProxySink", inlongStreamId);
+            LOGGER.info("start flush cache thread for {} ProxySink", inlongGroupId);
             while (!shutdown) {
                 try {
                     cache.forEach((s, packProxyMessage) -> {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
-                            senderManager.sendBatch(jobInstanceId, inlongStreamId, result.getKey(),
+                            senderManager.sendBatch(jobInstanceId, inlongGroupId, result.getKey(),
                                     result.getValue(), 0, dataTime);
                             LOGGER.info("send group id {} with message size {}, the job id is {}, read file is {}"
-                                    + "dataTime is {}", inlongStreamId, result.getRight().size(),
+                                    + "dataTime is {}", inlongGroupId, result.getRight().size(),
                                 jobInstanceId, sourceFile, dataTime);
                         }
 
@@ -190,7 +194,6 @@ public class ProxySink extends AbstractSink {
         batchFlushInterval = jobConf.getInt(PROXY_BATCH_FLUSH_INTERVAL,
             DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
         cache = new ConcurrentHashMap<>(10);
-        inlongStreamId = jobConf.get(PROXY_INLONG_GROUP_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
             jobConf.get(JOB_CYCLE_UNIT, ""));
         inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
@@ -199,11 +202,11 @@ public class ProxySink extends AbstractSink {
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
             StandardCharsets.UTF_8);
         executorService.execute(flushCache());
-        senderManager = new SenderManager(jobConf, inlongStreamId, sourceFile);
+        senderManager = new SenderManager(jobConf, inlongGroupId, sourceFile);
         try {
             senderManager.addMessageSender();
         } catch (Exception ex) {
-            LOGGER.error("error while init sender for group id {}", inlongStreamId);
+            LOGGER.error("error while init sender for group id {}", inlongGroupId);
             throw new IllegalStateException(ex);
         }
     }

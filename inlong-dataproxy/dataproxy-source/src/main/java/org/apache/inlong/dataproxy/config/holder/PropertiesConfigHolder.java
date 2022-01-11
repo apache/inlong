@@ -99,7 +99,6 @@ public class PropertiesConfigHolder extends ConfigHolder {
             if (sourceFile.exists()) {
                 FileUtils.copyFile(sourceFile, targetFile);
             }
-
             List<String> lines = getStringListFromHolder(tmpHolder);
             FileUtils.writeLines(tmpNewFile, lines);
 

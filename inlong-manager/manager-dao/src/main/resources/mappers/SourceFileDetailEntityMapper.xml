@@ -372,6 +372,20 @@
           and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
+    <update id="updateStatusAfterApprove">
+        update source_file_detail
+        <set>
+            status = #{status, jdbcType=INTEGER},
+            modifier = #{modifier, jdbcType=VARCHAR}
+        </set>
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+        </where>
+    </update>
 
     <select id="selectFileAgentTaskByIp" resultMap="FileAgentTask">
         select detail.inlong_group_id,
@@ -395,7 +409,7 @@
              data_stream stream
         where detail.ip = #{ip,jdbcType=VARCHAR}
           and detail.is_deleted = 0
-          and (floor(detail.STATUS / 100) = 2 OR floor(detail.STATUS / 100) = 3)
+          and (floor(detail.STATUS / 100) = 2)
           and basic.inlong_group_id = detail.inlong_group_id
           and basic.inlong_stream_id = detail.inlong_stream_id
           and biz.inlong_group_id = detail.inlong_group_id

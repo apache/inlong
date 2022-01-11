@@ -81,9 +81,8 @@ public class BusinessServiceImpl implements BusinessService {
         String bizName = businessInfo.getName();
         Preconditions.checkNotNull(bizName, "business name is empty");
 
-        String topic = bizName.toLowerCase(Locale.ROOT);
-        // groupId=b_topic, cannot update
-        String groupId = "b_" + topic;
+        // groupId=b_bizName, cannot update
+        String groupId = "b_" + bizName.toLowerCase(Locale.ROOT);
         Integer count = businessMapper.selectIdentifierExist(groupId);
         if (count >= 1) {
             LOGGER.error("groupId [{}] has already exists", groupId);
@@ -93,7 +92,7 @@ public class BusinessServiceImpl implements BusinessService {
         // Processing business and extended information
         BusinessEntity entity = CommonBeanUtils.copyProperties(businessInfo, BusinessEntity::new);
         entity.setInlongGroupId(groupId);
-        entity.setMqResourceObj(topic);
+        entity.setMqResourceObj(groupId);
 
         // Only M0 is currently supported
         entity.setSchemaName(BizConstant.SCHEMA_M0_DAY);
@@ -237,6 +236,7 @@ public class BusinessServiceImpl implements BusinessService {
                         "Pulsar params must meet: ackQuorum <= writeQuorum");
             }
             BusinessPulsarEntity pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, BusinessPulsarEntity::new);
+            pulsarEntity.setInlongGroupId(groupId);
             businessPulsarMapper.updateByIdentifierSelective(pulsarEntity);
         }
 

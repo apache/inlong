@@ -565,7 +565,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Override
     public int selectCountByGroupId(String groupId) {
-        LOGGER.debug("begin bo get count by groupId={}", groupId);
+        LOGGER.debug("begin to get count by groupId={}", groupId);
         if (StringUtils.isEmpty(groupId)) {
             return 0;
         }
@@ -620,7 +620,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         // businessMapper.updateStatusByIdentifier(groupId, status, operator);
         streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);
 
-        LOGGER.info("success to update stream after approve for groupId={}", groupId);
+        LOGGER.info("success to update stream after approve for groupId=" + groupId + ", streamId=" + streamId);
         return true;
     }
 
