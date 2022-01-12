@@ -44,4 +44,11 @@ public abstract class ClientContext implements Cleanable {
         return statManager;
     }
 
+    public void acquireRequestPermit() throws InterruptedException {
+        config.getGlobalInProgressRequest().acquireUninterruptibly();
+    }
+
+    public void releaseRequestPermit() {
+        config.getGlobalInProgressRequest().release();
+    }
 }

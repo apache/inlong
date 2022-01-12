@@ -15,14 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.api;
+package org.apache.inlong.sdk.sort.entity;
 
-import java.util.List;
-import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import java.util.Map;
 
-public interface ReadCallback {
+public class InLongMessage {
 
-    void onFinished(MessageRecord messageRecord);
+    private final Map<String, String> msgHeader;
+    private byte[] data;
 
-    void onFinishedBatch(List<MessageRecord> messageRecord);
+    public InLongMessage(byte[] data, Map<String, String> msgHeader) {
+        this.data = data;
+        this.msgHeader = msgHeader;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public Map<String, String> getMsgHeader() {
+        return msgHeader;
+    }
 }

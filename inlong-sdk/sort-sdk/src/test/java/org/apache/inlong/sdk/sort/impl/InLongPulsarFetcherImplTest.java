@@ -29,6 +29,7 @@ import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.apache.pulsar.client.api.Consumer;
