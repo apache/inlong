@@ -208,8 +208,9 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 if (consumer != null) {
                     consumer.close();
                 }
-
-                fetchThread.interrupt();
+                if (fetchThread != null) {
+                    fetchThread.interrupt();
+                }
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
