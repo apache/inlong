@@ -68,7 +68,6 @@ import com.google.common.base.Splitter;
  *
  */
 public class ServerMessageHandler extends SimpleChannelHandler {
-
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
 
     private static final String DEFAULT_REMOTE_IP_VALUE = "0.0.0.0";
