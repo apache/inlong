@@ -23,7 +23,7 @@
         <format>dir</format>
         <format>tar.gz</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <directory>target</directory>
@@ -37,6 +37,11 @@
             <directory>bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>sql</directory>
+            <outputDirectory>sql</outputDirectory>
+            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
             <directory>conf</directory>

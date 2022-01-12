@@ -143,10 +143,10 @@ public class PulsarOptServiceImpl implements PulsarOptService {
 
         try {
             String queueModule = topicBean.getQueueModule();
-            // create non-partition topic
+            // create partition topic
             if (BizConstant.PULSAR_TOPIC_TYPE_SERIAL.equalsIgnoreCase(queueModule)) {
-                pulsarAdmin.topics().createNonPartitionedTopic(topicFullName);
-            } else { // create partition topic
+                pulsarAdmin.topics().createPartitionedTopic(topicFullName, 1);
+            } else {
                 List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
                 // The number of brokers as the default value of topic partition
                 List<String> brokers = pulsarAdmin.brokers().getActiveBrokers(clusters.get(0));

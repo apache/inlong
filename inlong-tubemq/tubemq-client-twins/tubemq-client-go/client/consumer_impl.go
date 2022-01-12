@@ -249,21 +249,21 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 		}
 		return nil, err
 	}
-	cs := &ConsumerResult{
+	cr := &ConsumerResult{
 		TopicName:      partition.GetTopic(),
 		ConfirmContext: confirmContext,
 		PeerInfo:       pi,
 	}
 	msgs, err := c.processGetMessageRspB2C(pi, isFiltered, partition, confirmContext, rsp)
 	if err != nil {
-		return cs, err
+		return cr, err
 	}
-	cs.Messages = msgs
-	return cs, err
+	cr.Messages = msgs
+	return cr, err
 }
 
 // Confirm implementation of TubeMQ consumer.
-func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResult, error) {
+func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConfirmResult, error) {
 	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
 	if err != nil {
 		return nil, errs.New(errs.RetBadRequest, "illegel confirm_context content: unregular confirm_context value format")
@@ -294,15 +294,16 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConsumerResul
 		CurrOffset:   rsp.GetCurrOffset(),
 		MaxOffset:    rsp.GetMaxOffset(),
 	}
-	cs := &ConsumerResult{
-		TopicName: partition.GetTopic(),
-		PeerInfo:  pi,
+	cr := &ConfirmResult{
+		ConfirmContext: confirmContext,
+		TopicName:      partition.GetTopic(),
+		PeerInfo:       pi,
 	}
 	if !rsp.GetSuccess() {
-		return cs, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+		return cr, errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	}
 	c.rmtDataCache.BookPartitionInfo(partitionKey, rsp.GetCurrOffset(), rsp.GetMaxOffset())
-	return cs, err
+	return cr, err
 }
 
 func (c *consumer) sendConfirmReq2Broker(partition *metadata.Partition, consumed bool) (*protocol.CommitOffsetResponseB2C, error) {

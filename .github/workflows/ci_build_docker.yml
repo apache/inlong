@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: InLong Unit Test
+name: InLong Docker Build
 
 on:
   push:
@@ -24,8 +24,8 @@ on:
     branches: [ master, 'INLONG-*' ]
 
 jobs:
-  unit-test:
-    name: Unit Test
+  build:
+    name: Docker Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,30 +46,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean verify
+      - name: Build docker image
+        run: mvn --batch-mode --update-snapshots -e -V clean verify -DskipTests -Pdocker
         env:
           CI: false
-
-      - name: Upload unit test results
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: surefire-reports
-          path: ./**/target/surefire-reports/
-          if-no-files-found: ignore
-
-      - name: Upload integration test results
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: failsafe-reports
-          path: ./**/target/failsafe-reports/
-          if-no-files-found: ignore
-
-      - name: Upload coverage to Codecov
-        if: ${{ success() }}
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true

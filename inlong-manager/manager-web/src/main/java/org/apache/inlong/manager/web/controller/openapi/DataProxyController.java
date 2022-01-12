@@ -45,6 +45,12 @@ public class DataProxyController {
 
     @PostMapping("/getIpList")
     @ApiOperation(value = "get data proxy ip list")
+    public Response<List<DataProxyIpResponse>> postIpList(@RequestBody DataProxyIpRequest request) {
+        return Response.success(dataProxyClusterService.getIpList(request));
+    }
+
+    @GetMapping("/getIpList")
+    @ApiOperation(value = "get data proxy ip list")
     public Response<List<DataProxyIpResponse>> getIpList(@RequestBody DataProxyIpRequest request) {
         return Response.success(dataProxyClusterService.getIpList(request));
     }

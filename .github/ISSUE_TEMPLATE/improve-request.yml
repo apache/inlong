@@ -46,6 +46,7 @@ body:
         - 'InLong DataProxy-SDK'
         - 'InLong TubeMQ'
         - 'InLong Sort'
+        - 'InLong Audit'
         - 'Other for not specified component'
     validations:
       required: true

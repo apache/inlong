@@ -21,11 +21,11 @@ FROM gcc:5.4.0 as protobuf
 RUN apt-get update && apt-get install -y unzip \
     && rm -rf /var/lib/apt/lists/
 ARG PROTOBUF_VERSION=2.5.0
-RUN wget -O "/tmp/protobuf-${PROTOBUF_VERSION}.zip" "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.zip" \
-    && unzip "/tmp/protobuf-${PROTOBUF_VERSION}.zip" -d "/opt/" \
+RUN curl -LOk "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.zip" \
+    && unzip "protobuf-${PROTOBUF_VERSION}.zip" -d "/opt/" \
     && cd /opt/protobuf-${PROTOBUF_VERSION} \
     && ./configure --prefix=/usr && make && make DESTDIR=/protobuf/ install \
-    && rm -f "/tmp/protobuf-${PROTOBUF_VERSION}.zip"
+    && rm -f "protobuf-${PROTOBUF_VERSION}.zip"
 # for building tubemq
 FROM maven:3-openjdk-8
 WORKDIR /tubemq/

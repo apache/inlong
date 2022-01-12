@@ -72,7 +72,7 @@ import org.apache.inlong.agent.db.CommandEntity;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.fetcher.dtos.CmdConfig;
 import org.apache.inlong.agent.plugin.fetcher.dtos.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequsetDto;
+import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequestDto;
 import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
 import org.apache.inlong.agent.plugin.fetcher.enums.ManagerOpEnum;
 import org.apache.inlong.agent.plugin.utils.HttpManager;
@@ -197,9 +197,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * @return
      * @param unackedCommands
      */
-    public TaskRequsetDto getFetchRequest(
+    public TaskRequestDto getFetchRequest(
         List<CommandEntity> unackedCommands) {
-        TaskRequsetDto requset = new TaskRequsetDto();
+        TaskRequestDto requset = new TaskRequestDto();
         requset.setAgentIp(localIp);
         requset.setCommandInfo(unackedCommands);
         return requset;

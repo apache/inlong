@@ -16,4 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-topic=persistent://public/default/audit-test
+FROM openjdk:8-jdk
+# add tarball from target output
+ARG AUDIT_SOURCE_TARBALL
+ADD ${AUDIT_SOURCE_TARBALL} /opt/inlong-audit-source
+EXPOSE 46801
+ENV PULSAR_BROKER_LIST=127.0.0.1:6650
+ENV PULSAR_TOPIC=public/default/audit
+WORKDIR /opt/inlong-audit-source
+ADD audit-souce-docker.sh bin/
+RUN chmod +x bin/audit-souce-docker.sh
+CMD ["bin/audit-souce-docker.sh"]

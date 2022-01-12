@@ -44,6 +44,7 @@ public class SortClientConfig implements Serializable {
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 10;
     private volatile boolean stopConsume = false;
+    private boolean isPrometheusEnabled = true;
 
     public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
             ConsumeStrategy consumeStrategy, String localIp) {
@@ -226,6 +227,14 @@ public class SortClientConfig implements Serializable {
 
     public void setManagerApiVersion(String managerApiVersion) {
         this.managerApiVersion = managerApiVersion;
+    }
+
+    public boolean isPrometheusEnabled() {
+        return isPrometheusEnabled;
+    }
+
+    public void setPrometheusEnabled(boolean prometheusEnabled) {
+        isPrometheusEnabled = prometheusEnabled;
     }
 
     /**

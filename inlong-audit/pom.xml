@@ -34,7 +34,6 @@
 
     <modules>
         <module>audit-source</module>
-        <module>audit-dist</module>
         <module>audit-docker</module>
         <module>audit-store</module>
         <module>audit-common</module>

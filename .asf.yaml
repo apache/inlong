@@ -19,13 +19,13 @@
 # of the project and make sure to discuss the changes with dev@ before committing.
 
 github:
-  description: "Apache InLong - a one-stop data ingestion platform"
+  description: "Apache InLong - a one-stop data integration framework"
   homepage: https://inlong.apache.org/
   labels:
     - inlong
     - one-stop-service
-    - data-ingestion
-    - messaging
+    - data-integration
+    - framework
     - data-streaming
     - event-streaming
   features:
@@ -45,8 +45,8 @@ github:
 
 notifications:
   commits:      commits@inlong.apache.org
-  issues:       commits@inlong.apache.org
+  issues:       dev@inlong.apache.org
   pullrequests_status: commits@inlong.apache.org
   pullrequests_comment: commits@inlong.apache.org
-  issues_status: commits@inlong.apache.org
+  issues_status: dev@inlong.apache.org
   issues_comment: commits@inlong.apache.org
