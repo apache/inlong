@@ -330,13 +330,7 @@
 
             <dependency>
                 <groupId>org.apache.pulsar</groupId>
-                <artifactId>pulsar-client-admin</artifactId>
-                <version>${pulsar.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pulsar</groupId>
-                <artifactId>pulsar-client</artifactId>
+                <artifactId>pulsar-client-all</artifactId>
                 <version>${pulsar.version}</version>
             </dependency>
 
