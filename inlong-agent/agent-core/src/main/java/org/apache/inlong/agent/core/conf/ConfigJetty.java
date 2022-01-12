@@ -79,7 +79,7 @@ public class ConfigJetty implements Closeable {
                 triggerManager.submitTrigger(
                     TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
             } else {
-                jobManager.submitJobProfile(jobProfile);
+                jobManager.submitFileJobProfile(jobProfile);
             }
         }
     }

@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/openapi/agent")
+@RequestMapping("/openapi")
 @Api(tags = "Agent Config")
 public class AgentController {
 

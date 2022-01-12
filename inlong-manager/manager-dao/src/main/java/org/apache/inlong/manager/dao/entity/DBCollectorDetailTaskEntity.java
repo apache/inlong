@@ -15,29 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class TaskResult {
+public class DBCollectorDetailTaskEntity implements Serializable {
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
-
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
-    }
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private Integer mainId;
+    private Integer type;
+    private String timeVar;
+    private Integer dbType;
+    private String ip;
+    private Integer port;
+    private String dbName;
+    private String user;
+    private String password;
+    private String sqlStatement;
+    private Integer offset;
+    private Integer totalLimit;
+    private Integer onceLimit;
+    private Integer timeLimit;
+    private Integer retryTimes;
+    private String groupId;
+    private String streamId;
+    private Integer state;
+    private Date createTime;
+    private Date modifyTime;
 }

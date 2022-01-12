@@ -17,33 +17,25 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.conf.JobProfile;
+
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
 @Data
-public class JobProfileDto {
+public class SqlJobProfileDto {
 
     private static final Gson GSON = new Gson();
     private Job job;
     private Proxy proxy;
 
-    public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
+    public static final String SQL_JOB = "SQL_JOB";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
-    public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
-
-    @Data
-    public static class Dir {
-
-        private String path;
-        private String pattern;
-    }
 
     @Data
     public static class Running {
@@ -60,20 +52,21 @@ public class JobProfileDto {
     @Data
     public static class Job {
 
-        private Dir dir;
-        private String trigger;
         private int id;
-        private Thread thread;
         private String name;
         private String source;
         private String sink;
         private String channel;
-        private String pattern;
-        private String op;
-        private String cycleUnit;
-        private String timeOffset;
-        private String deliveryTime;
-        private String addictiveString;
+        private String ip;
+        private Integer port;
+        private String dbName;
+        private String user;
+        private String password;
+        private String sqlStatement;
+        private Integer totalLimit;
+        private Integer onceLimit;
+        private Integer timeLimit;
+        private Integer retryTimes;
     }
 
     @Data
@@ -91,50 +84,48 @@ public class JobProfileDto {
         private Manager manager;
     }
 
-    private static Job getJob(DataConfig dataConfigs) {
+    private static Job getJob(DbCollectorTask task) {
         Job job = new Job();
-        Dir dir = new Dir();
-        dir.setPattern(dataConfigs.getDataName());
-        job.setDir(dir);
-        job.setTrigger(DEFAULT_TRIGGER);
-        job.setChannel(DEFAULT_CHANNEL);
-        job.setName(MANAGER_JOB);
+        job.setId(Integer.parseInt(task.getId()));
+        job.setName(SQL_JOB);
         job.setSource(DEFAULT_SOURCE);
         job.setSink(DEFAULT_DATAPROXY_SINK);
-        job.setId(dataConfigs.getTaskId());
-        job.setTimeOffset(dataConfigs.getTimeOffset());
-        job.setOp(dataConfigs.getOp());
-        job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
-            job.setAddictiveString(dataConfigs.getAdditionalAttr());
-        }
-        if (dataConfigs.getCycleUnit() != null) {
-            job.setCycleUnit(dataConfigs.getCycleUnit());
-        }
+        job.setChannel(DEFAULT_CHANNEL);
+        job.setIp(task.getIp());
+        job.setPort(task.getPort());
+        job.setDbName(task.getDbName());
+        job.setUser(task.getUser());
+        job.setPassword(task.getPassword());
+        job.setSqlStatement(task.getSqlStatement());
+        job.setTotalLimit(task.getTotalLimit());
+        job.setOnceLimit(task.getOnceLimit());
+        job.setTimeLimit(task.getTimeLimit());
+        job.setRetryTimes(task.getRetryTimes());
+
         return job;
     }
 
-    private static Proxy getProxy(DataConfig dataConfigs) {
+    private static Proxy getProxy(DbCollectorTask task) {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
         manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
         manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
-        proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
-        proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
+        proxy.setInlongGroupId(task.getInlongGroupId());
+        proxy.setInlongStreamId(task.getInlongStreamId());
         proxy.setManager(manager);
         return proxy;
     }
 
-    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
-        if (!dataConfigs.isValid()) {
-            throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
+    public static JobProfile convertToJobProfile(DbCollectorTask task) {
+        if (!task.isValid()) {
+            throw new IllegalArgumentException("input task" + task + "is invalid please check");
         }
-        JobProfileDto profileDto = new JobProfileDto();
-        Proxy proxy = getProxy(dataConfigs);
-        Job job = getJob(dataConfigs);
+        SqlJobProfileDto profileDto = new SqlJobProfileDto();
+        Proxy proxy = getProxy(task);
+        Job job = getJob(task);
         profileDto.setProxy(proxy);
         profileDto.setJob(job);
-        return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
+        return JobProfile.parseJsonStr(GSON.toJson(profileDto));
     }
 }

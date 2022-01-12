@@ -17,21 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -44,6 +29,23 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constants.JobConstants.SQL_JOB_ID;
+import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
 
 /**
  * JobManager maintains lots of jobs, and communicate between server and task manager.
@@ -64,7 +66,7 @@ public class JobManager extends AbstractDaemon {
     private final long jobDbCacheCheckInterval;
 
     // job profile db is only used to recover instance which is not finished running.
-    private final JobProfileDb jobConfDB;
+    private final JobProfileDb jobProfileDb;
     private final JobMetrics jobMetrics;
     private final AtomicLong index = new AtomicLong(0);
 
@@ -73,21 +75,21 @@ public class JobManager extends AbstractDaemon {
      *
      * @param agentManager - agent manager
      */
-    public JobManager(AgentManager agentManager, JobProfileDb jobConfDb) {
-        this.jobConfDB = jobConfDb;
+    public JobManager(AgentManager agentManager, JobProfileDb jobProfileDb) {
+        this.jobProfileDb = jobProfileDb;
         this.agentManager = agentManager;
         // job thread pool for running
         this.runningPool = new ThreadPoolExecutor(
-            0, Integer.MAX_VALUE,
-            60L, TimeUnit.SECONDS,
-            new SynchronousQueue<>(),
-            new AgentThreadFactory("job"));
+                0, Integer.MAX_VALUE,
+                60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new AgentThreadFactory("job"));
         this.jobs = new ConcurrentHashMap<>();
         this.pendingJobs = new ConcurrentHashMap<>();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         this.monitorInterval = conf
                 .getInt(
-                    AgentConstants.JOB_MONITOR_INTERVAL, AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
+                        AgentConstants.JOB_MONITOR_INTERVAL, AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
         this.jobDbCacheTime = conf.getLong(JOB_DB_CACHE_TIME, DEFAULT_JOB_DB_CACHE_TIME);
         this.jobDbCacheCheckInterval = conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
 
@@ -103,14 +105,14 @@ public class JobManager extends AbstractDaemon {
      *
      * @param job - job
      */
-    public void addJob(Job job) {
+    private void addJob(Job job) {
         try {
             JobWrapper jobWrapper = new JobWrapper(agentManager, job);
             this.runningPool.execute(jobWrapper);
             JobWrapper jobWrapperRet = jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
             if (jobWrapperRet != null) {
                 LOGGER.warn("{} has been added to running pool, "
-                    + "cannot be added repeatedly", job.getJobInstanceId());
+                        + "cannot be added repeatedly", job.getJobInstanceId());
             } else {
                 jobMetrics.incRunningJobCount();
             }
@@ -121,13 +123,14 @@ public class JobManager extends AbstractDaemon {
     }
 
     /**
-     * add job profile
+     * add file job profile
+     *
      * @param profile - job profile.
      */
-    public boolean submitJobProfile(JobProfile profile) {
+    public boolean submitFileJobProfile(JobProfile profile) {
         if (profile == null || !profile.allRequiredKeyExist()) {
             LOGGER.error("profile is null or not all required key exists {}", profile == null ? null
-                : profile.toJsonStr());
+                    : profile.toJsonStr());
             return false;
         }
         String jobId = profile.get(JOB_ID);
@@ -139,7 +142,26 @@ public class JobManager extends AbstractDaemon {
     }
 
     /**
+     * add sql job profile
+     *
+     * @param profile - job profile.
+     */
+    public boolean submitSqlJobProfile(JobProfile profile) {
+        if (profile == null || !profile.allRequiredKeyExist()) {
+            LOGGER.error("profile is null or not all required key exists {}", profile == null ? null
+                    : profile.toJsonStr());
+            return false;
+        }
+        profile.set(JOB_INSTANCE_ID, SQL_JOB_ID);
+        LOGGER.info("submit job profile {}", profile.toJsonStr());
+        getJobConfDb().storeJobFirstTime(profile);
+        addJob(new Job(profile));
+        return true;
+    }
+
+    /**
      * delete job profile and stop job thread
+     *
      * @param jobInstancId
      */
     public void deleteJob(String jobInstancId) {
@@ -183,16 +205,21 @@ public class JobManager extends AbstractDaemon {
 
     /**
      * check local db and delete old tasks.
+     *
      * @return
      */
     public Runnable dbStorageCheckThread() {
         return () -> {
             while (isRunnable()) {
                 try {
-                    jobConfDB.removeExpireJobs(jobDbCacheTime);
+                    jobProfileDb.removeExpireJobs(jobDbCacheTime);
+                } catch (Exception ex) {
+                    LOGGER.error("removeExpireJobs error caught", ex);
+                }
+                try {
                     TimeUnit.SECONDS.sleep(jobDbCacheCheckInterval);
                 } catch (Exception ex) {
-                    LOGGER.error("error caught", ex);
+                    LOGGER.error("sleep error caught", ex);
                 }
             }
         };
@@ -200,6 +227,7 @@ public class JobManager extends AbstractDaemon {
 
     /**
      * mark job as success by job id.
+     *
      * @param jobId - job id
      */
     public void markJobAsSuccess(String jobId) {
@@ -208,7 +236,7 @@ public class JobManager extends AbstractDaemon {
             jobMetrics.decRunningJobCount();
             LOGGER.info("job instance {} is success", jobId);
             // mark job as success.
-            jobConfDB.updateJobState(jobId, StateSearchKey.SUCCESS);
+            jobProfileDb.updateJobState(jobId, StateSearchKey.SUCCESS);
         }
     }
 
@@ -219,20 +247,30 @@ public class JobManager extends AbstractDaemon {
             jobMetrics.decRunningJobCount();
             jobMetrics.incFatalJobCount();
             // mark job as success.
-            jobConfDB.updateJobState(jobId, StateSearchKey.FAILED);
+            jobProfileDb.updateJobState(jobId, StateSearchKey.FAILED);
         }
     }
 
     public JobProfileDb getJobConfDb() {
-        return jobConfDB;
+        return jobProfileDb;
     }
 
     /**
      * check job existence using job file name
+     *
      * @return
      */
     public boolean checkJobExsit(String fileName) {
-        return jobConfDB.getJob(fileName) != null;
+        return jobProfileDb.getJobByFileName(fileName) != null;
+    }
+
+    /**
+     * get sql job existence
+     *
+     * @return
+     */
+    public boolean sqlJobExsit() {
+        return jobProfileDb.getJobById(SQL_JOB_ID) != null;
     }
 
     public Map<String, JobWrapper> getJobs() {

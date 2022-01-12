@@ -15,29 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.common.pojo.dbcollector;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * db collector operation
+ */
 @Data
-public class TaskResult {
+@ApiModel("db collector request")
+public class DBCollectorTaskRequest {
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    @ApiModelProperty(value = "version")
+    private String version;
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
-    }
+    @ApiModelProperty(value = "md5")
+    private String md5;
+
 }

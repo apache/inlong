@@ -15,29 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.dao.entity.DBCollectorDetailTaskEntity;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+@Repository
+public interface DBCollectorDetailTaskMapper {
 
-@Data
-public class TaskResult {
+    DBCollectorDetailTaskEntity selectOneByState(int state);
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    DBCollectorDetailTaskEntity selectByTaskId(int taskId);
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
-    }
+    int changeState(@Param("id") int id, @Param("offset") int offset,
+                    @Param("oldState") int oldState, @Param("newState") int newState);
 }

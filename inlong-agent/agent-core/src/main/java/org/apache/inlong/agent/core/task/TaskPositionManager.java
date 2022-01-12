@@ -88,7 +88,7 @@ public class TaskPositionManager extends AbstractDaemon {
                 try {
                     // check pending jobs and try to submit again.
                     for (String jobId : jobTaskPositionMap.keySet()) {
-                        JobProfile jobProfile = jobConfDb.getJobProfile(jobId);
+                        JobProfile jobProfile = jobConfDb.getJobById(jobId);
                         if (jobProfile == null) {
                             LOGGER.warn("jobProfile {} cannot be found in db, "
                                 + "might be deleted by standalone mode, now delete job position in memory", jobId);

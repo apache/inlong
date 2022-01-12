@@ -15,29 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.manager.service.core;
 
-import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorReportTaskRequest;
+import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskInfo;
+import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface DBCollectorTaskService {
 
-@Data
-public class TaskResult {
+    DBCollectorTaskInfo getTask(DBCollectorTaskRequest req);
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
-
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
-        }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
-    }
+    Integer reportTask(DBCollectorReportTaskRequest req);
 }
