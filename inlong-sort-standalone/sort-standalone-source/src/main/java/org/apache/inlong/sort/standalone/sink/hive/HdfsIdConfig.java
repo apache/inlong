@@ -34,7 +34,8 @@ public class HdfsIdConfig {
     public static final String REGEX_DAY = "\\{yyyyMMdd\\}";
     public static final String REGEX_HOUR = "\\{yyyyMMddHH\\}";
     public static final String REGEX_MINUTE = "\\{yyyyMMddHHmm\\}";
-    public static final long HOUR_MS = 60 * 60 * 1000;
+    public static final long HOUR_MS = 60L * 60 * 1000;
+    public static final int SEPARATOR_LENGTH = 1;
     private static ThreadLocal<SimpleDateFormat> FORMAT_DAY = new ThreadLocal<SimpleDateFormat>() {
 
         protected SimpleDateFormat initialValue() {
@@ -55,7 +56,7 @@ public class HdfsIdConfig {
     };
     // format repository
     private static ThreadLocal<Map<String, SimpleDateFormat>> FORMAT_REPOSITORY;
-    
+
     static {
         FORMAT_REPOSITORY = new ThreadLocal<Map<String, SimpleDateFormat>>() {
 
@@ -67,7 +68,7 @@ public class HdfsIdConfig {
 
     private String inlongGroupId;
     private String inlongStreamId;
-    private byte separator = '|';
+    private String separator = "|";
     private long partitionIntervalMs = 60 * 60 * 1000;
     // path
     private String idRootPath;
@@ -121,7 +122,7 @@ public class HdfsIdConfig {
      * 
      * @return the separator
      */
-    public byte getSeparator() {
+    public String getSeparator() {
         return separator;
     }
 
@@ -130,7 +131,7 @@ public class HdfsIdConfig {
      * 
      * @param separator the separator to set
      */
-    public void setSeparator(byte separator) {
+    public void setSeparator(String separator) {
         this.separator = separator;
     }
 

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
+import static org.apache.inlong.sort.standalone.sink.hive.HdfsIdConfig.SEPARATOR_LENGTH;
+
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
 /**
@@ -39,16 +41,16 @@ public class DefaultEventFormatHandler implements IEventFormatHandler {
         String msgTimeFieldValue = idConfig.parseMsgTimeField(msgTime);
         byte[] partitionFieldBytes = partitionFieldValue.getBytes();
         byte[] msgTimeFieldBytes = msgTimeFieldValue.getBytes();
-        byte[] formatBytes = new byte[partitionFieldBytes.length + 1 + msgTimeFieldBytes.length + 1
-                + event.getBody().length];
+        byte[] formatBytes = new byte[partitionFieldBytes.length + SEPARATOR_LENGTH + msgTimeFieldBytes.length
+                + SEPARATOR_LENGTH + event.getBody().length];
         int index = 0;
         System.arraycopy(partitionFieldBytes, 0, formatBytes, index, partitionFieldBytes.length);
         index += partitionFieldBytes.length;
-        formatBytes[index] = idConfig.getSeparator();
+        formatBytes[index] = (byte) idConfig.getSeparator().charAt(0);
         index++;
         System.arraycopy(msgTimeFieldBytes, 0, formatBytes, index, msgTimeFieldBytes.length);
         index += msgTimeFieldBytes.length;
-        formatBytes[index] = idConfig.getSeparator();
+        formatBytes[index] = (byte) idConfig.getSeparator().charAt(0);
         index++;
         System.arraycopy(event.getBody(), 0, formatBytes, index, event.getBody().length);
         return formatBytes;

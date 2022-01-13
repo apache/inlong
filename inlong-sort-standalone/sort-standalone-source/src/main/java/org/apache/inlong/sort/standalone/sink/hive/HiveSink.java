@@ -95,6 +95,13 @@ public class HiveSink extends AbstractSink implements Configurable {
                     writeHdfsFile();
                 }
             }, this.context.getProcessInterval(), this.context.getProcessInterval(), TimeUnit.MILLISECONDS);
+            // close overtime file
+            this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
+
+                public void run() {
+                    closeOvertimeFile();
+                }
+            }, 0, this.context.getMaxFileOpenDelayMinute() * HiveSinkContext.MINUTE_MS, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -171,13 +178,12 @@ public class HiveSink extends AbstractSink implements Configurable {
      */
     private void writeHdfsFile() {
         // write file
-        long currentTime = System.currentTimeMillis();
         DispatchProfile dispatchProfile = this.dispatchQueue.poll();
         while (dispatchProfile != null) {
             String uid = dispatchProfile.getUid();
             HdfsIdConfig idConfig = context.getIdConfigMap().get(uid);
             if (idConfig == null) {
-                // monitor 007
+                // monitor
                 LOG.error("can not find uid:{},idConfigMap:{}", uid, JSON.toJSONString(context.getIdConfigMap()));
                 this.context.addSendResultMetric(dispatchProfile, uid, false, 0);
                 dispatchProfile = this.dispatchQueue.poll();
@@ -185,25 +191,38 @@ public class HiveSink extends AbstractSink implements Configurable {
             }
             String strIdRootPath = idConfig.parsePartitionPath(dispatchProfile.getDispatchTime());
             HdfsIdFile idFile = this.hdfsIdFileMap.get(strIdRootPath);
+            if (idFile != null && !idFile.isOpen()) {
+                this.hdfsIdFileMap.remove(strIdRootPath);
+                idFile = null;
+            }
             if (idFile == null) {
                 try {
                     idFile = new HdfsIdFile(context, idConfig, strIdRootPath);
                 } catch (Exception e) {
-                    // monitor 007
-                    LOG.error("can not connect to hdfsPath:{},write file:{}", context.getHdfsPath(), strIdRootPath);
+                    // monitor
+                    LOG.error(String.format("can not connect to hdfsPath:%s,write file:%s,error:%s",
+                            context.getHdfsPath(), strIdRootPath, e.getMessage()), e);
                     this.context.addSendResultMetric(dispatchProfile, uid, false, 0);
                     dispatchProfile = this.dispatchQueue.poll();
                     continue;
                 }
                 this.hdfsIdFileMap.put(strIdRootPath, idFile);
             }
+            long currentTime = System.currentTimeMillis();
             idFile.setModifiedTime(currentTime);
             // new runnable
             WriteHdfsFileRunnable writeTask = new WriteHdfsFileRunnable(context, idFile, dispatchProfile);
             context.getOutputPool().execute(writeTask);
             dispatchProfile = this.dispatchQueue.poll();
         }
+    }
+
+    /**
+     * closeOvertimeFile
+     */
+    private void closeOvertimeFile() {
         // close overtime file
+        long currentTime = System.currentTimeMillis();
         long overtime = currentTime - context.getFileArchiveDelayMinute() * HiveSinkContext.MINUTE_MS;
         Set<String> overtimePathSet = new HashSet<>();
         for (Entry<String, HdfsIdFile> entry : this.hdfsIdFileMap.entrySet()) {
@@ -213,6 +232,11 @@ public class HiveSink extends AbstractSink implements Configurable {
             }
         }
         // remove key
-        overtimePathSet.forEach((item) -> this.hdfsIdFileMap.remove(item));
+        for (String key : overtimePathSet) {
+            HdfsIdFile idFile = this.hdfsIdFileMap.remove(key);
+            synchronized (idFile) {
+                idFile.close();
+            }
+        }
     }
 }

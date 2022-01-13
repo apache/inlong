@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.standalone.sink.hive;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -36,9 +38,9 @@ public class HdfsIdFile {
 
     public static final String SUBPATH_INTMP = "/intmp/";
     public static final String SUBPATH_IN = "/in/";
-    public static final String SUBPATH_OUTTMP = "/outtmp/";
     public static final String SUBPATH_OUT = "/out/";
     public static final byte SEPARATOR_MESSAGE = '\n';
+    public static final String OUTTMP_FILE_POSTFIX = "outtmp";
 
     private final HiveSinkContext context;
     private final HdfsIdConfig idConfig;
@@ -47,13 +49,13 @@ public class HdfsIdFile {
     private final DistributedFileSystem fs;
     private final Path intmpPath;
     private final Path inPath;
-    private final Path outtmpPath;
     private final Path outPath;
     private final Path intmpFilePath;
     private final String strIntmpFile;
     private final FSDataOutputStream intmpOutput;
     private final long createTime;
     private long modifiedTime;
+    private boolean isOpen = true;
 
     /**
      * Constructor
@@ -77,12 +79,10 @@ public class HdfsIdFile {
         fs.mkdirs(intmpPath);
         this.inPath = new Path(hdfsPath + strIdRootPath + SUBPATH_IN);
         fs.mkdirs(inPath);
-        this.outtmpPath = new Path(hdfsPath + strIdRootPath + SUBPATH_OUTTMP);
-        fs.mkdirs(outtmpPath);
         this.outPath = new Path(hdfsPath + strIdRootPath + SUBPATH_OUT);
         fs.mkdirs(outPath);
-        
-        this.strIntmpFile = context.getNodeId() + "." + this.createTime;
+
+        this.strIntmpFile = getFileName(context, createTime);
         this.intmpFilePath = new Path(intmpPath, strIntmpFile);
         // check if file exists
         if (fs.exists(intmpFilePath)) {
@@ -93,11 +93,24 @@ public class HdfsIdFile {
     }
 
     /**
+     * getFileName
+     * 
+     * @param  context
+     * @param  fileTime
+     * @return
+     */
+    public static String getFileName(HiveSinkContext context, long fileTime) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        return context.getNodeId() + "." + format.format(new Date(fileTime));
+    }
+
+    /**
      * close
      * 
      * @throws IOException
      */
     public void close() {
+        this.isOpen = false;
         if (intmpOutput != null) {
             try {
                 intmpOutput.flush();
@@ -179,15 +192,6 @@ public class HdfsIdFile {
     }
 
     /**
-     * get outtmpPath
-     * 
-     * @return the outtmpPath
-     */
-    public Path getOuttmpPath() {
-        return outtmpPath;
-    }
-
-    /**
      * get outPath
      * 
      * @return the outPath
@@ -239,6 +243,15 @@ public class HdfsIdFile {
      */
     public String getStrIntmpFile() {
         return strIntmpFile;
+    }
+
+    /**
+     * get isOpen
+     * 
+     * @return the isOpen
+     */
+    public boolean isOpen() {
+        return isOpen;
     }
 
 }

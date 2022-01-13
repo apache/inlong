@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
+import static org.apache.inlong.sort.standalone.sink.hive.HiveSinkContext.MINUTE_MS;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,6 +26,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -70,6 +73,7 @@ public class PartitionCreateRunnable implements Runnable {
      */
     @Override
     public void run() {
+        LOG.info("start to PartitionCreateRunnable.");
         this.state = PartitionState.CREATING;
         HdfsIdFile idFile = null;
         try {
@@ -84,9 +88,14 @@ public class PartitionCreateRunnable implements Runnable {
                 FileStatus[] fileStatusArray = fs.listStatus(new Path[]{idFile.getIntmpPath(), idFile.getInPath()});
                 long currentTime = System.currentTimeMillis();
                 long fileArchiveDelayTime = currentTime
-                        - context.getFileArchiveDelayMinute() * HiveSinkContext.MINUTE_MS;
+                        - context.getFileArchiveDelayMinute() * MINUTE_MS;
+                LOG.info("start to PartitionCreateRunnable check currentTime:{},fileArchiveDelayTime:{},"
+                        + "FileArchiveDelayMinute:{},MINUTE_MS:{}",
+                        currentTime, fileArchiveDelayTime, context.getFileArchiveDelayMinute(), MINUTE_MS);
                 for (FileStatus fileStatus : fileStatusArray) {
                     // check all file that have overtimed.
+                    LOG.info("start to PartitionCreateRunnable check fileStatus.getModificationTime():{},"
+                            + "fileArchiveDelayTime:{}", fileStatus.getModificationTime(), fileArchiveDelayTime);
                     if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
                         this.state = PartitionState.ERROR;
                         return;
@@ -117,7 +126,13 @@ public class PartitionCreateRunnable implements Runnable {
 
         // rename files in "intmp" directory to "in" directory.
         FileStatus[] intmpFiles = fs.listStatus(idFile.getIntmpPath());
+        long currentTime = System.currentTimeMillis();
+        long fileArchiveDelayTime = currentTime
+                - context.getFileArchiveDelayMinute() * MINUTE_MS;
         for (FileStatus fileStatus : intmpFiles) {
+            if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
+                continue;
+            }
             Path intmpFilePath = fileStatus.getPath();
             String strIntmpFullFile = intmpFilePath.getName();
             int index = strIntmpFullFile.lastIndexOf('/');
@@ -126,42 +141,48 @@ public class PartitionCreateRunnable implements Runnable {
             fs.rename(intmpFilePath, inFilePath);
         }
 
-        // clear "outtmp" directory.
-        FileStatus[] outtmpFiles = fs.listStatus(idFile.getOuttmpPath());
-        for (FileStatus fileStatus : outtmpFiles) {
-            fs.delete(fileStatus.getPath(), true);
+        // clear "outtmp" fiels.
+        FileStatus[] inFiles = fs.listStatus(idFile.getInPath());
+        for (FileStatus fileStatus : inFiles) {
+            Path inFile = fileStatus.getPath();
+            if (inFile.getName().lastIndexOf(HdfsIdFile.OUTTMP_FILE_POSTFIX) >= 0) {
+                fs.delete(inFile, true);
+            }
         }
 
-        // merge and copy files in "in" directory to "outtmp" directory.
-        FileStatus[] inFiles = fs.listStatus(idFile.getInPath());
+        // merge and copy files in "in" directory to "outtmp" file.
         long outputFileSize = 0;
         List<Path> concatInFiles = new ArrayList<>();
         for (FileStatus fileStatus : inFiles) {
+            if (fileStatus.getLen() <= 0) {
+                continue;
+            }
             if (outputFileSize < context.getMaxOutputFileSizeGb() * HiveSinkContext.GB_BYTES) {
                 concatInFiles.add(fileStatus.getPath());
                 continue;
             }
-            Path outputFilePath = new Path(idFile.getOutPath(), context.getNodeId() + "." + System.currentTimeMillis());
-            Path[] paths = new Path[concatInFiles.size()];
-            fs.concat(outputFilePath, concatInFiles.toArray(paths));
+            this.concatInFiles2OuttmpFile(idFile, concatInFiles, fs);
             outputFileSize = 0;
             concatInFiles.clear();
         }
         if (concatInFiles.size() > 0) {
-            Path outputFilePath = new Path(idFile.getOutPath(), context.getNodeId() + "." + System.currentTimeMillis());
-            Path[] paths = new Path[concatInFiles.size()];
-            fs.concat(outputFilePath, concatInFiles.toArray(paths));
+            this.concatInFiles2OuttmpFile(idFile, concatInFiles, fs);
+            outputFileSize = 0;
+            concatInFiles.clear();
         }
 
         // rename outtmp file to "out" directory.
-        outtmpFiles = fs.listStatus(idFile.getOuttmpPath());
-        for (FileStatus fileStatus : outtmpFiles) {
-            Path outtmpFilePath = fileStatus.getPath();
-            String strOuttmpFullFile = outtmpFilePath.getName();
-            int index = strOuttmpFullFile.lastIndexOf('/');
-            String strOuttmpFile = strOuttmpFullFile.substring(index + 1);
-            Path outFilePath = new Path(idFile.getOutPath(), strOuttmpFile);
-            fs.rename(outtmpFilePath, outFilePath);
+        inFiles = fs.listStatus(idFile.getInPath());
+        for (FileStatus fileStatus : inFiles) {
+            Path inFile = fileStatus.getPath();
+            if (inFile.getName().lastIndexOf(HdfsIdFile.OUTTMP_FILE_POSTFIX) >= 0) {
+                String strFullFile = inFile.getName();
+                int index = strFullFile.lastIndexOf('/');
+                String strOuttmpFile = strFullFile.substring(index + 1,
+                        strFullFile.length() - HdfsIdFile.OUTTMP_FILE_POSTFIX.length());
+                Path outFilePath = new Path(idFile.getOutPath(), strOuttmpFile);
+                fs.rename(inFile, outFilePath);
+            }
         }
 
         // delete file in "in" directory.
@@ -183,6 +204,25 @@ public class PartitionCreateRunnable implements Runnable {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * concatInFiles2OuttmpFile
+     * 
+     * @param  idFile
+     * @param  concatInFiles
+     * @param  fs
+     * @throws IOException
+     */
+    private void concatInFiles2OuttmpFile(HdfsIdFile idFile, List<Path> concatInFiles, DistributedFileSystem fs)
+            throws IOException {
+        Path outtmpFilePath = new Path(idFile.getInPath(),
+                HdfsIdFile.getFileName(context, System.currentTimeMillis()) + HdfsIdFile.OUTTMP_FILE_POSTFIX);
+        FSDataOutputStream outputFileStream = fs.create(outtmpFilePath, true);
+        outputFileStream.flush();
+        outputFileStream.close();
+        Path[] paths = new Path[concatInFiles.size()];
+        fs.concat(outtmpFilePath, concatInFiles.toArray(paths));
     }
 
     /**

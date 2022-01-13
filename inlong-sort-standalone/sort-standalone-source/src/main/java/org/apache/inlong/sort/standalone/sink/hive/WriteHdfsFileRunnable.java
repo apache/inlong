@@ -54,6 +54,10 @@ public class WriteHdfsFileRunnable implements Runnable {
     @Override
     public void run() {
         synchronized (idFile) {
+            if (!idFile.isOpen()) {
+                context.getDispatchQueue().offer(profile);
+                return;
+            }
             try {
                 IEventFormatHandler handler = context.getEventFormatHandler();
                 FSDataOutputStream output = idFile.getIntmpOutput();

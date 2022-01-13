@@ -58,9 +58,12 @@ public class HiveSinkContext extends SinkContext {
     // hdfs config
     public static final String KEY_HDFS_PATH = "hdfsPath";
     public static final String KEY_MAX_FILE_OPEN_DELAY = "maxFileOpenDelayMinute";
+    public static final long DEFAULT_MAX_FILE_OPEN_DELAY = 5L;
     public static final String KEY_EVENT_FORMAT_HANDLER = "eventFormatHandler";
     public static final String KEY_TOKEN_OVERTIME = "tokenOvertimeMinute";
+    public static final long DEFAULT_TOKEN_OVERTIME = 60L;
     public static final String KEY_MAX_OUTPUT_FILE_SIZE = "maxOutputFileSizeGb";
+    public static final long DEFAULT_MAX_OUTPUT_FILE_SIZE = 2L;
     public static final long MINUTE_MS = 60 * 1000;
     public static final long GB_BYTES = 1024 * 1024 * 1024;
 
@@ -76,10 +79,10 @@ public class HiveSinkContext extends SinkContext {
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
     // hdfs config
     private String hdfsPath;
-    private long maxFileOpenDelayMinute = 5;
-    private long fileArchiveDelayMinute = maxFileOpenDelayMinute + 1;
-    private long tokenOvertimeMinute = 60;
-    private long maxOutputFileSizeGb = 2;
+    private long maxFileOpenDelayMinute = DEFAULT_MAX_FILE_OPEN_DELAY;
+    private long fileArchiveDelayMinute = 2 * maxFileOpenDelayMinute;
+    private long tokenOvertimeMinute = DEFAULT_TOKEN_OVERTIME;
+    private long maxOutputFileSizeGb = DEFAULT_MAX_OUTPUT_FILE_SIZE;
     // hive config
     private String hiveJdbcUrl;
     private String hiveDatabase;
@@ -125,9 +128,10 @@ public class HiveSinkContext extends SinkContext {
      * reload
      */
     public void reload() {
-        super.reload();
         try {
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            LOG.info("start to get SortTaskConfig:taskName:{}:config:{}", taskName,
+                    JSON.toJSONString(newSortTaskConfig));
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
                 return;
             }
@@ -148,16 +152,18 @@ public class HiveSinkContext extends SinkContext {
             this.idConfigMap = newIdConfigMap;
             // hdfs config
             this.hdfsPath = parentContext.getString(KEY_HDFS_PATH);
-            this.maxFileOpenDelayMinute = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, 5L * 60 * 1000);
-            this.fileArchiveDelayMinute = maxFileOpenDelayMinute + 60 * 1000;
-            this.tokenOvertimeMinute = parentContext.getLong(KEY_TOKEN_OVERTIME, 60L * 60 * 1000);
-            this.maxOutputFileSizeGb = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, 2L * 1024 * 1024 * 1024);
+            this.maxFileOpenDelayMinute = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, DEFAULT_MAX_FILE_OPEN_DELAY);
+            this.fileArchiveDelayMinute = maxFileOpenDelayMinute + 1;
+            this.tokenOvertimeMinute = parentContext.getLong(KEY_TOKEN_OVERTIME, DEFAULT_TOKEN_OVERTIME);
+            this.maxOutputFileSizeGb = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, DEFAULT_MAX_OUTPUT_FILE_SIZE);
             // hive config
             this.hiveJdbcUrl = parentContext.getString(KEY_HIVE_JDBC_URL);
             this.hiveDatabase = parentContext.getString(KEY_HIVE_DATABASE);
             this.hiveUsername = parentContext.getString(KEY_HIVE_USERNAME);
             this.hivePassword = parentContext.getString(KEY_HIVE_PASSWORD);
             Class.forName("org.apache.hive.jdbc.HiveDriver");
+            LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
+                    JSON.toJSONString(newIdConfigMap));
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
