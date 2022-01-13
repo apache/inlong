@@ -42,6 +42,7 @@ public class DispatchManager {
     public static final long DEFAULT_DISPATCH_TIMEOUT = 2000;
     public static final long DEFAULT_DISPATCH_MAX_PACKCOUNT = 256;
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
+    public static final long MINUTE_MS = 60L * 1000;
 
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private final long dispatchTimeout;
@@ -76,7 +77,7 @@ public class DispatchManager {
         }
         // parse
         String eventUid = event.getUid();
-        long dispatchTime = event.getRawLogTime() - event.getRawLogTime() % 60000L;
+        long dispatchTime = event.getRawLogTime() - event.getRawLogTime() % MINUTE_MS;
         String dispatchKey = eventUid + "." + dispatchTime;
         //
         DispatchProfile dispatchProfile = this.profileCache.get(dispatchKey);

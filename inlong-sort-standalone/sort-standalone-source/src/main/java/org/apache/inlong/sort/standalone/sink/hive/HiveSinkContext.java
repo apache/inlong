@@ -64,8 +64,9 @@ public class HiveSinkContext extends SinkContext {
     public static final long DEFAULT_TOKEN_OVERTIME = 60L;
     public static final String KEY_MAX_OUTPUT_FILE_SIZE = "maxOutputFileSizeGb";
     public static final long DEFAULT_MAX_OUTPUT_FILE_SIZE = 2L;
-    public static final long MINUTE_MS = 60 * 1000;
-    public static final long GB_BYTES = 1024 * 1024 * 1024;
+    public static final long MINUTE_MS = 60L * 1000;
+    public static final long GB_BYTES = 1024L * 1024 * 1024;
+    public static final long KB_BYTES = 1024L;
 
     // hive config
     public static final String KEY_HIVE_JDBC_URL = "hiveJdbcUrl";

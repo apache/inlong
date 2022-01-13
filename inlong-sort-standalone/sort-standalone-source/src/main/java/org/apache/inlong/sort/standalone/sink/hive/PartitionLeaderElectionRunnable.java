@@ -179,7 +179,7 @@ public class PartitionLeaderElectionRunnable implements Runnable {
                 long accessTime = tokenFileStatus.getAccessTime();
                 long modifiedTime = tokenFileStatus.getModificationTime();
                 if (currentTime - modifiedTime < tokenOvertime
-                        && tokenFileStatus.getLen() < 1024) {
+                        && tokenFileStatus.getLen() < HiveSinkContext.KB_BYTES) {
                     // check if leader is same with local container name
                     FSDataInputStream fsdis = fs.open(tokenPath);
                     byte[] leaderBytes = new byte[(int) tokenFileStatus.getLen()];

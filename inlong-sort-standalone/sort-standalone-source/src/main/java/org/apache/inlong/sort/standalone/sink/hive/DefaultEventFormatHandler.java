@@ -28,7 +28,10 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 public class DefaultEventFormatHandler implements IEventFormatHandler {
 
     /**
-     * format
+     * format data, the protocol is : partitionField|msgTime|rawData<br>
+     * 1. add partition field and separator; partitionField support Java Date Format;<br>
+     * 2. add msgTime field and separator; msgTime support Java Date Format;<br>
+     * 3. keep rawData;<br>
      * 
      * @param  event
      * @param  idConfig
