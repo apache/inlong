@@ -48,7 +48,7 @@ import com.alibaba.fastjson.JSON;
  */
 public class HiveSink extends AbstractSink implements Configurable {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(HiveSink.class);
+    private static final Logger LOG = InlongLoggerFactory.getLogger(HiveSink.class);
 
     private Context parentContext;
     private HiveSinkContext context;
