@@ -89,11 +89,11 @@
 				],
 				"name":"sid_hive_inlong6th_v3",
 				"sinkParams":{
-					"hdfsPath":"hdfs://10.160.139.123:9000",
+					"hdfsPath":"hdfs://127.0.0.1:9000",
 					"maxFileOpenDelayMinute":"5",
 					"tokenOvertimeMinute":"60",
 					"maxOutputFileSizeGb":"2",
-					"hiveJdbcUrl":"jdbc:hive2://10.160.142.179:10000",
+					"hiveJdbcUrl":"jdbc:hive2://127.0.0.2:10000",
 					"hiveDatabase":"default",
 					"hiveUsername":"hive",
 					"hivePassword":"hive"
@@ -103,6 +103,6 @@
 		]
 	},
 	"errCode":0,
-	"md5":"9dffb55aadda9859b59fb25873358a52",
+	"md5":"md5",
 	"result":true
 }
