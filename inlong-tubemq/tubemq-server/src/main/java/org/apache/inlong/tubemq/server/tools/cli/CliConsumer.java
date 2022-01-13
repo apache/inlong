@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.cli.CommandLine;
@@ -59,6 +60,9 @@ public class CliConsumer extends CliAbstractBase {
             LoggerFactory.getLogger(CliConsumer.class);
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
+    private static final ConcurrentHashMap<String, AtomicLong> TOPIC_COUNT_MAP =
+            new ConcurrentHashMap();
+    private long startTime = System.currentTimeMillis();
     // sent data content
     private final Map<String, TreeSet<String>> topicAndFiltersMap = new HashMap<>();
     private final List<MessageSessionFactory> sessionFactoryList = new ArrayList<>();
@@ -188,6 +192,7 @@ public class CliConsumer extends CliAbstractBase {
         consumerConfig.setRpcTimeoutMs(rpcTimeoutMs);
         consumerConfig.setPushFetchThreadCnt(fetchThreadCnt);
         consumerConfig.setConsumePosition(consumePos);
+        startTime = System.currentTimeMillis();
         // initial consumer object
         if (isPushConsume) {
             DefaultMessageListener msgListener =
@@ -203,6 +208,7 @@ public class CliConsumer extends CliAbstractBase {
                     for (Map.Entry<String, TreeSet<String>> entry
                             : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
+                        TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer1.completeSubscribe();
                     consumerMap.put(consumer1, null);
@@ -217,6 +223,7 @@ public class CliConsumer extends CliAbstractBase {
                     for (Map.Entry<String, TreeSet<String>> entry
                             : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
+                        TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer1.completeSubscribe();
                     consumerMap.put(consumer1, null);
@@ -233,6 +240,7 @@ public class CliConsumer extends CliAbstractBase {
                     for (Map.Entry<String, TreeSet<String>> entry
                             : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
+                        TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer2.completeSubscribe();
                     consumerMap.put(consumer2,
@@ -248,6 +256,7 @@ public class CliConsumer extends CliAbstractBase {
                     for (Map.Entry<String, TreeSet<String>> entry
                             : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
+                        TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer2.completeSubscribe();
                     consumerMap.put(consumer2,
@@ -282,7 +291,6 @@ public class CliConsumer extends CliAbstractBase {
                 thread.start();
             }
         }
-
     }
 
     // for push consumer callback process
@@ -294,7 +302,11 @@ public class CliConsumer extends CliAbstractBase {
         @Override
         public void receiveMessages(PeerInfo peerInfo, List<Message> messages) {
             if (messages != null && !messages.isEmpty()) {
-                TOTAL_COUNTER.addAndGet(messages.size());
+                int msgCnt = messages.size();
+                Message message = messages.get(0);
+                TOTAL_COUNTER.addAndGet(msgCnt);
+                AtomicLong accCount = TOPIC_COUNT_MAP.get(message.getTopic());
+                accCount.addAndGet(msgCnt);
             }
         }
 
@@ -327,7 +339,11 @@ public class CliConsumer extends CliAbstractBase {
                     if (result.isSuccess()) {
                         List<Message> messageList = result.getMessageList();
                         if (messageList != null && !messageList.isEmpty()) {
-                            TOTAL_COUNTER.addAndGet(messageList.size());
+                            int msgCnt = messageList.size();
+                            TOTAL_COUNTER.addAndGet(msgCnt);
+                            AtomicLong accCount =
+                                    TOPIC_COUNT_MAP.get(result.getTopicName());
+                            accCount.addAndGet(msgCnt);
                         }
                         messageConsumer.confirmConsume(result.getConfirmContext(), true);
                     } else {
@@ -365,14 +381,26 @@ public class CliConsumer extends CliAbstractBase {
             while (cliConsumer.msgCount < 0
                     || TOTAL_COUNTER.get() < cliConsumer.msgCount * cliConsumer.clientCount) {
                 ThreadUtils.sleep(cliConsumer.printIntervalMs);
-                System.out.println("Required received count VS received message count = "
+                System.out.println("Continue, cost time: "
+                        + (System.currentTimeMillis() - cliConsumer.startTime)
+                        + " ms, required count VS received count = "
                         + (cliConsumer.msgCount * cliConsumer.clientCount)
                         + " : " + TOTAL_COUNTER.get());
+                for (Map.Entry<String, AtomicLong> entry : TOPIC_COUNT_MAP.entrySet()) {
+                    System.out.println("Topic Name = " + entry.getKey()
+                            + ", count=" + entry.getValue().get());
+                }
             }
             cliConsumer.shutdown();
-            System.out.println("Finished, received count VS received message count = "
+            System.out.println("Finished, cost time: "
+                    + (System.currentTimeMillis() - cliConsumer.startTime)
+                    + " ms, required count VS received count = "
                     + (cliConsumer.msgCount * cliConsumer.clientCount)
                     + " : " + TOTAL_COUNTER.get());
+            for (Map.Entry<String, AtomicLong> entry : TOPIC_COUNT_MAP.entrySet()) {
+                System.out.println("Topic Name = " + entry.getKey()
+                        + ", count=" + entry.getValue().get());
+            }
         } catch (Throwable ex) {
             ex.printStackTrace();
             logger.error(ex.getMessage());
