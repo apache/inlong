@@ -272,7 +272,7 @@ public class HiveSinkContext extends SinkContext {
     /**
      * getHiveConnection
      * 
-     * @return
+     * @return Connection
      * @throws SQLException
      * @throws ClassNotFoundException
      */

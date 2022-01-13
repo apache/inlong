@@ -99,8 +99,7 @@ public class PartitionLeaderElectionRunnable implements Runnable {
                     long currentTime = System.currentTimeMillis();
                     long beginScanTime = currentTime
                             - 2 * idConfig.getMaxPartitionOpenDelayHour() * HdfsIdConfig.HOUR_MS;
-                    long endScanTime = currentTime - idConfig.getPartitionIntervalMs()
-                            - context.getMaxFileOpenDelayMinute() * HiveSinkContext.MINUTE_MS;
+                    long endScanTime = currentTime - context.getMaxFileOpenDelayMinute() * HiveSinkContext.MINUTE_MS;
                     long forceCloseTime = currentTime - idConfig.getMaxPartitionOpenDelayHour() * HdfsIdConfig.HOUR_MS;
                     LOG.info("start to PartitionLeaderElectionRunnable scan:beginScanTime:{},"
                             + "endScanTime:{},getPartitionIntervalMs:{}",

@@ -73,7 +73,8 @@ public class PartitionCreateRunnable implements Runnable {
      */
     @Override
     public void run() {
-        LOG.info("start to PartitionCreateRunnable.");
+        LOG.info("start to PartitionCreateRunnable:id:{},partition:{}", idConfig.getInlongGroupId(),
+                strPartitionValue);
         this.state = PartitionState.CREATING;
         HdfsIdFile idFile = null;
         try {
@@ -84,22 +85,10 @@ public class PartitionCreateRunnable implements Runnable {
                 this.process(idFile);
             } else {
                 // try to close partition that has no new data and can be closed.
-                FileSystem fs = idFile.getFs();
-                FileStatus[] fileStatusArray = fs.listStatus(new Path[]{idFile.getIntmpPath(), idFile.getInPath()});
-                long currentTime = System.currentTimeMillis();
-                long fileArchiveDelayTime = currentTime
-                        - context.getFileArchiveDelayMinute() * MINUTE_MS;
-                LOG.info("start to PartitionCreateRunnable check currentTime:{},fileArchiveDelayTime:{},"
-                        + "FileArchiveDelayMinute:{},MINUTE_MS:{}",
-                        currentTime, fileArchiveDelayTime, context.getFileArchiveDelayMinute(), MINUTE_MS);
-                for (FileStatus fileStatus : fileStatusArray) {
-                    // check all file that have overtimed.
-                    LOG.info("start to PartitionCreateRunnable check fileStatus.getModificationTime():{},"
-                            + "fileArchiveDelayTime:{}", fileStatus.getModificationTime(), fileArchiveDelayTime);
-                    if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
-                        this.state = PartitionState.ERROR;
-                        return;
-                    }
+                if (!this.canArchive(idFile, idFile.getIntmpPath()) || !this.canArchive(idFile, idFile.getInPath())) {
+                    LOG.info("inlongGroupId:{},partition:{} can not archived.", idConfig.getInlongGroupId(),
+                            strPartitionValue);
+                    return;
                 }
                 this.process(idFile);
             }
@@ -112,6 +101,48 @@ public class PartitionCreateRunnable implements Runnable {
                 idFile.close();
             }
         }
+    }
+
+    /**
+     * canArchive
+     * 
+     * @param  idFile
+     * @param  rootPath
+     * @return                       boolean
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    private boolean canArchive(HdfsIdFile idFile, Path rootPath) throws FileNotFoundException, IOException {
+        FileSystem fs = idFile.getFs();
+        FileStatus[] fileStatusArray = fs.listStatus(rootPath);
+        long currentTime = System.currentTimeMillis();
+        long fileArchiveDelayTime = currentTime
+                - context.getFileArchiveDelayMinute() * MINUTE_MS;
+        LOG.info("start to PartitionCreateRunnable id:{},currentTime:{},fileArchiveDelayTime:{},"
+                + "FileArchiveDelayMinute:{},MINUTE_MS:{}", idConfig.getInlongGroupId(),
+                currentTime, fileArchiveDelayTime, context.getFileArchiveDelayMinute(), MINUTE_MS);
+        for (FileStatus fileStatus : fileStatusArray) {
+            Path filePath = fileStatus.getPath();
+            if (filePath.equals(idFile.getIntmpFilePath())) {
+                continue;
+            }
+            // check all file that have overtimed.
+            if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
+                this.state = PartitionState.ERROR;
+                LOG.info("error PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
+                        + "fileArchiveDelayTime:{}", idConfig.getInlongGroupId(),
+                        filePath.toString(),
+                        fileStatus.getModificationTime(), fileArchiveDelayTime);
+                LOG.info("inlongGroupId:{},partition:{} can not archived in path:{}.", idConfig.getInlongGroupId(),
+                        strPartitionValue, rootPath);
+                return false;
+            }
+            LOG.info("ok PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
+                    + "fileArchiveDelayTime:{}", idConfig.getInlongGroupId(),
+                    filePath.toString(),
+                    fileStatus.getModificationTime(), fileArchiveDelayTime);
+        }
+        return true;
     }
 
     /**
@@ -134,9 +165,7 @@ public class PartitionCreateRunnable implements Runnable {
                 continue;
             }
             Path intmpFilePath = fileStatus.getPath();
-            String strIntmpFullFile = intmpFilePath.getName();
-            int index = strIntmpFullFile.lastIndexOf('/');
-            String strIntmpFile = strIntmpFullFile.substring(index + 1);
+            String strIntmpFile = intmpFilePath.getName();
             Path inFilePath = new Path(idFile.getInPath(), strIntmpFile);
             fs.rename(intmpFilePath, inFilePath);
         }
@@ -177,8 +206,7 @@ public class PartitionCreateRunnable implements Runnable {
             Path inFile = fileStatus.getPath();
             if (inFile.getName().lastIndexOf(HdfsIdFile.OUTTMP_FILE_POSTFIX) >= 0) {
                 String strFullFile = inFile.getName();
-                int index = strFullFile.lastIndexOf('/');
-                String strOuttmpFile = strFullFile.substring(index + 1,
+                String strOuttmpFile = strFullFile.substring(0,
                         strFullFile.length() - HdfsIdFile.OUTTMP_FILE_POSTFIX.length());
                 Path outFilePath = new Path(idFile.getOutPath(), strOuttmpFile);
                 fs.rename(inFile, outFilePath);
@@ -198,7 +226,8 @@ public class PartitionCreateRunnable implements Runnable {
                     context.getHiveDatabase(),
                     idConfig.getHiveTableName(),
                     this.strPartitionValue,
-                    idFile.getOutPath().getName());
+                    idFile.getOutPath().toString());
+            LOG.info("create partition sql:{}", partitionSql);
             stat.executeUpdate(partitionSql);
             stat.close();
         } catch (Exception e) {
@@ -218,6 +247,7 @@ public class PartitionCreateRunnable implements Runnable {
             throws IOException {
         Path outtmpFilePath = new Path(idFile.getInPath(),
                 HdfsIdFile.getFileName(context, System.currentTimeMillis()) + HdfsIdFile.OUTTMP_FILE_POSTFIX);
+        LOG.info("start to concat outtmp file:{},inFiles:{}", outtmpFilePath, concatInFiles);
         FSDataOutputStream outputFileStream = fs.create(outtmpFilePath, true);
         outputFileStream.flush();
         outputFileStream.close();

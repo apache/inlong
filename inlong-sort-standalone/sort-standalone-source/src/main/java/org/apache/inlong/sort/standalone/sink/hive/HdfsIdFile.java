@@ -40,7 +40,7 @@ public class HdfsIdFile {
     public static final String SUBPATH_IN = "/in/";
     public static final String SUBPATH_OUT = "/out/";
     public static final byte SEPARATOR_MESSAGE = '\n';
-    public static final String OUTTMP_FILE_POSTFIX = "outtmp";
+    public static final String OUTTMP_FILE_POSTFIX = ".outtmp";
 
     private final HiveSinkContext context;
     private final HdfsIdConfig idConfig;
