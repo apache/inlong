@@ -55,6 +55,8 @@ public class CliProducer extends CliAbstractBase {
 
     private static final Logger logger =
             LoggerFactory.getLogger(CliProducer.class);
+    // start time
+    private long startTime = System.currentTimeMillis();
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
     private static final AtomicLong SENT_SUCC_COUNTER = new AtomicLong(0);
@@ -187,6 +189,7 @@ public class CliProducer extends CliAbstractBase {
         sentData = MixedUtils.buildTestData(msgDataSize);
         // initial topic send round
         topicSendRounds = MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
+        startTime = System.currentTimeMillis();
         // initial send thread service
         sendExecutorService =
                 Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
@@ -323,7 +326,9 @@ public class CliProducer extends CliAbstractBase {
             while (cliProducer.msgCount < 0
                     || TOTAL_COUNTER.get() < cliProducer.msgCount * cliProducer.clientCount) {
                 ThreadUtils.sleep(cliProducer.printIntervalMs);
-                System.out.println("Required send count VS sent message count = "
+                System.out.println("Continue, cost time: "
+                        + (System.currentTimeMillis() - cliProducer.startTime)
+                        + "ms, required count VS sent count = "
                         + (cliProducer.msgCount * cliProducer.clientCount)
                         + " : " + TOTAL_COUNTER.get()
                         + " (" + SENT_SUCC_COUNTER.get()
@@ -332,7 +337,9 @@ public class CliProducer extends CliAbstractBase {
                         + ")");
             }
             cliProducer.shutdown();
-            System.out.println("Finished, required send count VS sent message count = "
+            System.out.println("Finished, cost time: "
+                    + (System.currentTimeMillis() - cliProducer.startTime)
+                    + "ms, required count VS sent count = "
                     + (cliProducer.msgCount * cliProducer.clientCount)
                     + " : " + TOTAL_COUNTER.get()
                     + " (" + SENT_SUCC_COUNTER.get()
