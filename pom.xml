@@ -98,6 +98,7 @@
         <module>inlong-sort-standalone</module>
         <module>inlong-website</module>
         <module>inlong-distribution</module>
+        <module>inlong-sdk</module>
     </modules>
 
 
