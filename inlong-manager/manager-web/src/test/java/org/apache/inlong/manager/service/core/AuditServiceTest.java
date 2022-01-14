@@ -43,7 +43,13 @@ public class AuditServiceTest extends ServiceBaseTest {
         auditService.listByCondition(request);
     }
 
-    @Test
+    /**
+     * Temporarily close testing for testQueryFromElasticsearch due to lack of elasticsearch dev environment
+     * You can open it if exists elasticsearch dev environment
+     *
+     * @throws IOException The exception may throws
+     */
+//    @Test
     public void testQueryFromElasticsearch() throws IOException {
         AuditRequest request = new AuditRequest();
         request.setAuditId("3");

@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/audit")
 @Api(tags = "Audit")
@@ -45,5 +44,5 @@ public class AuditController {
     public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws IOException {
         return Response.success(auditService.listByCondition(request));
     }
-
+    
 }

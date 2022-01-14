@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.manager.service.thirdpart.elasticsearch;
 
 import java.io.IOException;

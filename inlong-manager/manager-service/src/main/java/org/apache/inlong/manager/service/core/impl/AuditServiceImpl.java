@@ -81,8 +81,8 @@ public class AuditServiceImpl implements AuditService {
             DateTime dtDate = forPattern.parseDateTime(request.getDt());
             String eDate = dtDate.plusDays(1).toString(forPattern);
             List<Map<String, Object>> sumList = auditEntityMapper
-                    .sumByLogTs(request.getInlongGroupId(), request.getInlongStreamId(), request.getAuditId()
-                            , request.getDt(), eDate, format);
+                    .sumByLogTs(request.getInlongGroupId(), request.getInlongStreamId(),
+                            request.getAuditId(), request.getDt(), eDate, format);
             result = sumList.stream().map(s -> {
                 AuditVO vo = new AuditVO();
                 vo.setLogTs((String) s.get("logTs"));
@@ -90,8 +90,8 @@ public class AuditServiceImpl implements AuditService {
                 return vo;
             }).collect(Collectors.toList());
         } else if (AuditQuerySource.ELASTICSEARCH == request.getQuerySource()) {
-            String index = String.format("%s_%s"
-                    , request.getDt().replaceAll("-", ""), request.getAuditId());
+            String index = String.format("%s_%s",
+                    request.getDt().replaceAll("-", ""), request.getAuditId());
             if (elasticsearchApi.indexExists(index)) {
                 SearchResponse response = elasticsearchApi
                         .search(toAuditSearchRequest(index, request.getInlongGroupId(), request.getInlongStreamId()));
@@ -114,8 +114,7 @@ public class AuditServiceImpl implements AuditService {
         LOGGER.info("success to query audit list for request={}", request);
         return result;
     }
-
-
+    
     /**
      * Convert to elasticsearch search request
      *

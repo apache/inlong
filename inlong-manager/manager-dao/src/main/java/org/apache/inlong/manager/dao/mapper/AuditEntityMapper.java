@@ -36,10 +36,10 @@ public interface AuditEntityMapper {
      * @param format The format such as '%Y-%m-%d %H:%i:00'
      * @return The result of query
      */
-    List<Map<String, Object>> sumByLogTs(@Param(value = "groupId") String groupId
-            , @Param(value = "streamId") String streamId
-            , @Param(value = "auditId") String auditId
-            , @Param(value = "sDate") String sDate
-            , @Param(value = "eDate") String eDate
-            , @Param(value = "format") String format);
+    List<Map<String, Object>> sumByLogTs(@Param(value = "groupId") String groupId,
+            @Param(value = "streamId") String streamId,
+            @Param(value = "auditId") String auditId,
+            @Param(value = "sDate") String sDate,
+            @Param(value = "eDate") String eDate,
+            @Param(value = "format") String format);
 }

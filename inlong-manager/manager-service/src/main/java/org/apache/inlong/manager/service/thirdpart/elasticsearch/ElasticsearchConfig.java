@@ -51,7 +51,11 @@ public class ElasticsearchConfig {
 
     private static RestHighLevelClient highLevelClient;
 
-
+    /**
+     * highLevelClient
+     *
+     * @return RestHighLevelClient
+     */
     public RestHighLevelClient highLevelClient() {
         if (highLevelClient != null) {
             return highLevelClient;
