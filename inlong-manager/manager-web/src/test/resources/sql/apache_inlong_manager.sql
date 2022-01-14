@@ -93,7 +93,7 @@ CREATE TABLE `business`
     `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );
@@ -133,8 +133,7 @@ CREATE TABLE `business_ext`
     `key_value`       varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_group_id` (`inlong_group_id`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -228,7 +227,7 @@ DROP TABLE IF EXISTS `consumption`;
 CREATE TABLE `consumption`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'consumer group name',
+    `consumer_group_name` varchar(255)          DEFAULT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group id',
@@ -323,8 +322,7 @@ CREATE TABLE `data_source_cmd_config`
     `modify_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last update time ',
     `create_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `result_info`         varchar(64)          DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `index_1` (`task_id`, `bSend`, `specified_data_time`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -336,7 +334,7 @@ CREATE TABLE `data_stream`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_stream_id`       varchar(128) NOT NULL COMMENT 'Data stream id, non-deleted globally unique',
     `inlong_group_id`        varchar(128) NOT NULL COMMENT 'Owning business group id',
-    `name`                   varchar(64)  DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
+    `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
     `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is Topic',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
@@ -376,8 +374,7 @@ CREATE TABLE `data_stream_ext`
     `key_value`        varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_stream_id` (`inlong_stream_id`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -401,8 +398,7 @@ CREATE TABLE `data_stream_field`
     `bon_field_path`      varchar(256) DEFAULT NULL COMMENT 'BON field path',
     `bon_field_type`      varchar(64)  DEFAULT NULL COMMENT 'BON field type',
     `encrypt_level`       varchar(20)  DEFAULT NULL COMMENT 'Encryption level',
-    PRIMARY KEY (`id`),
-    KEY `index_stream_id` (`inlong_stream_id`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -444,8 +440,8 @@ CREATE TABLE `role`
     `update_by`   varchar(255) NOT NULL,
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `role_role_code_uindex` (`role_code`),
-    UNIQUE KEY `role_role_name_uindex` (`role_name`)
+    UNIQUE KEY `unique_role_code` (`role_code`),
+    UNIQUE KEY `unique_role_name` (`role_name`)
 );
 
 -- ----------------------------
@@ -463,7 +459,7 @@ CREATE TABLE `source_db_basic`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -562,8 +558,7 @@ CREATE TABLE `storage_ext`
     `key_value`    varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`   tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_storage_id` (`storage_id`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -623,8 +618,7 @@ CREATE TABLE `storage_hive_field`
     `is_exist`          tinyint(1)    DEFAULT '0' COMMENT 'Does it exist, 0: does not exist, 1: exists',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    PRIMARY KEY (`id`),
-    KEY `index_storage_id` (`storage_id`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -715,7 +709,7 @@ CREATE TABLE `user`
     `create_by`    varchar(255) NOT NULL COMMENT 'create by sb.',
     `update_by`    varchar(255)          DEFAULT NULL COMMENT 'update by sb.',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `user_name_uindex` (`name`)
+    UNIQUE KEY `unique_user_name` (`name`)
 );
 
 -- create default admin user, username is 'admin', password is 'inlong'
@@ -759,7 +753,7 @@ CREATE TABLE `wf_approver`
     `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'update time',
     `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     PRIMARY KEY (`id`),
-    KEY `process_name_task_name_index` (`process_name`, `task_name`)
+    UNIQUE KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
 -- create default approver for new consumption and new business
@@ -814,7 +808,7 @@ CREATE TABLE `wf_process_instance`
     `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext`             text COMMENT 'Extended information-json',
+    `ext`             text COMMENT 'Extended information-JSON',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
     PRIMARY KEY (`id`)
 );
@@ -840,7 +834,7 @@ CREATE TABLE `wf_task_instance`
     `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
-    `ext`                  text COMMENT 'Extended information-json',
+    `ext`                  text COMMENT 'Extended information-JSON',
     PRIMARY KEY (`id`)
 );
 
@@ -906,8 +900,7 @@ CREATE TABLE `cache_cluster_ext`
     `key_value`    varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`   tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_cache_cluster` (`cluster_name`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -980,8 +973,7 @@ CREATE TABLE `flume_source_ext`
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_source_ext` (`parent_name`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -1011,8 +1003,7 @@ CREATE TABLE `flume_channel_ext`
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_channel_ext` (`parent_name`)
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -1043,8 +1034,7 @@ CREATE TABLE `flume_sink_ext`
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
     `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_sink_ext` (`parent_name`)
+    PRIMARY KEY (`id`)
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
