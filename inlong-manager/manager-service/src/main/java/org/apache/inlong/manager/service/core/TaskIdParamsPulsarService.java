@@ -22,7 +22,7 @@ import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
 /**
  * Task config id params pulsar service layer interface
  */
-public interface TaskIdParamsPulsarServicce {
+public interface TaskIdParamsPulsarService {
 
     /**
      * Select pulsar id params by task name.

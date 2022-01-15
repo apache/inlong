@@ -15,26 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfig;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface SortClusterConfigMapper {
-    int deleteByPrimaryKey(Integer id);
+/**
+ * Sort Cluster config service layer interface.
+ */
+public interface SortClusterConfigService {
 
-    int insert(SortClusterConfig record);
 
-    int insertSelective(SortClusterConfig record);
-
-    SortClusterConfig selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfig record);
-
-    int updateByPrimaryKey(SortClusterConfig record);
-
-    List<String> selectTasksByClusterName(String clusterName);
 }

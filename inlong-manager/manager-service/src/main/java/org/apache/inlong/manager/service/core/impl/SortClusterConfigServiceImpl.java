@@ -18,29 +18,24 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.TaskIdParamsPulsarEntityMapper;
-import org.apache.inlong.manager.service.core.TaskIdParamsPulsarService;
+import org.apache.inlong.manager.dao.mapper.SortClusterConfigMapper;
+import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Implementation of task config id params pulsar service layer interface.
+ * Implementation of tSort Cluster config service layer interface.
  */
 @Service
 @Slf4j
-public class TaskIdParamsPulsarServiceImpl implements TaskIdParamsPulsarService {
+public class SortClusterConfigServiceImpl implements SortClusterConfigService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskIdParamsPulsarServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortClusterConfigServiceImpl.class);
 
     @Autowired
-    private TaskIdParamsPulsarEntityMapper idParamsPulsarEntityMapper;
+    private SortClusterConfigMapper sortClusterConfigMapper;
 
-    @Override
-    public TaskIdParamsPulsarEntity selectByTaskName(String taskName) {
-        LOGGER.info("Get id params pulsar config by task: {}", taskName);
-        return idParamsPulsarEntityMapper.selectByTaskName(taskName);
-    }
+
 }

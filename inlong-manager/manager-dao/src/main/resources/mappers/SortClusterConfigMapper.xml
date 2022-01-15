@@ -86,4 +86,9 @@
       task_name = #{taskName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectTasksByClusterName" parameterType="java.lang.String" resultType="java.lang.String">
+    select task_name
+    from sort_cluster_config
+    where cluster_name = #{clusterName,jdbcType=VARCHAR}
+  </select>
 </mapper>
