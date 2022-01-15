@@ -245,14 +245,14 @@
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>-->
+               enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="task_sink_params_es" domainObjectName="TaskSinkParamsEsEntity"
                enableSelectByPrimaryKey="true"
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+               enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
     </context>
 </generatorConfiguration>

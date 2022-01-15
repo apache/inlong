@@ -14,4 +14,6 @@ public interface TaskSinkParamsEsEntityMapper {
     int updateByPrimaryKeySelective(TaskSinkParamsEsEntity record);
 
     int updateByPrimaryKey(TaskSinkParamsEsEntity record);
+
+    TaskSinkParamsEsEntity selectByTaskName(String taskName);
 }
