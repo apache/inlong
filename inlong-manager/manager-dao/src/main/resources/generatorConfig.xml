@@ -38,7 +38,7 @@
         <!-- Database connection URL, username, password -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                 connectionURL="jdbc:mysql://127.0.0.1:3306/apache_inlong_manager?nullCatalogMeansCurrent=true"
-                userId="root" password="inlong">
+                userId="root" password="">
         </jdbcConnection>
 
         <javaTypeResolver>
@@ -211,6 +211,13 @@
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>-->
+
+        <table tableName="task_config" domainObjectName="TaskConfigEntity"
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
 
     </context>
 </generatorConfiguration>
