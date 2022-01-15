@@ -212,7 +212,7 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
-        <table tableName="task_config" domainObjectName="TaskConfigEntity"
+        <!--<table tableName="task_config" domainObjectName="TaskConfigEntity"
                enableSelectByPrimaryKey="true"
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
@@ -252,7 +252,7 @@
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+               enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
     </context>
 </generatorConfiguration>

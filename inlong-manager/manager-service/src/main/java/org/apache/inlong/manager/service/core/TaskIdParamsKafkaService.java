@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.service.core;
 
-public interface TaskConfigService {
+import org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity;
 
+public interface TaskIdParamsKafkaService {
 
+    TaskIdParamsKafkaEntity selectByPrimaryKey(Integer id);
 }
