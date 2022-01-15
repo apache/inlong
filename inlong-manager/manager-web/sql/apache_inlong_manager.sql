@@ -1102,6 +1102,20 @@ CREATE TABLE `flume_sink_ext`
   DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
 
 -- ----------------------------
+-- Table structure for sort_cluster_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_cluster_config`;
+CREATE TABLE `sort_cluster_config`
+(
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`      varchar(128) NOT NULL COMMENT 'Cluster name',
+    `task_name`         varchar(128) NOT NULL COMMENT 'Task name of cluster',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_cluster_config` (`cluster_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
+
+-- ----------------------------
 -- Table structure for task_config
 -- ----------------------------
 DROP TABLE IF EXISTS `task_config`;

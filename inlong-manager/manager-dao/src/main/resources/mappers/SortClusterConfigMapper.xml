@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.SortClusterConfigMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortClusterConfig">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="cluster_name" jdbcType="VARCHAR" property="clusterName" />
+    <result column="task_name" jdbcType="VARCHAR" property="taskName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, cluster_name, task_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sort_cluster_config
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sort_cluster_config
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfig">
+    insert into sort_cluster_config (id, cluster_name, task_name
+      )
+    values (#{id,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfig">
+    insert into sort_cluster_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="clusterName != null">
+        cluster_name,
+      </if>
+      <if test="taskName != null">
+        task_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="clusterName != null">
+        #{clusterName,jdbcType=VARCHAR},
+      </if>
+      <if test="taskName != null">
+        #{taskName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfig">
+    update sort_cluster_config
+    <set>
+      <if test="clusterName != null">
+        cluster_name = #{clusterName,jdbcType=VARCHAR},
+      </if>
+      <if test="taskName != null">
+        task_name = #{taskName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfig">
+    update sort_cluster_config
+    set cluster_name = #{clusterName,jdbcType=VARCHAR},
+      task_name = #{taskName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

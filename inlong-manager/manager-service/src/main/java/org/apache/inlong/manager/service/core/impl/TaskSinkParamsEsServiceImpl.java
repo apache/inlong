@@ -38,7 +38,6 @@ public class TaskSinkParamsEsServiceImpl implements TaskSinkParamsEsService {
     @Autowired
     private TaskSinkParamsEsEntityMapper sinkParamsEsEntityMapper;
 
-
     @Override
     public TaskSinkParamsEsEntity selectByTaskName(String taskName) {
         LOGGER.info("Get sink params es config by task: {}", taskName);
