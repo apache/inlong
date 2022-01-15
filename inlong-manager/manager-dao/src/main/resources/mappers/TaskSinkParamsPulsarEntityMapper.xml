@@ -16,6 +16,12 @@
     from task_sink_params_pulsar
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByTaskName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_sink_params_pulsar
+    where id = #{parentName,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from task_sink_params_pulsar
     where id = #{id,jdbcType=INTEGER}
