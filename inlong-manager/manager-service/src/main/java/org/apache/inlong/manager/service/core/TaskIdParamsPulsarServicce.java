@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity;
+import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
 
 /**
- * Task config id params kafka service layer interface
+ * Task config id params pulsar service layer interface
  */
-public interface TaskIdParamsKafkaService {
+public interface TaskIdParamsPulsarServicce {
 
     /**
-     * Select kafka id params by task name.
+     * Select pulsar id params by task name.
      * @param taskName Task name.
-     * @return Kafka id params.
+     * @return Pulsar id params.
      */
-    TaskIdParamsKafkaEntity selectByTaskName(String taskName);
+    TaskIdParamsPulsarEntity selectByTaskName(String taskName);
 }

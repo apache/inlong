@@ -18,29 +18,29 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.TaskIdParamsPulsarEntityMapper;
-import org.apache.inlong.manager.service.core.TaskIdParamsPulsarServicce;
+import org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity;
+import org.apache.inlong.manager.dao.mapper.TaskSinkParamsKafkaEntityMapper;
+import org.apache.inlong.manager.service.core.TaskSinkParamsKafkaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Implementation of task config id params pulsar service layer interface.
+ * Implementation of task config sink params kafka service layer interface.
  */
 @Service
 @Slf4j
-public class TaskIdParamsPulsarServiceImpl implements TaskIdParamsPulsarServicce {
+public class TaskSinkParamsKafkaServiceImpl implements TaskSinkParamsKafkaService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskIdParamsPulsarServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskSinkParamsKafkaServiceImpl.class);
 
     @Autowired
-    private TaskIdParamsPulsarEntityMapper idParamsPulsarEntityMapper;
+    private TaskSinkParamsKafkaEntityMapper sinkParamsKafkaEntityMapper;
 
     @Override
-    public TaskIdParamsPulsarEntity selectByTaskName(String taskName) {
-        LOGGER.info("Get id params pulsar config by task: {}", taskName);
-        return idParamsPulsarEntityMapper.selectByTaskName(taskName);
+    public TaskSinkParamsKafkaEntity selectByTaskName(String taskName) {
+        LOGGER.info("Get sink params kafka config by task: {}", taskName);
+        return sinkParamsKafkaEntityMapper.selectByTaskName(taskName);
     }
 }

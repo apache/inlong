@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.operationlog;
+package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
+import org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity;
 
 /**
- * Task config id params pulsar service layer interface
+ * Task config sink params kafka service layer interface.
  */
-public interface TaskIdParamsPulsarServicce {
+public interface TaskSinkParamsKafkaService {
 
     /**
-     * Select pulsar id params by task name.
-     * @param taskName Task name
-     * @return pulsar id params
+     * Select kafka sink params by task name.
+     * @param taskName Task name.
+     * @return Kafka sink params.
      */
-    TaskIdParamsPulsarEntity selectByTaskName(String taskName);
+    TaskSinkParamsKafkaEntity selectByTaskName(String taskName);
 }

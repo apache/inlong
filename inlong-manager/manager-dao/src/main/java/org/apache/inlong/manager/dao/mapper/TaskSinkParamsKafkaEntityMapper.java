@@ -33,4 +33,6 @@ public interface TaskSinkParamsKafkaEntityMapper {
     int updateByPrimaryKeySelective(TaskSinkParamsKafkaEntity record);
 
     int updateByPrimaryKey(TaskSinkParamsKafkaEntity record);
+
+    TaskSinkParamsKafkaEntity selectByTaskName(String taskName);
 }
