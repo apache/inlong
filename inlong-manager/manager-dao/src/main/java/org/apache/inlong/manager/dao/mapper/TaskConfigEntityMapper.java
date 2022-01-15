@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.TaskConfigEntity;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface TaskConfigEntityMapper {
     int deleteByPrimaryKey(Integer id);
 

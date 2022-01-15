@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface TaskSinkParamsPulsarEntityMapper {
     int deleteByPrimaryKey(Integer id);
 

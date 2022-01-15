@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface TaskIdParamsKafkaEntityMapper {
     int deleteByPrimaryKey(Integer id);
 
