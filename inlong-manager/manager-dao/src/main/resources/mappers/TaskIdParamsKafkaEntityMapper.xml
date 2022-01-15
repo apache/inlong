@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskIdParamsKafkaEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="parent_name" jdbcType="VARCHAR" property="parentName" />
+    <result column="topic" jdbcType="VARCHAR" property="topic" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, parent_name, topic
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task_id_params_kafka
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from task_id_params_kafka
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity">
+    insert into task_id_params_kafka (id, parent_name, topic
+      )
+    values (#{id,jdbcType=INTEGER}, #{parentName,jdbcType=VARCHAR}, #{topic,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity">
+    insert into task_id_params_kafka
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="parentName != null">
+        parent_name,
+      </if>
+      <if test="topic != null">
+        topic,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentName != null">
+        #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="topic != null">
+        #{topic,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity">
+    update task_id_params_kafka
+    <set>
+      <if test="parentName != null">
+        parent_name = #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="topic != null">
+        topic = #{topic,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity">
+    update task_id_params_kafka
+    set parent_name = #{parentName,jdbcType=VARCHAR},
+      topic = #{topic,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1153,8 +1153,8 @@ CREATE TABLE `task_sink_params_kafka`
 (
     `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `parent_name`   varchar(128) NOT NULL COMMENT 'Task name',
-    `zkList`        varchar(128) NOT NULL COMMENT 'List of ZooKeeper',
-    `brokerList`    varchar(128) NOT NULL COMMENT 'List of Broker',
+    `zk_list`        varchar(128) NOT NULL COMMENT 'List of ZooKeeper',
+    `broker_list`    varchar(128) NOT NULL COMMENT 'List of Broker',
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_kafka`(`parent_name`)
 ) ENGINE = InnoDB
@@ -1168,7 +1168,7 @@ CREATE TABLE `task_sink_params_pulsar`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `parent_name`       varchar(128) NOT NULL COMMENT 'Task name',
-    `serviceUrl`        varchar(128) NOT NULL COMMENT 'Service URL of pulsar',
+    `service_url`        varchar(128) NOT NULL COMMENT 'Service URL of pulsar',
     `authentication`    varchar(128) NOT NULL COMMENT 'Authentication token of pulsar',
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_pulsar`(`parent_name`)
@@ -1181,12 +1181,12 @@ CREATE TABLE `task_sink_params_pulsar`
 DROP TABLE IF EXISTS `task_sink_params_es`;
 CREATE TABLE `task_sink_params_es`
 (
-    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `parent_name`       varchar(128) NOT NULL COMMENT 'Task name',
-    `nameService`       varchar(128) NOT NULL COMMENT 'Name Service elastic search',
-    `userName`          varchar(128) NOT NULL COMMENT 'User name',
-    `password`          varchar(128) NOT NULL COMMNET 'Password',
-    `esVersion`         varchar(128) NOT NULL COMMENT 'Version of elastic search'
+    `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`        varchar(128) NOT NULL COMMENT 'Task name',
+    `nameService`        varchar(128) NOT NULL COMMENT 'Name Service elastic search',
+    `user_name`          varchar(128) NOT NULL COMMENT 'User name of es set',
+    `pass_word`          varchar(128) NOT NULL COMMENT 'Password of es set',
+    `es_version`         varchar(128) NOT NULL COMMENT 'Version of elastic search',
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_es`(`parent_name`)
 ) ENGINE = InnoDB
