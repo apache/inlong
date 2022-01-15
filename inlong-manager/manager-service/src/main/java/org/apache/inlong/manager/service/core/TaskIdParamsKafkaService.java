@@ -19,7 +19,15 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity;
 
+/**
+ * Task config id params kafka service layer interface
+ */
 public interface TaskIdParamsKafkaService {
 
-    TaskIdParamsKafkaEntity selectByPrimaryKey(Integer id);
+    /**
+     * Select kafka id params by task name.
+     * @param taskName Task name
+     * @return kafka id params
+     */
+    TaskIdParamsKafkaEntity selectByTaskName(String taskName);
 }
