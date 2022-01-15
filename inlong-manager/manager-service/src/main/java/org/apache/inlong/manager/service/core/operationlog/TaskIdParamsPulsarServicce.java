@@ -15,24 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.core.operationlog;
 
 import org.apache.inlong.manager.dao.entity.TaskIdParamsPulsarEntity;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface TaskIdParamsPulsarEntityMapper {
-    int deleteByPrimaryKey(Integer id);
+/**
+ * Task config id params pulsar service layer interface
+ */
+public interface TaskIdParamsPulsarServicce {
 
-    int insert(TaskIdParamsPulsarEntity record);
-
-    int insertSelective(TaskIdParamsPulsarEntity record);
-
-    TaskIdParamsPulsarEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(TaskIdParamsPulsarEntity record);
-
-    int updateByPrimaryKey(TaskIdParamsPulsarEntity record);
-
+    /**
+     * Select pulsar id params by task name.
+     * @param taskName Task name
+     * @return pulsar id params
+     */
     TaskIdParamsPulsarEntity selectByTaskName(String taskName);
 }
