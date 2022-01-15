@@ -653,7 +653,8 @@ CREATE TABLE `storage_hive_field`
     `is_exist`          tinyint(1)    DEFAULT '0' COMMENT 'Does it exist, 0: does not exist, 1: exists',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_storage_id` (`storage_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data stored in Hive field';
 
@@ -1101,35 +1102,95 @@ CREATE TABLE `flume_sink_ext`
   DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
 
 -- ----------------------------
--- Table structure for db_collector_detail_task
+-- Table structure for task_config
 -- ----------------------------
-DROP TABLE IF EXISTS `db_collector_detail_task`;
-CREATE TABLE `db_collector_detail_task`
+DROP TABLE IF EXISTS `task_config`;
+CREATE TABLE `task_config`
 (
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `main_id`     varchar(128) NOT NULL COMMENT 'main task id',
-    `type`        int(11)      NOT NULL COMMENT 'task type',
-    `time_var`    varchar(64)  NOT NULL COMMENT 'time variable',
-    `db_type`     int(11)      NOT NULL COMMENT 'db type',
-    `ip`          varchar(64)  NOT NULL COMMENT 'db ip',
-    `port`        int(11)      NOT NULL COMMENT 'db port',
-    `db_name`     varchar(64)  NULL COMMENT 'db name',
-    `user`        varchar(64)  NULL COMMENT 'user name',
-    `password`    varchar(64)  NULL COMMENT 'password',
-    `sql`         varchar(256) NULL COMMENT 'sql statement',
-    `offset`      int(11)      NOT NULL COMMENT 'offset for the data source',
-    `total_limit` int(11)      NOT NULL COMMENT 'total limit in a task',
-    `once_limit`  int(11)      NOT NULL COMMENT 'limit for one query',
-    `time_limit`  int(11)      NOT NULL COMMENT 'time limit for task',
-    `retry_times` int(11)      NOT NULL COMMENT 'max retry times if task failes',
-    `group_id`    varchar(64)  NULL COMMENT 'group id',
-    `stream_id`   varchar(64)  NULL COMMENT 'stream id',
-    `state`       int(11)      NOT NULL COMMENT 'task state',
-    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`              varchar(128) NOT NULL COMMENT 'Task name',
+    `type`              varchar(64)  NOT NULL COMMENT 'Type of dispatch',
+    `inlong_group_id`   varchar(128) NOT NULL COMMENT 'Owning business group id',
+    `inlong_stream_id`  varchar(128) NOT NULL COMMENT 'Owning data stream id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_sort_task_config` (`name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task basic id params table';
+
+-- ----------------------------
+-- Table structure for id_params_kafka
+-- ----------------------------
+DROP TABLE IF EXISTS `task_id_params_kafka`;
+CREATE TABLE `task_id_params_kafka`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`   varchar(128) NOT NULL COMMENT 'Task name',
+    `topic`         varchar(128) NOT NULL COMMENT 'Topic of data store kafka set',
+    PRIMARY KEY (`id`),
+    KEY `index_task_id_params_kafka`(`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task kafka id params';
+
+-- ----------------------------
+-- Table structure for id_params_pulsar
+-- ----------------------------
+DROP TABLE IF EXISTS `task_id_params_pulsar`;
+CREATE TABLE `task_id_params_pulsar`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`   varchar(128) NOT NULL COMMENT 'Task name',
+    `topic`         varchar(128) NOT NULL COMMENT 'Topic of data store pulsar set',
+    PRIMARY KEY (`id`),
+    KEY `index_task_id_params_pulsar`(`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task pulsar id params';
+
+-- ----------------------------
+-- Table structure for task_sink_params_kafka
+-- ----------------------------
+DROP TABLE IF EXISTS `task_sink_params_kafka`;
+CREATE TABLE `task_sink_params_kafka`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`   varchar(128) NOT NULL COMMENT 'Task name',
+    `zkList`        varchar(128) NOT NULL COMMENT 'List of ZooKeeper',
+    `brokerList`    varchar(128) NOT NULL COMMENT 'List of Broker',
+    PRIMARY KEY (`id`),
+    KEY `index_task_sink_params_kafka`(`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task kafka sink params';
+
+-- ----------------------------
+-- Table structure for task_sink_params_pulsar
+-- ----------------------------
+DROP TABLE IF EXISTS `task_sink_params_pulsar`;
+CREATE TABLE `task_sink_params_pulsar`
+(
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`       varchar(128) NOT NULL COMMENT 'Task name',
+    `serviceUrl`        varchar(128) NOT NULL COMMENT 'Service URL of pulsar',
+    `authentication`    varchar(128) NOT NULL COMMENT 'Authentication token of pulsar',
+    PRIMARY KEY (`id`),
+    KEY `index_task_sink_params_pulsar`(`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task pulsar sink params';
+
+-- ----------------------------
+-- Table structure for task_sink_params_es
+-- ----------------------------
+DROP TABLE IF EXISTS `task_sink_params_es`;
+CREATE TABLE `task_sink_params_es`
+(
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_name`       varchar(128) NOT NULL COMMENT 'Task name',
+    `nameService`       varchar(128) NOT NULL COMMENT 'Name Service elastic search',
+    `userName`          varchar(128) NOT NULL COMMENT 'User name',
+    `password`          varchar(128) NOT NULL COMMNET 'Password',
+    `esVersion`         varchar(128) NOT NULL COMMENT 'Version of elastic search'
+    PRIMARY KEY (`id`),
+    KEY `index_task_sink_params_es`(`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task es sink params';
 
 
 SET FOREIGN_KEY_CHECKS = 1;
