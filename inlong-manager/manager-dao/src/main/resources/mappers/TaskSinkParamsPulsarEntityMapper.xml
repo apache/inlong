@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskSinkParamsPulsarEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="parent_name" jdbcType="VARCHAR" property="parentName" />
+    <result column="service_url" jdbcType="VARCHAR" property="serviceUrl" />
+    <result column="authentication" jdbcType="VARCHAR" property="authentication" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, parent_name, service_url, authentication
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task_sink_params_pulsar
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from task_sink_params_pulsar
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity">
+    insert into task_sink_params_pulsar (id, parent_name, service_url, 
+      authentication)
+    values (#{id,jdbcType=INTEGER}, #{parentName,jdbcType=VARCHAR}, #{serviceUrl,jdbcType=VARCHAR}, 
+      #{authentication,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity">
+    insert into task_sink_params_pulsar
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="parentName != null">
+        parent_name,
+      </if>
+      <if test="serviceUrl != null">
+        service_url,
+      </if>
+      <if test="authentication != null">
+        authentication,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentName != null">
+        #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceUrl != null">
+        #{serviceUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="authentication != null">
+        #{authentication,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity">
+    update task_sink_params_pulsar
+    <set>
+      <if test="parentName != null">
+        parent_name = #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceUrl != null">
+        service_url = #{serviceUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="authentication != null">
+        authentication = #{authentication,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity">
+    update task_sink_params_pulsar
+    set parent_name = #{parentName,jdbcType=VARCHAR},
+      service_url = #{serviceUrl,jdbcType=VARCHAR},
+      authentication = #{authentication,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

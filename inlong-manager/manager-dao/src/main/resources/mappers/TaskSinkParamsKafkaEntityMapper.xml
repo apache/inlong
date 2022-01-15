@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskSinkParamsKafkaEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="parent_name" jdbcType="VARCHAR" property="parentName" />
+    <result column="zk_list" jdbcType="VARCHAR" property="zkList" />
+    <result column="broker_list" jdbcType="VARCHAR" property="brokerList" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, parent_name, zk_list, broker_list
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task_sink_params_kafka
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from task_sink_params_kafka
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity">
+    insert into task_sink_params_kafka (id, parent_name, zk_list, 
+      broker_list)
+    values (#{id,jdbcType=INTEGER}, #{parentName,jdbcType=VARCHAR}, #{zkList,jdbcType=VARCHAR}, 
+      #{brokerList,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity">
+    insert into task_sink_params_kafka
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="parentName != null">
+        parent_name,
+      </if>
+      <if test="zkList != null">
+        zk_list,
+      </if>
+      <if test="brokerList != null">
+        broker_list,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentName != null">
+        #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkList != null">
+        #{zkList,jdbcType=VARCHAR},
+      </if>
+      <if test="brokerList != null">
+        #{brokerList,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity">
+    update task_sink_params_kafka
+    <set>
+      <if test="parentName != null">
+        parent_name = #{parentName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkList != null">
+        zk_list = #{zkList,jdbcType=VARCHAR},
+      </if>
+      <if test="brokerList != null">
+        broker_list = #{brokerList,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity">
+    update task_sink_params_kafka
+    set parent_name = #{parentName,jdbcType=VARCHAR},
+      zk_list = #{zkList,jdbcType=VARCHAR},
+      broker_list = #{brokerList,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

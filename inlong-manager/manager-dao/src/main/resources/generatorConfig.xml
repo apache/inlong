@@ -226,5 +226,33 @@
                enableCountByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" enableUpdateByExample="false"/>
 
+        <table tableName="task_id_params_pulsar" domainObjectName="TaskIdParamsPulsarEntity"
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="task_sink_params_kafka" domainObjectName="TaskSinkParamsKafkaEntity"
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="task_sink_params_pulsar" domainObjectName="TaskSinkParamsPulsarEntity"
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="task_sink_params_es" domainObjectName="TaskSinkParamsEs"
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
     </context>
 </generatorConfiguration>
