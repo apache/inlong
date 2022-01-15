@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.metrics;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,7 +26,7 @@ import org.apache.inlong.tubemq.corebase.metric.GaugeMaxMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.GaugeMinMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.GaugeNormMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.MetricValues;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 public class BrokerMetrics implements BrokerMetricMXBean {
 
@@ -73,8 +72,8 @@ public class BrokerMetrics implements BrokerMetricMXBean {
         metricValues.put(ioExceptionCnt.getName(), ioExceptionCnt.getValue());
         metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getValue());
         metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getValue());
-        return new MetricValues(WebParameterUtils.date2yyyyMMddHHmmss(
-                new Date(lastResetTime.get())), metricValues);
+        return new MetricValues(
+                DateTimeConvertUtils.ms2yyyyMMddHHmmss(lastResetTime.get()), metricValues);
     }
 
     @Override
@@ -92,7 +91,7 @@ public class BrokerMetrics implements BrokerMetricMXBean {
         metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getAndSet());
         long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
         return new MetricValues(
-                WebParameterUtils.date2yyyyMMddHHmmss(new Date(befTime)), metricValues);
+                DateTimeConvertUtils.ms2yyyyMMddHHmmss(befTime), metricValues);
     }
 
     public long getLastResetTime() {
