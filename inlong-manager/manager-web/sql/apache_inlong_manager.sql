@@ -1183,7 +1183,7 @@ CREATE TABLE `task_sink_params_es`
 (
     `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `parent_name`        varchar(128) NOT NULL COMMENT 'Task name',
-    `nameService`        varchar(128) NOT NULL COMMENT 'Name Service elastic search',
+    `name_service`        varchar(128) NOT NULL COMMENT 'Name Service elastic search',
     `user_name`          varchar(128) NOT NULL COMMENT 'User name of es set',
     `pass_word`          varchar(128) NOT NULL COMMENT 'Password of es set',
     `es_version`         varchar(128) NOT NULL COMMENT 'Version of elastic search',

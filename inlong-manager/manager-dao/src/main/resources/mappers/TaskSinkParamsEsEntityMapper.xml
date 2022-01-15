@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskSinkParamsEsMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskSinkParamsEs">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TaskSinkParamsEsEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="parent_name" jdbcType="VARCHAR" property="parentName" />
-    <result column="nameService" jdbcType="VARCHAR" property="nameservice" />
+    <result column="name_service" jdbcType="VARCHAR" property="nameService" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="pass_word" jdbcType="VARCHAR" property="passWord" />
     <result column="es_version" jdbcType="VARCHAR" property="esVersion" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, parent_name, nameService, user_name, pass_word, es_version
+    id, parent_name, name_service, user_name, pass_word, es_version
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -22,15 +22,15 @@
     delete from task_sink_params_es
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEs">
-    insert into task_sink_params_es (id, parent_name, nameService, 
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity">
+    insert into task_sink_params_es (id, parent_name, name_service, 
       user_name, pass_word, es_version
       )
-    values (#{id,jdbcType=INTEGER}, #{parentName,jdbcType=VARCHAR}, #{nameservice,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{parentName,jdbcType=VARCHAR}, #{nameService,jdbcType=VARCHAR}, 
       #{userName,jdbcType=VARCHAR}, #{passWord,jdbcType=VARCHAR}, #{esVersion,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEs">
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity">
     insert into task_sink_params_es
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -39,8 +39,8 @@
       <if test="parentName != null">
         parent_name,
       </if>
-      <if test="nameservice != null">
-        nameService,
+      <if test="nameService != null">
+        name_service,
       </if>
       <if test="userName != null">
         user_name,
@@ -59,8 +59,8 @@
       <if test="parentName != null">
         #{parentName,jdbcType=VARCHAR},
       </if>
-      <if test="nameservice != null">
-        #{nameservice,jdbcType=VARCHAR},
+      <if test="nameService != null">
+        #{nameService,jdbcType=VARCHAR},
       </if>
       <if test="userName != null">
         #{userName,jdbcType=VARCHAR},
@@ -73,14 +73,14 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEs">
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity">
     update task_sink_params_es
     <set>
       <if test="parentName != null">
         parent_name = #{parentName,jdbcType=VARCHAR},
       </if>
-      <if test="nameservice != null">
-        nameService = #{nameservice,jdbcType=VARCHAR},
+      <if test="nameService != null">
+        name_service = #{nameService,jdbcType=VARCHAR},
       </if>
       <if test="userName != null">
         user_name = #{userName,jdbcType=VARCHAR},
@@ -94,10 +94,10 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEs">
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity">
     update task_sink_params_es
     set parent_name = #{parentName,jdbcType=VARCHAR},
-      nameService = #{nameservice,jdbcType=VARCHAR},
+      name_service = #{nameService,jdbcType=VARCHAR},
       user_name = #{userName,jdbcType=VARCHAR},
       pass_word = #{passWord,jdbcType=VARCHAR},
       es_version = #{esVersion,jdbcType=VARCHAR}

@@ -1,30 +1,13 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.inlong.manager.dao.entity;
 
 import java.io.Serializable;
 
-public class TaskSinkParamsEs implements Serializable {
+public class TaskSinkParamsEsEntity implements Serializable {
     private Integer id;
 
     private String parentName;
 
-    private String nameservice;
+    private String nameService;
 
     private String userName;
 
@@ -50,12 +33,12 @@ public class TaskSinkParamsEs implements Serializable {
         this.parentName = parentName == null ? null : parentName.trim();
     }
 
-    public String getNameservice() {
-        return nameservice;
+    public String getNameService() {
+        return nameService;
     }
 
-    public void setNameservice(String nameservice) {
-        this.nameservice = nameservice == null ? null : nameservice.trim();
+    public void setNameService(String nameService) {
+        this.nameService = nameService == null ? null : nameService.trim();
     }
 
     public String getUserName() {
@@ -93,10 +76,10 @@ public class TaskSinkParamsEs implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        TaskSinkParamsEs other = (TaskSinkParamsEs) that;
+        TaskSinkParamsEsEntity other = (TaskSinkParamsEsEntity) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getParentName() == null ? other.getParentName() == null : this.getParentName().equals(other.getParentName()))
-            && (this.getNameservice() == null ? other.getNameservice() == null : this.getNameservice().equals(other.getNameservice()))
+            && (this.getNameService() == null ? other.getNameService() == null : this.getNameService().equals(other.getNameService()))
             && (this.getUserName() == null ? other.getUserName() == null : this.getUserName().equals(other.getUserName()))
             && (this.getPassWord() == null ? other.getPassWord() == null : this.getPassWord().equals(other.getPassWord()))
             && (this.getEsVersion() == null ? other.getEsVersion() == null : this.getEsVersion().equals(other.getEsVersion()));
@@ -108,7 +91,7 @@ public class TaskSinkParamsEs implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getParentName() == null) ? 0 : getParentName().hashCode());
-        result = prime * result + ((getNameservice() == null) ? 0 : getNameservice().hashCode());
+        result = prime * result + ((getNameService() == null) ? 0 : getNameService().hashCode());
         result = prime * result + ((getUserName() == null) ? 0 : getUserName().hashCode());
         result = prime * result + ((getPassWord() == null) ? 0 : getPassWord().hashCode());
         result = prime * result + ((getEsVersion() == null) ? 0 : getEsVersion().hashCode());
@@ -123,7 +106,7 @@ public class TaskSinkParamsEs implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", parentName=").append(parentName);
-        sb.append(", nameservice=").append(nameservice);
+        sb.append(", nameService=").append(nameService);
         sb.append(", userName=").append(userName);
         sb.append(", passWord=").append(passWord);
         sb.append(", esVersion=").append(esVersion);
