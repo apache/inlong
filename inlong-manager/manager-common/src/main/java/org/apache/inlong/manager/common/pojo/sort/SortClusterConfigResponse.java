@@ -28,6 +28,14 @@ import java.util.Map;
 @ApiModel("sort cluster config")
 public class SortClusterConfigResponse {
 
+    public static final int RESP_CODE_SUCC = 0;
+
+    public static final int RESP_CODE_NO_UPDATE = 1;
+
+    public static final int RESP_CODE_FAIL = -1;
+
+    public static final int RESP_CODE_REQ_PARAMS_ERROR = -101;
+
     @ApiModelProperty(value = "result")
     boolean result;
 
@@ -40,6 +48,7 @@ public class SortClusterConfigResponse {
     @ApiModelProperty(value = "sort cluster config")
     SortClusterConfig clusterConfig;
 
+    @Data
     public static class SortClusterConfig {
 
         @ApiModelProperty("clusterName")
@@ -49,6 +58,7 @@ public class SortClusterConfigResponse {
         List<SortTaskConfig> sortTaskConfig;
     }
 
+    @Data
     public static class SortTaskConfig {
 
         @ApiModelProperty("name")

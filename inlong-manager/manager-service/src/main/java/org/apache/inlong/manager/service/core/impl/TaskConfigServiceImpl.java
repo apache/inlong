@@ -15,19 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.core.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.entity.TaskConfigEntity;
+import org.apache.inlong.manager.dao.mapper.TaskConfigEntityMapper;
+import org.apache.inlong.manager.service.core.TaskConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
- * Task config service layer interface
+ * Implementation of task config service layer interface.
  */
-public interface TaskConfigService {
+@Service
+@Slf4j
+public class TaskConfigServiceImpl implements TaskConfigService {
 
-    /**
-     * Select task config by task name.
-     * @param taskName Task name.
-     * @return Task config.
-     */
-    TaskConfigEntity selectByTaskName(String taskName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskConfigServiceImpl.class);
+
+    @Autowired
+    private TaskConfigEntityMapper configEntityMapper;
+
+    @Override
+    public TaskConfigEntity selectByTaskName(String taskName) {
+        return configEntityMapper.selectByTaskName(taskName);
+    }
 }

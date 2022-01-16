@@ -17,6 +17,12 @@
     from task_config
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByTaskName" parameterType="java.lang.String" resultType="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_config
+    where name = #{taskName,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from task_config
     where id = #{id,jdbcType=INTEGER}

@@ -18,12 +18,19 @@
 package org.apache.inlong.manager.service.core;
 
 
-import java.util.List;
+import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+
 
 /**
  * Sort Cluster config service layer interface.
  */
 public interface SortClusterConfigService {
 
-
+    /**
+     * Get sort cluster config
+     * @param clusterName Cluster name.
+     * @param md5 Last Md5.
+     * @return SortClusterConfigResponse.
+     */
+    SortClusterConfigResponse get(String clusterName, String md5);
 }

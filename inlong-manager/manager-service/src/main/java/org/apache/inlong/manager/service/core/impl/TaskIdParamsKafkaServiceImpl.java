@@ -44,6 +44,9 @@ public class TaskIdParamsKafkaServiceImpl implements TaskIdParamsKafkaService {
     public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get id params kafka config by task: {}", taskName);
         Map<String, String> idParams = idParamsKafkaEntityMapper.selectByTaskName(taskName);
+        if (idParams == null || idParams.isEmpty()) {
+            return null;
+        }
         idParams.put("type", "kafka");
         return idParams;
     }

@@ -33,4 +33,6 @@ public interface TaskConfigEntityMapper {
     int updateByPrimaryKeySelective(TaskConfigEntity record);
 
     int updateByPrimaryKey(TaskConfigEntity record);
+
+    TaskConfigEntity selectByTaskName(String taskName);
 }

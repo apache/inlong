@@ -44,6 +44,9 @@ public class TaskIdParamsPulsarServiceImpl implements TaskIdParamsPulsarService 
     public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get id params pulsar config by task: {}", taskName);
         Map<String, String> idParams = idParamsPulsarEntityMapper.selectByTaskName(taskName);
+        if (idParams == null || idParams.isEmpty()) {
+            return null;
+        }
         idParams.put("type", "pulsar");
         return idParams;
     }
