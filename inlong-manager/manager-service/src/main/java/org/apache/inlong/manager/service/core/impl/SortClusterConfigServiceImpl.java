@@ -19,11 +19,13 @@ package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfigMapper;
-import org.apache.inlong.manager.service.core.SortClusterConfigService;
+import org.apache.inlong.manager.service.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Implementation of tSort Cluster config service layer interface.
@@ -36,6 +38,25 @@ public class SortClusterConfigServiceImpl implements SortClusterConfigService {
 
     @Autowired
     private SortClusterConfigMapper sortClusterConfigMapper;
+
+    @Autowired
+    private TaskIdParamsPulsarService idParamsPulsarService;
+
+    @Autowired
+    private TaskIdParamsKafkaService idParamsKafkaService;
+
+    @Autowired
+    private TaskSinkParamsEsService sinkParamsEsService;
+
+    @Autowired
+    private TaskSinkParamsKafkaService sinkParamsKafkaService;
+
+    @Autowired
+    private TaskSinkParamsPulsarService sinkParamsPulsarService;
+
+    List<String> selectTasksByClusterName(String clusterName) {
+        return sortClusterConfigMapper.selectTasksByClusterName(clusterName);
+    }
 
 
 }

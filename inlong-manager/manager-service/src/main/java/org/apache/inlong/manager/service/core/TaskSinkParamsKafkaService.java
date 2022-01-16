@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity;
 
+import java.util.Map;
+
 /**
  * Task config sink params kafka service layer interface.
  */
@@ -29,5 +31,5 @@ public interface TaskSinkParamsKafkaService {
      * @param taskName Task name.
      * @return Kafka sink params.
      */
-    TaskSinkParamsKafkaEntity selectByTaskName(String taskName);
+    Map<String, String> selectByTaskName(String taskName);
 }

@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.dao.entity.TaskSinkParamsEsEntity;
 
+import java.util.Map;
+
 /**
  * Task config sink params es service layer interface.
  */
@@ -29,5 +31,5 @@ public interface TaskSinkParamsEsService {
      * @param taskName Task name.
      * @return Es sink params.
      */
-    TaskSinkParamsEsEntity selectByTaskName(String taskName);
+    Map<String, String> selectByTaskName(String taskName);
 }

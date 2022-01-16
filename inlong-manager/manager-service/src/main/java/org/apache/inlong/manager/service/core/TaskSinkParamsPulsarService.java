@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity;
 
+import java.util.Map;
+
 /**
  * Task config sink params pulsar service layer interface.
  */
@@ -29,5 +31,5 @@ public interface TaskSinkParamsPulsarService {
      * @param taskName Task name.
      * @return Pulsar sink params.
      */
-    TaskSinkParamsPulsarEntity selectByTaskName(String taskName);
+    Map<String, String> selectByTaskName(String taskName);
 }

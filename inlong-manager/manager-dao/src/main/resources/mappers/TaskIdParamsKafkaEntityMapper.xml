@@ -33,7 +33,7 @@
     from task_id_params_kafka
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByTaskName" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByTaskName" parameterType="java.lang.String" resultMap="java.util.HashMap">
   select
   <include refid="Base_Column_List" />
   from task_id_params_kafka

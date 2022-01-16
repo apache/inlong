@@ -20,6 +20,8 @@ package org.apache.inlong.manager.dao.mapper;
 import org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface TaskSinkParamsPulsarEntityMapper {
     int deleteByPrimaryKey(Integer id);
@@ -34,5 +36,5 @@ public interface TaskSinkParamsPulsarEntityMapper {
 
     int updateByPrimaryKey(TaskSinkParamsPulsarEntity record);
 
-    TaskSinkParamsPulsarEntity selectByTaskName(String taskName);
+    Map<String, String> selectByTaskName(String taskName);
 }

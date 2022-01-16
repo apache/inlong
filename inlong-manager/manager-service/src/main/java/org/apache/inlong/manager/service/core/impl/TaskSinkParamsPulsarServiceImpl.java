@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Implementation of task config sink params pulsar service layer interface.
  */
@@ -39,8 +41,10 @@ public class TaskSinkParamsPulsarServiceImpl implements TaskSinkParamsPulsarServ
     private TaskSinkParamsPulsarEntityMapper sinkParamsPulsarEntityMapper;
 
     @Override
-    public TaskSinkParamsPulsarEntity selectByTaskName(String taskName) {
+    public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get sink params pulsar config by task: {}", taskName);
-        return sinkParamsPulsarEntityMapper.selectByTaskName(taskName);
+        Map<String, String> sinkParams = sinkParamsPulsarEntityMapper.selectByTaskName(taskName);
+        sinkParams.put("type", "pulsar");
+        return sinkParams;
     }
 }

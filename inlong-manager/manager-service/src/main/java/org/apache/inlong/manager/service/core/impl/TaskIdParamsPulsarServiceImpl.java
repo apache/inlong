@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Implementation of task config id params pulsar service layer interface.
  */
@@ -39,8 +41,10 @@ public class TaskIdParamsPulsarServiceImpl implements TaskIdParamsPulsarService 
     private TaskIdParamsPulsarEntityMapper idParamsPulsarEntityMapper;
 
     @Override
-    public TaskIdParamsPulsarEntity selectByTaskName(String taskName) {
+    public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get id params pulsar config by task: {}", taskName);
-        return idParamsPulsarEntityMapper.selectByTaskName(taskName);
+        Map<String, String> idParams = idParamsPulsarEntityMapper.selectByTaskName(taskName);
+        idParams.put("type", "pulsar");
+        return idParams;
     }
 }

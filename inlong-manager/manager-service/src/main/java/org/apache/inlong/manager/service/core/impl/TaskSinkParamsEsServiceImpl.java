@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Implementation of task config sink params es service layer interface.
  */
@@ -39,8 +41,10 @@ public class TaskSinkParamsEsServiceImpl implements TaskSinkParamsEsService {
     private TaskSinkParamsEsEntityMapper sinkParamsEsEntityMapper;
 
     @Override
-    public TaskSinkParamsEsEntity selectByTaskName(String taskName) {
+    public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get sink params es config by task: {}", taskName);
-        return sinkParamsEsEntityMapper.selectByTaskName(taskName);
+        Map<String, String> sinkParams = sinkParamsEsEntityMapper.selectByTaskName(taskName);
+        sinkParams.put("type", "es");
+        return sinkParams;
     }
 }

@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Implementation of task config id params kafka service layer interface.
  */
@@ -39,8 +41,10 @@ public class TaskIdParamsKafkaServiceImpl implements TaskIdParamsKafkaService {
     private TaskIdParamsKafkaEntityMapper idParamsKafkaEntityMapper;
 
     @Override
-    public TaskIdParamsKafkaEntity selectByTaskName(String taskName) {
+    public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get id params kafka config by task: {}", taskName);
-        return idParamsKafkaEntityMapper.selectByTaskName(taskName);
+        Map<String, String> idParams = idParamsKafkaEntityMapper.selectByTaskName(taskName);
+        idParams.put("type", "kafka");
+        return idParams;
     }
 }

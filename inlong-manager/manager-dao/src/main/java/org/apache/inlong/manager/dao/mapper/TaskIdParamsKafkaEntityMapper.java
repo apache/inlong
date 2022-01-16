@@ -20,6 +20,8 @@ package org.apache.inlong.manager.dao.mapper;
 import org.apache.inlong.manager.dao.entity.TaskIdParamsKafkaEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface TaskIdParamsKafkaEntityMapper {
     int deleteByPrimaryKey(Integer id);
@@ -34,5 +36,5 @@ public interface TaskIdParamsKafkaEntityMapper {
 
     int updateByPrimaryKey(TaskIdParamsKafkaEntity record);
 
-    TaskIdParamsKafkaEntity selectByTaskName(String taskName);
+    Map<String, String> selectByTaskName(String taskName);
 }

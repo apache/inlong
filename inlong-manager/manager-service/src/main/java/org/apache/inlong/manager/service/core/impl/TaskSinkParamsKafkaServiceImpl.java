@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Implementation of task config sink params kafka service layer interface.
  */
@@ -39,8 +41,10 @@ public class TaskSinkParamsKafkaServiceImpl implements TaskSinkParamsKafkaServic
     private TaskSinkParamsKafkaEntityMapper sinkParamsKafkaEntityMapper;
 
     @Override
-    public TaskSinkParamsKafkaEntity selectByTaskName(String taskName) {
+    public Map<String, String> selectByTaskName(String taskName) {
         LOGGER.info("Get sink params kafka config by task: {}", taskName);
-        return sinkParamsKafkaEntityMapper.selectByTaskName(taskName);
+        Map<String, String> sinkParams = sinkParamsKafkaEntityMapper.selectByTaskName(taskName);
+        sinkParams.put("type", "kafka");
+        return sinkParams;
     }
 }
