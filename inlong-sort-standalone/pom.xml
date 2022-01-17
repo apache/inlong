@@ -51,6 +51,7 @@
         <compiler.source>1.8</compiler.source>
         <compiler.target>1.8</compiler.target>
         <pulsar.version>2.7.2</pulsar.version>
+        <simpleclient_httpserver.version>0.14.1</simpleclient_httpserver.version>
     </properties>
 
     <dependencies>
@@ -94,6 +95,11 @@
                     <groupId>com.google.guava</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>${simpleclient_httpserver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
