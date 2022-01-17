@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.example;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -172,7 +171,6 @@ public class MAMessageProducerExample {
             long sentCount = 0;
             int roundIndex = 0;
             int targetCnt = topicFilterTuples.size();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             while (msgCount < 0 || sentCount < msgCount) {
                 // 1 Rotate to get the attribute information to be sent
                 roundIndex = (int) (sentCount++ % targetCnt);
@@ -182,7 +180,7 @@ public class MAMessageProducerExample {
                 try {
                     // 2.1 Send data asynchronously, recommended
                     producer.sendMessage(MixedUtils.buildMessage(target.getF0(),
-                            target.getF1(), bodyData, sentCount, sdf), new DefaultSendCallback());
+                            target.getF1(), bodyData, sentCount), new DefaultSendCallback());
                     // Or
                     // 2.2 Send message synchronous, not recommended
                     // MessageSentResult result = producer.sendMessage(message);

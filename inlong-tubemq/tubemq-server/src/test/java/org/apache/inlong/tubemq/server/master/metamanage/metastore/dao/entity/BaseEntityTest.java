@@ -19,8 +19,8 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class BaseEntityTest {
         // case 2
         String createUser = "test";
         Date createDate = new Date();
-        String createDataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+        String createDataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
         BaseEntity baseEntity2 = new BaseEntity(createUser, createDate);
         Assert.assertEquals(baseEntity2.getDataVerId(), TServerConstants.DEFAULT_DATA_VERSION);
         Assert.assertNotEquals(baseEntity2.getSerialId(), TBaseConstants.META_VALUE_UNDEFINED);
@@ -68,7 +68,7 @@ public class BaseEntityTest {
         // case 4
         String modifyUser = "modifyUser";
         Date modifyDate = new Date();
-        String modifyDateStr = WebParameterUtils.date2yyyyMMddHHmmss(modifyDate);
+        String modifyDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(modifyDate);
         BaseEntity baseEntity4 =
                 new BaseEntity(createUser, createDate, modifyUser, modifyDate);
         Assert.assertEquals(baseEntity4.getDataVerId(), TServerConstants.DEFAULT_DATA_VERSION);

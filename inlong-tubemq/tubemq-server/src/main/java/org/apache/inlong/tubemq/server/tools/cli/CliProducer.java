@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -253,7 +252,6 @@ public class CliProducer extends CliAbstractBase {
         @Override
         public void run() {
             int topicAndCondCnt = topicSendRounds.size();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             long sentCount = 0;
             int roundIndex = 0;
             while (msgCount < 0 || sentCount < msgCount) {
@@ -261,7 +259,7 @@ public class CliProducer extends CliAbstractBase {
                 try {
                     Tuple2<String, String> target = topicSendRounds.get(roundIndex);
                     Message message = MixedUtils.buildMessage(
-                            target.getF0(), target.getF1(), sentData, sentCount, sdf);
+                            target.getF0(), target.getF1(), sentData, sentCount);
                     // use sync or async process
                     if (syncProduction) {
                         MessageSentResult procResult =
@@ -353,5 +351,4 @@ public class CliProducer extends CliAbstractBase {
         }
 
     }
-
 }
