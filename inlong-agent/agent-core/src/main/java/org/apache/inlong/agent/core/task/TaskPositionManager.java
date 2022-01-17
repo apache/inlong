@@ -126,14 +126,14 @@ public class TaskPositionManager extends AbstractDaemon {
         waitForTerminate();
     }
 
-    public void updateFileSinkPosition(String jobInstanceId, String sourceFilePath, long size) {
-        ConcurrentHashMap<String, Long> filePositionTemp = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Long> filePosition = jobTaskPositionMap.putIfAbsent(jobInstanceId, filePositionTemp);
-        if (filePosition == null) {
-            filePosition = filePositionTemp;
+    public void updateSinkPosition(String jobInstanceId, String sourcePath, long size) {
+        ConcurrentHashMap<String, Long> positionTemp = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
+        if (position == null) {
+            position = positionTemp;
         }
-        Long beforePosition = filePosition.getOrDefault(sourceFilePath, 1L);
-        filePosition.put(sourceFilePath, beforePosition + size);
+        Long beforePosition = position.getOrDefault(sourcePath, 1L);
+        position.put(sourcePath, beforePosition + size);
     }
 
     public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {

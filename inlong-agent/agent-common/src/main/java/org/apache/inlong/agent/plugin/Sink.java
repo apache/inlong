@@ -35,7 +35,7 @@ public interface Sink extends Stage {
      * set source file name where the message is generated
      * @param sourceFileName
      */
-    void setSourceFile(String sourceFileName);
+    void setSourceName(String sourceFileName);
 
     /**
      * every sink should include a message filter to filter out stream id
