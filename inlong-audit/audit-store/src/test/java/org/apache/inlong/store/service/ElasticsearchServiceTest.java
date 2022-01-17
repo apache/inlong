@@ -74,7 +74,7 @@ public class ElasticsearchServiceTest {
             po.setInlongStreamId(String.valueOf(i));
             po.setSize(i);
             elasticsearchService.insertData(po);
-            ESDataPo po2=new ESDataPo();
+            ESDataPo po2 = new ESDataPo();
             po2.setIp("0.0.0.0");
             po2.setThreadId(String.valueOf(i));
             po2.setDockerId(String.valueOf(i));

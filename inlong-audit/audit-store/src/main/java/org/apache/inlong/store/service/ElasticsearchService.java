@@ -153,7 +153,8 @@ public class ElasticsearchService implements AutoCloseable {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
                 String index = formatter.format(esDataPo.getLogTs()) + "_" + esDataPo.getAuditId();
                 GsonBuilder gsonBuilder = new GsonBuilder();
-                gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setDateFormat("yyyy-MM-dd HH:mm:ss");
+                gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                        .setDateFormat("yyyy-MM-dd HH:mm:ss");
                 Gson gson = gsonBuilder.create();
                 String esJson = gson.toJson(esDataPo);
                 if (!createIndex(index)) {
@@ -162,7 +163,8 @@ public class ElasticsearchService implements AutoCloseable {
                 }
                 IndexRequest indexRequest;
                 if (esConfig.isEnableDocId()) {
-                    indexRequest = new IndexRequest(index).type("_doc").id(esDataPo.getDocId()).source(esJson, XContentType.JSON);
+                    indexRequest = new IndexRequest(index).type("_doc").id(esDataPo.getDocId())
+                            .source(esJson, XContentType.JSON);
                 } else {
                     indexRequest = new IndexRequest(index).type("_doc").source(esJson, XContentType.JSON);
                 }
@@ -307,8 +309,6 @@ public class ElasticsearchService implements AutoCloseable {
         builder.endObject();
         return builder;
     }
-
-
 }
 
 
