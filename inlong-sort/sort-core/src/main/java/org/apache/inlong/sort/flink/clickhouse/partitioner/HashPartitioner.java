@@ -34,7 +34,7 @@ public class HashPartitioner implements ClickHousePartitioner {
     }
 
     public int select(Tuple2<Boolean, Row> record, int numShards) {
-        return Objects.hashCode(record.f1.getField(pos)) % numShards;
+        return Math.abs(Objects.hashCode(record.f1.getField(pos))) % numShards;
     }
 }
 
