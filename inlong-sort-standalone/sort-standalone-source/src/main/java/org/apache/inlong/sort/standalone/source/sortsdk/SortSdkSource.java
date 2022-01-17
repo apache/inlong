@@ -18,19 +18,6 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import com.google.common.base.Preconditions;
-import org.apache.flume.Context;
-import org.apache.flume.EventDrivenSource;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.sdk.sort.api.SortClient;
-import org.apache.inlong.sdk.sort.api.SortClientConfig;
-import org.apache.inlong.sdk.sort.api.SortClientFactory;
-import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -39,6 +26,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.flume.Context;
+import org.apache.flume.EventDrivenSource;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.sdk.sort.api.SortClient;
+import org.apache.inlong.sdk.sort.api.SortClientConfig;
+import org.apache.inlong.sdk.sort.api.SortClientFactory;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default Source implementation of InLong.
@@ -62,7 +60,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     private static final int CORE_POOL_SIZE = 1;
 
     // Default consume strategy of {@link SortClient}.
-    private static final  SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
+    private static final SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
 
     // Map of {@link SortClient}.
     private Map<String, SortClient> clients;
@@ -133,8 +131,8 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * <p> Create new clients with new sort task id, and remove the finished or scheduled ones. </p>
      *
      * <p> Current version of SortSdk <b>DO NOT</b> support to get the corresponding sort id of {@link SortClient}.
-     *  Hence, the maintenance of mapping of <SortId, SortClient> should be done by Source itself. Which is not elegant,
-     *  the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
+     * Hence, the maintenance of mapping of <SortId, SortClient> should be done by Source itself. Which is not elegant,
+     * the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
      */
     private void reload() {
 
@@ -166,7 +164,6 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * For more details see {@link FetchCallback#onFinished(MessageRecord)}</p>
      *
      * @param sortId Sort in of new client.
-     *
      * @return New sort client.
      */
     private SortClient newClient(final String sortId) {

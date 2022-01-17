@@ -41,8 +41,8 @@ public class StatManager implements Cleanable {
     /**
      * StatManager Constructor
      *
-     * @param context ClientContext
-     * @param reporter MetricReporter
+     * @param context {@link ClientContext}
+     * @param reporter {@link MetricReporter}
      */
     public StatManager(ClientContext context, MetricReporter reporter) {
         this.config = context.getConfig();
@@ -105,7 +105,7 @@ public class StatManager implements Cleanable {
     }
 
     /**
-     * use for
+     * use for common SortClientStateCounter
      *
      * @param sortTaskId String
      * @param clusterId String
@@ -142,9 +142,8 @@ public class StatManager implements Cleanable {
                     }
                 }
             } catch (Exception e) {
-                logger.error("StatManager doWork error" + e.getMessage(), e);
+                logger.error("StatManager doWork error " + e.getMessage(), e);
             }
         }
     }
-
 }

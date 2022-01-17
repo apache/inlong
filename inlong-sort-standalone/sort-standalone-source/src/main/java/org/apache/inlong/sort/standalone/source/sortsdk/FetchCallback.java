@@ -18,16 +18,17 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
+import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * Implementation of {@link ReadCallback}.
@@ -35,11 +36,11 @@ import javax.validation.constraints.NotNull;
  * TODO: Sort sdk should deliver one object which is held by {@link ProfileEvent} and used to ack upstream data store
  * The code should be like :
  *
- *        public void onFinished(final MessageRecord messageRecord, ACKer acker) {
- *            doSomething();
- *            final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), acker);
- *             channelProcessor.processEvent(profileEvent);
- *        }
+ * public void onFinished(final MessageRecord messageRecord, ACKer acker) {
+ * doSomething();
+ * final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), acker);
+ * channelProcessor.processEvent(profileEvent);
+ * }
  *
  * The ACKer will be used to <b>ACK</b> upstream after that the downstream <b>ACKed</b> sort-standalone.
  * This process seems like <b>transaction</b> of the whole sort-standalone, and which
@@ -81,6 +82,7 @@ public class FetchCallback implements ReadCallback {
 
     /**
      * Set client for ack.
+     *
      * @param client client for ack.
      */
     public void setClient(@NotNull SortClient client) {
@@ -100,10 +102,17 @@ public class FetchCallback implements ReadCallback {
     public void onFinished(final MessageRecord messageRecord) {
         try {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
-            final SubscribeFetchResult result = SubscribeFetchResult.Factory.create(sortId, messageRecord);
-            final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
-            channelProcessor.processEvent(profileEvent);
-            context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
+            for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
+                //TODO fix here
+                final SubscribeFetchResult result = SubscribeFetchResult.Factory
+                        .create(sortId, messageRecord.getMsgKey(), messageRecord.getOffset(),
+                                inLongMessage.getMsgHeader(), messageRecord.getRecTime(),
+                                inLongMessage.getData());
+                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
+                channelProcessor.processEvent(profileEvent);
+                context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
+            }
+
             client.ack(messageRecord.getMsgKey(), messageRecord.getMsgKey());
         } catch (NullPointerException npe) {
             LOG.error("Got a null pointer exception for sortId " + sortId, npe);
@@ -111,6 +120,16 @@ public class FetchCallback implements ReadCallback {
         } catch (Exception e) {
             LOG.error("Ack failed for sortId " + sortId, e);
         }
+    }
+
+    /**
+     * The callback function that SortSDK invoke when fetch messages batch
+     *
+     * @param messageRecord {@link List<MessageRecord>}
+     */
+    @Override
+    public void onFinishedBatch(List<MessageRecord> messageRecord) {
+        //TODO
     }
 
     /**
@@ -125,7 +144,6 @@ public class FetchCallback implements ReadCallback {
          * @param sortId The sortId of fetched message.
          * @param channelProcessor The channelProcessor that put message in specific channel.
          * @param context The context to report fetch results.
-         *
          * @return One FetchCallback.
          */
         public static FetchCallback create(
