@@ -336,36 +336,4 @@ public class HdfsIdConfig {
         return format.format(new Date(msgTime));
 
     }
-
-//    public static void main(String[] args) {
-//        SimpleDateFormat formatDay = new SimpleDateFormat("yyyyMMdd");
-//        SimpleDateFormat formatHour = new SimpleDateFormat("yyyyMMddHH");
-//        SimpleDateFormat formatMinute = new SimpleDateFormat("yyyyMMddHHmm");
-//        String PATTERN_DAY = "{yyyyMMdd}";
-//        String PATTERN_HOUR = "{yyyyMMddHH}";
-//        String PATTERN_MINUTE = "{yyyyMMddHHmm}";
-//        String REGEX_DAY = "\\{yyyyMMdd\\}";
-//        String REGEX_HOUR = "\\{yyyyMMddHH\\}";
-//        String REGEX_MINUTE = "\\{yyyyMMddHHmm\\}";
-//        String strHdfsPath = "hdfs://10.160.139.123:9000";
-//        String partitionPath = strHdfsPath
-//                + "/user/hive/warehouse/t_sh_atta_v2_0fc00000046/{yyyyMMdd}/{yyyyMMddHH}/{yyyyMMddHHmm}";
-//        long partitionIntervalMs = 60 * 60 * 1000;
-//        long dt = System.currentTimeMillis();
-//        Date dtDate = new Date(dt - dt % partitionIntervalMs);
-//        String result = partitionPath;
-//        if (result.indexOf(PATTERN_MINUTE) >= 0) {
-//            String strHour = formatMinute.format(dtDate);
-//            result = result.replaceAll(REGEX_MINUTE, strHour);
-//        }
-//        if (result.indexOf(PATTERN_HOUR) >= 0) {
-//            String strHour = formatHour.format(dtDate);
-//            result = result.replaceAll(REGEX_HOUR, strHour);
-//        }
-//        if (result.indexOf(PATTERN_DAY) >= 0) {
-//            String strHour = formatDay.format(dtDate);
-//            result = result.replaceAll(REGEX_DAY, strHour);
-//        }
-//        System.out.println(result);
-//    }
 }
