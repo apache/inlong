@@ -96,22 +96,22 @@ public class PrometheusMetricListener extends Collector implements MetricListene
             LOG.error("exception while register mbean:{},error:{}", metricName, ex.getMessage());
         }
         //
-        metricValueMap.put(DataProxyMetricItem.M_READ_SUCCESS_COUNT, metricItem.readSuccessCount);
-        metricValueMap.put(DataProxyMetricItem.M_READ_SUCCESS_SIZE, metricItem.readSuccessSize);
-        metricValueMap.put(DataProxyMetricItem.M_READ_FAIL_COUNT, metricItem.readFailCount);
-        metricValueMap.put(DataProxyMetricItem.M_READ_FAIL_SIZE, metricItem.readFailSize);
+        metricValueMap.put(M_READ_SUCCESS_COUNT, metricItem.readSuccessCount);
+        metricValueMap.put(M_READ_SUCCESS_SIZE, metricItem.readSuccessSize);
+        metricValueMap.put(M_READ_FAIL_COUNT, metricItem.readFailCount);
+        metricValueMap.put(M_READ_FAIL_SIZE, metricItem.readFailSize);
         //
-        metricValueMap.put(DataProxyMetricItem.M_SEND_COUNT, metricItem.sendCount);
-        metricValueMap.put(DataProxyMetricItem.M_SEND_SIZE, metricItem.sendSize);
+        metricValueMap.put(M_SEND_COUNT, metricItem.sendCount);
+        metricValueMap.put(M_SEND_SIZE, metricItem.sendSize);
         //
-        metricValueMap.put(DataProxyMetricItem.M_SEND_SUCCESS_COUNT, metricItem.sendSuccessCount);
-        metricValueMap.put(DataProxyMetricItem.M_SEND_SUCCESS_SIZE, metricItem.sendSuccessSize);
-        metricValueMap.put(DataProxyMetricItem.M_SEND_FAIL_COUNT, metricItem.sendFailCount);
-        metricValueMap.put(DataProxyMetricItem.M_SEND_FAIL_SIZE, metricItem.sendFailSize);
+        metricValueMap.put(M_SEND_SUCCESS_COUNT, metricItem.sendSuccessCount);
+        metricValueMap.put(M_SEND_SUCCESS_SIZE, metricItem.sendSuccessSize);
+        metricValueMap.put(M_SEND_FAIL_COUNT, metricItem.sendFailCount);
+        metricValueMap.put(M_SEND_FAIL_SIZE, metricItem.sendFailSize);
         //
-        metricValueMap.put(DataProxyMetricItem.M_SINK_DURATION, metricItem.sinkDuration);
-        metricValueMap.put(DataProxyMetricItem.M_NODE_DURATION, metricItem.nodeDuration);
-        metricValueMap.put(DataProxyMetricItem.M_WHOLE_DURATION, metricItem.wholeDuration);
+        metricValueMap.put(M_SINK_DURATION, metricItem.sinkDuration);
+        metricValueMap.put(M_NODE_DURATION, metricItem.nodeDuration);
+        metricValueMap.put(M_WHOLE_DURATION, metricItem.wholeDuration);
 
         int httpPort = CommonPropertiesHolder.getInteger(KEY_PROMETHEUS_HTTP_PORT, DEFAULT_PROMETHEUS_HTTP_PORT);
         try {
@@ -177,7 +177,6 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      */
     @Override
     public List<MetricFamilySamples> collect() {
-        List<MetricFamilySamples> mfs = new ArrayList<>();
 
         // total
         CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + ".total", "help",
@@ -198,6 +197,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         totalCounter.addMetric(Arrays.asList(M_SINK_DURATION), metricItem.sinkDuration.get());
         totalCounter.addMetric(Arrays.asList(M_NODE_DURATION), metricItem.nodeDuration.get());
         totalCounter.addMetric(Arrays.asList(M_WHOLE_DURATION), metricItem.wholeDuration.get());
+        List<MetricFamilySamples> mfs = new ArrayList<>();
         mfs.add(totalCounter);
 
         // id dimension
