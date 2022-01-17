@@ -1129,7 +1129,7 @@ CREATE TABLE `task_config`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_sort_task_config` (`name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task basic id params table';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task basic id params table';
 
 -- ----------------------------
 -- Table structure for id_params_kafka
@@ -1143,7 +1143,7 @@ CREATE TABLE `task_id_params_kafka`
     PRIMARY KEY (`id`),
     KEY `index_task_id_params_kafka`(`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task kafka id params';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task kafka id params';
 
 -- ----------------------------
 -- Table structure for id_params_pulsar
@@ -1157,7 +1157,7 @@ CREATE TABLE `task_id_params_pulsar`
     PRIMARY KEY (`id`),
     KEY `index_task_id_params_pulsar`(`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task pulsar id params';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task pulsar id params';
 
 -- ----------------------------
 -- Table structure for task_sink_params_kafka
@@ -1172,7 +1172,7 @@ CREATE TABLE `task_sink_params_kafka`
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_kafka`(`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task kafka sink params';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task kafka sink params';
 
 -- ----------------------------
 -- Table structure for task_sink_params_pulsar
@@ -1187,7 +1187,7 @@ CREATE TABLE `task_sink_params_pulsar`
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_pulsar`(`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task pulsar sink params';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task pulsar sink params';
 
 -- ----------------------------
 -- Table structure for task_sink_params_es
@@ -1204,7 +1204,7 @@ CREATE TABLE `task_sink_params_es`
     PRIMARY KEY (`id`),
     KEY `index_task_sink_params_es`(`parent_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMNET = 'Sort-Standalone task es sink params';
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Sort-Standalone task es sink params';
 
 
 SET FOREIGN_KEY_CHECKS = 1;

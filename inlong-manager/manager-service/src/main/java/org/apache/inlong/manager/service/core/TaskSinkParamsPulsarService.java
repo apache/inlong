@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity;
-
 import java.util.Map;
 
 /**

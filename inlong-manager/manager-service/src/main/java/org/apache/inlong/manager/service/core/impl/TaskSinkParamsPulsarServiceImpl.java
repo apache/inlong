@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.dao.entity.TaskSinkParamsPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.TaskSinkParamsPulsarEntityMapper;
 import org.apache.inlong.manager.service.core.TaskSinkParamsPulsarService;
 import org.slf4j.Logger;

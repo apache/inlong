@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
-
 
 /**
  * Sort Cluster config service layer interface.

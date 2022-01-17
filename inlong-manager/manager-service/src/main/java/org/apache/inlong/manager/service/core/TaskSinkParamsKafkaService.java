@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity;
-
 import java.util.Map;
 
 /**

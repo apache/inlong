@@ -17,7 +17,7 @@
     from task_config
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByTaskName" parameterType="java.lang.String" resultType="BaseResultMap">
+  <select id="selectByTaskName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from task_config

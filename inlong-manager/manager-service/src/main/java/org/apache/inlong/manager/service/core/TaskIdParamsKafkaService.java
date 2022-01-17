@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core;
 
-
 import java.util.Map;
 
 /**

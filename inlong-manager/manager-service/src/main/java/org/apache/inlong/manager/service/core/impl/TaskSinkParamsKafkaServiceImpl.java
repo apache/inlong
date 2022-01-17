@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.dao.entity.TaskSinkParamsKafkaEntity;
 import org.apache.inlong.manager.dao.mapper.TaskSinkParamsKafkaEntityMapper;
 import org.apache.inlong.manager.service.core.TaskSinkParamsKafkaService;
 import org.slf4j.Logger;

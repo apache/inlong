@@ -23,10 +23,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortClusterConfig;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
-import org.apache.inlong.manager.common.pojo.sort.SortStandAloneClusterConfigRequest;
 import org.apache.inlong.manager.dao.entity.TaskConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfigMapper;
-import org.apache.inlong.manager.service.core.*;
+import org.apache.inlong.manager.service.core.SortClusterConfigService;
+import org.apache.inlong.manager.service.core.TaskConfigService;
+import org.apache.inlong.manager.service.core.TaskIdParamsKafkaService;
+import org.apache.inlong.manager.service.core.TaskIdParamsPulsarService;
+import org.apache.inlong.manager.service.core.TaskSinkParamsEsService;
+import org.apache.inlong.manager.service.core.TaskSinkParamsKafkaService;
+import org.apache.inlong.manager.service.core.TaskSinkParamsPulsarService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +86,7 @@ public class SortClusterConfigServiceImpl implements SortClusterConfigService {
         if (isErrorReqParams(clusterName)) {
             response.setErrCode(SortClusterConfigResponse.RESP_CODE_REQ_PARAMS_ERROR);
             response.setResult(false);
+            System.out.println("empty cluster name");
             return response;
         }
 
@@ -115,6 +122,7 @@ public class SortClusterConfigServiceImpl implements SortClusterConfigService {
         List<String> tasks = sortClusterConfigMapper.selectTasksByClusterName(clusterName);
         // if there is no task, return null.
         if (tasks == null || tasks.size() == 0) {
+            System.out.println("got empty tasks");
             return null;
         }
 
