@@ -34,7 +34,7 @@ import org.apache.inlong.agent.utils.ConfigUtil;
  */
 public class DataBaseSource implements Source {
 
-    private static final String JOB_DATABASE_SQL = "job.database.sql";
+    private static final String JOB_DATABASE_SQL = "job.sql";
 
     private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
 

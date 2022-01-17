@@ -130,7 +130,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public String getReadFile() {
+        public String getReadSource() {
             return null;
         }
 
