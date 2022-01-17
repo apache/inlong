@@ -58,9 +58,9 @@ public class DateTimeConvertUtilsTest {
         String curDate41 = DateTimeConvertUtils.date2yyyyMMddHHmmss(null);
         Assert.assertEquals(curDate41, TStringUtils.EMPTY);
         Date curDate42 = DateTimeConvertUtils.yyyyMMddHHmmss2date(null);
-        Assert.assertEquals(curDate42, null);
+        Assert.assertNull(curDate42);
         Date curDate43 = DateTimeConvertUtils.yyyyMMddHHmmss2date("202201152536");
-        Assert.assertEquals(curDate43, null);
+        Assert.assertNull(curDate43);
         Throwable exVal = null;
         try {
             DateTimeConvertUtils.yyyyMMddHHmm2ms(null);

@@ -24,8 +24,8 @@ public class CountMetricItem extends AbsMetricItem {
     }
 
     @Override
-    public long getAndSet() {
-        return value.getAndSet(0);
+    public long getValue(boolean resetValue) {
+        return resetValue ? value.getAndSet(0) : value.get();
     }
 
     @Override
