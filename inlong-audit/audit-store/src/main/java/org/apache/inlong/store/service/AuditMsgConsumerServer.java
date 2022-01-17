@@ -18,16 +18,13 @@
 package org.apache.inlong.store.service;
 
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.audit.protocol.AuditData;
+import org.apache.inlong.store.config.ElasticsearchConfig;
 import org.apache.inlong.store.config.PulsarConfig;
 import org.apache.inlong.store.db.dao.AuditDataDao;
 import org.apache.inlong.store.db.entities.AuditDataPo;
+import org.apache.inlong.store.db.entities.ESDataPo;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;
@@ -39,6 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuditMsgConsumerServer implements InitializingBean {
@@ -52,6 +55,12 @@ public class AuditMsgConsumerServer implements InitializingBean {
     @Autowired
     private AuditDataDao auditDataDao;
 
+    @Autowired
+    private ElasticsearchConfig esConfig;
+
+    @Autowired
+    private ElasticsearchService esService;
+
     private PulsarClient pulsarClient;
 
     private Gson gson = new Gson();
@@ -61,6 +70,9 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
         pulsarClient = getOrCreatePulsarClient(pulsarConfig.getPulsarServerUrl());
+        if (esConfig.isEnableStoreES()) {
+            esService.startTimerRoutine();
+        }
         updateConcurrentConsumer(pulsarClient);
     }
 
@@ -68,8 +80,8 @@ public class AuditMsgConsumerServer implements InitializingBean {
         LOG.info("start consumer pulsarServerUrl = {}", pulsarServerUrl);
         PulsarClient pulsarClient = null;
         try {
-             pulsarClient = PulsarClient.builder().serviceUrl(pulsarServerUrl)
-                     .connectionTimeout(pulsarConfig.getClientOperationTimeoutSecond(),
+            pulsarClient = PulsarClient.builder().serviceUrl(pulsarServerUrl)
+                    .connectionTimeout(pulsarConfig.getClientOperationTimeoutSecond(),
                             TimeUnit.SECONDS).build();
         } catch (PulsarClientException e) {
             LOG.error("getOrCreatePulsarClient has pulsar {} err {}", pulsarServerUrl, e);
@@ -80,7 +92,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     protected void updateConcurrentConsumer(PulsarClient pulsarClient) {
         List<Consumer<byte[]>> list =
                 topicConsumerMap.computeIfAbsent(pulsarConfig.getPulsarTopic(),
-                key -> new ArrayList<Consumer<byte[]>>());
+                        key -> new ArrayList<Consumer<byte[]>>());
         int currentConsumerNum = list.size();
         int createNum = pulsarConfig.getConcurrentConsumerNum() - currentConsumerNum;
         /*
@@ -154,7 +166,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     }
 
     protected void handleMessage(Message<byte[]> msg) throws Exception {
-        String body = new String(msg.getData(),"UTF-8");
+        String body = new String(msg.getData(), "UTF-8");
         AuditData msgBody =
                 gson.fromJson(body, AuditData.class);
         AuditDataPo po = new AuditDataPo();
@@ -172,6 +184,22 @@ public class AuditMsgConsumerServer implements InitializingBean {
         po.setInlongStreamId(msgBody.getInlongStreamId());
         po.setSize(msgBody.getSize());
         auditDataDao.insert(po);
+
+        if (esConfig.isEnableStoreES()) {
+            ESDataPo esPo = new ESDataPo();
+            esPo.setIp(msgBody.getIp());
+            esPo.setThreadId(msgBody.getThreadId());
+            esPo.setDockerId(msgBody.getDockerId());
+            esPo.setSdkTs(new Date(msgBody.getSdkTs()).getTime());
+            esPo.setLogTs(new Date(msgBody.getLogTs()));
+            esPo.setAuditId(msgBody.getAuditId());
+            esPo.setCount(msgBody.getCount());
+            esPo.setDelay(msgBody.getDelay());
+            esPo.setInlongGroupId(msgBody.getInlongGroupId());
+            esPo.setInlongStreamId(msgBody.getInlongStreamId());
+            esPo.setSize(msgBody.getSize());
+            esService.insertData(esPo);
+        }
     }
 
 }

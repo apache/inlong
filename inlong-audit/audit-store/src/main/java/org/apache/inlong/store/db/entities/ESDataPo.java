@@ -24,12 +24,11 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class AuditDataPo {
+public class ESDataPo {
     private String ip;
     private String dockerId;
     private String threadId;
-    private Date sdkTs;
-    private long packetId;
+    private long sdkTs;
     private Date logTs;
     private String inlongGroupId;
     private String inlongStreamId;
@@ -37,4 +36,9 @@ public class AuditDataPo {
     private long count;
     private long size;
     private long delay;
+
+    public String getDocId() {
+        String docId = ip + dockerId + threadId + logTs + inlongGroupId + inlongStreamId + auditId + size;
+        return docId;
+    }
 }
