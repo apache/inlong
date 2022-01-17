@@ -170,7 +170,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void setSourceFile(String sourceFileName) {
+        public void setSourceName(String sourceFileName) {
 
         }
 

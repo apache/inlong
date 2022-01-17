@@ -86,10 +86,10 @@ public class SenderManager {
     private final String inlongGroupId;
     private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
-    private final String sourceFilePath;
+    private final String sourcePath;
     private final PluginMetric metric;
 
-    public SenderManager(JobProfile jobConf, String inlongGroupId, String sourceFilePath) {
+    public SenderManager(JobProfile jobConf, String inlongGroupId, String sourcePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         managerHost = conf.get(AGENT_MANAGER_VIP_HTTP_HOST);
         managerPort = conf.getInt(AGENT_MANAGER_VIP_HTTP_PORT);
@@ -116,7 +116,7 @@ public class SenderManager {
             CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
-        this.sourceFilePath = sourceFilePath;
+        this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
 
         if (ConfigUtil.isPrometheusEnabled()) {
@@ -205,7 +205,7 @@ public class SenderManager {
                 return;
             }
             metric.incSendSuccessNum(bodyList.size());
-            taskPositionManager.updateFileSinkPosition(jobId, sourceFilePath, bodyList.size());
+            taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
         }
 
         @Override

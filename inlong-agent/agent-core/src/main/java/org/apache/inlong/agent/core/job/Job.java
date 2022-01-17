@@ -86,7 +86,7 @@ public class Job {
             Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE)).newInstance();
             for (Reader reader : source.split(jobConf)) {
                 Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();
-                writer.setSourceFile(reader.getReadSource());
+                writer.setSourceName(reader.getReadSource());
                 Channel channel = (Channel) Class.forName(jobConf.get(JobConstants.JOB_CHANNEL)).newInstance();
                 String taskId = String.format("%s_%d", jobInstanceId, index++);
                 taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));

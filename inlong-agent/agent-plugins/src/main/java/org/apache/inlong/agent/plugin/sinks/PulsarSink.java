@@ -120,7 +120,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     }
 
     @Override
-    public void setSourceFile(String sourceFileName) {
+    public void setSourceName(String sourceFileName) {
 
     }
 
