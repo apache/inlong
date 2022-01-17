@@ -55,12 +55,12 @@ public class SqlReader implements Reader {
 
     private static final String SQL_READER_TAG_NAME = "AgentSqlMetric";
 
-    private static final String JOB_DATABASE_USER = "job.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.hostname";
-    private static final String JOB_DATABASE_PORT = "job.port";
+    private static final String JOB_DATABASE_USER = "job.sql.user";
+    private static final String JOB_DATABASE_PASSWORD = "job.sql.password";
+    private static final String JOB_DATABASE_HOSTNAME = "job.sql.hostname";
+    private static final String JOB_DATABASE_PORT = "job.sql.port";
 
-    private static final String JOB_DATABASE_BATCH_SIZE = "job.batchSize";
+    private static final String JOB_DATABASE_BATCH_SIZE = "job.sql.batchSize";
     private static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
 
     private static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
@@ -73,7 +73,7 @@ public class SqlReader implements Reader {
 
     /* Standard short field separator */
     private static final String STD_FIELD_SEPARATOR_SHORT = "\001";
-    private static final String JOB_DATABASE_SEPARATOR = "job.separator";
+    private static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
     private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
             String.valueOf(CharUtils.LF)};
     private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
