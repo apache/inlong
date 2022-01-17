@@ -176,8 +176,6 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      */
     @Override
     public List<MetricFamilySamples> collect() {
-        List<MetricFamilySamples> mfs = new ArrayList<>();
-
         // total
         CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + ".total", "help",
                 Arrays.asList("dimension"));
@@ -197,6 +195,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         totalCounter.addMetric(Arrays.asList(M_SINK_DURATION), metricItem.sinkDuration.get());
         totalCounter.addMetric(Arrays.asList(M_NODE_DURATION), metricItem.nodeDuration.get());
         totalCounter.addMetric(Arrays.asList(M_WHOLE_DURATION), metricItem.wholeDuration.get());
+        List<MetricFamilySamples> mfs = new ArrayList<>();
         mfs.add(totalCounter);
 
         // id dimension
