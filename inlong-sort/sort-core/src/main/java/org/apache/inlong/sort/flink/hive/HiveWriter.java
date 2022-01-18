@@ -125,7 +125,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo> implem
         fileWriter.notifyCheckpointComplete(checkpointId);
     }
 
-    private class FileWriterContext implements SinkFunction.Context<Row> {
+    private class FileWriterContext implements SinkFunction.Context {
 
         private Context context;
 
