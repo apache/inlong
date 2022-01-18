@@ -19,11 +19,13 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/openapi/sort/standalone")
@@ -40,12 +42,6 @@ public class SortClusterConfigController {
             @RequestParam("md5") String md5,
             @RequestParam("apiVersion") String apiVersion) {
         return clusterConfigService.get(clusterName, md5);
-    }
-
-    @GetMapping("/hello")
-    @ApiOperation("test")
-    public Response<String> getHello() {
-        return Response.success("hello");
     }
 
 }
