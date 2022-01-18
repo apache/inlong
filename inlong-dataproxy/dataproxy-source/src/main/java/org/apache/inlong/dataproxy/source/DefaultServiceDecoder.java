@@ -36,6 +36,7 @@ import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -77,13 +78,14 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param resultMap
      * @param cb
      * @param channel
+     * @param msgEvent
      * @param totalDataLen
      * @return
      * @throws
      */
     private Map<String, Object> extractNewBinHB(Map<String, Object> resultMap,
-                                                ChannelBuffer cb, Channel channel,
-                                                int totalDataLen) throws Exception {
+            ChannelBuffer cb, Channel channel,
+            MessageEvent msgEvent, int totalDataLen) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
 
         // check validation
@@ -96,7 +98,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 + attrLen + BIN_HB_FORMAT_SIZE)) || (msgMagic != BIN_MSG_MAGIC)) {
 
             LOG.error("err msg, bodyLen + attrLen > totalDataLen, "
-                            + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection info:{}",
+                            + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection "
+                            + "info:{}",
                     bodyLen, attrLen, totalDataLen, Integer.toHexString(msgMagic), channel.toString());
 
             return resultMap;
@@ -117,7 +120,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private void handleDateTime(Map<String, String> commonAttrMap, Channel channel,
-        long uniq, long dataTime, int msgCount) {
+            MessageEvent msgEvent,
+            long uniq, long dataTime, int msgCount) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         String time = "";
         if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
@@ -127,7 +131,16 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             time = String.valueOf(dataTime);
         }
         StringBuilder sidBuilder = new StringBuilder();
-        sidBuilder.append(channel.getRemoteAddress().toString()).append("#").append(time)
+        /*
+         * udp need use msgEvent get remote address
+         */
+        String remoteAddress = "";
+        if (channel != null && channel.getRemoteAddress() != null) {
+            remoteAddress = channel.getRemoteAddress().toString();
+        } else if (msgEvent != null && msgEvent.getRemoteAddress() != null) {
+            remoteAddress = msgEvent.getRemoteAddress().toString();
+        }
+        sidBuilder.append(remoteAddress).append("#").append(time)
             .append("#").append(uniq);
         commonAttrMap.put(AttributeConstants.SEQUENCE_ID, new String(sidBuilder));
 
@@ -226,14 +239,15 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param resultMap
      * @param cb
      * @param channel
+     * @param msgEvent
      * @param totalDataLen
      * @param msgType
      * @return
      * @throws Exception
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
-                                                  ChannelBuffer cb, Channel channel,
-                                                  int totalDataLen, MsgType msgType) throws Exception {
+            ChannelBuffer cb, Channel channel, MessageEvent msgEvent,
+            int totalDataLen, MsgType msgType) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
 
         int bodyLen = cb.getInt(msgHeadPos + BIN_MSG_BODYLEN_OFFSET);
@@ -294,7 +308,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         }
 
         try {
-            handleDateTime(commonAttrMap, channel, uniq, dataTime, msgCount);
+            handleDateTime(commonAttrMap, channel, msgEvent, uniq, dataTime, msgCount);
             final boolean index = handleExtMap(commonAttrMap, cb, resultMap, extendField, msgHeadPos);
             ByteBuffer dataBuf = handleTrace(channel, cb, extendField, msgHeadPos,
                 totalDataLen, attrLen, strAttr, bodyLen);
@@ -332,6 +346,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 resultMap.put(ConfigConstants.MSG_LIST, msgList);
             }
         } catch (Exception ex) {
+            LOG.error("extractNewBinData has error! ex = {}", ex);
             cb.clear();
             throw new MessageIDException(uniq, ErrorCode.OTHER_ERROR, ex.getCause());
         }
@@ -346,13 +361,15 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param cb
      * @param channel
      * @param totalDataLen
+     * @param msgEvent
      * @param msgType
      * @return
      * @throws Exception
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,
-                                                   ChannelBuffer cb, Channel channel,
-                                                   int totalDataLen, MsgType msgType) throws Exception {
+            ChannelBuffer cb, Channel channel,
+            MessageEvent msgEvent,
+            int totalDataLen, MsgType msgType) throws Exception {
         int bodyLen = cb.readInt();
         if (bodyLen == 0) {
             throw new Exception(new Throwable("err msg,  bodyLen is empty" + ";"
@@ -467,7 +484,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * +--------+--------+--------+----------------+--------+----------------+------------------------+
      */
     @Override
-    public Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception {
+    public Map<String, Object> extractData(ChannelBuffer cb, Channel channel,
+            MessageEvent msgEvent) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         if (null == cb) {
             LOG.error("cb == null");
@@ -494,14 +512,14 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             }
             // if it's bin heart beat.
             if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-                return extractNewBinHB(resultMap, cb, channel, totalDataLen);
+                return extractNewBinHB(resultMap, cb, channel, msgEvent, totalDataLen);
             }
 
             if (msgType.getValue() >= MsgType.MSG_BIN_MULTI_BODY.getValue()) {
                 resultMap.put(ConfigConstants.COMPRESS_TYPE, (compressType != 0) ? "snappy" : "");
-                return extractNewBinData(resultMap, cb, channel, totalDataLen, msgType);
+                return extractNewBinData(resultMap, cb, channel, msgEvent, totalDataLen, msgType);
             } else {
-                return extractDefaultData(resultMap, cb, channel, totalDataLen, msgType);
+                return extractDefaultData(resultMap, cb, channel, msgEvent, totalDataLen, msgType);
             }
 
         } else {
