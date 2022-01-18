@@ -66,7 +66,7 @@ import io.prometheus.client.exporter.HTTPServer;
  */
 public class PrometheusMetricListener extends Collector implements MetricListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MetricRegister.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrometheusMetricListener.class);
     public static final String KEY_PROMETHEUS_HTTP_PORT = "prometheusHttpPort";
     public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
