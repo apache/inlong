@@ -576,16 +576,16 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent msgEvent) throws Exception {
         logger.info("message received");
-        if (e == null) {
+        if (msgEvent == null) {
             logger.error("get null messageevent, just skip");
             this.addMetric(false, 0);
             return;
         }
-        ChannelBuffer cb = ((ChannelBuffer) e.getMessage());
-        String strRemoteIP = getRemoteIp(e.getChannel());
-        SocketAddress remoteSocketAddress = e.getRemoteAddress();
+        ChannelBuffer cb = ((ChannelBuffer) msgEvent.getMessage());
+        String strRemoteIP = getRemoteIp(msgEvent.getChannel());
+        SocketAddress remoteSocketAddress = msgEvent.getRemoteAddress();
         int len = cb.readableBytes();
         if (len == 0 && this.filterEmptyMsg) {
             logger.warn("skip empty msg.");
@@ -594,10 +594,10 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
             return;
         }
 
-        Channel remoteChannel = e.getChannel();
+        Channel remoteChannel = msgEvent.getChannel();
         Map<String, Object> resultMap = null;
         try {
-            resultMap = serviceProcessor.extractData(cb, remoteChannel);
+            resultMap = serviceProcessor.extractData(cb, remoteChannel, msgEvent);
         } catch (MessageIDException ex) {
             this.addMetric(false, 0);
             throw new IOException(ex.getCause());
