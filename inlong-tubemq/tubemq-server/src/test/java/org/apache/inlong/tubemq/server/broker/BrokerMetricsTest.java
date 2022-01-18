@@ -42,20 +42,20 @@ public class BrokerMetricsTest {
             metrics.getHbExceptionCnt().incrementAndGet();
             metrics.getMasterNoNodeCnt().incrementAndGet();
 
-            metrics.getSyncDataDurMax().update(20000);
-            metrics.getSyncDataDurMax().update(10000);
-            metrics.getSyncDataDurMax().update(30000);
-            metrics.getSyncDataDurMin().update(2000);
-            metrics.getSyncDataDurMin().update(1000);
-            metrics.getSyncDataDurMin().update(3000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(20000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(10000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(30000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(2000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(1000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(3000);
 
-            metrics.getSyncZkDurMax().update(20000);
-            metrics.getSyncZkDurMax().update(1000);
-            metrics.getSyncZkDurMax().update(30000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(20000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(1000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(30000);
 
-            metrics.getSyncZkDurMin().update(2000);
-            metrics.getSyncZkDurMin().update(100);
-            metrics.getSyncZkDurMin().update(3000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(2000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(100);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(3000);
             // get metric and compare data
             MetricValues result1 = metrics.getMetrics();
             Assert.assertEquals(Long.valueOf(1),
@@ -70,14 +70,14 @@ public class BrokerMetricsTest {
                     result1.getMetricValues().get(metrics.getHbExceptionCnt().getName()));
             Assert.assertEquals(Long.valueOf(1),
                     result1.getMetricValues().get(metrics.getMasterNoNodeCnt().getName()));
-            Assert.assertEquals(Long.valueOf(30000),
-                    result1.getMetricValues().get(metrics.getSyncDataDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(1000),
-                    result1.getMetricValues().get(metrics.getSyncDataDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(30000),
-                    result1.getMetricValues().get(metrics.getSyncZkDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(100),
-                    result1.getMetricValues().get(metrics.getSyncZkDurMin().getName()));
+            Assert.assertEquals(Long.valueOf(30000), result1.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(1000), result1.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(30000), result1.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(100), result1.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMinJmxKey()));
             // get and reset value 2
             final MetricValues result2 = metrics.getAndReSetMetrics();
             // update metric data to 3
@@ -89,20 +89,20 @@ public class BrokerMetricsTest {
             metrics.getHbExceptionCnt().incrementAndGet();
             metrics.getMasterNoNodeCnt().incrementAndGet();
 
-            metrics.getSyncDataDurMax().update(10);
-            metrics.getSyncDataDurMax().update(10000);
-            metrics.getSyncDataDurMax().update(20000);
-            metrics.getSyncDataDurMin().update(10);
-            metrics.getSyncDataDurMin().update(1000);
-            metrics.getSyncDataDurMin().update(5000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(10);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(10000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(20000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(10);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(1000);
+            metrics.getFileSyncTimeDltItem().updProcTimeDlt(5000);
 
-            metrics.getSyncZkDurMax().update(10);
-            metrics.getSyncZkDurMax().update(1000);
-            metrics.getSyncZkDurMax().update(2000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(10);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(1000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(2000);
 
-            metrics.getSyncZkDurMin().update(3000);
-            metrics.getSyncZkDurMin().update(10);
-            metrics.getSyncZkDurMin().update(6000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(3000);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(10);
+            metrics.getZkSyncTimeDltItem().updProcTimeDlt(6000);
 
             MetricValues result3 = metrics.getMetrics();
             Assert.assertEquals(result1.getLastResetTime(),
@@ -119,14 +119,14 @@ public class BrokerMetricsTest {
                     result3.getMetricValues().get(metrics.getHbExceptionCnt().getName()));
             Assert.assertEquals(Long.valueOf(1),
                     result3.getMetricValues().get(metrics.getMasterNoNodeCnt().getName()));
-            Assert.assertEquals(Long.valueOf(20000),
-                    result3.getMetricValues().get(metrics.getSyncDataDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(10),
-                    result3.getMetricValues().get(metrics.getSyncDataDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(2000),
-                    result3.getMetricValues().get(metrics.getSyncZkDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(10),
-                    result3.getMetricValues().get(metrics.getSyncZkDurMin().getName()));
+            Assert.assertEquals(Long.valueOf(20000), result3.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(10), result3.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(20000), result3.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(10), result3.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMinJmxKey()));
         } catch (Exception ex) {
             logger.error("error happens" + ex);
         }
@@ -172,14 +172,14 @@ public class BrokerMetricsTest {
                     result1.getMetricValues().get(metrics.getHbExceptionCnt().getName()));
             Assert.assertEquals(Long.valueOf(1),
                     result1.getMetricValues().get(metrics.getIoExceptionCnt().getName()));
-            Assert.assertEquals(Long.valueOf(20000),
-                    result1.getMetricValues().get(metrics.getSyncDataDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(2000),
-                    result1.getMetricValues().get(metrics.getSyncDataDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(30000),
-                    result1.getMetricValues().get(metrics.getSyncZkDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(30),
-                    result1.getMetricValues().get(metrics.getSyncZkDurMin().getName()));
+            Assert.assertEquals(Long.valueOf(20000), result1.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(2000), result1.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(30000), result1.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(30), result1.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMinJmxKey()));
 
             // get and reset value 2
             final MetricValues result2 = metrics.getAndReSetMetrics();
@@ -215,14 +215,14 @@ public class BrokerMetricsTest {
                     result3.getMetricValues().get(metrics.getHbExceptionCnt().getName()));
             Assert.assertEquals(Long.valueOf(0),
                     result3.getMetricValues().get(metrics.getIoExceptionCnt().getName()));
-            Assert.assertEquals(Long.valueOf(30000),
-                    result3.getMetricValues().get(metrics.getSyncDataDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(1),
-                    result3.getMetricValues().get(metrics.getSyncDataDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(5000),
-                    result3.getMetricValues().get(metrics.getSyncZkDurMax().getName()));
-            Assert.assertEquals(Long.valueOf(10),
-                    result3.getMetricValues().get(metrics.getSyncZkDurMin().getName()));
+            Assert.assertEquals(Long.valueOf(30000), result3.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(1), result3.getMetricValues().get(
+                    metrics.getFileSyncTimeDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(5000), result3.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(10), result3.getMetricValues().get(
+                    metrics.getZkSyncTimeDltItem().getDltMinJmxKey()));
         } catch (Exception ex) {
             logger.error("error happens" + ex);
         }

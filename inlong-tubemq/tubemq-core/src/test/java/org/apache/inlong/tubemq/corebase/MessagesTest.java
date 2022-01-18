@@ -58,12 +58,12 @@ public class MessagesTest {
         Assert.assertTrue(exVal.getMessage().contains("could not be parsed"));
         // case 4
         message1.putSystemHeader("streamId1", "202201151700");
-        message1.setAttrKeyVal("key","value");
+        message1.setAttrKeyVal("key", "value");
         System.out.println(message1.getAttribute());
         Assert.assertTrue(message1.getAttribute().contains("202201151700"));
         // case 5
         message1.putSystemHeader("streamId2", "202201151300");
-        message1.setAttrKeyVal("key2","value2");
+        message1.setAttrKeyVal("key2", "value2");
         System.out.println(message1.getAttribute());
         Assert.assertTrue(message1.getAttribute().contains("202201151300"));
         // case 6
@@ -72,13 +72,13 @@ public class MessagesTest {
         Assert.assertFalse(message1.getAttribute().contains("202201151300"));
         // case 7
         Message message2 = new Message("test", "test case".getBytes());
-        message2.setAttrKeyVal("key2","value2");
+        message2.setAttrKeyVal("key2", "value2");
         message2.putSystemHeader("streamId1", "202201151715");
         System.out.println(message2.getAttribute());
         Assert.assertTrue(message2.getAttribute().contains("202201151715"));
         // case 8
         Message message3 = new Message("test", "test case".getBytes());
-        message3.setAttrKeyVal("key2","value2");
+        message3.setAttrKeyVal("key2", "value2");
         message3.putSystemHeader(null, "202201151715");
         System.out.println(message3.getAttribute());
         Assert.assertTrue(message3.getAttribute().contains("202201151715"));

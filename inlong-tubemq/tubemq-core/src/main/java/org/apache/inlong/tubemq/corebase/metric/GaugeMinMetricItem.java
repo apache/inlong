@@ -24,8 +24,8 @@ public class GaugeMinMetricItem extends AbsMetricItem {
     }
 
     @Override
-    public long getAndSet() {
-        return value.getAndSet(Long.MAX_VALUE);
+    public long getValue(boolean resetValue) {
+        return resetValue ? value.getAndSet(Long.MAX_VALUE) : value.get();
     }
 
     @Override

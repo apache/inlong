@@ -17,20 +17,33 @@
 
 package org.apache.inlong.tubemq.corebase.metric;
 
-public class GaugeNormMetricItem extends AbsMetricItem {
+public enum ValueAdjustType {
+    ZOOMOUT(-1, "Zoom-out"),
+    KEEPSAME(0, "Keep-same"),
+    ZOOMIN(1, "Zoom-in");
 
-    public GaugeNormMetricItem(String name) {
-        super(MetricType.GAUGE, MetricValueType.NORMAL, name, 0);
+    ValueAdjustType(int id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    @Override
-    public long getValue(boolean resetValue) {
-        return value.get();
+    public int getId() {
+        return id;
     }
 
-    @Override
-    public boolean update(long newValue) {
-        value.set(newValue);
-        return true;
+    public String getName() {
+        return name;
     }
+
+    public static ValueAdjustType valueOf(int value) {
+        for (ValueAdjustType adjustType : ValueAdjustType.values()) {
+            if (adjustType.getId() == value) {
+                return adjustType;
+            }
+        }
+        return KEEPSAME;
+    }
+
+    private final int id;
+    private final String name;
 }

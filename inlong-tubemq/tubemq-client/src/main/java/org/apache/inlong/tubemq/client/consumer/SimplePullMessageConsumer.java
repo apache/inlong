@@ -205,6 +205,8 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                     .append("Not found the partition by confirmContext:")
                     .append(confirmContext).toString());
         }
+        baseConsumer.clientMetrics.bookConfirmDuration(
+                System.currentTimeMillis() - timeStamp);
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
                 timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
