@@ -20,8 +20,8 @@ package org.apache.inlong.store.service;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.audit.protocol.AuditData;
-import org.apache.inlong.store.config.ElasticsearchConfig;
 import org.apache.inlong.store.config.PulsarConfig;
+import org.apache.inlong.store.config.StoreConfig;
 import org.apache.inlong.store.db.dao.AuditDataDao;
 import org.apache.inlong.store.db.entities.AuditDataPo;
 import org.apache.inlong.store.db.entities.ESDataPo;
@@ -56,10 +56,10 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private AuditDataDao auditDataDao;
 
     @Autowired
-    private ElasticsearchConfig esConfig;
+    private ElasticsearchService esService;
 
     @Autowired
-    private ElasticsearchService esService;
+    private StoreConfig storeConfig;
 
     private PulsarClient pulsarClient;
 
@@ -70,7 +70,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
         pulsarClient = getOrCreatePulsarClient(pulsarConfig.getPulsarServerUrl());
-        if (esConfig.isEnableStoreES()) {
+        if (storeConfig.isElasticsearchStore()) {
             esService.startTimerRoutine();
         }
         updateConcurrentConsumer(pulsarClient);
@@ -167,25 +167,24 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     protected void handleMessage(Message<byte[]> msg) throws Exception {
         String body = new String(msg.getData(), "UTF-8");
-        AuditData msgBody =
-                gson.fromJson(body, AuditData.class);
-        AuditDataPo po = new AuditDataPo();
-        po.setIp(msgBody.getIp());
-        po.setThreadId(msgBody.getThreadId());
-        po.setDockerId(msgBody.getDockerId());
-        po.setPacketId(msgBody.getPacketId());
-        po.setSdkTs(new Date(msgBody.getSdkTs()));
-
-        po.setLogTs(new Date(msgBody.getLogTs()));
-        po.setAuditId(msgBody.getAuditId());
-        po.setCount(msgBody.getCount());
-        po.setDelay(msgBody.getDelay());
-        po.setInlongGroupId(msgBody.getInlongGroupId());
-        po.setInlongStreamId(msgBody.getInlongStreamId());
-        po.setSize(msgBody.getSize());
-        auditDataDao.insert(po);
-
-        if (esConfig.isEnableStoreES()) {
+        AuditData msgBody = gson.fromJson(body, AuditData.class);
+        if (storeConfig.isMysqlStore()) {
+            AuditDataPo po = new AuditDataPo();
+            po.setIp(msgBody.getIp());
+            po.setThreadId(msgBody.getThreadId());
+            po.setDockerId(msgBody.getDockerId());
+            po.setPacketId(msgBody.getPacketId());
+            po.setSdkTs(new Date(msgBody.getSdkTs()));
+            po.setLogTs(new Date(msgBody.getLogTs()));
+            po.setAuditId(msgBody.getAuditId());
+            po.setCount(msgBody.getCount());
+            po.setDelay(msgBody.getDelay());
+            po.setInlongGroupId(msgBody.getInlongGroupId());
+            po.setInlongStreamId(msgBody.getInlongStreamId());
+            po.setSize(msgBody.getSize());
+            auditDataDao.insert(po);
+        }
+        if (storeConfig.isElasticsearchStore()) {
             ESDataPo esPo = new ESDataPo();
             esPo.setIp(msgBody.getIp());
             esPo.setThreadId(msgBody.getThreadId());

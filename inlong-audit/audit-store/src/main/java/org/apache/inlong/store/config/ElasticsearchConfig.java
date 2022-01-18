@@ -41,9 +41,6 @@ import java.util.List;
 @Setter
 public class ElasticsearchConfig {
 
-    @Value("${elasticsearch.enableStoreES}")
-    private boolean enableStoreES;
-
     @Value("${elasticsearch.host}")
     private String host;
 

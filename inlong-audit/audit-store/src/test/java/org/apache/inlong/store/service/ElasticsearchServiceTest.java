@@ -19,31 +19,36 @@ package org.apache.inlong.store.service;
 
 import org.apache.inlong.store.Application;
 import org.apache.inlong.store.db.entities.ESDataPo;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 
 import java.io.IOException;
 import java.util.Date;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class ElasticsearchServiceTest {
 
-    @Autowired
-    private ElasticsearchService elasticsearchService;
+    //    @Autowired
+    private static ElasticsearchService elasticsearchService;
 
     private String index1 = "20220112_1";
     private String index2 = "20220112_10";
 
-    @Test
-    public void testCreateIndex() throws IOException {
-        boolean res = elasticsearchService.createIndex(index1);
-        Assert.assertEquals(res, true);
+    @BeforeClass
+    public static void setUp() throws IOException {
+        elasticsearchService = mock(ElasticsearchService.class);
+        when(elasticsearchService.existsIndex(Mockito.anyString())).thenReturn(true);
+        when(elasticsearchService.createIndex(Mockito.anyString())).thenReturn(true);
+        when(elasticsearchService.deleteSingleIndex(Mockito.anyString())).thenReturn(true);
     }
 
     @Test
@@ -53,14 +58,11 @@ public class ElasticsearchServiceTest {
 
         res = elasticsearchService.existsIndex(index1);
         Assert.assertEquals(res, true);
-
-        res = elasticsearchService.existsIndex(index2);
-        Assert.assertEquals(res, false);
     }
 
     @Test
     public void testInsertData() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             ESDataPo po = new ESDataPo();
             po.setIp("0.0.0.0");
             po.setThreadId(String.valueOf(i));
@@ -101,11 +103,6 @@ public class ElasticsearchServiceTest {
     @Test
     public void testDeleteTimeoutIndexs() throws IOException {
         elasticsearchService.deleteTimeoutIndexs();
-    }
-
-    @AfterClass
-    public void testClose() throws Exception {
-        elasticsearchService.close();
     }
 
 }
