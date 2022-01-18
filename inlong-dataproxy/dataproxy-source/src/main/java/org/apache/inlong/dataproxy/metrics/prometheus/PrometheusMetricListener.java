@@ -179,7 +179,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     public List<MetricFamilySamples> collect() {
 
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + ".total", "help",
+        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + "_total", "The total number of dataproxy metrics.",
                 Arrays.asList("dimension"));
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_COUNT), metricItem.readSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_SIZE), metricItem.readSuccessSize.get());
