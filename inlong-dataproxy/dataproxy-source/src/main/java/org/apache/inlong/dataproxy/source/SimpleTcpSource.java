@@ -204,7 +204,6 @@ public class SimpleTcpSource extends BaseSource
         MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
-        super.start();
 
         ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
         ChannelFactory factory =
