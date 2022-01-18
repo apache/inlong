@@ -25,8 +25,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesLoader;
-import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -41,6 +41,8 @@ public class CommonPropertiesHolder {
 
     private static Map<String, String> props;
     private static Context context;
+
+    private static long auditFormatInterval = 60000L;
 
     /**
      * init
@@ -58,6 +60,8 @@ public class CommonPropertiesHolder {
                         CommonPropertiesLoader loader = (CommonPropertiesLoader) loaderObject;
                         props.putAll(loader.load());
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
+                        auditFormatInterval = NumberUtils
+                                .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -154,11 +158,50 @@ public class CommonPropertiesHolder {
     }
 
     /**
+     * Gets value mapped to key, returning defaultValue if unmapped.
+     * 
+     * @param  key          to be found
+     * @param  defaultValue returned if key is unmapped
+     * @return              value associated with key
+     */
+    public static Integer getInteger(String key, Integer defaultValue) {
+        String value = get().get(key);
+        if (value != null) {
+            return Integer.valueOf(Integer.parseInt(value.trim()));
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Gets value mapped to key, returning null if unmapped.
+     * <p>
+     * Note that this method returns an object as opposed to a primitive. The configuration key requested may not be
+     * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
+     * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
+     * </p>
+     * 
+     * @param  key to be found
+     * @return     value associated with key or null if unmapped
+     */
+    public static Integer getInteger(String key) {
+        return getInteger(key, null);
+    }
+
+    /**
      * getClusterId
      * 
      * @return
      */
     public static String getClusterId() {
         return getString(KEY_CLUSTER_ID);
+    }
+
+    /**
+     * getAuditFormatInterval
+     * 
+     * @return
+     */
+    public static long getAuditFormatInterval() {
+        return auditFormatInterval;
     }
 }

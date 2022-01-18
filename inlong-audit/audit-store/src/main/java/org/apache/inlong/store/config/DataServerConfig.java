@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 @MapperScan(basePackages = "org.apache.inlong.store.db.dao")
 @PropertySources({
         @PropertySource("classpath:application.properties"),
-        @PropertySource(value = "classpath:server.properties", ignoreResourceNotFound = true)
 })
 
 public class DataServerConfig {

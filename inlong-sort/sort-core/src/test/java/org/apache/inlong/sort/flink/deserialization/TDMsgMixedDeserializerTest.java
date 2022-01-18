@@ -27,7 +27,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.flink.Record;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.tdmsg.AbstractTDMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgBody;
 import org.apache.inlong.sort.formats.tdmsg.TDMsgHead;
@@ -93,7 +93,7 @@ public class TDMsgMixedDeserializerTest extends TestLogger {
         row.setField(2, tid);
         preDeserializer.records.add(row);
 
-        mixedDeserializer.deserialize(new TDMsgSerializedRecord(), collector);
+        mixedDeserializer.deserialize(new TDMsgMixedSerializedRecord(), collector);
         assertEquals(2, collector.results.size());
         assertEquals(dataFlowId1, collector.results.get(0).getDataflowId());
         assertEquals(tid, collector.results.get(0).getRow().getField(2));

@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.client.common.TClientConstants;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
@@ -54,6 +55,12 @@ public class TubeClientConfig {
     private long heartbeatPeriodAfterFail = TClientConstants.CFG_DEFAULT_HEARTBEAT_PERIOD_AFTER_RETRY_FAIL;
     // Link statistic check duration in ms.
     private long linkStatsDurationMs = RpcConstants.CFG_LQ_STATS_DURATION_MS;
+    // Enable metric information print
+    private boolean enableMetricPrint = true;
+    // Metric print period in ms.
+    private long metricInfoPrintPeriodMs = TClientConstants.METRIC_PRINT_DEFAULT_PERIOD_MS;
+    // Metric reset value period in ms.
+    private long metricForcedResetPeriodMs = TClientConstants.METRIC_RESET_DEFAULT_PERIOD_MS;
 
     // The following 5 configuration parameters are used in broker exception process.
     //
@@ -364,6 +371,13 @@ public class TubeClientConfig {
         this.sessionMaxAllowedDelayedMsgCount = sessionMaxAllowedDelayedMsgCount;
     }
 
+    /**
+     * Set authenticate information
+     *
+     * @param needAuthentic   enable or disable authentication
+     * @param usrName         the user name
+     * @param usrPassWord     the password
+     */
     public void setAuthenticInfo(boolean needAuthentic,
                                  String usrName,
                                  String usrPassWord) {
@@ -385,6 +399,12 @@ public class TubeClientConfig {
         }
     }
 
+    /**
+     * Set TLS information
+     *
+     * @param trustStorePath        the trusted store path
+     * @param trustStorePassword    the trusted store password
+     */
     public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) {
         // public void setTLSEnableInfo(String trustStorePath, String trustStorePassword,
         // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws Exception {
@@ -447,6 +467,36 @@ public class TubeClientConfig {
 
     public String getUsrPassWord() {
         return usrPassWord;
+    }
+
+    public boolean isEnableMetricPrint() {
+        return enableMetricPrint;
+    }
+
+    public void setEnableMetricPrint(boolean enableMetricPrint) {
+        this.enableMetricPrint = enableMetricPrint;
+    }
+
+    public long getMetricInfoPrintPeriodMs() {
+        return metricInfoPrintPeriodMs;
+    }
+
+    public void setMetricInfoPrintPeriodMs(long metricInfoPrintPeriodMs) {
+        this.metricInfoPrintPeriodMs =
+                MixedUtils.mid(metricInfoPrintPeriodMs,
+                        TClientConstants.METRIC_PRINT_MIN_PERIOD_MS,
+                        TClientConstants.METRIC_PRINT_MAX_PERIOD_MS);
+    }
+
+    public long getMetricForcedResetPeriodMs() {
+        return metricForcedResetPeriodMs;
+    }
+
+    public void setMetricForcedResetPeriodMs(long metricForcedResetPeriodMs) {
+        this.metricForcedResetPeriodMs =
+                MixedUtils.mid(metricForcedResetPeriodMs,
+                        TClientConstants.METRIC_RESET_MIN_PERIOD_MS,
+                        TClientConstants.METRIC_RESET_MAX_PERIOD_MS);
     }
 
     @Override
@@ -541,9 +591,23 @@ public class TubeClientConfig {
         if (!this.tlsConfig.equals(that.tlsConfig)) {
             return false;
         }
+        if (this.enableMetricPrint != that.enableMetricPrint) {
+            return false;
+        }
+        if (this.metricInfoPrintPeriodMs != that.metricInfoPrintPeriodMs) {
+            return false;
+        }
+        if (this.metricForcedResetPeriodMs != that.metricForcedResetPeriodMs) {
+            return false;
+        }
         return masterInfo.equals(that.masterInfo);
     }
 
+    /**
+     * Get the configured Json string information
+     *
+     * @return    the configured Json string information
+     */
     public String toJsonString() {
         int num = 0;
         String localAddress = null;
@@ -584,6 +648,9 @@ public class TubeClientConfig {
             .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
             .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
             .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
+            .append(",\"enableMetricPrint\":").append(this.enableMetricPrint)
+            .append(",\"metricInfoPrintPeriodMs\":").append(this.metricInfoPrintPeriodMs)
+            .append(",\"metricResetPeriodMs\":").append(this.metricForcedResetPeriodMs)
             .append(",\"usrName\":\"").append(this.usrName)
             .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
             .append("\",\"localAddress\":\"").append(localAddress)

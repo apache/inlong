@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-agent</artifactId>
     <name>Apache InLong - Agent</name>
@@ -56,7 +56,6 @@
         <slf4j.version>1.7.30</slf4j.version>
         <unit.version>4.13</unit.version>
         <common.lang.version>2.4</common.lang.version>
-        <spring.version>2.5.6</spring.version>
         <oro.version>2.0.8</oro.version>
         <aviator.version>2.2.1</aviator.version>
         <avro.version>1.7.2</avro.version>
@@ -71,6 +70,8 @@
         <jetty.version>9.4.34.v20201102</jetty.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
+        <lombok.version>1.18.12</lombok.version>
+        <prometheus.simpleclient.version>0.9.0</prometheus.simpleclient.version>
     </properties>
 
     <repositories>
@@ -89,6 +90,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -204,12 +210,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
@@ -240,6 +240,11 @@
                 <version>${unit.version}</version>
             </dependency>
 
+            <dependency>
+                <artifactId>inlong-common</artifactId>
+                <groupId>org.apache.inlong</groupId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <artifactId>agent-common</artifactId>
                 <groupId>org.apache.tubemq</groupId>
@@ -273,6 +278,22 @@
                 <groupId>org.awaitility</groupId>
                 <scope>test</scope>
                 <version>${awaitility.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_hotspot</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${prometheus.simpleclient.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

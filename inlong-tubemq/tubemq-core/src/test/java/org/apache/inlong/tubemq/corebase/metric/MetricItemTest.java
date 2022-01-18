@@ -22,6 +22,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class MetricItemTest {
     private static final Logger logger =
             LoggerFactory.getLogger(MetricItemTest.class);
@@ -55,20 +58,20 @@ public class MetricItemTest {
             gaugeMinMetricItem.update(1);
             gaugeMinMetricItem.update(10000);
 
-            Assert.assertEquals(2, countMetricItem.getValue());
-            Assert.assertEquals(500, gaugeNormMetricItem.getValue());
-            Assert.assertEquals(5000, gaugeMaxMetricItem.getValue());
-            Assert.assertEquals(1, gaugeMinMetricItem.getValue());
+            Assert.assertEquals(2, countMetricItem.getValue(false));
+            Assert.assertEquals(500, gaugeNormMetricItem.getValue(false));
+            Assert.assertEquals(5000, gaugeMaxMetricItem.getValue(false));
+            Assert.assertEquals(1, gaugeMinMetricItem.getValue(false));
 
-            countMetricItem.getAndSet();
-            gaugeNormMetricItem.getAndSet();
-            gaugeMaxMetricItem.getAndSet();
-            gaugeMinMetricItem.getAndSet();
+            countMetricItem.getValue(true);
+            gaugeNormMetricItem.getValue(true);
+            gaugeMaxMetricItem.getValue(true);
+            gaugeMinMetricItem.getValue(true);
 
-            Assert.assertEquals(0, countMetricItem.getValue());
-            Assert.assertEquals(500, gaugeNormMetricItem.getValue());
-            Assert.assertEquals(0, gaugeMaxMetricItem.getValue());
-            Assert.assertEquals(Long.MAX_VALUE, gaugeMinMetricItem.getValue());
+            Assert.assertEquals(0, countMetricItem.getValue(false));
+            Assert.assertEquals(500, gaugeNormMetricItem.getValue(false));
+            Assert.assertEquals(0, gaugeMaxMetricItem.getValue(false));
+            Assert.assertEquals(Long.MAX_VALUE, gaugeMinMetricItem.getValue(false));
 
             Assert.assertEquals(MetricType.COUNTER.getId(),
                     countMetricItem.getMetricType().getId());
@@ -86,6 +89,50 @@ public class MetricItemTest {
                     gaugeMinMetricItem.getMetricType().getId());
             Assert.assertEquals(MetricValueType.MIN.getId(),
                     gaugeMinMetricItem.getMetricValueType().getId());
+        } catch (Exception ex) {
+            logger.error("error happens" + ex);
+        }
+    }
+
+    @Test
+    public void testProcTimeDltMetricItem() {
+        try {
+            final TimeDltMetricItem procDltMetricItem =
+                    new TimeDltMetricItem("test");
+
+            procDltMetricItem.updProcTimeDlt(2);
+            procDltMetricItem.updProcTimeDlt(6);
+            procDltMetricItem.updProcTimeDlt(15);
+            procDltMetricItem.updProcTimeDlt(30);
+            procDltMetricItem.updProcTimeDlt(60);
+            procDltMetricItem.updProcTimeDlt(120);
+            procDltMetricItem.updProcTimeDlt(240);
+            procDltMetricItem.updProcTimeDlt(270);
+            procDltMetricItem.updProcTimeDlt(520);
+            procDltMetricItem.updProcTimeDlt(1030);
+            procDltMetricItem.updProcTimeDlt(2060);
+            procDltMetricItem.updProcTimeDlt(3060);
+            procDltMetricItem.updProcTimeDlt(8060);
+            procDltMetricItem.updProcTimeDlt(16370);
+            procDltMetricItem.updProcTimeDlt(20000);
+            procDltMetricItem.updProcTimeDlt(33000);
+            procDltMetricItem.updProcTimeDlt(55000);
+
+            Map<String, Long> metricValues = new LinkedHashMap<>();
+            procDltMetricItem.getMapMetrics(metricValues, false);
+
+            StringBuilder strBuff = new StringBuilder(512);
+            procDltMetricItem.getStrMetrics(strBuff, false);
+            String result = strBuff.toString();
+            strBuff.delete(0, strBuff.length());
+
+            procDltMetricItem.getStrMetrics(strBuff, true);
+            result = strBuff.toString();
+            strBuff.delete(0, strBuff.length());
+
+            procDltMetricItem.getStrMetrics(strBuff, false);
+            result = strBuff.toString();
+            strBuff.delete(0, strBuff.length());
         } catch (Exception ex) {
             logger.error("error happens" + ex);
         }

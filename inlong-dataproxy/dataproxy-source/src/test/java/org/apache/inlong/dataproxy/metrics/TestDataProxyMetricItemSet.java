@@ -22,8 +22,10 @@ import static org.junit.Assert.assertEquals;
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanServer;
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.apache.inlong.commons.config.metrics.MetricItem;
@@ -117,13 +119,14 @@ public class TestDataProxyMetricItemSet {
         String keySink2 = MetricUtils.getDimensionsKey(dimSink);
         // report
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricUtils.getDomain(DataProxyMetricItemSet.class)).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append("name=")
-                .append(itemSet.getName());
-        String strBeanName = beanName.toString();
-        ObjectName objName = new ObjectName(strBeanName);
         {
+            StringBuilder beanName = new StringBuilder();
+            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                    .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+                    .append(MetricItemMBean.PROPERTY_SEPARATOR)
+                    .append("name=").append(itemSet.getName());
+            String strBeanName = beanName.toString();
+            ObjectName objName = new ObjectName(strBeanName);
             List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, MetricItemSetMBean.METHOD_SNAPSHOT, null,
                     null);
             for (MetricItem itemObj : items) {
@@ -151,6 +154,17 @@ public class TestDataProxyMetricItemSet {
                     System.out.println("bad MetricItem:" + itemObj.getDimensionsKey());
                 }
             }
+        }
+        {
+            StringBuilder beanName = new StringBuilder();
+            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                    .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+                    .append(MetricItemMBean.PROPERTY_SEPARATOR)
+                    .append("name=").append(itemSet.getName());
+
+            String strBeanName = beanName.toString();
+            ObjectName objName = new ObjectName(strBeanName);
+            Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
         }
     }
 }

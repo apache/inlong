@@ -60,26 +60,4 @@ public class InlongLoggerFactory {
         String namePrefix = className.substring(0, index);
         return namePrefix;
     }
-
-//    /**
-//     * main
-//     * @param args
-//     */
-//    public static void main(String[] args) {
-//        int layer = 3;
-//        String className = "";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "org.ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "org.apache.ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "org.apache.inlong.ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "org.apache.inlong.sort.ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//        className = "org.apache.inlong.sort.standalone.ccc";
-//        System.out.println(className + ":" + getClassNamePrefix(className, layer));
-//    }
 }

@@ -17,31 +17,49 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+
+import com.google.gson.Gson;
 import lombok.Data;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.TriggerProfile;
 
 @Data
 public class JobProfileDto {
+
+    private static final Gson GSON = new Gson();
     private Job job;
     private Proxy proxy;
 
+    public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
+    public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
+    public static final String MANAGER_JOB = "MANAGER_JOB";
+    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
+
     @Data
     public static class Dir {
+
         private String path;
         private String pattern;
     }
 
     @Data
     public static class Running {
+
         private String core;
     }
 
     @Data
     public static class Thread {
+
         private Running running;
     }
 
     @Data
     public static class Job {
+
         private Dir dir;
         private String trigger;
         private int id;
@@ -60,14 +78,63 @@ public class JobProfileDto {
 
     @Data
     public static class Manager {
+
         private String port;
         private String host;
     }
-    
+
     @Data
     public static class Proxy {
+
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
+    }
+
+    private static Job getJob(DataConfig dataConfigs) {
+        Job job = new Job();
+        Dir dir = new Dir();
+        dir.setPattern(dataConfigs.getDataName());
+        job.setDir(dir);
+        job.setTrigger(DEFAULT_TRIGGER);
+        job.setChannel(DEFAULT_CHANNEL);
+        job.setName(MANAGER_JOB);
+        job.setSource(DEFAULT_SOURCE);
+        job.setSink(DEFAULT_DATAPROXY_SINK);
+        job.setId(dataConfigs.getTaskId());
+        job.setTimeOffset(dataConfigs.getTimeOffset());
+        job.setOp(dataConfigs.getOp());
+        job.setDeliveryTime(dataConfigs.getDeliveryTime());
+        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
+            job.setAddictiveString(dataConfigs.getAdditionalAttr());
+        }
+        if (dataConfigs.getCycleUnit() != null) {
+            job.setCycleUnit(dataConfigs.getCycleUnit());
+        }
+        return job;
+    }
+
+    private static Proxy getProxy(DataConfig dataConfigs) {
+        Proxy proxy = new Proxy();
+        Manager manager = new Manager();
+        AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
+        manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
+        manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
+        proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
+        proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
+        proxy.setManager(manager);
+        return proxy;
+    }
+
+    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
+        if (!dataConfigs.isValid()) {
+            throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
+        }
+        JobProfileDto profileDto = new JobProfileDto();
+        Proxy proxy = getProxy(dataConfigs);
+        Job job = getJob(dataConfigs);
+        profileDto.setProxy(proxy);
+        profileDto.setJob(job);
+        return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
     }
 }

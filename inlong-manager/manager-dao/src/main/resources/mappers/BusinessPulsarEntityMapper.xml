@@ -62,7 +62,7 @@
     <update id="logicDeleteByGroupId">
         update business_pulsar
         set is_deleted = 1
-        where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 

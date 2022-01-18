@@ -64,7 +64,7 @@
   "components.AccessHelper.FieldsConfig.businessFields.BusinessIntroduction": "Description",
   "components.AccessHelper.FieldsConfig.businessFields.BusinessOwners": "Group Owners",
   "components.AccessHelper.FieldsConfig.businessFields.SingleStripMaximumLength": "Single Max Length",
-  "components.AccessHelper.FieldsConfig.businessFields.thousand/day": "Ten Thousand / eay",
+  "components.AccessHelper.FieldsConfig.businessFields.thousand/day": "Ten Thousand / day",
   "components.AccessHelper.FieldsConfig.businessFields.AccessPeakPerSecond": "PeakRecords",
   "components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishName": "Group Name",
   "components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishNameRules": "Only lowercase words, numbers and underscores",

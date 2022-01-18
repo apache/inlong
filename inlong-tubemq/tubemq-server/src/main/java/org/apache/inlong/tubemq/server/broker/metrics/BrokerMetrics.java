@@ -17,32 +17,26 @@
 
 package org.apache.inlong.tubemq.server.broker.metrics;
 
-import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.metric.AbsMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.CountMetricItem;
-import org.apache.inlong.tubemq.corebase.metric.GaugeMaxMetricItem;
-import org.apache.inlong.tubemq.corebase.metric.GaugeMinMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.GaugeNormMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.MetricValues;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.corebase.metric.TimeDltMetricItem;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 public class BrokerMetrics implements BrokerMetricMXBean {
 
     private final AtomicLong lastResetTime =
             new AtomicLong(System.currentTimeMillis());
     // Delay statistics for syncing data to files
-    protected final AbsMetricItem syncDataDurMin =
-            new GaugeMinMetricItem("fSync_duration_min");
-    protected final AbsMetricItem syncDataDurMax =
-            new GaugeMaxMetricItem("fSync_duration_max");
+    protected final TimeDltMetricItem fileSyncTimeDltItem =
+            new TimeDltMetricItem("file_sync");
     // Delay statistics for syncing data to Zookeeper
-    protected final AbsMetricItem syncZkDurMin =
-            new GaugeMinMetricItem("zkSync_duration_min");
-    protected final AbsMetricItem syncZkDurMax =
-            new GaugeMaxMetricItem("zkSync_duration_max");
+    protected final TimeDltMetricItem zkSyncTimeDltItem =
+            new TimeDltMetricItem("zk_sync");
     // Zookeeper Exception statistics
     protected final AbsMetricItem zkExceptionCnt =
             new CountMetricItem("zk_exception_cnt");
@@ -62,57 +56,16 @@ public class BrokerMetrics implements BrokerMetricMXBean {
 
     @Override
     public MetricValues getMetrics() {
-        Map<String, Long> metricValues = new HashMap<>();
-        metricValues.put(syncDataDurMin.getName(), syncDataDurMin.getValue());
-        metricValues.put(syncDataDurMax.getName(), syncDataDurMax.getValue());
-        metricValues.put(syncZkDurMin.getName(), syncZkDurMin.getValue());
-        metricValues.put(syncZkDurMax.getName(), syncZkDurMax.getValue());
-        metricValues.put(zkExceptionCnt.getName(), zkExceptionCnt.getValue());
-        metricValues.put(masterNoNodeCnt.getName(), masterNoNodeCnt.getValue());
-        metricValues.put(hbExceptionCnt.getName(), hbExceptionCnt.getValue());
-        metricValues.put(ioExceptionCnt.getName(), ioExceptionCnt.getValue());
-        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getValue());
-        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getValue());
-        return new MetricValues(WebParameterUtils.date2yyyyMMddHHmmss(
-                new Date(lastResetTime.get())), metricValues);
+        return snapshotMetrics(false);
     }
 
     @Override
     public MetricValues getAndReSetMetrics() {
-        Map<String, Long> metricValues = new HashMap<>();
-        metricValues.put(syncDataDurMin.getName(), syncDataDurMin.getAndSet());
-        metricValues.put(syncDataDurMax.getName(), syncDataDurMax.getAndSet());
-        metricValues.put(syncZkDurMin.getName(), syncZkDurMin.getAndSet());
-        metricValues.put(syncZkDurMax.getName(), syncZkDurMax.getAndSet());
-        metricValues.put(zkExceptionCnt.getName(), zkExceptionCnt.getAndSet());
-        metricValues.put(masterNoNodeCnt.getName(), masterNoNodeCnt.getAndSet());
-        metricValues.put(hbExceptionCnt.getName(), hbExceptionCnt.getAndSet());
-        metricValues.put(ioExceptionCnt.getName(), ioExceptionCnt.getAndSet());
-        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getAndSet());
-        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getAndSet());
-        long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
-        return new MetricValues(
-                WebParameterUtils.date2yyyyMMddHHmmss(new Date(befTime)), metricValues);
+        return snapshotMetrics(true);
     }
 
     public long getLastResetTime() {
         return lastResetTime.get();
-    }
-
-    public AbsMetricItem getSyncDataDurMin() {
-        return syncDataDurMin;
-    }
-
-    public AbsMetricItem getSyncDataDurMax() {
-        return syncDataDurMax;
-    }
-
-    public AbsMetricItem getSyncZkDurMin() {
-        return syncZkDurMin;
-    }
-
-    public AbsMetricItem getSyncZkDurMax() {
-        return syncZkDurMax;
     }
 
     public AbsMetricItem getZkExceptionCnt() {
@@ -138,5 +91,34 @@ public class BrokerMetrics implements BrokerMetricMXBean {
     public AbsMetricItem getConsumerTmoTotCnt() {
         return consumerTmoTotCnt;
     }
+
+    public TimeDltMetricItem getFileSyncTimeDltItem() {
+        return fileSyncTimeDltItem;
+    }
+
+    public TimeDltMetricItem getZkSyncTimeDltItem() {
+        return zkSyncTimeDltItem;
+    }
+
+    private MetricValues snapshotMetrics(boolean resetValue) {
+        Map<String, Long> metricValues = new LinkedHashMap<>();
+        fileSyncTimeDltItem.getProcTimeDltDuration(metricValues, resetValue);
+        zkSyncTimeDltItem.getProcTimeDltDuration(metricValues, resetValue);
+        metricValues.put(zkExceptionCnt.getName(), zkExceptionCnt.getValue(resetValue));
+        metricValues.put(masterNoNodeCnt.getName(), masterNoNodeCnt.getValue(resetValue));
+        metricValues.put(hbExceptionCnt.getName(), hbExceptionCnt.getValue(resetValue));
+        metricValues.put(ioExceptionCnt.getName(), ioExceptionCnt.getValue(resetValue));
+        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getValue(resetValue));
+        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getValue(resetValue));
+        if (resetValue) {
+            long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
+            return new MetricValues(
+                    DateTimeConvertUtils.ms2yyyyMMddHHmmss(befTime), metricValues);
+        } else {
+            return new MetricValues(
+                    DateTimeConvertUtils.ms2yyyyMMddHHmmss(lastResetTime.get()), metricValues);
+        }
+    }
+
 }
 

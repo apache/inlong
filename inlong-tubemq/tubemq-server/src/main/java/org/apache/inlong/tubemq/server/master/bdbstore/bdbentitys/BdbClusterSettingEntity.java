@@ -23,8 +23,8 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 /*
@@ -347,7 +347,7 @@ public class BdbClusterSettingEntity implements Serializable {
                             TStoreConstants.TOKEN_CREATE_USER, creater);
         }
         if (createDate != null) {
-            String dataStr = WebParameterUtils.date2yyyyMMddHHmmss(createDate);
+            String dataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
             this.attributes =
                     TStringUtils.setAttrValToAttributes(this.attributes,
                             TStoreConstants.TOKEN_CREATE_DATE, dataStr);
@@ -362,7 +362,7 @@ public class BdbClusterSettingEntity implements Serializable {
     public Date getCreateDate() {
         String dateStr = TStringUtils.getAttrValFrmAttributes(
                 this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
-        return WebParameterUtils.yyyyMMddHHmmss2date(dateStr);
+        return DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr);
     }
 
     public String getStrCreateDate() {
@@ -371,7 +371,7 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public String getStrModifyDate() {
-        return WebParameterUtils.date2yyyyMMddHHmmss(modifyDate);
+        return DateTimeConvertUtils.date2yyyyMMddHHmmss(modifyDate);
     }
 
     /**

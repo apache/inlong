@@ -315,6 +315,12 @@ public class RmtDataCache implements Closeable {
         return this.groupFlowCtrlRuleHandler.getFlowCtrlId();
     }
 
+    /**
+     * store topic meta information
+     *
+     * @param curTopicMetaInfoId   the topic meta information id
+     * @param curMetaInfoSet       the topic meta information
+     */
     public void storeTopicMetaInfo(long curTopicMetaInfoId, List<String> curMetaInfoSet) {
         if (curTopicMetaInfoId < 0
                 || curTopicMetaInfoId == this.topicMetaInfoId.get()) {
@@ -580,7 +586,7 @@ public class RmtDataCache implements Closeable {
      * @param limitDlt      max offset of the data fetch
      * @param curDataDlt    the offset of current data fetch
      * @param isRequireSlow if the server requires slow down
-     * @param maxOffset partiton current max offset
+     * @param maxOffset     partition current max offset
      */
     public void setPartitionContextInfo(String partitionKey, long currOffset,
                                         int reqProcType, int errCode,

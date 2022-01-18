@@ -24,7 +24,7 @@ public class GaugeNormMetricItem extends AbsMetricItem {
     }
 
     @Override
-    public long getAndSet() {
+    public long getValue(boolean resetValue) {
         return value.get();
     }
 

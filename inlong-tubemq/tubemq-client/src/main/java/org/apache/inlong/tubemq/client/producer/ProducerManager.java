@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.inlong.tubemq.client.common.ClientMetrics;
 import org.apache.inlong.tubemq.client.common.TubeClientVersion;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -99,6 +101,7 @@ public class ProducerManager {
     private Map<String, Map<Integer, List<Partition>>> topicPartitionMap =
             new ConcurrentHashMap<>();
     private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
+    private final ClientMetrics clientMetrics;
 
     public ProducerManager(final InnerSessionFactory sessionFactory,
                            final TubeClientConfig tubeClientConfig) throws TubeClientException {
@@ -129,6 +132,9 @@ public class ProducerManager {
         rpcConfig.put(RpcConstants.WORKER_THREAD_NAME, "tube_netty_worker-");
         rpcConfig.put(RpcConstants.CALLBACK_WORKER_COUNT,
                 tubeClientConfig.getRpcRspCallBackThreadCnt());
+        // initial client metrics
+        this.clientMetrics =
+                new ClientMetrics(true, this.producerId, this.tubeClientConfig);
         heartBeatStatus.set(0);
         this.masterService =
                 this.rpcServiceFactory.getFailoverService(MasterService.class,
@@ -275,15 +281,18 @@ public class ProducerManager {
      * @throws Throwable
      */
     public void shutdown() throws Throwable {
+        StringBuilder strBuff = new StringBuilder(512);
         logger.info("[ShutDown Producer] Shutting down heartbeat...");
         if (this.nodeStatus.get() != 0) {
             if (isShutdown()) {
-                logger.info(new StringBuilder(512)
+                logger.info(strBuff
                         .append("[ShutDown Producer] Producer ").append(producerId)
                         .append("has been shutdown,please do not make a duplicated invocation.").toString());
+                strBuff.delete(0, strBuff.length());
             }
             return;
         }
+        clientMetrics.printMetricInfo(true, strBuff);
         if (this.nodeStatus.compareAndSet(0, 1)) {
             this.heartbeatService.shutdownNow();
             this.topicPartitionMap.clear();
@@ -291,6 +300,15 @@ public class ProducerManager {
                     AddressUtils.getLocalAddress(), tubeClientConfig.isTlsEnable());
             logger.info("[SHUTDOWN_TUBE] tube heartbeat was shutdown.");
         }
+    }
+
+    /**
+     * Get the client metrics.
+     *
+     * @return client metrics
+     */
+    public ClientMetrics getClientMetrics() {
+        return clientMetrics;
     }
 
     /**
@@ -401,13 +419,20 @@ public class ProducerManager {
                 ClientMaster.RegisterResponseM2P response =
                         this.masterService.producerRegisterP2M(createRegisterRequest(),
                                 AddressUtils.getLocalAddress(), tubeClientConfig.isTlsEnable());
-                if ((response != null) && (response.getSuccess())) {
-                    if (response.getBrokerCheckSum() != this.brokerInfoCheckSum) {
-                        updateBrokerInfoList(true, response.getBrokerInfosList(),
-                                response.getBrokerCheckSum(), sBuilder);
+                if (response == null) {
+                    clientMetrics.bookReg2Master(true);
+                } else {
+                    if (response.getSuccess()) {
+                        if (response.getBrokerCheckSum() != this.brokerInfoCheckSum) {
+                            updateBrokerInfoList(true, response.getBrokerInfosList(),
+                                    response.getBrokerCheckSum(), sBuilder);
+                        }
+                        clientMetrics.bookReg2Master(false);
+                        processRegSyncInfo(response);
+                        return;
+                    } else {
+                        clientMetrics.bookReg2Master(true);
                     }
-                    processRegSyncInfo(response);
-                    return;
                 }
                 if (remainingRetry <= 0) {
                     if (response == null) {
@@ -639,6 +664,9 @@ public class ProducerManager {
             while (!heartBeatStatus.compareAndSet(0, 1)) {
                 ThreadUtils.sleep(100);
             }
+            // print metrics information
+            clientMetrics.printMetricInfo(false, sBuilder);
+            // check whether public topics
             if (publishTopics.isEmpty()) {
                 return;
             }
@@ -649,12 +677,14 @@ public class ProducerManager {
                 if (response == null || !response.getSuccess()) {
                     heartbeatRetryTimes++;
                     if (response == null) {
+                        clientMetrics.bookHB2MasterException();
                         logger.error("[Heartbeat Failed] receive null HeartResponseM2P response!");
                     } else {
                         logger.error(sBuilder.append("[Heartbeat Failed] ")
                                 .append(response.getErrMsg()).toString());
                         sBuilder.delete(0, sBuilder.length());
                         if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
+                            clientMetrics.bookHB2MasterTimeout();
                             try {
                                 register2Master();
                             } catch (Throwable ee) {
@@ -663,8 +693,11 @@ public class ProducerManager {
                                     .append(ee.getMessage()).toString());
                                 sBuilder.delete(0, sBuilder.length());
                             }
-                        } else if (response.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
-                            adjustHeartBeatPeriod("certificate failure", sBuilder);
+                        } else {
+                            clientMetrics.bookHB2MasterException();
+                            if (response.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
+                                adjustHeartBeatPeriod("certificate failure", sBuilder);
+                            }
                         }
                     }
                     return;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +54,8 @@ public class CliProducer extends CliAbstractBase {
 
     private static final Logger logger =
             LoggerFactory.getLogger(CliProducer.class);
+    // start time
+    private long startTime = System.currentTimeMillis();
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
     private static final AtomicLong SENT_SUCC_COUNTER = new AtomicLong(0);
@@ -187,6 +188,7 @@ public class CliProducer extends CliAbstractBase {
         sentData = MixedUtils.buildTestData(msgDataSize);
         // initial topic send round
         topicSendRounds = MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
+        startTime = System.currentTimeMillis();
         // initial send thread service
         sendExecutorService =
                 Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
@@ -250,7 +252,6 @@ public class CliProducer extends CliAbstractBase {
         @Override
         public void run() {
             int topicAndCondCnt = topicSendRounds.size();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             long sentCount = 0;
             int roundIndex = 0;
             while (msgCount < 0 || sentCount < msgCount) {
@@ -258,7 +259,7 @@ public class CliProducer extends CliAbstractBase {
                 try {
                     Tuple2<String, String> target = topicSendRounds.get(roundIndex);
                     Message message = MixedUtils.buildMessage(
-                            target.getF0(), target.getF1(), sentData, sentCount, sdf);
+                            target.getF0(), target.getF1(), sentData, sentCount);
                     // use sync or async process
                     if (syncProduction) {
                         MessageSentResult procResult =
@@ -323,7 +324,9 @@ public class CliProducer extends CliAbstractBase {
             while (cliProducer.msgCount < 0
                     || TOTAL_COUNTER.get() < cliProducer.msgCount * cliProducer.clientCount) {
                 ThreadUtils.sleep(cliProducer.printIntervalMs);
-                System.out.println("Required send count VS sent message count = "
+                System.out.println("Continue, cost time: "
+                        + (System.currentTimeMillis() - cliProducer.startTime)
+                        + "ms, required count VS sent count = "
                         + (cliProducer.msgCount * cliProducer.clientCount)
                         + " : " + TOTAL_COUNTER.get()
                         + " (" + SENT_SUCC_COUNTER.get()
@@ -332,7 +335,9 @@ public class CliProducer extends CliAbstractBase {
                         + ")");
             }
             cliProducer.shutdown();
-            System.out.println("Finished, required send count VS sent message count = "
+            System.out.println("Finished, cost time: "
+                    + (System.currentTimeMillis() - cliProducer.startTime)
+                    + "ms, required count VS sent count = "
                     + (cliProducer.msgCount * cliProducer.clientCount)
                     + " : " + TOTAL_COUNTER.get()
                     + " (" + SENT_SUCC_COUNTER.get()
@@ -346,5 +351,4 @@ public class CliProducer extends CliAbstractBase {
         }
 
     }
-
 }

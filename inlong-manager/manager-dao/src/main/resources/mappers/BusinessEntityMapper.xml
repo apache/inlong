@@ -82,6 +82,14 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from business
+        where is_deleted = 0
+        and status = #{status, jdbcType=VARCHAR}
+        order by modify_time desc
+    </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
             parameterType="org.apache.inlong.manager.common.pojo.business.BusinessPageRequest">
         select
@@ -92,6 +100,9 @@
             #{currentUser,jdbcType=VARCHAR},in_charges))
             <if test="keyWord != null and keyWord != ''">
                 and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
+            </if>
+            <if test="middlewareType != null and middlewareType != ''">
+                and middleware_type = #{middlewareType, jdbcType=VARCHAR}
             </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}

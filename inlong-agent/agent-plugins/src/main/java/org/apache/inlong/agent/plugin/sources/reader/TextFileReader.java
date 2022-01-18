@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -35,15 +36,21 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
+import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
+import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TextFileReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
+
+    private static final String TEXT_FILE_READER_TAG_NAME = "AgentTextMetric";
+
     public static final int NEVER_STOP_SIGN = -1;
 
     private final File file;
@@ -56,6 +63,7 @@ public class TextFileReader implements Reader {
     private long lastTime = 0;
     private final PluginMetric textFileMetric;
     private List<Validator> validators = new ArrayList<>();
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileReader(File file, int position) {
         this(file, position, "");
@@ -65,7 +73,14 @@ public class TextFileReader implements Reader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
-        textFileMetric = new PluginMetric("AgentTextMetric");
+
+        if (ConfigUtil.isPrometheusEnabled()) {
+            textFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(
+                TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+        } else {
+            textFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(
+                TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+        }
     }
 
     public TextFileReader(File file) {
@@ -77,7 +92,7 @@ public class TextFileReader implements Reader {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
             if (validateMessage(message)) {
-                textFileMetric.readNum.incrementAndGet();
+                textFileMetric.incReadNum();
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -112,7 +127,7 @@ public class TextFileReader implements Reader {
     }
 
     @Override
-    public String getReadFile() {
+    public String getReadSource() {
         return file.getAbsolutePath();
     }
 
@@ -163,6 +178,6 @@ public class TextFileReader implements Reader {
     public void destroy() {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-            textFileMetric.tagName, textFileMetric.readNum.get());
+            textFileMetric.getTagName(), textFileMetric.getReadNum());
     }
 }

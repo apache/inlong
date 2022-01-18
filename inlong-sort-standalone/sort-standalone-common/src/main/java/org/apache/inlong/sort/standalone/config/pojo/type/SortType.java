@@ -24,7 +24,7 @@ package org.apache.inlong.sort.standalone.config.pojo.type;
 public enum SortType {
 
     HIVE("hive"), TUBE("tube"), KAFKA("kafka"), PULSAR("pulsar"), ElasticSearch("ElasticSearch"), THTDBANK(
-            "thtdbank"), TQTDBANK("tqtdbank"), CDMQ("cdmq"), N("n");
+            "thtdbank"), TQTDBANK("tqtdbank"), CDMQ("cdmq"), UNKNOWN("n");
 
     private final String value;
 
@@ -67,6 +67,6 @@ public enum SortType {
                 return v;
             }
         }
-        return N;
+        return UNKNOWN;
     }
 }

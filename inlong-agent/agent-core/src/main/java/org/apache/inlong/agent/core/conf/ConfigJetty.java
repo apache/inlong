@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core.conf;
 
+import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_TRIGGER;
 
 import java.io.Closeable;
@@ -78,8 +79,10 @@ public class ConfigJetty implements Closeable {
             if (jobProfile.hasKey(JOB_TRIGGER)) {
                 triggerManager.submitTrigger(
                     TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
+            } else if (jobProfile.hasKey(JOB_DIR_FILTER_PATTERN)) {
+                jobManager.submitFileJobProfile(jobProfile);
             } else {
-                jobManager.submitJobProfile(jobProfile);
+                jobManager.submitSqlJobProfile(jobProfile);
             }
         }
     }

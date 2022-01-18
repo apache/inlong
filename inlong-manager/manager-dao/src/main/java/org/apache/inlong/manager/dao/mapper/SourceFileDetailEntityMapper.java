@@ -39,6 +39,19 @@ public interface SourceFileDetailEntityMapper {
 
     int updateByPrimaryKey(SourceFileDetailEntity record);
 
+    /**
+     * Update source db detail status after approving business
+     *
+     * @param groupId Business group id
+     * @param streamId Data stream id
+     * @param status Modified status
+     * @param modifier Modifier name
+     * @return whether succeed
+     * @apiNote If stream id is null, update all data stream associated with group id
+     */
+    boolean updateStatusAfterApprove(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("status") Integer status, @Param("modifier") String modifier);
+
     List<SourceFileDetailEntity> selectByCondition(SourceFileDetailPageRequest request);
 
     /**

@@ -17,24 +17,14 @@
 
 package org.apache.inlong.agent.plugin.fetcher;
 
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DataConfig;
-import org.apache.inlong.agent.plugin.fetcher.dtos.JobProfileDto;
-import org.apache.inlong.agent.plugin.fetcher.dtos.JobProfileDto.Proxy;
-import org.apache.inlong.agent.plugin.fetcher.dtos.JobProfileDto.Dir;
-import org.apache.inlong.agent.plugin.fetcher.dtos.JobProfileDto.Job;
-import org.apache.inlong.agent.plugin.fetcher.dtos.JobProfileDto.Manager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * check manager interface result with json formatter.
@@ -48,14 +38,10 @@ public class ManagerResultFormatter {
     public static final String SUCCESS_CODE = "true";
 
     private static final Gson GSON = new Gson();
-    public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
-    public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
-    public static final String TDM_JOB = "TDM_JOB";
-    public static final String DEFAULT_BUS_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
     /**
      * get json result
+     *
      * @return json object
      */
     public static JsonObject getResultData(String jsonStr) {
@@ -64,7 +50,7 @@ public class ManagerResultFormatter {
                 || !object.has(RESULT_DATA)
                 || !SUCCESS_CODE.equals(object.get(RESULT_CODE).getAsString())) {
             throw new IllegalArgumentException("cannot get result data,"
-                + " please check manager status, return str is" + jsonStr);
+                    + " please check manager status, return str is" + jsonStr);
 
         }
         return object;
@@ -72,6 +58,7 @@ public class ManagerResultFormatter {
 
     /**
      * get random list of base list.
+     *
      * @param baseList - base list
      * @param num - max Num
      * @return random list
@@ -86,52 +73,4 @@ public class ManagerResultFormatter {
         num = Math.min(num, baseList.size());
         return newHostList.subList(0, num);
     }
-
-    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
-        if (!dataConfigs.isValid()) {
-            throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
-        }
-        JobProfileDto profileDto = new JobProfileDto();
-        Proxy proxy = getProxy(dataConfigs);
-        Job job = getJob(dataConfigs);
-        profileDto.setProxy(proxy);
-        profileDto.setJob(job);
-        return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
-    }
-
-    private static Job getJob(DataConfig dataConfigs) {
-        Job job = new Job();
-        Dir dir = new Dir();
-        dir.setPattern(dataConfigs.getDataName());
-        job.setDir(dir);
-        job.setTrigger(DEFAULT_TRIGGER);
-        job.setChannel(DEFAULT_CHANNEL);
-        job.setName(TDM_JOB);
-        job.setSource(DEFAULT_SOURCE);
-        job.setSink(DEFAULT_BUS_SINK);
-        job.setId(dataConfigs.getTaskId());
-        job.setTimeOffset(dataConfigs.getTimeOffset());
-        job.setOp(dataConfigs.getOp());
-        job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
-            job.setAddictiveString(dataConfigs.getAdditionalAttr());
-        }
-        if (dataConfigs.getCycleUnit() != null) {
-            job.setCycleUnit(dataConfigs.getCycleUnit());
-        }
-        return job;
-    }
-
-    private static Proxy getProxy(DataConfig dataConfigs) {
-        Proxy proxy = new Proxy();
-        Manager manager = new Manager();
-        AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
-        manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
-        proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
-        proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
-        proxy.setManager(manager);
-        return proxy;
-    }
-
 }

@@ -22,6 +22,12 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
 public class TubeClientConfigUtils {
 
+    /**
+     * Get RPC configure by client configure information
+     *
+     * @param tubeClientConfig   the client configure
+     * @param isSingleSession    whether single session factory
+     */
     public static RpcConfig getRpcConfigByClientConfig(final TubeClientConfig tubeClientConfig,
                                                        boolean isSingleSession) {
         RpcConfig config = new RpcConfig();

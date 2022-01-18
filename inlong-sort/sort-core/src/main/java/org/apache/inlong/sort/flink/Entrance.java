@@ -38,6 +38,7 @@ import org.apache.inlong.sort.flink.metrics.MetricsAggregator.MetricsAggregateFu
 import org.apache.inlong.sort.flink.metrics.MetricsAggregator.MetricsProcessWindowFunction;
 import org.apache.inlong.sort.flink.metrics.MetricsAssignerWithPeriodicWatermarks;
 import org.apache.inlong.sort.flink.metrics.MetricsLogSink;
+import org.apache.inlong.sort.flink.pulsar.MultiTopicPulsarSourceFunction;
 import org.apache.inlong.sort.flink.tubemq.MultiTopicTubeSourceFunction;
 import org.apache.inlong.sort.util.ParameterTool;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
@@ -78,6 +79,13 @@ public class Entrance {
                     .uid(Constants.SOURCE_UID)
                     .name("TubeMQ source")
                     .rebalance(); // there might be data lean of source, so re-balance it
+        } else if (sourceType.equals(Constants.SOURCE_TYPE_PULSAR)) {
+            sourceStream = env
+                    .addSource(new MultiTopicPulsarSourceFunction(config))
+                    .setParallelism(sourceParallelism)
+                    .uid(Constants.SOURCE_UID)
+                    .name("Pulsar source")
+                    .rebalance();
         } else {
             throw new IllegalArgumentException("Unsupported source type " + sourceType);
         }

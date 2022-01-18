@@ -27,9 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.inlong.commons.msg.TDMsg1;
 import org.apache.inlong.sort.flink.Record;
-import org.apache.inlong.sort.flink.TDMsgSerializedRecord;
+import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.tdmsg.TDMsgUtils;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
@@ -79,12 +80,12 @@ public class MultiTenancyTDMsgMixedDeserializerTest extends TestLogger {
         deserializer.addDataFlow(dataFlowInfo);
 
         final TDMsg1 tdMsg1 = TDMsg1.newTDMsg();
-        final String attrs = "m=0&iname=tid&t=20210513";
+        final String attrs = "m=0&" + TDMsgUtils.TDMSG_ATTR_STREAM_ID + "=tid&t=20210513";
         final String body1 = "tianqiwan|29";
         tdMsg1.addMsg(attrs, body1.getBytes());
 
         final TestingCollector<Record> collector = new TestingCollector<>();
-        deserializer.deserialize(new TDMsgSerializedRecord("topic", 0, tdMsg1.buildArray()), collector);
+        deserializer.deserialize(new TDMsgMixedSerializedRecord("topic", 0, tdMsg1.buildArray()), collector);
 
         assertEquals(1, collector.results.size());
         assertEquals(1L, collector.results.get(0).getDataflowId());
@@ -93,7 +94,7 @@ public class MultiTenancyTDMsgMixedDeserializerTest extends TestLogger {
         assertEquals(new Timestamp(time), collector.results.get(0).getRow().getField(0));
         final Map<String, String> attributes = new HashMap<>();
         attributes.put("m", "0");
-        attributes.put("iname", "tid");
+        attributes.put(TDMsgUtils.TDMSG_ATTR_STREAM_ID, "tid");
         attributes.put("t", "20210513");
         assertEquals(attributes, collector.results.get(0).getRow().getField(1));
         assertEquals("tianqiwan", collector.results.get(0).getRow().getField(2));

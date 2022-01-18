@@ -22,7 +22,7 @@ package org.apache.inlong.sort.standalone.config.pojo.type;
  */
 public enum CacheType {
 
-    TUBE("tube"), KAFKA("kafka"), PULSAR("pulsar"), N("n");
+    TUBE("tube"), KAFKA("kafka"), PULSAR("pulsar"), UNKNOWN("n");
 
     private final String value;
 
@@ -65,6 +65,6 @@ public enum CacheType {
                 return v;
             }
         }
-        return N;
+        return UNKNOWN;
     }
 }

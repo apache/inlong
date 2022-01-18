@@ -22,7 +22,6 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.flink.clickhouse.ClickHouseRowConverter;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.shaded.curator.org.apache.curator.shaded.com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +49,6 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
 
     private final FormatInfo[] formatInfos;
 
-    private final int flushIntervalSecond;
-
     private final int maxRetries;
 
     private final List<Row> insertBatch = new ArrayList<>();
@@ -64,8 +61,6 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
 
     private transient ClickHousePreparedStatement deleteStmt;
 
-    private transient ExecuteBatchService executeBatchService;
-
     public ClickHouseUpsertExecutor(
             String insertSql,
             String updateSql,
@@ -76,7 +71,6 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
         this.updateSql = updateSql;
         this.deleteSql = deleteSql;
         this.formatInfos = formatInfos;
-        this.flushIntervalSecond = clickHouseSinkInfo.getFlushInterval();
         this.maxRetries = clickHouseSinkInfo.getWriteMaxRetryTimes();
     }
 
@@ -85,8 +79,6 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
         insertStmt = (ClickHousePreparedStatement) connection.prepareStatement(insertSql);
         updateStmt = (ClickHousePreparedStatement) connection.prepareStatement(updateSql);
         deleteStmt = (ClickHousePreparedStatement) connection.prepareStatement(deleteSql);
-        executeBatchService = new ExecuteBatchService();
-        executeBatchService.startAsync();
     }
 
     @Override
@@ -101,19 +93,16 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
 
     @Override
     public synchronized void executeBatch() throws IOException {
-        if (executeBatchService.isRunning()) {
-            notifyAll();
-        } else {
-            throw new IOException("executor unexpectedly terminated", executeBatchService.failureCause());
+        try {
+            processBatch(insertStmt, insertBatch);
+            processBatch(deleteStmt, deleteBatch);
+        } catch (Exception exception) {
+            throw new IOException("Flush data to clickhouse failed! " + exception);
         }
     }
 
     @Override
     public void closeStatement() throws SQLException {
-        if (executeBatchService != null) {
-            executeBatchService.stopAsync().awaitTerminated();
-        }
-
         for (ClickHouseStatement stmt : Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
             if (stmt != null) {
                 stmt.close();
@@ -121,43 +110,13 @@ public class ClickHouseUpsertExecutor implements ClickHouseExecutor {
         }
     }
 
-    private class ExecuteBatchService extends AbstractExecutionThreadService {
-
-        private ExecuteBatchService() {
-        }
-
-        protected void run() throws Exception {
-            while (isRunning()) {
-                synchronized (ClickHouseUpsertExecutor.this) {
-                    wait(flushIntervalSecond * 1000L);
-                    processInsertBatch(insertStmt, insertBatch);
-                    processDeleteBatch(deleteStmt, deleteBatch);
-                }
+    private void processBatch(ClickHousePreparedStatement stmt, List<Row> batch) throws Exception {
+        if (!batch.isEmpty()) {
+            for (Row row : batch) {
+                ClickHouseRowConverter.setRow(stmt, formatInfos, row);
+                stmt.addBatch();
             }
-        }
 
-        private void processDeleteBatch(ClickHousePreparedStatement stmt, List<Row> batch)
-                throws SQLException {
-            if (!batch.isEmpty()) {
-                for (Row row : batch) {
-                    ClickHouseRowConverter.setRow(stmt, formatInfos, row);
-                    stmt.executeUpdate();
-                }
-            }
-        }
-
-        private void processInsertBatch(ClickHousePreparedStatement stmt, List<Row> batch)
-                throws SQLException, IOException {
-            if (!batch.isEmpty()) {
-                for (Row row : batch) {
-                    ClickHouseRowConverter.setRow(stmt, formatInfos, row);
-                    stmt.addBatch();
-                }
-                attemptExecuteBatch(stmt, batch);
-            }
-        }
-
-        private void attemptExecuteBatch(ClickHousePreparedStatement stmt, List<Row> batch) throws IOException {
             for (int i = 1; i <= maxRetries; i++) {
                 try {
                     stmt.executeBatch();

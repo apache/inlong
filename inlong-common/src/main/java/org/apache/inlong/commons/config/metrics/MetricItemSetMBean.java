@@ -19,6 +19,8 @@ package org.apache.inlong.commons.config.metrics;
 
 import java.util.List;
 
+import javax.management.MXBean;
+
 /**
  * 
  * MetricItemSetMBean<br>
@@ -26,6 +28,7 @@ import java.util.List;
  * Decouple between metric item and monitor system, in particular scene, <br>
  * inlong can depend on user-defined monitor system.
  */
+@MXBean
 public interface MetricItemSetMBean {
 
     String METHOD_SNAPSHOT = "snapshot";

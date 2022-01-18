@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,18 +29,20 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
-import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.SizeUnit;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +69,10 @@ public class PulsarProducerCluster implements LifecycleAware {
     public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
     public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
             + "BatchingPartitionSwitchFrequency";
+
+    public static final String KEY_IOTHREADS = "ioThreads";
+    public static final String KEY_MEMORYLIMIT = "memoryLimit";
+    public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
 
     private final String workerName;
     private final CacheClusterConfig config;
@@ -111,26 +118,30 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.client = PulsarClient.builder()
                     .serviceUrl(serviceUrl)
                     .authentication(AuthenticationFactory.token(authentication))
+                    .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
+                    .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
+                    .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
                     .build();
             this.baseBuilder = client.newProducer();
 //            Map<String, Object> builderConf = new HashMap<>();
 //            builderConf.putAll(context.getParameters());
             this.baseBuilder
-                    .hashingScheme(HashingScheme.Murmur3_32Hash)
-                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
-                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 5242880))
-                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 3000))
-                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 1),
-                            TimeUnit.MILLISECONDS);
-            this.baseBuilder.maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 1000))
-                    .maxPendingMessagesAcrossPartitions(
-                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 50000))
                     .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
-                    .compressionType(this.getPulsarCompressionType())
+                    .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 500))
+                    .maxPendingMessagesAcrossPartitions(
+                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000))
+                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
+                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
+                            TimeUnit.MILLISECONDS)
+                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 131072));
+            this.baseBuilder
+                    .accessMode(ProducerAccessMode.Shared)
+                    .messageRoutingMode(MessageRoutingMode.RoundRobinPartition)
                     .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true))
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
-                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 10))
-                    .batcherBuilder(BatcherBuilder.DEFAULT);
+                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
+                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
+                    .compressionType(this.getPulsarCompressionType());
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
@@ -204,8 +215,11 @@ public class PulsarProducerCluster implements LifecycleAware {
         if (producer == null) {
             try {
                 LOG.info("try to new a object for topic " + topic);
+                SecureRandom secureRandom = new SecureRandom(
+                        (workerName + "-" + cacheClusterName + "-" + topic + System.currentTimeMillis()).getBytes());
+                String producerName = workerName + "-" + cacheClusterName + "-" + topic + "-" + secureRandom.nextLong();
                 producer = baseBuilder.clone().topic(topic)
-                        .producerName(workerName + "-" + cacheClusterName + "-" + topic)
+                        .producerName(producerName)
                         .create();
                 LOG.info("create new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
@@ -224,14 +238,17 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.addMetric(event, topic, false, 0);
             return false;
         }
-        String messageKey = headers.get(Constants.MESSAGE_KEY);
-        if (messageKey == null) {
-            messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
-        }
         // sendAsync
+        CompletableFuture<MessageId> future = null;
+        String messageKey = headers.get(Constants.MESSAGE_KEY);
         long sendTime = System.currentTimeMillis();
-        CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
-                .value(event.getBody()).sendAsync();
+        if (messageKey == null) {
+            future = producer.newMessage().properties(headers)
+                    .value(event.getBody()).sendAsync();
+        } else {
+            future = producer.newMessage().key(messageKey).properties(headers)
+                    .value(event.getBody()).sendAsync();
+        }
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
@@ -262,14 +279,15 @@ public class PulsarProducerCluster implements LifecycleAware {
         DataProxyMetricItem.fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.cacheClusterName);
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
+        long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.sinkContext.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
             metricItem.sendSuccessCount.incrementAndGet();
             metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
-                long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                        sendTime);
                 long sinkDuration = currentTime - sendTime;
                 long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
                 long wholeDuration = currentTime - msgTime;

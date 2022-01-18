@@ -36,16 +36,8 @@ public class JobProfileDb {
         this.db = db;
     }
 
-    /**
-     * get job which in accepted state
-     * @return null or job conf
-     */
-    public JobProfile getAcceptedJob() {
-        return getJob(StateSearchKey.ACCEPTED);
-    }
-
     public List<JobProfile> getAcceptedJobs() {
-        return getJobs(StateSearchKey.ACCEPTED);
+        return getJobsByState(StateSearchKey.ACCEPTED);
     }
 
     /**
@@ -109,7 +101,7 @@ public class JobProfileDb {
         db.remove(keyName);
     }
 
-    public JobProfile getJobProfile(String jobId) {
+    public JobProfile getJobById(String jobId) {
         KeyValueEntity keyValueEntity = db.get(jobId);
         if (keyValueEntity != null) {
             return keyValueEntity.getAsJobProfile();
@@ -155,7 +147,7 @@ public class JobProfileDb {
      * @param fileName
      * @return
      */
-    public JobProfile getJob(String fileName) {
+    public JobProfile getJobByFileName(String fileName) {
         KeyValueEntity entity = db.searchOne(fileName);
         if (entity != null && entity.getKey().startsWith(JobConstants.JOB_ID_PREFIX)) {
             return entity.getAsJobProfile();
@@ -168,7 +160,7 @@ public class JobProfileDb {
      * @param stateSearchKey - state search key.
      * @return - list of job profile.
      */
-    public List<JobProfile> getJobs(StateSearchKey stateSearchKey) {
+    public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {
         List<KeyValueEntity> entityList = db.search(stateSearchKey);
         List<JobProfile> profileList = new ArrayList<>();
         for (KeyValueEntity entity : entityList) {

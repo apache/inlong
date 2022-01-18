@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-manager</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
 
     <artifactId>manager-web</artifactId>
@@ -124,6 +124,15 @@
                 <targetPath>bin</targetPath>
                 <includes>
                     <include>*.sh</include>
+                </includes>
+            </resource>
+            <!-- Filter sql files to sql directory -->
+            <resource>
+                <directory>sql</directory>
+                <filtering>true</filtering>
+                <targetPath>sql</targetPath>
+                <includes>
+                    <include>*.sql</include>
                 </includes>
             </resource>
         </resources>

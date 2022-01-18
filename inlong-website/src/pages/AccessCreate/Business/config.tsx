@@ -66,7 +66,7 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
         ),
         visible: values => values.middlewareType === 'PULSAR',
       },
-      // 'mqExtInfo.ensemble',
+      'mqExtInfo.ensemble',
       'mqExtInfo.writeQuorum',
       'mqExtInfo.ackQuorum',
       {

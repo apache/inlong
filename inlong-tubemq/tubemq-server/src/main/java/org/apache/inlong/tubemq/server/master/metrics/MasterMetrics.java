@@ -17,17 +17,15 @@
 
 package org.apache.inlong.tubemq.server.master.metrics;
 
-import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.metric.AbsMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.CountMetricItem;
-import org.apache.inlong.tubemq.corebase.metric.GaugeMaxMetricItem;
-import org.apache.inlong.tubemq.corebase.metric.GaugeMinMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.GaugeNormMetricItem;
 import org.apache.inlong.tubemq.corebase.metric.MetricValues;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.corebase.metric.TimeDltMetricItem;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 public class MasterMetrics implements MasterMetricMXBean {
 
@@ -69,16 +67,10 @@ public class MasterMetrics implements MasterMetricMXBean {
     protected final AbsMetricItem brokerFbdTotCnt =
             new CountMetricItem("broker_fbd_total_cnt");
     // server balance statistics
-    protected final AbsMetricItem svrBalDuration =
-            new GaugeNormMetricItem("svrbalance_duration");
-    protected final AbsMetricItem svrBalDurationMin =
-            new GaugeMinMetricItem("svrbalance_duration_min");
-    protected final AbsMetricItem svrBalDurationMax =
-            new GaugeMaxMetricItem("svrbalance_duration_max");
-    protected final AbsMetricItem svrBalResetDurMin =
-            new GaugeMinMetricItem("svrbal_reset_duration_min");
-    protected final AbsMetricItem svrBalResetDurMax =
-            new GaugeMaxMetricItem("svrbal_reset_duration_max");
+    protected TimeDltMetricItem svrBalDltItem =
+            new TimeDltMetricItem("svr_balance");
+    protected TimeDltMetricItem svrBalResetDltItem =
+            new TimeDltMetricItem("svrbal_reset");
     protected final AbsMetricItem svrBalConEventConsumerCnt =
             new GaugeNormMetricItem("svrbal_con_consumer_cnt");
     protected final AbsMetricItem svrBalDisConEventConsumerCnt =
@@ -86,67 +78,12 @@ public class MasterMetrics implements MasterMetricMXBean {
 
     @Override
     public MetricValues getMetrics() {
-        Map<String, Long> metricValues = new HashMap<>();
-        metricValues.put(consumeGroupCnt.getName(), consumeGroupCnt.getValue());
-        metricValues.put(consumeGroupTmoTotCnt.getName(), consumeGroupTmoTotCnt.getValue());
-        metricValues.put(cltBalConsumeGroupCnt.getName(), cltBalConsumeGroupCnt.getValue());
-        metricValues.put(cltBalGroupTmototCnt.getName(), cltBalGroupTmototCnt.getValue());
-        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getValue());
-        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getValue());
-        metricValues.put(producerOnlineCnt.getName(), producerOnlineCnt.getValue());
-        metricValues.put(producerTmoTotCnt.getName(), producerTmoTotCnt.getValue());
-        metricValues.put(brokerConfigCnt.getName(), brokerConfigCnt.getValue());
-        metricValues.put(brokerOnlineCnt.getName(), brokerOnlineCnt.getValue());
-        metricValues.put(brokerTmoTotCnt.getName(), brokerTmoTotCnt.getValue());
-        metricValues.put(brokerAbnCurCnt.getName(), brokerAbnCurCnt.getValue());
-        metricValues.put(brokerAbnTotCnt.getName(), brokerAbnTotCnt.getValue());
-        metricValues.put(brokerFbdCurCnt.getName(), brokerFbdCurCnt.getValue());
-        metricValues.put(brokerFbdTotCnt.getName(), brokerFbdTotCnt.getValue());
-        metricValues.put(svrBalDuration.getName(), svrBalDuration.getValue());
-        metricValues.put(svrBalDurationMin.getName(), svrBalDurationMin.getValue());
-        metricValues.put(svrBalDurationMax.getName(), svrBalDurationMax.getValue());
-        metricValues.put(svrBalResetDurMin.getName(), svrBalResetDurMin.getValue());
-        metricValues.put(svrBalResetDurMax.getName(), svrBalResetDurMax.getValue());
-        metricValues.put(svrBalConEventConsumerCnt.getName(),
-                svrBalConEventConsumerCnt.getValue());
-        metricValues.put(svrBalDisConEventConsumerCnt.getName(),
-                svrBalDisConEventConsumerCnt.getValue());
-        return new MetricValues(WebParameterUtils.date2yyyyMMddHHmmss(
-                new Date(lastResetTime.get())), metricValues);
+        return snapshotMetrics(false);
     }
 
     @Override
     public MetricValues getAndReSetMetrics() {
-        Map<String, Long> metricValues = new HashMap<>();
-        metricValues.put(consumeGroupCnt.getName(), consumeGroupCnt.getAndSet());
-        metricValues.put(consumeGroupTmoTotCnt.getName(), consumeGroupTmoTotCnt.getAndSet());
-        metricValues.put(cltBalConsumeGroupCnt.getName(), cltBalConsumeGroupCnt.getAndSet());
-        metricValues.put(cltBalGroupTmototCnt.getName(), cltBalGroupTmototCnt.getAndSet());
-        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getAndSet());
-        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getAndSet());
-        metricValues.put(producerOnlineCnt.getName(), producerOnlineCnt.getAndSet());
-        metricValues.put(producerTmoTotCnt.getName(), producerTmoTotCnt.getAndSet());
-        metricValues.put(brokerConfigCnt.getName(), brokerConfigCnt.getAndSet());
-        metricValues.put(brokerOnlineCnt.getName(), brokerOnlineCnt.getAndSet());
-        metricValues.put(brokerTmoTotCnt.getName(), brokerTmoTotCnt.getAndSet());
-        metricValues.put(brokerAbnCurCnt.getName(), brokerAbnCurCnt.getAndSet());
-        metricValues.put(brokerAbnTotCnt.getName(), brokerAbnTotCnt.getAndSet());
-        metricValues.put(brokerFbdCurCnt.getName(), brokerFbdCurCnt.getAndSet());
-        metricValues.put(brokerFbdTotCnt.getName(), brokerFbdTotCnt.getAndSet());
-        metricValues.put(svrBalDuration.getName(), svrBalDuration.getAndSet());
-        metricValues.put(svrBalDurationMin.getName(), svrBalDurationMin.getAndSet());
-        metricValues.put(svrBalDurationMax.getName(), svrBalDurationMax.getAndSet());
-        metricValues.put(svrBalResetDurMin.getName(), svrBalResetDurMin.getAndSet());
-        metricValues.put(svrBalResetDurMax.getName(), svrBalResetDurMax.getAndSet());
-        metricValues.put(svrBalConEventConsumerCnt.getName(),
-                svrBalConEventConsumerCnt.getAndSet());
-        metricValues.put(svrBalDisConEventConsumerCnt.getName(),
-                svrBalDisConEventConsumerCnt.getAndSet());
-        alignBrokerFbdMetrics();
-        alignBrokerAbnMetrics();
-        long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
-        return new MetricValues(WebParameterUtils.date2yyyyMMddHHmmss(
-                new Date(befTime)), metricValues);
+        return snapshotMetrics(true);
     }
 
     public long getLastResetTime() {
@@ -213,26 +150,6 @@ public class MasterMetrics implements MasterMetricMXBean {
         return brokerFbdTotCnt;
     }
 
-    public AbsMetricItem getSvrBalDuration() {
-        return svrBalDuration;
-    }
-
-    public AbsMetricItem getSvrBalDurationMin() {
-        return svrBalDurationMin;
-    }
-
-    public AbsMetricItem getSvrBalDurationMax() {
-        return svrBalDurationMax;
-    }
-
-    public AbsMetricItem getSvrBalResetDurMin() {
-        return svrBalResetDurMin;
-    }
-
-    public AbsMetricItem getSvrBalResetDurMax() {
-        return svrBalResetDurMax;
-    }
-
     public AbsMetricItem getSvrBalConEventConsumerCnt() {
         return svrBalConEventConsumerCnt;
     }
@@ -241,18 +158,26 @@ public class MasterMetrics implements MasterMetricMXBean {
         return svrBalDisConEventConsumerCnt;
     }
 
+    public TimeDltMetricItem getSvrBalDltItem() {
+        return svrBalDltItem;
+    }
+
+    public TimeDltMetricItem getSvrBalResetDltItem() {
+        return svrBalResetDltItem;
+    }
+
     private void alignBrokerFbdMetrics() {
         // Notice: the minimum value of the brokerFbdTotCnt metric value is
         //         the current value of brokerFbdCurCnt, so the metric value
         //         needs to be aligned after reset
-        long curCnt = brokerFbdCurCnt.getValue();
-        long totalCnt = brokerFbdTotCnt.getValue();
+        long curCnt = brokerFbdCurCnt.getValue(false);
+        long totalCnt = brokerFbdTotCnt.getValue(false);
         while (curCnt > totalCnt) {
             if (brokerFbdTotCnt.compareAndSet(totalCnt, curCnt)) {
                 break;
             }
-            curCnt = brokerFbdCurCnt.getValue();
-            totalCnt = brokerFbdTotCnt.getValue();
+            curCnt = brokerFbdCurCnt.getValue(false);
+            totalCnt = brokerFbdTotCnt.getValue(false);
         }
     }
 
@@ -260,15 +185,51 @@ public class MasterMetrics implements MasterMetricMXBean {
         // Notice: the minimum value of the brokerAbnTotCnt metric value is
         //         the current value of brokerAbnCurCnt, so the metric value
         //         needs to be aligned after reset
-        long curCnt = brokerAbnCurCnt.getValue();
-        long totalCnt = brokerAbnTotCnt.getValue();
+        long curCnt = brokerAbnCurCnt.getValue(false);
+        long totalCnt = brokerAbnTotCnt.getValue(false);
         while (curCnt > totalCnt) {
             if (brokerAbnTotCnt.compareAndSet(totalCnt, curCnt)) {
                 break;
             }
-            curCnt = brokerAbnCurCnt.getValue();
-            totalCnt = brokerAbnTotCnt.getValue();
+            curCnt = brokerAbnCurCnt.getValue(false);
+            totalCnt = brokerAbnTotCnt.getValue(false);
         }
     }
+
+    private MetricValues snapshotMetrics(boolean resetValue) {
+        Map<String, Long> metricValues = new LinkedHashMap<>();
+        metricValues.put(consumeGroupCnt.getName(), consumeGroupCnt.getValue(resetValue));
+        metricValues.put(consumeGroupTmoTotCnt.getName(), consumeGroupTmoTotCnt.getValue(resetValue));
+        metricValues.put(cltBalConsumeGroupCnt.getName(), cltBalConsumeGroupCnt.getValue(resetValue));
+        metricValues.put(cltBalGroupTmototCnt.getName(), cltBalGroupTmototCnt.getValue(resetValue));
+        metricValues.put(consumerOnlineCnt.getName(), consumerOnlineCnt.getValue(resetValue));
+        metricValues.put(consumerTmoTotCnt.getName(), consumerTmoTotCnt.getValue(resetValue));
+        metricValues.put(producerOnlineCnt.getName(), producerOnlineCnt.getValue(resetValue));
+        metricValues.put(producerTmoTotCnt.getName(), producerTmoTotCnt.getValue(resetValue));
+        metricValues.put(brokerConfigCnt.getName(), brokerConfigCnt.getValue(resetValue));
+        metricValues.put(brokerOnlineCnt.getName(), brokerOnlineCnt.getValue(resetValue));
+        metricValues.put(brokerTmoTotCnt.getName(), brokerTmoTotCnt.getValue(resetValue));
+        metricValues.put(brokerAbnCurCnt.getName(), brokerAbnCurCnt.getValue(resetValue));
+        metricValues.put(brokerAbnTotCnt.getName(), brokerAbnTotCnt.getValue(resetValue));
+        metricValues.put(brokerFbdCurCnt.getName(), brokerFbdCurCnt.getValue(resetValue));
+        metricValues.put(brokerFbdTotCnt.getName(), brokerFbdTotCnt.getValue(resetValue));
+        svrBalDltItem.getProcTimeDltDuration(metricValues, resetValue);
+        svrBalResetDltItem.getProcTimeDltDuration(metricValues, resetValue);
+        metricValues.put(svrBalConEventConsumerCnt.getName(),
+                svrBalConEventConsumerCnt.getValue(resetValue));
+        metricValues.put(svrBalDisConEventConsumerCnt.getName(),
+                svrBalDisConEventConsumerCnt.getValue(resetValue));
+        if (resetValue) {
+            alignBrokerFbdMetrics();
+            alignBrokerAbnMetrics();
+            long befTime = lastResetTime.getAndSet(System.currentTimeMillis());
+            return new MetricValues(
+                    DateTimeConvertUtils.ms2yyyyMMddHHmmss(befTime), metricValues);
+        } else {
+            return new MetricValues(
+                    DateTimeConvertUtils.ms2yyyyMMddHHmmss(lastResetTime.get()), metricValues);
+        }
+    }
+
 }
 
