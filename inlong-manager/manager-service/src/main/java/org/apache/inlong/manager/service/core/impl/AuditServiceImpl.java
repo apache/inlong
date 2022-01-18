@@ -49,12 +49,16 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuditServiceImpl implements AuditService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditServiceImpl.class);
+
+    @Value("${audit.query.source}")
+    private String auditQuerySource = AuditQuerySource.MYSQL.name();
 
     @Autowired
     private AuditEntityMapper auditEntityMapper;
@@ -72,7 +76,8 @@ public class AuditServiceImpl implements AuditService {
         LOGGER.info("begin query audit list request={}", request);
         Preconditions.checkNotNull(request, "request is null");
         List<AuditVO> result = Collections.emptyList();
-        if (AuditQuerySource.MYSQL == request.getQuerySource()) {
+        AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
+        if (AuditQuerySource.MYSQL == querySource) {
             String format = "%Y-%m-%d %H:%i:00";
             // Support min agg at now
             DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
@@ -87,7 +92,7 @@ public class AuditServiceImpl implements AuditService {
                 vo.setCount(((BigDecimal) s.get("total")).longValue());
                 return vo;
             }).collect(Collectors.toList());
-        } else if (AuditQuerySource.ELASTICSEARCH == request.getQuerySource()) {
+        } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
             String index = String.format("%s_%s",
                     request.getDt().replaceAll("-", ""), request.getAuditId());
             if (elasticsearchApi.indexExists(index)) {

@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 
 @Data
@@ -47,8 +46,9 @@ public class AuditRequest {
     /**
      * Query source such as MYSQL,ELASTICSEARCH
      */
-    @ApiModelProperty(value = "query source, default MYSQL", required = true, example = "MYSQL")
-    private AuditQuerySource querySource = AuditQuerySource.MYSQL;
+    // it has been changed to be specified by config item in the configuration file
+//    @ApiModelProperty(value = "query source, default MYSQL", required = true, example = "MYSQL")
+//    private AuditQuerySource querySource = AuditQuerySource.MYSQL;
     /**
      * Time statics dim such as MINUTE, HOUR, DAY
      */
