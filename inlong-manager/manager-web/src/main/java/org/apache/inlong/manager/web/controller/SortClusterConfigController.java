@@ -35,11 +35,11 @@ public class SortClusterConfigController {
 
     @GetMapping("/getClusterConfig")
     @ApiOperation("Get sort stand-alone cluster config")
-    public Response<SortClusterConfigResponse> getClusterConfig(
+    public SortClusterConfigResponse getClusterConfig(
             @RequestParam("clusterName") String clusterName,
             @RequestParam("md5") String md5,
             @RequestParam("apiVersion") String apiVersion) {
-        return Response.success(clusterConfigService.get(clusterName, md5));
+        return clusterConfigService.get(clusterName, md5);
     }
 
     @GetMapping("/hello")

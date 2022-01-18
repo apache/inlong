@@ -28,6 +28,9 @@
   <sql id="Base_Column_List">
     id, parent_name, service_url, authentication
   </sql>
+  <sql id="Sink_Params_List">
+    service_url, authentication
+  </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -36,7 +39,7 @@
   </select>
   <select id="selectByTaskName" parameterType="java.lang.String" resultType="java.util.HashMap">
     select
-    <include refid="Base_Column_List" />
+    <include refid="Sink_Params_List" />
     from task_sink_params_pulsar
     where parent_name = #{taskName,jdbcType=VARCHAR}
   </select>

@@ -27,6 +27,9 @@
   <sql id="Base_Column_List">
     id, parent_name, topic
   </sql>
+  <sql id="Id_Params_List">
+    topic
+  </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -35,7 +38,7 @@
   </select>
   <select id="selectByTaskName" parameterType="java.lang.String" resultType="java.util.HashMap">
   select
-  <include refid="Base_Column_List" />
+  <include refid="Id_Params_List" />
   from task_id_params_kafka
   where parent_name = #{taskName,jdbcType=VARCHAR}
   </select>
