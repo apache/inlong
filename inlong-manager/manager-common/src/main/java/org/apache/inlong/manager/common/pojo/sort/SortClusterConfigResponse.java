@@ -36,11 +36,11 @@ public class SortClusterConfigResponse {
 
     public static final int RESP_CODE_REQ_PARAMS_ERROR = -101;
 
-    @ApiModelProperty(value = "result")
-    boolean result;
+    @ApiModelProperty(value = "result msg")
+    String msg;
 
-    @ApiModelProperty(value = "error code")
-    int errCode;
+    @ApiModelProperty(value = "result code")
+    int code;
 
     @ApiModelProperty(value = "md5")
     String md5;

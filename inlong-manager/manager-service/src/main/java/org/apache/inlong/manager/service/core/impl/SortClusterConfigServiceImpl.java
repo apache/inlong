@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -73,44 +76,45 @@ public class SortClusterConfigServiceImpl implements SortClusterConfigService {
     @Autowired
     private TaskSinkParamsPulsarService sinkParamsPulsarService;
 
-    private static final Gson gson = new Gson();
-
     @Override
     public SortClusterConfigResponse get(
             String clusterName,
             String md5) {
         SortClusterConfigResponse response = new SortClusterConfigResponse();
-        response.setResult(true);
-
+        String retMsg = null;
         // if the cluster name is invalid, return RESP_CODE_REQ_PARAMS_ERROR
         if (isErrorReqParams(clusterName)) {
-            LOGGER.error("Empty cluster name, return RESP_CODE_REQ_PARAMS_ERROR");
-            response.setErrCode(SortClusterConfigResponse.RESP_CODE_REQ_PARAMS_ERROR);
-            response.setResult(false);
+            retMsg = "Empty cluster name, return RESP_CODE_REQ_PARAMS_ERROR";
+            LOGGER.error(retMsg);
+            response.setCode(SortClusterConfigResponse.RESP_CODE_REQ_PARAMS_ERROR);
+            response.setMsg(retMsg);
             return response;
         }
 
         // if the cluster config is null, return RESP_CODE_FAIL
         SortClusterConfig clusterConfig = this.getClusterConfig(clusterName);
         if (clusterConfig == null) {
-            LOGGER.error("Cannot find cluster config for cluster {}, return RESP_CODE_FAIL", clusterName);
-            response.setErrCode(SortClusterConfigResponse.RESP_CODE_FAIL);
-            response.setResult(false);
+            retMsg = "Cannot find cluster config for cluster, return RESP_CODE_FAIL";
+            response.setCode(SortClusterConfigResponse.RESP_CODE_FAIL);
+            response.setMsg(retMsg);
             return response;
         }
 
         // if md5 is the same as last request, return RESP_CODE_NO_UPDATE
-        String jsonClusterConfig = gson.toJson(clusterConfig);
+        String jsonClusterConfig = JSON.toJSONString(clusterConfig);
         String localMd5 = DigestUtils.md5Hex(jsonClusterConfig);
         if (localMd5.equals(md5)) {
-            LOGGER.info("Same md5 with the last request, return RESP_CODE_NO_UPDATE");
-            response.setErrCode(SortClusterConfigResponse.RESP_CODE_NO_UPDATE);
+            retMsg = "Same md5 with the last request, return RESP_CODE_NO_UPDATE";
+            LOGGER.info(retMsg);
+            response.setCode(SortClusterConfigResponse.RESP_CODE_NO_UPDATE);
+            response.setMsg(retMsg);
+            response.setMd5(md5);
             return response;
         }
 
         // if md5 changes, return RESP_CODE_SUCC with new cluster config.
         response.setClusterConfig(clusterConfig);
-        response.setErrCode(SortClusterConfigResponse.RESP_CODE_SUCC);
+        response.setCode(SortClusterConfigResponse.RESP_CODE_SUCC);
         response.setMd5(localMd5);
         LOGGER.info("Get response successfully {}", jsonClusterConfig);
         return response;
