@@ -213,7 +213,6 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
             PulsarClient pulsarClient = entry.getValue();
             String key = entry.getKey();
             try {
-
                 if (pulsarClient != null) {
                     pulsarClient.close();
                 }

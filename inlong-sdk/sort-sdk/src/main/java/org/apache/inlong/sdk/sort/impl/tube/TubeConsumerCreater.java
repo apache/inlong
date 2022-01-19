@@ -19,7 +19,6 @@
 
 package org.apache.inlong.sdk.sort.impl.tube;
 
-
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;

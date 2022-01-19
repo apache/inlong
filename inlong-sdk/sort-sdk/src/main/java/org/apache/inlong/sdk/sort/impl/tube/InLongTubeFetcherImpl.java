@@ -230,7 +230,6 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                 hasPermit = false;
                 try {
                     if (context.getConfig().isStopConsume() || stopConsume) {
-                        //如果停止设置了全局停止消费 或者 本分区停止消费 则休眠50ms不进行下面消费的拉取
                         TimeUnit.MILLISECONDS.sleep(50);
                         continue;
                     }
