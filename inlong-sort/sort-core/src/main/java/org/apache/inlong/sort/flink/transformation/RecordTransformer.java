@@ -80,7 +80,6 @@ public class RecordTransformer implements DataFlowInfoListener {
             serializedRecord = new SerializedRecord(dataFlowId,
                     record.getTimestampMillis(),
                     dataOutputSerializer.getCopyOfBuffer());
-            dataOutputSerializer.pruneBuffer();
         } catch (Exception e) {
             throw new Exception("Schema not match for data flow: " + dataFlowId);
         } finally {
