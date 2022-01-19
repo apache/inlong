@@ -42,6 +42,7 @@
     </repositories>
     <properties>
         <powermock.version>2.0.2</powermock.version>
+        <mysql-connector-java.version>8.0.26</mysql-connector-java.version>
     </properties>
 
     <dependencies>
@@ -60,6 +61,11 @@
             <artifactId>powermock-api-mockito</artifactId>
             <version>1.7.4</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-connector-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>

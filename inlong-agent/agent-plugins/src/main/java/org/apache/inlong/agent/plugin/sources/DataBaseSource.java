@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
@@ -27,6 +28,7 @@ import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 
 /**
@@ -39,12 +41,15 @@ public class DataBaseSource implements Source {
     private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
 
     private final SourceMetrics sourceMetrics;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public DataBaseSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(DATABASE_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
+                DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.sourceMetrics = new SourceJmxMetric(DATABASE_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
+                DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
