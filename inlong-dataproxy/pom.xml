@@ -50,6 +50,7 @@
         <testng.version>6.14.3</testng.version>
         <guava.version>19.0</guava.version>
         <powermock.version>2.0.9</powermock.version>
+        <simpleclient_httpserver.version>0.14.1</simpleclient_httpserver.version>
     </properties>
 
     <dependencies>
@@ -113,6 +114,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>${simpleclient_httpserver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
