@@ -18,23 +18,23 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "inlong.fullname" . }}-{{ .Values.website.component }}
+  name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "inlong.commonLabels" . | nindent 4 }}
-    component: {{ .Values.website.component }}
+    component: {{ .Values.dashboard.component }}
 spec:
-  serviceName: {{ template "inlong.fullname" . }}-{{ .Values.website.component }}
+  serviceName: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
   replicas: {{ .Values.tubemqManager.replicaCount }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
-      component: {{ .Values.website.component }}
+      component: {{ .Values.dashboard.component }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
-        component: {{ .Values.website.component }}
+        component: {{ .Values.dashboard.component }}
     spec:
       initContainers:
       - name: wait-{{ .Values.managerWeb.component }}-ready
@@ -56,13 +56,13 @@ spec:
               done
             done
       containers:
-        - name: {{ template "inlong.fullname" . }}-{{ .Values.website.component }}
-          image: {{ .Values.images.website.repository }}:{{ .Values.images.tubemqManager.tag }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
+          image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: MANAGER_API_ADDRESS
               value: "{{ template "inlong.tubemqManager.hostname" .}}:{{ .Values.tubemqManager.containerPort }}"
           ports:
-            - name: {{ .Values.website.component }}-port
+            - name: {{ .Values.dashboard.component }}-port
               containerPort: 80
       restartPolicy: Always

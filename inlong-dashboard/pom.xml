@@ -28,8 +28,8 @@
         <artifactId>inlong</artifactId>
         <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>inlong-website</artifactId>
-    <name>Apache InLong - Web Site</name>
+    <artifactId>inlong-dashboard</artifactId>
+    <name>Apache InLong - Dashboard</name>
 
     <build>
         <plugins>
@@ -93,17 +93,17 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <repository>${docker.organization}/website</repository>
+                                    <repository>${docker.organization}/dashboard</repository>
                                     <tag>latest</tag>
                                 </configuration>
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>${docker.organization}/website</repository>
+                            <repository>${docker.organization}/dashboard</repository>
                             <pullNewerImage>false</pullNewerImage>
                             <tag>${project.version}</tag>
                             <buildArgs>
-                                <WEBSITE_FILE>build</WEBSITE_FILE>
+                                <DASHBOARD_FILE>build</DASHBOARD_FILE>
                             </buildArgs>
                         </configuration>
                     </plugin>

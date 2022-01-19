@@ -58,7 +58,7 @@ docker tag inlong/dataproxy:latest       ${docker_registry_org}/dataproxy:latest
 docker tag inlong/tubemq-manager:latest  ${docker_registry_org}/tubemq-manager:latest
 docker tag inlong/tubemq-all:latest      ${docker_registry_org}/tubemq-all:latest
 docker tag inlong/tubemq-build:latest    ${docker_registry_org}/tubemq-build:latest
-docker tag inlong/website:latest         ${docker_registry_org}/website:latest
+docker tag inlong/dashboard:latest         ${docker_registry_org}/dashboard:latest
 docker tag inlong/tubemq-cpp:latest      ${docker_registry_org}/tubemq-cpp:latest
 
 docker tag inlong/manager-web:$MVN_VERSION     ${docker_registry_org}/manager-web:$MVN_VERSION
@@ -67,7 +67,7 @@ docker tag inlong/dataproxy:$MVN_VERSION       ${docker_registry_org}/dataproxy:
 docker tag inlong/tubemq-manager:$MVN_VERSION  ${docker_registry_org}/tubemq-manager:$MVN_VERSION
 docker tag inlong/tubemq-all:$MVN_VERSION      ${docker_registry_org}/tubemq-all:$MVN_VERSION
 docker tag inlong/tubemq-build:$MVN_VERSION    ${docker_registry_org}/tubemq-build:$MVN_VERSION
-docker tag inlong/website:$MVN_VERSION         ${docker_registry_org}/website:$MVN_VERSION
+docker tag inlong/dashboard:$MVN_VERSION         ${docker_registry_org}/dashboard:$MVN_VERSION
 docker tag inlong/tubemq-cpp:$MVN_VERSION      ${docker_registry_org}/tubemq-cpp:$MVN_VERSION
 
 # Push all images and tags
@@ -77,7 +77,7 @@ docker push inlong/dataproxy:latest
 docker push inlong/tubemq-manager:latest
 docker push inlong/tubemq-all:latest
 docker push inlong/tubemq-build:latest
-docker push inlong/website:latest
+docker push inlong/dashboard:latest
 docker push inlong/tubemq-cpp:latest
 
 docker push inlong/manager-web:$MVN_VERSION
@@ -86,7 +86,7 @@ docker push inlong/dataproxy:$MVN_VERSION
 docker push inlong/tubemq-manager:$MVN_VERSION
 docker push inlong/tubemq-all:$MVN_VERSION
 docker push inlong/tubemq-build:$MVN_VERSION
-docker push inlong/website:$MVN_VERSION
+docker push inlong/dashboard:$MVN_VERSION
 docker push inlong/tubemq-cpp:$MVN_VERSION
 
 echo "Finished pushing images to ${docker_registry_org}"

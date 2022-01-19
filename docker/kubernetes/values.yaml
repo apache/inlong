@@ -21,8 +21,8 @@ images:
   agent:
     repository: inlong/agent
     tag: latest
-  website:
-    repository: inlong/website
+  dashboard:
+    repository: inlong/dashboard
     tag: latest
   dataproxy:
     repository: inlong/dataproxy
@@ -66,8 +66,8 @@ agent:
     managerOpenApi: ${managerWeb.containerPort}
     dataProxy: ${dataproxy.containerPort}
 
-website:
-  component: "website"
+dashboard:
+  component: "dashboard"
   replicaCount: 1
   ports:
     webPort: 80

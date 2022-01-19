@@ -18,11 +18,11 @@
 #
 FROM nginx
 # add built files from target output
-ARG WEBSITE_FILE
+ARG DASHBOARD_FILE
 WORKDIR /usr/share/nginx/html
-ADD ${WEBSITE_FILE} /usr/share/nginx/html
+ADD ${DASHBOARD_FILE} /usr/share/nginx/html
 ADD nginx.conf /etc/nginx/conf.d/default.conf
 ENV MANAGER_API_ADDRESS=127.0.0.1:8083
-ADD website-docker.sh /docker-entrypoint.d/
-RUN chmod +x /docker-entrypoint.d/website-docker.sh
-CMD ["/docker-entrypoint.d/website-docker.sh"]
+ADD dashboard-docker.sh /docker-entrypoint.d/
+RUN chmod +x /docker-entrypoint.d/dashboard-docker.sh
+CMD ["/docker-entrypoint.d/dashboard-docker.sh"]

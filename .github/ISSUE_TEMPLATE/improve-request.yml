@@ -40,7 +40,7 @@ body:
       multiple: true
       options:
         - 'InLong Manager'
-        - 'InLong Website'
+        - 'InLong Dashboard'
         - 'InLong Agent'
         - 'InLong DataProxy'
         - 'InLong DataProxy-SDK'
