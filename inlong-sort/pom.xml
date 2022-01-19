@@ -62,6 +62,7 @@
         <module>sort-core</module>
         <module>sort-dist</module>
         <module>sort-formats</module>
+        <module>sort-single-tenant</module>
     </modules>
 
     <dependencies>
