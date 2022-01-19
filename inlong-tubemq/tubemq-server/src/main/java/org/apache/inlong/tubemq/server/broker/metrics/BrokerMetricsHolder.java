@@ -74,13 +74,11 @@ public class BrokerMetricsHolder {
     }
 
     public static void updSyncDataDurations(long dltTime) {
-        statsInfo.syncDataDurMin.update(dltTime);
-        statsInfo.syncDataDurMax.update(dltTime);
+        statsInfo.fileSyncTimeDltItem.updProcTimeDlt(dltTime);
     }
 
     public static void updSyncZKDurations(long dltTime) {
-        statsInfo.syncZkDurMin.update(dltTime);
-        statsInfo.syncZkDurMax.update(dltTime);
+        statsInfo.zkSyncTimeDltItem.updProcTimeDlt(dltTime);
     }
 
     public static BrokerMetrics getStatsInfo() {

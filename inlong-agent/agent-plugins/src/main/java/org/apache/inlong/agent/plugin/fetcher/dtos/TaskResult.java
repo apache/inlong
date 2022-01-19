@@ -17,14 +17,15 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class TaskResult {
+
     private List<CmdConfig> cmdConfigs;
     private List<DataConfig> dataConfigs;
 
@@ -34,8 +35,8 @@ public class TaskResult {
             return triggerProfiles;
         }
         dataConfigs.forEach(
-            dataConfig -> triggerProfiles.add(ManagerResultFormatter
-                .convertToTriggerProfile(dataConfig))
+                dataConfig -> triggerProfiles.add(JobProfileDto
+                        .convertToTriggerProfile(dataConfig))
         );
         return triggerProfiles;
     }

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
@@ -196,11 +197,11 @@ public class WebParameterUtilsTest {
                 paramCntrMap.get(WebFieldDef.DATAVERSIONID.name));
         Assert.assertEquals(retEntry.getCreateUser(),
                 paramCntrMap.get(WebFieldDef.CREATEUSER.name));
-        Assert.assertEquals(WebParameterUtils.date2yyyyMMddHHmmss(retEntry.getCreateDate()),
+        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getCreateDate()),
                 paramCntrMap.get(WebFieldDef.CREATEDATE.name));
         Assert.assertEquals(retEntry.getModifyUser(),
                 paramCntrMap.get(WebFieldDef.CREATEUSER.name));
-        Assert.assertEquals(WebParameterUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
+        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
                 paramCntrMap.get(WebFieldDef.CREATEDATE.name));
         // case 5
         paramCntrMap.clear();
@@ -237,7 +238,7 @@ public class WebParameterUtilsTest {
         Assert.assertTrue(TStringUtils.isBlank(retEntry.getCreateUser()));
         Assert.assertEquals(retEntry.getModifyUser(),
                 paramCntrMap.get(WebFieldDef.MODIFYUSER.name));
-        Assert.assertEquals(WebParameterUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
+        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
                 paramCntrMap.get(WebFieldDef.MODIFYDATE.name));
     }
 

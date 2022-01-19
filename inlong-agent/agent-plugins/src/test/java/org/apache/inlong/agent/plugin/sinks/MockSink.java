@@ -61,7 +61,7 @@ public class MockSink implements Sink {
     public void write(Message message) {
         if (message != null) {
             number.incrementAndGet();
-            taskPositionManager.updateFileSinkPosition(jobInstanceId, sourceFileName, 1);
+            taskPositionManager.updateSinkPosition(jobInstanceId, sourceFileName, 1);
             // increment the count of successful sinks
             sinkMetrics.incSinkSuccessCount();
         } else {
@@ -71,7 +71,7 @@ public class MockSink implements Sink {
     }
 
     @Override
-    public void setSourceFile(String sourceFileName) {
+    public void setSourceName(String sourceFileName) {
         this.sourceFileName = sourceFileName;
     }
 

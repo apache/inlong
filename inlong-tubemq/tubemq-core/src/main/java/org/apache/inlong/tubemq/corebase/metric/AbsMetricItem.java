@@ -39,10 +39,6 @@ public abstract class AbsMetricItem {
         return name;
     }
 
-    public long getValue() {
-        return value.get();
-    }
-
     public boolean isCounterMetric() {
         return metricType == MetricType.COUNTER;
     }
@@ -63,6 +59,10 @@ public abstract class AbsMetricItem {
         return value.incrementAndGet();
     }
 
+    public long addAndGet(long dltData) {
+        return value.addAndGet(dltData);
+    }
+
     public boolean compareAndSet(long expect, long update) {
         return value.compareAndSet(expect, update);
     }
@@ -71,7 +71,7 @@ public abstract class AbsMetricItem {
         return value.decrementAndGet();
     }
 
-    public abstract long getAndSet();
+    public abstract long getValue(boolean resetValue);
 
     public abstract boolean update(long newValue);
 }

@@ -29,6 +29,7 @@ import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.apache.pulsar.client.api.Consumer;
@@ -109,17 +110,6 @@ public class InLongPulsarFetcherImplTest {
     }
 
     @Test
-    public void seek() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        MessageId messageId = PowerMockito.mock(MessageId.class);
-        try {
-            inLongTopicFetcher.seek(messageId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
     public void ack() {
         InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         MessageId messageId = PowerMockito.mock(MessageId.class);
@@ -187,12 +177,5 @@ public class InLongPulsarFetcherImplTest {
 
         boolean closed = inLongTopicFetcher.isClosed();
         Assert.assertTrue(closed);
-    }
-
-    @Test
-    public void getFetcherType() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        String fetcherType = inLongTopicFetcher.getFetcherType();
-        Assert.assertEquals(inLongTopic.getTopicType(), fetcherType);
     }
 }

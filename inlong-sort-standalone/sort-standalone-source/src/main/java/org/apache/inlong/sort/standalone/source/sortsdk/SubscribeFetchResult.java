@@ -17,13 +17,12 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sort.standalone.utils.Constants;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sort.standalone.utils.Constants;
 
 /**
  * SubscribeFetchResult is the wrapper of {@link MessageRecord}.
@@ -47,6 +46,7 @@ public class SubscribeFetchResult {
      * @param sortId The sortId of fetched message.
      * @param message Message that fetched from upstream data storage.
      */
+
     private SubscribeFetchResult(
             final String sortId,
             final MessageRecord message) {
@@ -54,12 +54,37 @@ public class SubscribeFetchResult {
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, message.getMsgKey());
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, message.getOffset());
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(message.getRecTime()));
-        this.headers.putAll(message.getMsgHeader());
-        this.body = message.getMessage();
+        //TODO to fix here
+        this.headers.putAll(null);
+        this.body = null;
+    }
+
+    /**
+     * Private constructor of SubscribeFetchResult.
+     * <p> The construction of SubscribeFetchResult should be initiated by {@link SubscribeFetchResult.Factory}.</p>
+     *
+     * @param sortId String
+     * @param msgKey String
+     * @param offset String
+     * @param headers {@link Map<String,String>}
+     * @param recTime long
+     * @param body byte[]
+     */
+    private SubscribeFetchResult(
+            final String sortId,
+            final String msgKey, final String offset, final Map<String, String> headers, final long recTime,
+            final byte[] body) {
+        this.sortId = sortId;
+        this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, msgKey);
+        this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, offset);
+        this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(recTime));
+        this.headers.putAll(headers);
+        this.body = body;
     }
 
     /**
      * Get row data that in binary format.
+     *
      * @return Row data.
      */
     public byte[] getBody() {
@@ -68,6 +93,7 @@ public class SubscribeFetchResult {
 
     /**
      * Get important metrics in Map format called headers.
+     *
      * @return headers.
      */
     public Map<String, String> getHeaders() {
@@ -76,6 +102,7 @@ public class SubscribeFetchResult {
 
     /**
      * Get sortId of fetched message.
+     *
      * @return SortId of message.
      */
     public String getSortId() {
@@ -93,13 +120,19 @@ public class SubscribeFetchResult {
          *
          * @param sortId The sortId of fetched message.
          * @param messageRecord Message that fetched from upstream data storage.
-         *
          * @return One SubscribeFetchResult.
          */
         public static SubscribeFetchResult create(
                 @NotBlank(message = "SortId should not be null or empty.") final String sortId,
                 @NotNull(message = "MessageRecord should not be null.") final MessageRecord messageRecord) {
             return new SubscribeFetchResult(sortId, messageRecord);
+        }
+
+        public static SubscribeFetchResult create(
+                final String sortId,
+                final String msgKey, final String offset, final Map<String, String> headers, final long recTime,
+                final byte[] body) {
+            return new SubscribeFetchResult(sortId, msgKey, offset, headers, recTime, body);
         }
     }
 }
