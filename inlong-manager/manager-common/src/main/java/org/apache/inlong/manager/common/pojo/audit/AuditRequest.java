@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.audit;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,9 +36,9 @@ public class AuditRequest {
     @NotBlank(message = "inlongStreamId not be blank")
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
-    @NotBlank(message = "auditId not be blank")
-    @ApiModelProperty(value = "audit id", required = true)
-    private String auditId;
+    @NotBlank(message = "auditIds not be empty")
+    @ApiModelProperty(value = "audit id list", required = true)
+    private List<String> auditIds;
 
     @ApiModelProperty(value = "query date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
     @NotBlank(message = "dt not be blank")
