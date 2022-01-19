@@ -64,10 +64,10 @@
             </includes>
         </fileSet>
 
-        <!-- package InLong-WebSite-->
+        <!-- package InLong-Dashboard-->
         <fileSet>
-            <directory>../inlong-website/build</directory>
-            <outputDirectory>inlong-website</outputDirectory>
+            <directory>../inlong-dashboard/build</directory>
+            <outputDirectory>inlong-dashboard</outputDirectory>
         </fileSet>
     </fileSets>
 

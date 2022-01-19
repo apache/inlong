@@ -31,5 +31,5 @@ inlong-sort:
 inlong-tubemq:
   - inlong-tubemq/**/*
 
-inlong-website:
-  - inlong-website/**/*
+inlong-dashboard:
+  - inlong-dashboard/**/*

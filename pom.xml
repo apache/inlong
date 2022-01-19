@@ -99,7 +99,7 @@
         <module>inlong-sort</module>
         <module>inlong-sdk</module>
         <module>inlong-sort-standalone</module>
-        <module>inlong-website</module>
+        <module>inlong-dashboard</module>
         <module>inlong-distribution</module>
     </modules>
 

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# add manager api address for website
+# add manager api address for dashboard
 sed -i "s/manager_api_address/$MANAGER_API_ADDRESS/g" /etc/nginx/conf.d/default.conf
 # start nginx
 nginx -g "daemon off;"
