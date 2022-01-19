@@ -62,7 +62,7 @@ public class JobProfileDb {
             String keyName = jobProfile.get(JobConstants.JOB_INSTANCE_ID);
             jobProfile.setLong(JobConstants.JOB_STORE_TIME, System.currentTimeMillis());
             KeyValueEntity entity = new KeyValueEntity(keyName,
-                jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN));
+                jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
             entity.setStateSearchKey(StateSearchKey.ACCEPTED);
             db.put(entity);
         }

@@ -147,14 +147,11 @@ public class MasterMetricsHolder {
     }
 
     public static void updSvrBalanceDurations(long dltTime) {
-        statsInfo.svrBalDuration.update(dltTime);
-        statsInfo.svrBalDurationMin.update(dltTime);
-        statsInfo.svrBalDurationMax.update(dltTime);
+        statsInfo.svrBalDltItem.updProcTimeDlt(dltTime);
     }
 
     public static void updSvrBalResetDurations(long dltTime) {
-        statsInfo.svrBalResetDurMin.update(dltTime);
-        statsInfo.svrBalResetDurMax.update(dltTime);
+        statsInfo.svrBalResetDltItem.updProcTimeDlt(dltTime);
     }
 
     public static MasterMetrics getStatsInfo() {

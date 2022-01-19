@@ -57,7 +57,7 @@ public class ConsoleSink implements Sink {
     }
 
     @Override
-    public void setSourceFile(String sourceFileName) {
+    public void setSourceName(String sourceFileName) {
 
     }
 

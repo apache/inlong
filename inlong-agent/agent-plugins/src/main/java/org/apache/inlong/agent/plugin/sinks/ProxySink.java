@@ -78,7 +78,7 @@ public class ProxySink extends AbstractSink {
     private byte[] fieldSplitter;
     private String inlongGroupId;
     private String inlongStreamId;
-    private String sourceFile;
+    private String sourceName;
     private String jobInstanceId;
     private int maxBatchSize;
     private int maxBatchTimeoutMs;
@@ -150,8 +150,8 @@ public class ProxySink extends AbstractSink {
     }
 
     @Override
-    public void setSourceFile(String sourceFileName) {
-        this.sourceFile = sourceFileName;
+    public void setSourceName(String sourceFileName) {
+        this.sourceName = sourceFileName;
     }
 
     /**
@@ -169,9 +169,9 @@ public class ProxySink extends AbstractSink {
                         if (result != null) {
                             senderManager.sendBatch(jobInstanceId, inlongGroupId, result.getKey(),
                                     result.getValue(), 0, dataTime);
-                            LOGGER.info("send group id {} with message size {}, the job id is {}, read file is {}"
+                            LOGGER.info("send group id {} with message size {}, the job id is {}, read source is {}"
                                     + "dataTime is {}", inlongGroupId, result.getRight().size(),
-                                jobInstanceId, sourceFile, dataTime);
+                                jobInstanceId, sourceName, dataTime);
                         }
 
                     });
@@ -202,7 +202,7 @@ public class ProxySink extends AbstractSink {
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
             StandardCharsets.UTF_8);
         executorService.execute(flushCache());
-        senderManager = new SenderManager(jobConf, inlongGroupId, sourceFile);
+        senderManager = new SenderManager(jobConf, inlongGroupId, sourceName);
         try {
             senderManager.addMessageSender();
         } catch (Exception ex) {
@@ -229,7 +229,7 @@ public class ProxySink extends AbstractSink {
 
     @Override
     public void destroy() {
-        LOGGER.info("destroy sink which sink from source file {}", sourceFile);
+        LOGGER.info("destroy sink which sink from source name {}", sourceName);
         while (!sinkFinish()) {
             LOGGER.info("job {} wait until cache all flushed to proxy", jobInstanceId);
             AgentUtils.silenceSleepInMs(batchFlushInterval);

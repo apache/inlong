@@ -34,6 +34,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
@@ -54,12 +55,12 @@ public class SqlReader implements Reader {
 
     private static final String SQL_READER_TAG_NAME = "AgentSqlMetric";
 
-    private static final String JOB_DATABASE_USER = "job.database.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.database.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.database.hostname";
-    private static final String JOB_DATABASE_PORT = "job.database.port";
+    private static final String JOB_DATABASE_USER = "job.sql.user";
+    private static final String JOB_DATABASE_PASSWORD = "job.sql.password";
+    private static final String JOB_DATABASE_HOSTNAME = "job.sql.hostname";
+    private static final String JOB_DATABASE_PORT = "job.sql.port";
 
-    private static final String JOB_DATABASE_BATCH_SIZE = "job.database.batchSize";
+    private static final String JOB_DATABASE_BATCH_SIZE = "job.sql.batchSize";
     private static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
 
     private static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
@@ -72,7 +73,7 @@ public class SqlReader implements Reader {
 
     /* Standard short field separator */
     private static final String STD_FIELD_SEPARATOR_SHORT = "\001";
-    private static final String JOB_DATABASE_SEPARATOR = "job.database.separator";
+    private static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
     private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
             String.valueOf(CharUtils.LF)};
     private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
@@ -129,8 +130,7 @@ public class SqlReader implements Reader {
                 }
                 sqlFileMetric.incReadNum();
 
-                // TODO: return message.
-                return null;
+                return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
@@ -142,14 +142,18 @@ public class SqlReader implements Reader {
         return null;
     }
 
+    private Message generateMessage(List<String> lineColumns) {
+        return new DefaultMessage(StringUtils.join(lineColumns, separator).getBytes(StandardCharsets.UTF_8));
+    }
+
     @Override
     public boolean isFinished() {
         return finished;
     }
 
     @Override
-    public String getReadFile() {
-        return null;
+    public String getReadSource() {
+        return sql;
     }
 
     @Override
@@ -182,7 +186,6 @@ public class SqlReader implements Reader {
 
     @Override
     public void init(JobProfile jobConf) {
-        String setSql = jobConf.get(JOB_DATABASE_PRESET);
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);
@@ -190,18 +193,17 @@ public class SqlReader implements Reader {
         int port = jobConf.getInt(JOB_DATABASE_PORT);
 
         String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
-                DEFAULT_JOB_DATABASE_DRIVER_CLASS);
+            DEFAULT_JOB_DATABASE_DRIVER_CLASS);
         separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
         finished = false;
         try {
-            String databaseType = jobConf.get(JOB_DATABASE_TYPE);
+            String databaseType = jobConf.get(JOB_DATABASE_TYPE, MYSQL);
             String url = String.format("jdbc:%s://%s:%d", databaseType, hostName, port);
             conn = AgentDbUtils.getConnectionFailover(
-                    driverClass, url, userName, password);
+                driverClass, url, userName, password);
             if (databaseType.equals(MYSQL)) {
                 statement = conn.createStatement(
-                        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                statement.executeQuery(setSql);
+                    ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
                 statement.setFetchSize(Integer.MIN_VALUE);
                 resultSet = statement.executeQuery(sql);
             } else {

@@ -45,7 +45,7 @@ public class SortClientStateCounter {
     /**
      * reset Counter
      *
-     * @return SortClientStateCounter
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter reset() {
         SortClientStateCounter counter = new SortClientStateCounter(sortTaskId, cacheClusterId, topic, partitionId);
@@ -72,7 +72,7 @@ public class SortClientStateCounter {
      * consume byte size
      *
      * @param num long byte
-     * @return SortClientStateCounter
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addConsumeSize(long num) {
         count.getAndAdd(0, num);
@@ -82,8 +82,8 @@ public class SortClientStateCounter {
     /**
      * count receive event num
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addMsgCount(long num) {
         count.getAndAdd(1, num);
@@ -93,8 +93,8 @@ public class SortClientStateCounter {
     /**
      * count callbak times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addCallbackTimes(long num) {
         count.getAndAdd(2, num);
@@ -104,8 +104,8 @@ public class SortClientStateCounter {
     /**
      * count callbak done times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addCallbackDoneTimes(long num) {
         count.getAndAdd(3, num);
@@ -116,7 +116,7 @@ public class SortClientStateCounter {
      * count callbak time cost
      *
      * @param num long
-     * @return SortClientStateCounter
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addCallbackTimeCost(long num) {
         count.getAndAdd(4, num);
@@ -126,8 +126,8 @@ public class SortClientStateCounter {
     /**
      * count callbak error times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addCallbackErrorTimes(long num) {
         count.getAndAdd(5, num);
@@ -137,8 +137,8 @@ public class SortClientStateCounter {
     /**
      * count topic online times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addTopicOnlineTimes(long num) {
         count.getAndAdd(6, num);
@@ -148,8 +148,8 @@ public class SortClientStateCounter {
     /**
      * count topic offline times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addTopicOfflineTimes(long num) {
         count.getAndAdd(7, num);
@@ -159,8 +159,8 @@ public class SortClientStateCounter {
     /**
      * count ack fail times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addAckFailTimes(long num) {
         count.getAndAdd(8, num);
@@ -170,8 +170,8 @@ public class SortClientStateCounter {
     /**
      * count ack succ times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addAckSuccTimes(long num) {
         count.getAndAdd(9, num);
@@ -181,8 +181,8 @@ public class SortClientStateCounter {
     /**
      * count request manager times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addRequestManagerTimes(long num) {
         count.getAndAdd(10, num);
@@ -193,7 +193,7 @@ public class SortClientStateCounter {
      * count request manager time cost
      *
      * @param num long
-     * @return SortClientStateCounter
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addRequestManagerTimeCost(long num) {
         count.getAndAdd(11, num);
@@ -203,8 +203,8 @@ public class SortClientStateCounter {
     /**
      * count request manager fail times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addRequestManagerFailTimes(long num) {
         count.getAndAdd(12, num);
@@ -214,8 +214,8 @@ public class SortClientStateCounter {
     /**
      * count manager conf changed times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addManagerConfChangedTimes(long num) {
         count.getAndAdd(13, num);
@@ -225,8 +225,8 @@ public class SortClientStateCounter {
     /**
      * count manager result code common error times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addRequestManagerCommonErrorTimes(long num) {
         count.getAndAdd(14, num);
@@ -236,12 +236,55 @@ public class SortClientStateCounter {
     /**
      * count manager result param error times
      *
-     * @param num int
-     * @return SortClientStateCounter
+     * @param num long
+     * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter addRequestManagerParamErrorTimes(long num) {
         count.getAndAdd(15, num);
         return this;
     }
 
+    /**
+     * count thread fetch times
+     *
+     * @param num long
+     * @return {@link SortClientStateCounter}
+     */
+    public SortClientStateCounter addFetchTimes(long num) {
+        count.getAndAdd(16, num);
+        return this;
+    }
+
+    /**
+     * count fetch error times
+     *
+     * @param num long
+     * @return {@link SortClientStateCounter}
+     */
+    public SortClientStateCounter addFetchErrorTimes(long num) {
+        count.getAndAdd(17, num);
+        return this;
+    }
+
+    /**
+     * count empty fetch times
+     *
+     * @param num long
+     * @return {@link SortClientStateCounter}
+     */
+    public SortClientStateCounter addEmptyFetchTimes(long num) {
+        count.getAndAdd(18, num);
+        return this;
+    }
+
+    /**
+     * count fetch time cost
+     *
+     * @param num long
+     * @return {@link SortClientStateCounter}
+     */
+    public SortClientStateCounter addFetchTimeCost(long num) {
+        count.getAndAdd(19, num);
+        return this;
+    }
 }

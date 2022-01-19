@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 @Entity
 public class BdbConsumerGroupEntity implements Serializable {
@@ -119,7 +119,7 @@ public class BdbConsumerGroupEntity implements Serializable {
                 .append("\",\"attributes\":\"").append(attributes)
                 .append("\",\"createUser\":\"").append(createUser)
                 .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append(DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate))
                 .append("\"}");
     }
 }

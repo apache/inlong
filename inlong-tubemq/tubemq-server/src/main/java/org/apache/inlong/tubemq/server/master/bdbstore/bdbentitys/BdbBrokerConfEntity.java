@@ -24,9 +24,9 @@ import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 @Entity
@@ -121,10 +121,10 @@ public class BdbBrokerConfEntity implements Serializable {
                 .append(",\"memCacheFlushIntvl\":").append(getDftMemCacheFlushIntvl())
                 .append(",\"createUser\":\"").append(createUser)
                 .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append(DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate))
                 .append("\",\"modifyUser\":\"").append(modifyUser)
                 .append("\",\"modifyDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(modifyDate))
+                .append(DateTimeConvertUtils.date2yyyyMMddHHmmss(modifyDate))
                 .append("\"}");
     }
 

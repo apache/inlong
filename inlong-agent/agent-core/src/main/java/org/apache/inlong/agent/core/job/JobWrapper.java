@@ -113,7 +113,7 @@ public class JobWrapper extends AbstractStateWrapper {
         } catch (Exception ex) {
             doChangeState(State.FAILED);
             LOGGER.error("error caught: {}, message: {}",
-                    job.getJobConf().toJsonStr(), ex.getMessage());
+                    job.getJobConf().toJsonStr(), ex);
         }
     }
 

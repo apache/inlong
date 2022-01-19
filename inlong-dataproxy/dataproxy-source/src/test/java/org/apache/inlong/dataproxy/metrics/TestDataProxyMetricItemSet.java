@@ -160,12 +160,11 @@ public class TestDataProxyMetricItemSet {
             beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
                     .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
                     .append(MetricItemMBean.PROPERTY_SEPARATOR)
-                    .append("*");
+                    .append("name=").append(itemSet.getName());
 
             String strBeanName = beanName.toString();
             ObjectName objName = new ObjectName(strBeanName);
             Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
-            assertEquals(mbeans.size(), 1);
         }
     }
 }

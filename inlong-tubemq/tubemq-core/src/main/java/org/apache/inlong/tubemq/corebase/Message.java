@@ -18,9 +18,8 @@
 package org.apache.inlong.tubemq.corebase;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
@@ -116,47 +115,56 @@ public class Message implements Serializable {
         this.msgType = null;
         this.msgTime = null;
         this.sysAttributes = null;
+        StringBuilder strBuff = new StringBuilder(512);
+        // valid parameters
         if (TStringUtils.isNotBlank(msgType)) {
             this.msgType = msgType.trim();
-            this.sysAttributes = TokenConstants.TOKEN_MSG_TYPE + TokenConstants.EQ + this.msgType;
+            this.sysAttributes = strBuff.append(TokenConstants.TOKEN_MSG_TYPE)
+                    .append(TokenConstants.EQ).append(this.msgType).toString();
+            strBuff.delete(0, strBuff.length());
         }
         if (TStringUtils.isNotBlank(msgTime)) {
             String tmpMsgTime = msgTime.trim();
-            if (tmpMsgTime.length() != 12) {
-                throw new IllegalArgumentException("Illegal parameter: msgTime's value "
-                        + "must 'yyyyMMddHHmm' format and length must equal 12!");
+            if (tmpMsgTime.length() != DateTimeConvertUtils.PAT_YYYYMMDDHHMM.length()) {
+                throw new IllegalArgumentException(strBuff
+                        .append("Illegal parameter: msgTime's value must '")
+                        .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM)
+                        .append("' format and length must equal ")
+                        .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM.length()).toString());
             }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             try {
-                sdf.parse(tmpMsgTime);
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Illegal parameter: parse msgTime value"
-                        + " failure , msgType's value must 'yyyyMMddHHmm' format!");
+                DateTimeConvertUtils.yyyyMMddHHmm2ms(tmpMsgTime);
+            } catch (Throwable ex) {
+                throw new IllegalArgumentException(strBuff
+                        .append("Illegal parameter: msgTime's value parse failure: ")
+                        .append(ex.getMessage()).toString());
             }
             this.msgTime = tmpMsgTime;
-            if (TStringUtils.isBlank(this.sysAttributes)) {
-                this.sysAttributes =
-                        TokenConstants.TOKEN_MSG_TIME + TokenConstants.EQ + this.msgTime;
-            } else {
-                this.sysAttributes +=
-                        TokenConstants.ARRAY_SEP + TokenConstants.TOKEN_MSG_TIME + TokenConstants.EQ + this.msgTime;
+            if (TStringUtils.isNotEmpty(this.sysAttributes)) {
+                strBuff.append(sysAttributes).append(TokenConstants.ARRAY_SEP);
             }
+            this.sysAttributes = strBuff.append(TokenConstants.TOKEN_MSG_TIME)
+                    .append(TokenConstants.EQ).append(this.msgTime).toString();
+            strBuff.delete(0, strBuff.length());
         }
-        String tmpAttributes = this.sysAttributes;
+        // rebuild attributes
+        if (TStringUtils.isNotEmpty(this.sysAttributes)) {
+            strBuff.append(this.sysAttributes);
+        }
         if (TStringUtils.isNotBlank(this.attribute)) {
             String[] strAttrs = this.attribute.split(TokenConstants.ARRAY_SEP);
             for (String strAttrItem : strAttrs) {
                 if (strAttrItem != null && !(strAttrItem.contains(TokenConstants.TOKEN_MSG_TYPE)
                         || strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME))) {
-                    if (TStringUtils.isBlank(tmpAttributes)) {
-                        tmpAttributes = strAttrItem;
+                    if (strBuff.length() == 0) {
+                        strBuff.append(strAttrItem);
                     } else {
-                        tmpAttributes += TokenConstants.ARRAY_SEP + strAttrItem;
+                        strBuff.append(TokenConstants.ARRAY_SEP).append(strAttrItem);
                     }
                 }
             }
         }
-        this.attribute = tmpAttributes;
+        this.attribute = strBuff.toString();
     }
 
     public boolean hasAttribute() {
@@ -345,12 +353,11 @@ public class Message implements Serializable {
                     } else if (strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME)) {
                         String[] strItems = strAttrItem.split(TokenConstants.EQ);
                         if (strItems.length > 1) {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
                             try {
-                                sdf.parse(strItems[1]);
+                                DateTimeConvertUtils.yyyyMMddHHmm2ms(strItems[1]);
                                 this.msgTime = strItems[1];
-                            } catch (ParseException e) {
-                                this.msgTime = "";
+                            } catch (Throwable ex) {
+                                this.msgTime = TStringUtils.EMPTY;
                             }
                         }
                     }

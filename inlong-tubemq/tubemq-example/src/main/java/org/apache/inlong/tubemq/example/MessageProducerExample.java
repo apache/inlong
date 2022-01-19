@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.example;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +85,6 @@ public final class MessageProducerExample {
                 MixedUtils.buildTestData(pkgSize);
         List<Tuple2<String, String>> buildTopicFilterTuples =
                 MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 
         // 5. send message to server
         long sentCount = 0;
@@ -101,7 +99,7 @@ public final class MessageProducerExample {
             try {
                 // 5.2.1 Send data asynchronously, recommended
                 messageProducer.sendMessage(MixedUtils.buildMessage(target.getF0(),
-                        target.getF1(), bodyData, sentCount, sdf), new DefaultSendCallback());
+                        target.getF1(), bodyData, sentCount), new DefaultSendCallback());
                 // Or
                 // 5.2.2 Send message synchronous, not recommended
                 // MessageSentResult result = messageProducer.sendMessage(message);

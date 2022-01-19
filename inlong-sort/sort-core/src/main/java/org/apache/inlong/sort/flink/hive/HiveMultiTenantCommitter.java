@@ -94,7 +94,7 @@ public class HiveMultiTenantCommitter extends ProcessFunction<PartitionCommitInf
         }
     }
 
-    private static class SinkContextProxy implements SinkFunction.Context<PartitionCommitInfo> {
+    private static class SinkContextProxy implements SinkFunction.Context {
 
         private Context context;
 
