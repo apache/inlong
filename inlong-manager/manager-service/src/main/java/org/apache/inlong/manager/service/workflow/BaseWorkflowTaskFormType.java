@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
 import org.apache.inlong.manager.service.workflow.business.BusinessAdminApproveForm;
 import org.apache.inlong.manager.service.workflow.consumption.ConsumptionAdminApproveForm;
-import org.apache.inlong.manager.workflow.model.definition.TaskForm;
+import org.apache.inlong.manager.common.model.definition.TaskForm;
 
 /**
  * Approval task node form

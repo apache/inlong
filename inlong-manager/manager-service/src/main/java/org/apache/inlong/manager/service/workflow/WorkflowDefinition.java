@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.workflow.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.Process;
 
 /**
  * Definition of workflow

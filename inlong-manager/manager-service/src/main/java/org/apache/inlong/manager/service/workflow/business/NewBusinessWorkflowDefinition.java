@@ -26,10 +26,10 @@ import org.apache.inlong.manager.service.workflow.business.listener.BusinessCanc
 import org.apache.inlong.manager.service.workflow.business.listener.BusinessPassTaskListener;
 import org.apache.inlong.manager.service.workflow.business.listener.BusinessRejectProcessListener;
 import org.apache.inlong.manager.service.workflow.business.listener.StartCreateResourceProcessListener;
-import org.apache.inlong.manager.workflow.model.definition.EndEvent;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.StartEvent;
-import org.apache.inlong.manager.workflow.model.definition.UserTask;
+import org.apache.inlong.manager.common.model.definition.EndEvent;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.common.model.definition.UserTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.workflow.model.view.CountByKey;
+import org.apache.inlong.manager.common.model.view.CountByKey;
 import org.springframework.stereotype.Repository;
 
 @Repository

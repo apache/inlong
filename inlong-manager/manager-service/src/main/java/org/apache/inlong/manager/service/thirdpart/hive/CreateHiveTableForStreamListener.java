@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.event.task.TaskEventListener;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

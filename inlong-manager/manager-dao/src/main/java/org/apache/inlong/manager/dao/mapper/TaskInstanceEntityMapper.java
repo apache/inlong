@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.workflow.dao.TaskInstanceStorage;
+import org.apache.inlong.manager.common.dao.TaskInstanceStorage;
 import org.springframework.stereotype.Repository;
 
 @Repository

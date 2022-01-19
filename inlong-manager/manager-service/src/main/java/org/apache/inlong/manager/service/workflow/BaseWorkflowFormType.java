@@ -24,7 +24,7 @@ import lombok.Data;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
 
 /**
  * The main form of the process-submitted when the process is initiated

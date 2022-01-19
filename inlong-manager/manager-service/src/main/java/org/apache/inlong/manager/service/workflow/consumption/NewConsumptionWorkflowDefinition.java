@@ -30,11 +30,11 @@ import org.apache.inlong.manager.service.workflow.consumption.listener.Consumpti
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionPassTaskListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionRejectProcessListener;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.EndEvent;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.StartEvent;
-import org.apache.inlong.manager.workflow.model.definition.UserTask;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.EndEvent;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.common.model.definition.UserTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

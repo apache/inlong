@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.manager.service.workflow.business;
 
 import com.sun.tools.javac.util.Assert;
-import org.apache.inlong.manager.workflow.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.Process;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,6 +34,5 @@ public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
         Assert.check(process.getTaskByName("createHiveTableTask") != null);
         Assert.check(process.getNameToTaskMap().size() == 6);
     }
-
 
 }

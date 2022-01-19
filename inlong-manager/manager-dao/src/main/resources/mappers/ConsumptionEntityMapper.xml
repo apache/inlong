@@ -320,7 +320,7 @@
 
     <select id="countByStatus"
             parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
-            resultType="org.apache.inlong.manager.workflow.model.view.CountByKey">
+            resultType="org.apache.inlong.manager.common.model.view.CountByKey">
         select
         status as `key`,count(1) as value
         from consumption

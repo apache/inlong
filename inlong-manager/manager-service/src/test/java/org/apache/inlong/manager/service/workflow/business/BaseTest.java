@@ -15,6 +15,7 @@ package org.apache.inlong.manager.service.workflow.business;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,7 +25,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
 @SpringBootApplication
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
@@ -33,7 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles(value = {"test"})
 public class BaseTest {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SpringApplication.run(BaseTest.class, args);
     }
 }

@@ -32,7 +32,7 @@ import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.core.StorageService;
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

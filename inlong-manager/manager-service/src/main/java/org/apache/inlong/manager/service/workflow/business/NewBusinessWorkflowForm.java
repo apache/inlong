@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
-import org.apache.inlong.manager.workflow.exception.FormValidateException;
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**

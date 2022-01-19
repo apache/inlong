@@ -19,17 +19,17 @@ package org.apache.inlong.manager.workflow.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.workflow.core.EventListenerService;
-import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
-import org.apache.inlong.manager.workflow.core.ProcessService;
-import org.apache.inlong.manager.workflow.core.QueryService;
-import org.apache.inlong.manager.workflow.core.TaskService;
-import org.apache.inlong.manager.workflow.core.TransactionHelper;
-import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.WorkflowEngine;
-import org.apache.inlong.manager.workflow.core.WorkflowProcessorExecutor;
-import org.apache.inlong.manager.workflow.model.WorkflowConfig;
+import org.apache.inlong.manager.common.workflow.EventListenerService;
+import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
+import org.apache.inlong.manager.common.workflow.ProcessService;
+import org.apache.inlong.manager.common.workflow.QueryService;
+import org.apache.inlong.manager.common.workflow.TaskService;
+import org.apache.inlong.manager.common.workflow.TransactionHelper;
+import org.apache.inlong.manager.common.workflow.WorkflowContextBuilder;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.workflow.WorkflowEngine;
+import org.apache.inlong.manager.common.workflow.WorkflowProcessorExecutor;
+import org.apache.inlong.manager.common.model.WorkflowConfig;
 
 /**
  * Workflow engine

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.TaskService;
-import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.workflow.core.WorkflowProcessorExecutor;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.TaskForm;
+import org.apache.inlong.manager.common.workflow.TaskService;
+import org.apache.inlong.manager.common.workflow.WorkflowContextBuilder;
+import org.apache.inlong.manager.common.workflow.WorkflowProcessorExecutor;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.TaskForm;
 
 import java.util.List;
 

@@ -26,9 +26,7 @@
         <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
-    <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-manager</artifactId>
-    <version>0.13.0-incubating-SNAPSHOT</version>
     <name>Apache InLong - Manager</name>
 
     <modules>
@@ -402,16 +400,6 @@
 
         </dependencies>
     </dependencyManagement>
-
-    <distributionManagement>
-        <repository>
-            <!--必须与 settings.xml 的 id 一致-->
-            <id>oa</id>
-            <name>tencent_public</name>
-            <url>https://mirrors.tencent.com/repository/maven/tencent_public/</url>
-        </repository>
-    </distributionManagement>
-
     <repositories>
         <repository>
             <id>central</id>
