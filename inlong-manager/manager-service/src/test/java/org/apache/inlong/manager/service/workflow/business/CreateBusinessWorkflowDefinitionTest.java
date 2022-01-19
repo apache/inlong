@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow.business;
 
-import com.sun.tools.javac.util.Assert;
+import org.junit.Assert;
 import org.apache.inlong.manager.common.model.definition.Process;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +30,9 @@ public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
     @Test
     public void testDefineProcess() {
         Process process = createBusinessWorkflowDefinition.defineProcess();
-        Assert.check("Business Resource Creation".equals(process.getType()));
-        Assert.check(process.getTaskByName("createHiveTableTask") != null);
-        Assert.check(process.getNameToTaskMap().size() == 6);
+        Assert.assertTrue("Business Resource Creation".equals(process.getType()));
+        Assert.assertTrue(process.getTaskByName("createHiveTableTask") != null);
+        Assert.assertTrue(process.getNameToTaskMap().size() == 6);
     }
 
 }
