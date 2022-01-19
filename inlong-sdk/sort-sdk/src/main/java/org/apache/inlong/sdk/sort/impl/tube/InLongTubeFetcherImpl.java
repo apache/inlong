@@ -63,11 +63,9 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
     public boolean init(Object object) {
         TubeConsumerCreater tubeConsumerCreater = (TubeConsumerCreater) object;
         TubeClientConfig tubeClientConfig = tubeConsumerCreater.getTubeClientConfig();
-        //consumerConfig.setCertificateAndAuthParams(id, key, username);
         try {
-            //sortTaskId
-            ConsumerConfig consumerConfig = new ConsumerConfig(context.getConfig().getLocalIp(),
-                    tubeClientConfig.getMasterInfo(), context.getConfig().getSortTaskId());
+            ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
+                    context.getConfig().getSortTaskId());
 
             messageConsumer = tubeConsumerCreater.getMessageSessionFactory().createPullConsumer(consumerConfig);
             if (messageConsumer != null) {

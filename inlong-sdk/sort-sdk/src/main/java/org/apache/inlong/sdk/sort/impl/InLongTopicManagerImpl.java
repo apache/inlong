@@ -372,8 +372,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
             if (inLongTopic.getInLongCluster().getBootstraps() != null) {
                 try {
                     //create MessageSessionFactory
-                    TubeClientConfig tubeConfig = new TubeClientConfig(context.getConfig().getLocalIp(),
-                            inLongTopic.getInLongCluster().getBootstraps());
+                    TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
                     TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
                             tubeConfig);
