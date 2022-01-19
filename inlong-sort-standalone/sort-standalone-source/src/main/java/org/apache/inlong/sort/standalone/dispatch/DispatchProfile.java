@@ -35,7 +35,7 @@ public class DispatchProfile {
     private long createTime = System.currentTimeMillis();
     private long count = 0;
     private long size = 0;
-    private long minEventTime = System.currentTimeMillis();
+    private long dispatchTime;
 
     /**
      * Constructor
@@ -43,11 +43,13 @@ public class DispatchProfile {
      * @param uid
      * @param inlongGroupId
      * @param inlongStreamId
+     * @param dispatchTime
      */
-    public DispatchProfile(String uid, String inlongGroupId, String inlongStreamId) {
+    public DispatchProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         this.uid = uid;
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
+        this.dispatchTime = dispatchTime;
     }
 
     /**
@@ -66,7 +68,6 @@ public class DispatchProfile {
         this.events.add(event);
         this.count++;
         this.size += eventLength;
-        this.minEventTime = Math.min(minEventTime, event.getRawLogTime());
         return true;
     }
 
@@ -144,15 +145,6 @@ public class DispatchProfile {
     }
 
     /**
-     * get minEventTime
-     * 
-     * @return the minEventTime
-     */
-    public long getMinEventTime() {
-        return minEventTime;
-    }
-
-    /**
      * get inlongGroupId
      * 
      * @return the inlongGroupId
@@ -168,6 +160,15 @@ public class DispatchProfile {
      */
     public String getInlongStreamId() {
         return inlongStreamId;
+    }
+
+    /**
+     * getDispatchTime
+     * 
+     * @return
+     */
+    public long getDispatchTime() {
+        return dispatchTime;
     }
 
 }
