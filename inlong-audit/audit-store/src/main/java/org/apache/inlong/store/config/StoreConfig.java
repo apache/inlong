@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Setter
 public class StoreConfig {
 
-    @Value("${audit.config.store.server:mysql}")
+    @Value("${audit.config.store.mode:mysql}")
     private String store;
 
     public boolean isMysqlStore() {

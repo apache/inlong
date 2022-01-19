@@ -162,7 +162,7 @@ public class ElasticsearchService implements AutoCloseable {
                     continue;
                 }
                 IndexRequest indexRequest;
-                if (esConfig.isEnableDocId()) {
+                if (esConfig.isEnableCustomDocId()) {
                     indexRequest = new IndexRequest(index).type("_doc").id(esDataPo.getDocId())
                             .source(esJson, XContentType.JSON);
                 } else {

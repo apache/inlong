@@ -47,13 +47,13 @@ public class ElasticsearchConfig {
     @Value("${elasticsearch.port}")
     private int port;
 
-    @Value("${elasticsearch.connTimeout}")
+    @Value("${elasticsearch.connTimeout:3000}")
     private int connTimeout;
 
-    @Value("${elasticsearch.socketTimeout}")
+    @Value("${elasticsearch.socketTimeout:5000}")
     private int socketTimeout;
 
-    @Value("${elasticsearch.connectionRequestTimeout}")
+    @Value("${elasticsearch.connectionRequestTimeout:500}")
     private int connectionRequestTimeout;
 
     @Value("${elasticsearch.username}")
@@ -68,11 +68,11 @@ public class ElasticsearchConfig {
     @Value("${elasticsearch.replicaNum:1}")
     private int replicaNum;
 
-    @Value("${elasticsearch.deleteIndex:5}")
+    @Value("${elasticsearch.indexDeleteDay:5}")
     private int indexDeleteDay;
 
-    @Value("${elasticsearch.enableDocId:true}")
-    private boolean enableDocId;
+    @Value("${elasticsearch.enableCustomDocId:true}")
+    private boolean enableCustomDocId;
 
     @Value("${elasticsearch.bulkInterval:10}")
     private int bulkInterval;
