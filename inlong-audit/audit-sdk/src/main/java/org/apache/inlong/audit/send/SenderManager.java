@@ -18,8 +18,8 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.protocol.AuditApi;
+import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.AuditData;
-import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.Decoder;
 import org.apache.inlong.audit.util.SenderResult;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -30,10 +30,17 @@ import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -44,9 +51,10 @@ public class SenderManager {
     private static final Logger logger = LoggerFactory.getLogger(SenderManager.class);
     public static final int DEFAULT_SEND_THREADNUM = 2;
     public static final Long MAX_REQUEST_ID = 1000000000L;
+    private static final int SEND_INTERVAL_MS = 20;
     public static final int ALL_CONNECT_CHANNEL = -1;
     public static final int DEFAULT_CONNECT_CHANNEL = 2;
-
+    public static final String LF = "\n";
     private SenderGroup sender;
     private int maxConnectChannels = ALL_CONNECT_CHANNEL;
     private SecureRandom sRandom = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
@@ -54,14 +62,14 @@ public class SenderManager {
     private HashSet<String> currentIpPorts = new HashSet<String>();
     private AtomicLong requestIdSeq = new AtomicLong(0L);
     private ConcurrentHashMap<Long, AuditData> dataMap = new ConcurrentHashMap<>();
-    private Config config;
+    private AuditConfig auditConfig;
 
     /**
      * Constructor
      *
      * @param config
      */
-    public SenderManager(Config config) {
+    public SenderManager(AuditConfig config) {
         this(config, DEFAULT_CONNECT_CHANNEL);
     }
 
@@ -71,9 +79,9 @@ public class SenderManager {
      * @param config
      * @param maxConnectChannels
      */
-    public SenderManager(Config config, int maxConnectChannels) {
+    public SenderManager(AuditConfig config, int maxConnectChannels) {
         try {
-            this.config = config;
+            this.auditConfig = config;
             this.maxConnectChannels = maxConnectChannels;
             SenderHandler clientHandler = new SenderHandler(this);
             this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, new Decoder(), clientHandler);
@@ -136,7 +144,7 @@ public class SenderManager {
         AuditData data = new AuditData(sdkTime, baseCommand);
         // Cache first
         this.dataMap.putIfAbsent(baseCommand.getAuditRequest().getRequestId(), data);
-        this.sendData(data);
+        this.sendData(data.getDataByte());
     }
 
     /**
@@ -144,8 +152,8 @@ public class SenderManager {
      *
      * @param data
      */
-    private void sendData(AuditData data) {
-        ChannelBuffer dataBuf = ChannelBuffers.wrappedBuffer(data.getDataByte());
+    private void sendData(byte[] data) {
+        ChannelBuffer dataBuf = ChannelBuffers.wrappedBuffer(data);
         SenderResult result = this.sender.send(dataBuf);
         if (!result.result) {
             this.sender.setHasSendError(true);
@@ -156,8 +164,92 @@ public class SenderManager {
      * Clean up the backlog of unsent message packets
      */
     public void clearBuffer() {
+        logger.info("failed cache size:" + this.dataMap.size());
         for (AuditData data : this.dataMap.values()) {
-            this.sendData(data);
+            this.sendData(data.getDataByte());
+            sleep(SEND_INTERVAL_MS);
+        }
+        if (this.dataMap.size() == 0) {
+            checkAuditFile();
+        }
+        if (this.dataMap.size() > auditConfig.getMaxCacheRow()) {
+            logger.info("failed cache size: {}>{}", this.dataMap.size(), auditConfig.getMaxCacheRow());
+            writeLocalFile();
+            this.dataMap.clear();
+        }
+    }
+
+    /**
+     * write local file
+     */
+    private void writeLocalFile() {
+        try {
+            if (!checkFilePath()) {
+                return;
+            }
+            File file = new File(auditConfig.getDisasterFile());
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("create {} {}", auditConfig.getDisasterFile(), " failed");
+                    return;
+                }
+                logger.info("create {}", auditConfig.getDisasterFile());
+            }
+            if (file.length() > auditConfig.getMaxFileSize()) {
+                file.delete();
+                return;
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
+            objectOutputStream.writeObject(dataMap);
+            objectOutputStream.close();
+            fos.close();
+        } catch (IOException ioException) {
+            logger.error(ioException.getMessage());
+        }
+    }
+
+    /**
+     * check file path
+     *
+     * @return
+     */
+    private boolean checkFilePath() {
+        File file = new File(auditConfig.getFilePath());
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                return false;
+            }
+            logger.info("create {}", auditConfig.getFilePath());
+        }
+        return true;
+    }
+
+    /**
+     * check audit file
+     */
+    private void checkAuditFile() {
+        try {
+            File file = new File(auditConfig.getDisasterFile());
+            if (!file.exists()) {
+                return;
+            }
+            FileInputStream inputStream = new FileInputStream(auditConfig.getDisasterFile());
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            ConcurrentHashMap<Long, AuditData> fileData =
+                    (ConcurrentHashMap<Long, AuditData>) objectInputStream.readObject();
+            for (Map.Entry<Long, AuditData> entry : fileData.entrySet()) {
+                if (this.dataMap.size() < (auditConfig.getMaxCacheRow() / 2)) {
+                    this.dataMap.putIfAbsent(entry.getKey(), entry.getValue());
+                }
+                this.sendData(entry.getValue().getDataByte());
+                sleep(SEND_INTERVAL_MS);
+            }
+            objectInputStream.close();
+            inputStream.close();
+            file.delete();
+        } catch (IOException | ClassNotFoundException ioException) {
+            logger.error(ioException.getMessage());
         }
     }
 
@@ -193,14 +285,12 @@ public class SenderManager {
             }
             if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
-                this.sender.notifyAll();
                 return;
             }
             int resendTimes = data.increaseResendTimes();
             if (resendTimes < org.apache.inlong.audit.send.SenderGroup.MAX_SEND_TIMES) {
-                this.sendData(data);
+                this.sendData(data.getDataByte());
             }
-            this.sender.notifyAll();
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
             this.sender.setHasSendError(true);
@@ -220,5 +310,26 @@ public class SenderManager {
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
         }
+    }
+
+    /**
+     * sleep
+     *
+     * @param millisecond
+     */
+    private void sleep(int millisecond) {
+        try {
+            Thread.sleep(millisecond);
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    /***
+     * set audit config
+     * @param config
+     */
+    public void setAuditConfig(AuditConfig config) {
+        auditConfig = config;
     }
 }
