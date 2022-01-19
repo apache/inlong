@@ -127,7 +127,7 @@ public class TextFileReader implements Reader {
     }
 
     @Override
-    public String getReadFile() {
+    public String getReadSource() {
         return file.getAbsolutePath();
     }
 

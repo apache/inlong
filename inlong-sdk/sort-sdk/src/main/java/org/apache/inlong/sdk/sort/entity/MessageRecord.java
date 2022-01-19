@@ -17,22 +17,20 @@
 
 package org.apache.inlong.sdk.sort.entity;
 
-import java.util.Map;
+import java.util.List;
 
 public class MessageRecord {
 
     private final String msgKey;
 
-    private final byte[] message;
-    private final Map<String, String> msgHeader;
+    private final List<InLongMessage> msgs;
 
     private final String offset;
     private final long recTime;
 
-    public MessageRecord(String msgKey, byte[] message, Map<String, String> msgHeader, String offset, long recTime) {
+    public MessageRecord(String msgKey, List<InLongMessage> msgs, String offset, long recTime) {
         this.msgKey = msgKey;
-        this.message = message;
-        this.msgHeader = msgHeader;
+        this.msgs = msgs;
         this.offset = offset;
         this.recTime = recTime;
     }
@@ -41,12 +39,8 @@ public class MessageRecord {
         return msgKey;
     }
 
-    public byte[] getMessage() {
-        return message;
-    }
-
-    public Map<String, String> getMsgHeader() {
-        return msgHeader;
+    public List<InLongMessage> getMsgs() {
+        return msgs;
     }
 
     public String getOffset() {
@@ -61,8 +55,7 @@ public class MessageRecord {
     public String toString() {
         return "MessageRecord{"
                 + "msgKey='" + msgKey
-                + ", message=" + new String(message)
-                + ", msgHeader=" + msgHeader
+                + ", message=" + String.valueOf(msgs)
                 + ", offset='" + offset
                 + ", recTime=" + recTime
                 + '}';

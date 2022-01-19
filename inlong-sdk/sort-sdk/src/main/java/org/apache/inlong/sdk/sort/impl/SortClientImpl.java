@@ -49,7 +49,7 @@ public class SortClientImpl extends SortClient {
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl());
+            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
             this.inLongTopicManager = new InLongTopicManagerImpl(context,
                     new QueryConsumeConfigImpl(context));
         } catch (Exception e) {

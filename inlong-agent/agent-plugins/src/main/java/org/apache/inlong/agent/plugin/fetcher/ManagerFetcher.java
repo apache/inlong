@@ -32,6 +32,7 @@ import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_IP_CHECK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
@@ -39,18 +40,21 @@ import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_TDM_VIP_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_LOCAL_IP;
+import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.VERSION;
 import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,6 +64,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.apache.inlong.agent.cache.LocalFileCache;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -72,7 +77,9 @@ import org.apache.inlong.agent.db.CommandEntity;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.fetcher.dtos.CmdConfig;
 import org.apache.inlong.agent.plugin.fetcher.dtos.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequsetDto;
+import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskRequestDto;
+import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskResult;
+import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequestDto;
 import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
 import org.apache.inlong.agent.plugin.fetcher.enums.ManagerOpEnum;
 import org.apache.inlong.agent.plugin.utils.HttpManager;
@@ -95,6 +102,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private final String baseManagerUrl;
     private final String managerTaskUrl;
     private final String managerIpsCheckUrl;
+    private final String managerDbCollectorTaskUrl;
     private final AgentConfiguration conf;
     private final LocalFileCache localFileCache;
     private final String uniqId;
@@ -114,22 +122,13 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         this.conf = AgentConfiguration.getAgentConf();
         if (requiredKeys(conf)) {
             httpManager = new HttpManager(conf);
-            baseManagerUrl = "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT) + conf.get(
-                AGENT_MANAGER_VIP_HTTP_PREFIX_PATH,
-                DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
-            managerVipUrl = baseManagerUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH,
-                DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
-            managerTaskUrl = baseManagerUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH,
-                DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
-            managerIpsCheckUrl = baseManagerUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH,
-                DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
+            baseManagerUrl = buildBaseUrl();
+            managerVipUrl = buildVipUrl(baseManagerUrl);
+            managerTaskUrl = buildFileCollectTaskUrl(baseManagerUrl);
+            managerIpsCheckUrl = buildIpCheckUrl(baseManagerUrl);
+            managerDbCollectorTaskUrl = buildDbCollectorGetTaskUrl(baseManagerUrl);
+            localFileCache = getLocalFileCache();
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
-            Path localStorage = Paths.get(conf.get(AGENT_HOME, DEFAULT_AGENT_HOME),
-                conf.get(AGENT_LOCAL_CACHE, DEFAULT_AGENT_LOCAL_CACHE), "managerList.txt");
-            long timeout = TimeUnit.MINUTES.toMillis(conf.getInt(AGENT_LOCAL_CACHE_TIMEOUT,
-                DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT));
-            localFileCache = new LocalFileCache(localStorage.toFile(), timeout);
             this.commandDb = agentManager.getCommandDb();
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -137,7 +136,67 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
+     * build base url for manager according to config
+     *
+     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     */
+    private String buildBaseUrl() {
+        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
+                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT) + conf.get(
+                AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+    }
+
+    /**
+     * build vip url for manager according to config
+     *
+     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/agent/getInLongManagerIp
+     */
+    private String buildVipUrl(String baseUrl) {
+        return baseUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH, DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
+    }
+
+    /**
+     * build file collect task url for manager according to config
+     *
+     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/getTaskConf
+     */
+    private String buildFileCollectTaskUrl(String baseUrl) {
+        return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
+    }
+
+    /**
+     * build ip check url for manager according to config
+     *
+     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/confirmAgentIp
+     */
+    private String buildIpCheckUrl(String baseUrl) {
+        return baseUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH, DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
+    }
+
+    /**
+     * build db collector get task url for manager according to config
+     *
+     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/dbcollector/getTask
+     */
+    private String buildDbCollectorGetTaskUrl(String baseUrl) {
+        return baseUrl + conf
+                .get(AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH);
+    }
+
+    /**
+     * get localFileCache according to config
+     */
+    private LocalFileCache getLocalFileCache() {
+        Path localStorage = Paths.get(conf.get(AGENT_HOME, DEFAULT_AGENT_HOME),
+                conf.get(AGENT_LOCAL_CACHE, DEFAULT_AGENT_LOCAL_CACHE), "managerList.txt");
+        long timeout = TimeUnit.MINUTES.toMillis(conf.getInt(AGENT_LOCAL_CACHE_TIMEOUT,
+                DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT));
+        return new LocalFileCache(localStorage.toFile(), timeout);
+    }
+
+    /**
      * for manager to get job profiles
+     *
      * @return -  job profile list
      */
     @Override
@@ -165,9 +224,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public void fetchCommand() {
         List<CommandEntity> unackedCommands = commandDb.getUnackedCommands();
-        JsonObject resultData = getResultData(httpManager.doSentPost(managerTaskUrl, getFetchRequest(unackedCommands)));
-        dealWithFetchResult(GSON.fromJson(resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject(),
-            TaskResult.class));
+        JsonObject resultData = getResultData(
+                httpManager.doSentPost(managerTaskUrl, getFileCommdFetchRequest(unackedCommands)));
+        dealWithFileTaskResult(GSON.fromJson(resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject(),
+                TaskResult.class));
         ackCommands(unackedCommands);
     }
 
@@ -179,10 +239,37 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * the fetch command can be normal or special
+     * request manager to get db collect task, make sure it not throwing exceptions
+     */
+    public void fetchDbCollectTask() {
+        if (agentManager.getJobManager().sqlJobExsit()) {
+            return;
+        }
+        JsonObject resultData = getResultData(httpManager.doSentPost(managerDbCollectorTaskUrl, getSqlTaskRequest()));
+        dealWithSqlTaskResult(GSON.fromJson(resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject(),
+                DbCollectorTaskResult.class));
+    }
+
+    private void dealWithSqlTaskResult(DbCollectorTaskResult taskResult) {
+        LOGGER.info("deal with sql task result {}", taskResult);
+        if (!taskResult.getVersion().equals(VERSION)) {
+            LOGGER.error("invalid version {} != {}", taskResult.getVersion(), VERSION);
+            return;
+        }
+        JobProfile profile = taskResult.getJobProfile();
+        if (profile == null) {
+            LOGGER.error("profile null", profile);
+            return;
+        }
+        agentManager.getJobManager().submitSqlJobProfile(profile);
+    }
+
+    /**
+     * the fetch file command can be normal or special
+     *
      * @param taskResult
      */
-    private void dealWithFetchResult(TaskResult taskResult) {
+    private void dealWithFileTaskResult(TaskResult taskResult) {
         LOGGER.info("deal with fetch result {}", taskResult);
         for (TriggerProfile profile : taskResult.getTriggerProfiles()) {
             dealWithTdmTriggerProfile(profile);
@@ -193,20 +280,34 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * form command fetch request
-     * @return
+     * form file command fetch request
+     *
      * @param unackedCommands
+     * @return
      */
-    public TaskRequsetDto getFetchRequest(
-        List<CommandEntity> unackedCommands) {
-        TaskRequsetDto requset = new TaskRequsetDto();
+    public TaskRequestDto getFileCommdFetchRequest(
+            List<CommandEntity> unackedCommands) {
+        TaskRequestDto requset = new TaskRequestDto();
         requset.setAgentIp(localIp);
         requset.setCommandInfo(unackedCommands);
         return requset;
     }
 
     /**
+     * form db collector task fetch request
+     *
+     * @return
+     */
+    public DbCollectorTaskRequestDto getSqlTaskRequest() {
+        DbCollectorTaskRequestDto request = new DbCollectorTaskRequestDto();
+        request.setVersion(VERSION);
+        request.setMd5("123456");
+        return request;
+    }
+
+    /**
      * get command db
+     *
      * @return
      */
     public CommandDb getCommandDb() {
@@ -215,42 +316,44 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * deal with special command retry\backtrack
+     *
      * @param cmdConfig
      */
     public void dealWithTdmCmd(CmdConfig cmdConfig) {
         Trigger trigger = agentManager.getTriggerManager().getTrigger(
-            cmdConfig.getTaskId().toString());
+                cmdConfig.getTaskId().toString());
         if (trigger == null) {
             LOGGER.error("trigger {} doesn't exist, cmd is {}",
-                cmdConfig.getTaskId(), cmdConfig);
+                    cmdConfig.getTaskId(), cmdConfig);
             commandDb.saveSpecialCmds(cmdConfig.getId(),
-                cmdConfig.getTaskId(), false);
+                    cmdConfig.getTaskId(), false);
             return;
         }
         TriggerProfile copiedProfile =
-            TriggerProfile.parseJsonStr(trigger.getTriggerProfile().toJsonStr());
+                TriggerProfile.parseJsonStr(trigger.getTriggerProfile().toJsonStr());
         String dataTime = cmdConfig.getDataTime();
         // set job retry time
         copiedProfile.set(JOB_RETRY_TIME, dataTime);
         boolean cmdResult = executeCmd(copiedProfile,
-            ManagerOpEnum.getOpType(cmdConfig.getOp()), dataTime);
+                ManagerOpEnum.getOpType(cmdConfig.getOp()), dataTime);
         commandDb.saveSpecialCmds(cmdConfig.getId(),
-            cmdConfig.getTaskId(), cmdResult);
+                cmdConfig.getTaskId(), cmdResult);
     }
 
     /**
      * execute commands
+     *
      * @param triggerProfile
      * @param opType
      * @param dataTime
      * @return
      */
     private boolean executeCmd(TriggerProfile triggerProfile,
-        ManagerOpEnum opType, String dataTime) {
+                               ManagerOpEnum opType, String dataTime) {
         switch (opType) {
             case RETRY:
             case BACKTRACK:
-                return agentManager.getJobManager().submitJobProfile(triggerProfile);
+                return agentManager.getJobManager().submitFileJobProfile(triggerProfile);
             case MAKEUP:
                 return makeUpFiles(triggerProfile, dataTime);
             case CHECK:
@@ -263,29 +366,31 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * when execute make up command, files scanned before should not be executed.
+     *
      * @param triggerProfile
      * @param dataTime
      * @return
      */
     private boolean makeUpFiles(TriggerProfile triggerProfile, String dataTime) {
         LOGGER.info("start to make up files with trigger {}, dataTime {}",
-            triggerProfile, dataTime);
+                triggerProfile, dataTime);
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-            !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
-            .collect(Collectors.toList());
+                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
-                pendingFile);
+                    pendingFile);
             LOGGER.info("ready to make up file with job {}", copiedProfile.toJsonStr());
-            agentManager.getJobManager().submitJobProfile(copiedProfile);
+            agentManager.getJobManager().submitFileJobProfile(copiedProfile);
         }
         return true;
     }
 
     /**
      * the trigger profile returned from manager should be parsed
+     *
      * @param triggerProfile
      */
     public void dealWithTdmTriggerProfile(TriggerProfile triggerProfile) {
@@ -314,13 +419,14 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * confirm local ips from manager
+     *
      * @param localIps
      * @return
      */
     private String confirmLocalIps(List<String> localIps) {
         ConfirmAgentIpRequest request = new ConfirmAgentIpRequest(AGENT, localIps);
         JsonObject resultData = getResultData(httpManager.doSentPost(managerIpsCheckUrl, request))
-            .get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject();
+                .get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject();
         if (!resultData.has(AGENT_MANAGER_RETURN_PARAM_IP)) {
             throw new IllegalArgumentException("cannot get ip from data " + resultData.getAsString());
         }
@@ -329,6 +435,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * fetch manager list, make sure it not throwing exceptions
+     *
      * @param isInitial - is initial
      * @param retryTime - retry time
      */
@@ -341,8 +448,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             if (!isInitial && !localFileCache.cacheIsExpired()) {
                 String result = localFileCache.getCacheInfo();
                 managerList = Arrays.stream(result.split(","))
-                    .map(String::trim)
-                    .collect(Collectors.toList());
+                        .map(String::trim)
+                        .collect(Collectors.toList());
             } else {
                 requestTdmList();
             }
@@ -361,12 +468,14 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             while (isRunnable()) {
                 try {
                     int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL,
-                        DEFAULT_AGENT_FETCHER_INTERVAL);
+                            DEFAULT_AGENT_FETCHER_INTERVAL);
                     TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
                     // fetch commands from manager
-                    fetchCommand();
+                    //fetchCommand();
                     // fetch manager list from vip
-                    fetchTdmList(false, 0);
+                    //fetchTdmList(false, 0);
+                    // fetch db collector task from manager
+                    fetchDbCollectTask();
                 } catch (Exception ex) {
                     LOGGER.warn("exception caught", ex);
                 }
@@ -376,6 +485,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * request manager to get trigger profiles.
+     *
      * @return - trigger profile list
      */
     @Override

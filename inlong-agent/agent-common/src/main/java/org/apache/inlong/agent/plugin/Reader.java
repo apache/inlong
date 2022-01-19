@@ -37,10 +37,10 @@ public interface Reader extends Stage {
     boolean isFinished();
 
     /**
-     * Return the reader's reading file name
+     * Return the reader's reading source name
      * @return
      */
-    String getReadFile();
+    String getReadSource();
 
     /**
      * set readTimeout

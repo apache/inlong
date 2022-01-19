@@ -64,25 +64,25 @@ public class MasterMetricsTest {
             metrics.getBrokerFbdTotCnt().incrementAndGet();
             metrics.getBrokerFbdTotCnt().incrementAndGet();
 
-            metrics.getSvrBalDuration().update(100);
-            metrics.getSvrBalDuration().update(500);
-            metrics.getSvrBalDuration().update(300);
+            metrics.getSvrBalDltItem().updProcTimeDlt(100);
+            metrics.getSvrBalDltItem().updProcTimeDlt(500);
+            metrics.getSvrBalDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalDurationMin().update(700);
-            metrics.getSvrBalDurationMin().update(200);
-            metrics.getSvrBalDurationMin().update(300);
+            metrics.getSvrBalDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalDltItem().updProcTimeDlt(200);
+            metrics.getSvrBalDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalDurationMax().update(700);
-            metrics.getSvrBalDurationMax().update(1000);
-            metrics.getSvrBalDurationMax().update(300);
+            metrics.getSvrBalDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalDltItem().updProcTimeDlt(1000);
+            metrics.getSvrBalDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalResetDurMin().update(700);
-            metrics.getSvrBalResetDurMin().update(200);
-            metrics.getSvrBalResetDurMin().update(300);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(200);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalResetDurMax().update(700);
-            metrics.getSvrBalResetDurMax().update(1000);
-            metrics.getSvrBalResetDurMax().update(300);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(1000);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(300);
 
             metrics.getSvrBalConEventConsumerCnt().incrementAndGet();
             metrics.getSvrBalConEventConsumerCnt().incrementAndGet();
@@ -124,16 +124,16 @@ public class MasterMetricsTest {
             Assert.assertEquals(Long.valueOf(3),
                     result1.getMetricValues().get(metrics.getBrokerFbdTotCnt().getName()));
 
-            Assert.assertEquals(Long.valueOf(300),
-                    result1.getMetricValues().get(metrics.getSvrBalDuration().getName()));
-            Assert.assertEquals(Long.valueOf(200),
-                    result1.getMetricValues().get(metrics.getSvrBalDurationMin().getName()));
-            Assert.assertEquals(Long.valueOf(1000),
-                    result1.getMetricValues().get(metrics.getSvrBalDurationMax().getName()));
-            Assert.assertEquals(Long.valueOf(200),
-                    result1.getMetricValues().get(metrics.getSvrBalResetDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(1000),
-                    result1.getMetricValues().get(metrics.getSvrBalResetDurMax().getName()));
+            Assert.assertEquals(Long.valueOf(300), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltLastJmxKey()));
+            Assert.assertEquals(Long.valueOf(100), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(1000), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(200), result1.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(1000), result1.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMaxJmxKey()));
 
             Assert.assertEquals(Long.valueOf(3),
                     result1.getMetricValues().get(
@@ -168,25 +168,25 @@ public class MasterMetricsTest {
             metrics.getBrokerFbdCurCnt().incrementAndGet();
             metrics.getBrokerFbdTotCnt().incrementAndGet();
 
-            metrics.getSvrBalDuration().update(100);
-            metrics.getSvrBalDuration().update(700);
-            metrics.getSvrBalDuration().update(20);
+            metrics.getSvrBalDltItem().updProcTimeDlt(100);
+            metrics.getSvrBalDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalDltItem().updProcTimeDlt(20);
 
-            metrics.getSvrBalDurationMin().update(1000);
-            metrics.getSvrBalDurationMin().update(50);
-            metrics.getSvrBalDurationMin().update(3000);
+            metrics.getSvrBalDltItem().updProcTimeDlt(1000);
+            metrics.getSvrBalDltItem().updProcTimeDlt(50);
+            metrics.getSvrBalDltItem().updProcTimeDlt(3000);
 
-            metrics.getSvrBalDurationMax().update(700);
-            metrics.getSvrBalDurationMax().update(800);
-            metrics.getSvrBalDurationMax().update(300);
+            metrics.getSvrBalDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalDltItem().updProcTimeDlt(800);
+            metrics.getSvrBalDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalResetDurMin().update(700);
-            metrics.getSvrBalResetDurMin().update(10);
-            metrics.getSvrBalResetDurMin().update(300);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(10);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(300);
 
-            metrics.getSvrBalResetDurMax().update(700);
-            metrics.getSvrBalResetDurMax().update(2000);
-            metrics.getSvrBalResetDurMax().update(300);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(700);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(2000);
+            metrics.getSvrBalResetDltItem().updProcTimeDlt(300);
 
             metrics.getSvrBalConEventConsumerCnt().incrementAndGet();
             metrics.getSvrBalConEventConsumerCnt().incrementAndGet();
@@ -230,16 +230,16 @@ public class MasterMetricsTest {
             Assert.assertEquals(Long.valueOf(3),
                     result3.getMetricValues().get(metrics.getBrokerFbdTotCnt().getName()));
 
-            Assert.assertEquals(Long.valueOf(20),
-                    result3.getMetricValues().get(metrics.getSvrBalDuration().getName()));
-            Assert.assertEquals(Long.valueOf(50),
-                    result3.getMetricValues().get(metrics.getSvrBalDurationMin().getName()));
-            Assert.assertEquals(Long.valueOf(800),
-                    result3.getMetricValues().get(metrics.getSvrBalDurationMax().getName()));
-            Assert.assertEquals(Long.valueOf(10),
-                    result3.getMetricValues().get(metrics.getSvrBalResetDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(2000),
-                    result3.getMetricValues().get(metrics.getSvrBalResetDurMax().getName()));
+            Assert.assertEquals(Long.valueOf(300), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltLastJmxKey()));
+            Assert.assertEquals(Long.valueOf(20), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(3000), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(10), result3.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(2000), result3.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMaxJmxKey()));
 
             Assert.assertEquals(Long.valueOf(6),
                     result3.getMetricValues().get(
@@ -378,16 +378,16 @@ public class MasterMetricsTest {
             Assert.assertEquals(Long.valueOf(4),
                     result1.getMetricValues().get(metrics.getBrokerFbdTotCnt().getName()));
 
-            Assert.assertEquals(Long.valueOf(1000),
-                    result1.getMetricValues().get(metrics.getSvrBalDuration().getName()));
-            Assert.assertEquals(Long.valueOf(100),
-                    result1.getMetricValues().get(metrics.getSvrBalDurationMin().getName()));
-            Assert.assertEquals(Long.valueOf(1000),
-                    result1.getMetricValues().get(metrics.getSvrBalDurationMax().getName()));
-            Assert.assertEquals(Long.valueOf(500),
-                    result1.getMetricValues().get(metrics.getSvrBalResetDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(5000),
-                    result1.getMetricValues().get(metrics.getSvrBalResetDurMax().getName()));
+            Assert.assertEquals(Long.valueOf(1000), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltLastJmxKey()));
+            Assert.assertEquals(Long.valueOf(100), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(1000), result1.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(500), result1.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(5000), result1.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMaxJmxKey()));
 
             Assert.assertEquals(Long.valueOf(1),
                     result1.getMetricValues().get(
@@ -465,16 +465,16 @@ public class MasterMetricsTest {
             Assert.assertEquals(Long.valueOf(3),
                     result3.getMetricValues().get(metrics.getBrokerFbdTotCnt().getName()));
 
-            Assert.assertEquals(Long.valueOf(8000),
-                    result3.getMetricValues().get(metrics.getSvrBalDuration().getName()));
-            Assert.assertEquals(Long.valueOf(100),
-                    result3.getMetricValues().get(metrics.getSvrBalDurationMin().getName()));
-            Assert.assertEquals(Long.valueOf(8000),
-                    result3.getMetricValues().get(metrics.getSvrBalDurationMax().getName()));
-            Assert.assertEquals(Long.valueOf(100),
-                    result3.getMetricValues().get(metrics.getSvrBalResetDurMin().getName()));
-            Assert.assertEquals(Long.valueOf(4000),
-                    result3.getMetricValues().get(metrics.getSvrBalResetDurMax().getName()));
+            Assert.assertEquals(Long.valueOf(8000), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltLastJmxKey()));
+            Assert.assertEquals(Long.valueOf(100), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(8000), result3.getMetricValues().get(
+                    metrics.getSvrBalDltItem().getDltMaxJmxKey()));
+            Assert.assertEquals(Long.valueOf(100), result3.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMinJmxKey()));
+            Assert.assertEquals(Long.valueOf(4000), result3.getMetricValues().get(
+                    metrics.getSvrBalResetDltItem().getDltMaxJmxKey()));
 
             Assert.assertEquals(Long.valueOf(1),
                     result3.getMetricValues().get(

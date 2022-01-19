@@ -653,8 +653,7 @@ CREATE TABLE `storage_hive_field`
     `is_exist`          tinyint(1)    DEFAULT '0' COMMENT 'Does it exist, 0: does not exist, 1: exists',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    PRIMARY KEY (`id`),
-    KEY `index_storage_id` (`storage_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data stored in Hive field';
 
@@ -1100,5 +1099,37 @@ CREATE TABLE `flume_sink_ext`
     KEY `index_flume_sink_ext` (`parent_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
+
+-- ----------------------------
+-- Table structure for db_collector_detail_task
+-- ----------------------------
+DROP TABLE IF EXISTS `db_collector_detail_task`;
+CREATE TABLE `db_collector_detail_task`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `main_id`     varchar(128) NOT NULL COMMENT 'main task id',
+    `type`        int(11)      NOT NULL COMMENT 'task type',
+    `time_var`    varchar(64)  NOT NULL COMMENT 'time variable',
+    `db_type`     int(11)      NOT NULL COMMENT 'db type',
+    `ip`          varchar(64)  NOT NULL COMMENT 'db ip',
+    `port`        int(11)      NOT NULL COMMENT 'db port',
+    `db_name`     varchar(64)  NULL COMMENT 'db name',
+    `user`        varchar(64)  NULL COMMENT 'user name',
+    `password`    varchar(64)  NULL COMMENT 'password',
+    `sql`         varchar(256) NULL COMMENT 'sql statement',
+    `offset`      int(11)      NOT NULL COMMENT 'offset for the data source',
+    `total_limit` int(11)      NOT NULL COMMENT 'total limit in a task',
+    `once_limit`  int(11)      NOT NULL COMMENT 'limit for one query',
+    `time_limit`  int(11)      NOT NULL COMMENT 'time limit for task',
+    `retry_times` int(11)      NOT NULL COMMENT 'max retry times if task failes',
+    `group_id`    varchar(64)  NULL COMMENT 'group id',
+    `stream_id`   varchar(64)  NULL COMMENT 'stream id',
+    `state`       int(11)      NOT NULL COMMENT 'task state',
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';
+
 
 SET FOREIGN_KEY_CHECKS = 1;

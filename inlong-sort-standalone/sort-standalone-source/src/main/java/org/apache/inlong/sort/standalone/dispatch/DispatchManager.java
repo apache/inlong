@@ -42,6 +42,7 @@ public class DispatchManager {
     public static final long DEFAULT_DISPATCH_TIMEOUT = 2000;
     public static final long DEFAULT_DISPATCH_MAX_PACKCOUNT = 256;
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
+    public static final long MINUTE_MS = 60L * 1000;
 
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private final long dispatchTimeout;
@@ -75,19 +76,22 @@ public class DispatchManager {
             this.needOutputOvertimeData.set(false);
         }
         // parse
-        String uid = event.getUid();
+        String eventUid = event.getUid();
+        long dispatchTime = event.getRawLogTime() - event.getRawLogTime() % MINUTE_MS;
+        String dispatchKey = eventUid + "." + dispatchTime;
         //
-        DispatchProfile dispatchProfile = this.profileCache.get(uid);
+        DispatchProfile dispatchProfile = this.profileCache.get(dispatchKey);
         if (dispatchProfile == null) {
-            dispatchProfile = new DispatchProfile(uid, event.getInlongGroupId(), event.getInlongStreamId());
-            this.profileCache.put(uid, dispatchProfile);
+            dispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
+                    dispatchTime);
+            this.profileCache.put(dispatchKey, dispatchProfile);
         }
         //
         boolean addResult = dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         if (!addResult) {
-            DispatchProfile newDispatchProfile = new DispatchProfile(uid, event.getInlongGroupId(),
-                    event.getInlongStreamId());
-            DispatchProfile oldDispatchProfile = this.profileCache.put(uid, newDispatchProfile);
+            DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
+                    event.getInlongStreamId(), dispatchTime);
+            DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
             this.dispatchQueue.offer(oldDispatchProfile);
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         }

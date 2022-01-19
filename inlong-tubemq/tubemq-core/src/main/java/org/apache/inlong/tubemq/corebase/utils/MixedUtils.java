@@ -18,9 +18,7 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,8 +115,7 @@ public class MixedUtils {
     // build message to be sent
     // only for demo
     public static Message buildMessage(String topicName, String filterItem,
-                                       byte[] bodyData, long serialId,
-                                       SimpleDateFormat sdf) {
+                                       byte[] bodyData, long serialId) {
         // build message to be sent
         Message message = new Message(topicName, bodyData);
         long currTimeMillis = System.currentTimeMillis();
@@ -126,8 +123,9 @@ public class MixedUtils {
         message.setAttrKeyVal("serialId", String.valueOf(serialId));
         message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
         if (filterItem != null) {
-            // add filter attribute information
-            message.putSystemHeader(filterItem, sdf.format(new Date(currTimeMillis)));
+            // add filter attribute information, time require yyyyMMddHHmm format
+            message.putSystemHeader(filterItem,
+                    DateTimeConvertUtils.ms2yyyyMMddHHmm(currTimeMillis));
         }
         return message;
     }

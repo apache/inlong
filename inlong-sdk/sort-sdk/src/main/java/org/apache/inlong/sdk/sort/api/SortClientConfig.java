@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 import java.io.Serializable;
+import java.util.concurrent.Semaphore;
 
 public class SortClientConfig implements Serializable {
 
@@ -31,6 +32,7 @@ public class SortClientConfig implements Serializable {
     private ReadCallback callback;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
+    private Semaphore globalInProgressRequest = new Semaphore(Short.MAX_VALUE, true);
     private String localIp;
     private String appName;
     private String serverName;
@@ -44,6 +46,10 @@ public class SortClientConfig implements Serializable {
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 10;
     private volatile boolean stopConsume = false;
+    private boolean isPrometheusEnabled = true;
+    private int emptyPollSleepStepMs = 50;
+    private int maxEmptyPollSleepMs = 500;
+    private int emptyPollTimes = 10;
 
     public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
             ConsumeStrategy consumeStrategy, String localIp) {
@@ -154,6 +160,14 @@ public class SortClientConfig implements Serializable {
         this.pulsarReceiveQueueSize = pulsarReceiveQueueSize;
     }
 
+    public Semaphore getGlobalInProgressRequest() {
+        return globalInProgressRequest;
+    }
+
+    public void setGlobalInProgressRequest(Semaphore globalInProgressRequest) {
+        this.globalInProgressRequest = globalInProgressRequest;
+    }
+
     /**
      * get localIp
      *
@@ -226,6 +240,38 @@ public class SortClientConfig implements Serializable {
 
     public void setManagerApiVersion(String managerApiVersion) {
         this.managerApiVersion = managerApiVersion;
+    }
+
+    public boolean isPrometheusEnabled() {
+        return isPrometheusEnabled;
+    }
+
+    public void setPrometheusEnabled(boolean prometheusEnabled) {
+        isPrometheusEnabled = prometheusEnabled;
+    }
+
+    public int getEmptyPollSleepStepMs() {
+        return emptyPollSleepStepMs;
+    }
+
+    public void setEmptyPollSleepStepMs(int emptyPollSleepStepMs) {
+        this.emptyPollSleepStepMs = emptyPollSleepStepMs;
+    }
+
+    public int getMaxEmptyPollSleepMs() {
+        return maxEmptyPollSleepMs;
+    }
+
+    public void setMaxEmptyPollSleepMs(int maxEmptyPollSleepMs) {
+        this.maxEmptyPollSleepMs = maxEmptyPollSleepMs;
+    }
+
+    public int getEmptyPollTimes() {
+        return emptyPollTimes;
+    }
+
+    public void setEmptyPollTimes(int emptyPollTimes) {
+        this.emptyPollTimes = emptyPollTimes;
     }
 
     /**

@@ -88,7 +88,7 @@ public class TaskPositionManager extends AbstractDaemon {
                 try {
                     // check pending jobs and try to submit again.
                     for (String jobId : jobTaskPositionMap.keySet()) {
-                        JobProfile jobProfile = jobConfDb.getJobProfile(jobId);
+                        JobProfile jobProfile = jobConfDb.getJobById(jobId);
                         if (jobProfile == null) {
                             LOGGER.warn("jobProfile {} cannot be found in db, "
                                 + "might be deleted by standalone mode, now delete job position in memory", jobId);
@@ -126,14 +126,14 @@ public class TaskPositionManager extends AbstractDaemon {
         waitForTerminate();
     }
 
-    public void updateFileSinkPosition(String jobInstanceId, String sourceFilePath, long size) {
-        ConcurrentHashMap<String, Long> filePositionTemp = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Long> filePosition = jobTaskPositionMap.putIfAbsent(jobInstanceId, filePositionTemp);
-        if (filePosition == null) {
-            filePosition = filePositionTemp;
+    public void updateSinkPosition(String jobInstanceId, String sourcePath, long size) {
+        ConcurrentHashMap<String, Long> positionTemp = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
+        if (position == null) {
+            position = positionTemp;
         }
-        Long beforePosition = filePosition.getOrDefault(sourceFilePath, 1L);
-        filePosition.put(sourceFilePath, beforePosition + size);
+        Long beforePosition = position.getOrDefault(sourcePath, 1L);
+        position.put(sourcePath, beforePosition + size);
     }
 
     public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {

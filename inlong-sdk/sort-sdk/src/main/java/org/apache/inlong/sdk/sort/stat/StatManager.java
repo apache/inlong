@@ -41,8 +41,8 @@ public class StatManager implements Cleanable {
     /**
      * StatManager Constructor
      *
-     * @param context ClientContext
-     * @param reporter MetricReporter
+     * @param context {@link ClientContext}
+     * @param reporter {@link MetricReporter}
      */
     public StatManager(ClientContext context, MetricReporter reporter) {
         this.config = context.getConfig();
@@ -77,45 +77,46 @@ public class StatManager implements Cleanable {
     }
 
     /**
-     * use for sortId
+     * use for sortTaskId
      *
-     * @param sortId String
-     * @return ReadApiStateCounter
+     * @param sortTaskId String
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId) {
-        String key = makeKey(sortId, defaultCluster, defaultTopic, String.valueOf(defaultPartitionId));
+    public SortClientStateCounter getStatistics(String sortTaskId) {
+        String key = makeKey(sortTaskId, defaultCluster, defaultTopic, String.valueOf(defaultPartitionId));
         return READAPISTATE
                 .computeIfAbsent(key,
-                        k -> new SortClientStateCounter(sortId, defaultCluster, defaultTopic, defaultPartitionId));
+                        k -> new SortClientStateCounter(sortTaskId, defaultCluster, defaultTopic, defaultPartitionId));
     }
 
     /**
      * use for pulsar type
      *
-     * @param sortId String
+     * @param sortTaskId String
      * @param clusterId String
      * @param topic String
-     * @return ReadApiStateCounter
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId, String clusterId, String topic) {
-        String key = makeKey(sortId, clusterId, topic, String.valueOf(defaultPartitionId));
+    public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic) {
+        String key = makeKey(sortTaskId, clusterId, topic, String.valueOf(defaultPartitionId));
         return READAPISTATE
-                .computeIfAbsent(key, k -> new SortClientStateCounter(sortId, clusterId, topic, defaultPartitionId));
+                .computeIfAbsent(key,
+                        k -> new SortClientStateCounter(sortTaskId, clusterId, topic, defaultPartitionId));
     }
 
     /**
-     * use for
+     * use for common SortClientStateCounter
      *
-     * @param sortId String
+     * @param sortTaskId String
      * @param clusterId String
      * @param topic String
      * @param partitionId int
-     * @return ReadApiStateCounter
+     * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortId, String clusterId, String topic, int partitionId) {
-        String key = makeKey(sortId, clusterId, topic);
+    public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic, int partitionId) {
+        String key = makeKey(sortTaskId, clusterId, topic);
         return READAPISTATE
-                .computeIfAbsent(key, k -> new SortClientStateCounter(sortId, clusterId, topic, partitionId));
+                .computeIfAbsent(key, k -> new SortClientStateCounter(sortTaskId, clusterId, topic, partitionId));
     }
 
     private class ProcessStatThread extends PeriodicTask {
@@ -130,7 +131,7 @@ public class StatManager implements Cleanable {
                 String monitorName = SortClientConfig.MONITOR_NAME;
                 for (SortClientStateCounter offsetCounter : READAPISTATE.values()) {
                     SortClientStateCounter counter = offsetCounter.reset();
-                    String[] keys = new String[]{counter.sortId, config.getLocalIp(), counter.clusterId,
+                    String[] keys = new String[]{counter.sortTaskId, config.getLocalIp(), counter.cacheClusterId,
                             counter.topic, String.valueOf(counter.partitionId)};
                     if (reporter != null) {
                         logger.debug("report statistics:{} {}", Arrays.toString(keys),
@@ -141,9 +142,8 @@ public class StatManager implements Cleanable {
                     }
                 }
             } catch (Exception e) {
-                logger.error("StatManager doWork error" + e.getMessage(), e);
+                logger.error("StatManager doWork error " + e.getMessage(), e);
             }
         }
     }
-
 }

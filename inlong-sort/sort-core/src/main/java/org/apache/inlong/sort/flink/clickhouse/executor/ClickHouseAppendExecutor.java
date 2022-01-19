@@ -22,7 +22,6 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.flink.clickhouse.ClickHouseRowConverter;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.shaded.curator.org.apache.curator.shaded.com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +43,11 @@ public class ClickHouseAppendExecutor implements ClickHouseExecutor {
 
     private final FormatInfo[] formatInfos;
 
-    private final int flushIntervalSecond;
-
     private final int maxRetries;
 
     private transient ClickHousePreparedStatement stmt;
 
     private transient List<Row> batch = new ArrayList<>();
-
-    private transient ExecuteBatchService executeBatchService;
 
     public ClickHouseAppendExecutor(
             String insertSql,
@@ -60,7 +55,6 @@ public class ClickHouseAppendExecutor implements ClickHouseExecutor {
             ClickHouseSinkInfo clickHouseSinkInfo) {
         this.insertSql = insertSql;
         this.formatInfos = formatInfos;
-        this.flushIntervalSecond = clickHouseSinkInfo.getFlushInterval();
         this.maxRetries = clickHouseSinkInfo.getWriteMaxRetryTimes();
     }
 
@@ -70,8 +64,6 @@ public class ClickHouseAppendExecutor implements ClickHouseExecutor {
             batch = new ArrayList<>();
         }
         stmt = (ClickHousePreparedStatement) connection.prepareStatement(insertSql);
-        executeBatchService = new ExecuteBatchService();
-        executeBatchService.startAsync();
     }
 
     @Override
@@ -81,63 +73,44 @@ public class ClickHouseAppendExecutor implements ClickHouseExecutor {
 
     @Override
     public synchronized void executeBatch() throws IOException {
-        if (executeBatchService.isRunning()) {
-            this.notifyAll();
-        } else {
-            throw new IOException("executor unexpectedly terminated", executeBatchService.failureCause());
+        try {
+            if (!batch.isEmpty()) {
+                for (Row row : batch) {
+                    ClickHouseRowConverter.setRow(stmt, formatInfos, row);
+                    stmt.addBatch();
+                }
+                attemptExecuteBatch();
+            }
+        } catch (Exception exception) {
+            throw new IOException("Flush data to clickhouse failed! " + exception);
         }
     }
 
     @Override
     public void closeStatement() throws SQLException {
-        if (executeBatchService != null) {
-            executeBatchService.stopAsync().awaitTerminated();
-        }
-
         if (stmt != null) {
             stmt.close();
             stmt = null;
         }
     }
 
-    private class ExecuteBatchService extends AbstractExecutionThreadService {
-
-        private ExecuteBatchService() {
-        }
-
-        protected void run() throws Exception {
-            while (isRunning()) {
-                synchronized (ClickHouseAppendExecutor.this) {
-                    ClickHouseAppendExecutor.this.wait(flushIntervalSecond * 1000L);
-                    if (!batch.isEmpty()) {
-                        for (Row row : batch) {
-                            ClickHouseRowConverter.setRow(stmt, formatInfos, row);
-                            stmt.addBatch();
-                        }
-                        attemptExecuteBatch();
-                    }
+    private void attemptExecuteBatch() throws IOException {
+        for (int i = 1; i <= maxRetries; i++) {
+            try {
+                stmt.executeBatch();
+                batch.clear();
+                break;
+            } catch (SQLException e) {
+                LOG.error("ClickHouse executeBatch error, retry times = {}", i, e);
+                if (i >= maxRetries) {
+                    throw new IOException(e);
                 }
-            }
-        }
 
-        private void attemptExecuteBatch() throws IOException {
-            for (int i = 1; i <= maxRetries; i++) {
                 try {
-                    stmt.executeBatch();
-                    batch.clear();
-                    break;
-                } catch (SQLException e) {
-                    LOG.error("ClickHouse executeBatch error, retry times = {}", i, e);
-                    if (i >= maxRetries) {
-                        throw new IOException(e);
-                    }
-
-                    try {
-                        Thread.sleep((1000L * i));
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                        throw new IOException("unable to flush; interrupted while doing another attempt", e);
-                    }
+                    Thread.sleep((1000L * i));
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("unable to flush; interrupted while doing another attempt", e);
                 }
             }
         }

@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
 // AbstractEntity: entity's abstract class
 public class BaseEntity implements Serializable, Cloneable {
@@ -274,7 +274,7 @@ public class BaseEntity implements Serializable, Cloneable {
             return;
         }
         this.modifyDate = date;
-        this.modifyDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
+        this.modifyDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(date);
     }
 
     private void setCreateDate(Date date) {
@@ -282,7 +282,7 @@ public class BaseEntity implements Serializable, Cloneable {
             return;
         }
         this.createDate = date;
-        this.createDateStr = WebParameterUtils.date2yyyyMMddHHmmss(date);
+        this.createDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(date);
     }
 
     @Override

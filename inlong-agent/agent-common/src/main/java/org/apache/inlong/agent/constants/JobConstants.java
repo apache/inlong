@@ -63,6 +63,8 @@ public class JobConstants extends CommonConstants {
 
     public static final String JOB_ID_PREFIX = "job_";
 
+    public static final String SQL_JOB_ID = "sql_job_id";
+
     public static final String JOB_STORE_TIME = "job.store.time";
 
     public static final String JOB_OP = "job.op";

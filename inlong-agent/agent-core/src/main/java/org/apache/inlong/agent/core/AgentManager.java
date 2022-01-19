@@ -43,8 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level
- * operations and communicates with outside system.
+ * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and communicates
+ * with outside system.
  */
 public class AgentManager extends AbstractDaemon {
 
@@ -62,21 +62,23 @@ public class AgentManager extends AbstractDaemon {
     private final Db db;
     private final LocalProfile localProfile;
     private final CommandDb commandDb;
+    private final JobProfileDb jobProfileDb;
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
         this.db = initDb();
         commandDb = new CommandDb(db);
+        jobProfileDb = new JobProfileDb(db);
         String parentConfPath = conf.get(AGENT_CONF_PARENT, DEFAULT_AGENT_CONF_PARENT);
         localProfile = new LocalProfile(parentConfPath);
         fetcher = initFetcher(this);
         triggerManager = new TriggerManager(this, new TriggerProfileDb(db));
-        jobManager = new JobManager(this, new JobProfileDb(db));
+        jobManager = new JobManager(this, jobProfileDb);
         taskManager = new TaskManager(this);
         taskPositionManager = TaskPositionManager.getTaskPositionManager(this);
         // need to be an option.
         if (conf.getBoolean(
-            AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {
+                AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {
             this.configJetty = new ConfigJetty(jobManager, triggerManager);
         }
     }
@@ -89,11 +91,11 @@ public class AgentManager extends AbstractDaemon {
     private ProfileFetcher initFetcher(AgentManager agentManager) {
         try {
             Constructor<?> constructor =
-                Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
-                        .getDeclaredConstructor(AgentManager.class);
+                    Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
+                            .getDeclaredConstructor(AgentManager.class);
             constructor.setAccessible(true);
             return
-                (ProfileFetcher) constructor.newInstance(agentManager);
+                    (ProfileFetcher) constructor.newInstance(agentManager);
         } catch (Exception ex) {
             LOGGER.warn("cannot find fetcher, ignore it {}", ex.getMessage());
         }
@@ -110,8 +112,8 @@ public class AgentManager extends AbstractDaemon {
             // db is a required component, so if not init correctly,
             // throw exception and stop running.
             return (Db) Class.forName(conf.get(
-                AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
-                .newInstance();
+                    AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
+                    .newInstance();
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }
@@ -170,7 +172,7 @@ public class AgentManager extends AbstractDaemon {
             } else {
                 // job db store instance info, so it's suitable to use submitJobProfile
                 // to store instance into job db.
-                jobManager.submitJobProfile(profile);
+                jobManager.submitFileJobProfile(profile);
             }
         }
         if (fetcher != null) {
