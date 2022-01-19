@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
@@ -43,6 +44,7 @@ public class Process extends Element {
 
     private EndEvent endEvent;
 
+    @Getter
     private Map<String, Task> nameToTaskMap = Maps.newHashMap();
 
     private Class<? extends ProcessForm> formClass;
