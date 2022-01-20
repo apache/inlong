@@ -186,3 +186,21 @@ export function excludeObjectArray(keys = [], sourceArr = [], key = 'name') {
   const set = new Set(keys);
   return sourceArr.filter(item => !set.has(item[key]));
 }
+
+/**
+ * Get string byte length
+ * @param {string} str
+ * @return {number}
+ */
+export function getStrByteLen(str: string): number {
+  let len = 0;
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charAt(i);
+    if (/^[\u4e00-\u9fa5]$/.test(c)) {
+      len += 2;
+    } else {
+      len += 1;
+    }
+  }
+  return len;
+}

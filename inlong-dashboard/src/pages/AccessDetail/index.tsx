@@ -26,6 +26,7 @@ import Info from './Info';
 import DataSources from './DataSources';
 import DataStream from './DataStream';
 import DataStorage from './DataStorage';
+import Audit from './Audit';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -63,6 +64,12 @@ const Comp: React.FC = () => {
           label: t('pages.AccessDetail.DataStorages'),
           value: 'dataStorage',
           content: DataStorage,
+          hidden: isReadonly,
+        },
+        {
+          label: t('pages.AccessDetail.Audit'),
+          value: 'audit',
+          content: Audit,
           hidden: isReadonly,
         },
       ].filter(item => !item.hidden),
