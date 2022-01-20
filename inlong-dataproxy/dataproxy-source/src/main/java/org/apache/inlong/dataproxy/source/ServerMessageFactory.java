@@ -60,7 +60,7 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
     /**
      * get server factory
      *
-     * @param processor
+     * @param source
      * @param allChannels
      * @param protocol
      * @param serProcessor

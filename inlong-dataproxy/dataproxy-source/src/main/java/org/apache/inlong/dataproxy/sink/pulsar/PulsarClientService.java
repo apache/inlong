@@ -31,7 +31,7 @@ import org.apache.flume.FlumeException;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
-import org.apache.inlong.dataproxy.utils.LogCounter;
+import org.apache.inlong.commons.monitor.LogCounter;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -91,6 +91,10 @@ public class PulsarClientService {
 
     private String localIp = "127.0.0.1";
 
+    /**
+     * PulsarClientService
+     * @param context
+     */
     public PulsarClientService(Context context) {
 
         String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
@@ -124,6 +128,14 @@ public class PulsarClientService {
         }
     }
 
+    /**
+     * send message
+     * @param topic
+     * @param event
+     * @param sendMessageCallBack
+     * @param es
+     * @return
+     */
     public boolean sendMessage(String topic, Event event,
             SendMessageCallBack sendMessageCallBack, EventStat es) {
         TopicProducerInfo producer = null;

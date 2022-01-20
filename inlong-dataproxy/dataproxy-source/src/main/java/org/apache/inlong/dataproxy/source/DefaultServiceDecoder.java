@@ -73,7 +73,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     /**
      * extract bin heart beat data, message type is 8
-     *
      * @param resultMap
      * @param cb
      * @param channel
@@ -222,7 +221,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     /**
      * extract bin data, message type is 7
-     *
      * @param resultMap
      * @param cb
      * @param channel
@@ -341,7 +339,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     /**
      * extract bin data, message type less than 7
-     *
      * @param resultMap
      * @param cb
      * @param channel

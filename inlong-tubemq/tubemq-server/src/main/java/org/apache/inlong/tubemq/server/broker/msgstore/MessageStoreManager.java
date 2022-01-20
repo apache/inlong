@@ -79,9 +79,9 @@ public class MessageStoreManager implements StoreService {
     // message on memory sink to disk operation scheduler.
     private final ScheduledExecutorService unFlushMemScheduler;
     // max transfer size.
-    private int maxMsgTransferSize;
+    private final int maxMsgTransferSize;
     // the status that is deleting topic.
-    private AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
+    private final AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
 
     public MessageStoreManager(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) throws IOException {
@@ -366,7 +366,7 @@ public class MessageStoreManager implements StoreService {
             }
             requestOffset = maxOffset - maxIndexReadSize < 0 ? 0L : maxOffset - maxIndexReadSize;
             return msgStore.getMessages(303, requestOffset, partitionId,
-                    consumerNodeInfo, topic, this.maxMsgTransferSize);
+                    consumerNodeInfo, topic, this.maxMsgTransferSize, 0);
         } catch (Throwable e1) {
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, "Get message failure, errMsg=" + e1.getMessage());

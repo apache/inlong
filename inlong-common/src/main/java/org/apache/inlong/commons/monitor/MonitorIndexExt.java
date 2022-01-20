@@ -15,63 +15,65 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.utils;
+package org.apache.inlong.commons.monitor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MonitorIndex {
-    private static final Logger logger = LoggerFactory.getLogger(MonitorIndex.class);
+public class MonitorIndexExt {
+
+    private static final Logger logger = LoggerFactory.getLogger(MonitorIndexExt.class);
     private static final LogCounter logPrinter = new LogCounter(10, 100000, 60 * 1000);
 
     private IndexCollectThread indexCol;
     private String name;
-    private ConcurrentHashMap<String, String> counterMap = new ConcurrentHashMap<String, String>();
+    private ConcurrentHashMap<String, AtomicLong> counterMap =
+            new ConcurrentHashMap<String, AtomicLong>();
     private int intervalSec;
     private int maxCnt;
 
-    public MonitorIndex(String name, int intervalSec, int maxCnt) {
+    public MonitorIndexExt(String name, int intervalSec, int maxCnt) {
         /*
-         * Main indicators, placed in flume_index.log
+         * key
+         * Almost unchanging. Component indicators, flume_monitors.log
          */
         this.intervalSec = intervalSec;
         /*
-         * "TDBus","TDBus_intf"...tmetric pattern name
+         * TDBus_monitors", used to monitor...tmetric pattern name
          */
         this.name = name;
         this.maxCnt = maxCnt;
         indexCol = new IndexCollectThread();
         indexCol.setDaemon(true);
-        indexCol.setName("IndexCollectThread_MonitorIndex");
+        indexCol.setName("IndexCollectThread_MonitorIndexExt");
         indexCol.start();
     }
 
-    public void addAndGet(String key, int cnt, int packcnt, long packsize, int failcnt) {
+    /**
+     * incrementAndGet
+     * @param key
+     */
+    public void incrementAndGet(String key) {
         try {
             if (counterMap.size() < maxCnt) {
-                counterMap.compute(key, (key1, value) -> {
-                    if (value != null) {
-                        String[] va = value.split("#");
-                        value = (Integer.parseInt(va[0]) + cnt) + "#"
-                                + (Integer.parseInt(va[1]) + packcnt) + "#"
-                                + (Long.parseLong(va[2]) + packsize) + "#"
-                                + (Integer.parseInt(va[3]) + failcnt);
+                counterMap.compute(key, (s, atomicLong) -> {
+                    if (atomicLong != null) {
+                        atomicLong.incrementAndGet();
                     } else {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        value = stringBuilder.append(cnt).append("#").append(packcnt).append("#")
-                            .append(packsize).append("#").append(failcnt).toString();
+                        atomicLong = new AtomicLong(1);
                     }
-                    return value;
+                    return atomicLong;
                 });
             } else if (logPrinter.shouldPrint()) {
-                logger.error(this.name + "exceed monitor's max size");
+                logger.error(this.name + "exceed monitorExt's max size");
             }
         } catch (Exception e) {
             if (logPrinter.shouldPrint()) {
-                logger.error("monitor exception",e);
+                logger.error("monitorExt exception", e);
             }
         }
     }
@@ -88,7 +90,9 @@ public class MonitorIndex {
         this.maxCnt = maxCnt;
     }
 
-    private class IndexCollectThread extends Thread {
+    private class IndexCollectThread
+            extends Thread {
+
         private boolean bShutDown = false;
 
         public IndexCollectThread() {
@@ -101,26 +105,29 @@ public class MonitorIndex {
 
         @Override
         public void run() {
-            Map<String, String> counterExt = new HashMap<String, String>();
+            Map<String, Long> counterExt = new HashMap<String, Long>();
             while (!bShutDown) {
                 try {
                     Thread.sleep(intervalSec * 1000L);
                     for (String str : counterMap.keySet()) {
-                        counterMap.computeIfPresent(str, (s, s2) -> {
-                            counterExt.put(s, s2);
-                            return null;
+                        counterMap.computeIfPresent(str, (s, atomicLong) -> {
+                            long cnt = atomicLong.get();
+                            counterExt.put(str, cnt);
+                            atomicLong.set(0L);
+                            return atomicLong;
                         });
                     }
-                    for (Map.Entry<String, String> entrys : counterExt.entrySet()) {
-                        logger.info(
-                                "{}#{}#{}", new Object[] { name, entrys.getKey(), entrys.getValue() });
+
+                    for (Map.Entry<String, Long> entrys : counterExt.entrySet()) {
+                        logger.info("{}#{}#{}",
+                                new Object[]{name, entrys.getKey(), entrys.getValue()});
                     }
                     counterExt.clear();
+
                 } catch (Exception e) {
-                    logger.warn("monitor interrupted");
+                    logger.warn("moniorExt interrupted");
                 }
             }
-
         }
     }
 }

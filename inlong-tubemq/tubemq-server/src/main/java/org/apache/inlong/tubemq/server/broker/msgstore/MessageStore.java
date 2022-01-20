@@ -80,27 +80,27 @@ public class MessageStore implements Closeable {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private volatile int partitionNum;
-    private AtomicInteger unflushInterval = new AtomicInteger(0);
-    private AtomicInteger unflushThreshold = new AtomicInteger(0);
-    private AtomicInteger unflushDataHold = new AtomicInteger(0);
+    private final AtomicInteger unflushInterval = new AtomicInteger(0);
+    private final AtomicInteger unflushThreshold = new AtomicInteger(0);
+    private final AtomicInteger unflushDataHold = new AtomicInteger(0);
     private volatile int writeCacheMaxSize;
     private volatile int writeCacheMaxCnt;
     private volatile int writeCacheFlushIntvl;
-    private AtomicLong maxFileValidDurMs = new AtomicLong(0);
+    private final AtomicLong maxFileValidDurMs = new AtomicLong(0);
     private int maxAllowRdSize = 262144;
-    private AtomicInteger memMaxIndexReadCnt = new AtomicInteger(6000);
-    private AtomicInteger fileMaxIndexReadCnt = new AtomicInteger(8000);
-    private AtomicInteger memMaxFilterIndexReadCnt
+    private final AtomicInteger memMaxIndexReadCnt = new AtomicInteger(6000);
+    private final AtomicInteger fileMaxIndexReadCnt = new AtomicInteger(8000);
+    private final AtomicInteger memMaxFilterIndexReadCnt
             = new AtomicInteger(memMaxIndexReadCnt.get() * 2);
-    private AtomicInteger fileMaxFilterIndexReadCnt
+    private final AtomicInteger fileMaxFilterIndexReadCnt
             = new AtomicInteger(fileMaxIndexReadCnt.get() * 3);
-    private AtomicInteger fileLowReqMaxFilterIndexReadCnt
+    private final AtomicInteger fileLowReqMaxFilterIndexReadCnt
             = new AtomicInteger(fileMaxIndexReadCnt.get() * 10);
-    private AtomicInteger fileMaxIndexReadSize
+    private final AtomicInteger fileMaxIndexReadSize
             = new AtomicInteger(this.fileMaxIndexReadCnt.get() * DataStoreUtils.STORE_INDEX_HEAD_LEN);
-    private AtomicInteger fileMaxFilterIndexReadSize
+    private final AtomicInteger fileMaxFilterIndexReadSize
             = new AtomicInteger(this.fileMaxFilterIndexReadCnt.get() * DataStoreUtils.STORE_INDEX_HEAD_LEN);
-    private AtomicInteger fileLowReqMaxFilterIndexReadSize
+    private final AtomicInteger fileLowReqMaxFilterIndexReadSize
             = new AtomicInteger(this.fileLowReqMaxFilterIndexReadCnt.get() * DataStoreUtils.STORE_INDEX_HEAD_LEN);
     private MsgMemStore msgMemStore;
     private MsgMemStore msgMemStoreBeingFlush;
@@ -154,21 +154,20 @@ public class MessageStore implements Closeable {
     /***
      * Get message from message store. Support the given offset, filter.
      *
-     * @param reqSwitch
-     * @param requestOffset
-     * @param partitionId
-     * @param consumerNodeInfo
-     * @param statisKeyBase
-     * @param msgSizeLimit
-     * @return
-     * @throws IOException
+     * @param reqSwitch            read message from where
+     * @param requestOffset        the request offset to read
+     * @param partitionId          the partitionId for reading messages
+     * @param consumerNodeInfo     the consumer object
+     * @param statisKeyBase        the statistical key prefix
+     * @param msgSizeLimit         the max read size
+     * @param reqRcvTime           the timestamp of the record to be checked
+     * @return                     read result
+     * @throws IOException         exception while process
      */
-    public GetMessageResult getMessages(int reqSwitch,
-                                        final long requestOffset,
-                                        final int partitionId,
-                                        final ConsumerNodeInfo consumerNodeInfo,
-                                        final String statisKeyBase,
-                                        int msgSizeLimit) throws IOException {
+    public GetMessageResult getMessages(int reqSwitch, long requestOffset,
+                                        int partitionId, ConsumerNodeInfo consumerNodeInfo,
+                                        String statisKeyBase, int msgSizeLimit,
+                                        long reqRcvTime) throws IOException {
         // #lizard forgives
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
@@ -201,7 +200,7 @@ public class MessageStore implements Closeable {
                                                 requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
                                                 maxIndexReadLength, partitionId, false,
                                                 consumerNodeInfo.isFilterConsume(),
-                                                consumerNodeInfo.getFilterCondCodeSet());
+                                                consumerNodeInfo.getFilterCondCodeSet(), reqRcvTime);
                             }
                         } else {
                             // read from backup memory.
@@ -210,7 +209,7 @@ public class MessageStore implements Closeable {
                                             requestOffset, msgStoreMgr.getMaxMsgTransferSize(),
                                             maxIndexReadLength, partitionId, true,
                                             consumerNodeInfo.isFilterConsume(),
-                                            consumerNodeInfo.getFilterCondCodeSet());
+                                            consumerNodeInfo.getFilterCondCodeSet(), reqRcvTime);
                         }
                     }
                 } finally {
@@ -281,7 +280,7 @@ public class MessageStore implements Closeable {
                 consumerNodeInfo.getLastDataRdOffset(), reqNewOffset,
                 indexBuffer, consumerNodeInfo.isFilterConsume(),
                 consumerNodeInfo.getFilterCondCodeSet(),
-                statisKeyBase, msgSizeLimit);
+                statisKeyBase, msgSizeLimit, reqRcvTime);
         if (reqSwitch <= 1) {
             retResult.setMaxOffset(getFileIndexMaxOffset());
         } else {
@@ -300,23 +299,81 @@ public class MessageStore implements Closeable {
     }
 
     /***
+     * Get start offset by timestamp.
+     *
+     * @param timestamp  timestamp
+     * @return start offset
+     */
+    public long getStartOffsetByTimeStamp(long timestamp) {
+        if (this.closed.get()) {
+            throw new IllegalStateException(new StringBuilder(512)
+                    .append("[Data Store] Closed MessageStore for storeKey ")
+                    .append(this.storeKey).toString());
+        }
+        if (timestamp <= this.msgFileStore.getIndexMaxAppendTime()) {
+            return this.msgFileStore.getStartOffsetByTimeStamp(timestamp);
+        }
+        this.writeCacheMutex.readLock().lock();
+        try {
+            // read from backup memory.
+            if (timestamp <= this.msgMemStoreBeingFlush.getRightAppendTime()) {
+                return this.msgMemStoreBeingFlush.getIndexStartWritePos();
+            }
+            // read from main memory.
+            return this.msgMemStore.getIndexStartWritePos();
+        } finally {
+            this.writeCacheMutex.readLock().unlock();
+        }
+    }
+
+    /***
      * Append msg to store.
      *
-     * @param appendResult
-     * @param dataLength
-     * @param dataCheckSum
-     * @param data
-     * @param msgTypeCode
-     * @param msgFlag
-     * @param partitionId
-     * @param sentAddr
-     * @return
-     * @throws IOException
+     * @param appendResult    the append result
+     * @param dataLength      the data length
+     * @param dataCheckSum    the check sum of message data
+     * @param data            the message data
+     * @param msgTypeCode     the filter item hash code
+     * @param msgFlag         the message flag
+     * @param partitionId     the partitionId for append messages
+     * @param sentAddr        the address to send the message to
+     *
+     * @return                the process result
+     * @throws IOException    exception while process
      */
-    public boolean appendMsg(final AppendResult appendResult, final int dataLength,
-                             final int dataCheckSum, final byte[] data,
-                             final int msgTypeCode, final int msgFlag,
-                             final int partitionId, final int sentAddr) throws IOException {
+    public boolean appendMsg(AppendResult appendResult, int dataLength,
+                             int dataCheckSum, byte[] data,
+                             int msgTypeCode, int msgFlag,
+                             int partitionId, int sentAddr) throws IOException {
+        return appendMsg2(appendResult, dataLength, dataCheckSum, data,
+                msgTypeCode, msgFlag, partitionId, sentAddr,
+                System.currentTimeMillis(), 3, 2);
+    }
+
+    /***
+     * Append msg to store.
+     *
+     * @param appendResult    the append result
+     * @param dataLength      the data length
+     * @param dataCheckSum    the check sum of message data
+     * @param data            the message data
+     * @param msgTypeCode     the filter item hash code
+     * @param msgFlag         the message flag
+     * @param partitionId     the partitionId for append messages
+     * @param sentAddr        the address to send the message to
+     * @param receivedTime    the received time of message
+     * @param count           the retry count while full
+     * @param waitRetryMs     the wait duration while retry
+     *
+     * @return                the process result
+     * @throws IOException    exception while process
+     */
+    public boolean appendMsg2(AppendResult appendResult, int dataLength,
+                              int dataCheckSum, byte[] data,
+                              int msgTypeCode, int msgFlag,
+                              int partitionId, int sentAddr,
+                              long receivedTime, int count,
+                              long waitRetryMs) throws IOException {
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
                     .append("[Data Store] Closed MessageStore for storeKey ")
@@ -324,7 +381,6 @@ public class MessageStore implements Closeable {
         }
         long messageId = this.idWorker.nextId();
         int msgBufLen = DataStoreUtils.STORE_DATA_HEADER_LEN + dataLength;
-        final long receivedTime = System.currentTimeMillis();
         final ByteBuffer buffer = ByteBuffer.allocate(msgBufLen);
         buffer.putInt(DataStoreUtils.STORE_DATA_PREFX_LEN + dataLength);
         buffer.putInt(DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE);
@@ -339,7 +395,6 @@ public class MessageStore implements Closeable {
         buffer.put(data);
         buffer.flip();
         appendResult.putReceivedInfo(messageId, receivedTime);
-        int count = 3;
         do {
             this.writeCacheMutex.readLock().lock();
             try {
@@ -356,7 +411,7 @@ public class MessageStore implements Closeable {
                     buffer, false, appendResult)) {
                 return true;
             }
-            ThreadUtils.sleep(1);
+            ThreadUtils.sleep(waitRetryMs);
         } while (count-- >= 0);
         msgMemStatisInfo.addWriteFailCount();
         return false;
@@ -377,8 +432,9 @@ public class MessageStore implements Closeable {
     /***
      * Execute cleanup policy.
      *
-     * @param onlyCheck
-     * @return
+     * @param onlyCheck   whether only check status
+     *
+     * @return whether clear up segments
      */
     public boolean runClearupPolicy(boolean onlyCheck) {
         if (this.closed.get()) {
@@ -392,7 +448,7 @@ public class MessageStore implements Closeable {
     /***
      * Refresh unflush threshold
      *
-     * @param topicMetadata
+     * @param topicMetadata   topic meta data
      */
     public void refreshUnflushThreshold(TopicMetadata topicMetadata) {
         if (this.closed.get()) {
@@ -428,7 +484,7 @@ public class MessageStore implements Closeable {
     /***
      * Flush file store to disk.
      *
-     * @throws IOException
+     * @throws IOException exception while process
      */
     public void flushFile() throws IOException {
         if (this.closed.get()) {
@@ -442,7 +498,7 @@ public class MessageStore implements Closeable {
     /***
      * Flush memory store to file.
      *
-     * @throws IOException
+     * @throws IOException exception while process
      */
     public void flushMemCacheData() throws IOException {
         if (this.closed.get()) {
@@ -603,6 +659,11 @@ public class MessageStore implements Closeable {
     private int validAndGetMemCacheSize(TopicMetadata topicMetadata) {
         int memCacheSize = topicMetadata.getMemCacheMsgSize();
         if (memCacheSize < topicMetadata.getMinMemCacheSize()) {
+            logger.info(new StringBuilder(512)
+                    .append("[Data Store] ").append(getTopic())
+                    .append(" writeCacheMaxSize changed, from ")
+                    .append(memCacheSize).append(" to ")
+                    .append(topicMetadata.getMinMemCacheSize()).toString());
             memCacheSize = topicMetadata.getMinMemCacheSize();
         }
         return memCacheSize;
@@ -611,21 +672,23 @@ public class MessageStore implements Closeable {
     /***
      * Append message and trigger flush operation.
      *
-     * @param partitionId
-     * @param keyCode
-     * @param receivedTime
-     * @param entryLength
-     * @param needAdd
-     * @param entry
-     * @param isTimeTrigger
-     * @return
-     * @throws IOException
+     * @param partitionId       the partitionId for reading messages
+     * @param keyCode           the filter item hash code
+     * @param receivedTime      the received time of message
+     * @param entryLength       the stored entry length
+     * @param needAdd           whether to add a message
+     * @param entry             the stored entry
+     * @param isTimeTrigger     whether is timer trigger
+     * @param appendResult      the append result
+     *
+     * @return                  the append result
+     * @throws IOException      exception while process
      */
-    private boolean triggerFlushAndAddMsg(final int partitionId, final int keyCode,
-                                          final long receivedTime, final int entryLength,
-                                          final boolean needAdd, final ByteBuffer entry,
-                                          final boolean isTimeTrigger,
-                                          final AppendResult appendResult) throws IOException {
+    private boolean triggerFlushAndAddMsg(int partitionId, int keyCode,
+                                          long receivedTime, int entryLength,
+                                          boolean needAdd, ByteBuffer entry,
+                                          boolean isTimeTrigger,
+                                          AppendResult appendResult) throws IOException {
         writeCacheMutex.writeLock().lock();
         try {
             if (!isFlushOngoing.get() && hasFlushBeenTriggered.compareAndSet(false, true)) {

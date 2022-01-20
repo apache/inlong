@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.sort.entity;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class InLongTopic {
@@ -26,6 +27,7 @@ public class InLongTopic {
     private int partitionId;
     //pulsar,kafka,tube
     private String topicType;
+    private Map<String, Object> properties;
 
     public String getTopic() {
         return topic;
@@ -59,6 +61,14 @@ public class InLongTopic {
         this.topicType = topicType;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -84,11 +94,6 @@ public class InLongTopic {
 
     @Override
     public String toString() {
-        return "InLongTopic{"
-                + "topic='" + topic
-                + ", inLongCluster=" + cacheZoneCluster
-                + ", partitionId=" + partitionId
-                + ", topicType='" + topicType
-                + '}';
+        return "InLongTopic>>>" + topic + "|" + "|" + partitionId + "|" + topicType + "|" + cacheZoneCluster;
     }
 }

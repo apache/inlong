@@ -71,4 +71,9 @@ public class CacheZoneCluster {
     public int hashCode() {
         return Objects.hash(clusterId);
     }
+
+    @Override
+    public String toString() {
+        return "CacheZoneCluster>>>" + clusterId + "|" + bootstraps + "|" + token;
+    }
 }

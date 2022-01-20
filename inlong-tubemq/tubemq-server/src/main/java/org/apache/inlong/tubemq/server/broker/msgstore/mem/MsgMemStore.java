@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
@@ -55,13 +56,17 @@ public class MsgMemStore implements Closeable {
     private final ConcurrentHashMap<Integer, Integer> keysMap =
             new ConcurrentHashMap<>(100);
     // where messages in memory will sink to disk
-    private int maxDataCacheSize;
+    private final int maxDataCacheSize;
     private long writeDataStartPos = -1;
-    private ByteBuffer cacheDataSegment;
-    private int maxIndexCacheSize;
+    private final ByteBuffer cacheDataSegment;
+    private final int maxIndexCacheSize;
     private long writeIndexStartPos = -1;
-    private ByteBuffer cachedIndexSegment;
-    private int maxAllowedMsgCount;
+    private final ByteBuffer cachedIndexSegment;
+    private final int maxAllowedMsgCount;
+    private final AtomicLong leftAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong rightAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
         this.maxDataCacheSize = maxCacheSize;
@@ -69,6 +74,8 @@ public class MsgMemStore implements Closeable {
         this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
         this.cacheDataSegment = ByteBuffer.allocateDirect(this.maxDataCacheSize);
         this.cachedIndexSegment = ByteBuffer.allocateDirect(this.maxIndexCacheSize);
+        this.leftAppendTime.set(System.currentTimeMillis());
+        this.rightAppendTime.set(System.currentTimeMillis());
     }
 
     public void resetStartPos(long writeDataStartPos, long writeIndexStartPos) {
@@ -77,10 +84,23 @@ public class MsgMemStore implements Closeable {
         this.writeIndexStartPos = writeIndexStartPos;
     }
 
-    public boolean appendMsg(final MsgMemStatisInfo msgMemStatisInfo,
-                             final int partitionId, final int keyCode,
-                             final long timeRecv, final int entryLength,
-                             final ByteBuffer entry, final AppendResult appendResult) {
+    /***
+     * Append message to memory cache
+     *
+     * @param msgMemStatisInfo  statistical information object
+     * @param partitionId       the partitionId for append messages
+     * @param keyCode           the filter item hash code
+     * @param timeRecv          the received timestamp
+     * @param entryLength       the stored entry length
+     * @param entry             the stored entry
+     * @param appendResult      the append result
+     *
+     * @return    the process result
+     */
+    public boolean appendMsg(MsgMemStatisInfo msgMemStatisInfo,
+                             int partitionId, int keyCode,
+                             long timeRecv, int entryLength,
+                             ByteBuffer entry, AppendResult appendResult) {
         boolean fullDataSize = false;
         boolean fullIndexSize = false;
         boolean fullCount = false;
@@ -114,6 +134,10 @@ public class MsgMemStore implements Closeable {
             this.keysMap.put(keyCode, indexSizePos);
             this.curMessageCount.getAndAdd(1);
             msgMemStatisInfo.addMsgSizeStatis(timeRecv, entryLength);
+            this.rightAppendTime.set(timeRecv);
+            if (indexSizePos == 0) {
+                this.leftAppendTime.set(timeRecv);
+            }
         } finally {
             this.writeLock.unlock();
         }
@@ -124,21 +148,23 @@ public class MsgMemStore implements Closeable {
     /***
      * Read from memory, read index, then data.
      *
-     * @param lstRdDataOffset
-     * @param lstRdIndexOffset
-     * @param maxReadSize
-     * @param maxReadCount
-     * @param partitionId
-     * @param isSecond
-     * @param isFilterConsume
-     * @param filterKeySet
-     * @return
+     * @param lstRdDataOffset       the recent data offset read before
+     * @param lstRdIndexOffset      the recent index offset read before
+     * @param maxReadSize           the max read size
+     * @param maxReadCount          the max read count
+     * @param partitionId           the partitionId for reading messages
+     * @param isSecond              whether read from secondary cache
+     * @param isFilterConsume       whether to filter consumption
+     * @param filterKeySet          filter item set
+     * @param reqRcvTime            the timestamp of the record to be checked
+     *
+     * @return                      read result
      */
-    public GetCacheMsgResult getMessages(final long lstRdDataOffset, final long lstRdIndexOffset,
-                                         final int maxReadSize, final int maxReadCount,
-                                         final int partitionId, final boolean isSecond,
-                                         final boolean isFilterConsume,
-                                         final Set<Integer> filterKeySet) {
+    public GetCacheMsgResult getMessages(long lstRdDataOffset, long lstRdIndexOffset,
+                                         int maxReadSize, int maxReadCount,
+                                         int partitionId, boolean isSecond,
+                                         boolean isFilterConsume, Set<Integer> filterKeySet,
+                                         long reqRcvTime) {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
@@ -235,6 +261,9 @@ public class MsgMemStore implements Closeable {
                 readedSize += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
             }
+            if (reqRcvTime != 0 && cTimeRecv < reqRcvTime) {
+                continue;
+            }
             // read data file.
             byte[] tmpArray = new byte[cDataSize];
             final ByteBuffer buffer = ByteBuffer.wrap(tmpArray);
@@ -258,15 +287,14 @@ public class MsgMemStore implements Closeable {
     /***
      * Batch flush memory data to disk.
      *
-     * @param msgFileStore
-     * @param strBuffer
-     * @return
-     * @throws IOException
+     * @param msgFileStore    the file storage
+     * @param strBuffer       the message buffer
+     * @throws IOException    the exception while process
      */
-    public boolean batchFlush(MsgFileStore msgFileStore,
-                              final StringBuilder strBuffer) throws Throwable {
+    public void batchFlush(MsgFileStore msgFileStore,
+                           StringBuilder strBuffer) throws Throwable {
         if (this.curMessageCount.get() == 0) {
-            return true;
+            return;
         }
         ByteBuffer tmpIndexBuffer = this.cachedIndexSegment.asReadOnlyBuffer();
         final ByteBuffer tmpDataReadBuf = this.cacheDataSegment.asReadOnlyBuffer();
@@ -274,9 +302,9 @@ public class MsgMemStore implements Closeable {
         tmpDataReadBuf.flip();
         long startTime = System.currentTimeMillis();
         msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
-            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(), tmpDataReadBuf);
+            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
+                tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         BrokerMetricsHolder.updSyncDataDurations(System.currentTimeMillis() - startTime);
-        return true;
     }
 
     public int getCurMsgCount() {
@@ -316,6 +344,27 @@ public class MsgMemStore implements Closeable {
         return this.writeIndexStartPos + this.cacheIndexOffset.get();
     }
 
+    public long getIndexStartWritePos() {
+        return writeIndexStartPos;
+    }
+
+    public long getLeftAppendTime() {
+        return leftAppendTime.get();
+    }
+
+    public long getRightAppendTime() {
+        return rightAppendTime.get();
+    }
+
+    public int isTimestampInHold(long timestamp) {
+        if (timestamp < this.leftAppendTime.get()) {
+            return -1;
+        } else if (timestamp > rightAppendTime.get()) {
+            return 1;
+        }
+        return 0;
+    }
+
     public void clear() {
         this.writeDataStartPos = -1;
         this.writeIndexStartPos = -1;
@@ -324,6 +373,8 @@ public class MsgMemStore implements Closeable {
         this.curMessageCount.set(0);
         this.queuesMap.clear();
         this.keysMap.clear();
+        this.leftAppendTime.set(System.currentTimeMillis());
+        this.rightAppendTime.set(System.currentTimeMillis());
     }
 
     @Override
