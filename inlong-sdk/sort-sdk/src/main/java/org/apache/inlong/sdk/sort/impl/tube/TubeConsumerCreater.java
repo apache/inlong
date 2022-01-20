@@ -19,34 +19,41 @@
 
 package org.apache.inlong.sdk.sort.impl.tube;
 
-import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 
 public class TubeConsumerCreater {
 
-    private MessageSessionFactory messageSessionFactory;
-    private TubeClientConfig consumerConfig;
+    private final MessageSessionFactory messageSessionFactory;
+    private final TubeClientConfig consumerConfig;
 
+    /**
+     * TubeConsumerCreater constructor
+     *
+     * @param messageSessionFactory {@link MessageSessionFactory}
+     * @param consumerConfig {@link TubeClientConfig}
+     */
     public TubeConsumerCreater(MessageSessionFactory messageSessionFactory,
             TubeClientConfig consumerConfig) {
         this.messageSessionFactory = messageSessionFactory;
         this.consumerConfig = consumerConfig;
     }
 
+    /**
+     * get MessageSessionFactory
+     *
+     * @return {@link MessageSessionFactory}
+     */
     public MessageSessionFactory getMessageSessionFactory() {
         return messageSessionFactory;
     }
 
-    public void setMessageSessionFactory(MessageSessionFactory messageSessionFactory) {
-        this.messageSessionFactory = messageSessionFactory;
-    }
-
+    /**
+     * get TubeClientConfig
+     *
+     * @return {@link TubeClientConfig}
+     */
     public TubeClientConfig getTubeClientConfig() {
         return consumerConfig;
-    }
-
-    public void setConsumerConfig(ConsumerConfig consumerConfig) {
-        this.consumerConfig = consumerConfig;
     }
 }

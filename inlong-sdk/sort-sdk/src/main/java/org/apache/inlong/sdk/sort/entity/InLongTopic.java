@@ -94,11 +94,6 @@ public class InLongTopic {
 
     @Override
     public String toString() {
-        return "InLongTopic{"
-                + "topic='" + topic
-                + ", inLongCluster=" + cacheZoneCluster
-                + ", partitionId=" + partitionId
-                + ", topicType='" + topicType
-                + '}';
+        return "InLongTopic>>>" + topic + "|" + "|" + partitionId + "|" + topicType + "|" + cacheZoneCluster;
     }
 }
