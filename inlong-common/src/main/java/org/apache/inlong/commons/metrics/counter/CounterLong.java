@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,26 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.commons.metrics.counter;
 
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+public class CounterLong
+        implements Counter {
 
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
+    private final AtomicLong value = new AtomicLong();
 
-    int HEAD_LENGTH = 4;
+    @Override
+    public void incr() {
+        value.incrementAndGet();
+    }
 
-    /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
-     */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    @Override
+    public void incr(int delta) {
+        assert delta > 0;
+        value.getAndAdd(delta);
+    }
+
+    @Override
+    public Long snapshot() {
+        return value.get();
+    }
 }

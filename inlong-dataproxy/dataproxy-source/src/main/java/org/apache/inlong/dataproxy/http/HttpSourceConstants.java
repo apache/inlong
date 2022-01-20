@@ -15,26 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.dataproxy.http;
 
-import java.util.Map;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+public interface HttpSourceConstants
+        extends AttributeConstants {
 
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
+    String BODY = "body";
+    String CHARSET = "UTF-8";
 
-    int HEAD_LENGTH = 4;
-
-    /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
-     */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    String HTTP_REQUEST = "http-request";
+    String HTTP_RESPONSE = "http-response";
 }

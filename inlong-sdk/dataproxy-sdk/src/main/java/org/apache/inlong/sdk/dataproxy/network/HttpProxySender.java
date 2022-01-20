@@ -78,9 +78,9 @@ public class HttpProxySender extends Thread {
             this.start();
         } catch (Throwable e) {
             if (configure.isReadProxyIPFromLocal()) {
-                throw new Exception("Get local proxy configure failure!", e.getCause());
+                throw new Exception("Get local proxy configure failure! e = {}", e);
             } else {
-                throw new Exception("Visit TDManager error!", e.getCause());
+                throw new Exception("Visit TDManager error! e = {}", e);
             }
         }
         logger.info("http proxy sender starts");

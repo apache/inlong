@@ -17,13 +17,25 @@
 
 package org.apache.inlong.dataproxy.http;
 
-public class StatusCode {
+public interface StatusCode {
 
+    /*
+     * success
+     */
     public static final int SUCCESS = 1;
 
+    /*
+     * illegal argument
+     */
     public static final int ILLEGAL_ARGUMENT = -100;
 
+    /*
+     * exceed length
+     */
     public static final int EXCEED_LEN = -101;
 
+    /*
+     * service error
+     */
     public static final int SERVICE_ERR = -105;
 }

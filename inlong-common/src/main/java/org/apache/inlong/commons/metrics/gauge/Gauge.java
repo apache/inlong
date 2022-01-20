@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,26 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.commons.metrics.gauge;
 
-import java.util.Map;
+import org.apache.inlong.commons.metrics.MutableMetric;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+public interface Gauge<T> extends MutableMetric {
 
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
-
-    int HEAD_LENGTH = 4;
+    void set(T num);
 
     /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
+     * +1
      */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    void incr();
+
+    /**
+     * + delt
+     *
+     * @param delta > 0
+     */
+    void incr(int delta);
+
+    /**
+     * -1
+     */
+    void decr();
+
+    /**
+     * -delta
+     *
+     * @param delta > 0
+     */
+    void decr(int delta);
 }

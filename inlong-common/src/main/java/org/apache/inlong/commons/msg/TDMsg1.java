@@ -190,6 +190,7 @@ public class TDMsg1 {
     }
 
     /**
+     * netTDmsg
      * @param capacity data capacity
      * @param compress compress
      * @param v        version
@@ -226,6 +227,12 @@ public class TDMsg1 {
         return addMsg(attr, ByteBuffer.wrap(data, offset, len));
     }
 
+    /**
+     * add msg
+     * @param attr
+     * @param data
+     * @return
+     */
     public boolean addMsg(String attr, ByteBuffer data) {
         checkMode(true);
 
@@ -966,6 +973,11 @@ public class TDMsg1 {
         return getIterator(ByteBuffer.wrap(rawdata));
     }
 
+    /**
+     * getIterator
+     * @param rawdata
+     * @return
+     */
     public static Iterator<byte[]> getIterator(ByteBuffer rawdata) {
         try {
             final DataInputBuffer input = new DataInputBuffer();

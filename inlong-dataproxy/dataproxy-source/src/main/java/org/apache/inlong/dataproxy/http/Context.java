@@ -15,26 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.dataproxy.http;
 
-import java.util.Map;
+import java.util.Set;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+public interface Context {
 
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
+    void init();
 
-    int HEAD_LENGTH = 4;
+    void put(String key, Object value);
 
-    /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
-     */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    Object get(String key);
+
+    void remove(String key);
+
+    void clear();
+
+    void destory();
+
+    boolean containsKey(String key);
+
+    Set<String> keySet();
 }

@@ -49,9 +49,9 @@ import org.apache.inlong.dataproxy.sink.pulsar.CreatePulsarClientCallBack;
 import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
 import org.apache.inlong.dataproxy.sink.pulsar.SendMessageCallBack;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.dataproxy.utils.LogCounter;
-import org.apache.inlong.dataproxy.utils.MonitorIndex;
-import org.apache.inlong.dataproxy.utils.MonitorIndexExt;
+import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.commons.monitor.MonitorIndex;
+import org.apache.inlong.commons.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
@@ -212,6 +212,10 @@ public class PulsarSink extends AbstractSink implements Configurable,
         logger.debug("new instance of PulsarSink!");
     }
 
+    /**
+     * configure
+     * @param context
+     */
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
         isNewMetricOn = context.getBoolean("new-metric-on", true);

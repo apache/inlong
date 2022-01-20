@@ -107,9 +107,21 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
     private String defaultMXAttr = "m=3";
     private final ChannelBuffer heartbeatBuffer;
     private final String protocolType;
-    //
     private final DataProxyMetricItemSet metricItemSet;
 
+    /**
+     * SimpleMessageHandler
+     * @param source
+     * @param serProcessor
+     * @param allChannels
+     * @param topic
+     * @param attr
+     * @param filterEmptyMsg
+     * @param maxMsgLength
+     * @param maxCons
+     * @param isCompressed
+     * @param protocolType
+     */
     public SimpleMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,

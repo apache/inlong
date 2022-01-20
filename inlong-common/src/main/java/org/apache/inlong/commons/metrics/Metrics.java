@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,26 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.commons.metrics;
 
-import java.util.Map;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
-
-    int HEAD_LENGTH = 4;
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Metrics {
 
     /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
+     * Metrics name
      */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    String name() default "";
+
+    /**
+     * Metrics context
+     */
+    String context() default "";
+
+    /**
+     * Metrics description
+     */
+    String desc() default "";
 }

@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source;
+package org.apache.inlong.dataproxy.http;
 
-import java.util.Map;
+import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+public interface MessageHandler
+        extends Configurable {
 
-/**
- * decoder interface definition
- */
-public interface ServiceDecoder {
+    void init();
 
-    int HEAD_LENGTH = 4;
+    void processMessage(Context context) throws MessageProcessException;
 
-    /**
-     * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
-     * @throws
-     */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    void destroy();
 }
