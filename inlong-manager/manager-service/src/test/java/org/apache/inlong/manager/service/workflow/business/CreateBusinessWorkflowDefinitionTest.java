@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow.business;
 
+import org.apache.inlong.manager.service.core.BaseTest;
 import org.junit.Assert;
 import org.apache.inlong.manager.common.model.definition.Process;
 import org.junit.Test;

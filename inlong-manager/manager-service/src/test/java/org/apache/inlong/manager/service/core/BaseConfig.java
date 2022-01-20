@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.business;
+package org.apache.inlong.manager.service.core;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

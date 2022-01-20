@@ -55,7 +55,7 @@ public class PulsarTestMetaManagerUtil extends TestMetaManagerUtil {
     @Override
     public DataFlowInfo prepareDataFlowInfo(long dataFlowId, String... args) {
 
-        FieldInfo[] pulsarFields = new FieldInfo[] {
+        FieldInfo[] pulsarFields = new FieldInfo[]{
                 new FieldInfo("f1", StringFormatInfo.INSTANCE),
                 new FieldInfo("f2", StringFormatInfo.INSTANCE)
         };
@@ -71,7 +71,8 @@ public class PulsarTestMetaManagerUtil extends TestMetaManagerUtil {
                         args[2],
                         args[3],
                         new CsvDeserializationInfo(','),
-                        pulsarFields),
+                        pulsarFields,
+                        null),
                 new HiveSinkInfo(
                         new FieldInfo[0],
                         "testServerJdbcUrl",

@@ -15,21 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.settings;
 
-import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
+public class BusinessSettings {
 
-@Data
-public class BusinessExtEntity implements Serializable {
+    public static String PULSAR_ADMIN_URL = "pulsar.adminUrl";
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String inlongGroupId;
-    private String keyName;
-    private String keyValue;
-    private Integer isDeleted = 0;
-    private Date modifyTime;
+    public static String PULSAR_SERVICE_URL = "pulsar.serviceUrl";
+
+    public static String PULSAR_AUTHENTICATION = "pulsar.authentication";
 
 }

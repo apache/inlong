@@ -100,6 +100,11 @@ public class PulsarSourceFunction<T>
     private final String consumerGroup;
 
     /**
+     * The authentication to create client, null if not exists;
+     */
+    private final String authentication;
+
+    /**
      * The configuration for the pulsar consumer.
      */
     private final Configuration configuration;
@@ -171,6 +176,7 @@ public class PulsarSourceFunction<T>
             String serviceUrl,
             String topic,
             String consumerGroup,
+            String authentication,
             PulsarDeserializationSchema<T> deserializationSchema,
             Configuration configuration
     ) {
@@ -192,6 +198,7 @@ public class PulsarSourceFunction<T>
         this.topic = topic;
         this.consumerGroup = consumerGroup;
         this.configuration = configuration;
+        this.authentication = authentication;
         this.deserializationSchema = deserializationSchema;
     }
 
@@ -210,8 +217,8 @@ public class PulsarSourceFunction<T>
 
         LOG.info("Pulsar source configuration: {}", configuration);
 
-        admin = PulsarUtils.createAdmin(adminUrl);
-        client = PulsarUtils.createClient(serviceUrl, configuration);
+        admin = PulsarUtils.createAdmin(adminUrl, authentication);
+        client = PulsarUtils.createClient(serviceUrl, authentication, configuration);
         partitionReaders = new HashMap<>();
         currentOffsets = new HashMap<>();
         lastCommittedOffsets = new HashMap<>();

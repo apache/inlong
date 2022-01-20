@@ -73,7 +73,8 @@ public class CreatePulsarResourceTaskListener implements TaskEventListener {
             throw new WorkflowListenerException("business or pulsar cluster not found for groupId=" + groupId);
         }
 
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(businessInfo,
+                clusterBean.getPulsarAdminUrl())) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
@@ -101,7 +102,7 @@ public class CreatePulsarResourceTaskListener implements TaskEventListener {
         Preconditions.checkNotNull(queueModule, "queue module cannot be empty for groupId=" + groupId);
 
         String tenant = clusterBean.getDefaultTenant();
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(serviceHttpUrl)) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(businessInfo, serviceHttpUrl)) {
             // create pulsar tenant
             pulsarOptService.createTenant(pulsarAdmin, tenant);
 
