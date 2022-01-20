@@ -32,6 +32,7 @@
 
     <modules>
         <module>sort-sdk</module>
+        <module>dataproxy-sdk</module>
     </modules>
 
     <properties>

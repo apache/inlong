@@ -19,7 +19,6 @@ inlong-agent:
   - inlong-agent/**/*
 
 inlong-dataproxy:
-  - inlong-dataproxy-sdk/**/*
   - inlong-dataproxy/**/*
 
 inlong-manager:
@@ -33,3 +32,9 @@ inlong-tubemq:
 
 inlong-dashboard:
   - inlong-dashboard/**/*
+
+inlong-audit:
+  - inlong-audit/**/*
+
+inlong-sdk:
+  - inlong-sdk/**/*
