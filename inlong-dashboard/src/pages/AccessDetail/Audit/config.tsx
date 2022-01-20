@@ -27,11 +27,11 @@ export const auditList = ['InLong Api', 'InLong Agent', 'InLong DataProxy', 'Inl
     return acc.concat([
       {
         label: `${item} ${i18n.t('pages.AccessDetail.Audit.Receive')}`,
-        value: index * 2,
+        value: index * 2 + 1,
       },
       {
         label: `${item} ${i18n.t('pages.AccessDetail.Audit.Send')}`,
-        value: index * 2 + 1,
+        value: index * 2 + 2,
       },
     ]);
   },
