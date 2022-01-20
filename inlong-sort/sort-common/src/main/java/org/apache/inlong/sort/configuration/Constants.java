@@ -34,6 +34,10 @@ public class Constants {
 
     public static final String SINK_TYPE_HIVE = "hive";
 
+    public static final String SINK_TYPE_ICEBERG = "iceberg";
+
+    public static final String SINK_TYPE_KAFKA = "kafka";
+
     public static final String METRIC_DATA_OUTPUT_TAG_ID = "metric_data_side_output";
 
     // ------------------------------------------------------------------------
@@ -282,4 +286,12 @@ public class Constants {
         key("metrics.aggregator.window.size")
             .defaultValue(5)
             .withDescription("minutes");
+
+    // ------------------------------------------------------------------------
+    //  Single tenant related
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<String> DATAFLOW_INFO_FILE =
+            key("dataflow.info.file")
+                    .noDefaultValue()
+                    .withDescription("The file which contains dataflow info for a single tenant job");
 }
