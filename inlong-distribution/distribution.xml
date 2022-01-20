@@ -37,10 +37,10 @@
             <outputDirectory>inlong-dataproxy</outputDirectory>
         </fileSet>
 
-        <!-- package InLong-Manager Web-->
+        <!-- package InLong-Manager-->
         <fileSet>
             <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin</directory>
-            <outputDirectory>inlong-manager-web</outputDirectory>
+            <outputDirectory>inlong-manager</outputDirectory>
         </fileSet>
 
         <!-- package InLong-TubeMQ Server-->
@@ -64,10 +64,10 @@
             </includes>
         </fileSet>
 
-        <!-- package InLong-WebSite-->
+        <!-- package InLong-Dashboard-->
         <fileSet>
-            <directory>../inlong-website/build</directory>
-            <outputDirectory>inlong-website</outputDirectory>
+            <directory>../inlong-dashboard/build</directory>
+            <outputDirectory>inlong-dashboard</outputDirectory>
         </fileSet>
     </fileSets>
 

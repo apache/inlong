@@ -18,13 +18,22 @@
 package org.apache.inlong.manager.common.pojo.audit;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class AuditVO {
 
-    @ApiModelProperty(value = "Audit log timestamp")
-    private String logTs;
-    @ApiModelProperty(value = "Audit count")
-    private Long count;
+    @ApiModelProperty(value = "Audit id")
+    private String auditId;
+    @ApiModelProperty(value = "Audit set")
+    private List<AuditInfo> auditSet;
+
+    public AuditVO() {
+    }
+
+    public AuditVO(String auditId, List<AuditInfo> auditSet) {
+        this.auditId = auditId;
+        this.auditSet = auditSet;
+    }
 }

@@ -19,7 +19,9 @@ package org.apache.inlong.manager.service.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.inlong.manager.common.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.web.ServiceBaseTest;
@@ -37,14 +39,15 @@ public class AuditServiceTest extends ServiceBaseTest {
     @Test
     public void testQueryFromMySQL() throws IOException {
         AuditRequest request = new AuditRequest();
-        request.setAuditId("3");
+        request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
         request.setInlongStreamId("s1");
         request.setDt("2022-01-01");
         List<AuditVO> result = new ArrayList<>();
         AuditVO auditVO = new AuditVO();
-        auditVO.setCount(123L);
-        auditVO.setLogTs("2022-01-01 00:00:00");
+        auditVO.setAuditId("3");
+        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L),
+                new AuditInfo("2022-01-01 00:01:00", 124L)));
         result.add(auditVO);
         Assert.assertNotNull(result);
         // close real test for testQueryFromMySQL due to date_format function not support in h2
@@ -60,7 +63,7 @@ public class AuditServiceTest extends ServiceBaseTest {
 //    @Test
     public void testQueryFromElasticsearch() throws IOException {
         AuditRequest request = new AuditRequest();
-        request.setAuditId("3");
+        request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
         request.setInlongStreamId("s1");
         request.setDt("2022-01-01");

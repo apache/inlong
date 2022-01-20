@@ -132,7 +132,7 @@ public class SenderGroup {
                 try {
                     Thread.sleep(waitChannelIntervalMs);
                 } catch (Throwable e) {
-                    System.out.println(e.getMessage());
+                    logger.error(e.getMessage());
                 }
             }
             if (channel == null) {

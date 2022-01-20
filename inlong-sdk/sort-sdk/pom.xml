@@ -26,7 +26,7 @@
         <artifactId>inlong-sdk</artifactId>
         <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>sort-sdk</artifactId>
+    <artifactId>inlong-sort-sdk</artifactId>
     <version>0.13.0-incubating-SNAPSHOT</version>
 
     <name>Apache InLong - Sort SDK</name>
