@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.CheckSum;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
@@ -40,33 +41,38 @@ public class FileSegment implements Segment {
             LoggerFactory.getLogger(FileSegment.class);
     private final long start;
     private final File file;
-    private RandomAccessFile randFile;
-    private FileChannel channel;
+    private final RandomAccessFile randFile;
+    private final FileChannel channel;
     private final AtomicLong cachedSize;
     private final AtomicLong flushedSize;
     private final SegmentType segmentType;
-    private boolean mutable;
+    private volatile boolean mutable = false;
     private long expiredTime = 0;
-    private AtomicBoolean expired = new AtomicBoolean(false);
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private final AtomicBoolean expired = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+    // the first record append time
+    private final AtomicLong leftAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    // the latest record append time
+    private final AtomicLong rightAppendTime =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
-    public FileSegment(final long start, final File file, SegmentType type) throws IOException {
+    public FileSegment(long start, File file, SegmentType type) throws IOException {
         this(start, file, true, type, Long.MAX_VALUE);
     }
 
-    public FileSegment(final long start, final File file,
-                       final boolean mutable, SegmentType type) throws IOException {
+    public FileSegment(long start, File file,
+                       boolean mutable, SegmentType type) throws IOException {
         this(start, file, mutable, type, Long.MAX_VALUE);
     }
 
-    public FileSegment(final long start, final File file,
-                       SegmentType type, final long checkOffset) throws IOException {
+    public FileSegment(long start, File file,
+                       SegmentType type, long checkOffset) throws IOException {
         this(start, file, true, type, checkOffset);
     }
 
-    private FileSegment(final long start, final File file,
-                        final boolean mutable, SegmentType type,
-                        final long checkOffset) throws IOException {
+    private FileSegment(long start, File file, boolean mutable,
+                        SegmentType type, long checkOffset) throws IOException {
         super();
         this.segmentType = type;
         this.start = start;
@@ -122,6 +128,18 @@ public class FileSegment implements Segment {
                 } else {
                     logger.error("[File Store] Set INDEX Segment cachedSize error", e);
                 }
+            }
+        }
+        if (this.segmentType == SegmentType.INDEX) {
+            if (this.cachedSize.get() == 0) {
+                if (this.mutable) {
+                    this.leftAppendTime.set(System.currentTimeMillis());
+                    this.rightAppendTime.set(System.currentTimeMillis());
+                }
+            } else {
+                this.leftAppendTime.set(getRecordTime(this.start));
+                this.rightAppendTime.set(getRecordTime(this.start
+                        + this.cachedSize.get() - DataStoreUtils.STORE_INDEX_HEAD_LEN));
             }
         }
     }
@@ -182,14 +200,17 @@ public class FileSegment implements Segment {
     }
 
     /***
-     * Messages can only be appended to the last FileSegment. The last FileSegment is writable, the others are mutable.
+     * Messages can only be appended to the last FileSegment.
+     * The last FileSegment is writable, the others are mutable.
      *
-     * @param buf
-     * @return
-     * @throws IOException
+     * @param buf            data buffer
+     * @param leftTime       the first record timestamp
+     * @param rightTime      the latest record timestamp
+     * @return               latest writable position
+     * @throws IOException   exception while force data to disk
      */
     @Override
-    public long append(final ByteBuffer buf) throws IOException {
+    public long append(ByteBuffer buf, long leftTime, long rightTime) throws IOException {
         if (!this.mutable) {
             if (this.segmentType == SegmentType.DATA) {
                 throw new UnsupportedOperationException("[File Store] Data Segment is immutable!");
@@ -207,15 +228,22 @@ public class FileSegment implements Segment {
             sizeInBytes += this.channel.write(buf);
         }
         this.cachedSize.addAndGet(sizeInBytes);
+        if (segmentType == SegmentType.INDEX) {
+            this.rightAppendTime.set(rightTime);
+            if (offset == 0) {
+                this.leftAppendTime.set(leftTime);
+            }
+        }
         return this.start + offset;
     }
 
     /***
      * Flush file cache to disk.
      *
-     * @param force
-     * @return
-     * @throws IOException
+     * @param force whether to brush
+     * @return the latest writable position
+     *
+     * @throws IOException exception while force data to disk
      */
     @Override
     public long flush(boolean force) throws IOException {
@@ -240,7 +268,7 @@ public class FileSegment implements Segment {
     }
 
     @Override
-    public boolean contains(final long offset) {
+    public boolean contains(long offset) {
         return (this.getCachedSize() == 0
                 && offset == this.start
                 || this.getCachedSize() > 0
@@ -249,7 +277,8 @@ public class FileSegment implements Segment {
     }
 
     /***
-     * Release reference to this FileSegment. File's channel will be closed when the reference decreased to 0.
+     * Release reference to this FileSegment.
+     * File's channel will be closed when the reference decreased to 0.
      */
     @Override
     public void relViewRef() {
@@ -269,7 +298,7 @@ public class FileSegment implements Segment {
     /***
      * Return the position that have been flushed to disk.
      *
-     * @return
+     * @return the position that have been flushed to disk
      */
     @Override
     public long getCommitLast() {
@@ -284,11 +313,35 @@ public class FileSegment implements Segment {
     /***
      * Set FileSegment to readonly.
      *
-     * @param mutable
+     * @param mutable mutable or immutable
      */
     @Override
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    @Override
+    public long getLeftAppendTime() {
+        return leftAppendTime.get();
+    }
+
+    @Override
+    public long getRightAppendTime() {
+        return rightAppendTime.get();
+    }
+
+    @Override
+    public boolean containTime(long timestamp) {
+        if (this.getCachedSize() == 0) {
+            return this.mutable;
+        }
+        if (timestamp >= this.leftAppendTime.get()) {
+            if (this.mutable) {
+                return true;
+            }
+            return timestamp <= this.rightAppendTime.get();
+        }
+        return false;
     }
 
     @Override
@@ -307,13 +360,29 @@ public class FileSegment implements Segment {
     }
 
     @Override
-    public void read(final ByteBuffer bf, final long reqOffset) throws IOException {
+    public void read(ByteBuffer bf, long absOffset) throws IOException {
+        if (this.isExpired()) {
+            //Todo: conduct file closed and expired cases.
+        }
+        int size = 0;
+        long startPos  = absOffset - start;
+        while (bf.hasRemaining()) {
+            final int l = this.channel.read(bf, startPos + size);
+            if (l < 0) {
+                break;
+            }
+            size += l;
+        }
+    }
+
+    @Override
+    public void relRead(final ByteBuffer bf, long relOffset) throws IOException {
         if (this.isExpired()) {
             //Todo: conduct file closed and expired cases.
         }
         int size = 0;
         while (bf.hasRemaining()) {
-            final int l = this.channel.read(bf, reqOffset - start + size);
+            final int l = this.channel.read(bf, relOffset + size);
             if (l < 0) {
                 break;
             }
@@ -322,14 +391,35 @@ public class FileSegment implements Segment {
     }
 
     /***
-     * Check whether this FileSegment is expired, and set expire status. The last FileSegment cannot be marked expired.
+     * read index record's append time.
+     * @param reqOffset request offset.
+     * @return message append time.
+     */
+    @Override
+    public long getRecordTime(long reqOffset) throws IOException {
+        ByteBuffer readUnit = ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        int size = 0;
+        while (readUnit.hasRemaining()) {
+            final int l = this.channel.read(readUnit, reqOffset - start + size);
+            if (l < 0) {
+                break;
+            }
+            size += l;
+        }
+        readUnit.flip();
+        return readUnit.getLong(DataStoreUtils.INDEX_POS_TIME_RECV);
+    }
+
+    /***
+     * Check whether this FileSegment is expired, and set expire status.
+     * The last FileSegment cannot be marked expired.
      *
      * @param checkTimestamp check timestamp.
      * @param maxValidTimeMs the max expire interval in milliseconds.
      * @return -1 means already expired, 0 means the last FileSegment, 1 means expired.
      */
     @Override
-    public int checkAndSetExpired(final long checkTimestamp, final long maxValidTimeMs) {
+    public int checkAndSetExpired(long checkTimestamp, long maxValidTimeMs) {
         if (expired.get()) {
             return -1;
         }
@@ -347,7 +437,7 @@ public class FileSegment implements Segment {
         return 0;
     }
 
-    private RecoverResult recoverData(final long checkOffset) throws IOException {
+    private RecoverResult recoverData(long checkOffset) throws IOException {
         if (!this.mutable) {
             throw new UnsupportedOperationException(
                     "[File Store] The Data Segment must be mutable!");
@@ -414,7 +504,7 @@ public class FileSegment implements Segment {
         return new RecoverResult(totalBytes - validBytes, false);
     }
 
-    private RecoverResult recoverIndex(final long checkOffset) throws IOException {
+    private RecoverResult recoverIndex(long checkOffset) throws IOException {
         if (!this.mutable) {
             throw new UnsupportedOperationException(
                     "[File Store] The Index Segment must be mutable!");
@@ -475,8 +565,8 @@ public class FileSegment implements Segment {
     }
 
     private static class RecoverResult {
-        private long truncated;
-        private boolean isEqual;
+        private final long truncated;
+        private final boolean isEqual;
 
         public RecoverResult(long truncated, boolean isEqual) {
             this.truncated = truncated;

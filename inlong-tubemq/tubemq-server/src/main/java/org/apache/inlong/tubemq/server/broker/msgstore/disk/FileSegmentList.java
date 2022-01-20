@@ -29,7 +29,7 @@ public class FileSegmentList implements SegmentList {
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegmentList.class);
     // list of segments.
-    private AtomicReference<Segment[]> segmentList =
+    private final AtomicReference<Segment[]> segmentList =
             new AtomicReference<>();
 
     public FileSegmentList(final Segment[] s) {
@@ -59,9 +59,9 @@ public class FileSegmentList implements SegmentList {
     /***
      * Return segment by the given offset.
      *
-     * @param offset
-     * @return
-     * @throws IOException
+     * @param offset     the position to search
+     * @return           the segment included the position
+     * @throws IOException  the exception while searching
      */
     @Override
     public Segment getRecordSeg(final long offset) throws IOException {
@@ -88,12 +88,12 @@ public class FileSegmentList implements SegmentList {
     /***
      * Check each FileSegment whether is expired, and set expire status.
      *
-     * @param checkTimestamp
-     * @param fileValidTimeMs
-     * @return
+     * @param checkTimestamp   current check timestamp
+     * @param fileValidTimeMs  the max expire interval
+     * @return                 whether is expired
      */
     @Override
-    public boolean checkExpiredSegments(final long checkTimestamp, final long fileValidTimeMs) {
+    public boolean checkExpiredSegments(long checkTimestamp, long fileValidTimeMs) {
         boolean hasExpired = false;
         for (Segment segment : segmentList.get()) {
             if (segment == null) {
@@ -110,7 +110,7 @@ public class FileSegmentList implements SegmentList {
     /***
      * Check FileSegments whether is expired, close all expired FileSegments, and then delete these files.
      *
-     * @param sb
+     * @param sb   string buffer
      */
     @Override
     public void delExpiredSegments(final StringBuilder sb) {
@@ -177,7 +177,7 @@ public class FileSegmentList implements SegmentList {
     /***
      * Return the start position of these FileSegments.
      *
-     * @return
+     * @return  the first position
      */
     @Override
     public long getMinOffset() {
@@ -202,7 +202,7 @@ public class FileSegmentList implements SegmentList {
     /***
      * Return the max position of these FileSegments.
      *
-     * @return
+     * @return   the latest position
      */
     @Override
     public long getMaxOffset() {
@@ -217,10 +217,23 @@ public class FileSegmentList implements SegmentList {
         return last.getLast();
     }
 
+    @Override
+    public long getMaxAppendTime() {
+        final Segment[] curViews = segmentList.get();
+        if (curViews.length == 0) {
+            return 0L;
+        }
+        Segment last = curViews[curViews.length - 1];
+        if (last == null) {
+            return 0L;
+        }
+        return last.getRightAppendTime();
+    }
+
     /***
      * Return the max position that have been flushed to disk.
      *
-     * @return
+     * @return  the latest committed offset
      */
     @Override
     public long getCommitMaxOffset() {
@@ -254,8 +267,9 @@ public class FileSegmentList implements SegmentList {
 
     /**
      *  Binary search the segment that contains the offset
-     * @param offset
-     * @return
+     *
+     * @param offset    offset to search
+     * @return          the segment includes the searched offset
      */
     @Override
     public Segment findSegment(final long offset) {
@@ -292,6 +306,65 @@ public class FileSegmentList implements SegmentList {
                 return found;
             } else if (offset < found.getStart()) {
                 high = mid - 1;
+            } else {
+                minStart = mid + 1;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Segment findSegmentByTimeStamp(long timestamp) {
+        final Segment[] curViews = segmentList.get();
+        if (curViews.length == 0) {
+            return null;
+        }
+        int minStart  = 0;
+        for (minStart = 0; minStart < curViews.length; minStart++) {
+            if (curViews[minStart] == null
+                    || curViews[minStart].isExpired()) {
+                continue;
+            }
+            break;
+        }
+        // Check boundaries
+        if (minStart >= curViews.length) {
+            minStart = curViews.length - 1;
+        }
+        int hight = curViews.length - 1;
+        final Segment startSeg = curViews[minStart];
+        if ((minStart == hight)
+                || (timestamp <= startSeg.getLeftAppendTime())) {
+            return startSeg;
+        }
+        Segment last = curViews[hight];
+        Segment before = curViews[hight - 1];
+        if (last.getCachedSize() > 0) {
+            if (timestamp > last.getLeftAppendTime()) {
+                return last;
+            }
+        }
+        if (timestamp > before.getRightAppendTime()) {
+            return last;
+        } else if (timestamp > before.getLeftAppendTime()) {
+            return before;
+        }
+        int mid = 0;
+        Segment found = null;
+        // Use dichotomy to find the first segment that contains the specified timestamp
+        while (minStart <= hight) {
+            mid = hight + minStart >>> 1;
+            found = curViews[mid];
+            if (found.containTime(timestamp)) {
+                before = curViews[mid - 1];
+                if (timestamp > before.getRightAppendTime()) {
+                    return found;
+                } else if (timestamp > before.getLeftAppendTime()) {
+                    return before;
+                }
+                hight = mid - 1;
+            } else if (timestamp < found.getLeftAppendTime()) {
+                hight = mid - 1;
             } else {
                 minStart = mid + 1;
             }
