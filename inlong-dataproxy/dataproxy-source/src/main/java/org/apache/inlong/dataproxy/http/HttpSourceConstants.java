@@ -17,25 +17,14 @@
 
 package org.apache.inlong.dataproxy.http;
 
-public interface StatusCode {
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 
-    /*
-     * success
-     */
-    public static final int SUCCESS = 1;
+public interface HttpSourceConstants
+        extends AttributeConstants {
 
-    /*
-     * illegal argument
-     */
-    public static final int ILLEGAL_ARGUMENT = -100;
+    String BODY = "body";
+    String CHARSET = "UTF-8";
 
-    /*
-     * exceed length
-     */
-    public static final int EXCEED_LEN = -101;
-
-    /*
-     * service error
-     */
-    public static final int SERVICE_ERR = -105;
+    String HTTP_REQUEST = "http-request";
+    String HTTP_RESPONSE = "http-response";
 }

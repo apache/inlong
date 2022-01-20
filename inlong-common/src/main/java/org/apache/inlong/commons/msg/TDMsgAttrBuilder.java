@@ -140,6 +140,11 @@ public class TDMsgAttrBuilder {
             return this;
         }
 
+        /**
+         * buildAttr
+         * @return
+         * @throws Exception
+         */
         public String buildAttr() throws Exception {
             if (id == null) {
                 throw new Exception("id is null");
@@ -233,6 +238,11 @@ public class TDMsgAttrBuilder {
             return this;
         }
 
+        /**
+         * buildAttr
+         * @return
+         * @throws Exception
+         */
         public String buildAttr() throws Exception {
             // #lizard forgives
             if (id != null) {
@@ -312,6 +322,11 @@ public class TDMsgAttrBuilder {
         return new MsgAttrProtocolM100();
     }
 
+    /**
+     *  main
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
 
         SimpleDateFormat f =

@@ -17,25 +17,15 @@
 
 package org.apache.inlong.dataproxy.http;
 
-public interface StatusCode {
+import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 
-    /*
-     * success
-     */
-    public static final int SUCCESS = 1;
+public interface MessageHandler
+        extends Configurable {
 
-    /*
-     * illegal argument
-     */
-    public static final int ILLEGAL_ARGUMENT = -100;
+    void init();
 
-    /*
-     * exceed length
-     */
-    public static final int EXCEED_LEN = -101;
+    void processMessage(Context context) throws MessageProcessException;
 
-    /*
-     * service error
-     */
-    public static final int SERVICE_ERR = -105;
+    void destroy();
 }

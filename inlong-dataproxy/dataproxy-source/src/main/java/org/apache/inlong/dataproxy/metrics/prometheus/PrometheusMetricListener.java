@@ -60,7 +60,7 @@ import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.exporter.HTTPServer;
 
 /**
- * 
+ *
  * PrometheusMetricListener
  */
 public class PrometheusMetricListener extends Collector implements MetricListener {
@@ -123,7 +123,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
 
     /**
      * snapshot
-     * 
+     *
      * @param domain
      * @param itemValues
      */
@@ -171,7 +171,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
 
     /**
      * collect
-     * 
+     *
      * @return
      */
     @Override
@@ -229,7 +229,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
 
     /**
      * addCounterMetricFamily
-     * 
+     *
      * @param defaultDemension
      * @param itemValue
      * @param idCounter

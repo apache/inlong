@@ -1,23 +1,21 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-package org.apache.inlong.audit.channel;
+package org.apache.inlong.dataproxy.channel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -36,7 +34,8 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
-import org.apache.inlong.audit.utils.LogCounter;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.commons.monitor.LogCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +43,6 @@ public class FailoverChannelProcessor
         extends ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
-
-    public static final String MSG_COUNTER_KEY = "msgcnt";
-
     private static final LogCounter logPrinter = new LogCounter(10, 10000, 60 * 1000);
 
     private final ChannelSelector selector;
@@ -66,11 +62,17 @@ public class FailoverChannelProcessor
         interceptorChain.close();
     }
 
+    /**
+     * The Context of the associated Source is passed.
+     *
+     * @param context
+     */
     @Override
     public void configure(Context context) {
         configureInterceptors(context);
     }
 
+    // WARNING: throws FlumeException (is that ok?)
     private void configureInterceptors(Context context) {
 
         List<Interceptor> interceptors = Lists.newLinkedList();
@@ -116,6 +118,17 @@ public class FailoverChannelProcessor
         return selector;
     }
 
+    /**
+     * Attempts to {@linkplain Channel#put(Event) put} the given events into each configured
+     * channel. If any {@code required} channel throws a {@link ChannelException}, that exception
+     * will be propagated.
+     * <p/>
+     * <p>Note that if multiple channels are configured, some {@link Transaction}s
+     * may have already been committed while others may be rolled back in the case of an exception.
+     *
+     * @param events A list of events to put into the configured channels.
+     * @throws ChannelException when a write to a required channel fails.
+     */
     public void processEventBatch(List<Event> events) {
         Preconditions.checkNotNull(events, "Event list must not be null");
         events = interceptorChain.intercept(events);
@@ -124,8 +137,9 @@ public class FailoverChannelProcessor
 
         long tMsgCounterL = 1L;
         for (Event event : events) {
-            if (event.getHeaders().containsKey(MSG_COUNTER_KEY)) {
-                tMsgCounterL += Long.parseLong(event.getHeaders().get(MSG_COUNTER_KEY));
+            if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
+                tMsgCounterL +=
+                        Long.parseLong(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
             } else {
                 tMsgCounterL += 1;
             }
@@ -149,7 +163,6 @@ public class FailoverChannelProcessor
         }
 
         boolean success = true;
-        // Process memory channels
         for (Map.Entry<Channel, List<Event>> entry : reqChannelQueue.entrySet()) {
             Channel reqChannel = entry.getKey();
             Transaction tx = reqChannel.getTransaction();
@@ -177,7 +190,6 @@ public class FailoverChannelProcessor
         }
 
         if (!success) {
-            // Process file channels
             for (Map.Entry<Channel, List<Event>> entry : optChannelQueue.entrySet()) {
                 Channel optChannel = entry.getKey();
                 Transaction tx = optChannel.getTransaction();
@@ -209,6 +221,18 @@ public class FailoverChannelProcessor
         }
     }
 
+    /**
+     * Attempts to {@linkplain Channel#put(Event) put} the given event into each configured channel.
+     * If any {@code required} channel throws a {@link ChannelException}, that exception will be
+     * propagated.
+     * <p/>
+     * <p>Note that if multiple channels are configured, some {@link Transaction}s
+     * may have already been committed while others may be rolled back in the case of an exception.
+     *
+     * @param event The event to put into the configured channels.
+     * @throws ChannelException when a write to a required channel fails.
+     */
+
     public void processEvent(Event event) {
         event = interceptorChain.intercept(event);
         if (event == null) {
@@ -216,7 +240,6 @@ public class FailoverChannelProcessor
         }
 
         boolean success = true;
-        // Process required channels
         List<Channel> requiredChannels = selector.getRequiredChannels(event);
 
         for (Channel reqChannel : requiredChannels) {
@@ -231,8 +254,8 @@ public class FailoverChannelProcessor
 
             } catch (Throwable t) {
                 if (logPrinter.shouldPrint()) {
-                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
-                            + reqChannel.getName(), t);
+                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: " +
+                            reqChannel.getName(), t);
                 }
 
                 success = false;
@@ -278,14 +301,14 @@ public class FailoverChannelProcessor
                     }
                     if (t instanceof Error) {
                         if (logPrinter.shouldPrint()) {
-                            LOG.error("FailoverChannelProcessor Error while writing event to "
-                                    + "optionalChannels: " + optChannel, t);
+                            LOG.error("FailoverChannelProcessor Error while writing event to " +
+                                    "optionalChannels: " + optChannel, t);
                         }
                         throw (Error) t;
                     } else {
                         throw new ChannelException(
-                                "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                "FailoverChannelProcessor Unable to put event on " +
+                                        "optionalChannels: " + optChannel, t);
                     }
                 } finally {
                     if (tx != null) {

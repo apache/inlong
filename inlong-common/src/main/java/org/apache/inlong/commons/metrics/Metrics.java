@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,27 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.http;
+package org.apache.inlong.commons.metrics;
 
-public interface StatusCode {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    /*
-     * success
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Metrics {
+
+    /**
+     * Metrics name
      */
-    public static final int SUCCESS = 1;
+    String name() default "";
 
-    /*
-     * illegal argument
+    /**
+     * Metrics context
      */
-    public static final int ILLEGAL_ARGUMENT = -100;
+    String context() default "";
 
-    /*
-     * exceed length
+    /**
+     * Metrics description
      */
-    public static final int EXCEED_LEN = -101;
-
-    /*
-     * service error
-     */
-    public static final int SERVICE_ERR = -105;
+    String desc() default "";
 }

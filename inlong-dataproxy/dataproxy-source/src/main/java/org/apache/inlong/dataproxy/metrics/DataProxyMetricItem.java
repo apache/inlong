@@ -106,7 +106,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * fillInlongId
-     * 
+     *
      * @param event
      * @param dimensions
      */
@@ -120,7 +120,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get clusterId
-     * 
+     *
      * @return the clusterId
      */
     public String getClusterId() {
@@ -129,7 +129,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get readSuccessCount
-     * 
+     *
      * @return the readSuccessCount
      */
     public long getReadSuccessCount() {
@@ -138,7 +138,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get readSuccessSize
-     * 
+     *
      * @return the readSuccessSize
      */
     public long getReadSuccessSize() {
@@ -147,7 +147,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get readFailCount
-     * 
+     *
      * @return the readFailCount
      */
     public long getReadFailCount() {
@@ -156,7 +156,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get readFailSize
-     * 
+     *
      * @return the readFailSize
      */
     public long getReadFailSize() {
@@ -165,7 +165,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendCount
-     * 
+     *
      * @return the sendCount
      */
     public long getSendCount() {
@@ -174,7 +174,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendSize
-     * 
+     *
      * @return the sendSize
      */
     public long getSendSize() {
@@ -183,7 +183,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendSuccessCount
-     * 
+     *
      * @return the sendSuccessCount
      */
     public long getSendSuccessCount() {
@@ -192,7 +192,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendSuccessSize
-     * 
+     *
      * @return the sendSuccessSize
      */
     public long getSendSuccessSize() {
@@ -201,7 +201,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendFailCount
-     * 
+     *
      * @return the sendFailCount
      */
     public long getSendFailCount() {
@@ -210,7 +210,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sendFailSize
-     * 
+     *
      * @return the sendFailSize
      */
     public long getSendFailSize() {
@@ -219,7 +219,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get sinkDuration
-     * 
+     *
      * @return the sinkDuration
      */
     public long getSinkAverageDuration() {
@@ -232,7 +232,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get nodeDuration
-     * 
+     *
      * @return the nodeDuration
      */
     public long getNodeAverageDuration() {
@@ -245,7 +245,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * get wholeDuration
-     * 
+     *
      * @return the wholeDuration
      */
     public long getWholeAverageDuration() {

@@ -107,6 +107,19 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     //
     private final DataProxyMetricItemSet metricItemSet;
 
+    /**
+     * ServerMessageHandler
+     * @param source
+     * @param serProcessor
+     * @param allChannels
+     * @param topic
+     * @param attr
+     * @param filterEmptyMsg
+     * @param maxMsgLength
+     * @param maxCons
+     * @param isCompressed
+     * @param protocolType
+     */
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
                                 ChannelGroup allChannels,
                                 String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,

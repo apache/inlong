@@ -17,25 +17,23 @@
 
 package org.apache.inlong.dataproxy.http;
 
-public interface StatusCode {
+import java.util.Set;
 
-    /*
-     * success
-     */
-    public static final int SUCCESS = 1;
+public interface Context {
 
-    /*
-     * illegal argument
-     */
-    public static final int ILLEGAL_ARGUMENT = -100;
+    void init();
 
-    /*
-     * exceed length
-     */
-    public static final int EXCEED_LEN = -101;
+    void put(String key, Object value);
 
-    /*
-     * service error
-     */
-    public static final int SERVICE_ERR = -105;
+    Object get(String key);
+
+    void remove(String key);
+
+    void clear();
+
+    void destory();
+
+    boolean containsKey(String key);
+
+    Set<String> keySet();
 }
