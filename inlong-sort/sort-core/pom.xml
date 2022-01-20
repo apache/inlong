@@ -227,6 +227,11 @@
             <version>3.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_2.11</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

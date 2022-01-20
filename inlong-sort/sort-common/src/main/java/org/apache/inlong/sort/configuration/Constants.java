@@ -194,6 +194,13 @@ public class Constants {
                     .defaultValue(false);
 
     // ------------------------------------------------------------------------
+    //  Kafka sink related configs
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<Integer> SINK_KAFKA_PRODUCER_POOL_SIZE =
+            key("sink.kafka.producer.pool.size")
+                    .defaultValue(5);
+
+    // ------------------------------------------------------------------------
     //  Hive sink related configs
     // ------------------------------------------------------------------------
     public static final ConfigOption<Long> HIKARICP_IDLE_TIMEOUT_MS =

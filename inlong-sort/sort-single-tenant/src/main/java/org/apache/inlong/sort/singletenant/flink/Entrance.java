@@ -22,7 +22,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
@@ -30,7 +33,9 @@ import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.flink.kafka.KafkaSinkBuilder;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
@@ -63,7 +68,9 @@ public class Entrance {
         buildSinkStream(
                 sourceStream,
                 config,
-                dataFlowInfo.getSinkInfo());
+                dataFlowInfo.getSinkInfo(),
+                dataFlowInfo.getProperties(),
+                env.getCheckpointConfig().getCheckpointingMode());
 
         env.execute(clusterId);
     }
@@ -96,7 +103,9 @@ public class Entrance {
     private static void buildSinkStream(
             DataStream<Row> sourceStream,
             Configuration config,
-            SinkInfo sinkInfo) {
+            SinkInfo sinkInfo,
+            Map<String, Object> properties,
+            CheckpointingMode checkpointingMode) {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
@@ -119,6 +128,9 @@ public class Entrance {
                         .build();
                 break;
             case Constants.SINK_TYPE_KAFKA:
+                sourceStream.addSink(
+                        KafkaSinkBuilder.buildKafkaSink((KafkaSinkInfo) sinkInfo, properties, checkpointingMode, config)
+                );
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported sink type " + sinkType);

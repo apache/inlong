@@ -43,6 +43,12 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-base</artifactId>
             <version>${project.version}</version>
         </dependency>
