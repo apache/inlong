@@ -52,8 +52,6 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.MetricItemValue;
 import org.apache.inlong.dataproxy.metrics.MetricListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
