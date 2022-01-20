@@ -48,12 +48,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
-    private volatile boolean closed = false;
+
     private Consumer<byte[]> consumer;
-    private volatile boolean stopConsume = false;
+
     private volatile Thread fetchThread;
-    private long sleepTime = 0L;
-    private int emptyPollTimes = 0;
 
     public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
             ClientContext context) {
@@ -62,12 +60,12 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public void stopConsume(boolean stopConsume) {
-        this.stopConsume = stopConsume;
+        this.isStopConsume = stopConsume;
     }
 
     @Override
     public boolean isConsumeStop() {
-        return stopConsume;
+        return isStopConsume;
     }
 
     @Override
@@ -77,18 +75,18 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public long getConsumedDataSize() {
-        return 0;
+        return 0L;
     }
 
     @Override
     public long getAckedOffset() {
-        return 0;
+        return 0L;
     }
 
     private void ackSucc(String offset) {
         offsetCache.remove(offset);
         context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckSuccTimes(1);
+                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckSuccTimes(1L);
     }
 
     /**
@@ -103,7 +101,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 if (consumer == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addAckFailTimes(1);
+                            .addAckFailTimes(1L);
                     logger.error("consumer == null");
                     return;
                 }
@@ -111,7 +109,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 if (messageId == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addAckFailTimes(1);
+                            .addAckFailTimes(1L);
                     logger.error("messageId == null");
                     return;
                 }
@@ -121,12 +119,12 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                             logger.error("ack fail:{}", msgOffset);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                                    .addAckFailTimes(1);
+                                    .addAckFailTimes(1L);
                             return null;
                         });
             } catch (Exception e) {
                 context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckFailTimes(1);
+                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckFailTimes(1L);
                 logger.error(e.getMessage(), e);
                 throw e;
             }
@@ -240,17 +238,17 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
                                 inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackTimes(1);
+                        .addCallbackTimes(1L);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
                                 inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1);
+                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
                                 inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackErrorTimes(1);
+                        .addCallbackErrorTimes(1L);
                 e.printStackTrace();
             }
         }
@@ -265,7 +263,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             while (true) {
                 hasPermit = false;
                 try {
-                    if (context.getConfig().isStopConsume() || stopConsume) {
+                    if (context.getConfig().isStopConsume() || isStopConsume) {
                         TimeUnit.MILLISECONDS.sleep(50);
                         continue;
                     }
@@ -279,7 +277,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addMsgCount(1).addFetchTimes(1);
+                            .addMsgCount(1L).addFetchTimes(1L);
 
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> messages = consumer.batchReceive();
@@ -311,19 +309,19 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                         context.getStatManager()
                                 .getStatistics(context.getConfig().getSortTaskId(),
                                         inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                                .addEmptyFetchTimes(1);
-                        emptyPollTimes++;
-                        if (emptyPollTimes >= context.getConfig().getEmptyPollTimes()) {
+                                .addEmptyFetchTimes(1L);
+                        emptyFetchTimes++;
+                        if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
                             sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
                                     context.getConfig().getMaxEmptyPollSleepMs());
-                            emptyPollTimes = 0;
+                            emptyFetchTimes = 0;
                         }
                     }
                 } catch (Exception e) {
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addFetchErrorTimes(1);
+                            .addFetchErrorTimes(1L);
                     logger.error(e.getMessage(), e);
                 } finally {
                     if (hasPermit) {

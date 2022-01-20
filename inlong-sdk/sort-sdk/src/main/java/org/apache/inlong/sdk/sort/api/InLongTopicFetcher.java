@@ -23,6 +23,11 @@ public abstract class InLongTopicFetcher {
 
     protected InLongTopic inLongTopic;
     protected ClientContext context;
+    protected volatile boolean closed = false;
+    protected volatile boolean isStopConsume = false;
+    // use for empty topic to sleep
+    protected long sleepTime = 0L;
+    protected int emptyFetchTimes = 0;
 
     public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
         this.inLongTopic = inLongTopic;
