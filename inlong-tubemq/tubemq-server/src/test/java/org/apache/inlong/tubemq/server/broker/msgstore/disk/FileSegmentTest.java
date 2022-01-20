@@ -40,8 +40,9 @@ public class FileSegmentTest {
             byte[] bytes = data.getBytes();
             ByteBuffer buf = ByteBuffer.wrap(bytes);
             // append data to FileSegment.
-            fileSegment.append(buf);
-            fileSegment.append(buf);
+            long appendTime = System.currentTimeMillis();
+            fileSegment.append(buf, appendTime, appendTime);
+            fileSegment.append(buf, appendTime, appendTime);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -64,7 +65,8 @@ public class FileSegmentTest {
             byte[] bytes = data.getBytes();
             ByteBuffer buf = ByteBuffer.wrap(bytes);
             // append data to fileSegment.
-            long offset = fileSegment.append(buf);
+            long appendTime = System.currentTimeMillis();
+            long offset = fileSegment.append(buf, appendTime, appendTime);
             int limit = 1000;
             // get view of fileSegment.
             ByteBuffer readBuffer = ByteBuffer.allocate(limit);

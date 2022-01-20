@@ -36,6 +36,8 @@ public interface SegmentList {
 
     long getMaxOffset();
 
+    long getMaxAppendTime();
+
     boolean checkExpiredSegments(long checkTimestamp, long fileValidTimeMs);
 
     void delExpiredSegments(StringBuilder sb);
@@ -52,4 +54,5 @@ public interface SegmentList {
 
     Segment getRecordSeg(long offset) throws IOException;
 
+    Segment findSegmentByTimeStamp(long timestamp);
 }

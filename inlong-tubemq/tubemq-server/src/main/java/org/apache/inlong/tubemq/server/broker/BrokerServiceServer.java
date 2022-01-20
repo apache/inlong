@@ -466,7 +466,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             sb.delete(0, sb.length());
             GetMessageResult msgQueryResult =
                     msgStore.getMessages(reqSwitch, requestOffset,
-                            partitionId, consumerNodeInfo, baseKey, msgDataSizeLimit);
+                            partitionId, consumerNodeInfo, baseKey, msgDataSizeLimit, 0);
             offsetManager.bookOffset(group, topic, partitionId,
                     msgQueryResult.lastReadOffset, isManualCommitOffset,
                     msgQueryResult.transferedMessageList.isEmpty(), sb);
