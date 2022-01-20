@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = Application.class)
 public class ElasticsearchServiceTest {
 
-    //    @Autowired
+//       @Autowired
     private static ElasticsearchService elasticsearchService;
 
     private String index1 = "20220112_1";
@@ -75,6 +75,7 @@ public class ElasticsearchServiceTest {
             po.setInlongGroupId(String.valueOf(i));
             po.setInlongStreamId(String.valueOf(i));
             po.setSize(i);
+            po.setPacketId(i);
             elasticsearchService.insertData(po);
             ESDataPo po2 = new ESDataPo();
             po2.setIp("0.0.0.0");
@@ -88,6 +89,7 @@ public class ElasticsearchServiceTest {
             po2.setInlongGroupId(String.valueOf(i));
             po2.setInlongStreamId(String.valueOf(i));
             po2.setSize(i);
+            po2.setPacketId(i);
             elasticsearchService.insertData(po2);
         }
     }

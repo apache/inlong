@@ -197,6 +197,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
             esPo.setInlongGroupId(msgBody.getInlongGroupId());
             esPo.setInlongStreamId(msgBody.getInlongStreamId());
             esPo.setSize(msgBody.getSize());
+            esPo.setPacketId(msgBody.getPacketId());
             esService.insertData(esPo);
         }
     }

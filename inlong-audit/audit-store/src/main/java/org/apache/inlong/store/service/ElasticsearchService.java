@@ -304,6 +304,13 @@ public class ElasticsearchService implements AutoCloseable {
                 }
                 builder.endObject();
             }
+            {
+                builder.startObject("packet_id");
+                {
+                    builder.field("type", "long");
+                }
+                builder.endObject();
+            }
             builder.endObject();
         }
         builder.endObject();

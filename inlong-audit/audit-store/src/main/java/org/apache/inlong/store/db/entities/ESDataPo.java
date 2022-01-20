@@ -36,9 +36,11 @@ public class ESDataPo {
     private long count;
     private long size;
     private long delay;
+    private long packetId;
 
     public String getDocId() {
-        String docId = ip + dockerId + threadId + logTs + inlongGroupId + inlongStreamId + auditId + size;
+        String docId = ip + dockerId + threadId + sdkTs + packetId + logTs + inlongGroupId + inlongStreamId
+                + auditId + count;
         return docId;
     }
 }
