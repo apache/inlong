@@ -15,17 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store;
+package org.apache.inlong.store.config;
 
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-public class Application {
-    public static void main(String[] args) {
-        new SpringApplicationBuilder().sources(Application.class)
-                .web(WebApplicationType.NONE).run(args);
+@Component
+@Getter
+@Setter
+public class StoreConfig {
+
+    @Value("${audit.config.store.mode:mysql}")
+    private String store;
+
+    public boolean isMysqlStore() {
+        return store.contains("mysql");
     }
+
+    public boolean isElasticsearchStore() {
+        return store.contains("elasticsearch");
+    }
+
 }

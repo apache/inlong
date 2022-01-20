@@ -15,17 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store;
+package org.apache.inlong.store.db.entities;
 
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import lombok.Getter;
+import lombok.Setter;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-public class Application {
-    public static void main(String[] args) {
-        new SpringApplicationBuilder().sources(Application.class)
-                .web(WebApplicationType.NONE).run(args);
+import java.util.Date;
+
+@Getter
+@Setter
+public class ESDataPo {
+    private String ip;
+    private String dockerId;
+    private String threadId;
+    private long sdkTs;
+    private Date logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private long count;
+    private long size;
+    private long delay;
+    private long packetId;
+
+    public String getDocId() {
+        String docId = ip + dockerId + threadId + sdkTs + packetId + logTs + inlongGroupId + inlongStreamId
+                + auditId + count;
+        return docId;
     }
 }
