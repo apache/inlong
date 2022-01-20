@@ -51,6 +51,8 @@ import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
+import org.apache.inlong.tubemq.server.broker.offset.RecordItem;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
@@ -262,8 +264,8 @@ public class MessageStoreManager implements StoreService {
     /***
      * Get message store by topic.
      *
-     * @param topic
-     * @return
+     * @param topic  query topic name
+     * @return       the queried topic's store list
      */
     @Override
     public Collection<MessageStore> getMessageStoresByTopic(final String topic) {
@@ -440,6 +442,50 @@ public class MessageStoreManager implements StoreService {
             topicPubStoreInfoMap.put(topic, storeInfoMap);
         }
         return topicPubStoreInfoMap;
+    }
+
+    /***
+     * Query topic's publish info.
+     *
+     * @param groupOffsetMap query's topic set
+     *
+     */
+    @Override
+    public void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap) {
+        MessageStore store = null;
+        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            Map<String, Map<Integer, RecordItem>> topicOffsetMap =
+                    entry.getValue().getOffsetMap();
+            // Get offset records by topic
+            for (Map.Entry<String, Map<Integer, RecordItem>> entryTopic
+                    : topicOffsetMap.entrySet()) {
+                if (entryTopic == null
+                        || entryTopic.getKey() == null
+                        || entryTopic.getValue() == null) {
+                    continue;
+                }
+                // Get message store instance
+                Map<Integer, MessageStore> storeMap =
+                        dataStores.get(entryTopic.getKey());
+                if (storeMap == null) {
+                    continue;
+                }
+                for (Map.Entry<Integer, RecordItem> entryRcd
+                        : entryTopic.getValue().entrySet()) {
+                    store = storeMap.get(entryRcd.getValue().getStoreId());
+                    if (store == null) {
+                        continue;
+                    }
+                    // Append current max, min offset
+                    entryRcd.getValue().addStoreInfo(store.getIndexMinOffset(),
+                            store.getIndexMaxOffset(), store.getDataMinOffset(),
+                            store.getDataMaxOffset());
+                }
+            }
+        }
     }
 
     private Set<File> getLogDirSet(final BrokerConfig tubeConfig) throws IOException {

@@ -68,6 +68,8 @@ public interface OffsetService {
     Map<String, Map<Integer, Tuple2<Long, Long>>> queryGroupOffset(
             String group, Map<String, Set<Integer>> topicPartMap);
 
+    Map<String, OffsetRecordInfo> getOnlineGroupOffsetInfo();
+
     boolean modifyGroupOffset(Set<String> groups,
                               List<Tuple3<String, Integer, Long>> topicPartOffsets,
                               String modifier);

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class BrokerMetadataManager implements MetadataManager {
     private Map<String/* topic */, Integer> closedTopicMap =
             new ConcurrentHashMap<>();
     // topics will be removed.
-    private Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
+    private final Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
             new ConcurrentHashMap<>();
     private long lastRptBrokerMetaConfId = 0;
 
@@ -171,7 +172,7 @@ public class BrokerMetadataManager implements MetadataManager {
      * Get hard removed topics. Hard removed means the disk files is deleted, cannot be recovery.
      * Topic will be deleted in two phases, the first is mark topic's file delete, the second is delete the disk files.
      *
-     * @return
+     * @return the removed topics
      */
     @Override
     public List<String> getHardRemovedTopics() {
@@ -207,12 +208,12 @@ public class BrokerMetadataManager implements MetadataManager {
      * Update broker's metadata in memory, then fire these metadata take effect.
      * These params are got from Master Service.
      *
-     * @param newBrokerMetaConfId
-     * @param newConfCheckSumId
-     * @param newBrokerDefMetaConfInfo
-     * @param newTopicMetaConfInfoLst
-     * @param isForce
-     * @param sb
+     * @param newBrokerMetaConfId       the new broker meta configure id
+     * @param newConfCheckSumId         the new configure checksum id
+     * @param newBrokerDefMetaConfInfo  the new broker default meta configures
+     * @param newTopicMetaConfInfoLst   the new topic meta configure list
+     * @param isForce                   whether to force an update
+     * @param sb                        string buffer
      */
     @Override
     public void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
@@ -260,6 +261,8 @@ public class BrokerMetadataManager implements MetadataManager {
             newTopics.add(topicMetadata.getTopic());
             newTopicConfigMap.put(topicMetadata.getTopic(), topicMetadata);
         }
+        // Check to-be-added configure, if history-offset topic is not included, append it
+        addSysHisOffsetTopic(brokerDefMetadata, newTopics, newTopicConfigMap);
         this.topicMetaConfInfoLst = newTopicMetaConfInfoLst;
         this.closedTopicMap = tmpInvalidTopicMap;
         Collections.sort(newTopics);
@@ -276,10 +279,10 @@ public class BrokerMetadataManager implements MetadataManager {
     /***
      * Update will be deleted topics info. These params are got from Master Service.
      *
-     * @param isTakeRemoveTopics
-     * @param rmvTopicMetaConfInfoLst
-     * @param sb
-     * @return
+     * @param isTakeRemoveTopics         whether take removed topics
+     * @param rmvTopicMetaConfInfoLst    need removed topic meta information
+     * @param sb                         string buffer
+     * @return                           whether includes removed topics
      */
     @Override
     public boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
@@ -298,11 +301,7 @@ public class BrokerMetadataManager implements MetadataManager {
                     TopicMetadata topicMetadata =
                             new TopicMetadata(brokerDefMetadata, tmpTopicMetaConfInfo);
                     if (topicMetadata.getStatusId() > TStatusConstants.STATUS_TOPIC_SOFT_DELETE) {
-                        TopicMetadata tmpRemovedTopicConf =
-                                removedTopicConfigMap.get(topicMetadata.getTopic());
-                        if (tmpRemovedTopicConf == null) {
-                            removedTopicConfigMap.put(topicMetadata.getTopic(), topicMetadata);
-                        }
+                        removedTopicConfigMap.putIfAbsent(topicMetadata.getTopic(), topicMetadata);
                         needProcess = true;
                     }
                     origTopics.add(topicMetadata.getTopic());
@@ -346,4 +345,29 @@ public class BrokerMetadataManager implements MetadataManager {
         this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
+    /***
+     * Add historical offset storage topic by default
+     *
+     * @param brokerDefMeta      broker default meta configure
+     * @param newTopics          the topic list to add
+     * @param topicConfigMap     the topic configure map to add
+     */
+    private void addSysHisOffsetTopic(BrokerDefMetadata brokerDefMeta, List<String> newTopics,
+                                      ConcurrentHashMap<String, TopicMetadata> topicConfigMap) {
+        if (newTopics.contains(TServerConstants.OFFSET_HISTORY_NAME)) {
+            return;
+        }
+        TopicMetadata topicMetadata =
+                topicConfigMap.get(TServerConstants.OFFSET_HISTORY_NAME);
+        if (topicMetadata != null) {
+            return;
+        }
+        topicMetadata =
+                new TopicMetadata(brokerDefMeta,
+                        TServerConstants.OFFSET_HISTORY_NAME,
+                        TServerConstants.OFFSET_HISTORY_NUMSTORES,
+                        TServerConstants.OFFSET_HISTORY_NUMPARTS);
+        newTopics.add(TServerConstants.OFFSET_HISTORY_NAME);
+        topicConfigMap.put(TServerConstants.OFFSET_HISTORY_NAME, topicMetadata);
+    }
 }

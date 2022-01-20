@@ -454,11 +454,46 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     /***
+     * Get online groups' offset information
+     *
+     * @return group offset info in memory or zk
+     */
+    @Override
+    public Map<String, OffsetRecordInfo> getOnlineGroupOffsetInfo() {
+        Map<String, OffsetRecordInfo> result = new HashMap<>();
+        for (Map.Entry<String,
+                ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            // read offset map information
+            Map<String, OffsetStorageInfo> storeMap = entry.getValue();
+            if (storeMap.isEmpty()) {
+                continue;
+            }
+            for (OffsetStorageInfo storageInfo : storeMap.values()) {
+                if (storageInfo == null) {
+                    continue;
+                }
+                OffsetRecordInfo recordInfo = result.get(entry.getKey());
+                if (recordInfo == null) {
+                    recordInfo = new OffsetRecordInfo(
+                            brokerConfig.getBrokerId(), entry.getKey());
+                    result.put(entry.getKey(), recordInfo);
+                }
+                recordInfo.addCfmOffsetInfo(storageInfo.getTopic(),
+                        storageInfo.getPartitionId(), storageInfo.getOffset());
+            }
+        }
+        return result;
+    }
+
+    /***
      * Reset offset.
      *
-     * @param groups
-     * @param topicPartOffsets
-     * @param modifier
+     * @param groups              the groups to reset offset
+     * @param topicPartOffsets    the reset offset information
+     * @param modifier            the modifier
      * @return at least one record modified
      */
     @Override

@@ -51,6 +51,7 @@ import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.DefaultOffsetManager;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordService;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
@@ -80,6 +81,8 @@ public class TubeBroker implements Stoppable {
     private final MessageStoreManager storeManager;
     // tube broker's offset manager
     private final OffsetService offsetManager;
+    // offset record service
+    private final OffsetRecordService offsetRecordService;
     private final BrokerServiceServer brokerServiceServer;
     private final BrokerSamplePrint samplePrintCtrl =
             new BrokerSamplePrint(logger);
@@ -111,6 +114,8 @@ public class TubeBroker implements Stoppable {
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
         this.serverAuthHandler = new SimpleCertificateBrokerHandler(this);
+        this.offsetRecordService =
+                new OffsetRecordService(this, tubeConfig.getGroupOffsetScanDurMs());
         // rpc config.
         RpcConfig rpcConfig = new RpcConfig();
         rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
@@ -274,6 +279,8 @@ public class TubeBroker implements Stoppable {
         logger.info("Tube Client StoreService stopping.....");
         TubeBroker.this.brokerServiceServer.stop();
         logger.info("Tube Client StoreService stopped.....");
+        this.offsetRecordService.close();
+        logger.info("Tube offset record service stopped.....");
         TubeBroker.this.storeManager.close();
         logger.info("Tube message store stopped.....");
         TubeBroker.this.offsetManager.close(-1);

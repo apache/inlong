@@ -85,4 +85,11 @@ public final class TServerConstants {
     public static final long CFG_REPORT_DEFAULT_SYNC_DURATION = 2 * 3600 * 1000;
     public static final long CFG_STORE_STATS_MAX_REFRESH_DURATION = 20 * 60 * 1000;
 
+    public static final String OFFSET_HISTORY_NAME = "__offset_history__";
+    public static final String TOKEN_OFFSET_GROUP = "$groupName$";
+    public static final int OFFSET_HISTORY_NUMSTORES = 1;
+    public static final int OFFSET_HISTORY_NUMPARTS = 10;
+    public static final long CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR = 30000L;
+    public static final long CFG_MIN_GROUP_OFFSET_SCAN_DUR = 20000L;
+    public static final long CFG_MAX_GROUP_OFFSET_SCAN_DUR = 240000L;
 }
