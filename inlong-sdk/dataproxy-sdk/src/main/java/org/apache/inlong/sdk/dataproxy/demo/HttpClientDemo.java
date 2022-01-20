@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.demo;
+package org.apache.inlong.sdk.dataproxy.demo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.apache.inlong.dataproxy.ProxyClientConfig;
-import org.apache.inlong.dataproxy.network.HttpProxySender;
-import org.apache.inlong.dataproxy.network.ProxysdkException;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
+import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class HttpClientDemo {
     public static void main(String[] args) {
         long sentCount = 10;
         /*
-         *1、 if isLocalVisit is true use local config from file in ${configBasePath}
+         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath}
          * directory/${dataProxyGroupId}
          * .local
          * such as :
@@ -47,7 +47,7 @@ public class HttpClientDemo {
          *  {"isInterVisit":1,"cluster_id":"1","size":1,"switch":1,"address":[{"host":"127.0.0
          * .1","port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
          *
-         * 2、if isLocalVisit is false
+         * 2. if 'isLocalVisit' is false
          *  sdk will get config from manager auto.
          */
         boolean isLocalVisit = true;
