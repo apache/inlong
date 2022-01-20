@@ -22,13 +22,16 @@ import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
+import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.audit.base.NamedThreadFactory;
+import org.apache.inlong.audit.channel.FailoverChannelProcessor;
 import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -51,6 +54,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     private static final String CONNECTIONS = "connections";
 
     protected int maxConnections = Integer.MAX_VALUE;
+    protected Context context;
     private ServerBootstrap serverBootstrap = null;
     protected ChannelGroup allChannels;
     protected int port;
@@ -66,6 +70,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     private int receiveBufferSize;
     private int highWaterMark;
     private int sendBufferSize;
+    protected boolean customProcessor = false;
 
     private static String HOST_DEFAULT_VALUE = "0.0.0.0";
 
@@ -99,6 +104,13 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     @Override
     public synchronized void start() {
         logger.info("start " + this.getName());
+        if (customProcessor) {
+            ChannelSelector selector = getChannelProcessor().getSelector();
+            FailoverChannelProcessor newProcessor = new FailoverChannelProcessor(selector);
+            newProcessor.configure(this.context);
+            setChannelProcessor(newProcessor);
+            FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
+        }
         super.start();
 
         ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
@@ -199,6 +211,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     @Override
     public void configure(Context context) {
         logger.info("context is {}", context);
+        this.context = context;
         port = context.getInteger(ConfigConstants.CONFIG_PORT);
         host = context.getString(ConfigConstants.CONFIG_HOST, HOST_DEFAULT_VALUE);
 
@@ -258,5 +271,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         Preconditions.checkArgument(
                 (maxMsgLength >= MIN_MSG_LENGTH && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
                 "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
+        this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR,
+                false);
     }
 }
