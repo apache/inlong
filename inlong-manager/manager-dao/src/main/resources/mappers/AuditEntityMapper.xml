@@ -42,7 +42,7 @@
 
     <select id="sumByLogTs" resultMap="SumByLogTsResultMap">
         select date_format(log_ts, #{format, jdbcType=VARCHAR}) as log_ts, sum(`count`) as total
-        from audit_data
+        from apache_inlong_audit.audit_data
         where inlong_group_id = #{groupId,jdbcType=VARCHAR}
           and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
           and audit_id = #{auditId,jdbcType=VARCHAR}
