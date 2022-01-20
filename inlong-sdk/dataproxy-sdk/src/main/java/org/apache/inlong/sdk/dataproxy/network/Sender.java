@@ -174,7 +174,8 @@ public class Sender {
     }
 
     private SendResult syncSendInternalMessage(NettyClient client,
-                                               EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit)
+                                               EncodeObject encodeObject, String msgUUID,
+                                               long timeout, TimeUnit timeUnit)
         throws ExecutionException, InterruptedException, TimeoutException {
         client = clientMgr.getClientByRoundRobin();
         if (client == null) {
