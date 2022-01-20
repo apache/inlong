@@ -34,7 +34,7 @@ images:
     repository: inlong/tubemq-all
     tag: latest
   managerWeb:
-    repository: inlong/manager-web
+    repository: inlong/manager
     tag: latest
   mysql:
     repository: mysql
@@ -89,7 +89,7 @@ tubemqManager:
   mysqlPassword: ${mysql.rootPassword}
 
 managerWeb:
-  component: "manager-web"
+  component: "manager"
   replicaCount: 1
   ports:
     webPort: 8083
