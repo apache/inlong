@@ -28,7 +28,6 @@ public class UdpSourceTest {
 
     @Test
     public void configTest() {
-        SimpleUdpSource udpSource = new SimpleUdpSource();
         Map<String, String> map = new HashMap<>();
         map.put(ConfigConstants.MAX_THREADS, "32");
         map.put(ConfigConstants.CONFIG_PORT, "8080");
@@ -36,6 +35,7 @@ public class UdpSourceTest {
         map.put(ConfigConstants.TOPIC, "topic");
         map.put(ConfigConstants.ATTR, "{}");
         Context context = new Context(map);
+        SimpleUdpSource udpSource = new SimpleUdpSource();
         udpSource.configure(context);
         int threadNum = udpSource.getContext().getInteger(ConfigConstants.MAX_THREADS);
         Assert.assertEquals(threadNum, 32);
