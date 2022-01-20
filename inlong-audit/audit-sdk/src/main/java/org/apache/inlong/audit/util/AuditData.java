@@ -19,10 +19,11 @@ package org.apache.inlong.audit.util;
 
 import org.apache.inlong.audit.protocol.AuditApi;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class AuditData {
+public class AuditData implements Serializable {
     public static int HEAD_LENGTH = 4;
     private final long sdkTime;
     private final AuditApi.BaseCommand content;
