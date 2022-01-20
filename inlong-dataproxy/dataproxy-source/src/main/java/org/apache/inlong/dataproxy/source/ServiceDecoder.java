@@ -24,7 +24,6 @@ import org.jboss.netty.channel.Channel;
 
 /**
  * decoder interface definition
- *
  */
 public interface ServiceDecoder {
 
@@ -32,7 +31,6 @@ public interface ServiceDecoder {
 
     /**
      * extract data from buffer and convert it into map.
-     *
      * @param cb
      * @param channel
      * @return

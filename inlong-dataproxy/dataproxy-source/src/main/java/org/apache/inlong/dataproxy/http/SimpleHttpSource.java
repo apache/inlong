@@ -165,8 +165,8 @@ public class SimpleHttpSource
             LOG.error("Error while configuring HTTPSource. Exception follows.", ex);
             Throwables.propagate(ex);
         } catch (ClassCastException ex) {
-            LOG.error("Deserializer is not an instance of HTTPSourceHandler." +
-                    "Deserializer must implement HTTPSourceHandler.");
+            LOG.error("Deserializer is not an instance of HTTPSourceHandler."
+                    + "Deserializer must implement HTTPSourceHandler.");
             Throwables.propagate(ex);
         } catch (Exception ex) {
             LOG.error("Error while starting HTTPSource. Exception follows.", ex);
@@ -176,6 +176,7 @@ public class SimpleHttpSource
     }
 
     private void checkPort() {
-        Preconditions.checkNotNull(port, "HTTPSource requires a port number to be" + "specified");
+        Preconditions.checkNotNull(port, "HTTPSource requires a port number to be"
+                + "specified");
     }
 }

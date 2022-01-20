@@ -254,8 +254,8 @@ public class FailoverChannelProcessor
 
             } catch (Throwable t) {
                 if (logPrinter.shouldPrint()) {
-                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: " +
-                            reqChannel.getName(), t);
+                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
+                            + reqChannel.getName(), t);
                 }
 
                 success = false;
@@ -301,14 +301,14 @@ public class FailoverChannelProcessor
                     }
                     if (t instanceof Error) {
                         if (logPrinter.shouldPrint()) {
-                            LOG.error("FailoverChannelProcessor Error while writing event to " +
-                                    "optionalChannels: " + optChannel, t);
+                            LOG.error("FailoverChannelProcessor Error while writing event to "
+                                    + "optionalChannels: " + optChannel, t);
                         }
                         throw (Error) t;
                     } else {
                         throw new ChannelException(
-                                "FailoverChannelProcessor Unable to put event on " +
-                                        "optionalChannels: " + optChannel, t);
+                                "FailoverChannelProcessor Unable to put event on "
+                                        + "optionalChannels: " + optChannel, t);
                     }
                 } finally {
                     if (tx != null) {

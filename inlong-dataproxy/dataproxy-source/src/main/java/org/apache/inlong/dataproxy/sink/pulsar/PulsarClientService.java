@@ -128,6 +128,14 @@ public class PulsarClientService {
         }
     }
 
+    /**
+     * send message
+     * @param topic
+     * @param event
+     * @param sendMessageCallBack
+     * @param es
+     * @return
+     */
     public boolean sendMessage(String topic, Event event,
             SendMessageCallBack sendMessageCallBack, EventStat es) {
         TopicProducerInfo producer = null;

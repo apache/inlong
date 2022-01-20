@@ -195,8 +195,8 @@ public class SimpleMessageHandler
 
             logCounter++;
             if (logCounter == 1 || logCounter % 1000 == 0) {
-                LOG.error("Error writting to channel,and will retry after 1s,ex={}," +
-                        "logCounter = {}, spend time={} ms", new Object[]{ex.toString(), logCounter,
+                LOG.error("Error writting to channel,and will retry after 1s,ex={},"
+                        + "logCounter = {}, spend time={} ms", new Object[]{ex.toString(), logCounter,
                         System.currentTimeMillis() - beginTime});
                 if (logCounter > Long.MAX_VALUE - 10) {
                     logCounter = 0;
