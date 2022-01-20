@@ -37,18 +37,18 @@ spec:
         component: {{ .Values.dataproxy.component }}
     spec:
       initContainers:
-      - name: wait-{{ .Values.managerWeb.component }}-ready
+      - name: wait-{{ .Values.manager.component }}-ready
         image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         command: [ "/bin/sh", "-c" ]
         args:
           - |
-            count={{ .Values.managerWeb.replicaCount }}
+            count={{ .Values.manager.replicaCount }}
             for i in $(seq 0 $(expr $count - 1))
             do
-              replica="{{ template "inlong.fullname" . }}-{{ .Values.managerWeb.component }}-$i"
-              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.managerWeb.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.managerWeb.ports.webNodePort }}
+              replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
+              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+              port={{ .Values.manager.ports.webNodePort }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -61,7 +61,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: MANAGER_OPENAPI_IP
-              value: {{ include "inlong.managerWeb.hostname" . | quote }}
+              value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.dataproxy.managerOpenApiPort }}
             - name: TUBMQ_MASTER_LIST
