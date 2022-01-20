@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>inlong</artifactId>
+        <artifactId>inlong-sdk</artifactId>
         <version>0.13.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-dataproxy-sdk</artifactId>
