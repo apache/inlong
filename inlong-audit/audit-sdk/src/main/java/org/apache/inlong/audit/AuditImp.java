@@ -19,6 +19,7 @@ package org.apache.inlong.audit;
 
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.send.SenderManager;
+import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class AuditImp {
     private HashMap<String, StatInfo> threadSumMap = new HashMap<String, StatInfo>();
     private ConcurrentHashMap<String, StatInfo> deleteCountMap = new ConcurrentHashMap<String, StatInfo>();
     private List<String> deleteKeyList = new ArrayList<String>();
+    private AuditConfig auditConfig = null;
     private Config config = new Config();
     private Long sdkTime;
     private int packageId = 1;
@@ -79,7 +81,10 @@ public class AuditImp {
         }
         config.init();
         timer.schedule(timerTask, PERIOD, PERIOD);
-        this.manager = new SenderManager(config);
+        if (auditConfig == null) {
+            auditConfig = new AuditConfig();
+        }
+        this.manager = new SenderManager(auditConfig);
     }
 
     /**
@@ -100,6 +105,16 @@ public class AuditImp {
         } finally {
             globalLock.unlock();
         }
+    }
+
+    /**
+     * set audit config
+     *
+     * @param config
+     */
+    public void setAuditConfig(AuditConfig config) {
+        auditConfig = config;
+        manager.setAuditConfig(config);
     }
 
     /**
@@ -143,7 +158,7 @@ public class AuditImp {
     /**
      * Report audit data
      */
-    private synchronized void sendReport() {
+    public synchronized void sendReport() {
         manager.clearBuffer();
         resetStat();
         // Retrieve statistics from the list of objects without statistics to be eliminated
@@ -178,7 +193,7 @@ public class AuditImp {
         requestBulid.setMsgHeader(mssageHeader).setRequestId(manager.nextRequestId());
         for (Map.Entry<String, StatInfo> entry : threadSumMap.entrySet()) {
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
-            long logTime = Long.parseLong(keyArray[0]) * 60;
+            long logTime = Long.parseLong(keyArray[0]) * PERIOD;
             String inlongGroupID = keyArray[1];
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
@@ -202,7 +217,7 @@ public class AuditImp {
             requestBulid.clearMsgBody();
         }
         threadSumMap.clear();
-        logger.info("finished send report.");
+        logger.info("finish send report.");
     }
 
     /**

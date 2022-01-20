@@ -19,7 +19,6 @@ package org.apache.inlong.sort.flink.multitenant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,18 +115,6 @@ public class MultiTenantFunctionInitializationContext implements FunctionInitial
         @Override
         public Set<String> getRegisteredBroadcastStateNames() {
             return Collections.emptySet();
-        }
-
-        @Override
-        public <S> ListState<S> getOperatorState(ListStateDescriptor<S> listStateDescriptor) throws Exception {
-            serializerInit(listStateDescriptor);
-            return operatorStateStore
-                    .getListState(new MultiTenantListStateDescriptor<S>(tenantId, listStateDescriptor));
-        }
-
-        @Override
-        public <T extends Serializable> ListState<T> getSerializableListState(String stateName) throws Exception {
-            return operatorStateStore.getSerializableListState(getTenantStateName(tenantId, stateName));
         }
 
         private <S> void serializerInit(ListStateDescriptor<S> listStateDescriptor) {

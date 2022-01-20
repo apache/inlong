@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindException;

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListenerManager;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListenerManager;
-import org.apache.inlong.manager.workflow.model.WorkflowConfig;
+import org.apache.inlong.manager.common.event.process.ProcessEventListenerManager;
+import org.apache.inlong.manager.common.event.task.TaskEventListenerManager;
+import org.apache.inlong.manager.common.model.WorkflowConfig;
 
 /**
  * Workflow event listener manager

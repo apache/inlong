@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.workflow.core.processor;
 
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Element;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Element;
 
 /**
  * Skippable element executor

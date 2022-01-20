@@ -17,19 +17,19 @@
 
 package org.apache.inlong.manager.workflow.core.processor;
 
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventNotifier;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.event.process.ProcessEventNotifier;
 import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.ProcessState;
-import org.apache.inlong.manager.workflow.model.TaskState;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Element;
-import org.apache.inlong.manager.workflow.model.definition.EndEvent;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.ProcessState;
+import org.apache.inlong.manager.common.model.TaskState;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Element;
+import org.apache.inlong.manager.common.model.definition.EndEvent;
+import org.apache.inlong.manager.common.model.instance.ProcessInstance;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 
 import java.util.Collections;
 import java.util.Date;

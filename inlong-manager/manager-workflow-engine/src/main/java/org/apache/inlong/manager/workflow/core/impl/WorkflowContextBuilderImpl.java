@@ -23,16 +23,16 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.model.definition.Task;
-import org.apache.inlong.manager.workflow.model.definition.TaskForm;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.workflow.WorkflowContextBuilder;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.Task;
+import org.apache.inlong.manager.common.model.definition.TaskForm;
+import org.apache.inlong.manager.common.model.instance.ProcessInstance;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
 
 /**

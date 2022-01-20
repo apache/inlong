@@ -53,11 +53,12 @@
         <shiro.version>1.4.1</shiro.version>
         <hive.version>3.1.2</hive.version>
         <pulsar.version>2.8.1</pulsar.version>
+        <elasticsearch.version>6.4.3</elasticsearch.version>
         <servlet-api.version>2.5</servlet-api.version>
         <servlet.jsp-api.version>2.3.3</servlet.jsp-api.version>
         <slf4j.version>1.7.25</slf4j.version>
         <guava.version>18.0</guava.version>
-        <jackson.version>2.9.10.8</jackson.version>
+        <jackson.version>2.12.0</jackson.version>
         <jackson.jsr310.version>2.13.1</jackson.jsr310.version>
         <opencsv.version>5.4</opencsv.version>
         <httpcore.version>4.4.14</httpcore.version>
@@ -306,6 +307,25 @@
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-exec</artifactId>
                 <version>${hive.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.code.gson</groupId>
+                        <artifactId>gson</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.6</version>
             </dependency>
 
             <dependency>
@@ -378,6 +398,28 @@
                 <version>${httpclient.version}</version>
             </dependency>
 
+            <!-- elastic search -->
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -387,7 +429,6 @@
 
         </dependencies>
     </dependencyManagement>
-
     <repositories>
         <repository>
             <id>central</id>

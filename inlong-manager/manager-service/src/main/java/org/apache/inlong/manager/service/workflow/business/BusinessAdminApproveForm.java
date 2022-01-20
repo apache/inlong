@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.workflow.BaseWorkflowTaskFormType;
-import org.apache.inlong.manager.workflow.exception.FormValidateException;
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
 /**
  * The system administrator approves and fills in the form

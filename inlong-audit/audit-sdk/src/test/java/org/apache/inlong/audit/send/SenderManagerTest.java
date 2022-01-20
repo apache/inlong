@@ -17,19 +17,18 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.util.Config;
+import org.apache.inlong.audit.util.AuditConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
 public class SenderManagerTest {
-    private Config testConfig = new Config();
+    private AuditConfig testConfig = new AuditConfig();
 
     @Test
     public void nextRequestId() {
         SenderManager testManager = new SenderManager(testConfig);
         Long requestId = testManager.nextRequestId();
-        System.out.println(requestId);
         assertTrue(requestId == 0);
 
         requestId = testManager.nextRequestId();

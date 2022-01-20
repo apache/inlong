@@ -69,7 +69,7 @@ services:
       retries: 10
 
   manager:
-    image: inlong/manager-web
+    image: inlong/manager
     container_name: manager
     depends_on:
       tubemq-manager:
@@ -87,8 +87,8 @@ services:
       - SORT_APP_NAME=inlong_hive
 
   webisite:
-    image: inlong/website
-    container_name: website
+    image: inlong/dashboard
+    container_name: dashboard
     depends_on:
       - manager
     ports:

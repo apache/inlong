@@ -21,8 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -36,6 +34,7 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlItem;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -1113,16 +1112,15 @@ public class WebParameterUtils {
             result.setSuccResult(defValue);
             return result.isSuccess();
         }
-        try {
-            DateFormat sdf = new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-            Date date = sdf.parse(paramValue);
-            result.setSuccResult(date);
-        } catch (Throwable e) {
+        Date date = DateTimeConvertUtils.yyyyMMddHHmmss2date(paramValue);
+        if (date == null) {
             result.setFailResult(sBuffer.append("Parameter ").append(fieldDef.name)
                     .append("'s value ").append(paramValue)
                     .append(" parse error, required value format is ")
-                    .append(TBaseConstants.META_TMP_DATE_VALUE).toString());
+                    .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMMSS).toString());
             sBuffer.delete(0, sBuffer.length());
+        } else {
+            result.setSuccResult(date);
         }
         return result.isSuccess();
     }
@@ -1646,43 +1644,12 @@ public class WebParameterUtils {
     }
 
     /**
-     * translate Date value from Date to yyyyMMddHHmmss format string
-     *
-     * @param date date
-     * @return the yyyyMMddHHmmss format string
-     */
-    public static String date2yyyyMMddHHmmss(Date date) {
-        SimpleDateFormat sdf =
-                new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-        return sdf.format(date);
-    }
-
-    /**
-     * translate yyyyMMddHHmmss format string to Date value
-     *
-     * @param dateStr date string, format yyyyMMddHHmmss
-     * @return the Date value of string
-     */
-    public static Date yyyyMMddHHmmss2date(String dateStr) {
-        if (dateStr == null) {
-            return null;
-        }
-        SimpleDateFormat sdf =
-                new SimpleDateFormat(TBaseConstants.META_TMP_DATE_VALUE);
-        try {
-            return sdf.parse(dateStr);
-        } catch (Throwable e) {
-            return null;
-        }
-    }
-
-    /**
      * check parameter is required
      *
      * @param paramName   the parameter name
      * @param paramValue  the parameter value
-     * @param required
-     * @return the yyyyMMddHHmmss format string
+     * @param required    Whether the parameter is required
+     * @return the parameter value without quotes
      */
     public static String checkParamCommonRequires(String paramName, String paramValue,
                                                   boolean required) throws Exception {

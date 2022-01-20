@@ -47,7 +47,6 @@ public class TBaseConstants {
     public static final String META_TMP_GROUP_VALUE = "^[a-zA-Z][\\w-]+$";
     public static final String META_TMP_CONSUMERID_VALUE = "^[_A-Za-z0-9\\.\\-]+$";
     public static final String META_TMP_CALLBACK_STRING_VALUE = "^[_A-Za-z0-9]+$";
-    public static final String META_TMP_DATE_VALUE = "yyyyMMddHHmmss";
     public static final String META_TMP_IP_ADDRESS_VALUE =
             "((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))";
     public static final String META_TMP_PORT_REGEX = "[\\d]+";

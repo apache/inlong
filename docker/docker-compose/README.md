@@ -9,10 +9,10 @@ Requirements:
 
 ### Deploy
 
-Manually copy SQL files from `inlong-manager/manager-web/sql` to the `docker/compose/sql` directory.
+Manually copy SQL files from `inlong-manager/sql` to the `docker/compose/sql` directory.
 
 ```shell
-cp inlong-manager/manager-web/sql/apache_inlong_manager.sql  docker/docker-compose/sql
+cp inlong-manager/sql/apache_inlong_manager.sql  docker/docker-compose/sql
 ```
 
 Then, start all components.

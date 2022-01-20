@@ -45,8 +45,8 @@ github:
 
 notifications:
   commits:      commits@inlong.apache.org
-  issues:       commits@inlong.apache.org
+  issues:       dev@inlong.apache.org
   pullrequests_status: commits@inlong.apache.org
   pullrequests_comment: commits@inlong.apache.org
-  issues_status: commits@inlong.apache.org
+  issues_status: dev@inlong.apache.org
   issues_comment: commits@inlong.apache.org

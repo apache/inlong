@@ -22,13 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.workflow.exception.FormParseException;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.model.definition.Task;
-import org.apache.inlong.manager.workflow.model.definition.TaskForm;
-import org.apache.inlong.manager.workflow.model.definition.UserTask;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.exceptions.FormParseException;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.Task;
+import org.apache.inlong.manager.common.model.definition.TaskForm;
+import org.apache.inlong.manager.common.model.definition.UserTask;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 
 /**
  * Process form analysis tool

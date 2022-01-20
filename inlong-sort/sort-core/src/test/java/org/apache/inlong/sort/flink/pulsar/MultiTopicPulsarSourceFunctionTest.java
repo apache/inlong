@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -193,16 +192,6 @@ public class MultiTopicPulsarSourceFunctionTest {
         @Override
         public Set<String> getRegisteredBroadcastStateNames() {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <S> ListState<S> getOperatorState(ListStateDescriptor<S> listStateDescriptor) throws Exception {
-            return null;
-        }
-
-        @Override
-        public <T extends Serializable> ListState<T> getSerializableListState(String s) throws Exception {
-            return null;
         }
     }
 

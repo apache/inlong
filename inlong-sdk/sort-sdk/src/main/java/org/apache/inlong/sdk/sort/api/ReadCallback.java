@@ -17,9 +17,12 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import java.util.List;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 
 public interface ReadCallback {
 
     void onFinished(MessageRecord messageRecord);
+
+    void onFinishedBatch(List<MessageRecord> messageRecord);
 }

@@ -34,14 +34,15 @@ import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
-import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.SizeUnit;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,10 @@ public class PulsarProducerCluster implements LifecycleAware {
     public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
     public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
             + "BatchingPartitionSwitchFrequency";
+
+    public static final String KEY_IOTHREADS = "ioThreads";
+    public static final String KEY_MEMORYLIMIT = "memoryLimit";
+    public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
 
     private final String workerName;
     private final CacheClusterConfig config;
@@ -113,26 +118,30 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.client = PulsarClient.builder()
                     .serviceUrl(serviceUrl)
                     .authentication(AuthenticationFactory.token(authentication))
+                    .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
+                    .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
+                    .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
                     .build();
             this.baseBuilder = client.newProducer();
 //            Map<String, Object> builderConf = new HashMap<>();
 //            builderConf.putAll(context.getParameters());
             this.baseBuilder
-                    .hashingScheme(HashingScheme.Murmur3_32Hash)
-                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
-                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 5242880))
-                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 3000))
-                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 1),
-                            TimeUnit.MILLISECONDS);
-            this.baseBuilder.maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 1000))
-                    .maxPendingMessagesAcrossPartitions(
-                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 50000))
                     .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
-                    .compressionType(this.getPulsarCompressionType())
+                    .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 500))
+                    .maxPendingMessagesAcrossPartitions(
+                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000))
+                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
+                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
+                            TimeUnit.MILLISECONDS)
+                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 131072));
+            this.baseBuilder
+                    .accessMode(ProducerAccessMode.Shared)
+                    .messageRoutingMode(MessageRoutingMode.RoundRobinPartition)
                     .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true))
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
-                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 10))
-                    .batcherBuilder(BatcherBuilder.DEFAULT);
+                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
+                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
+                    .compressionType(this.getPulsarCompressionType());
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

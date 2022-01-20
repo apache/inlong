@@ -20,7 +20,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.TaskInstanceEntityMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.workflow.model.instance.TaskInstance">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.common.model.instance.TaskInstance">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="process_inst_id" jdbcType="INTEGER" property="processInstId"/>
@@ -65,7 +65,7 @@
           and state = #{state,jdbcType=VARCHAR}
     </select>
     <select id="listByQuery"
-            parameterType="org.apache.inlong.manager.workflow.model.view.TaskQuery"
+            parameterType="org.apache.inlong.manager.common.model.view.TaskQuery"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -121,8 +121,8 @@
     </select>
 
     <select id="countByState"
-            parameterType="org.apache.inlong.manager.workflow.model.view.TaskSummaryQuery"
-            resultType="org.apache.inlong.manager.workflow.model.view.CountByKey">
+            parameterType="org.apache.inlong.manager.common.model.view.TaskSummaryQuery"
+            resultType="org.apache.inlong.manager.common.model.view.CountByKey">
         select
         state as `key`,count(1) as value
         from wf_task_instance
@@ -165,7 +165,7 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.workflow.model.instance.TaskInstance">
+            parameterType="org.apache.inlong.manager.common.model.instance.TaskInstance">
         insert into wf_task_instance (id, type, process_inst_id, process_name, process_display_name, name,
                                       display_name, applicant, approvers, state,
                                       operator, remark, start_time,
@@ -179,7 +179,7 @@
     </insert>
 
     <update id="update"
-            parameterType="org.apache.inlong.manager.workflow.model.instance.TaskInstance">
+            parameterType="org.apache.inlong.manager.common.model.instance.TaskInstance">
         update wf_task_instance
         set state     = #{state,jdbcType=VARCHAR},
             operator  = #{operator,jdbcType=VARCHAR},

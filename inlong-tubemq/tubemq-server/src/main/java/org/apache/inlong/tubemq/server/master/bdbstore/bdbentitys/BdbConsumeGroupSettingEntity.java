@@ -23,8 +23,8 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 @Entity
@@ -163,7 +163,7 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
                 .append(",\"attributes\":\"").append(attributes)
                 .append("\",\"createUser\":\"").append(createUser)
                 .append("\",\"createDate\":\"")
-                .append(WebParameterUtils.date2yyyyMMddHHmmss(createDate))
+                .append(DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate))
                 .append("\"}");
     }
 }

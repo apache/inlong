@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.ProcessDefinitionStorage;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.dao.EventLogStorage;
-import org.apache.inlong.manager.workflow.dao.ProcessInstanceStorage;
-import org.apache.inlong.manager.workflow.dao.TaskInstanceStorage;
+import org.apache.inlong.manager.common.workflow.ProcessDefinitionStorage;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.dao.EventLogStorage;
+import org.apache.inlong.manager.common.dao.ProcessInstanceStorage;
+import org.apache.inlong.manager.common.dao.TaskInstanceStorage;
 
 /**
  * Workflow data accessor

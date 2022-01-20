@@ -30,7 +30,7 @@
     <name>Apache InLong - Manager Docker</name>
 
     <dependencies>
-        <!-- copy manager-web-xxx.tar.gz to the manager-docker/target path -->
+        <!-- copy manager-web.tar.gz to the manager-docker/target path -->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>manager-web</artifactId>
@@ -64,13 +64,13 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <repository>${docker.organization}/manager-web</repository>
+                                    <repository>${docker.organization}/manager</repository>
                                     <tag>latest</tag>
                                 </configuration>
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>${docker.organization}/manager-web</repository>
+                            <repository>${docker.organization}/manager</repository>
                             <pullNewerImage>false</pullNewerImage>
                             <tag>${project.version}</tag>
                             <buildArgs>

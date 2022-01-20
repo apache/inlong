@@ -30,6 +30,9 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
  */
 public class TStringUtils {
 
+    // empty string
+    public static final String EMPTY = "";
+
     public static boolean isEmpty(String str) {
         return StringUtils.isEmpty(str);
     }

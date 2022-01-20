@@ -291,8 +291,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("metasink transaction rollback exception",e);
-
+                logger.error("Pulsar Sink transaction rollback exception = {}", e);
             }
         } finally {
             tx.close();

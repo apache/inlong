@@ -18,10 +18,10 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.model.view.EventLogQuery;
-import org.apache.inlong.manager.workflow.model.view.EventLogView;
+import org.apache.inlong.manager.common.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.model.view.EventLogQuery;
+import org.apache.inlong.manager.common.model.view.EventLogView;
 
 /**
  * Workflow event related services
