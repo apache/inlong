@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.workflow.dao.ProcessInstanceStorage;
+import org.apache.inlong.manager.common.dao.ProcessInstanceStorage;
 import org.springframework.stereotype.Repository;
 
 /**

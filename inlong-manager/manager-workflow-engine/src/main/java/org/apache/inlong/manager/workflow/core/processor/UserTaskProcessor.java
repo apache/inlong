@@ -30,18 +30,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventNotifier;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.event.task.TaskEventNotifier;
 import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.TaskState;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Element;
-import org.apache.inlong.manager.workflow.model.definition.UserTask;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.TaskState;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Element;
+import org.apache.inlong.manager.common.model.definition.UserTask;
+import org.apache.inlong.manager.common.model.instance.ProcessInstance;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 
 /**
  * User task processor

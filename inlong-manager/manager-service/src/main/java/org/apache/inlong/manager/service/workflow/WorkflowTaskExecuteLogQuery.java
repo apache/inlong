@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.workflow.model.view.PageQuery;
+import org.apache.inlong.manager.common.model.view.PageQuery;
 
 /**
  * Task execution log query

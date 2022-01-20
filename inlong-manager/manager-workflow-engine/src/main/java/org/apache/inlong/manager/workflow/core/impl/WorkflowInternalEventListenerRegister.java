@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.QueryService;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListenerRegister;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListenerRegister;
-import org.apache.inlong.manager.workflow.model.WorkflowConfig;
+import org.apache.inlong.manager.common.workflow.QueryService;
+import org.apache.inlong.manager.common.event.process.ProcessEventListenerRegister;
+import org.apache.inlong.manager.common.event.task.TaskEventListenerRegister;
+import org.apache.inlong.manager.common.model.WorkflowConfig;
 
 /**
  * Register of workflow internal event listener

@@ -25,8 +25,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.workflow.model.instance.EventLog;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.model.instance.EventLog;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 
 /**
  * Workflow system task execution log

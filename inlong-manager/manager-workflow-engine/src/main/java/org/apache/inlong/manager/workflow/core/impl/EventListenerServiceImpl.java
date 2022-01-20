@@ -17,20 +17,20 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.EventListenerService;
-import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Element;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.Task;
-import org.apache.inlong.manager.workflow.model.instance.EventLog;
+import org.apache.inlong.manager.common.workflow.EventListenerService;
+import org.apache.inlong.manager.common.workflow.WorkflowContextBuilder;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.event.process.ProcessEventListener;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.event.task.TaskEventListener;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Element;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.Task;
+import org.apache.inlong.manager.common.model.instance.EventLog;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**

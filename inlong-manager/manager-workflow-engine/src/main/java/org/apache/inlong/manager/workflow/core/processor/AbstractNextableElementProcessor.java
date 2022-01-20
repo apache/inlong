@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.workflow.core.processor;
 
-import org.apache.inlong.manager.workflow.exception.WorkflowException;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Element;
-import org.apache.inlong.manager.workflow.model.definition.EndEvent;
-import org.apache.inlong.manager.workflow.model.definition.NextableElement;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Element;
+import org.apache.inlong.manager.common.model.definition.EndEvent;
+import org.apache.inlong.manager.common.model.definition.NextableElement;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Collections;

@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
-import org.apache.inlong.manager.workflow.dao.EventLogStorage;
-import org.apache.inlong.manager.workflow.model.instance.EventLog;
-import org.apache.inlong.manager.workflow.model.view.EventLogQuery;
+import org.apache.inlong.manager.common.dao.EventLogStorage;
+import org.apache.inlong.manager.common.model.instance.EventLog;
+import org.apache.inlong.manager.common.model.view.EventLogQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

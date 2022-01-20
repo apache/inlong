@@ -20,7 +20,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.EventLogEntityMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.workflow.model.instance.EventLog">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.common.model.instance.EventLog">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="process_inst_id" jdbcType="INTEGER" property="processInstId"/>
         <result column="process_name" jdbcType="VARCHAR" property="processName"/>
@@ -52,7 +52,7 @@
         from wf_event_log
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="list" parameterType="org.apache.inlong.manager.workflow.model.view.EventLogQuery"
+    <select id="list" parameterType="org.apache.inlong.manager.common.model.view.EventLogQuery"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -109,7 +109,7 @@
         order by id desc
     </select>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id"
-            parameterType="org.apache.inlong.manager.workflow.model.instance.EventLog">
+            parameterType="org.apache.inlong.manager.common.model.instance.EventLog">
         insert into wf_event_log (id, process_inst_id,
                                   process_name, process_display_name,
                                   inlong_group_id, task_inst_id,
@@ -128,7 +128,7 @@
                 #{endTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=LONGVARCHAR}, #{exception,jdbcType=LONGVARCHAR})
     </insert>
 
-    <update id="update" parameterType="org.apache.inlong.manager.workflow.model.instance.EventLog">
+    <update id="update" parameterType="org.apache.inlong.manager.common.model.instance.EventLog">
         update wf_event_log
         set state     = #{state,jdbcType=INTEGER},
             end_time  = #{endTime,jdbcType=TIMESTAMP},

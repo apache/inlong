@@ -17,18 +17,18 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.workflow.core.EventListenerService;
-import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
-import org.apache.inlong.manager.workflow.core.QueryService;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.WorkflowEngine;
+import org.apache.inlong.manager.common.workflow.EventListenerService;
+import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
+import org.apache.inlong.manager.common.workflow.QueryService;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.workflow.WorkflowEngine;
 import org.apache.inlong.manager.workflow.core.impl.MemoryProcessDefinitionStorage;
 import org.apache.inlong.manager.workflow.core.impl.WorkflowDataAccessorImpl;
 import org.apache.inlong.manager.workflow.core.impl.WorkflowEngineImpl;
-import org.apache.inlong.manager.workflow.dao.EventLogStorage;
-import org.apache.inlong.manager.workflow.dao.ProcessInstanceStorage;
-import org.apache.inlong.manager.workflow.dao.TaskInstanceStorage;
-import org.apache.inlong.manager.workflow.model.WorkflowConfig;
+import org.apache.inlong.manager.common.dao.EventLogStorage;
+import org.apache.inlong.manager.common.dao.ProcessInstanceStorage;
+import org.apache.inlong.manager.common.dao.TaskInstanceStorage;
+import org.apache.inlong.manager.common.model.WorkflowConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -19,16 +19,16 @@ package org.apache.inlong.manager.workflow.core.impl;
 
 import java.util.List;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.workflow.core.ProcessService;
-import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.WorkflowProcessorExecutor;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.TaskState;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.model.definition.Task;
-import org.apache.inlong.manager.workflow.model.instance.TaskInstance;
+import org.apache.inlong.manager.common.workflow.ProcessService;
+import org.apache.inlong.manager.common.workflow.WorkflowContextBuilder;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.workflow.WorkflowProcessorExecutor;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.TaskState;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.Task;
+import org.apache.inlong.manager.common.model.instance.TaskInstance;
 
 /**
  * Process service

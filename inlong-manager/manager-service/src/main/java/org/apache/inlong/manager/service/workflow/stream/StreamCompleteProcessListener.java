@@ -23,11 +23,11 @@ import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventListener;
-import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.event.process.ProcessEventListener;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

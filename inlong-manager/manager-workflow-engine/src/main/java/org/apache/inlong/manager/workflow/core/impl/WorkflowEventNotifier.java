@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventNotifier;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventNotifier;
+import org.apache.inlong.manager.common.event.process.ProcessEventNotifier;
+import org.apache.inlong.manager.common.event.task.TaskEventNotifier;
 
 /**
  * Workflow event notifier

@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.workflow.core.processor;
 
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.core.event.process.ProcessEventNotifier;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.event.process.ProcessEventNotifier;
 import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
-import org.apache.inlong.manager.workflow.model.Action;
-import org.apache.inlong.manager.workflow.model.ProcessState;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
-import org.apache.inlong.manager.workflow.model.definition.Process;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.model.definition.StartEvent;
-import org.apache.inlong.manager.workflow.model.instance.ProcessInstance;
+import org.apache.inlong.manager.common.model.Action;
+import org.apache.inlong.manager.common.model.ProcessState;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.common.model.instance.ProcessInstance;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 

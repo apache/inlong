@@ -19,17 +19,17 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import java.util.List;
-import org.apache.inlong.manager.workflow.model.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.model.definition.TaskForm;
-import org.apache.inlong.manager.workflow.model.view.ProcessDetail;
-import org.apache.inlong.manager.workflow.model.view.ProcessListView;
-import org.apache.inlong.manager.workflow.model.view.ProcessQuery;
-import org.apache.inlong.manager.workflow.model.view.ProcessSummaryQuery;
-import org.apache.inlong.manager.workflow.model.view.ProcessSummaryView;
-import org.apache.inlong.manager.workflow.model.view.TaskListView;
-import org.apache.inlong.manager.workflow.model.view.TaskQuery;
-import org.apache.inlong.manager.workflow.model.view.TaskSummaryQuery;
-import org.apache.inlong.manager.workflow.model.view.TaskSummaryView;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.model.definition.TaskForm;
+import org.apache.inlong.manager.common.model.view.ProcessDetail;
+import org.apache.inlong.manager.common.model.view.ProcessListView;
+import org.apache.inlong.manager.common.model.view.ProcessQuery;
+import org.apache.inlong.manager.common.model.view.ProcessSummaryQuery;
+import org.apache.inlong.manager.common.model.view.ProcessSummaryView;
+import org.apache.inlong.manager.common.model.view.TaskListView;
+import org.apache.inlong.manager.common.model.view.TaskQuery;
+import org.apache.inlong.manager.common.model.view.TaskSummaryQuery;
+import org.apache.inlong.manager.common.model.view.TaskSummaryView;
 
 /**
  * Workflow service

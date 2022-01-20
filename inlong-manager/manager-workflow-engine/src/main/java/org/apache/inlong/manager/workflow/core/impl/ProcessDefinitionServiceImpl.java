@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
-import org.apache.inlong.manager.workflow.core.WorkflowDataAccessor;
-import org.apache.inlong.manager.workflow.model.definition.Process;
+import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
+import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
+import org.apache.inlong.manager.common.model.definition.Process;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**

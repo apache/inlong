@@ -20,7 +20,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.ProcessInstanceEntityMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.common.model.instance.ProcessInstance">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
@@ -46,7 +46,7 @@
         from wf_process_instance
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="listByQuery" parameterType="org.apache.inlong.manager.workflow.model.view.ProcessQuery"
+    <select id="listByQuery" parameterType="org.apache.inlong.manager.common.model.view.ProcessQuery"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -99,8 +99,8 @@
     </select>
 
     <select id="countByState"
-            parameterType="org.apache.inlong.manager.workflow.model.view.ProcessSummaryQuery"
-            resultType="org.apache.inlong.manager.workflow.model.view.CountByKey">
+            parameterType="org.apache.inlong.manager.common.model.view.ProcessSummaryQuery"
+            resultType="org.apache.inlong.manager.common.model.view.CountByKey">
         select state as `key`,count(1) as value
         from wf_process_instance
         <where>
@@ -136,7 +136,7 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id"
-            parameterType="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
+            parameterType="org.apache.inlong.manager.common.model.instance.ProcessInstance">
         insert into wf_process_instance (name, display_name,
                                          type, title, inlong_group_id,
                                          applicant, state,
@@ -149,7 +149,7 @@
                 #{formData,jdbcType=LONGVARCHAR}, #{ext,jdbcType=LONGVARCHAR}, #{hidden,jdbcType=BIT})
     </insert>
 
-    <update id="update" parameterType="org.apache.inlong.manager.workflow.model.instance.ProcessInstance">
+    <update id="update" parameterType="org.apache.inlong.manager.common.model.instance.ProcessInstance">
         update wf_process_instance
         set state    = #{state,jdbcType=VARCHAR},
             end_time = #{endTime,jdbcType=TIMESTAMP},

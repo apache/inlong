@@ -25,11 +25,11 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.workflow.consumption.ConsumptionAdminApproveForm;
 import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.workflow.core.event.ListenerResult;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.core.event.task.TaskEventListener;
-import org.apache.inlong.manager.workflow.exception.WorkflowListenerException;
-import org.apache.inlong.manager.workflow.model.WorkflowContext;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.event.task.TaskEventListener;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
