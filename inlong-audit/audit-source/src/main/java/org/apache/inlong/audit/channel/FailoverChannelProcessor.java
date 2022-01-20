@@ -231,8 +231,8 @@ public class FailoverChannelProcessor
 
             } catch (Throwable t) {
                 if (logPrinter.shouldPrint()) {
-                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
-                            + reqChannel.getName(), t);
+                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: {}"
+                            + ",exception = {}", reqChannel.getName(), t);
                 }
 
                 success = false;
