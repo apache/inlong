@@ -43,7 +43,7 @@ body:
         - 'InLong Dashboard'
         - 'InLong Agent'
         - 'InLong DataProxy'
-        - 'InLong DataProxy-SDK'
+        - 'InLong SDK'
         - 'InLong TubeMQ'
         - 'InLong Sort'
         - 'InLong Audit'
