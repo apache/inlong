@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
@@ -36,7 +37,7 @@ public class AuditRequest {
     @NotBlank(message = "inlongStreamId not be blank")
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
-    @NotBlank(message = "auditIds not be empty")
+    @NotEmpty(message = "auditIds not be empty")
     @ApiModelProperty(value = "audit id list", required = true)
     private List<String> auditIds;
 
