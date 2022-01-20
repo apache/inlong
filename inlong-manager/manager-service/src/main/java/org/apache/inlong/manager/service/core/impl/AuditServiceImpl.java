@@ -21,12 +21,13 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
+import org.apache.inlong.manager.common.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -75,43 +76,48 @@ public class AuditServiceImpl implements AuditService {
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
         LOGGER.info("begin query audit list request={}", request);
         Preconditions.checkNotNull(request, "request is null");
-        List<AuditVO> result = Collections.emptyList();
+        List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
-        if (AuditQuerySource.MYSQL == querySource) {
-            String format = "%Y-%m-%d %H:%i:00";
-            // Support min agg at now
-            DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
-            DateTime dtDate = forPattern.parseDateTime(request.getDt());
-            String eDate = dtDate.plusDays(1).toString(forPattern);
-            List<Map<String, Object>> sumList = auditEntityMapper
-                    .sumByLogTs(request.getInlongGroupId(), request.getInlongStreamId(),
-                            request.getAuditId(), request.getDt(), eDate, format);
-            result = sumList.stream().map(s -> {
-                AuditVO vo = new AuditVO();
-                vo.setLogTs((String) s.get("logTs"));
-                vo.setCount(((BigDecimal) s.get("total")).longValue());
-                return vo;
-            }).collect(Collectors.toList());
-        } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
-            String index = String.format("%s_%s",
-                    request.getDt().replaceAll("-", ""), request.getAuditId());
-            if (elasticsearchApi.indexExists(index)) {
-                SearchResponse response = elasticsearchApi
-                        .search(toAuditSearchRequest(index, request.getInlongGroupId(), request.getInlongStreamId()));
-                final List<Aggregation> aggregations = response.getAggregations().asList();
-                if (CollectionUtils.isNotEmpty(aggregations)) {
-                    ParsedTerms terms = (ParsedTerms) aggregations.get(0);
-                    if (CollectionUtils.isNotEmpty(terms.getBuckets())) {
-                        result = terms.getBuckets().stream().map(bucket -> {
-                            AuditVO vo = new AuditVO();
-                            vo.setLogTs(bucket.getKeyAsString());
-                            vo.setCount((long) ((ParsedSum) bucket.getAggregations().asList().get(0)).getValue());
-                            return vo;
-                        }).collect(Collectors.toList());
+        for (String auditId : request.getAuditIds()) {
+            if (AuditQuerySource.MYSQL == querySource) {
+                String format = "%Y-%m-%d %H:%i:00";
+                // Support min agg at now
+                DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
+                DateTime dtDate = forPattern.parseDateTime(request.getDt());
+                String eDate = dtDate.plusDays(1).toString(forPattern);
+                List<Map<String, Object>> sumList = auditEntityMapper
+                        .sumByLogTs(request.getInlongGroupId(), request.getInlongStreamId(),
+                                auditId, request.getDt(), eDate, format);
+                List<AuditInfo> auditSet = sumList.stream().map(s -> {
+                    AuditInfo vo = new AuditInfo();
+                    vo.setLogTs((String) s.get("logTs"));
+                    vo.setCount(((BigDecimal) s.get("total")).longValue());
+                    return vo;
+                }).collect(Collectors.toList());
+                result.add(new AuditVO(auditId, auditSet));
+            } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
+                String index = String.format("%s_%s",
+                        request.getDt().replaceAll("-", ""), auditId);
+                if (elasticsearchApi.indexExists(index)) {
+                    SearchResponse response = elasticsearchApi
+                            .search(toAuditSearchRequest(index, request.getInlongGroupId(),
+                                    request.getInlongStreamId()));
+                    final List<Aggregation> aggregations = response.getAggregations().asList();
+                    if (CollectionUtils.isNotEmpty(aggregations)) {
+                        ParsedTerms terms = (ParsedTerms) aggregations.get(0);
+                        if (CollectionUtils.isNotEmpty(terms.getBuckets())) {
+                            List<AuditInfo> auditSet = terms.getBuckets().stream().map(bucket -> {
+                                AuditInfo vo = new AuditInfo();
+                                vo.setLogTs(bucket.getKeyAsString());
+                                vo.setCount((long) ((ParsedSum) bucket.getAggregations().asList().get(0)).getValue());
+                                return vo;
+                            }).collect(Collectors.toList());
+                            result.add(new AuditVO(auditId, auditSet));
+                        }
                     }
+                } else {
+                    LOGGER.warn("Elasticsearch index={} not exists", index);
                 }
-            } else {
-                LOGGER.warn("Elasticsearch index={} not exists", index);
             }
         }
         LOGGER.info("success to query audit list for request={}", request);
